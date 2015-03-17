@@ -184,3 +184,7 @@ FakesAssemblies/
 
 # SourceTree
 *.orig
+
+# Project specific files
+/Tools
+/Build
