@@ -20,11 +20,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using Dapper;
+
+namespace EventFlow.MsSql
 {
-    public interface IMssqlReadModelStore<TAggregate, TReadModel> : IReadModelStore<TAggregate>
-        where TReadModel : IMssqlReadModel, new()
-        where TAggregate : IAggregateRoot
+    public class MssqlConnection : IMssqlConnection
     {
+        public Task<int> ExecuteAsync(string sql, object param = null)
+        {
+            return WithConnectionAsync(c => c.ExecuteAsync(sql, param));
+        }
+
+        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null)
+        {
+            return (await WithConnectionAsync(c => c.QueryAsync<TResult>(sql, param))).ToList();
+        }
+
+        public async Task<TResult> WithConnectionAsync<TResult>(
+            Func<IDbConnection, Task<TResult>> withConnection)
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["sql.connectionstring"].ConnectionString;
+            using (var sqlConnection = new SqlConnection(connectionString))
+            {
+                await sqlConnection.OpenAsync().ConfigureAwait(false);
+                return await withConnection(sqlConnection).ConfigureAwait(false);
+            }
+        }
     }
 }

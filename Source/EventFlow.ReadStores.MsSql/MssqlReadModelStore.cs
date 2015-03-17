@@ -24,8 +24,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EventFlow.MsSql;
 
-namespace EventFlow
+namespace EventFlow.ReadStores.MsSql
 {
     public class MssqlReadModelStore<TAggregate, TReadModel> : IMssqlReadModelStore<TAggregate, TReadModel>
         where TReadModel : IMssqlReadModel, new()

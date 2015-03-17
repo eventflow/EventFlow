@@ -23,13 +23,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace EventFlow
+namespace EventFlow.MsSql
 {
-    public interface IEventStore
+    public interface IMssqlConnection
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, int oldVersion, int newVersion, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
-            where TAggregate : IAggregateRoot;
-
-        Task<IReadOnlyCollection<IDomainEvent>> LoadAsync(string id);
+        Task<int> ExecuteAsync(string sql, object param = null);
+        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null);
     }
 }

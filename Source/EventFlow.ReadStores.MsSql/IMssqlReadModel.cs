@@ -22,7 +22,7 @@
 
 using System;
 
-namespace EventFlow
+namespace EventFlow.ReadStores.MsSql
 {
     public interface IMssqlReadModel
     {

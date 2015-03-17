@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventFlow.EventStores;
 
 namespace EventFlow
 {
