@@ -32,11 +32,27 @@ Target "UnitTest" (fun _ ->
                 OutputFile = filePathUnitTestReport})
     )
 
+Target "CreatePackageEventFlow" (fun _ ->
+    NuGet (fun p -> 
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow"
+            Version = buildVersion + "-alpha"
+            Dependencies = [
+                "Common.Logging", GetPackageVersion "./packages/" "Common.Logging"
+                "Common.Logging.Core",  GetPackageVersion "./packages/" "Common.Logging.Core"
+                "CommonServiceLocator",  GetPackageVersion "./packages/" "CommonServiceLocator"
+                "Newtonsoft.Json",  GetPackageVersion "./packages/" "Newtonsoft.Json"]
+            Publish = false })
+            "Source/EventFlow/EventFlow.nuspec"
+    )
+
 Target "Default" DoNothing
 
 "Clean"
     ==> "BuildApp"
     ==> "UnitTest"
+    ==> "CreatePackageEventFlow"
     ==> "Default"
 
 RunTargetOrDefault "Default"

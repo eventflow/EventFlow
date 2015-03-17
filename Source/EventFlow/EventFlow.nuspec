@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>EventFlow</id>
+    <version>0.0.0</version>
+    <authors>rasmus</authors>
+    <description>CQRS+ES framework</description>
+    <language>en-US</language>
+    <iconUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/icon-256.png</iconUrl>
+    <projectUrl>https://github.com/rasmus/EventFlow</projectUrl>
+    <licenseUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/LICENSE</licenseUrl>
+    @dependencies@
+  </metadata>
+  <files>
+  	<file src="bin\Release\EventFlow.dll" target="lib\net451" />
+  </files>
+</package>
