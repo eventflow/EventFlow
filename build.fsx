@@ -9,7 +9,7 @@ let nugetApikey = getBuildParamOrDefault "nugetApikey" ""
 let dirPackages = "./Build/Packages"
 let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
-let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*.Tests.dll")
+let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
 let toolNUnit = "./Tools/NUnit.Runners/tools"
 
 Target "Clean" (fun _ -> 
@@ -36,7 +36,7 @@ Target "Default" DoNothing
 
 "Clean"
     ==> "BuildApp"
-//    ==> "UnitTest"
+    ==> "UnitTest"
     ==> "Default"
 
 RunTargetOrDefault "Default"
