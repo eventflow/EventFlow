@@ -181,3 +181,6 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# SourceTree
+*.orig
