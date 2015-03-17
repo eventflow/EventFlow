@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql", "Source\E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.MsSql", "Source\EventFlow.ReadStores.MsSql\EventFlow.ReadStores.MsSql.csproj", "{CC886DD8-A471-4A08-822B-46F6DC5AE347}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSSQL", "MSSQL", "{E4FC24C0-3EB3-4203-B4F2-0B534B42574A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0C92026E-7E6D-40B9-A4DD-A7041E23AA7D} = {E4FC24C0-3EB3-4203-B4F2-0B534B42574A}
+		{8EC9D877-7351-4C7E-87A8-29BBD3D7FEBB} = {E4FC24C0-3EB3-4203-B4F2-0B534B42574A}
+		{CC886DD8-A471-4A08-822B-46F6DC5AE347} = {E4FC24C0-3EB3-4203-B4F2-0B534B42574A}
 	EndGlobalSection
 EndGlobal

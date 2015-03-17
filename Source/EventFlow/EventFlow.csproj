@@ -60,9 +60,9 @@
     <Compile Include="DispatchToEventHandlers.cs" />
     <Compile Include="DomainEvent.cs" />
     <Compile Include="SerializedEvent.cs" />
-    <Compile Include="EventDefinition.cs" />
-    <Compile Include="EventDefinitionService.cs" />
-    <Compile Include="EventJsonSerializer.cs" />
+    <Compile Include="EventStores\EventDefinition.cs" />
+    <Compile Include="EventStores\EventDefinitionService.cs" />
+    <Compile Include="EventStores\EventJsonSerializer.cs" />
     <Compile Include="IAggregateEvent.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="IAmReadModelFor.cs" />
@@ -72,16 +72,16 @@
     <Compile Include="IDispatchToEventHandlers.cs" />
     <Compile Include="IDomainEvent.cs" />
     <Compile Include="IEmit.cs" />
-    <Compile Include="IEventDefinitionService.cs" />
-    <Compile Include="IEventJsonSerializer.cs" />
+    <Compile Include="EventStores\IEventDefinitionService.cs" />
+    <Compile Include="EventStores\IEventJsonSerializer.cs" />
     <Compile Include="EventStores\IEventStore.cs" />
     <Compile Include="IHandleEvent.cs" />
-    <Compile Include="IReadModelContext.cs" />
-    <Compile Include="IReadModelStore.cs" />
+    <Compile Include="ReadStores\IReadModelContext.cs" />
+    <Compile Include="ReadStores\IReadModelStore.cs" />
     <Compile Include="IUncommittedDomainEvent.cs" />
     <Compile Include="Metadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadModelContext.cs" />
+    <Compile Include="ReadStores\ReadModelContext.cs" />
     <Compile Include="UncommittedDomainEvent.cs" />
   </ItemGroup>
   <ItemGroup>

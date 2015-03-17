@@ -29,7 +29,7 @@ using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql
 {
-    public class EventStore : IEventStore
+    public class MssqlEventStore : IEventStore
     {
         public class EventDataModel : ICommittedDomainEvent
         {
@@ -46,7 +46,7 @@ namespace EventFlow.EventStores.MsSql
         private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IMssqlConnection _connection;
 
-        public EventStore(
+        public MssqlEventStore(
             ILog log,
             IEventJsonSerializer eventJsonSerializer,
             IMssqlConnection connection)
