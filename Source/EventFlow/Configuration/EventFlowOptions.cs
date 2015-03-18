@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
@@ -31,17 +32,23 @@ namespace EventFlow.Configuration
 {
     public class EventFlowOptions
     {
-        private readonly Dictionary<Type, DiRegistration> _diRegistrations = new Dictionary<Type, DiRegistration>();
+        private readonly ConcurrentBag<Registration> _registrations = new ConcurrentBag<Registration>();
 
-        public EventFlowOptions UseEventStore(Func<IEventStore> eventStoreResolver)
+        public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver)
         {
-            _diRegistrations.Add(typeof(IEventStore), new DiRegistration<IEventStore>(r => eventStoreResolver()));
+            AddRegistration(new Registration<IEventStore>(eventStoreResolver));
             return this;
         }
 
-        internal IEnumerable<DiRegistration> GetRegistrations()
+        public EventFlowOptions AddRegistration(Registration registration)
         {
-            return _diRegistrations.Values;
+            _registrations.Add(registration);
+            return this;
+        }
+
+        internal IEnumerable<Registration> GetRegistrations()
+        {
+            return _registrations;
         }
 
         public IResolver CreateResolver(bool validateRegistrations = false)

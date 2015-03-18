@@ -31,7 +31,7 @@ namespace EventFlow.Configuration
         Singleton,
     }
 
-    public abstract class DiRegistration
+    public abstract class Registration
     {
         public Type ServiceType { get; protected set; }
         public Lifetime Lifetime { get; protected set; }
@@ -39,12 +39,12 @@ namespace EventFlow.Configuration
         internal abstract void Configure(ContainerBuilder containerBuilder);
     }
 
-    public class DiRegistration<TService> : DiRegistration
+    public class Registration<TService> : Registration
         where TService : class
     {
         public Func<IResolver, object> Factory { get; protected set; }
 
-        public DiRegistration(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public Registration(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             ServiceType = typeof (TService);
             Factory = factory;
@@ -67,13 +67,22 @@ namespace EventFlow.Configuration
         }
     }
 
-    public class DiRegistration<TService, TImplementation> : DiRegistration
+    public class Registration<TService, TImplementation> : Registration
         where TImplementation : class, TService
     {
-        public DiRegistration(Lifetime lifetime = Lifetime.AlwaysUnique)
+        public Registration(Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             Lifetime = lifetime;
             ServiceType = typeof (TService);
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{{Service: {0}, Implementation: {1}, Lifetime: {2}}}",
+                typeof(TService).Name,
+                typeof(TImplementation).Name,
+                Lifetime);
         }
 
         internal override void Configure(ContainerBuilder containerBuilder)

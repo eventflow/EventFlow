@@ -33,6 +33,14 @@ namespace EventFlow.MsSql
 {
     public class MssqlConnection : IMssqlConnection
     {
+        private readonly IMssqlConfiguration _configuration;
+
+        public MssqlConnection(
+            IMssqlConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public Task<int> ExecuteAsync(string sql, object param = null)
         {
             return WithConnectionAsync(c => c.ExecuteAsync(sql, param));
@@ -46,7 +54,7 @@ namespace EventFlow.MsSql
         public async Task<TResult> WithConnectionAsync<TResult>(
             Func<IDbConnection, Task<TResult>> withConnection)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["sql.connectionstring"].ConnectionString;
+            var connectionString = ConfigurationManager.ConnectionStrings[_configuration.ConnectionStringName].ConnectionString;
             using (var sqlConnection = new SqlConnection(connectionString))
             {
                 await sqlConnection.OpenAsync().ConfigureAwait(false);

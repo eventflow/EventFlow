@@ -62,7 +62,7 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Configuration\AutofacInitialization.cs" />
     <Compile Include="Configuration\AutofacResolver.cs" />
-    <Compile Include="Configuration\DiRegistration.cs" />
+    <Compile Include="Configuration\Registration.cs" />
     <Compile Include="Configuration\EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="DispatchToEventHandlers.cs" />

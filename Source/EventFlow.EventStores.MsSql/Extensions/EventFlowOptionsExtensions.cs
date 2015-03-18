@@ -20,17 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using NUnit.Framework;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests
+namespace EventFlow.EventStores.MsSql.Extensions
 {
-    [TestFixture]
-    public class DummyTests
+    public static class EventFlowOptionsExtensions
     {
-        [Test]
-        public void Dummy()
+        public static EventFlowOptions UseMssqlEventStore(this EventFlowOptions eventFlowOptions)
         {
-            
+            eventFlowOptions.AddRegistration(new Registration<IEventStore, MssqlEventStore>());
+            return eventFlowOptions;
         }
     }
 }

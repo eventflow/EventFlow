@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMssqlReadModel.cs" />
     <Compile Include="IMssqlReadModelStore.cs" />
     <Compile Include="MssqlReadModelStore.cs" />

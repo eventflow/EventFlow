@@ -34,16 +34,19 @@ namespace EventFlow.Configuration
     {
         public static IContainer Configure(EventFlowOptions options)
         {
-            var regs = options.GetRegistrations().ToDictionary(r => r.ServiceType, r => r);
+            var regs = options.GetRegistrations()
+                .GroupBy(r => r.ServiceType)
+                .ToDictionary(g => g.Key, g => g.ToList());
             
-            Default(regs, new DiRegistration<ILog>(r => new ConsoleOutLogger("EventFlow", LogLevel.Debug, true, true, false, "HH:mm:ss")));
-            Default(regs, new DiRegistration<IEventStore, InMemoryEventStore>(Lifetime.Singleton));
-            Default(regs, new DiRegistration<ICommandBus, CommandBus>());
-            Default(regs, new DiRegistration<IEventDefinitionService, EventDefinitionService>());
-            Default(regs, new DiRegistration<IDispatchToEventHandlers, DispatchToEventHandlers>());
+            Check(regs, new Registration<ILog>(r => new ConsoleOutLogger("EventFlow", LogLevel.Debug, true, true, false, "HH:mm:ss")), false);
+            Check(regs, new Registration<IEventStore, InMemoryEventStore>(Lifetime.Singleton), false);
+            Check(regs, new Registration<ICommandBus, CommandBus>(), false);
+            Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(), false);
+            Check(regs, new Registration<IDispatchToEventHandlers, DispatchToEventHandlers>(), false);
+            Check(regs, new Registration<IEventJsonSerializer, EventJsonSerializer>(), false);
 
             var containerBuilder = new ContainerBuilder();
-            foreach (var reg in regs.Values)
+            foreach (var reg in regs.Values.SelectMany(r => r))
             {
                 reg.Configure(containerBuilder);
             }
@@ -51,13 +54,27 @@ namespace EventFlow.Configuration
             return containerBuilder.Build();
         }
 
-        private static void Default(IDictionary<Type, DiRegistration> registrations, DiRegistration defaultRegistration)
+        private static void Check(IDictionary<Type, List<Registration>> registrations, Registration defaultRegistration, bool allowMultiple)
         {
-            if (registrations.ContainsKey(defaultRegistration.ServiceType))
+            if (!registrations.ContainsKey(defaultRegistration.ServiceType))
+            {
+                registrations.Add(defaultRegistration.ServiceType, new List<Registration>{defaultRegistration});
+                return;
+            }
+
+            if (allowMultiple)
             {
                 return;
             }
-            registrations.Add(defaultRegistration.ServiceType, defaultRegistration);
+
+            var serviceRegrations = registrations[defaultRegistration.ServiceType];
+            if (serviceRegrations.Count > 1)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "You may make one registration of {0}, however these are registered: {1}",
+                    defaultRegistration.ServiceType.Name,
+                    string.Join(", ", serviceRegrations.Select(r => r.ToString()))));
+            }
         }
     }
 }

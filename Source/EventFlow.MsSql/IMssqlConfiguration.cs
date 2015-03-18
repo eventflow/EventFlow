@@ -20,43 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration;
-using EventFlow.EventStores;
-using FluentAssertions;
-using NUnit.Framework;
-
-namespace EventFlow.Tests
+namespace EventFlow.MsSql
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public interface IMssqlConfiguration
     {
-        [Test]
-        public void CanResolve()
-        {
-            // Arrange
-            var options = new EventFlowOptions();
-            var resolver = options.CreateResolver(true);
-
-            // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
-
-            // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
-        }
-
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
-        {
-            // Arrange
-            var options = new EventFlowOptions()
-                .UseEventStore(r => new InMemoryEventStore())
-                .UseEventStore(r => new InMemoryEventStore());
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
-        }
+        string ConnectionStringName { get; }
     }
 }
