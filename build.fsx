@@ -11,9 +11,11 @@ let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
 let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
 let toolNUnit = "./Tools/NUnit.Runners/tools"
+let toolIlMerge = "./Tools/ilmerge/tools/ILMerge.exe"
 
-Target "Clean" (fun _ -> 
-    CleanDirs ["./Build/Deploy/"; dirPackages; dirReports]
+
+Target "Clean" (fun _ ->
+    CleanDirs [ dirPackages; dirReports ]
     )
 
 Target "BuildApp" (fun _ ->
@@ -33,6 +35,14 @@ Target "UnitTest" (fun _ ->
     )
 
 Target "CreatePackageEventFlow" (fun _ ->
+    let eventFlowBinDir = "Source\\EventFlow\\bin\\" + buildMode + "\\"
+
+    let result = ExecProcess (fun info ->
+       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow\\bin\\EventFlow.dll " + eventFlowBinDir + "EventFlow.dll " + eventFlowBinDir + "Autofac.dll"
+       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
+     
+    if result <> 0 then failwithf "ILMerge returned with a non-zero exit code"
+
     NuGet (fun p -> 
         {p with
             OutputPath = dirPackages
@@ -56,3 +66,4 @@ Target "Default" DoNothing
     ==> "Default"
 
 RunTargetOrDefault "Default"
+
