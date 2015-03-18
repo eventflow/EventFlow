@@ -60,8 +60,14 @@
     <Compile Include="AggregateRoot.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandBus.cs" />
+    <Compile Include="Configuration\AutofacInitialization.cs" />
+    <Compile Include="Configuration\AutofacResolver.cs" />
+    <Compile Include="Configuration\DiRegistration.cs" />
+    <Compile Include="Configuration\EventFlowOptions.cs" />
+    <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="DispatchToEventHandlers.cs" />
     <Compile Include="DomainEvent.cs" />
+    <Compile Include="EventStores\InMemoryEventStore.cs" />
     <Compile Include="SerializedEvent.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />
