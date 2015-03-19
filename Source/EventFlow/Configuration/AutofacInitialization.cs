@@ -41,17 +41,23 @@ namespace EventFlow.Configuration
             Check(regs, new Registration<ILog>(r => new ConsoleOutLogger("EventFlow", LogLevel.Debug, true, true, false, "HH:mm:ss")), false);
             Check(regs, new Registration<IEventStore, InMemoryEventStore>(Lifetime.Singleton), false);
             Check(regs, new Registration<ICommandBus, CommandBus>(), false);
-            Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(), false);
             Check(regs, new Registration<IDispatchToEventHandlers, DispatchToEventHandlers>(), false);
             Check(regs, new Registration<IEventJsonSerializer, EventJsonSerializer>(), false);
+            Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton), false);
 
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
             foreach (var reg in regs.Values.SelectMany(r => r))
             {
                 reg.Configure(containerBuilder);
             }
 
-            return containerBuilder.Build();
+            var container = containerBuilder.Build();
+
+            var eventDefinitionService = container.Resolve<IEventDefinitionService>();
+            eventDefinitionService.LoadEvents(options.GetAggregateEventTypes());
+
+            return container;
         }
 
         private static void Check(IDictionary<Type, List<Registration>> registrations, Registration defaultRegistration, bool allowMultiple)

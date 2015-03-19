@@ -39,9 +39,6 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\..\packages\Common.Logging.Core.3.0.0\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -67,6 +64,7 @@
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="DispatchToEventHandlers.cs" />
     <Compile Include="DomainEvent.cs" />
+    <Compile Include="EventStores\EventStore.cs" />
     <Compile Include="EventStores\InMemoryEventStore.cs" />
     <Compile Include="SerializedEvent.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />

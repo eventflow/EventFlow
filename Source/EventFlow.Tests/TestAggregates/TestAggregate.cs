@@ -20,19 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using EventFlow.Tests.TestAggregates.Events;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Tests.TestAggregates
 {
-    public interface IEventStore
+    public class TestAggregate : AggregateRoot<TestAggregate>,
+        IEmit<TestAEvent>
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, int oldVersion, int newVersion, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
-            where TAggregate : IAggregateRoot;
+        public bool TestAReceived { get; private set; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
+        public TestAggregate(string id) : base(id)
+        {
+        }
 
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
-            where TAggregate : IAggregateRoot;
+        public void TestA()
+        {
+            Emit(new TestAEvent());
+        }
+
+        public void Apply(TestAEvent e)
+        {
+            TestAReceived = true;
+        }
     }
 }

@@ -22,7 +22,7 @@
 
 using System;
 
-namespace EventFlow
+namespace EventFlow.EventStores
 {
     public class EventDefinition
     {

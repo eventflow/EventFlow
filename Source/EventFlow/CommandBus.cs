@@ -25,23 +25,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Logging;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
-using Microsoft.Practices.ServiceLocation;
+using EventFlow.ReadStores;
 
 namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
         private readonly IDispatchToEventHandlers _dispatchToEventHandlers;
 
         public CommandBus(
             ILog log,
+            IResolver resolver,
             IEventStore eventStore,
             IDispatchToEventHandlers dispatchToEventHandlers)
         {
             _log = log;
+            _resolver = resolver;
             _eventStore = eventStore;
             _dispatchToEventHandlers = dispatchToEventHandlers;
         }
@@ -49,21 +53,11 @@ namespace EventFlow
         public async Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
             where TAggregate : IAggregateRoot
         {
-            var aggregate = await LoadAggregate<TAggregate>(command.Id).ConfigureAwait(false);
+            var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id).ConfigureAwait(false);
             await command.ExecuteAsync(aggregate).ConfigureAwait(false);
             var domainEvents = await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
             await UpdateReadModelStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
             await _dispatchToEventHandlers.DispatchAsync(domainEvents).ConfigureAwait(false);
-        }
-
-        private async Task<TAggregate> LoadAggregate<TAggregate>(string id)
-            where TAggregate : IAggregateRoot
-        {
-            var aggregateType = typeof(TAggregate);
-            var domainEvents = await _eventStore.LoadAsync(id).ConfigureAwait(false);
-            var aggregate = (TAggregate)Activator.CreateInstance(aggregateType, id);
-            aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
-            return aggregate;
         }
 
         private async Task UpdateReadModelStoresAsync<TAggregate>(
@@ -71,7 +65,7 @@ namespace EventFlow
             IReadOnlyCollection<IDomainEvent> domainEvents)
             where TAggregate : IAggregateRoot
         {
-            var readModelStores = ServiceLocator.Current.GetAllInstances<IReadModelStore<TAggregate>>().ToList();
+            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TAggregate>>>().ToList();
             var updateTasks = readModelStores
                 .Select(s => UpdateReadModelStoreAsync(s, id, domainEvents))
                 .ToArray();

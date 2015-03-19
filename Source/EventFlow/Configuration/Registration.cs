@@ -93,7 +93,7 @@ namespace EventFlow.Configuration
                     containerBuilder.RegisterType<TImplementation>().As<TService>();
                     break;
                 case Lifetime.Singleton:
-                    containerBuilder.RegisterType<TImplementation>().As<TService>().SingleInstance();
+                    containerBuilder.RegisterType<TImplementation>().SingleInstance().As<TService>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

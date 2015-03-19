@@ -48,8 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationTests.cs" />
+    <Compile Include="IntegrationTests\ConfigurationTests.cs" />
+    <Compile Include="IntegrationTests\DomainTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestAggregates\Commands\TestACommand.cs" />
+    <Compile Include="TestAggregates\Events\TestAEvent.cs" />
+    <Compile Include="TestAggregates\TestAggregate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

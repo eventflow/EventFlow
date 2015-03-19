@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using EventFlow.EventStores;
@@ -33,10 +34,42 @@ namespace EventFlow.Configuration
     public class EventFlowOptions
     {
         private readonly ConcurrentBag<Registration> _registrations = new ConcurrentBag<Registration>();
+        private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
 
         public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver)
         {
             AddRegistration(new Registration<IEventStore>(eventStoreResolver));
+            return this;
+        }
+
+        public EventFlowOptions AddEvents(Assembly fromAssembly)
+        {
+            var aggregateEventTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t));
+            AddEvents(aggregateEventTypes);
+            return this;
+        }
+
+        public EventFlowOptions AddEvents(params Type[] aggregateEventTypes)
+        {
+            AddEvents((IEnumerable<Type>) aggregateEventTypes);
+            return this;
+        }
+
+        public EventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
+        {
+            foreach (var aggregateEventType in aggregateEventTypes)
+            {
+                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                {
+                    throw new ArgumentException(string.Format(
+                        "Type {0} is not a {1}",
+                        aggregateEventType.Name,
+                        typeof(IAggregateEvent).Name));
+                }
+                _aggregateEventTypes.Add(aggregateEventType);
+            }
             return this;
         }
 
@@ -49,6 +82,11 @@ namespace EventFlow.Configuration
         internal IEnumerable<Registration> GetRegistrations()
         {
             return _registrations;
+        }
+
+        internal IEnumerable<Type> GetAggregateEventTypes()
+        {
+            return _aggregateEventTypes;
         }
 
         public IResolver CreateResolver(bool validateRegistrations = false)

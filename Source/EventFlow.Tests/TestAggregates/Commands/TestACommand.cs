@@ -20,43 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration;
-using EventFlow.EventStores;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Threading.Tasks;
 
-namespace EventFlow.Tests
+namespace EventFlow.Tests.TestAggregates.Commands
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public class TestACommand : ICommand<TestAggregate>
     {
-        [Test]
-        public void CanResolve()
+        public string Id { get; private set; }
+
+        public TestACommand(string id)
         {
-            // Arrange
-            var options = new EventFlowOptions();
-            var resolver = options.CreateResolver(true);
-
-            // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
-
-            // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
+            Id = id;
         }
 
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
+        public Task ExecuteAsync(TestAggregate aggregate)
         {
-            // Arrange
-            var options = new EventFlowOptions()
-                .UseEventStore(r => new InMemoryEventStore())
-                .UseEventStore(r => new InMemoryEventStore());
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
+            aggregate.TestA();
+            return Task.FromResult(0);
         }
     }
 }

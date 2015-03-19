@@ -26,13 +26,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Common.Logging;
-using Microsoft.Practices.ServiceLocation;
+using EventFlow.Configuration;
 
 namespace EventFlow
 {
     public class DispatchToEventHandlers : IDispatchToEventHandlers
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
 
         private class HandlerInfomation
         {
@@ -43,9 +44,11 @@ namespace EventFlow
         private static readonly ConcurrentDictionary<Type, HandlerInfomation> HandlerInfomations = new ConcurrentDictionary<Type, HandlerInfomation>();
 
         public DispatchToEventHandlers(
-            ILog log)
+            ILog log,
+            IResolver resolver)
         {
             _log = log;
+            _resolver = resolver;
         }
 
         public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents)
@@ -53,7 +56,7 @@ namespace EventFlow
             foreach (var domainEvent in domainEvents)
             {
                 var handlerInfomation = GetHandlerInfomation(domainEvent.EventType);
-                var handlers = ServiceLocator.Current.GetAllInstances(handlerInfomation.HandlerType);
+                var handlers = _resolver.ResolveAll(handlerInfomation.HandlerType);
                 foreach (var handler in handlers)
                 {
                     try

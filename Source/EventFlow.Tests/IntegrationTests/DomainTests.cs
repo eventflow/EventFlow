@@ -20,19 +20,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System;
+using EventFlow.Configuration;
+using EventFlow.EventStores;
+using EventFlow.Tests.TestAggregates;
+using EventFlow.Tests.TestAggregates.Commands;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Tests.IntegrationTests
 {
-    public interface IEventStore
+    [TestFixture]
+    public class DomainTests
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, int oldVersion, int newVersion, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
-            where TAggregate : IAggregateRoot;
+        [Test]
+        public void BasicFlow()
+        {
+            // Arrange
+            var options = new EventFlowOptions()
+                .AddEvents(typeof(TestAggregate).Assembly);
+            var resolve = options.CreateResolver();
+            var commandBus = resolve.Resolve<ICommandBus>();
+            var eventStore = resolve.Resolve<IEventStore>();
+            var id = Guid.NewGuid().ToString();
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
+            // Act
+            commandBus.PublishAsync(new TestACommand(id)).Wait();
+            var testAggregate = eventStore.LoadAggregateAsync<TestAggregate>(id).Result;
 
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
-            where TAggregate : IAggregateRoot;
+            // Assert
+            testAggregate.TestAReceived.Should().BeTrue();
+        }
     }
 }

@@ -20,19 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventStore
+    public abstract class EventStore : IEventStore
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, int oldVersion, int newVersion, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+        public abstract Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+            string id,
+            int oldVersion,
+            int newVersion,
+            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
             where TAggregate : IAggregateRoot;
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
+        public abstract Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
 
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
-            where TAggregate : IAggregateRoot;
+        public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
+            where TAggregate : IAggregateRoot
+        {
+            var aggregateType = typeof(TAggregate);
+            var domainEvents = await LoadEventsAsync(id).ConfigureAwait(false);
+            var aggregate = (TAggregate)Activator.CreateInstance(aggregateType, id);
+            aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            return aggregate;
+        }
     }
 }

@@ -20,21 +20,79 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EventFlow.EventStores
 {
-    public class InMemoryEventStore : IEventStore
+    public class InMemoryEventStore : EventStore
     {
-        public Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, int oldVersion, int newVersion, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents) where TAggregate : IAggregateRoot
+        private readonly IEventJsonSerializer _eventJsonSerializer;
+        private readonly Dictionary<string, List<IDomainEvent>> _eventStore = new Dictionary<string, List<IDomainEvent>>();
+
+        private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
         {
-            throw new System.NotImplementedException();
+            public long GlobalSequenceNumber { get; set; }
+            public Guid BatchId { get; set; }
+            public string AggregateId { get; set; }
+            public string AggregateName { get; set; }
+            public string Data { get; set; }
+            public string Metadata { get; set; }
+            public int AggregateSequenceNumber { get; set; }
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> LoadAsync(string id)
+        public InMemoryEventStore(
+            IEventJsonSerializer eventJsonSerializer)
         {
-            throw new System.NotImplementedException();
+            _eventJsonSerializer = eventJsonSerializer;
+        }
+
+        public override Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+            string id,
+            int oldVersion,
+            int newVersion,
+            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+        {
+            var globalCount = _eventStore.Values.SelectMany(e => e).Count();
+            var batchId = Guid.NewGuid();
+
+            List<IDomainEvent> domainEvents;
+            if (_eventStore.ContainsKey(id))
+            {
+                domainEvents = _eventStore[id];
+            }
+            else
+            {
+                domainEvents = new List<IDomainEvent>();
+                _eventStore[id] = domainEvents;
+            }
+
+            var committedDomainEvents = uncommittedDomainEvents
+                .Select(_eventJsonSerializer.Serialize)
+                .Select((e, i) => new InMemoryCommittedDomainEvent
+                    {
+                        AggregateId = id,
+                        AggregateName = typeof(TAggregate).Name,
+                        AggregateSequenceNumber = domainEvents.Count + i + 1,
+                        BatchId = batchId,
+                        Data = e.Data,
+                        Metadata = e.Meta,
+                        GlobalSequenceNumber = globalCount + i + 1
+                    })
+                .ToList();
+            var newDomainEvents = committedDomainEvents.Select(_eventJsonSerializer.Deserialize).ToList();
+            domainEvents.AddRange(newDomainEvents);
+            return Task.FromResult<IReadOnlyCollection<IDomainEvent>>(newDomainEvents);
+        }
+
+        public override Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id)
+        {
+            var domainEvents = _eventStore.ContainsKey(id)
+                ? _eventStore[id]
+                : new List<IDomainEvent>();
+            return Task.FromResult<IReadOnlyCollection<IDomainEvent>>(domainEvents);
         }
     }
 }
