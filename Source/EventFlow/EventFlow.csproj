@@ -56,6 +56,7 @@
     <Compile Include="Configuration\Registration.cs" />
     <Compile Include="Configuration\EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
+    <Compile Include="Core\AsyncHelper.cs" />
     <Compile Include="DispatchToEventHandlers.cs" />
     <Compile Include="DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />
