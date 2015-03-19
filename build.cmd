@@ -8,6 +8,6 @@ powershell -Command "if ((Test-Path '.\Tools\NuGet.exe') -eq $false) {(New-Objec
 
 ".\Tools\NuGet.exe" restore .\EventFlow.sln
 
-"Tools\FAKE.Core\tools\Fake.exe" "build.fsx" "nugetApikey=%NUGET_APIKEY%" "buildVersion=%BUILD_VERSION%"
+"Tools\FAKE.Core\tools\Fake.exe" "build.fsx" "nugetApikey=%NUGET_APIKEY%" "buildVersion=%APPVEYOR_BUILD_VERSION%"
 
 exit /b %errorlevel%
