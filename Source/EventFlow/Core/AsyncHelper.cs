@@ -22,12 +22,10 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncBridge
+namespace EventFlow.Core
 {
     using EventTask = Tuple<SendOrPostCallback, object>;
     using EventQueue = ConcurrentQueue<Tuple<SendOrPostCallback, object>>;
@@ -42,9 +40,9 @@ namespace AsyncBridge
         /// </summary>
         public class AsyncBridge : IDisposable
         {
-            private ExclusiveSynchronizationContext CurrentContext;
-            private SynchronizationContext OldContext;
-            private int TaskCount;
+            private readonly ExclusiveSynchronizationContext _currentContext;
+            private readonly SynchronizationContext _oldContext;
+            private int _taskCount;
 
             /// <summary>
             /// Constructs the AsyncBridge by capturing the current
@@ -53,11 +51,9 @@ namespace AsyncBridge
             /// </summary>
             internal AsyncBridge()
             {
-                OldContext = SynchronizationContext.Current;
-                CurrentContext =
-                    new ExclusiveSynchronizationContext(OldContext);
-                SynchronizationContext
-                    .SetSynchronizationContext(CurrentContext);
+                _oldContext = SynchronizationContext.Current;
+                _currentContext = new ExclusiveSynchronizationContext(_oldContext);
+                SynchronizationContext.SetSynchronizationContext(_currentContext);
             }
 
             /// <summary>
@@ -68,27 +64,29 @@ namespace AsyncBridge
             /// <param name="callback">Optional callback</param>
             public void Run(Task task, Action<Task> callback = null)
             {
-                CurrentContext.Post(async _ =>
-                {
-                    try
-                    {
-                        Increment();
-                        await task;
-
-                        if (null != callback)
+                _currentContext.Post(
+                    async _ =>
                         {
-                            callback(task);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        CurrentContext.InnerException = e;
-                    }
-                    finally
-                    {
-                        Decrement();
-                    }
-                }, null);
+                            try
+                            {
+                                Increment();
+                                await task;
+
+                                if (null != callback)
+                                {
+                                    callback(task);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                _currentContext.InnerException = e;
+                            }
+                            finally
+                            {
+                                Decrement();
+                            }
+                        },
+                    null);
             }
 
             /// <summary>
@@ -102,8 +100,7 @@ namespace AsyncBridge
             {
                 if (null != callback)
                 {
-                    Run((Task)task, (finishedTask) =>
-                        callback((Task<T>)finishedTask));
+                    Run((Task)task, (finishedTask) => callback((Task<T>)finishedTask));
                 }
                 else
                 {
@@ -127,15 +124,15 @@ namespace AsyncBridge
 
             private void Increment()
             {
-                Interlocked.Increment(ref TaskCount);
+                Interlocked.Increment(ref _taskCount);
             }
 
             private void Decrement()
             {
-                Interlocked.Decrement(ref TaskCount);
-                if (TaskCount == 0)
+                Interlocked.Decrement(ref _taskCount);
+                if (_taskCount == 0)
                 {
-                    CurrentContext.EndMessageLoop();
+                    _currentContext.EndMessageLoop();
                 }
             }
 
@@ -146,16 +143,11 @@ namespace AsyncBridge
             {
                 try
                 {
-                    CurrentContext.BeginMessageLoop();
-                }
-                catch (Exception e)
-                {
-                    throw e;
+                    _currentContext.BeginMessageLoop();
                 }
                 finally
                 {
-                    SynchronizationContext
-                        .SetSynchronizationContext(OldContext);
+                    SynchronizationContext.SetSynchronizationContext(_oldContext);
                 }
             }
         }
@@ -179,55 +171,42 @@ namespace AsyncBridge
             Func<Task> task,
             Action<Exception> handle = null)
         {
-            Task.Run(
-            () =>
-            {
-                ((Func<Task>)(async () =>
+            Task.Run(() =>
                 {
-                    try
-                    {
-                        await task();
-                    }
-                    catch (Exception e)
-                    {
-                        if (null != handle)
+                    ((Func<Task>)(async () =>
                         {
-                            handle(e);
-                        }
-                    }
-                }))();
-            });
+                            try
+                            {
+                                await task();
+                            }
+                            catch (Exception e)
+                            {
+                                if (null != handle)
+                                {
+                                    handle(e);
+                                }
+                            }
+                        }))();
+                });
         }
 
         private class ExclusiveSynchronizationContext : SynchronizationContext
         {
-            private readonly AutoResetEvent _workItemsWaiting =
-                new AutoResetEvent(false);
-
+            private readonly AutoResetEvent _workItemsWaiting = new AutoResetEvent(false);
             private bool _done;
-            private EventQueue _items;
+            private readonly EventQueue _items;
 
-            public Exception InnerException { get; set; }
+            public Exception InnerException { private get; set; }
 
             public ExclusiveSynchronizationContext(SynchronizationContext old)
             {
-                ExclusiveSynchronizationContext oldEx =
-                    old as ExclusiveSynchronizationContext;
-
-                if (null != oldEx)
-                {
-                    this._items = oldEx._items;
-                }
-                else
-                {
-                    this._items = new EventQueue();
-                }
+                var oldEx = old as ExclusiveSynchronizationContext;
+                _items = null != oldEx ? oldEx._items : new EventQueue();
             }
 
             public override void Send(SendOrPostCallback d, object state)
             {
-                throw new NotSupportedException(
-                    "We cannot send to our same thread");
+                throw new NotSupportedException("We cannot send to our same thread");
             }
 
             public override void Post(SendOrPostCallback d, object state)
@@ -245,7 +224,7 @@ namespace AsyncBridge
             {
                 while (!_done)
                 {
-                    EventTask task = null;
+                    EventTask task;
 
                     if (!_items.TryDequeue(out task))
                     {
