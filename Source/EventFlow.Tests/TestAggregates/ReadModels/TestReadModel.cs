@@ -20,44 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration;
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
+using EventFlow.ReadStores;
+using EventFlow.Tests.TestAggregates.Events;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Tests.TestAggregates.ReadModels
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public class TestReadModel : IReadModel,
+        IAmReadModelFor<TestAEvent>
     {
-        [Test]
-        public void CanResolve()
+        public bool TestAReceived { get; private set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<TestAEvent> e)
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver(true);
-
-            // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
-
-            // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
-        }
-
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
-        {
-            // Arrange
-            var options = EventFlowOptions.New
-                .UseEventStore(r => new InMemoryEventStore(r.Resolve<IEventJsonSerializer>()))
-                .UseEventStore(r => new InMemoryEventStore(r.Resolve<IEventJsonSerializer>()));
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
+            TestAReceived = true;
         }
     }
 }

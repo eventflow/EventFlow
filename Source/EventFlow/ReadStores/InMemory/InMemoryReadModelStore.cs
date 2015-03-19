@@ -20,44 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration;
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.ReadStores.InMemory
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public class InMemoryReadModelStore<TAggregate, TReadModel> :
+        ReadModelStore<TAggregate, TReadModel>,
+        IInMemoryReadModelStore<TAggregate, TReadModel>
+        where TReadModel : IReadModel, new()
+        where TAggregate : IAggregateRoot
     {
-        [Test]
-        public void CanResolve()
+        private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>(); 
+
+        public override Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver(true);
+            TReadModel readModel;
+            if (_readModels.ContainsKey(aggregateId))
+            {
+                readModel = _readModels[aggregateId];
+            }
+            else
+            {
+                readModel = new TReadModel();
+                _readModels.Add(aggregateId, readModel);
+            }
 
-            // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
+            ApplyEvents(readModel, domainEvents);
 
-            // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
+            return Task.FromResult(0);
         }
 
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
+        public TReadModel Get(string id)
         {
-            // Arrange
-            var options = EventFlowOptions.New
-                .UseEventStore(r => new InMemoryEventStore(r.Resolve<IEventJsonSerializer>()))
-                .UseEventStore(r => new InMemoryEventStore(r.Resolve<IEventJsonSerializer>()));
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
+            return _readModels.ContainsKey(id)
+                ? _readModels[id]
+                : default(TReadModel);
         }
     }
 }

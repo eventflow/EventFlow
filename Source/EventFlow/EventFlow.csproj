@@ -60,10 +60,14 @@
     <Compile Include="DispatchToEventHandlers.cs" />
     <Compile Include="DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />
-    <Compile Include="EventStores\InMemoryEventStore.cs" />
+    <Compile Include="EventStores\InMemory\InMemoryEventStore.cs" />
     <Compile Include="Logs\ConsoleLog.cs" />
     <Compile Include="Logs\ILog.cs" />
     <Compile Include="Logs\Log.cs" />
+    <Compile Include="ReadStores\InMemory\InMemoryReadModelStore.cs" />
+    <Compile Include="ReadStores\InMemory\IInMemoryReadModelStore.cs" />
+    <Compile Include="ReadStores\IReadModel.cs" />
+    <Compile Include="ReadStores\ReadModelStore.cs" />
     <Compile Include="SerializedEvent.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />

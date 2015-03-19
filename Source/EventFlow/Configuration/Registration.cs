@@ -31,12 +31,35 @@ namespace EventFlow.Configuration
         Singleton,
     }
 
-    public abstract class Registration
+    public class Registration
     {
+        private readonly Type _implementationType;
+
         public Type ServiceType { get; protected set; }
         public Lifetime Lifetime { get; protected set; }
 
-        internal abstract void Configure(ContainerBuilder containerBuilder);
+        public Registration(){ }
+
+        public Registration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        {
+            ServiceType = serviceType;
+            _implementationType = implementationType;
+        }
+
+        internal virtual void Configure(ContainerBuilder containerBuilder)
+        {
+            switch (Lifetime)
+            {
+                case Lifetime.AlwaysUnique:
+                    containerBuilder.RegisterType(_implementationType).As(ServiceType);
+                    break;
+                case Lifetime.Singleton:
+                    containerBuilder.RegisterType(_implementationType).As(ServiceType).SingleInstance();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
     }
 
     public class Registration<TService> : Registration

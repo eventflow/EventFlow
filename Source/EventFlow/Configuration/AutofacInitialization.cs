@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using EventFlow.EventStores;
+using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
 
 namespace EventFlow.Configuration

@@ -23,8 +23,10 @@
 using System;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
+using EventFlow.ReadStores.InMemory;
 using EventFlow.Tests.TestAggregates;
 using EventFlow.Tests.TestAggregates.Commands;
+using EventFlow.Tests.TestAggregates.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -37,19 +39,23 @@ namespace EventFlow.Tests.IntegrationTests
         public void BasicFlow()
         {
             // Arrange
-            var options = new EventFlowOptions()
-                .AddEvents(typeof(TestAggregate).Assembly);
+            var options = EventFlowOptions.New
+                .AddEvents(typeof(TestAggregate).Assembly)
+                .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>();
             var resolve = options.CreateResolver();
             var commandBus = resolve.Resolve<ICommandBus>();
             var eventStore = resolve.Resolve<IEventStore>();
+            var readModelStore = resolve.Resolve<IInMemoryReadModelStore<TestAggregate, TestReadModel>>();
             var id = Guid.NewGuid().ToString();
 
             // Act
             commandBus.Publish(new TestACommand(id));
             var testAggregate = eventStore.LoadAggregate<TestAggregate>(id);
+            var testReadModel = readModelStore.Get(id);
 
             // Assert
             testAggregate.TestAReceived.Should().BeTrue();
+            testReadModel.TestAReceived.Should().BeTrue();
         }
     }
 }

@@ -28,17 +28,48 @@ using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using EventFlow.EventStores;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.InMemory;
 
 namespace EventFlow.Configuration
 {
     public class EventFlowOptions
     {
+        public static EventFlowOptions New { get { return new EventFlowOptions(); } }
+
         private readonly ConcurrentBag<Registration> _registrations = new ConcurrentBag<Registration>();
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+
+        private EventFlowOptions() { }
 
         public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver)
         {
             AddRegistration(new Registration<IEventStore>(eventStoreResolver));
+            return this;
+        }
+
+        public EventFlowOptions UseInMemoryReadStoreFor<TAggregate, TReadModel>()
+            where TAggregate : IAggregateRoot
+            where TReadModel : IReadModel, new()
+        {
+            AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
+            AddRegistration(new Registration<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
+            return this;
+        }
+
+        public EventFlowOptions AddReadModelStore<TAggregate, TReadModelStore>()
+            where TAggregate : IAggregateRoot
+            where TReadModelStore : class, IReadModelStore<TAggregate>
+        {
+            if (typeof (TReadModelStore).IsInterface)
+            {
+                AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>()));
+            }
+            else
+            {
+                AddRegistration(new Registration<IReadModelStore<TAggregate>, TReadModelStore>());
+            }
+
             return this;
         }
 
