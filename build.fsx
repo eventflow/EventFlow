@@ -49,9 +49,6 @@ Target "CreatePackageEventFlow" (fun _ ->
             WorkingDir = "Source/EventFlow"
             Version = buildVersion + "-alpha"
             Dependencies = [
-                "Common.Logging", GetPackageVersion "./packages/" "Common.Logging"
-                "Common.Logging.Core",  GetPackageVersion "./packages/" "Common.Logging.Core"
-                "CommonServiceLocator",  GetPackageVersion "./packages/" "CommonServiceLocator"
                 "Newtonsoft.Json",  GetPackageVersion "./packages/" "Newtonsoft.Json"]
             Publish = false })
             "Source/EventFlow/EventFlow.nuspec"

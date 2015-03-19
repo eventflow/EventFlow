@@ -25,8 +25,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Common.Logging;
 using EventFlow.Configuration;
+using EventFlow.Logs;
 
 namespace EventFlow
 {
@@ -66,9 +66,9 @@ namespace EventFlow
                     }
                     catch (Exception exception)
                     {
-                        _log.ErrorFormat(
-                            "Failed to dispatch to event handler {0}",
+                        _log.Error(
                             exception,
+                            "Failed to dispatch to event handler {0}",
                             handler.GetType().Name);
                     }
                 }

@@ -24,9 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Logging;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
+using EventFlow.Logs;
 using EventFlow.ReadStores;
 
 namespace EventFlow
@@ -84,9 +84,9 @@ namespace EventFlow
             }
             catch (Exception exception)
             {
-                _log.ErrorFormat(
-                    "Failed to updated read model store {o}",
+                _log.Error(
                     exception,
+                    "Failed to updated read model store {0}",
                     readModelStore.GetType().Name);
             }
         }

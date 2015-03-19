@@ -24,9 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
-using Common.Logging;
-using Common.Logging.Simple;
 using EventFlow.EventStores;
+using EventFlow.Logs;
 
 namespace EventFlow.Configuration
 {
@@ -38,7 +37,7 @@ namespace EventFlow.Configuration
                 .GroupBy(r => r.ServiceType)
                 .ToDictionary(g => g.Key, g => g.ToList());
             
-            Check(regs, new Registration<ILog>(r => new ConsoleOutLogger("EventFlow", LogLevel.Debug, true, true, false, "HH:mm:ss")), false);
+            Check(regs, new Registration<ILog, ConsoleLog>(), false);
             Check(regs, new Registration<IEventStore, InMemoryEventStore>(Lifetime.Singleton), false);
             Check(regs, new Registration<ICommandBus, CommandBus>(), false);
             Check(regs, new Registration<IDispatchToEventHandlers, DispatchToEventHandlers>(), false);

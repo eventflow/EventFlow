@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Logging;
+using EventFlow.Logs;
 using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql

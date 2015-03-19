@@ -33,12 +33,6 @@
     <Reference Include="Autofac">
       <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\packages\Common.Logging.3.0.0\lib\net40\Common.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Common.Logging.Core">
-      <HintPath>..\..\packages\Common.Logging.Core.3.0.0\lib\net40\Common.Logging.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -66,6 +60,9 @@
     <Compile Include="DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />
     <Compile Include="EventStores\InMemoryEventStore.cs" />
+    <Compile Include="Logs\ConsoleLog.cs" />
+    <Compile Include="Logs\ILog.cs" />
+    <Compile Include="Logs\Log.cs" />
     <Compile Include="SerializedEvent.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />
