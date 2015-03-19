@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
@@ -58,6 +59,14 @@ namespace EventFlow
             var domainEvents = await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
             await UpdateReadModelStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
             await _dispatchToEventHandlers.DispatchAsync(domainEvents).ConfigureAwait(false);
+        }
+
+        public void Publish<TAggregate>(ICommand<TAggregate> command) where TAggregate : IAggregateRoot
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(PublishAsync(command));
+            }
         }
 
         private async Task UpdateReadModelStoresAsync<TAggregate>(

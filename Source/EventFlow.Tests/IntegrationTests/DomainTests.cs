@@ -45,8 +45,8 @@ namespace EventFlow.Tests.IntegrationTests
             var id = Guid.NewGuid().ToString();
 
             // Act
-            commandBus.PublishAsync(new TestACommand(id)).Wait();
-            var testAggregate = eventStore.LoadAggregateAsync<TestAggregate>(id).Result;
+            commandBus.Publish(new TestACommand(id));
+            var testAggregate = eventStore.LoadAggregate<TestAggregate>(id);
 
             // Assert
             testAggregate.TestAReceived.Should().BeTrue();

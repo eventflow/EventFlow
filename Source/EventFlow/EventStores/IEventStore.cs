@@ -34,5 +34,8 @@ namespace EventFlow.EventStores
 
         Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
             where TAggregate : IAggregateRoot;
+
+        TAggregate LoadAggregate<TAggregate>(string id)
+            where TAggregate : IAggregateRoot;
     }
 }

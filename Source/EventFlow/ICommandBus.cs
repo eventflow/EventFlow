@@ -28,5 +28,8 @@ namespace EventFlow
     {
         Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
             where TAggregate : IAggregateRoot;
+
+        void Publish<TAggregate>(ICommand<TAggregate> command)
+            where TAggregate : IAggregateRoot;
     }
 }

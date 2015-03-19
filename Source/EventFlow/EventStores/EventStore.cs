@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
@@ -45,6 +46,16 @@ namespace EventFlow.EventStores
             var domainEvents = await LoadEventsAsync(id).ConfigureAwait(false);
             var aggregate = (TAggregate)Activator.CreateInstance(aggregateType, id);
             aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            return aggregate;
+        }
+
+        public virtual TAggregate LoadAggregate<TAggregate>(string id) where TAggregate : IAggregateRoot
+        {
+            var aggregate = default(TAggregate);
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(LoadAggregateAsync<TAggregate>(id), r => aggregate = r);
+            }
             return aggregate;
         }
     }
