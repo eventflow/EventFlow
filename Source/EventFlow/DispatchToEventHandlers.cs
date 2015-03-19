@@ -81,7 +81,7 @@ namespace EventFlow
                 eventType,
                 t =>
                     {
-                        var handlerType = typeof(IHandleEvent<>).MakeGenericType(t);
+                        var handlerType = typeof(ISubscribeSynchronousTo<>).MakeGenericType(t);
                         return new HandlerInfomation
                             {
                                 HandlerType = handlerType,

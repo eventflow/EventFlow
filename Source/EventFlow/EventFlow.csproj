@@ -80,7 +80,7 @@
     <Compile Include="EventStores\IEventDefinitionService.cs" />
     <Compile Include="EventStores\IEventJsonSerializer.cs" />
     <Compile Include="EventStores\IEventStore.cs" />
-    <Compile Include="IHandleEvent.cs" />
+    <Compile Include="ISubscribeSynchronousTo.cs" />
     <Compile Include="ReadStores\IReadModelContext.cs" />
     <Compile Include="ReadStores\IReadModelStore.cs" />
     <Compile Include="IUncommittedDomainEvent.cs" />

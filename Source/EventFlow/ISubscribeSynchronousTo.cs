@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow
 {
-    public interface IHandleEvent<in TEvent>
+    public interface ISubscribeSynchronousTo<in TEvent>
         where TEvent : IAggregateEvent
     {
         Task HandleAsync(IDomainEvent<TEvent> e);
