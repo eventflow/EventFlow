@@ -24,7 +24,7 @@ using System;
 
 namespace EventFlow.ReadStores.MsSql
 {
-    public interface IMssqlReadModel
+    public interface IMssqlReadModel : IReadModel
     {
         string AggregateId { get; set; }
         DateTimeOffset CreateTime { get; set; }

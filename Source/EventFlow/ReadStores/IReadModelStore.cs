@@ -23,7 +23,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace EventFlow
+namespace EventFlow.ReadStores
 {
     public interface IReadModelStore<TAggregate>
         where TAggregate : IAggregateRoot

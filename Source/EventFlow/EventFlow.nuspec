@@ -16,6 +16,6 @@
     @dependencies@
   </metadata>
   <files>
-  	<file src="bin\Release\EventFlow.dll" target="lib\net451" />
+  	<file src="bin\EventFlow.dll" target="lib\net451" />
   </files>
 </package>

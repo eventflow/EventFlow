@@ -28,7 +28,9 @@ using EventFlow.MsSql;
 
 namespace EventFlow.ReadStores.MsSql
 {
-    public class MssqlReadModelStore<TAggregate, TReadModel> : IMssqlReadModelStore<TAggregate, TReadModel>
+    public class MssqlReadModelStore<TAggregate, TReadModel> :
+        ReadModelStore<TAggregate, TReadModel>,
+        IMssqlReadModelStore<TAggregate, TReadModel>
         where TReadModel : IMssqlReadModel, new()
         where TAggregate : IAggregateRoot
     {
@@ -43,7 +45,7 @@ namespace EventFlow.ReadStores.MsSql
             _connection = connection;
         }
 
-        public async Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
+        public override async Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
         {
             var readModels = await _connection.QueryAsync<TReadModel>(SelectSql, new {AggregateId = aggregateId}).ConfigureAwait(false);
             var readModel = readModels.SingleOrDefault();
@@ -68,19 +70,6 @@ namespace EventFlow.ReadStores.MsSql
             var sql = isNew ? InsertSql : UpdateSql;
 
             await _connection.ExecuteAsync(sql, readModel).ConfigureAwait(false);
-        }
-
-        private void ApplyEvents(IMssqlReadModel mssqlReadModel, IEnumerable<IDomainEvent> domainEvents)
-        {
-            var readModelType = typeof(TReadModel);
-            var readModelContextType = typeof (IReadModelContext);
-            var readModelContext = new ReadModelContext();
-            foreach (var domainEvent in domainEvents)
-            {
-                var domainEventType = typeof (IDomainEvent<>).MakeGenericType(domainEvent.EventType);
-                var applyMethod = readModelType.GetMethod("Apply", new[] { readModelContextType, domainEventType });
-                applyMethod.Invoke(mssqlReadModel, new object[] {readModelContext, domainEvent});
-            }
         }
 
         public static string GetInsertSql()

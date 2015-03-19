@@ -23,47 +23,44 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace EventFlow
+namespace EventFlow.EventStores
 {
     public class EventDefinitionService : IEventDefinitionService
     {
-        private static readonly Dictionary<Type, EventDefinition> EventDefinitionsByType = new Dictionary<Type, EventDefinition>();
-        private static readonly Dictionary<string, EventDefinition> EventDefinitionsByName = new Dictionary<string, EventDefinition>();  
-        private static readonly Regex EventNameRegex = new Regex(@"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$", RegexOptions.Compiled);
+        private readonly Dictionary<Type, EventDefinition> _eventDefinitionsByType = new Dictionary<Type, EventDefinition>();
+        private readonly Dictionary<string, EventDefinition> _eventDefinitionsByName = new Dictionary<string, EventDefinition>();  
+        private readonly Regex _eventNameRegex = new Regex(@"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$", RegexOptions.Compiled);
 
-        public static void LoadEvents(Assembly assembly)
+        public void LoadEvents(IEnumerable<Type> eventTypes)
         {
-            LoadEvents(assembly.GetTypes().Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t)));
-        }
-
-        public static void LoadEvents(IEnumerable<Type> eventTypes)
-        {
-            foreach (var eventDefinition in eventTypes.Select(GetEventDefinitionStatic))
+            foreach (var eventDefinition in eventTypes.Select(GetEventDefinition))
             {
                 var key = GetKey(eventDefinition.Name, eventDefinition.Version);
-                EventDefinitionsByName.Add(key, eventDefinition);
+                _eventDefinitionsByName.Add(key, eventDefinition);
             }
-        }
-
-        public EventDefinition GetEventDefinition(Type eventType)
-        {
-            return GetEventDefinitionStatic(eventType);
         }
 
         public EventDefinition GetEventDefinition(string eventName, int version)
         {
             var key = GetKey(eventName, version);
-            return EventDefinitionsByName[key];
+            if (!_eventDefinitionsByName.ContainsKey(key))
+            {
+                throw new ArgumentException(string.Format(
+                    "No event definition for '{0}' with version {1}",
+                    eventName,
+                    version));
+            }
+
+            return _eventDefinitionsByName[key];
         }
 
-        private static EventDefinition GetEventDefinitionStatic(Type eventType)
+        public EventDefinition GetEventDefinition(Type eventType)
         {
-            if (EventDefinitionsByType.ContainsKey(eventType))
+            if (_eventDefinitionsByType.ContainsKey(eventType))
             {
-                return EventDefinitionsByType[eventType];
+                return _eventDefinitionsByType[eventType];
             }
 
             if (!typeof(IAggregateEvent).IsAssignableFrom(eventType))
@@ -72,7 +69,7 @@ namespace EventFlow
                     "Event '{0}' is not a DomainEvent", eventType.Name));
             }
 
-            var match = EventNameRegex.Match(eventType.Name);
+            var match = _eventNameRegex.Match(eventType.Name);
             if (!match.Success)
             {
                 throw new ArgumentException(string.Format(
@@ -93,7 +90,7 @@ namespace EventFlow
                 eventType,
                 name);
 
-            EventDefinitionsByType.Add(eventType, eventDefinition);
+            _eventDefinitionsByType.Add(eventType, eventDefinition);
 
             return eventDefinition;
         }

@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core">
+      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -42,8 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DummyTests.cs" />
+    <Compile Include="IntegrationTests\ConfigurationTests.cs" />
+    <Compile Include="IntegrationTests\DomainTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestAggregates\Commands\TestACommand.cs" />
+    <Compile Include="TestAggregates\Events\TestAEvent.cs" />
+    <Compile Include="TestAggregates\ReadModels\TestReadModel.cs" />
+    <Compile Include="TestAggregates\TestAggregate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

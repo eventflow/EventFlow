@@ -22,11 +22,21 @@
 
 using System.Threading.Tasks;
 
-namespace EventFlow
+namespace EventFlow.Tests.TestAggregates.Commands
 {
-    public interface IHandleEvent<in TEvent>
-        where TEvent : IAggregateEvent
+    public class TestACommand : ICommand<TestAggregate>
     {
-        Task HandleAsync(IDomainEvent<TEvent> e);
+        public string Id { get; private set; }
+
+        public TestACommand(string id)
+        {
+            Id = id;
+        }
+
+        public Task ExecuteAsync(TestAggregate aggregate)
+        {
+            aggregate.TestA();
+            return Task.FromResult(0);
+        }
     }
 }

@@ -21,11 +21,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 
-namespace EventFlow
+namespace EventFlow.EventStores
 {
     public interface IEventDefinitionService
     {
+        void LoadEvents(IEnumerable<Type> eventTypes);
         EventDefinition GetEventDefinition(Type eventType);
         EventDefinition GetEventDefinition(string eventName, int version);
     }

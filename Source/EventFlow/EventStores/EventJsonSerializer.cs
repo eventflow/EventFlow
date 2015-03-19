@@ -27,7 +27,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace EventFlow
+namespace EventFlow.EventStores
 {
     public class EventJsonSerializer : IEventJsonSerializer
     {

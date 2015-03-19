@@ -30,6 +30,12 @@ namespace EventFlow.EventStores
         Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, int oldVersion, int newVersion, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
             where TAggregate : IAggregateRoot;
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadAsync(string id);
+        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
+
+        Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
+            where TAggregate : IAggregateRoot;
+
+        TAggregate LoadAggregate<TAggregate>(string id)
+            where TAggregate : IAggregateRoot;
     }
 }

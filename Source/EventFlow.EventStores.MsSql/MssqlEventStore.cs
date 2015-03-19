@@ -24,12 +24,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Logging;
+using EventFlow.Logs;
 using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql
 {
-    public class MssqlEventStore : IEventStore
+    public class MssqlEventStore : EventStore
     {
         public class EventDataModel : ICommittedDomainEvent
         {
@@ -56,12 +56,11 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+        public override async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
             string id,
             int oldVersion,
             int newVersion,
             IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
-            where TAggregate : IAggregateRoot
         {
             var batchId = Guid.NewGuid();
             var aggregateType = typeof (TAggregate);
@@ -88,7 +87,7 @@ namespace EventFlow.EventStores.MsSql
             return resultingDomainEvents;
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> LoadAsync(string id)
+        public override async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id)
         {
             const string sql = @"SELECT * FROM EventSource WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(sql, new {AggregateId = id}).ConfigureAwait(false);

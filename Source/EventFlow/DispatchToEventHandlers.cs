@@ -25,14 +25,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Common.Logging;
-using Microsoft.Practices.ServiceLocation;
+using EventFlow.Configuration;
+using EventFlow.Logs;
 
 namespace EventFlow
 {
     public class DispatchToEventHandlers : IDispatchToEventHandlers
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
 
         private class HandlerInfomation
         {
@@ -43,9 +44,11 @@ namespace EventFlow
         private static readonly ConcurrentDictionary<Type, HandlerInfomation> HandlerInfomations = new ConcurrentDictionary<Type, HandlerInfomation>();
 
         public DispatchToEventHandlers(
-            ILog log)
+            ILog log,
+            IResolver resolver)
         {
             _log = log;
+            _resolver = resolver;
         }
 
         public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents)
@@ -53,7 +56,7 @@ namespace EventFlow
             foreach (var domainEvent in domainEvents)
             {
                 var handlerInfomation = GetHandlerInfomation(domainEvent.EventType);
-                var handlers = ServiceLocator.Current.GetAllInstances(handlerInfomation.HandlerType);
+                var handlers = _resolver.ResolveAll(handlerInfomation.HandlerType);
                 foreach (var handler in handlers)
                 {
                     try
@@ -63,9 +66,9 @@ namespace EventFlow
                     }
                     catch (Exception exception)
                     {
-                        _log.ErrorFormat(
-                            "Failed to dispatch to event handler {0}",
+                        _log.Error(
                             exception,
+                            "Failed to dispatch to event handler {0}",
                             handler.GetType().Name);
                     }
                 }
@@ -78,7 +81,7 @@ namespace EventFlow
                 eventType,
                 t =>
                     {
-                        var handlerType = typeof(IHandleEvent<>).MakeGenericType(t);
+                        var handlerType = typeof(ISubscribeSynchronousTo<>).MakeGenericType(t);
                         return new HandlerInfomation
                             {
                                 HandlerType = handlerType,

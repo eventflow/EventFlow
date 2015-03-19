@@ -5,6 +5,7 @@ powershell -Command "if ((Test-Path '.\Tools\NuGet.exe') -eq $false) {(New-Objec
 
 ".\Tools\NuGet.exe" "install" "FAKE.Core" "-OutputDirectory" "Tools" "-ExcludeVersion" "-version" "3.23.0"
 ".\Tools\NuGet.exe" "install" "NUnit.Runners" "-OutputDirectory" "Tools" "-ExcludeVersion" "-version" "2.6.4"
+".\Tools\NuGet.exe" "install" "ilmerge" "-OutputDirectory" "Tools" "-ExcludeVersion" "-version" "2.14.1208"
 
 ".\Tools\NuGet.exe" restore .\EventFlow.sln
 

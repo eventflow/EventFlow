@@ -20,17 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace EventFlow.Tests
+namespace EventFlow.ReadStores.InMemory
 {
-    [TestFixture]
-    public class DummyTests
+    public class InMemoryReadModelStore<TAggregate, TReadModel> :
+        ReadModelStore<TAggregate, TReadModel>,
+        IInMemoryReadModelStore<TAggregate, TReadModel>
+        where TReadModel : IReadModel, new()
+        where TAggregate : IAggregateRoot
     {
-        [Test]
-        public void Dummy()
+        private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>(); 
+
+        public override Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            
+            TReadModel readModel;
+            if (_readModels.ContainsKey(aggregateId))
+            {
+                readModel = _readModels[aggregateId];
+            }
+            else
+            {
+                readModel = new TReadModel();
+                _readModels.Add(aggregateId, readModel);
+            }
+
+            ApplyEvents(readModel, domainEvents);
+
+            return Task.FromResult(0);
+        }
+
+        public TReadModel Get(string id)
+        {
+            return _readModels.ContainsKey(id)
+                ? _readModels[id]
+                : default(TReadModel);
         }
     }
 }
