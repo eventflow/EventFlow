@@ -20,37 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Autofac;
 
 namespace EventFlow.Configuration
 {
-    public class AutofacResolver : IResolver
+    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        private readonly IComponentContext _componentContext;
+        private readonly ILifetimeScope _lifetimeScope;
 
-        public AutofacResolver(IComponentContext componentContext)
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
         {
-            _componentContext = componentContext;
+            _lifetimeScope = lifetimeScope;
         }
 
-        public T Resolve<T>()
+        public IScopeResolver BeginScope()
         {
-            return _componentContext.Resolve<T>();
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
         }
 
-        public object Resolve(Type serviceType)
+        public void Dispose()
         {
-            return _componentContext.Resolve(serviceType);
-        }
-
-        public IEnumerable<object> ResolveAll(Type serviceType)
-        {
-            var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
-            return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
+            _lifetimeScope.Dispose();
         }
     }
 }

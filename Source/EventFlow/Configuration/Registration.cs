@@ -42,7 +42,16 @@ namespace EventFlow.Configuration
 
         public Registration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
+            if (!serviceType.IsAssignableFrom(implementationType))
+            {
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not assignable to '{1}'",
+                    implementationType.Name,
+                    serviceType.Name));
+            }
+
             ServiceType = serviceType;
+            Lifetime = lifetime;
             _implementationType = implementationType;
         }
 

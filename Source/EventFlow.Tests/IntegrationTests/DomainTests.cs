@@ -39,23 +39,25 @@ namespace EventFlow.Tests.IntegrationTests
         public void BasicFlow()
         {
             // Arrange
-            var options = EventFlowOptions.New
-                .AddEvents(typeof(TestAggregate).Assembly)
-                .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>();
-            var resolve = options.CreateResolver();
-            var commandBus = resolve.Resolve<ICommandBus>();
-            var eventStore = resolve.Resolve<IEventStore>();
-            var readModelStore = resolve.Resolve<IInMemoryReadModelStore<TestAggregate, TestReadModel>>();
-            var id = Guid.NewGuid().ToString();
+            using (var resolver = EventFlowOptions.New
+                .AddEvents(typeof (TestAggregate).Assembly)
+                .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
+                .CreateResolver())
+            {
+                var commandBus = resolver.Resolve<ICommandBus>();
+                var eventStore = resolver.Resolve<IEventStore>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestReadModel>>();
+                var id = Guid.NewGuid().ToString();
 
-            // Act
-            commandBus.Publish(new TestACommand(id));
-            var testAggregate = eventStore.LoadAggregate<TestAggregate>(id);
-            var testReadModel = readModelStore.Get(id);
+                // Act
+                commandBus.Publish(new TestACommand(id));
+                var testAggregate = eventStore.LoadAggregate<TestAggregate>(id);
+                var testReadModel = readModelStore.Get(id);
 
-            // Assert
-            testAggregate.TestAReceived.Should().BeTrue();
-            testReadModel.TestAReceived.Should().BeTrue();
+                // Assert
+                testAggregate.TestAReceived.Should().BeTrue();
+                testReadModel.TestAReceived.Should().BeTrue();
+            }
         }
     }
 }

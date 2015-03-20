@@ -120,7 +120,7 @@ namespace EventFlow.Configuration
             return _aggregateEventTypes;
         }
 
-        public IResolver CreateResolver(bool validateRegistrations = false)
+        public IRootResolver CreateResolver(bool validateRegistrations = false)
         {
             var container = AutofacInitialization.Configure(this);
 
@@ -152,7 +152,7 @@ namespace EventFlow.Configuration
                 }
             }
 
-            return new AutofacResolver(container);
+            return new AutofacRootResolver(container);
         }
     }
 }

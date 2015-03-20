@@ -53,6 +53,10 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Configuration\AutofacInitialization.cs" />
     <Compile Include="Configuration\AutofacResolver.cs" />
+    <Compile Include="Configuration\AutofacRootResolver.cs" />
+    <Compile Include="Configuration\AutofacScopeResolver.cs" />
+    <Compile Include="Configuration\IRootResolver.cs" />
+    <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registration.cs" />
     <Compile Include="Configuration\EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
