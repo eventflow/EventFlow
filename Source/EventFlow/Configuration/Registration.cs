@@ -22,6 +22,7 @@
 
 using System;
 using Autofac;
+using EventFlow.Configuration.Resolvers;
 
 namespace EventFlow.Configuration
 {
@@ -125,7 +126,7 @@ namespace EventFlow.Configuration
                     containerBuilder.RegisterType<TImplementation>().As<TService>();
                     break;
                 case Lifetime.Singleton:
-                    containerBuilder.RegisterType<TImplementation>().SingleInstance().As<TService>();
+                    containerBuilder.RegisterType<TImplementation>().As<TService>().SingleInstance();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

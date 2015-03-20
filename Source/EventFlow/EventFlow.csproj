@@ -51,10 +51,10 @@
     <Compile Include="AggregateRoot.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandBus.cs" />
-    <Compile Include="Configuration\AutofacInitialization.cs" />
-    <Compile Include="Configuration\AutofacResolver.cs" />
-    <Compile Include="Configuration\AutofacRootResolver.cs" />
-    <Compile Include="Configuration\AutofacScopeResolver.cs" />
+    <Compile Include="Configuration\Resolvers\AutofacInitialization.cs" />
+    <Compile Include="Configuration\Resolvers\AutofacResolver.cs" />
+    <Compile Include="Configuration\Resolvers\AutofacRootResolver.cs" />
+    <Compile Include="Configuration\Resolvers\AutofacScopeResolver.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registration.cs" />

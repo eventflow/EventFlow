@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Resolvers
 {
     public class AutofacResolver : IResolver
     {

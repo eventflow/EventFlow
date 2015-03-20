@@ -29,8 +29,7 @@ namespace EventFlow.EventStores.InMemory
 {
     public class InMemoryEventStore : EventStore
     {
-        private readonly IEventJsonSerializer _eventJsonSerializer;
-        private readonly Dictionary<string, List<IDomainEvent>> _eventStore = new Dictionary<string, List<IDomainEvent>>();
+        private readonly Dictionary<string, List<ICommittedDomainEvent>> _eventStore = new Dictionary<string, List<ICommittedDomainEvent>>();
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
         {
@@ -45,54 +44,53 @@ namespace EventFlow.EventStores.InMemory
 
         public InMemoryEventStore(
             IEventJsonSerializer eventJsonSerializer)
+            : base(eventJsonSerializer)
         {
-            _eventJsonSerializer = eventJsonSerializer;
         }
 
-        public override Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
             string id,
             int oldVersion,
             int newVersion,
-            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+            IReadOnlyCollection<SerializedEvent> serializedEvents)
         {
             var globalCount = _eventStore.Values.SelectMany(e => e).Count();
             var batchId = Guid.NewGuid();
 
-            List<IDomainEvent> domainEvents;
+            List<ICommittedDomainEvent> committedDomainEvents;
             if (_eventStore.ContainsKey(id))
             {
-                domainEvents = _eventStore[id];
+                committedDomainEvents = _eventStore[id];
             }
             else
             {
-                domainEvents = new List<IDomainEvent>();
-                _eventStore[id] = domainEvents;
+                committedDomainEvents = new List<ICommittedDomainEvent>();
+                _eventStore[id] = committedDomainEvents;
             }
 
-            var committedDomainEvents = uncommittedDomainEvents
-                .Select(_eventJsonSerializer.Serialize)
-                .Select((e, i) => new InMemoryCommittedDomainEvent
+            var newCommittedDomainEvents = serializedEvents
+                .Select((e, i) => (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
                     {
                         AggregateId = id,
                         AggregateName = typeof(TAggregate).Name,
-                        AggregateSequenceNumber = domainEvents.Count + i + 1,
+                        AggregateSequenceNumber = committedDomainEvents.Count + i + 1,
                         BatchId = batchId,
                         Data = e.Data,
                         Metadata = e.Meta,
                         GlobalSequenceNumber = globalCount + i + 1
                     })
                 .ToList();
-            var newDomainEvents = committedDomainEvents.Select(_eventJsonSerializer.Deserialize).ToList();
-            domainEvents.AddRange(newDomainEvents);
-            return Task.FromResult<IReadOnlyCollection<IDomainEvent>>(newDomainEvents);
+            committedDomainEvents.AddRange(newCommittedDomainEvents);
+
+            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(newCommittedDomainEvents);
         }
 
-        public override Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id)
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id)
         {
-            var domainEvents = _eventStore.ContainsKey(id)
+            var committedDomainEvents = _eventStore.ContainsKey(id)
                 ? _eventStore[id]
-                : new List<IDomainEvent>();
-            return Task.FromResult<IReadOnlyCollection<IDomainEvent>>(domainEvents);
+                : new List<ICommittedDomainEvent>();
+            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
         }
     }
 }

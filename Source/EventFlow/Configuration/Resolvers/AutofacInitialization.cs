@@ -28,7 +28,7 @@ using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Resolvers
 {
     internal class AutofacInitialization
     {

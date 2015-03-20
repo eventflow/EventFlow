@@ -30,14 +30,48 @@ namespace EventFlow.EventStores
 {
     public abstract class EventStore : IEventStore
     {
-        public abstract Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+        private readonly IEventJsonSerializer _eventJsonSerializer;
+
+        protected EventStore(IEventJsonSerializer eventJsonSerializer)
+        {
+            _eventJsonSerializer = eventJsonSerializer;
+        }
+
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
             string id,
             int oldVersion,
             int newVersion,
             IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+            where TAggregate : IAggregateRoot
+        {
+            var serializedEvents = uncommittedDomainEvents
+                .Select(_eventJsonSerializer.Serialize)
+                .ToList();
+
+            var committedDomainEvents = await CommitEventsAsync<TAggregate>(id, oldVersion, newVersion, serializedEvents).ConfigureAwait(false);
+
+            var domainEvents = committedDomainEvents.Select(_eventJsonSerializer.Deserialize).ToList();
+            
+            return domainEvents;
+        }
+
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
+            string id,
+            int oldVersion,
+            int newVersion,
+            IReadOnlyCollection<SerializedEvent> serializedEvents)
             where TAggregate : IAggregateRoot;
 
-        public abstract Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id);
+
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id)
+        {
+            var committedDomainEvents = await LoadCommittedEventsAsync(id).ConfigureAwait(false);
+            var domainEvents = committedDomainEvents
+                .Select(_eventJsonSerializer.Deserialize)
+                .ToList();
+            return domainEvents;
+        }
 
         public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
             where TAggregate : IAggregateRoot

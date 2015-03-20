@@ -22,7 +22,7 @@
 
 using Autofac;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Resolvers
 {
     public class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {

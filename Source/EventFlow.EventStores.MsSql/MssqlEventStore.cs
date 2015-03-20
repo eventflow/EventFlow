@@ -43,30 +43,37 @@ namespace EventFlow.EventStores.MsSql
         }
 
         private readonly ILog _log;
-        private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IMssqlConnection _connection;
 
         public MssqlEventStore(
             ILog log,
             IEventJsonSerializer eventJsonSerializer,
             IMssqlConnection connection)
+            : base(eventJsonSerializer)
         {
             _log = log;
-            _eventJsonSerializer = eventJsonSerializer;
             _connection = connection;
         }
 
-        public override async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
             string id,
             int oldVersion,
             int newVersion,
-            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+            IReadOnlyCollection<SerializedEvent> serializedEvents)
         {
             var batchId = Guid.NewGuid();
-            var aggregateType = typeof (TAggregate);
+            var aggregateType = typeof(TAggregate);
             var aggregateName = aggregateType.Name.Replace("Aggregate", string.Empty);
-            var eventDataModels = uncommittedDomainEvents
-                .Select((e, i) => ToEventDataModel(e, batchId, id, aggregateName, oldVersion + 1 + i))
+            var eventDataModels = serializedEvents
+                .Select((e, i) => new EventDataModel
+                    {
+                        AggregateId = id,
+                        AggregateName = aggregateName,
+                        BatchId = batchId,
+                        Data = e.Data,
+                        Metadata = e.Meta,
+                        AggregateSequenceNumber = oldVersion + 1 + i
+                    })
                 .ToList();
 
             const string sql = @"
@@ -77,49 +84,19 @@ namespace EventFlow.EventStores.MsSql
                         (@BatchId, @AggregateId, @AggregateName, @Data, @Metadata, @AggregateSequenceNumber);
                 SELECT CAST(SCOPE_IDENTITY() as bigint);";
 
-            var resultingDomainEvents = new List<IDomainEvent>();
             foreach (var eventDataModel in eventDataModels)
             {
                 eventDataModel.GlobalSequenceNumber = (await _connection.QueryAsync<long>(sql, eventDataModel).ConfigureAwait(false)).Single();
-                resultingDomainEvents.Add(ToDomainEvent(eventDataModel));
             }
 
-            return resultingDomainEvents;
+            return eventDataModels;
         }
 
-        public override async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id)
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id)
         {
             const string sql = @"SELECT * FROM EventSource WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(sql, new {AggregateId = id}).ConfigureAwait(false);
-            var domainEvents = eventDataModels
-                .Select(ToDomainEvent)
-                .ToList();
-            return domainEvents;
-        }
-
-        private IDomainEvent ToDomainEvent(ICommittedDomainEvent committedDomainEvent)
-        {
-            return _eventJsonSerializer.Deserialize(committedDomainEvent);
-        }
-
-        private EventDataModel ToEventDataModel(
-            IUncommittedDomainEvent uncommittedDomainEvent,
-            Guid batchId,
-            string aggregateId,
-            string aggregateName,
-            int version)
-        {
-            var eventData = _eventJsonSerializer.Serialize(uncommittedDomainEvent);
-
-            return new EventDataModel
-                {
-                    AggregateId = aggregateId,
-                    AggregateName = aggregateName,
-                    BatchId = batchId,
-                    Data = eventData.Data,
-                    Metadata = eventData.Meta,
-                    AggregateSequenceNumber = version
-                };
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(sql, new { AggregateId = id }).ConfigureAwait(false);
+            return eventDataModels;
         }
     }
 }
