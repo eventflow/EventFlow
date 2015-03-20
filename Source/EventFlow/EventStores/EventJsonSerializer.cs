@@ -57,16 +57,15 @@ namespace EventFlow.EventStores
             _eventDefinitionService = eventDefinitionService;
         }
 
-        public SerializedEvent Serialize(IUncommittedDomainEvent uncommittedDomainEvent)
+        public SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas)
         {
-            var aggregateEvent = uncommittedDomainEvent.AggregateEvent;
             var eventDefinition = _eventDefinitionService.GetEventDefinition(aggregateEvent.GetType());
 
-            var metadata = uncommittedDomainEvent.Metadata.CloneWith(new Dictionary<string, string>
+            var metadata = new Metadata(metadatas.Concat(new[]
                 {
-                    {MetadataKeys.EventName, eventDefinition.Name},
-                    {MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)}
-                });
+                    new KeyValuePair<string, string>(MetadataKeys.EventName, eventDefinition.Name),
+                    new KeyValuePair<string, string>(MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)),
+                }));
 
             var dataJson = JsonConvert.SerializeObject(aggregateEvent, Settings);
             var metaJson = JsonConvert.SerializeObject(metadata, Settings);

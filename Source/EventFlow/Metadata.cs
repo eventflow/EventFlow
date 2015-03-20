@@ -48,6 +48,11 @@ namespace EventFlow
         {
         }
 
+        public Metadata(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+            : base(keyValuePairs.ToDictionary(kv => kv.Key, kv => kv.Value))
+        {
+        }
+
         public IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
             var metadata = new Metadata(this);

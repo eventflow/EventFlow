@@ -49,12 +49,26 @@ namespace EventFlow.Configuration
             return this;
         }
 
+        public EventFlowOptions UseEventStore<TEventStore>()
+            where TEventStore : class, IEventStore
+        {
+            AddRegistration(new Registration<IEventStore, TEventStore>());
+            return this;
+        }
+
         public EventFlowOptions UseInMemoryReadStoreFor<TAggregate, TReadModel>()
             where TAggregate : IAggregateRoot
             where TReadModel : IReadModel, new()
         {
             AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
             AddRegistration(new Registration<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
+            return this;
+        }
+
+        public EventFlowOptions AddMetadataProvider<TMetadataProvider>()
+            where TMetadataProvider : class, IMetadataProvider
+        {
+            AddRegistration(new Registration<IMetadataProvider, TMetadataProvider>());
             return this;
         }
 

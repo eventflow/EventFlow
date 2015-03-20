@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
 {
@@ -43,8 +44,10 @@ namespace EventFlow.EventStores.InMemory
         }
 
         public InMemoryEventStore(
-            IEventJsonSerializer eventJsonSerializer)
-            : base(eventJsonSerializer)
+            ILog log,
+            IEventJsonSerializer eventJsonSerializer,
+            IEnumerable<IMetadataProvider> metadataProviders)
+            : base(log, eventJsonSerializer, metadataProviders)
         {
         }
 

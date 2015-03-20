@@ -23,6 +23,7 @@
 using System;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
+using EventFlow.MetadataProviders;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.Tests.TestAggregates;
 using EventFlow.Tests.TestAggregates.Commands;
@@ -41,6 +42,7 @@ namespace EventFlow.Tests.IntegrationTests
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof (TestAggregate).Assembly)
+                .AddMetadataProvider<AddGuidMetadataProvider>()
                 .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
                 .CreateResolver())
             {

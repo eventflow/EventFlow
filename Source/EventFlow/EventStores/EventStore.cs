@@ -25,16 +25,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Logs;
 
 namespace EventFlow.EventStores
 {
     public abstract class EventStore : IEventStore
     {
-        private readonly IEventJsonSerializer _eventJsonSerializer;
+        protected ILog Log { get; private set; }
+        protected IEventJsonSerializer EventJsonSerializer { get; private set; }
+        protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
 
-        protected EventStore(IEventJsonSerializer eventJsonSerializer)
+        protected EventStore(
+            ILog log,
+            IEventJsonSerializer eventJsonSerializer,
+            IEnumerable<IMetadataProvider> metadataProviders)
         {
-            _eventJsonSerializer = eventJsonSerializer;
+            Log = log;
+            EventJsonSerializer = eventJsonSerializer;
+            MetadataProviders = metadataProviders.ToList();
         }
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
@@ -45,12 +53,18 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot
         {
             var serializedEvents = uncommittedDomainEvents
-                .Select(_eventJsonSerializer.Serialize)
+                .Select(e =>
+                    {
+                        var metadata = MetadataProviders
+                            .SelectMany(p => p.ProvideMetadata<TAggregate>(id, e.AggregateEvent, e.Metadata))
+                            .Concat(e.Metadata);
+                        return EventJsonSerializer.Serialize(e.AggregateEvent, metadata);
+                    })
                 .ToList();
 
             var committedDomainEvents = await CommitEventsAsync<TAggregate>(id, oldVersion, newVersion, serializedEvents).ConfigureAwait(false);
 
-            var domainEvents = committedDomainEvents.Select(_eventJsonSerializer.Deserialize).ToList();
+            var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
             
             return domainEvents;
         }
@@ -68,7 +82,7 @@ namespace EventFlow.EventStores
         {
             var committedDomainEvents = await LoadCommittedEventsAsync(id).ConfigureAwait(false);
             var domainEvents = committedDomainEvents
-                .Select(_eventJsonSerializer.Deserialize)
+                .Select(EventJsonSerializer.Deserialize)
                 .ToList();
             return domainEvents;
         }

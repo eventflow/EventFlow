@@ -42,16 +42,15 @@ namespace EventFlow.EventStores.MsSql
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly ILog _log;
         private readonly IMssqlConnection _connection;
 
         public MssqlEventStore(
             ILog log,
             IEventJsonSerializer eventJsonSerializer,
+            IEnumerable<IMetadataProvider> metadataProviders,
             IMssqlConnection connection)
-            : base(eventJsonSerializer)
+            : base(log, eventJsonSerializer, metadataProviders)
         {
-            _log = log;
             _connection = connection;
         }
 

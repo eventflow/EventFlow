@@ -21,43 +21,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
+using System.Collections.Generic;
 using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.MetadataProviders
 {
-    [TestFixture]
-    public class ConfigurationTests
+    /// <summary>
+    /// Adds key <c>guid</c> with a new <c>Guid</c> for every event (used for testing)
+    /// </summary>
+    public class AddGuidMetadataProvider : IMetadataProvider
     {
-        [Test]
-        public void CanResolve()
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(string id, IAggregateEvent aggregateEvent, IMetadata metadata)
+            where TAggregate : IAggregateRoot
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver(true);
-
-            // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
-
-            // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
-        }
-
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
-        {
-            // Arrange
-            var options = EventFlowOptions.New
-                .UseEventStore<InMemoryEventStore>()
-                .UseEventStore<InMemoryEventStore>();
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
+            yield return new KeyValuePair<string, string>("guid", Guid.NewGuid().ToString());
         }
     }
 }
