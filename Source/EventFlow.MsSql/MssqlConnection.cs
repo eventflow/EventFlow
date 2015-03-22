@@ -54,8 +54,7 @@ namespace EventFlow.MsSql
         public async Task<TResult> WithConnectionAsync<TResult>(
             Func<IDbConnection, Task<TResult>> withConnection)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings[_configuration.ConnectionStringName].ConnectionString;
-            using (var sqlConnection = new SqlConnection(connectionString))
+            using (var sqlConnection = new SqlConnection(_configuration.ConnectionString))
             {
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
                 return await withConnection(sqlConnection).ConfigureAwait(false);

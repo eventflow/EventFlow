@@ -24,6 +24,6 @@ namespace EventFlow.MsSql
 {
     public interface IMssqlConfiguration
     {
-        string ConnectionStringName { get; }
+        string ConnectionString { get; }
     }
 }

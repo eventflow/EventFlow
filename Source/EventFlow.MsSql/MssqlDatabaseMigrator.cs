@@ -45,7 +45,7 @@ namespace EventFlow.MsSql
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
         {
-            MigrateDatabaseUsingEmbeddedScripts(assembly, _mssqlConfiguration.ConnectionStringName);
+            MigrateDatabaseUsingEmbeddedScripts(assembly, _mssqlConfiguration.ConnectionString);
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
