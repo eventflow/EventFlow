@@ -77,11 +77,10 @@ namespace EventFlow.EventStores
         {
             var metadata = (IMetadata)JsonConvert.DeserializeObject<Metadata>(committedDomainEvent.Metadata);
 
-            var eventName = metadata[MetadataKeys.EventName];
-            var eventVersion = int.Parse(metadata[MetadataKeys.EventVersion]);
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(eventName, eventVersion);
+            var eventDefinition = _eventDefinitionService.GetEventDefinition(
+                metadata.EventName,
+                metadata.EventVersion);
 
-            var timestamp = DateTimeOffset.Parse(metadata[MetadataKeys.Timestamp]);
             var aggregateEvent = (IAggregateEvent)JsonConvert.DeserializeObject(committedDomainEvent.Data, eventDefinition.Type);
 
             var domainEventType = typeof (DomainEvent<>).MakeGenericType(eventDefinition.Type);
@@ -89,7 +88,7 @@ namespace EventFlow.EventStores
                 domainEventType,
                 aggregateEvent,
                 metadata,
-                timestamp,
+                metadata.Timestamp,
                 committedDomainEvent.GlobalSequenceNumber,
                 committedDomainEvent.AggregateId,
                 committedDomainEvent.AggregateSequenceNumber,

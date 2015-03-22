@@ -33,6 +33,9 @@
     <Reference Include="Dapper">
       <HintPath>..\..\packages\Dapper.1.38\lib\net45\Dapper.dll</HintPath>
     </Reference>
+    <Reference Include="DbUp">
+      <HintPath>..\..\packages\dbup.3.2.1\lib\NET35\DbUp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -43,13 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\MssqlMigrationException.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMssqlConfiguration.cs" />
     <Compile Include="IMssqlConnection.cs" />
+    <Compile Include="IMssqlDatabaseMigrator.cs" />
+    <Compile Include="Integrations\DbUpUpgradeLog.cs" />
     <Compile Include="MssqlConnection.cs" />
+    <Compile Include="MssqlDatabaseMigrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="EventFlow.MsSql.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
