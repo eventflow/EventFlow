@@ -26,13 +26,16 @@ namespace EventFlow
     {
         public string Meta { get; private set; }
         public string Data { get; private set; }
+        public int AggregateSequenceNumber { get; set; }
 
         public SerializedEvent(
             string meta,
-            string data)
+            string data,
+            int aggregateSequenceNumber)
         {
             Meta = meta;
             Data = data;
+            AggregateSequenceNumber = aggregateSequenceNumber;
         }
     }
 }

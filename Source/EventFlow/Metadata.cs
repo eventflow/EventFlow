@@ -46,10 +46,10 @@ namespace EventFlow
             set { this[MetadataKeys.Timestamp] = value.ToString("O"); }
         }
 
-        public long GlobalSequenceNumber
+        public int AggregateSequenceNumber
         {
-            get { return long.Parse(this[MetadataKeys.GlobalSequenceNumber]); }
-            set { this[MetadataKeys.GlobalSequenceNumber] = value.ToString(); }
+            get { return int.Parse(this[MetadataKeys.AggregateSequenceNumber]); }
+            set { this[MetadataKeys.AggregateSequenceNumber] = value.ToString(); }
         }
 
         public Metadata() { }

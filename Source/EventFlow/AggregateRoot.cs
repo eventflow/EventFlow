@@ -63,7 +63,8 @@ namespace EventFlow
 
             var extraMetadata = new Dictionary<string, string>
                 {
-                    {MetadataKeys.Timestamp, DateTimeOffset.Now.ToString("o")}
+                    {MetadataKeys.Timestamp, DateTimeOffset.Now.ToString("o")},
+                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()}
                 };
 
             metadata = metadata == null
@@ -79,7 +80,7 @@ namespace EventFlow
         public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore)
         {
             var oldVersion = Version - _uncommittedDomainEvents.Count;
-            var domainEvents = await eventStore.StoreAsync<TAggregate>(Id, oldVersion, Version, _uncommittedDomainEvents).ConfigureAwait(false);
+            var domainEvents = await eventStore.StoreAsync<TAggregate>(Id, _uncommittedDomainEvents).ConfigureAwait(false);
             _uncommittedDomainEvents.Clear();
             return domainEvents;
         }

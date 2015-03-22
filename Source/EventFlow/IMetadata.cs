@@ -30,7 +30,7 @@ namespace EventFlow
         string EventName { get; }
         int EventVersion { get; }
         DateTimeOffset Timestamp { get; }
-        long GlobalSequenceNumber { get; }
+        int AggregateSequenceNumber { get; }
 
         IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
     }

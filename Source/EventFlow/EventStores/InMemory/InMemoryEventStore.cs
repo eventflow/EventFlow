@@ -23,7 +23,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
@@ -41,6 +43,17 @@ namespace EventFlow.EventStores.InMemory
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
+
+            public override string ToString()
+            {
+                return new StringBuilder()
+                    .AppendLineFormat("{0} v{1}==================================", AggregateName, AggregateSequenceNumber)
+                    .AppendLineFormat("{0}", Metadata)
+                    .AppendLineFormat("---------------------------------")
+                    .AppendLineFormat("{0}", Data)
+                    .AppendLineFormat("---------------------------------")
+                    .ToString();
+            }
         }
 
         public InMemoryEventStore(
@@ -51,11 +64,7 @@ namespace EventFlow.EventStores.InMemory
         {
         }
 
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
-            int oldVersion,
-            int newVersion,
-            IReadOnlyCollection<SerializedEvent> serializedEvents)
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents)
         {
             var globalCount = _eventStore.Values.SelectMany(e => e).Count();
             var batchId = Guid.NewGuid();
@@ -72,15 +81,20 @@ namespace EventFlow.EventStores.InMemory
             }
 
             var newCommittedDomainEvents = serializedEvents
-                .Select((e, i) => (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
+                .Select((e, i) =>
                     {
-                        AggregateId = id,
-                        AggregateName = typeof(TAggregate).Name,
-                        AggregateSequenceNumber = committedDomainEvents.Count + i + 1,
-                        BatchId = batchId,
-                        Data = e.Data,
-                        Metadata = e.Meta,
-                        GlobalSequenceNumber = globalCount + i + 1
+                        var committedDomainEvent = (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
+                            {
+                                AggregateId = id,
+                                AggregateName = typeof (TAggregate).Name,
+                                AggregateSequenceNumber = e.AggregateSequenceNumber,
+                                BatchId = batchId,
+                                Data = e.Data,
+                                Metadata = e.Meta,
+                                GlobalSequenceNumber = globalCount + i + 1
+                            };
+                        Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                        return committedDomainEvent;
                     })
                 .ToList();
             committedDomainEvents.AddRange(newCommittedDomainEvents);

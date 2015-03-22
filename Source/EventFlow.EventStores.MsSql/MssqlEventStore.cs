@@ -54,11 +54,7 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
-            int oldVersion,
-            int newVersion,
-            IReadOnlyCollection<SerializedEvent> serializedEvents)
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents)
         {
             var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
@@ -71,7 +67,7 @@ namespace EventFlow.EventStores.MsSql
                         BatchId = batchId,
                         Data = e.Data,
                         Metadata = e.Meta,
-                        AggregateSequenceNumber = oldVersion + 1 + i
+                        AggregateSequenceNumber = e.AggregateSequenceNumber,
                     })
                 .ToList();
 

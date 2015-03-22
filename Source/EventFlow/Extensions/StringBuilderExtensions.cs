@@ -20,22 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Extensions
 {
-    public interface IEventStore
+    public static class StringBuilderExtensions
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
-            where TAggregate : IAggregateRoot;
-
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
-
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
-            where TAggregate : IAggregateRoot;
-
-        TAggregate LoadAggregate<TAggregate>(string id)
-            where TAggregate : IAggregateRoot;
+        public static StringBuilder AppendLineFormat(this StringBuilder stringBuilder, string format, params object[] args)
+        {
+            stringBuilder.AppendLine(string.Format(format, args));
+            return stringBuilder;
+        }
     }
 }

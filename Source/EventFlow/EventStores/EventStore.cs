@@ -45,11 +45,7 @@ namespace EventFlow.EventStores
             MetadataProviders = metadataProviders.ToList();
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
-            int oldVersion,
-            int newVersion,
-            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
             where TAggregate : IAggregateRoot
         {
             var aggregateType = typeof (TAggregate);
@@ -69,18 +65,14 @@ namespace EventFlow.EventStores
                     })
                 .ToList();
 
-            var committedDomainEvents = await CommitEventsAsync<TAggregate>(id, oldVersion, newVersion, serializedEvents).ConfigureAwait(false);
+            var committedDomainEvents = await CommitEventsAsync<TAggregate>(id, serializedEvents).ConfigureAwait(false);
 
             var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
             
             return domainEvents;
         }
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
-            int oldVersion,
-            int newVersion,
-            IReadOnlyCollection<SerializedEvent> serializedEvents)
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents)
             where TAggregate : IAggregateRoot;
 
         protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id);

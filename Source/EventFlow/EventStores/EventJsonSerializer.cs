@@ -70,7 +70,10 @@ namespace EventFlow.EventStores
             var dataJson = JsonConvert.SerializeObject(aggregateEvent, Settings);
             var metaJson = JsonConvert.SerializeObject(metadata, Settings);
 
-            return new SerializedEvent(metaJson, dataJson);
+            return new SerializedEvent(
+                metaJson,
+                dataJson,
+                metadata.AggregateSequenceNumber);
         }
 
         public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
