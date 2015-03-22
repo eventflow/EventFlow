@@ -26,21 +26,32 @@ using System.Linq;
 
 namespace EventFlow
 {
-    public sealed class MetadataKeys
-    {
-        public const string EventName = "event_name";
-        public const string EventVersion = "event_version";
-        public const string Timestamp = "timestamp";
-        public const string GlobalSequenceNumber = "global_sequence_number";
-    }
-
-    public interface IMetadata : IReadOnlyDictionary<string, string>
-    {
-        IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
-    }
-
     public class Metadata : Dictionary<string, string>, IMetadata
     {
+        public string EventName
+        {
+            get { return this[MetadataKeys.EventName]; }
+            set { this[MetadataKeys.EventName] = value; }
+        }
+
+        public int EventVersion
+        {
+            get { return int.Parse(this[MetadataKeys.EventVersion]); }
+            set { this[MetadataKeys.EventVersion] = value.ToString(); }
+        }
+
+        public DateTimeOffset Timestamp
+        {
+            get { return DateTimeOffset.Parse(this[MetadataKeys.Timestamp]); }
+            set { this[MetadataKeys.Timestamp] = value.ToString("O"); }
+        }
+
+        public long GlobalSequenceNumber
+        {
+            get { return long.Parse(this[MetadataKeys.GlobalSequenceNumber]); }
+            set { this[MetadataKeys.GlobalSequenceNumber] = value.ToString(); }
+        }
+
         public Metadata() { }
 
         public Metadata(IDictionary<string, string> dictionary)

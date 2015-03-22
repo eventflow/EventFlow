@@ -66,9 +66,11 @@
     <Compile Include="EventStores\EventStore.cs" />
     <Compile Include="EventStores\IMetadataProvider.cs" />
     <Compile Include="EventStores\InMemory\InMemoryEventStore.cs" />
+    <Compile Include="IMetadata.cs" />
     <Compile Include="Logs\ConsoleLog.cs" />
     <Compile Include="Logs\ILog.cs" />
     <Compile Include="Logs\Log.cs" />
+    <Compile Include="MetadataKeys.cs" />
     <Compile Include="MetadataProviders\AddGuidMetadataProvider.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryReadModelStore.cs" />
     <Compile Include="ReadStores\InMemory\IInMemoryReadModelStore.cs" />
