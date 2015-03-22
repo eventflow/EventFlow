@@ -54,9 +54,27 @@ namespace EventFlow
         public async Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
             where TAggregate : IAggregateRoot
         {
+            var commandType = command.GetType().Name;
+            var aggregateType = typeof (TAggregate);
+            _log.Verbose(
+                "Executing command '{0}' on aggregate '{1}' with ID '{2}'",
+                commandType,
+                aggregateType.Name,
+                command.Id);
+
             var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id).ConfigureAwait(false);
             await command.ExecuteAsync(aggregate).ConfigureAwait(false);
             var domainEvents = await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
+            if (!domainEvents.Any())
+            {
+                _log.Verbose(
+                    "Execution command '{0}' on aggregate '{1}' with ID '{2}' did NOT result in any domain events",
+                    commandType,
+                    aggregateType.Name,
+                    command.Id);
+                return;
+            }
+
             await UpdateReadModelStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
             await _dispatchToEventHandlers.DispatchAsync(domainEvents).ConfigureAwait(false);
         }
@@ -87,6 +105,16 @@ namespace EventFlow
             IReadOnlyCollection<IDomainEvent> domainEvents)
             where TAggregate : IAggregateRoot
         {
+            var readModelStoreType = readModelStore.GetType();
+            var aggregateType = typeof (TAggregate);
+
+            _log.Verbose(
+                "Updating read model store '{0}' for aggregate '{1}' with '{2}' by applying {3} events",
+                readModelStoreType.Name,
+                aggregateType.Name,
+                id,
+                domainEvents.Count);
+
             try
             {
                 await readModelStore.UpdateReadModelAsync(id, domainEvents).ConfigureAwait(false);
@@ -96,7 +124,7 @@ namespace EventFlow
                 _log.Error(
                     exception,
                     "Failed to updated read model store {0}",
-                    readModelStore.GetType().Name);
+                    readModelStoreType.Name);
             }
         }
     }

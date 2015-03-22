@@ -38,7 +38,7 @@ namespace EventFlow
         private class HandlerInfomation
         {
             public Type HandlerType { get; set; }
-            public MethodInfo MethodInfo { get; set; }
+            public Func<object, IDomainEvent, Task> HandleMethod { get; set; }
         }
 
         private static readonly ConcurrentDictionary<Type, HandlerInfomation> HandlerInfomations = new ConcurrentDictionary<Type, HandlerInfomation>();
@@ -61,8 +61,11 @@ namespace EventFlow
                 {
                     try
                     {
-                        var task = (Task)handlerInfomation.MethodInfo.Invoke(handler, new object[] { domainEvent });
-                        await task.ConfigureAwait(false);
+                        _log.Verbose(
+                            "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
+                            handler.GetType().Name,
+                            domainEvent.EventType.Name);
+                        await handlerInfomation.HandleMethod(handler, domainEvent).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -82,10 +85,11 @@ namespace EventFlow
                 t =>
                     {
                         var handlerType = typeof(ISubscribeSynchronousTo<>).MakeGenericType(t);
+                        var methodInfo = handlerType.GetMethod("HandleAsync", BindingFlags.Instance | BindingFlags.Public);
                         return new HandlerInfomation
                             {
                                 HandlerType = handlerType,
-                                MethodInfo = handlerType.GetMethod("HandleAsync", BindingFlags.Instance | BindingFlags.Public),
+                                HandleMethod = (Func<object, IDomainEvent, Task>) ((h, e) => (Task) methodInfo.Invoke(h, new object[] {e}))
                             };
                     });
         }

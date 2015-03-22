@@ -52,6 +52,13 @@ namespace EventFlow.EventStores
             IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
             where TAggregate : IAggregateRoot
         {
+            var aggregateType = typeof (TAggregate);
+            Log.Verbose(
+                "Storing {0} events for aggregate '{1}' with ID '{2}'",
+                uncommittedDomainEvents.Count,
+                aggregateType.Name,
+                id);
+
             var serializedEvents = uncommittedDomainEvents
                 .Select(e =>
                     {
@@ -91,9 +98,22 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot
         {
             var aggregateType = typeof(TAggregate);
+
+            Log.Verbose(
+                "Loading aggregate '{0}' with ID '{1}'",
+                aggregateType.Name,
+                id);
+            
             var domainEvents = await LoadEventsAsync(id).ConfigureAwait(false);
             var aggregate = (TAggregate)Activator.CreateInstance(aggregateType, id);
             aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+
+            Log.Verbose(
+                "Done loading aggregate '{0}' with ID '{1}' after applying {2} events",
+                aggregateType.Name,
+                id,
+                domainEvents.Count);
+
             return aggregate;
         }
 
