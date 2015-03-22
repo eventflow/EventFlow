@@ -46,10 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\MssqlMigrationException.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMssqlConfiguration.cs" />
     <Compile Include="IMssqlConnection.cs" />
+    <Compile Include="IMssqlDatabaseMigrator.cs" />
+    <Compile Include="Integrations\DbUpUpgradeLog.cs" />
     <Compile Include="MssqlConnection.cs" />
+    <Compile Include="MssqlDatabaseMigrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

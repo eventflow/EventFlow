@@ -20,19 +20,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using DbUp.Engine.Output;
+using EventFlow.Logs;
 
-namespace EventFlow.MsSql.Extensions
+namespace EventFlow.MsSql.Integrations
 {
-    public static class EventFlowOptionsExtensions
+    public class DbUpUpgradeLog : IUpgradeLog
     {
-        public static EventFlowOptions ConfigureMssql(this EventFlowOptions eventFlowOptions, IMssqlConfiguration mssqlConfiguration)
-        {
-            eventFlowOptions.AddRegistration(new Registration<IMssqlConnection, MssqlConnection>());
-            eventFlowOptions.AddRegistration(new Registration<IMssqlConfiguration>(r => mssqlConfiguration, Lifetime.Singleton));
-            eventFlowOptions.AddRegistration(new Registration<IMssqlDatabaseMigrator, MssqlDatabaseMigrator>());
+        private readonly ILog _log;
 
-            return eventFlowOptions;
+        public DbUpUpgradeLog(ILog log)
+        {
+            _log = log;
+        }
+
+        public void WriteInformation(string format, params object[] args)
+        {
+            _log.Information(format, args);
+        }
+
+        public void WriteError(string format, params object[] args)
+        {
+            _log.Error(format, args);
+        }
+
+        public void WriteWarning(string format, params object[] args)
+        {
+            _log.Warning(format, args);
         }
     }
 }
