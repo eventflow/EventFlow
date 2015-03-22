@@ -58,7 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="EventFlow.MsSql.nuspec" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

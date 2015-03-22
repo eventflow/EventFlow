@@ -77,7 +77,7 @@ namespace EventFlow.EventStores.MsSql
 
             const string sql = @"
                 INSERT INTO
-                    EventSource
+                    EventFlow
                         (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
                     VALUES
                         (@BatchId, @AggregateId, @AggregateName, @Data, @Metadata, @AggregateSequenceNumber);
@@ -93,7 +93,7 @@ namespace EventFlow.EventStores.MsSql
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id)
         {
-            const string sql = @"SELECT * FROM EventSource WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
+            const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(sql, new { AggregateId = id }).ConfigureAwait(false);
             return eventDataModels;
         }
