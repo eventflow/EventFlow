@@ -1,6 +1,7 @@
 #r @"tools\FAKE.Core\tools\FakeLib.dll"
-open Fake 
 open System
+open Fake 
+open Fake.AssemblyInfoFile
 
 let buildMode = getBuildParamOrDefault "buildMode" "Release"
 let buildVersion = getBuildParamOrDefault "buildVersion" "0.0.1"
@@ -17,6 +18,13 @@ let nugetVersionDep = "["+nugetVersion+"]"
 
 Target "Clean" (fun _ ->
     CleanDirs [ dirPackages; dirReports ]
+    )
+
+Target "SetVersion" (fun _ ->
+    CreateCSharpAssemblyInfo "./Source/SolutionInfo.cs"
+        [Attribute.Version buildVersion
+         Attribute.InformationalVersion nugetVersion
+         Attribute.FileVersion buildVersion]
     )
 
 Target "BuildApp" (fun _ ->
@@ -102,6 +110,7 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
 Target "Default" DoNothing
 
 "Clean"
+    ==> "SetVersion"
     ==> "BuildApp"
     ==> "UnitTest"
     ==> "CreatePackageEventFlow"

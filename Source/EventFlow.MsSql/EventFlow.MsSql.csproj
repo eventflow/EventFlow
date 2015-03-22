@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Exceptions\MssqlMigrationException.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMssqlConfiguration.cs" />
