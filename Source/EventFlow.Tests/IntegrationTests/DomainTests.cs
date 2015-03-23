@@ -43,6 +43,8 @@ namespace EventFlow.Tests.IntegrationTests
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof (TestAggregate).Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
+                .AddMetadataProvider<AddMachineNameMetadataProvider>()
+                .AddMetadataProvider<AddEventTypeMetadataProvider>()
                 .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
                 .CreateResolver())
             {

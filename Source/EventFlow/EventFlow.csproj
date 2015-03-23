@@ -75,6 +75,8 @@
     <Compile Include="Logs\ILog.cs" />
     <Compile Include="Logs\Log.cs" />
     <Compile Include="MetadataKeys.cs" />
+    <Compile Include="MetadataProviders\AddEventTypeMetadataProvider.cs" />
+    <Compile Include="MetadataProviders\AddMachineNameMetadataProvider.cs" />
     <Compile Include="MetadataProviders\AddGuidMetadataProvider.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryReadModelStore.cs" />
     <Compile Include="ReadStores\InMemory\IInMemoryReadModelStore.cs" />
