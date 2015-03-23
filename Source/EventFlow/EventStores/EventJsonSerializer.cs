@@ -25,36 +25,20 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using EventFlow.Aggregates;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
     public class EventJsonSerializer : IEventJsonSerializer
     {
+        private readonly IJsonSerializer _jsonSerializer;
         private readonly IEventDefinitionService _eventDefinitionService;
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
-            {
-                ContractResolver = new ContractResolver(),
-                Formatting = Formatting.None,
-            };
-
-        public class ContractResolver : DefaultContractResolver
-        {
-            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
-            {
-                var jsonProperties = base.CreateProperties(type, memberSerialization)
-                    .Where(property => property.DeclaringType != typeof(IAggregateEvent) && property.PropertyName != "Metadata")
-                    .ToList();
-
-                return jsonProperties;
-            }
-        }
-
         public EventJsonSerializer(
+            IJsonSerializer jsonSerializer,
             IEventDefinitionService eventDefinitionService)
         {
+            _jsonSerializer = jsonSerializer;
             _eventDefinitionService = eventDefinitionService;
         }
 
@@ -68,8 +52,8 @@ namespace EventFlow.EventStores
                     new KeyValuePair<string, string>(MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)),
                 }));
 
-            var dataJson = JsonConvert.SerializeObject(aggregateEvent, Settings);
-            var metaJson = JsonConvert.SerializeObject(metadata, Settings);
+            var dataJson = _jsonSerializer.Serialize(aggregateEvent);
+            var metaJson = _jsonSerializer.Serialize(metadata);
 
             return new SerializedEvent(
                 metaJson,
@@ -79,13 +63,13 @@ namespace EventFlow.EventStores
 
         public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
         {
-            var metadata = (IMetadata)JsonConvert.DeserializeObject<Metadata>(committedDomainEvent.Metadata);
+            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
 
             var eventDefinition = _eventDefinitionService.GetEventDefinition(
                 metadata.EventName,
                 metadata.EventVersion);
 
-            var aggregateEvent = (IAggregateEvent)JsonConvert.DeserializeObject(committedDomainEvent.Data, eventDefinition.Type);
+            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(committedDomainEvent.Data, eventDefinition.Type);
 
             var domainEventType = typeof (DomainEvent<>).MakeGenericType(eventDefinition.Type);
             var domainEvent = (IDomainEvent) Activator.CreateInstance(

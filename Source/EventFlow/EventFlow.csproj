@@ -64,6 +64,8 @@
     <Compile Include="Configuration\EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
+    <Compile Include="Core\IJsonSerializer.cs" />
+    <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />

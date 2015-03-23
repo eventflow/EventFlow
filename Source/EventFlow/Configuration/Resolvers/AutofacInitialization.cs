@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
@@ -47,6 +48,7 @@ namespace EventFlow.Configuration.Resolvers
             Check(regs, new Registration<IEventJsonSerializer, EventJsonSerializer>(), false);
             Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton), false);
             Check(regs, new Registration<IReadStoreManager, ReadStoreManager>(), false);
+            Check(regs, new Registration<IJsonSerializer, JsonSerializer>(), false);
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
