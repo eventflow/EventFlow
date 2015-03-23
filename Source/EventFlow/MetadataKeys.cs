@@ -27,6 +27,6 @@ namespace EventFlow
         public const string EventName = "event_name";
         public const string EventVersion = "event_version";
         public const string Timestamp = "timestamp";
-        public const string AggregateSequenceNumber = "global_sequence_number";
+        public const string AggregateSequenceNumber = "aggregate_sequence_number";
     }
 }
