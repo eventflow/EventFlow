@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EventFlow.Logs;
 using EventFlow.MsSql;
 
 namespace EventFlow.ReadStores.MsSql
@@ -40,7 +41,9 @@ namespace EventFlow.ReadStores.MsSql
         private static readonly string SelectSql = GetSelectSql();
 
         public MssqlReadModelStore(
+            ILog log,
             IMssqlConnection connection)
+            : base(log)
         {
             _connection = connection;
         }

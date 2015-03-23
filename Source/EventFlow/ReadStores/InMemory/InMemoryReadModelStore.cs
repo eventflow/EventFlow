@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.InMemory
 {
@@ -31,7 +32,13 @@ namespace EventFlow.ReadStores.InMemory
         where TReadModel : IReadModel, new()
         where TAggregate : IAggregateRoot
     {
-        private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>(); 
+        private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>();
+
+        public InMemoryReadModelStore(
+            ILog log)
+            : base(log)
+        {
+        }
 
         public override Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
         {
