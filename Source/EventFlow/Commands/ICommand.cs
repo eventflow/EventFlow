@@ -21,8 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow
+namespace EventFlow.Commands
 {
     public interface ICommand<in TAggregate>
         where TAggregate : IAggregateRoot

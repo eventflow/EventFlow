@@ -22,7 +22,7 @@
 
 using System;
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
     public class DomainEvent<TAggregateEvent> : IDomainEvent<TAggregateEvent>
         where TAggregateEvent : IAggregateEvent

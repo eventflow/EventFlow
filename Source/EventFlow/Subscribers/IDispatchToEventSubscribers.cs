@@ -20,18 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow
+namespace EventFlow.Subscribers
 {
-    public interface IMetadata : IReadOnlyDictionary<string, string>
+    public interface IDispatchToEventSubscribers
     {
-        string EventName { get; }
-        int EventVersion { get; }
-        DateTimeOffset Timestamp { get; }
-        int AggregateSequenceNumber { get; }
-
-        IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents);
     }
 }

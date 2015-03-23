@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using EventFlow.Aggregates;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

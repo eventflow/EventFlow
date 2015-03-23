@@ -20,20 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
+using System;
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public interface IAggregateEvent
     {
-        public string Id { get; private set; }
-
-        protected Command(string id)
-        {
-            Id = id;
-        }
-
-        public abstract Task ExecuteAsync(TAggregate aggregate);
+        Type GetAggregateType();
     }
 }

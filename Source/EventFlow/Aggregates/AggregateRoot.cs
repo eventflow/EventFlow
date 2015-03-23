@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
     public abstract class AggregateRoot<TAggregate> : IAggregateRoot
         where TAggregate : AggregateRoot<TAggregate>

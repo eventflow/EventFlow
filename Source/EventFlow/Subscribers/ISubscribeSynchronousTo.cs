@@ -20,18 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow
+namespace EventFlow.Subscribers
 {
-    public interface ICommittedDomainEvent
+    public interface ISubscribeSynchronousTo<in TEvent>
+        where TEvent : IAggregateEvent
     {
-        long GlobalSequenceNumber { get; set; }
-        Guid BatchId { get; set; }
-        string AggregateId { get; set; }
-        string AggregateName { get; set; }
-        string Data { get; set; }
-        string Metadata { get; set; }
-        int AggregateSequenceNumber { get; set; }
+        Task HandleAsync(IDomainEvent<TEvent> e);
     }
 }

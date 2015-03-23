@@ -20,11 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
-    public interface IEmit<in TDomainEvent>
-        where TDomainEvent : IAggregateEvent
+    public sealed class MetadataKeys
     {
-        void Apply(TDomainEvent e);
+        public const string EventName = "event_name";
+        public const string EventVersion = "event_version";
+        public const string Timestamp = "timestamp";
+        public const string AggregateSequenceNumber = "aggregate_sequence_number";
     }
 }

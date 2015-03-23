@@ -20,21 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using EventFlow.EventStores;
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
-    public abstract class AggregateEvent<TAggregate> : IAggregateEvent
-        where TAggregate : IAggregateRoot
+    public interface IAggregateRoot
     {
-        public Type GetAggregateType()
-        {
-            return typeof (TAggregate);
-        }
+        string Id { get; }
+        int Version { get; }
+        bool IsNew { get; }
 
-        public override string ToString()
-        {
-            return string.Format("{0}/{1}", typeof(TAggregate).Name, GetType().Name);
-        }
+        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore);
+        void ApplyEvents(IEnumerable<IAggregateEvent> domainEvents);
     }
 }

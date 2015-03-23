@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Logs;
 

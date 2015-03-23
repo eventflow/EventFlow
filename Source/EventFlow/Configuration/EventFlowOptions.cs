@@ -27,6 +27,7 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Core;
+using EventFlow.Aggregates;
 using EventFlow.Configuration.Resolvers;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;

@@ -28,6 +28,7 @@ using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Configuration.Resolvers
 {
@@ -42,7 +43,7 @@ namespace EventFlow.Configuration.Resolvers
             Check(regs, new Registration<ILog, ConsoleLog>(), false);
             Check(regs, new Registration<IEventStore, InMemoryEventStore>(Lifetime.Singleton), false);
             Check(regs, new Registration<ICommandBus, CommandBus>(), false);
-            Check(regs, new Registration<IDispatchToEventHandlers, DispatchToEventHandlers>(), false);
+            Check(regs, new Registration<IDispatchToEventSubscribers, DispatchToEventSubscribers>(), false);
             Check(regs, new Registration<IEventJsonSerializer, EventJsonSerializer>(), false);
             Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton), false);
             Check(regs, new Registration<IReadStoreManager, ReadStoreManager>(), false);

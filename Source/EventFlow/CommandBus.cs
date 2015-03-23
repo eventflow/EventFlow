@@ -22,10 +22,13 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
+using EventFlow.Subscribers;
 
 namespace EventFlow
 {
@@ -33,18 +36,18 @@ namespace EventFlow
     {
         private readonly ILog _log;
         private readonly IEventStore _eventStore;
-        private readonly IDispatchToEventHandlers _dispatchToEventHandlers;
+        private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IReadStoreManager _readStoreManager;
 
         public CommandBus(
             ILog log,
             IEventStore eventStore,
-            IDispatchToEventHandlers dispatchToEventHandlers,
+            IDispatchToEventSubscribers dispatchToEventSubscribers,
             IReadStoreManager readStoreManager)
         {
             _log = log;
             _eventStore = eventStore;
-            _dispatchToEventHandlers = dispatchToEventHandlers;
+            _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _readStoreManager = readStoreManager;
         }
 
@@ -73,7 +76,7 @@ namespace EventFlow
             }
 
             await _readStoreManager.UpdateReadStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
-            await _dispatchToEventHandlers.DispatchAsync(domainEvents).ConfigureAwait(false);
+            await _dispatchToEventSubscribers.DispatchAsync(domainEvents).ConfigureAwait(false);
         }
 
         public void Publish<TAggregate>(ICommand<TAggregate> command) where TAggregate : IAggregateRoot

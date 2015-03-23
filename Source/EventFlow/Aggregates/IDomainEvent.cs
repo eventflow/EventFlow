@@ -20,11 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow
+using System;
+
+namespace EventFlow.Aggregates
 {
-    public interface IUncommittedDomainEvent
+    public interface IDomainEvent
     {
-        IAggregateEvent AggregateEvent { get; }
+        string AggregateId { get; }
+        Type AggregateType { get; }
+        Type EventType { get; }
+        int AggregateSequenceNumber { get; }
+        Guid BatchId { get; }
+        long GlobalSequenceNumber { get; }
         IMetadata Metadata { get; }
+        DateTimeOffset Timestamp { get; }
+        IAggregateEvent GetAggregateEvent();
+    }
+
+    public interface IDomainEvent<out TAggregateEvent> : IDomainEvent
+        where TAggregateEvent : IAggregateEvent
+    {
+        TAggregateEvent AggregateEvent { get; }
     }
 }

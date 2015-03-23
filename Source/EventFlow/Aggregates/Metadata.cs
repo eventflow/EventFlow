@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
     public class Metadata : Dictionary<string, string>, IMetadata
     {

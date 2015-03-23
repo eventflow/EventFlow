@@ -20,22 +20,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow
-{
-    public class SerializedEvent
-    {
-        public string Meta { get; private set; }
-        public string Data { get; private set; }
-        public int AggregateSequenceNumber { get; set; }
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-        public SerializedEvent(
-            string meta,
-            string data,
-            int aggregateSequenceNumber)
+namespace EventFlow.Commands
+{
+    public abstract class Command<TAggregate> : ICommand<TAggregate>
+        where TAggregate : IAggregateRoot
+    {
+        public string Id { get; private set; }
+
+        protected Command(string id)
         {
-            Meta = meta;
-            Data = data;
-            AggregateSequenceNumber = aggregateSequenceNumber;
+            Id = id;
         }
+
+        public abstract Task ExecuteAsync(TAggregate aggregate);
     }
 }

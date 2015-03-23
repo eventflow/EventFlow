@@ -20,13 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.ReadStores;
+using System;
 
-namespace EventFlow
+namespace EventFlow.EventStores
 {
-    public interface IAmReadModelFor<in TEvent>
-        where TEvent : IAggregateEvent
+    public interface ICommittedDomainEvent
     {
-        void Apply(IReadModelContext context, IDomainEvent<TEvent> e);
+        long GlobalSequenceNumber { get; set; }
+        Guid BatchId { get; set; }
+        string AggregateId { get; set; }
+        string AggregateName { get; set; }
+        string Data { get; set; }
+        string Metadata { get; set; }
+        int AggregateSequenceNumber { get; set; }
     }
 }

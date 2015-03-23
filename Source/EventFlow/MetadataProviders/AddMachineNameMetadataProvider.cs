@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.Aggregates;
 using EventFlow.EventStores;
 
 namespace EventFlow.MetadataProviders

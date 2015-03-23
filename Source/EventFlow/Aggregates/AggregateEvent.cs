@@ -22,10 +22,19 @@
 
 using System;
 
-namespace EventFlow
+namespace EventFlow.Aggregates
 {
-    public interface IAggregateEvent
+    public abstract class AggregateEvent<TAggregate> : IAggregateEvent
+        where TAggregate : IAggregateRoot
     {
-        Type GetAggregateType();
+        public Type GetAggregateType()
+        {
+            return typeof (TAggregate);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}/{1}", typeof(TAggregate).Name, GetType().Name);
+        }
     }
 }

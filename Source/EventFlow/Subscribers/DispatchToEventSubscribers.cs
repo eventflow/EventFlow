@@ -25,25 +25,26 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Logs;
 
-namespace EventFlow
+namespace EventFlow.Subscribers
 {
-    public class DispatchToEventHandlers : IDispatchToEventHandlers
+    public class DispatchToEventSubscribers : IDispatchToEventSubscribers
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
 
-        private class HandlerInfomation
+        private class SubscriberInfomation
         {
-            public Type HandlerType { get; set; }
+            public Type SubscriberType { get; set; }
             public Func<object, IDomainEvent, Task> HandleMethod { get; set; }
         }
 
-        private static readonly ConcurrentDictionary<Type, HandlerInfomation> HandlerInfomations = new ConcurrentDictionary<Type, HandlerInfomation>();
+        private static readonly ConcurrentDictionary<Type, SubscriberInfomation> HandlerInfomations = new ConcurrentDictionary<Type, SubscriberInfomation>();
 
-        public DispatchToEventHandlers(
+        public DispatchToEventSubscribers(
             ILog log,
             IResolver resolver)
         {
@@ -55,8 +56,8 @@ namespace EventFlow
         {
             foreach (var domainEvent in domainEvents)
             {
-                var handlerInfomation = GetHandlerInfomation(domainEvent.EventType);
-                var handlers = _resolver.ResolveAll(handlerInfomation.HandlerType);
+                var handlerInfomation = GetSubscriberInfomation(domainEvent.EventType);
+                var handlers = _resolver.ResolveAll(handlerInfomation.SubscriberType);
                 foreach (var handler in handlers)
                 {
                     try
@@ -78,7 +79,7 @@ namespace EventFlow
             }
         }
 
-        private static HandlerInfomation GetHandlerInfomation(Type eventType)
+        private static SubscriberInfomation GetSubscriberInfomation(Type eventType)
         {
             return HandlerInfomations.GetOrAdd(
                 eventType,
@@ -86,9 +87,9 @@ namespace EventFlow
                     {
                         var handlerType = typeof(ISubscribeSynchronousTo<>).MakeGenericType(t);
                         var methodInfo = handlerType.GetMethod("HandleAsync", BindingFlags.Instance | BindingFlags.Public);
-                        return new HandlerInfomation
+                        return new SubscriberInfomation
                             {
-                                HandlerType = handlerType,
+                                SubscriberType = handlerType,
                                 HandleMethod = (Func<object, IDomainEvent, Task>) ((h, e) => (Task) methodInfo.Invoke(h, new object[] {e}))
                             };
                     });
