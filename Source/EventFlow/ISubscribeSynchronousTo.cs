@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015 EventFlow
+// Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
