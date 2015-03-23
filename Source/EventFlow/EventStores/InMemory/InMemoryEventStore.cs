@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
@@ -47,11 +48,11 @@ namespace EventFlow.EventStores.InMemory
             public override string ToString()
             {
                 return new StringBuilder()
-                    .AppendLineFormat("{0} v{1}==================================", AggregateName, AggregateSequenceNumber)
-                    .AppendLineFormat("{0}", Metadata)
-                    .AppendLineFormat("---------------------------------")
-                    .AppendLineFormat("{0}", Data)
-                    .AppendLineFormat("---------------------------------")
+                    .AppendLineFormat("{0} v{1} ==================================", AggregateName, AggregateSequenceNumber)
+                    .AppendLine(Metadata)
+                    .AppendLine("---------------------------------")
+                    .AppendLine(Data)
+                    .Append("---------------------------------")
                     .ToString();
             }
         }

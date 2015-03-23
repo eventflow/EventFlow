@@ -20,11 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
@@ -35,20 +32,20 @@ namespace EventFlow
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
-        private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
         private readonly IDispatchToEventHandlers _dispatchToEventHandlers;
+        private readonly IReadStoreManager _readStoreManager;
 
         public CommandBus(
             ILog log,
-            IResolver resolver,
             IEventStore eventStore,
-            IDispatchToEventHandlers dispatchToEventHandlers)
+            IDispatchToEventHandlers dispatchToEventHandlers,
+            IReadStoreManager readStoreManager)
         {
             _log = log;
-            _resolver = resolver;
             _eventStore = eventStore;
             _dispatchToEventHandlers = dispatchToEventHandlers;
+            _readStoreManager = readStoreManager;
         }
 
         public async Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
@@ -75,7 +72,7 @@ namespace EventFlow
                 return;
             }
 
-            await UpdateReadModelStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
+            await _readStoreManager.UpdateReadStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
             await _dispatchToEventHandlers.DispatchAsync(domainEvents).ConfigureAwait(false);
         }
 
@@ -84,47 +81,6 @@ namespace EventFlow
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(PublishAsync(command));
-            }
-        }
-
-        private async Task UpdateReadModelStoresAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<IDomainEvent> domainEvents)
-            where TAggregate : IAggregateRoot
-        {
-            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TAggregate>>>().ToList();
-            var updateTasks = readModelStores
-                .Select(s => UpdateReadModelStoreAsync(s, id, domainEvents))
-                .ToArray();
-            await Task.WhenAll(updateTasks).ConfigureAwait(false);
-        }
-
-        private async Task UpdateReadModelStoreAsync<TAggregate>(
-            IReadModelStore<TAggregate> readModelStore,
-            string id,
-            IReadOnlyCollection<IDomainEvent> domainEvents)
-            where TAggregate : IAggregateRoot
-        {
-            var readModelStoreType = readModelStore.GetType();
-            var aggregateType = typeof (TAggregate);
-
-            _log.Verbose(
-                "Updating read model store '{0}' for aggregate '{1}' with '{2}' by applying {3} events",
-                readModelStoreType.Name,
-                aggregateType.Name,
-                id,
-                domainEvents.Count);
-
-            try
-            {
-                await readModelStore.UpdateReadModelAsync(id, domainEvents).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Error(
-                    exception,
-                    "Failed to updated read model store {0}",
-                    readModelStoreType.Name);
             }
         }
     }
