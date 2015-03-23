@@ -25,18 +25,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EventFlow.Aggregates;
+using EventFlow.Logs;
 
 namespace EventFlow.EventStores
 {
     public class EventDefinitionService : IEventDefinitionService
     {
+        private readonly ILog _log;
         private readonly Dictionary<Type, EventDefinition> _eventDefinitionsByType = new Dictionary<Type, EventDefinition>();
         private readonly Dictionary<string, EventDefinition> _eventDefinitionsByName = new Dictionary<string, EventDefinition>();  
         private readonly Regex _eventNameRegex = new Regex(@"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$", RegexOptions.Compiled);
 
+        public EventDefinitionService(
+            ILog log)
+        {
+            _log = log;
+        }
+
         public void LoadEvents(IEnumerable<Type> eventTypes)
         {
-            foreach (var eventDefinition in eventTypes.Select(GetEventDefinition))
+            var eventDefinitions = eventTypes.Select(GetEventDefinition).ToList();
+            var assemblies = eventDefinitions
+                .Select(d => d.Type.Assembly.GetName().Name)
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+            _log.Verbose(
+                "Added {0} events from these assemblies: {1}",
+                eventDefinitions.Count,
+                string.Join(", ", assemblies));
+
+            foreach (var eventDefinition in eventDefinitions)
             {
                 var key = GetKey(eventDefinition.Name, eventDefinition.Version);
                 _eventDefinitionsByName.Add(key, eventDefinition);
