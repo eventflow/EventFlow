@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7747E4A0-B378-46B6-837D-5E78C497B061}</ProjectGuid>
+    <ProjectGuid>{571D291C-5E4C-43AF-855F-7C4E2F318F4C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.Tests</RootNamespace>
-    <AssemblyName>EventFlow.Tests</AssemblyName>
+    <RootNamespace>EventFlow.Test</RootNamespace>
+    <AssemblyName>EventFlow.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,18 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentAssertions">
-      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentAssertions.Core">
-      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Ploeh.AutoFixture">
-      <HintPath>..\..\packages\AutoFixture.3.24.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,18 +39,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IntegrationTests\ConfigurationTests.cs" />
-    <Compile Include="IntegrationTests\DomainTests.cs" />
+    <Compile Include="Aggregates\Test\Commands\TestACommand.cs" />
+    <Compile Include="Aggregates\Test\Events\TestAEvent.cs" />
+    <Compile Include="Aggregates\Test\ReadModels\TestReadModel.cs" />
+    <Compile Include="Aggregates\Test\TestAggregate.cs" />
+    <Compile Include="EventFlowTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Test\EventFlow.Test.csproj">
-      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
-      <Name>EventFlow.Test</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
       <Name>EventFlow</Name>

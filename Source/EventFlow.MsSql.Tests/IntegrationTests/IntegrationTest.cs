@@ -21,17 +21,24 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
+using EventFlow.EventStores;
 using EventFlow.EventStores.MsSql;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.Helpers;
+using EventFlow.Test;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
     public abstract class IntegrationTest
     {
+        protected IFixture Fixture { get; private set; }
         protected IRootResolver Resolver { get; private set; }
         protected ITestDatabase TestDatabase { get; private set; }
+        protected IMsSqlConnection MsSqlConnection { get; private set; }
+        protected ICommandBus CommandBus { get; private set; }
+        protected IEventStore EventStore { get; private set; }
 
         private class TestMsSqlConfiguration : IMsSqlConfiguration
         {
@@ -47,13 +54,19 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         [SetUp]
         public void SetUpIntegrationTest()
         {
+            Fixture = new Fixture();
             TestDatabase = MsSqlHelper.CreateDatabase("eventflow");
             var eventFlowOptions = EventFlowOptions.New
+                .AddEvents(EventFlowTest.Assembly)
                 .ConfigureMsSql(new TestMsSqlConfiguration(TestDatabase))
                 .UseEventStore<MsSqlEventStore>();
             Resolver = ConfigureEventFlow(eventFlowOptions).CreateResolver();
 
             EventFlowEventStoresMsSql.MigrateDatabase(Resolver.Resolve<IMsSqlDatabaseMigrator>());
+
+            MsSqlConnection = Resolver.Resolve<IMsSqlConnection>();
+            CommandBus = Resolver.Resolve<ICommandBus>();
+            EventStore = Resolver.Resolve<IEventStore>();
         }
 
         [TearDown]
@@ -62,6 +75,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             Resolver.Dispose();
             TestDatabase.Dispose();
         }
+
+        protected T A<T>() { return Fixture.Create<T>(); }
 
         protected virtual EventFlowOptions ConfigureEventFlow(EventFlowOptions eventFlowOptions)
         {

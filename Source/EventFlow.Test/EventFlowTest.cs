@@ -20,20 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.Tests.TestAggregates.Events;
+using System.Reflection;
 
-namespace EventFlow.Tests.TestAggregates.ReadModels
+namespace EventFlow.Test
 {
-    public class TestReadModel : IReadModel,
-        IAmReadModelFor<TestAEvent>
+    public static class EventFlowTest
     {
-        public bool TestAReceived { get; private set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<TestAEvent> e)
-        {
-            TestAReceived = true;
-        }
+        public static Assembly Assembly { get { return typeof (EventFlowTest).Assembly; } }
     }
 }

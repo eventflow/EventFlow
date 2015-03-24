@@ -20,28 +20,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Tests.TestAggregates.Events;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.Tests.TestAggregates
+namespace EventFlow.Test.Aggregates.Test.Commands
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<TestAEvent>
+    public class TestACommand : ICommand<TestAggregate>
     {
-        public bool TestAReceived { get; private set; }
+        public string Id { get; private set; }
 
-        public TestAggregate(string id) : base(id)
+        public TestACommand(string id)
         {
+            Id = id;
         }
 
-        public void TestA()
+        public Task ExecuteAsync(TestAggregate aggregate)
         {
-            Emit(new TestAEvent());
-        }
-
-        public void Apply(TestAEvent e)
-        {
-            TestAReceived = true;
+            aggregate.TestA();
+            return Task.FromResult(0);
         }
     }
 }

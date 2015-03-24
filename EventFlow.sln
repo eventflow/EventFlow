@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Tests", "Source\E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql.Tests", "Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj", "{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Test", "Source\EventFlow.Test\EventFlow.Test.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -71,6 +71,12 @@ namespace EventFlow.EventStores.MsSql
                     })
                 .ToList();
 
+            Log.Verbose(
+                "Committing {0} events to MSSQL event store for aggregate {1} with ID '{2}'",
+                eventDataModels.Count,
+                aggregateType.Name,
+                id);
+
             const string sql = @"
                 INSERT INTO
                     EventFlow

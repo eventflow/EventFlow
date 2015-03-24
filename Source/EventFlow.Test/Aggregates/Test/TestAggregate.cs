@@ -21,10 +21,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Test.Aggregates.Test.Events;
 
-namespace EventFlow.Tests.TestAggregates.Events
+namespace EventFlow.Test.Aggregates.Test
 {
-    public class TestAEvent : AggregateEvent<TestAggregate>
+    public class TestAggregate : AggregateRoot<TestAggregate>,
+        IEmit<TestAEvent>
     {
+        public bool TestAReceived { get; private set; }
+
+        public TestAggregate(string id) : base(id)
+        {
+        }
+
+        public void TestA()
+        {
+            Emit(new TestAEvent());
+        }
+
+        public void Apply(TestAEvent e)
+        {
+            TestAReceived = true;
+        }
     }
 }

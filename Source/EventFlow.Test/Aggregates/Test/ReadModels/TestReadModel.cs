@@ -20,28 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.Commands;
-using FluentAssertions;
-using NUnit.Framework;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.Test.Aggregates.Test.Events;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.Test.Aggregates.Test.ReadModels
 {
-    [TestFixture]
-    public class DomainTests : IntegrationTest
+    public class TestReadModel : IReadModel,
+        IAmReadModelFor<TestAEvent>
     {
-        [Test]
-        public void BasicFlow()
+        public bool TestAReceived { get; private set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<TestAEvent> e)
         {
-            // Arrange
-            var id = A<string>();
-
-            // Act
-            CommandBus.Publish(new TestACommand(id));
-            var testAggregate = EventStore.LoadAggregate<TestAggregate>(id);
-
-            // Assert
-            testAggregate.TestAReceived.Should().BeTrue();
+            TestAReceived = true;
         }
     }
 }
