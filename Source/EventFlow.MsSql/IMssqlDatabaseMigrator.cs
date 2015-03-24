@@ -24,7 +24,7 @@ using System.Reflection;
 
 namespace EventFlow.MsSql
 {
-    public interface IMssqlDatabaseMigrator
+    public interface IMsSqlDatabaseMigrator
     {
         void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
         void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);

@@ -51,12 +51,12 @@
     </Compile>
     <Compile Include="Exceptions\MssqlMigrationException.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="IMssqlConfiguration.cs" />
-    <Compile Include="IMssqlConnection.cs" />
-    <Compile Include="IMssqlDatabaseMigrator.cs" />
+    <Compile Include="IMsSqlConfiguration.cs" />
+    <Compile Include="IMsSqlConnection.cs" />
+    <Compile Include="IMsSqlDatabaseMigrator.cs" />
     <Compile Include="Integrations\DbUpUpgradeLog.cs" />
-    <Compile Include="MssqlConnection.cs" />
-    <Compile Include="MssqlDatabaseMigrator.cs" />
+    <Compile Include="MsSqlConnection.cs" />
+    <Compile Include="MsSqlDatabaseMigrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

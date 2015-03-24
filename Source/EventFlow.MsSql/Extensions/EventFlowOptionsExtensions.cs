@@ -26,11 +26,11 @@ namespace EventFlow.MsSql.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions ConfigureMssql(this EventFlowOptions eventFlowOptions, IMssqlConfiguration mssqlConfiguration)
+        public static EventFlowOptions ConfigureMsSql(this EventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
         {
-            eventFlowOptions.AddRegistration(new Registration<IMssqlConnection, MssqlConnection>());
-            eventFlowOptions.AddRegistration(new Registration<IMssqlConfiguration>(r => mssqlConfiguration, Lifetime.Singleton));
-            eventFlowOptions.AddRegistration(new Registration<IMssqlDatabaseMigrator, MssqlDatabaseMigrator>());
+            eventFlowOptions.AddRegistration(new Registration<IMsSqlConnection, MsSqlConnection>());
+            eventFlowOptions.AddRegistration(new Registration<IMsSqlConfiguration>(r => msSqlConfiguration, Lifetime.Singleton));
+            eventFlowOptions.AddRegistration(new Registration<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>());
 
             return eventFlowOptions;
         }

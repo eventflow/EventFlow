@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow.MsSql
 {
-    public interface IMssqlConnection
+    public interface IMsSqlConnection
     {
         Task<int> ExecuteAsync(string sql, object param = null);
         Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null);

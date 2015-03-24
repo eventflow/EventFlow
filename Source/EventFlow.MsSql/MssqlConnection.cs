@@ -31,12 +31,12 @@ using Dapper;
 
 namespace EventFlow.MsSql
 {
-    public class MssqlConnection : IMssqlConnection
+    public class MsSqlConnection : IMsSqlConnection
     {
-        private readonly IMssqlConfiguration _configuration;
+        private readonly IMsSqlConfiguration _configuration;
 
-        public MssqlConnection(
-            IMssqlConfiguration configuration)
+        public MsSqlConnection(
+            IMsSqlConfiguration configuration)
         {
             _configuration = configuration;
         }

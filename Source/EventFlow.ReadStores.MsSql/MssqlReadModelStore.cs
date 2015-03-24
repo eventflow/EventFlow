@@ -36,14 +36,14 @@ namespace EventFlow.ReadStores.MsSql
         where TReadModel : IMssqlReadModel, new()
         where TAggregate : IAggregateRoot
     {
-        private readonly IMssqlConnection _connection;
+        private readonly IMsSqlConnection _connection;
         private static readonly string InsertSql = GetInsertSql();
         private static readonly string UpdateSql = GetUpdateSql();
         private static readonly string SelectSql = GetSelectSql();
 
         public MssqlReadModelStore(
             ILog log,
-            IMssqlConnection connection)
+            IMsSqlConnection connection)
             : base(log)
         {
             _connection = connection;

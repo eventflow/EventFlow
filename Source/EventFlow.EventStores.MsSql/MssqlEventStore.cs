@@ -29,7 +29,7 @@ using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql
 {
-    public class MssqlEventStore : EventStore
+    public class MsSqlEventStore : EventStore
     {
         public class EventDataModel : ICommittedDomainEvent
         {
@@ -42,13 +42,13 @@ namespace EventFlow.EventStores.MsSql
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly IMssqlConnection _connection;
+        private readonly IMsSqlConnection _connection;
 
-        public MssqlEventStore(
+        public MsSqlEventStore(
             ILog log,
             IEventJsonSerializer eventJsonSerializer,
             IEnumerable<IMetadataProvider> metadataProviders,
-            IMssqlConnection connection)
+            IMsSqlConnection connection)
             : base(log, eventJsonSerializer, metadataProviders)
         {
             _connection = connection;

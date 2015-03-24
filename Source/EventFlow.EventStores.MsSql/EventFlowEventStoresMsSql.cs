@@ -20,16 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System.Reflection;
+using EventFlow.MsSql;
 
-namespace EventFlow.EventStores.MsSql.Extensions
+namespace EventFlow.EventStores.MsSql
 {
-    public static class EventFlowOptionsExtensions
+    public static class EventFlowEventStoresMsSql
     {
-        public static EventFlowOptions UseMssqlEventStore(this EventFlowOptions eventFlowOptions)
+        public static Assembly Assembly { get { return typeof (EventFlowEventStoresMsSql).Assembly; } }
+
+        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, MsSqlEventStore>());
-            return eventFlowOptions;
+            msSqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
         }
     }
 }

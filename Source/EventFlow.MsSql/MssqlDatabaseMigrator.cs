@@ -30,22 +30,22 @@ using EventFlow.MsSql.Integrations;
 
 namespace EventFlow.MsSql
 {
-    public class MssqlDatabaseMigrator : IMssqlDatabaseMigrator
+    public class MsSqlDatabaseMigrator : IMsSqlDatabaseMigrator
     {
         private readonly ILog _log;
-        private readonly IMssqlConfiguration _mssqlConfiguration;
+        private readonly IMsSqlConfiguration _msSqlConfiguration;
 
-        public MssqlDatabaseMigrator(
+        public MsSqlDatabaseMigrator(
             ILog log,
-            IMssqlConfiguration mssqlConfiguration)
+            IMsSqlConfiguration msSqlConfiguration)
         {
             _log = log;
-            _mssqlConfiguration = mssqlConfiguration;
+            _msSqlConfiguration = msSqlConfiguration;
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
         {
-            MigrateDatabaseUsingEmbeddedScripts(assembly, _mssqlConfiguration.ConnectionString);
+            MigrateDatabaseUsingEmbeddedScripts(assembly, _msSqlConfiguration.ConnectionString);
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)

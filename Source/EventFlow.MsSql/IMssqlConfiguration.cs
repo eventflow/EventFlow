@@ -22,7 +22,7 @@
 
 namespace EventFlow.MsSql
 {
-    public interface IMssqlConfiguration
+    public interface IMsSqlConfiguration
     {
         string ConnectionString { get; }
     }

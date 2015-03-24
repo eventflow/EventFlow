@@ -20,16 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
+using System.Text.RegularExpressions;
 
-namespace EventFlow.EventStores.MsSql.Extensions
+namespace EventFlow.MsSql.Tests.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class StringExtensions
     {
-        public static EventFlowOptions UseMssqlEventStore(this EventFlowOptions eventFlowOptions)
+        private static readonly Regex DatabaseReplace = new Regex(@"(?<key>Initial Catalog|Database)=[a-zA-Z0-9\-_]+", RegexOptions.Compiled);
+        private static readonly Regex DatabaseExtract = new Regex(@"(Initial Catalog|Database)=(?<database>[a-zA-Z0-9\-_]+)", RegexOptions.Compiled);
+
+        public static string GetDatabaseInConnectionstring(this string connectionString)
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, MsSqlEventStore>());
-            return eventFlowOptions;
+            var match = DatabaseExtract.Match(connectionString);
+            if (!match.Success)
+            {
+                throw new ArgumentException(string.Format(
+                    "Could not get database from connection string '{0}'",
+                    connectionString));
+            }
+
+            return match.Groups["database"].Value;
+        }
+
+        public static string ReplaceDatabaseInConnectionstring(this string connectionString, string database)
+        {
+            return DatabaseReplace.Replace(connectionString, string.Format("${{key}}={0}", database));
         }
     }
 }

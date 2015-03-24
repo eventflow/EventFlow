@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0C92026E-7E6D-40B9-A4DD-A7041E23AA7D}</ProjectGuid>
+    <ProjectGuid>{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.EventStores.MsSql</RootNamespace>
-    <AssemblyName>EventFlow.EventStores.MsSql</AssemblyName>
+    <RootNamespace>EventFlow.MsSql.Tests</RootNamespace>
+    <AssemblyName>EventFlow.MsSql.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,6 +30,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core">
+      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -39,30 +48,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="EventFlowEventStoresMsSql.cs" />
-    <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="MsSqlEventStore.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Helpers\MsSqlHelper.cs" />
+    <Compile Include="Helpers\TestDatabase.cs" />
+    <Compile Include="IntegrationTests\DomainTests.cs" />
+    <Compile Include="IntegrationTests\IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow.EventStores.MsSql\EventFlow.EventStores.MsSql.csproj">
+      <Project>{0c92026e-7e6d-40b9-a4dd-a7041e23aa7d}</Project>
+      <Name>EventFlow.EventStores.MsSql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj">
       <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
       <Name>EventFlow.MsSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventFlow.ReadStores.MsSql\EventFlow.ReadStores.MsSql.csproj">
+      <Project>{cc886dd8-a471-4a08-822b-46f6dc5ae347}</Project>
+      <Name>EventFlow.ReadStores.MsSql</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="EventFlow.EventStores.MsSql.nuspec" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Scripts\0001 - Create table EventFlow.sql" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -6,13 +6,13 @@
 	[Data] [nvarchar](max) NOT NULL,
 	[Metadata] [nvarchar](max) NOT NULL,
 	[AggregateSequenceNumber] [int] NOT NULL,
-	CONSTRAINT [PK_EventSource] PRIMARY KEY CLUSTERED 
+	CONSTRAINT [PK_EventFlow] PRIMARY KEY CLUSTERED
 	(
 		[GlobalSequenceNumber] ASC
 	)
 )
 
-CREATE NONCLUSTERED INDEX [IX_EventSource_AggregateId_AggregateSequenceNumber] ON [dbo].[EventSource]
+CREATE NONCLUSTERED INDEX [IX_EventFlow_AggregateId_AggregateSequenceNumber] ON [dbo].[EventFlow]
 (
 	[AggregateId] ASC,
 	[AggregateSequenceNumber] ASC
