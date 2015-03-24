@@ -26,6 +26,7 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.Subscribers;
@@ -62,9 +63,17 @@ namespace EventFlow
                 aggregateType.Name,
                 command.Id);
 
-            var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id).ConfigureAwait(false);
-            await command.ExecuteAsync(aggregate).ConfigureAwait(false);
-            var domainEvents = await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
+            var domainEvents = await Retry.ThisAsync(
+                async () =>
+                    {
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id).ConfigureAwait(false);
+                        await command.ExecuteAsync(aggregate).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
+                    },
+                    3,
+                    new [] { typeof(OptimisticConcurrencyException) })
+                .ConfigureAwait(false);
+
             if (!domainEvents.Any())
             {
                 _log.Verbose(

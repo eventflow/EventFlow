@@ -20,34 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.Test.Aggregates.Test.Events;
+using System;
 
-namespace EventFlow.Test.Aggregates.Test
+namespace EventFlow.Exceptions
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<TestAEvent>
+    public class DomainError : Exception
     {
-        public bool TestAReceived { get; private set; }
+        private DomainError(string message) : base(message) { }
 
-        public TestAggregate(string id) : base(id)
+        public static DomainError With(string format, params object[] args)
         {
-        }
-
-        public void TestA()
-        {
-            if (TestAReceived)
-            {
-                throw DomainError.With("Test A already received!");
-            }
-
-            Emit(new TestAEvent());
-        }
-
-        public void Apply(TestAEvent e)
-        {
-            TestAReceived = true;
+            return new DomainError(string.Format(format, args));
         }
     }
 }

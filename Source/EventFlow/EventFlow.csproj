@@ -66,6 +66,8 @@
     <Compile Include="Core\AsyncHelper.cs" />
     <Compile Include="Core\IJsonSerializer.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
+    <Compile Include="Core\Retry.cs" />
+    <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
