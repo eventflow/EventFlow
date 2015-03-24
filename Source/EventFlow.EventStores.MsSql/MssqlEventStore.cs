@@ -22,8 +22,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
 
@@ -78,17 +80,41 @@ namespace EventFlow.EventStores.MsSql
                 id);
 
             const string sql = @"
-                INSERT INTO
-                    EventFlow
-                        (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
-                    VALUES
-                        (@BatchId, @AggregateId, @AggregateName, @Data, @Metadata, @AggregateSequenceNumber);
-                SELECT CAST(SCOPE_IDENTITY() as bigint);";
+                BEGIN TRANSACTION
+                    INSERT INTO
+                        EventFlow
+                            (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
+                            OUTPUT CAST(INSERTED.GlobalSequenceNumber as bigint)
+                        SELECT
+                            BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                        FROM
+                            @rows
+                COMMIT TRANSACTION";
 
-            foreach (var eventDataModel in eventDataModels)
+            IReadOnlyCollection<long> ids;
+            try
             {
-                eventDataModel.GlobalSequenceNumber = (await _connection.QueryAsync<long>(sql, eventDataModel).ConfigureAwait(false)).Single();
+                ids = await _connection.InsertMultipleAsync<long, EventDataModel>(sql, eventDataModels).ConfigureAwait(false);
             }
+            catch (SqlException exception)
+            {
+                if (exception.Number == 2601)
+                {
+                    throw new OptimisticConcurrencyException(exception.Message, exception);
+                }
+
+                throw;
+            }
+
+            eventDataModels = eventDataModels
+                .Zip(
+                    ids,
+                    (e, i) =>
+                        {
+                            e.GlobalSequenceNumber = i;
+                            return e;
+                        })
+                .ToList();
 
             return eventDataModels;
         }

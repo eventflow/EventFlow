@@ -20,16 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Exceptions
 {
-    public interface IMsSqlConnection
+    public class OptimisticConcurrencyException : Exception
     {
-        Task<int> ExecuteAsync(string sql, object param = null);
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null);
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(string sql, IEnumerable<TRow> rows, object param = null)
-            where TRow : class, new();
+        public OptimisticConcurrencyException(
+            string message,
+            Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

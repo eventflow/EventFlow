@@ -22,12 +22,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using EventFlow.MsSql.Integrations;
 
 namespace EventFlow.MsSql
 {
@@ -49,6 +49,13 @@ namespace EventFlow.MsSql
         public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null)
         {
             return (await WithConnectionAsync(c => c.QueryAsync<TResult>(sql, param))).ToList();
+        }
+
+        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(string sql, IEnumerable<TRow> rows, object param = null)
+            where TRow : class, new()
+        {
+            var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new {});
+            return QueryAsync<TResult>(sql, tableParameter);
         }
 
         public async Task<TResult> WithConnectionAsync<TResult>(

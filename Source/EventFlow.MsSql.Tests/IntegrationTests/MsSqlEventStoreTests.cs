@@ -20,16 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventFlow.Exceptions;
+using EventFlow.Test.Aggregates.Test;
+using NUnit.Framework;
 
-namespace EventFlow.MsSql
+namespace EventFlow.MsSql.Tests.IntegrationTests
 {
-    public interface IMsSqlConnection
+    [TestFixture]
+    public class MsSqlEventStoreTests : IntegrationTest
     {
-        Task<int> ExecuteAsync(string sql, object param = null);
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null);
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(string sql, IEnumerable<TRow> rows, object param = null)
-            where TRow : class, new();
+        [Test]
+        public async Task OptimisticConcurrency()
+        {
+            var aggregate1 = EventStore.LoadAggregate<TestAggregate>("1");
+            var aggregate2 = EventStore.LoadAggregate<TestAggregate>("1");
+
+            aggregate1.TestA();
+            aggregate2.TestA();
+
+            await aggregate1.CommitAsync(EventStore).ConfigureAwait(false);
+            Assert.Throws<OptimisticConcurrencyException>(async () => await aggregate2.CommitAsync(EventStore).ConfigureAwait(false));
+        }
     }
 }
