@@ -28,12 +28,13 @@ using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Configuration.Resolvers;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Configuration
+namespace EventFlow
 {
     public class EventFlowOptions
     {
