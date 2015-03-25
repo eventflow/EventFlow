@@ -34,15 +34,18 @@ namespace EventFlow.EventStores
     public abstract class EventStore : IEventStore
     {
         protected ILog Log { get; private set; }
+        protected IAggregateFactory AggregateFactory { get; private set; }
         protected IEventJsonSerializer EventJsonSerializer { get; private set; }
         protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
 
         protected EventStore(
             ILog log,
+            IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEnumerable<IMetadataProvider> metadataProviders)
         {
             Log = log;
+            AggregateFactory = aggregateFactory;
             EventJsonSerializer = eventJsonSerializer;
             MetadataProviders = metadataProviders.ToList();
         }
@@ -115,7 +118,7 @@ namespace EventFlow.EventStores
                 id);
             
             var domainEvents = await LoadEventsAsync(id, cancellationToken).ConfigureAwait(false);
-            var aggregate = (TAggregate)Activator.CreateInstance(aggregateType, id);
+            var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate>(id).ConfigureAwait(false);
             aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
 
             Log.Verbose(

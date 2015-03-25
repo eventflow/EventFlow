@@ -26,6 +26,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -59,9 +60,10 @@ namespace EventFlow.EventStores.InMemory
 
         public InMemoryEventStore(
             ILog log,
+            IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEnumerable<IMetadataProvider> metadataProviders)
-            : base(log, eventJsonSerializer, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, metadataProviders)
         {
         }
 

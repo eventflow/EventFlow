@@ -53,7 +53,9 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
+    <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
+    <Compile Include="Aggregates\IAggregateFactory.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="Configuration\EventFlowConfiguration.cs" />
