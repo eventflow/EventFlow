@@ -20,7 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
@@ -56,9 +58,13 @@ namespace EventFlow
             _readStoreManager = readStoreManager;
         }
 
-        public async Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
+        public async Task PublishAsync<TAggregate>(
+            ICommand<TAggregate> command,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot
         {
+            if (command == null) throw new ArgumentNullException("command");
+
             var commandType = command.GetType().Name;
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
@@ -70,8 +76,8 @@ namespace EventFlow
             var domainEvents = await Retry.ThisAsync(
                 async () =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id).ConfigureAwait(false);
-                        await command.ExecuteAsync(aggregate).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
+                        await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
                         return await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
                     },
                     _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,

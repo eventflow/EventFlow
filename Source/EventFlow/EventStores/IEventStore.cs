@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
@@ -28,15 +29,24 @@ namespace EventFlow.EventStores
 {
     public interface IEventStore
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents)
+        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+            string id,
+            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot;
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id);
+        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
+            string id,
+            CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(string id)
+        Task<TAggregate> LoadAggregateAsync<TAggregate>(
+            string id,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot;
 
-        TAggregate LoadAggregate<TAggregate>(string id)
+        TAggregate LoadAggregate<TAggregate>(
+            string id,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot;
     }
 }

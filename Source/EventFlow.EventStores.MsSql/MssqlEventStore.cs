@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -56,7 +57,10 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents)
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
+            string id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
@@ -94,7 +98,11 @@ namespace EventFlow.EventStores.MsSql
             IReadOnlyCollection<long> ids;
             try
             {
-                ids = await _connection.InsertMultipleAsync<long, EventDataModel>(sql, eventDataModels).ConfigureAwait(false);
+                ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
+                    sql,
+                    eventDataModels,
+                    null,
+                    cancellationToken).ConfigureAwait(false);
             }
             catch (SqlException exception)
             {
@@ -119,10 +127,16 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id)
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            string id,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(sql, new { AggregateId = id }).ConfigureAwait(false);
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                sql,
+                new { AggregateId = id },
+                cancellationToken)
+                .ConfigureAwait(false);
             return eventDataModels;
         }
     }

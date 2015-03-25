@@ -21,15 +21,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventFlow.MsSql
 {
     public interface IMsSqlConnection
     {
-        Task<int> ExecuteAsync(string sql, object param = null);
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null);
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(string sql, IEnumerable<TRow> rows, object param = null)
+        Task<int> ExecuteAsync(
+            string sql,
+            object param = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+        
+        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+            string sql,
+            object param = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+        
+        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            string sql,
+            IEnumerable<TRow> rows,
+            object param = null,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TRow : class, new();
     }
 }

@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -64,7 +65,10 @@ namespace EventFlow.EventStores.InMemory
         {
         }
 
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents)
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
+            string id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var globalCount = _eventStore.Values.SelectMany(e => e).Count();
             var batchId = Guid.NewGuid();
@@ -102,7 +106,9 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(newCommittedDomainEvents);
         }
 
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id)
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            string id,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var committedDomainEvents = _eventStore.ContainsKey(id)
                 ? _eventStore[id]

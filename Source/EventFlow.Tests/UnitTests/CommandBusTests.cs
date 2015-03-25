@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
@@ -66,16 +67,16 @@ namespace EventFlow.Tests.UnitTests
         public void RetryForOptimisticConcurrencyExceptionsAreDone()
         {
             _eventStoreMock
-                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>()))
+                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new TestAggregate("42")));
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>()))
+                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
             Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new TestACommand("42")).ConfigureAwait(false));
 
             _eventStoreMock.Verify(
-                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>()),
+                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(3));
         }
     }

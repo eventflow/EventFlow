@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
 
@@ -34,7 +35,7 @@ namespace EventFlow.Test.Aggregates.Test.Commands
             Id = id;
         }
 
-        public Task ExecuteAsync(TestAggregate aggregate)
+        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             aggregate.TestA();
             return Task.FromResult(0);
