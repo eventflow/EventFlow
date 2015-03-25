@@ -54,6 +54,8 @@
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
+    <Compile Include="Configuration\EventFlowConfiguration.cs" />
+    <Compile Include="Configuration\IEventFlowConfiguration.cs" />
     <Compile Include="Configuration\Resolvers\AutofacInitialization.cs" />
     <Compile Include="Configuration\Resolvers\AutofacResolver.cs" />
     <Compile Include="Configuration\Resolvers\AutofacRootResolver.cs" />

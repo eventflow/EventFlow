@@ -42,8 +42,16 @@ namespace EventFlow
 
         private readonly ConcurrentBag<Registration> _registrations = new ConcurrentBag<Registration>();
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+        private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
 
         private EventFlowOptions() { }
+
+        public EventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
+        {
+            _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
+            _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
+            return this;
+        }
 
         public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver)
         {
@@ -135,6 +143,11 @@ namespace EventFlow
         internal IEnumerable<Type> GetAggregateEventTypes()
         {
             return _aggregateEventTypes;
+        }
+
+        internal IEventFlowConfiguration GetEventFlowConfiguration()
+        {
+            return _eventFlowConfiguration;
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations = false)

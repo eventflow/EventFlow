@@ -50,8 +50,12 @@ namespace EventFlow.Configuration.Resolvers
             Check(regs, new Registration<IReadStoreManager, ReadStoreManager>(), false);
             Check(regs, new Registration<IJsonSerializer, JsonSerializer>(), false);
 
+            var eventFlowConfiguration = options.GetEventFlowConfiguration();
+
             var containerBuilder = new ContainerBuilder();
+            
             containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
+            containerBuilder.RegisterInstance(eventFlowConfiguration).As<IEventFlowConfiguration>().SingleInstance();
             foreach (var reg in regs.Values.SelectMany(r => r))
             {
                 reg.Configure(containerBuilder);

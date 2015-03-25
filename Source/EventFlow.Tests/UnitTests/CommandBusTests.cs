@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -42,6 +43,7 @@ namespace EventFlow.Tests.UnitTests
         private Mock<IEventStore> _eventStoreMock;
         private Mock<IDispatchToEventSubscribers> _dispatchToEventSubscribersMock;
         private Mock<IReadStoreManager> _readStoreManagerMock;
+        private EventFlowConfiguration _eventFlowConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -50,9 +52,11 @@ namespace EventFlow.Tests.UnitTests
             _eventStoreMock = new Mock<IEventStore>();
             _dispatchToEventSubscribersMock = new Mock<IDispatchToEventSubscribers>();
             _readStoreManagerMock = new Mock<IReadStoreManager>();
+            _eventFlowConfiguration = new EventFlowConfiguration();
 
             _sut = new CommandBus(
                 _logMock.Object,
+                _eventFlowConfiguration,
                 _eventStoreMock.Object,
                 _dispatchToEventSubscribersMock.Object,
                 _readStoreManagerMock.Object);

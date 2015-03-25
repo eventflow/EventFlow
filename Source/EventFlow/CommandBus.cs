@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
@@ -36,17 +37,20 @@ namespace EventFlow
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
+        private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IReadStoreManager _readStoreManager;
 
         public CommandBus(
             ILog log,
+            IEventFlowConfiguration configuration,
             IEventStore eventStore,
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IReadStoreManager readStoreManager)
         {
             _log = log;
+            _configuration = configuration;
             _eventStore = eventStore;
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _readStoreManager = readStoreManager;
@@ -70,8 +74,9 @@ namespace EventFlow
                         await command.ExecuteAsync(aggregate).ConfigureAwait(false);
                         return await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
                     },
-                    3,
-                    new [] { typeof(OptimisticConcurrencyException) })
+                    _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
+                    new [] { typeof(OptimisticConcurrencyException) },
+                    _configuration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
                 .ConfigureAwait(false);
 
             if (!domainEvents.Any())
