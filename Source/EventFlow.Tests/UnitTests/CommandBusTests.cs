@@ -21,7 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -42,6 +44,7 @@ namespace EventFlow.Tests.UnitTests
         private Mock<IEventStore> _eventStoreMock;
         private Mock<IDispatchToEventSubscribers> _dispatchToEventSubscribersMock;
         private Mock<IReadStoreManager> _readStoreManagerMock;
+        private EventFlowConfiguration _eventFlowConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -50,9 +53,11 @@ namespace EventFlow.Tests.UnitTests
             _eventStoreMock = new Mock<IEventStore>();
             _dispatchToEventSubscribersMock = new Mock<IDispatchToEventSubscribers>();
             _readStoreManagerMock = new Mock<IReadStoreManager>();
+            _eventFlowConfiguration = new EventFlowConfiguration();
 
             _sut = new CommandBus(
                 _logMock.Object,
+                _eventFlowConfiguration,
                 _eventStoreMock.Object,
                 _dispatchToEventSubscribersMock.Object,
                 _readStoreManagerMock.Object);
@@ -62,16 +67,16 @@ namespace EventFlow.Tests.UnitTests
         public void RetryForOptimisticConcurrencyExceptionsAreDone()
         {
             _eventStoreMock
-                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>()))
+                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new TestAggregate("42")));
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>()))
+                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
             Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new TestACommand("42")).ConfigureAwait(false));
 
             _eventStoreMock.Verify(
-                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>()),
+                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(3));
         }
     }

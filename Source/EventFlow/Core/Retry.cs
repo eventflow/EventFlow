@@ -29,7 +29,11 @@ namespace EventFlow.Core
 {
     public static class Retry
     {
-        public static Task ThisAsync(Func<Task> task, int count = 5, IEnumerable<Type> transientExceptionTypes = null)
+        public static Task ThisAsync(
+            Func<Task> task,
+            int retries = 2,
+            IEnumerable<Type> transientExceptionTypes = null,
+            TimeSpan delayBeforeRetry = default(TimeSpan))
         {
             return ThisAsync(
                 async () =>
@@ -37,14 +41,20 @@ namespace EventFlow.Core
                         await task().ConfigureAwait(false);
                         return 0;
                     },
-                count,
-                transientExceptionTypes);
+                retries,
+                transientExceptionTypes,
+                delayBeforeRetry);
         }
 
-        public static async Task<T> ThisAsync<T>(Func<Task<T>> task, int count = 5, IEnumerable<Type> transientExceptionTypes = null)
+        public static async Task<T> ThisAsync<T>(
+            Func<Task<T>> task,
+            int retries = 2,
+            IEnumerable<Type> transientExceptionTypes = null,
+            TimeSpan delayBeforeRetry = default(TimeSpan))
         {
             if (task == null) throw new ArgumentNullException("task");
-            if (count <= 1) throw new ArgumentException(string.Format("It doesn't make any sense to have a total count of {0}", count), "count");
+            if (retries <= 0) throw new ArgumentException(string.Format("It doesn't make any sense to have a total retries of {0}", retries), "retries");
+            if (delayBeforeRetry.Ticks < 0) throw new ArgumentOutOfRangeException("delayBeforeRetry", "Please specify zero or a positive delay");
 
             var exceptionList = (transientExceptionTypes ?? Enumerable.Empty<Type>()).ToList();
             var currentCount = 1;
@@ -53,16 +63,16 @@ namespace EventFlow.Core
             {
                 try
                 {
-                    if (currentCount > 1)
+                    if (currentCount > 1 && delayBeforeRetry != default(TimeSpan))
                     {
-                        await Task.Delay(20);
+                        await Task.Delay(delayBeforeRetry);
                     }
 
                     return await task().ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
-                    if (currentCount < count && exceptionList.Any(t => exception.GetType() == t))
+                    if (currentCount <= retries && exceptionList.Any(t => exception.GetType() == t))
                     {
                         currentCount++;
                         continue;

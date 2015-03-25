@@ -20,10 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
@@ -36,25 +39,32 @@ namespace EventFlow
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
+        private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IReadStoreManager _readStoreManager;
 
         public CommandBus(
             ILog log,
+            IEventFlowConfiguration configuration,
             IEventStore eventStore,
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IReadStoreManager readStoreManager)
         {
             _log = log;
+            _configuration = configuration;
             _eventStore = eventStore;
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _readStoreManager = readStoreManager;
         }
 
-        public async Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
+        public async Task PublishAsync<TAggregate>(
+            ICommand<TAggregate> command,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot
         {
+            if (command == null) throw new ArgumentNullException("command");
+
             var commandType = command.GetType().Name;
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
@@ -66,12 +76,13 @@ namespace EventFlow
             var domainEvents = await Retry.ThisAsync(
                 async () =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id).ConfigureAwait(false);
-                        await command.ExecuteAsync(aggregate).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
+                        await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
                         return await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
                     },
-                    3,
-                    new [] { typeof(OptimisticConcurrencyException) })
+                    _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
+                    new [] { typeof(OptimisticConcurrencyException) },
+                    _configuration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
                 .ConfigureAwait(false);
 
             if (!domainEvents.Any())

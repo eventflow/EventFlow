@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
@@ -28,7 +29,7 @@ namespace EventFlow
 {
     public interface ICommandBus
     {
-        Task PublishAsync<TAggregate>(ICommand<TAggregate> command)
+        Task PublishAsync<TAggregate>(ICommand<TAggregate> command, CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot;
 
         void Publish<TAggregate>(ICommand<TAggregate> command)

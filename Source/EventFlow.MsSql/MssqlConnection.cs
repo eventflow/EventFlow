@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.MsSql.Integrations;
@@ -41,21 +42,39 @@ namespace EventFlow.MsSql
             _configuration = configuration;
         }
 
-        public Task<int> ExecuteAsync(string sql, object param = null)
+        public Task<int> ExecuteAsync(
+            string sql,
+            object param = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            return WithConnectionAsync(c => c.ExecuteAsync(sql, param));
+            return WithConnectionAsync(c =>
+                {
+                    var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken);
+                    return c.ExecuteAsync(commandDefinition);
+                });
         }
 
-        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(string sql, object param = null)
+        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+            string sql,
+            object param = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            return (await WithConnectionAsync(c => c.QueryAsync<TResult>(sql, param))).ToList();
+            return (await WithConnectionAsync(c =>
+                {
+                    var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken);
+                    return c.QueryAsync<TResult>(commandDefinition);
+                }).ConfigureAwait(false)).ToList();
         }
 
-        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(string sql, IEnumerable<TRow> rows, object param = null)
+        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            string sql,
+            IEnumerable<TRow> rows,
+            object param = null,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TRow : class, new()
         {
             var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new {});
-            return QueryAsync<TResult>(sql, tableParameter);
+            return QueryAsync<TResult>(sql, tableParameter, cancellationToken);
         }
 
         public async Task<TResult> WithConnectionAsync<TResult>(

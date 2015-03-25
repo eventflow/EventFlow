@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
@@ -51,9 +53,13 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
+    <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
+    <Compile Include="Aggregates\IAggregateFactory.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
+    <Compile Include="Configuration\EventFlowConfiguration.cs" />
+    <Compile Include="Configuration\IEventFlowConfiguration.cs" />
     <Compile Include="Configuration\Resolvers\AutofacInitialization.cs" />
     <Compile Include="Configuration\Resolvers\AutofacResolver.cs" />
     <Compile Include="Configuration\Resolvers\AutofacRootResolver.cs" />
@@ -61,7 +67,7 @@
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registration.cs" />
-    <Compile Include="Configuration\EventFlowOptions.cs" />
+    <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
     <Compile Include="Core\IJsonSerializer.cs" />

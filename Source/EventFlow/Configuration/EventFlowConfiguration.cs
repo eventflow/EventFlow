@@ -20,22 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.Configuration
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public class EventFlowConfiguration : IEventFlowConfiguration
     {
-        public string Id { get; private set; }
+        public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
+        public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
 
-        protected Command(string id)
+        public EventFlowConfiguration()
         {
-            Id = id;
+            NumberOfRetriesOnOptimisticConcurrencyExceptions = 2;
+            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(20);
         }
-
-        public abstract Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
