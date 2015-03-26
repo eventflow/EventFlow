@@ -12,21 +12,27 @@ and
 
 ### Concepts
 
-* **Aggregate:** Domain object that guarantees the consistency
-  of changes being made within the aggregate
+Use the links to navigate to the documentation.
+
+* [**Aggregates:**](./Documentation/Aggregates.md) Domains object
+  that guarantees the consistency of changes being made within
+  each aggregate
 * **Command bus:** Entry point for all commands
 * **Event store:** Storage of the event stream for aggregates
-* **Read model:** Denormalized representation of aggregate events
+* **Read models:** Denormalized representation of aggregate events
   optimized for reading fast.
+* [**Metadata providers:**](./Documentation/MetadataProviders.md)
+  Factories that provide additional information for each aggregate
+  event, e.g. the IP of the user behind the event being emitted.
+  EventFlow has several that can be used.
 
 ## Full example
 Here's an example on how to use the in-memory event store (default)
-and the in-memory read model store.
+and a in-memory read model store.
 
 ```csharp
 using (var resolver = EventFlowOptions.New
     .AddEvents(typeof (TestAggregate).Assembly)
-    .AddMetadataProvider<AddGuidMetadataProvider>()
     .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
     .CreateResolver())
 {

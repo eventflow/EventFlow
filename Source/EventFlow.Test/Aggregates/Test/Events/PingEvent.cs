@@ -20,47 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.Test.Aggregates.Test.Events;
 
-namespace EventFlow.Test.Aggregates.Test
+namespace EventFlow.Test.Aggregates.Test.Events
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<DomainErrorAfterFirstEvent>,
-        IEmit<PingEvent>
+    public class PingEvent : AggregateEvent<TestAggregate>
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
-
-        public TestAggregate(string id) : base(id)
-        {
-        }
-
-        public void DomainErrorAfterFirst()
-        {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
-        }
-
-        public void Ping()
-        {
-            Emit(new PingEvent());
-        }
-
-        public void Apply(DomainErrorAfterFirstEvent e)
-        {
-            DomainErrorAfterFirstReceived = true;
-        }
-
-        public void Apply(PingEvent e)
-        {
-            PingsReceived++;
-        }
     }
 }

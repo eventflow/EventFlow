@@ -22,11 +22,9 @@
 
 using EventFlow.Aggregates;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Test.Aggregates.Test.Events
 {
-    public interface IUncommittedDomainEvent
+    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate>
     {
-        IAggregateEvent AggregateEvent { get; }
-        IMetadata Metadata { get; }
     }
 }

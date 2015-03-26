@@ -31,6 +31,7 @@ namespace EventFlow.Aggregates
         string Id { get; }
         int Version { get; }
         bool IsNew { get; }
+        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
 
         Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore);
         void ApplyEvents(IEnumerable<IAggregateEvent> domainEvents);

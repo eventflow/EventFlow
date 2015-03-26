@@ -26,6 +26,9 @@ namespace EventFlow.Logs
 {
     public class ConsoleLog : Log
     {
+        protected override bool IsInformationEnabled { get { return true; } }
+        protected override bool IsDebugEnabled { get { return true; } }
+
         protected override void Write(LogLevel logLevel, string format, params object[] args)
         {
             Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, string.Format(format, args));

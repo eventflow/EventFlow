@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Text;
 
 namespace EventFlow.Logs
 {
@@ -28,8 +29,10 @@ namespace EventFlow.Logs
     {
         void Verbose(string format, params object[] args);
         void Verbose(Exception exception, string format, params object[] args);
+        void Verbose(Action<StringBuilder> combersomeLogging);
         void Debug(string format, params object[] args);
         void Debug(Exception exception, string format, params object[] args);
+        void Debug(Action<StringBuilder> combersomeLogging);
         void Information(string format, params object[] args);
         void Information(Exception exception, string format, params object[] args);
         void Warning(string format, params object[] args);

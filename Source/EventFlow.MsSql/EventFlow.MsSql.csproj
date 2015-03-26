@@ -58,6 +58,7 @@
     <Compile Include="IMsSqlDatabaseMigrator.cs" />
     <Compile Include="Integrations\DbUpUpgradeLog.cs" />
     <Compile Include="Integrations\TableParameter.cs" />
+    <Compile Include="MsSqlConfiguration.cs" />
     <Compile Include="MsSqlConnection.cs" />
     <Compile Include="MsSqlDatabaseMigrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

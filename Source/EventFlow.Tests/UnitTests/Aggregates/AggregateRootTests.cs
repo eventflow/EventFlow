@@ -20,28 +20,66 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
+using EventFlow.Aggregates;
 using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.Commands;
+using EventFlow.Test.Aggregates.Test.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
     [TestFixture]
-    public class DomainTests : IntegrationTest
+    public class AggregateRootTests
     {
-        [Test]
-        public void BasicFlow()
-        {
-            // Arrange
-            var id = A<string>();
+        private TestAggregate _sut;
 
+        [SetUp]
+        public void SetUp()
+        {
+            _sut = new TestAggregate("42");
+        }
+
+        [Test]
+        public void InitialVersionIsZero()
+        {
+            // Assert
+            _sut.Version.Should().Be(0);
+            _sut.IsNew.Should().BeTrue();
+            _sut.UncommittedEvents.Count().Should().Be(0);
+        }
+
+        [Test]
+        public void ApplyingEventIncrementsVersion()
+        {
             // Act
-            CommandBus.Publish(new DomainErrorAfterFirstCommand(id));
-            var testAggregate = EventStore.LoadAggregate<TestAggregate>(id);
+            _sut.Ping();
 
             // Assert
-            testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
+            _sut.Version.Should().Be(1);
+            _sut.IsNew.Should().BeFalse();
+            _sut.UncommittedEvents.Count().Should().Be(1);
+            _sut.PingsReceived.Should().Be(1);
+        }
+
+        [Test]
+        public void EventsCanBeApplied()
+        {
+            // Arrange
+            var events = new IAggregateEvent[]
+                {
+                    new PingEvent(),
+                    new PingEvent(),
+                };
+
+            // Act
+            _sut.ApplyEvents(events);
+
+            // Assert
+            _sut.IsNew.Should().BeFalse();
+            _sut.Version.Should().Be(2);
+            _sut.PingsReceived.Should().Be(2);
+            _sut.UncommittedEvents.Count().Should().Be(0);
         }
     }
 }

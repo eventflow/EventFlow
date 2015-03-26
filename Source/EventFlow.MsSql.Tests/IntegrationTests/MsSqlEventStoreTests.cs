@@ -36,8 +36,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             var aggregate1 = EventStore.LoadAggregate<TestAggregate>("1");
             var aggregate2 = EventStore.LoadAggregate<TestAggregate>("1");
 
-            aggregate1.TestA();
-            aggregate2.TestA();
+            aggregate1.DomainErrorAfterFirst();
+            aggregate2.DomainErrorAfterFirst();
 
             await aggregate1.CommitAsync(EventStore).ConfigureAwait(false);
             Assert.Throws<OptimisticConcurrencyException>(async () => await aggregate2.CommitAsync(EventStore).ConfigureAwait(false));

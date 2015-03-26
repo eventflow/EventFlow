@@ -20,47 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.Test.Aggregates.Test.Events;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.Test.Aggregates.Test
+namespace EventFlow.Test.Aggregates.Test.Commands
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<DomainErrorAfterFirstEvent>,
-        IEmit<PingEvent>
+    public class PingCommand : ICommand<TestAggregate>
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        public string Id { get; private set; }
 
-        public TestAggregate(string id) : base(id)
+        public PingCommand(string id)
         {
+            Id = id;
         }
 
-        public void DomainErrorAfterFirst()
+        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken = new CancellationToken())
         {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
-        }
-
-        public void Ping()
-        {
-            Emit(new PingEvent());
-        }
-
-        public void Apply(DomainErrorAfterFirstEvent e)
-        {
-            DomainErrorAfterFirstReceived = true;
-        }
-
-        public void Apply(PingEvent e)
-        {
-            PingsReceived++;
+            aggregate.Ping();
+            return Task.FromResult(0);
         }
     }
 }

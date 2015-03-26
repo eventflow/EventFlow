@@ -70,13 +70,13 @@ namespace EventFlow.Tests.UnitTests
                 .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new TestAggregate("42")));
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
-            Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new TestACommand("42")).ConfigureAwait(false));
+            Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new DomainErrorAfterFirstCommand("42")).ConfigureAwait(false));
 
             _eventStoreMock.Verify(
-                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedDomainEvent>>(), It.IsAny<CancellationToken>()),
+                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(3));
         }
     }

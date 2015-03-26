@@ -26,18 +26,18 @@ using EventFlow.Commands;
 
 namespace EventFlow.Test.Aggregates.Test.Commands
 {
-    public class TestACommand : ICommand<TestAggregate>
+    public class DomainErrorAfterFirstCommand : ICommand<TestAggregate>
     {
         public string Id { get; private set; }
 
-        public TestACommand(string id)
+        public DomainErrorAfterFirstCommand(string id)
         {
             Id = id;
         }
 
         public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            aggregate.TestA();
+            aggregate.DomainErrorAfterFirst();
             return Task.FromResult(0);
         }
     }

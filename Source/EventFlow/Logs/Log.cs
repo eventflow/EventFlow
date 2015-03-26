@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Text;
 
 namespace EventFlow.Logs
 {
@@ -36,6 +37,9 @@ namespace EventFlow.Logs
             Fatal
         }
 
+        protected abstract bool IsInformationEnabled { get; }
+        protected abstract bool IsDebugEnabled { get; }
+
         protected abstract void Write(LogLevel logLevel, string format, params object[] args);
 
         protected abstract void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
@@ -50,6 +54,18 @@ namespace EventFlow.Logs
             Write(LogLevel.Verbose, exception, format, args);
         }
 
+        public virtual void Verbose(Action<StringBuilder> combersomeLogging)
+        {
+            if (!IsInformationEnabled)
+            {
+                return;
+            }
+
+            var stringBuilder = new StringBuilder();
+            combersomeLogging(stringBuilder);
+            Verbose(stringBuilder.ToString());
+        }
+
         public void Debug(string format, params object[] args)
         {
             Write(LogLevel.Debug, format, args);
@@ -58,6 +74,18 @@ namespace EventFlow.Logs
         public void Debug(Exception exception, string format, params object[] args)
         {
             Write(LogLevel.Debug, exception, format, args);
+        }
+
+        public void Debug(Action<StringBuilder> combersomeLogging)
+        {
+            if (!IsDebugEnabled)
+            {
+                return;
+            }
+
+            var stringBuilder = new StringBuilder();
+            combersomeLogging(stringBuilder);
+            Debug(stringBuilder.ToString());
         }
 
         public void Information(string format, params object[] args)
