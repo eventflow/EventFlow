@@ -67,6 +67,7 @@
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registration.cs" />
+    <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />

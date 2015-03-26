@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -35,6 +36,7 @@ namespace EventFlow.EventStores.InMemory
     public class InMemoryEventStore : EventStore
     {
         private readonly Dictionary<string, List<ICommittedDomainEvent>> _eventStore = new Dictionary<string, List<ICommittedDomainEvent>>();
+        private readonly AsyncLock _asyncLock = new AsyncLock();
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
         {
@@ -67,45 +69,48 @@ namespace EventFlow.EventStores.InMemory
         {
         }
 
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
+        protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
             string id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var globalCount = _eventStore.Values.SelectMany(e => e).Count();
-            var batchId = Guid.NewGuid();
-
-            List<ICommittedDomainEvent> committedDomainEvents;
-            if (_eventStore.ContainsKey(id))
+            using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
             {
-                committedDomainEvents = _eventStore[id];
-            }
-            else
-            {
-                committedDomainEvents = new List<ICommittedDomainEvent>();
-                _eventStore[id] = committedDomainEvents;
-            }
+                var globalCount = _eventStore.Values.SelectMany(e => e).Count();
+                var batchId = Guid.NewGuid();
 
-            var newCommittedDomainEvents = serializedEvents
-                .Select((e, i) =>
-                    {
-                        var committedDomainEvent = (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
-                            {
-                                AggregateId = id,
-                                AggregateName = typeof (TAggregate).Name,
-                                AggregateSequenceNumber = e.AggregateSequenceNumber,
-                                BatchId = batchId,
-                                Data = e.Data,
-                                Metadata = e.Meta,
-                                GlobalSequenceNumber = globalCount + i + 1
-                            };
-                        Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
-                        return committedDomainEvent;
-                    })
-                .ToList();
-            committedDomainEvents.AddRange(newCommittedDomainEvents);
+                List<ICommittedDomainEvent> committedDomainEvents;
+                if (_eventStore.ContainsKey(id))
+                {
+                    committedDomainEvents = _eventStore[id];
+                }
+                else
+                {
+                    committedDomainEvents = new List<ICommittedDomainEvent>();
+                    _eventStore[id] = committedDomainEvents;
+                }
 
-            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(newCommittedDomainEvents);
+                var newCommittedDomainEvents = serializedEvents
+                    .Select((e, i) =>
+                        {
+                            var committedDomainEvent = (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
+                                {
+                                    AggregateId = id,
+                                    AggregateName = typeof (TAggregate).Name,
+                                    AggregateSequenceNumber = e.AggregateSequenceNumber,
+                                    BatchId = batchId,
+                                    Data = e.Data,
+                                    Metadata = e.Meta,
+                                    GlobalSequenceNumber = globalCount + i + 1
+                                };
+                            Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                            return committedDomainEvent;
+                        })
+                    .ToList();
+                committedDomainEvents.AddRange(newCommittedDomainEvents);
+
+                return newCommittedDomainEvents;
+            }
         }
 
         protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
