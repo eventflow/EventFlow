@@ -113,14 +113,16 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             string id,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var committedDomainEvents = _eventStore.ContainsKey(id)
-                ? _eventStore[id]
-                : new List<ICommittedDomainEvent>();
-            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
+            using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
+            {
+                return _eventStore.ContainsKey(id)
+                    ? _eventStore[id]
+                    : new List<ICommittedDomainEvent>();
+            }
         }
 
         public void Dispose()
