@@ -40,17 +40,6 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         protected ICommandBus CommandBus { get; private set; }
         protected IEventStore EventStore { get; private set; }
 
-        private class TestMsSqlConfiguration : IMsSqlConfiguration
-        {
-            private readonly ITestDatabase _testDatabase;
-            public string ConnectionString { get { return _testDatabase.ConnectionString; } }
-
-            public TestMsSqlConfiguration(ITestDatabase testDatabase)
-            {
-                _testDatabase = testDatabase;
-            }
-        }
-
         [SetUp]
         public void SetUpIntegrationTest()
         {
@@ -58,7 +47,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             TestDatabase = MsSqlHelper.CreateDatabase("eventflow");
             var eventFlowOptions = EventFlowOptions.New
                 .AddEvents(EventFlowTest.Assembly)
-                .ConfigureMsSql(new TestMsSqlConfiguration(TestDatabase))
+                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
                 .UseEventStore<MsSqlEventStore>();
             Resolver = ConfigureEventFlow(eventFlowOptions).CreateResolver();
 
