@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow.Core
 {
-    public sealed class AsyncLock
+    public sealed class AsyncLock : IDisposable
     {
         private sealed class AsyncLockReleaser : IDisposable
         {
@@ -118,6 +118,11 @@ namespace EventFlow.Core
         {
             _semaphore.Wait(cancellationToken);
             return _releaser;
+        }
+
+        public void Dispose()
+        {
+            _semaphore.Dispose();
         }
     }
 }

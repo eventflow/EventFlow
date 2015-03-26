@@ -33,7 +33,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventStore : EventStore
+    public class InMemoryEventStore : EventStore, IDisposable
     {
         private readonly Dictionary<string, List<ICommittedDomainEvent>> _eventStore = new Dictionary<string, List<ICommittedDomainEvent>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
@@ -121,6 +121,11 @@ namespace EventFlow.EventStores.InMemory
                 ? _eventStore[id]
                 : new List<ICommittedDomainEvent>();
             return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
+        }
+
+        public void Dispose()
+        {
+            _asyncLock.Dispose();
         }
     }
 }
