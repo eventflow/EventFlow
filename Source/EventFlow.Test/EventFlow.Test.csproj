@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aggregates\Test\Commands\TestACommand.cs" />
-    <Compile Include="Aggregates\Test\Events\TestAEvent.cs" />
+    <Compile Include="Aggregates\Test\Commands\DomainErrorAfterFirstCommand.cs" />
+    <Compile Include="Aggregates\Test\Commands\PingCommand.cs" />
+    <Compile Include="Aggregates\Test\Events\DomainErrorAfterFirstEvent.cs" />
+    <Compile Include="Aggregates\Test\Events\PingEvent.cs" />
     <Compile Include="Aggregates\Test\ReadModels\TestReadModel.cs" />
     <Compile Include="Aggregates\Test\TestAggregate.cs" />
     <Compile Include="EventFlowTest.cs" />

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -56,26 +57,31 @@ namespace EventFlow.Subscribers
         {
             foreach (var domainEvent in domainEvents)
             {
-                var handlerInfomation = GetSubscriberInfomation(domainEvent.EventType);
-                var handlers = _resolver.ResolveAll(handlerInfomation.SubscriberType);
-                foreach (var handler in handlers)
-                {
-                    try
-                    {
-                        _log.Verbose(
-                            "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                            handler.GetType().Name,
-                            domainEvent.EventType.Name);
-                        await handlerInfomation.HandleMethod(handler, domainEvent).ConfigureAwait(false);
-                    }
-                    catch (Exception exception)
-                    {
-                        _log.Error(
-                            exception,
-                            "Failed to dispatch to event handler {0}",
-                            handler.GetType().Name);
-                    }
-                }
+                var subscriberInfomation = GetSubscriberInfomation(domainEvent.EventType);
+                var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
+                var subscriberDispatchTasks = subscribers
+                    .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent))
+                    .ToList();
+                await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
+            }
+        }
+
+        private async Task DispatchToSubscriberAsync(object handler, SubscriberInfomation subscriberInfomation, IDomainEvent domainEvent)
+        {
+            try
+            {
+                _log.Verbose(
+                    "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
+                    handler.GetType().Name,
+                    domainEvent.EventType.Name);
+                await subscriberInfomation.HandleMethod(handler, domainEvent).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                _log.Error(
+                    exception,
+                    "Failed to dispatch to event handler {0}",
+                    handler.GetType().Name);
             }
         }
 

@@ -52,7 +52,7 @@ namespace EventFlow.EventStores
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
             string id,
-            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents,
+            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot
         {

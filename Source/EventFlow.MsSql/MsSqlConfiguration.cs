@@ -20,47 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.Test.Aggregates.Test.Events;
-
-namespace EventFlow.Test.Aggregates.Test
+namespace EventFlow.MsSql
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<DomainErrorAfterFirstEvent>,
-        IEmit<PingEvent>
+    public class MsSqlConfiguration : IMsSqlConfiguration
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        public static MsSqlConfiguration New { get { return new MsSqlConfiguration(); } }
 
-        public TestAggregate(string id) : base(id)
+        public string ConnectionString { get; private set; }
+
+        private MsSqlConfiguration() { }
+
+        public MsSqlConfiguration SetConnectionString(string connectionString)
         {
-        }
-
-        public void DomainErrorAfterFirst()
-        {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
-        }
-
-        public void Ping()
-        {
-            Emit(new PingEvent());
-        }
-
-        public void Apply(DomainErrorAfterFirstEvent e)
-        {
-            DomainErrorAfterFirstReceived = true;
-        }
-
-        public void Apply(PingEvent e)
-        {
-            PingsReceived++;
+            ConnectionString = connectionString;
+            return this;
         }
     }
 }

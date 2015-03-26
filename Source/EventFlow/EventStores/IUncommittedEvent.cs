@@ -24,15 +24,9 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
-    public class UncommittedDomainEvent : IUncommittedDomainEvent
+    public interface IUncommittedEvent
     {
-        public IAggregateEvent AggregateEvent { get; private set; }
-        public IMetadata Metadata { get; private set; }
-
-        public UncommittedDomainEvent(IAggregateEvent aggregateEvent, IMetadata metadata)
-        {
-            AggregateEvent = aggregateEvent;
-            Metadata = metadata;
-        }
+        IAggregateEvent AggregateEvent { get; }
+        IMetadata Metadata { get; }
     }
 }

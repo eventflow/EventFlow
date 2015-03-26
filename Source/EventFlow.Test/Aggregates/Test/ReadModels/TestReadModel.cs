@@ -27,11 +27,11 @@ using EventFlow.Test.Aggregates.Test.Events;
 namespace EventFlow.Test.Aggregates.Test.ReadModels
 {
     public class TestReadModel : IReadModel,
-        IAmReadModelFor<TestAEvent>
+        IAmReadModelFor<DomainErrorAfterFirstEvent>
     {
         public bool TestAReceived { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
         {
             TestAReceived = true;
         }

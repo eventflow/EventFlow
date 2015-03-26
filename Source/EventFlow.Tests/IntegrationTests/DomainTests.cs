@@ -54,12 +54,12 @@ namespace EventFlow.Tests.IntegrationTests
                 var id = Guid.NewGuid().ToString();
 
                 // Act
-                commandBus.Publish(new TestACommand(id));
+                commandBus.Publish(new DomainErrorAfterFirstCommand(id));
                 var testAggregate = eventStore.LoadAggregate<TestAggregate>(id);
                 var testReadModel = readModelStore.Get(id);
 
                 // Assert
-                testAggregate.TestAReceived.Should().BeTrue();
+                testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModel.TestAReceived.Should().BeTrue();
             }
         }

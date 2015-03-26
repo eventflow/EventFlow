@@ -67,6 +67,7 @@
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registration.cs" />
+    <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Core\Retry.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
+    <Compile Include="Exceptions\WrongImplementationException.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />
@@ -114,11 +116,11 @@
     <Compile Include="Subscribers\ISubscribeSynchronousTo.cs" />
     <Compile Include="ReadStores\IReadModelContext.cs" />
     <Compile Include="ReadStores\IReadModelStore.cs" />
-    <Compile Include="EventStores\IUncommittedDomainEvent.cs" />
+    <Compile Include="EventStores\IUncommittedEvent.cs" />
     <Compile Include="Aggregates\Metadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadStores\ReadModelContext.cs" />
-    <Compile Include="EventStores\UncommittedDomainEvent.cs" />
+    <Compile Include="EventStores\UncommittedEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EventFlow.nuspec" />

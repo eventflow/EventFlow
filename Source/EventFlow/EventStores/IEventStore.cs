@@ -31,7 +31,7 @@ namespace EventFlow.EventStores
     {
         Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
             string id,
-            IReadOnlyCollection<IUncommittedDomainEvent> uncommittedDomainEvents,
+            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             CancellationToken cancellationToken = default(CancellationToken))
             where TAggregate : IAggregateRoot;
 
