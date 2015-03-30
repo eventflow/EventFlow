@@ -22,54 +22,39 @@
 
 using EventFlow.Configuration;
 using EventFlow.EventStores;
-using EventFlow.EventStores.MsSql;
-using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.Tests.Helpers;
-using EventFlow.Test;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.Test
 {
-    public abstract class IntegrationTest
+    public abstract class IntegrationTest<TIntegrationTestConfiguration> : TestsFor<ICommandBus>
+        where TIntegrationTestConfiguration : IntegrationTestConfiguration, new()
     {
-        protected IFixture Fixture { get; private set; }
         protected IRootResolver Resolver { get; private set; }
-        protected ITestDatabase TestDatabase { get; private set; }
-        protected IMsSqlConnection MsSqlConnection { get; private set; }
-        protected ICommandBus CommandBus { get; private set; }
         protected IEventStore EventStore { get; private set; }
+        protected TIntegrationTestConfiguration Configuration { get; private set; }
 
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            Fixture = new Fixture();
-            TestDatabase = MsSqlHelper.CreateDatabase("eventflow");
+            Configuration = new TIntegrationTestConfiguration();
+
             var eventFlowOptions = EventFlowOptions.New
-                .AddEvents(EventFlowTest.Assembly)
-                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
-                .UseEventStore<MsSqlEventStore>();
-            Resolver = ConfigureEventFlow(eventFlowOptions).CreateResolver();
+                .AddEvents(EventFlowTest.Assembly);
 
-            EventFlowEventStoresMsSql.MigrateDatabase(Resolver.Resolve<IMsSqlDatabaseMigrator>());
-
-            MsSqlConnection = Resolver.Resolve<IMsSqlConnection>();
-            CommandBus = Resolver.Resolve<ICommandBus>();
+            Resolver = Configuration.CreateRootResolver(eventFlowOptions);
             EventStore = Resolver.Resolve<IEventStore>();
         }
 
         [TearDown]
         public void TearDownIntegrationTest()
         {
+            Configuration.TearDown();
             Resolver.Dispose();
-            TestDatabase.Dispose();
         }
 
-        protected T A<T>() { return Fixture.Create<T>(); }
-
-        protected virtual EventFlowOptions ConfigureEventFlow(EventFlowOptions eventFlowOptions)
+        protected override ICommandBus CreateSut()
         {
-            return eventFlowOptions;
+            return Resolver.Resolve<ICommandBus>();
         }
     }
 }

@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
@@ -49,9 +50,13 @@ namespace EventFlow.ReadStores.MsSql
             _connection = connection;
         }
 
-        public override async Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
+        public override async Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
         {
-            var readModels = await _connection.QueryAsync<TReadModel>(SelectSql, new {AggregateId = aggregateId}).ConfigureAwait(false);
+            var readModels = await _connection.QueryAsync<TReadModel>(
+                cancellationToken,
+                SelectSql,
+                new { AggregateId = aggregateId })
+                .ConfigureAwait(false);
             var readModel = readModels.SingleOrDefault();
             var isNew = false;
             if (readModel == null)
@@ -73,7 +78,7 @@ namespace EventFlow.ReadStores.MsSql
 
             var sql = isNew ? InsertSql : UpdateSql;
 
-            await _connection.ExecuteAsync(sql, readModel).ConfigureAwait(false);
+            await _connection.ExecuteAsync(cancellationToken, sql, readModel).ConfigureAwait(false);
         }
 
         public static string GetInsertSql()

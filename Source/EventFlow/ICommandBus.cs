@@ -29,7 +29,7 @@ namespace EventFlow
 {
     public interface ICommandBus
     {
-        Task PublishAsync<TAggregate>(ICommand<TAggregate> command, CancellationToken cancellationToken = default(CancellationToken))
+        Task PublishAsync<TAggregate>(ICommand<TAggregate> command, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
         void Publish<TAggregate>(ICommand<TAggregate> command)

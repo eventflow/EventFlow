@@ -22,15 +22,26 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Exceptions;
+using EventFlow.Test.Aggregates.Test;
+using NUnit.Framework;
 
-namespace EventFlow.Commands
+namespace EventFlow.Test.Suites
 {
-    public interface ICommand<in TAggregate>
-        where TAggregate : IAggregateRoot
+    public class EventStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
+        where TConfiguration : IntegrationTestConfiguration, new()
     {
-        string Id { get; }
+        [Test]
+        public async Task OptimisticConcurrency()
+        {
+            var aggregate1 = EventStore.LoadAggregate<TestAggregate>("1", CancellationToken.None);
+            var aggregate2 = EventStore.LoadAggregate<TestAggregate>("1", CancellationToken.None);
 
-        Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken);
+            aggregate1.DomainErrorAfterFirst();
+            aggregate2.DomainErrorAfterFirst();
+
+            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            Assert.Throws<OptimisticConcurrencyException>(async () => await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false));
+        }
     }
 }

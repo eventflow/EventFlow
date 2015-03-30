@@ -29,20 +29,19 @@ namespace EventFlow.MsSql
     public interface IMsSqlConnection
     {
         Task<int> ExecuteAsync(
-            string sql,
-            object param = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken,
+            string sql, object param = null);
         
         Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+            CancellationToken cancellationToken,
             string sql,
-            object param = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            object param = null);
         
         Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            CancellationToken cancellationToken,
             string sql,
             IEnumerable<TRow> rows,
-            object param = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            object param = null)
             where TRow : class, new();
     }
 }

@@ -47,6 +47,9 @@
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\..\packages\AutoFixture.3.24.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
     </Reference>
+    <Reference Include="Ploeh.AutoFixture.AutoMoq">
+      <HintPath>..\..\packages\AutoFixture.AutoMoq.3.24.3\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -60,11 +63,13 @@
     <Compile Include="Helpers\MsSqlHelper.cs" />
     <Compile Include="Helpers\TestDatabase.cs" />
     <Compile Include="IntegrationTests\DomainTests.cs" />
-    <Compile Include="IntegrationTests\IntegrationTest.cs" />
+    <Compile Include="IntegrationTests\MsSqlIntegrationTest.cs" />
     <Compile Include="IntegrationTests\MsSqlEventStoreTests.cs" />
+    <Compile Include="IntegrationTests\MsSqlIntegrationTestConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

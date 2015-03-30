@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
@@ -41,7 +42,10 @@ namespace EventFlow.ReadStores.InMemory
         {
         }
 
-        public override Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
+        public override Task UpdateReadModelAsync(
+            string aggregateId,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
             TReadModel readModel;
             if (_readModels.ContainsKey(aggregateId))

@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
@@ -29,6 +30,9 @@ namespace EventFlow.ReadStores
     public interface IReadModelStore<TAggregate>
         where TAggregate : IAggregateRoot
     {
-        Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents);
+        Task UpdateReadModelAsync(
+            string aggregateId,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }

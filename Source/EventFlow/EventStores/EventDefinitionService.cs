@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
@@ -87,6 +88,17 @@ namespace EventFlow.EventStores
             {
                 throw new ArgumentException(string.Format(
                     "Event '{0}' is not a DomainEvent", eventType.Name));
+            }
+
+            var eventVersion = eventType.GetCustomAttribute(typeof(EventVersionAttribute), false) as EventVersionAttribute;
+            if (eventVersion != null)
+            {
+                var ed = new EventDefinition(
+                    eventVersion.Version,
+                    eventType,
+                    eventVersion.Name);
+                _eventDefinitionsByType.Add(eventType, ed);
+                return ed;
             }
 
             var match = _eventNameRegex.Match(eventType.Name);

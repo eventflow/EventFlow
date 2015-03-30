@@ -114,7 +114,7 @@ namespace EventFlow.Core
             _semaphore.Release();
         }
 
-        public IDisposable Wait(CancellationToken cancellationToken = default(CancellationToken))
+        public IDisposable Wait(CancellationToken cancellationToken)
         {
             _semaphore.Wait(cancellationToken);
             return _releaser;

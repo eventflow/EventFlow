@@ -20,17 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.EventStores
 {
-    public interface ICommand<in TAggregate>
-        where TAggregate : IAggregateRoot
+    public class EventVersionAttribute : Attribute
     {
-        string Id { get; }
+        public string Name { get; private set; }
+        public int Version { get; private set; }
 
-        Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken);
+        public EventVersionAttribute(string name, int version)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (version <= 0) throw new ArgumentOutOfRangeException("version", "Event version must be positive");
+
+            Name = name;
+            Version = version;
+        }
     }
 }

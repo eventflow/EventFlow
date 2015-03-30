@@ -20,17 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Configuration;
 
-namespace EventFlow.Commands
+namespace EventFlow.Test
 {
-    public interface ICommand<in TAggregate>
-        where TAggregate : IAggregateRoot
+    public abstract class IntegrationTestConfiguration
     {
-        string Id { get; }
+        public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
 
-        Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken);
+        public abstract void TearDown();
     }
 }

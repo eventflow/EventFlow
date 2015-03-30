@@ -59,10 +59,7 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken = default(CancellationToken))
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
@@ -86,25 +83,23 @@ namespace EventFlow.EventStores.MsSql
                 id);
 
             const string sql = @"
-                BEGIN TRANSACTION
-                    INSERT INTO
-                        EventFlow
-                            (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
-                            OUTPUT CAST(INSERTED.GlobalSequenceNumber as bigint)
-                        SELECT
-                            BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                        FROM
-                            @rows
-                COMMIT TRANSACTION";
+                INSERT INTO
+                    EventFlow
+                        (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
+                        OUTPUT CAST(INSERTED.GlobalSequenceNumber as bigint)
+                    SELECT
+                        BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                    FROM
+                        @rows";
 
             IReadOnlyCollection<long> ids;
             try
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
+                    cancellationToken,
                     sql,
-                    eventDataModels,
-                    null,
-                    cancellationToken).ConfigureAwait(false);
+                    eventDataModels)
+                    .ConfigureAwait(false);
             }
             catch (SqlException exception)
             {
@@ -129,15 +124,10 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id, CancellationToken cancellationToken)
         {
             const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                sql,
-                new { AggregateId = id },
-                cancellationToken)
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(cancellationToken, sql, new { AggregateId = id })
                 .ConfigureAwait(false);
             return eventDataModels;
         }

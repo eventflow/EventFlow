@@ -35,7 +35,7 @@ namespace EventFlow.Test.Aggregates.Test.Commands
             Id = id;
         }
 
-        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken)
         {
             aggregate.DomainErrorAfterFirst();
             return Task.FromResult(0);
