@@ -22,6 +22,7 @@
 
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.Test;
 using EventFlow.Test.Aggregates.Test;
 using EventFlow.Test.Aggregates.Test.Events;
 using FluentAssertions;
@@ -30,36 +31,28 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
     [TestFixture]
-    public class AggregateRootTests
+    public class AggregateRootTests : TestsFor<TestAggregate>
     {
-        private TestAggregate _sut;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new TestAggregate("42");
-        }
-
         [Test]
         public void InitialVersionIsZero()
         {
             // Assert
-            _sut.Version.Should().Be(0);
-            _sut.IsNew.Should().BeTrue();
-            _sut.UncommittedEvents.Count().Should().Be(0);
+            Sut.Version.Should().Be(0);
+            Sut.IsNew.Should().BeTrue();
+            Sut.UncommittedEvents.Count().Should().Be(0);
         }
 
         [Test]
         public void ApplyingEventIncrementsVersion()
         {
             // Act
-            _sut.Ping();
+            Sut.Ping();
 
             // Assert
-            _sut.Version.Should().Be(1);
-            _sut.IsNew.Should().BeFalse();
-            _sut.UncommittedEvents.Count().Should().Be(1);
-            _sut.PingsReceived.Should().Be(1);
+            Sut.Version.Should().Be(1);
+            Sut.IsNew.Should().BeFalse();
+            Sut.UncommittedEvents.Count().Should().Be(1);
+            Sut.PingsReceived.Should().Be(1);
         }
 
         [Test]
@@ -73,13 +66,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 };
 
             // Act
-            _sut.ApplyEvents(events);
+            Sut.ApplyEvents(events);
 
             // Assert
-            _sut.IsNew.Should().BeFalse();
-            _sut.Version.Should().Be(2);
-            _sut.PingsReceived.Should().Be(2);
-            _sut.UncommittedEvents.Count().Should().Be(0);
+            Sut.IsNew.Should().BeFalse();
+            Sut.Version.Should().Be(2);
+            Sut.PingsReceived.Should().Be(2);
+            Sut.UncommittedEvents.Count().Should().Be(0);
         }
     }
 }

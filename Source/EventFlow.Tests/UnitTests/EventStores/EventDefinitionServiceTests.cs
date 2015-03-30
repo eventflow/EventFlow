@@ -23,29 +23,20 @@
 using System;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
-using EventFlow.Logs;
+using EventFlow.Test;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
     [TestFixture]
-    public class EventDefinitionServiceTests
+    public class EventDefinitionServiceTests : TestsFor<EventDefinitionService>
     {
         [EventVersion("Fancy", 42)]
         public class TestEventWithLongName : AggregateEvent<IAggregateRoot> { }
         public class TestEvent : AggregateEvent<IAggregateRoot> { }
         public class TestEventV2 : AggregateEvent<IAggregateRoot> { }
         public class OldTestEventV5 : AggregateEvent<IAggregateRoot> { }
-
-        private EventDefinitionService _sut;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new EventDefinitionService(new Mock<ILog>().Object);
-        }
 
         [TestCase(typeof(TestEvent), 1, "TestEvent")]
         [TestCase(typeof(TestEventV2), 2, "TestEvent")]
@@ -54,7 +45,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void GetEventDefinition_EventWithVersion(Type eventType, int expectedVersion, string expectedName)
         {
             // Act
-            var eventDefinition = _sut.GetEventDefinition(eventType);
+            var eventDefinition = Sut.GetEventDefinition(eventType);
 
             // Assert
             eventDefinition.Name.Should().Be(expectedName);
@@ -69,7 +60,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void LoadEventsFollowedByGetEventDefinition_ReturnsCorrectAnswer(string eventName, int eventVersion, Type expectedEventType)
         {
             // Arrange
-            _sut.LoadEvents(new []
+            Sut.LoadEvents(new []
                 {
                     typeof(TestEvent),
                     typeof(TestEventV2),
@@ -78,7 +69,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 });
 
             // Act
-            var eventDefinition = _sut.GetEventDefinition(eventName, eventVersion);
+            var eventDefinition = Sut.GetEventDefinition(eventName, eventVersion);
 
             // Assert
             eventDefinition.Name.Should().Be(eventName);

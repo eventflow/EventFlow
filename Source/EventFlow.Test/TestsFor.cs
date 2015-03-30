@@ -21,42 +21,49 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
+using System.Linq;
+using Moq;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.AutoMoq;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Test
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public abstract class TestsFor<TSut>
     {
-        [Test]
-        public void CanResolve()
+        private Lazy<TSut> _lazySut; 
+        protected TSut Sut { get { return _lazySut.Value; } }
+        protected IFixture Fixture { get; private set; }
+
+        [SetUp]
+        public void SetUpTests()
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver(true);
-
-            // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
-
-            // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
+            Fixture = new Fixture()
+                .Customize(new AutoMoqCustomization());
+            _lazySut = new Lazy<TSut>(CreateSut);
         }
 
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
+        protected Mock<T> Freze<T>()
+            where T : class
         {
-            // Arrange
-            var options = EventFlowOptions.New
-                .UseEventStore<InMemoryEventStore>()
-                .UseEventStore<InMemoryEventStore>();
+            var mock = new Mock<T>();
+            Fixture.Inject(mock.Object);
+            return mock;
+        }
 
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
+        protected T A<T>()
+        {
+            return Fixture.Create<T>();
+        }
+
+        protected System.Collections.Generic.List<T> Many<T>(int count = 3)
+        {
+            return Fixture.CreateMany<T>(count).ToList();
+        }
+
+        protected virtual TSut CreateSut()
+        {
+            return Fixture.Create<TSut>();
         }
     }
 }

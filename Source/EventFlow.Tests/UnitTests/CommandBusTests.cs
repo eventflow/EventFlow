@@ -26,41 +26,25 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
-using EventFlow.ReadStores;
-using EventFlow.Subscribers;
+using EventFlow.Test;
 using EventFlow.Test.Aggregates.Test;
 using EventFlow.Test.Aggregates.Test.Commands;
 using Moq;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests
 {
     [TestFixture]
-    public class CommandBusTests
+    public class CommandBusTests : TestsFor<CommandBus>
     {
-        private CommandBus _sut;
-        private Mock<ILog> _logMock;
         private Mock<IEventStore> _eventStoreMock;
-        private Mock<IDispatchToEventSubscribers> _dispatchToEventSubscribersMock;
-        private Mock<IReadStoreManager> _readStoreManagerMock;
-        private EventFlowConfiguration _eventFlowConfiguration;
 
         [SetUp]
         public void SetUp()
         {
-            _logMock = new Mock<ILog>();
-            _eventStoreMock = new Mock<IEventStore>();
-            _dispatchToEventSubscribersMock = new Mock<IDispatchToEventSubscribers>();
-            _readStoreManagerMock = new Mock<IReadStoreManager>();
-            _eventFlowConfiguration = new EventFlowConfiguration();
-
-            _sut = new CommandBus(
-                _logMock.Object,
-                _eventFlowConfiguration,
-                _eventStoreMock.Object,
-                _dispatchToEventSubscribersMock.Object,
-                _readStoreManagerMock.Object);
+            Fixture.Inject<IEventFlowConfiguration>(new EventFlowConfiguration());
+            _eventStoreMock = Freze<IEventStore>();
         }
 
         [Test]
@@ -73,7 +57,7 @@ namespace EventFlow.Tests.UnitTests
                 .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
-            Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new DomainErrorAfterFirstCommand("42"), CancellationToken.None).ConfigureAwait(false));
+            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new DomainErrorAfterFirstCommand("42"), CancellationToken.None).ConfigureAwait(false));
 
             _eventStoreMock.Verify(
                 s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),
