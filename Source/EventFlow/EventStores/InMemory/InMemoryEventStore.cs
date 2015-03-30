@@ -72,7 +72,7 @@ namespace EventFlow.EventStores.InMemory
         protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
             string id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
             {
@@ -115,9 +115,9 @@ namespace EventFlow.EventStores.InMemory
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
         {
-            using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 return _eventStore.ContainsKey(id)
                     ? _eventStore[id]

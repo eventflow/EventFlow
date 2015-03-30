@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
@@ -37,7 +38,7 @@ namespace EventFlow.ReadStores
 
         protected ILog Log { get; private set; }
 
-        public abstract Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents);
+        public abstract Task UpdateReadModelAsync(CancellationToken cancellationToken, string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents);
 
         protected ReadModelStore(ILog log)
         {

@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
 
@@ -33,7 +34,7 @@ namespace EventFlow.Aggregates
         bool IsNew { get; }
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore);
+        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken);
         void ApplyEvents(IEnumerable<IAggregateEvent> domainEvents);
     }
 }

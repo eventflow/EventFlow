@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
@@ -97,9 +98,13 @@ namespace EventFlow.Aggregates
             _uncommittedEvents.Add(uncommittedEvent);
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore)
+        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken)
         {
-            var domainEvents = await eventStore.StoreAsync<TAggregate>(Id, _uncommittedEvents).ConfigureAwait(false);
+            var domainEvents = await eventStore.StoreAsync<TAggregate>(
+                Id,
+                _uncommittedEvents,
+                cancellationToken)
+                .ConfigureAwait(false);
             _uncommittedEvents.Clear();
             return domainEvents;
         }

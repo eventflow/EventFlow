@@ -50,10 +50,7 @@ namespace EventFlow.EventStores
             MetadataProviders = metadataProviders.ToList();
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var aggregateType = typeof (TAggregate);
@@ -84,19 +81,12 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken = default(CancellationToken))
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            string id,
-            CancellationToken cancellationToken = default(CancellationToken));
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id, CancellationToken cancellationToken);
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
-            string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id, CancellationToken cancellationToken)
         {
             var committedDomainEvents = await LoadCommittedEventsAsync(id, cancellationToken).ConfigureAwait(false);
             var domainEvents = committedDomainEvents
@@ -105,9 +95,7 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
-        public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate>(string id, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var aggregateType = typeof(TAggregate);
@@ -130,9 +118,7 @@ namespace EventFlow.EventStores
             return aggregate;
         }
 
-        public virtual TAggregate LoadAggregate<TAggregate>(
-            string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual TAggregate LoadAggregate<TAggregate>(string id, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var aggregate = default(TAggregate);

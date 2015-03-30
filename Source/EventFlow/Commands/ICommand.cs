@@ -31,6 +31,6 @@ namespace EventFlow.Commands
     {
         string Id { get; }
 
-        Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken = default(CancellationToken));
+        Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken);
     }
 }

@@ -73,7 +73,7 @@ namespace EventFlow.Tests.UnitTests
                 .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
-            Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new DomainErrorAfterFirstCommand("42")).ConfigureAwait(false));
+            Assert.Throws<OptimisticConcurrencyException>(async () => await _sut.PublishAsync(new DomainErrorAfterFirstCommand("42"), CancellationToken.None).ConfigureAwait(false));
 
             _eventStoreMock.Verify(
                 s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),

@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.MetadataProviders;
@@ -55,7 +56,7 @@ namespace EventFlow.Tests.IntegrationTests
 
                 // Act
                 commandBus.Publish(new DomainErrorAfterFirstCommand(id));
-                var testAggregate = eventStore.LoadAggregate<TestAggregate>(id);
+                var testAggregate = eventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
                 var testReadModel = readModelStore.Get(id);
 
                 // Assert

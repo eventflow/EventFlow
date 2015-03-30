@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
@@ -45,12 +46,13 @@ namespace EventFlow.ReadStores
 
         public async Task UpdateReadStoresAsync<TAggregate>(
             string id,
-            IReadOnlyCollection<IDomainEvent> domainEvents)
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TAggregate>>>().ToList();
             var updateTasks = readModelStores
-                .Select(s => UpdateReadStoreAsync(s, id, domainEvents))
+                .Select(s => UpdateReadStoreAsync(s, id, domainEvents, cancellationToken))
                 .ToArray();
             await Task.WhenAll(updateTasks).ConfigureAwait(false);
         }
@@ -58,7 +60,8 @@ namespace EventFlow.ReadStores
         private async Task UpdateReadStoreAsync<TAggregate>(
             IReadModelStore<TAggregate> readModelStore,
             string id,
-            IReadOnlyCollection<IDomainEvent> domainEvents)
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var readModelStoreType = readModelStore.GetType();
@@ -73,7 +76,7 @@ namespace EventFlow.ReadStores
 
             try
             {
-                await readModelStore.UpdateReadModelAsync(id, domainEvents).ConfigureAwait(false);
+                await readModelStore.UpdateReadModelAsync(cancellationToken, id, domainEvents).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

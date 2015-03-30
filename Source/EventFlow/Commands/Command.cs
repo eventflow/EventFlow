@@ -36,6 +36,6 @@ namespace EventFlow.Commands
             Id = id;
         }
 
-        public abstract Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task ExecuteAsync(TAggregate aggregate, CancellationToken cancellationToken);
     }
 }

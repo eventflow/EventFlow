@@ -60,7 +60,7 @@ namespace EventFlow
 
         public async Task PublishAsync<TAggregate>(
             ICommand<TAggregate> command,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             if (command == null) throw new ArgumentNullException("command");
@@ -78,7 +78,7 @@ namespace EventFlow
                     {
                         var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
                         await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
-                        return await aggregate.CommitAsync(_eventStore).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, cancellationToken).ConfigureAwait(false);
                     },
                     _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
                     new [] { typeof(OptimisticConcurrencyException) },
@@ -95,7 +95,9 @@ namespace EventFlow
                 return;
             }
 
-            await _readStoreManager.UpdateReadStoresAsync<TAggregate>(command.Id, domainEvents).ConfigureAwait(false);
+            // TODO: Determine if we can use cancellation token after there, this should be the "point of no return"
+
+            await _readStoreManager.UpdateReadStoresAsync<TAggregate>(command.Id, domainEvents, CancellationToken.None).ConfigureAwait(false);
             await _dispatchToEventSubscribers.DispatchAsync(domainEvents).ConfigureAwait(false);
         }
 
@@ -103,7 +105,7 @@ namespace EventFlow
         {
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command));
+                a.Run(PublishAsync(command, CancellationToken.None));
             }
         }
     }

@@ -42,10 +42,7 @@ namespace EventFlow.MsSql
             _configuration = configuration;
         }
 
-        public Task<int> ExecuteAsync(
-            string sql,
-            object param = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<int> ExecuteAsync(CancellationToken cancellationToken, string sql, object param = null)
         {
             return WithConnectionAsync(c =>
                 {
@@ -54,10 +51,7 @@ namespace EventFlow.MsSql
                 });
         }
 
-        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
-            string sql,
-            object param = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(CancellationToken cancellationToken, string sql, object param = null)
         {
             return (await WithConnectionAsync(c =>
                 {
@@ -66,15 +60,11 @@ namespace EventFlow.MsSql
                 }).ConfigureAwait(false)).ToList();
         }
 
-        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            string sql,
-            IEnumerable<TRow> rows,
-            object param = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
             where TRow : class, new()
         {
             var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new {});
-            return QueryAsync<TResult>(sql, tableParameter, cancellationToken);
+            return QueryAsync<TResult>(cancellationToken, sql, tableParameter);
         }
 
         public async Task<TResult> WithConnectionAsync<TResult>(

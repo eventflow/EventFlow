@@ -32,21 +32,21 @@ namespace EventFlow.EventStores
         Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
             string id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
         Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
             string id,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken);
 
         Task<TAggregate> LoadAggregateAsync<TAggregate>(
             string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
         TAggregate LoadAggregate<TAggregate>(
             string id,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
     }
 }
