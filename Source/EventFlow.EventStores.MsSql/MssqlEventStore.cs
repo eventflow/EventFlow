@@ -86,16 +86,14 @@ namespace EventFlow.EventStores.MsSql
                 id);
 
             const string sql = @"
-                BEGIN TRANSACTION
-                    INSERT INTO
-                        EventFlow
-                            (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
-                            OUTPUT CAST(INSERTED.GlobalSequenceNumber as bigint)
-                        SELECT
-                            BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                        FROM
-                            @rows
-                COMMIT TRANSACTION";
+                INSERT INTO
+                    EventFlow
+                        (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
+                        OUTPUT CAST(INSERTED.GlobalSequenceNumber as bigint)
+                    SELECT
+                        BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                    FROM
+                        @rows";
 
             IReadOnlyCollection<long> ids;
             try
