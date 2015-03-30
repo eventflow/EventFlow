@@ -76,7 +76,7 @@ namespace EventFlow.ReadStores
 
             try
             {
-                await readModelStore.UpdateReadModelAsync(cancellationToken, id, domainEvents).ConfigureAwait(false);
+                await readModelStore.UpdateReadModelAsync(id, domainEvents, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

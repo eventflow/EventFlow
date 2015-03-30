@@ -50,7 +50,7 @@ namespace EventFlow.ReadStores.MsSql
             _connection = connection;
         }
 
-        public override async Task UpdateReadModelAsync(CancellationToken cancellationToken, string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
+        public override async Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
         {
             var readModels = await _connection.QueryAsync<TReadModel>(
                 cancellationToken,

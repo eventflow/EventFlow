@@ -31,8 +31,8 @@ namespace EventFlow.ReadStores
         where TAggregate : IAggregateRoot
     {
         Task UpdateReadModelAsync(
-            CancellationToken cancellationToken,
             string aggregateId,
-            IReadOnlyCollection<IDomainEvent> domainEvents);
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }

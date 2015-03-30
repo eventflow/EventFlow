@@ -42,7 +42,10 @@ namespace EventFlow.ReadStores.InMemory
         {
         }
 
-        public override Task UpdateReadModelAsync(CancellationToken cancellationToken, string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents)
+        public override Task UpdateReadModelAsync(
+            string aggregateId,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
             TReadModel readModel;
             if (_readModels.ContainsKey(aggregateId))
