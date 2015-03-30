@@ -61,6 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
+    <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
