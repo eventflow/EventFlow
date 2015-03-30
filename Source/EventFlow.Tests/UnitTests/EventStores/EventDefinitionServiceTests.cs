@@ -61,5 +61,29 @@ namespace EventFlow.Tests.UnitTests.EventStores
             eventDefinition.Version.Should().Be(expectedVersion);
             eventDefinition.Type.Should().Be(eventType);
         }
+
+        [TestCase("TestEvent", 1, typeof(TestEvent))]
+        [TestCase("TestEvent", 2, typeof(TestEventV2))]
+        [TestCase("TestEvent", 5, typeof(OldTestEventV5))]
+        [TestCase("Fancy", 42, typeof(TestEventWithLongName))]
+        public void LoadEventsFollowedByGetEventDefinition_ReturnsCorrectAnswer(string eventName, int eventVersion, Type expectedEventType)
+        {
+            // Arrange
+            _sut.LoadEvents(new []
+                {
+                    typeof(TestEvent),
+                    typeof(TestEventV2),
+                    typeof(OldTestEventV5),
+                    typeof(TestEventWithLongName)
+                });
+
+            // Act
+            var eventDefinition = _sut.GetEventDefinition(eventName, eventVersion);
+
+            // Assert
+            eventDefinition.Name.Should().Be(eventName);
+            eventDefinition.Version.Should().Be(eventVersion);
+            eventDefinition.Type.Should().Be(expectedEventType);
+        }
     }
 }
