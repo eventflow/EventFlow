@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
     [TestFixture]
-    public class MsSqlEventStoreTests : IntegrationTest
+    public class MsSqlEventStoreTests : MsSqlIntegrationTest
     {
         [Test]
         public async Task OptimisticConcurrency()

@@ -20,29 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.Commands;
-using FluentAssertions;
-using NUnit.Framework;
+using EventFlow.Configuration;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.Test
 {
-    [TestFixture]
-    public class DomainTests : MsSqlIntegrationTest
+    public abstract class IntegrationTestConfiguration
     {
-        [Test]
-        public void BasicFlow()
-        {
-            // Arrange
-            var id = A<string>();
+        public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
 
-            // Act
-            Sut.Publish(new DomainErrorAfterFirstCommand(id));
-            var testAggregate = EventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
-
-            // Assert
-            testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
-        }
+        public abstract void TearDown();
     }
 }
