@@ -42,7 +42,8 @@ namespace EventFlow.EventStores
 
         public override string ToString()
         {
-            return string.Format("{0} v{1}", Name, Version);
+            var assemblyName = Type.Assembly.GetName();
+            return string.Format("{0} v{1} ({2} - {3})", Name, Version, assemblyName.Name, Type.Name);
         }
     }
 }

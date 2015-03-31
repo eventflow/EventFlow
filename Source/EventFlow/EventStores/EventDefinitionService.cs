@@ -106,6 +106,8 @@ namespace EventFlow.EventStores
                     "eventType");
             }
 
+            _log.Verbose("Added event definition '{0}'", eventDefinition);
+
             _eventDefinitionsByType.Add(eventType, eventDefinition);
 
             return eventDefinition;
