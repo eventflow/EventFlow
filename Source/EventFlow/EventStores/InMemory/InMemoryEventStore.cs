@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -74,7 +75,12 @@ namespace EventFlow.EventStores.InMemory
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
-            using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
+            if (!serializedEvents.Any())
+            {
+                return new List<ICommittedDomainEvent>();
+            }
+
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var globalCount = _eventStore.Values.SelectMany(e => e).Count();
                 var batchId = Guid.NewGuid();
@@ -107,6 +113,13 @@ namespace EventFlow.EventStores.InMemory
                             return committedDomainEvent;
                         })
                     .ToList();
+
+                var expectedVersion = newCommittedDomainEvents.First().AggregateSequenceNumber - 1;
+                if (expectedVersion != committedDomainEvents.Count)
+                {
+                    throw new OptimisticConcurrencyException("");
+                }
+
                 committedDomainEvents.AddRange(newCommittedDomainEvents);
 
                 return newCommittedDomainEvents;

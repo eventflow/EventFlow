@@ -61,6 +61,8 @@
   <ItemGroup>
     <Compile Include="IntegrationTests\ConfigurationTests.cs" />
     <Compile Include="IntegrationTests\DomainTests.cs" />
+    <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
+    <Compile Include="IntegrationTests\InMemoryConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />

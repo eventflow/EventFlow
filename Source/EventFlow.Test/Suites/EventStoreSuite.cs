@@ -20,8 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Exceptions;
 using EventFlow.Test.Aggregates.Test;
 using EventFlow.Test.Aggregates.Test.Events;
@@ -40,7 +43,52 @@ namespace EventFlow.Test.Suites
             var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate>(A<string>(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
+            testAggregate.Should().NotBeNull();
             testAggregate.IsNew.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task EventsCanBeStored()
+        {
+            // Arrange
+            var id = A<string>();
+            var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate>(id, CancellationToken.None).ConfigureAwait(false);
+            testAggregate.Ping();
+
+            // Act
+            var domainEvents = await testAggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.Count.Should().Be(1);
+            var pingEvent = domainEvents.Single() as IDomainEvent<PingEvent>;
+            pingEvent.Should().NotBeNull();
+            pingEvent.AggregateId.Should().Be(id);
+            pingEvent.AggregateSequenceNumber.Should().Be(1);
+            pingEvent.AggregateType.Should().Be(typeof (TestAggregate));
+            pingEvent.BatchId.Should().NotBe(default(Guid));
+            pingEvent.EventType.Should().Be(typeof (PingEvent));
+            pingEvent.GlobalSequenceNumber.Should().Be(1);
+            pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
+            pingEvent.Metadata.Count.Should().BeGreaterThan(0);
+        }
+
+        [Test]
+        public async Task AggregatesCanBeLoaded()
+        {
+            // Arrange
+            var id = A<string>();
+            var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate>(id, CancellationToken.None).ConfigureAwait(false);
+            testAggregate.Ping();
+            await testAggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var loadedTestAggregate = await EventStore.LoadAggregateAsync<TestAggregate>(id, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            loadedTestAggregate.Should().NotBeNull();
+            loadedTestAggregate.IsNew.Should().BeFalse();
+            loadedTestAggregate.Version.Should().Be(1);
+            loadedTestAggregate.PingsReceived.Should().Be(1);
         }
 
         [Test]

@@ -20,21 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Configuration;
+using EventFlow.Test;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.Tests.IntegrationTests
 {
-    public class OptimisticConcurrencyException : Exception
+    public class InMemoryConfiguration : IntegrationTestConfiguration
     {
-        public OptimisticConcurrencyException(string mesage)
-            : base(mesage)
+        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
+            return eventFlowOptions.CreateResolver();
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public override void TearDown()
         {
         }
     }

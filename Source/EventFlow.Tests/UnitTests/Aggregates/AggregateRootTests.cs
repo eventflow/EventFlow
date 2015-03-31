@@ -59,11 +59,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void EventsCanBeApplied()
         {
             // Arrange
-            var events = new IAggregateEvent[]
-                {
-                    new PingEvent(),
-                    new PingEvent(),
-                };
+            var events = Many<PingEvent>(2);
 
             // Act
             Sut.ApplyEvents(events);
