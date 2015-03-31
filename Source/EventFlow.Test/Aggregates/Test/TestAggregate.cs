@@ -50,7 +50,7 @@ namespace EventFlow.Test.Aggregates.Test
 
         public void Ping()
         {
-            Emit(new PingEvent());
+            Emit(new PingEvent(Guid.NewGuid()));
         }
 
         public void Apply(DomainErrorAfterFirstEvent e)
