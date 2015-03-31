@@ -31,7 +31,6 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
-using EventFlow.ReadStores;
 using EventFlow.Subscribers;
 
 namespace EventFlow
@@ -41,21 +40,18 @@ namespace EventFlow
         private readonly ILog _log;
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
-        private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
-        private readonly IReadStoreManager _readStoreManager;
+        private readonly IDomainEventPublisher _domainEventPublisher;
 
         public CommandBus(
             ILog log,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
-            IDispatchToEventSubscribers dispatchToEventSubscribers,
-            IReadStoreManager readStoreManager)
+            IDomainEventPublisher domainEventPublisher)
         {
             _log = log;
             _configuration = configuration;
             _eventStore = eventStore;
-            _dispatchToEventSubscribers = dispatchToEventSubscribers;
-            _readStoreManager = readStoreManager;
+            _domainEventPublisher = domainEventPublisher;
         }
 
         public async Task PublishAsync<TAggregate>(
@@ -96,9 +92,7 @@ namespace EventFlow
             }
 
             // TODO: Determine if we can use cancellation token after there, this should be the "point of no return"
-
-            await _readStoreManager.UpdateReadStoresAsync<TAggregate>(command.Id, domainEvents, CancellationToken.None).ConfigureAwait(false);
-            await _dispatchToEventSubscribers.DispatchAsync(domainEvents).ConfigureAwait(false);
+            await _domainEventPublisher.PublishAsync<TAggregate>(command.Id, domainEvents, CancellationToken.None).ConfigureAwait(false);
         }
 
         public void Publish<TAggregate>(ICommand<TAggregate> command) where TAggregate : IAggregateRoot
