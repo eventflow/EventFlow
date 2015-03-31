@@ -32,10 +32,13 @@ namespace EventFlow.EventStores
 {
     public class EventDefinitionService : IEventDefinitionService
     {
+        private static readonly Regex EventNameRegex = new Regex(
+            @"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$",
+            RegexOptions.Compiled);
+
         private readonly ILog _log;
         private readonly Dictionary<Type, EventDefinition> _eventDefinitionsByType = new Dictionary<Type, EventDefinition>();
         private readonly Dictionary<string, EventDefinition> _eventDefinitionsByName = new Dictionary<string, EventDefinition>();  
-        private readonly Regex _eventNameRegex = new Regex(@"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$", RegexOptions.Compiled);
 
         public EventDefinitionService(
             ILog log)
@@ -79,29 +82,44 @@ namespace EventFlow.EventStores
 
         public EventDefinition GetEventDefinition(Type eventType)
         {
+            if (eventType == null)
+            {
+                throw new ArgumentNullException("eventType");
+            }
             if (_eventDefinitionsByType.ContainsKey(eventType))
             {
                 return _eventDefinitionsByType[eventType];
             }
-
             if (!typeof(IAggregateEvent).IsAssignableFrom(eventType))
             {
                 throw new ArgumentException(string.Format(
                     "Event '{0}' is not a DomainEvent", eventType.Name));
             }
 
-            var eventVersion = eventType.GetCustomAttribute(typeof(EventVersionAttribute), false) as EventVersionAttribute;
-            if (eventVersion != null)
+            var eventDefinition = CreateEventDefinitions(eventType).FirstOrDefault(ed => ed != null);
+            if (eventDefinition == null)
             {
-                var ed = new EventDefinition(
-                    eventVersion.Version,
-                    eventType,
-                    eventVersion.Name);
-                _eventDefinitionsByType.Add(eventType, ed);
-                return ed;
+                throw new ArgumentException(
+                    string.Format(
+                        "Could not create a event definition for event type '{0}'",
+                        eventType.Name),
+                    "eventType");
             }
 
-            var match = _eventNameRegex.Match(eventType.Name);
+            _eventDefinitionsByType.Add(eventType, eventDefinition);
+
+            return eventDefinition;
+        }
+
+        private static IEnumerable<EventDefinition> CreateEventDefinitions(Type eventType)
+        {
+            yield return CreateEventDefinitionFromAttribute(eventType);
+            yield return CreateEventDefinitionFromName(eventType);
+        }
+
+        private static EventDefinition CreateEventDefinitionFromName(Type eventType)
+        {
+            var match = EventNameRegex.Match(eventType.Name);
             if (!match.Success)
             {
                 throw new ArgumentException(string.Format(
@@ -117,14 +135,21 @@ namespace EventFlow.EventStores
             }
 
             var name = match.Groups["name"].Value;
-            var eventDefinition = new EventDefinition(
+            return new EventDefinition(
                 version,
                 eventType,
                 name);
+        }
 
-            _eventDefinitionsByType.Add(eventType, eventDefinition);
-
-            return eventDefinition;
+        private static EventDefinition CreateEventDefinitionFromAttribute(Type eventType)
+        {
+            var eventVersion = eventType.GetCustomAttribute(typeof(EventVersionAttribute), false) as EventVersionAttribute;
+            return eventVersion == null
+                ? null
+                : new EventDefinition(
+                    eventVersion.Version,
+                    eventType,
+                    eventVersion.Name);
         }
 
         private static string GetKey(string eventName, int version)
