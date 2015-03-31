@@ -24,6 +24,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Exceptions;
 using EventFlow.Test.Aggregates.Test;
+using EventFlow.Test.Aggregates.Test.Events;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Test.Suites
@@ -32,14 +34,27 @@ namespace EventFlow.Test.Suites
         where TConfiguration : IntegrationTestConfiguration, new()
     {
         [Test]
+        public async Task NewAggregateCanBeLoaded()
+        {
+            // Act
+            var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate>(A<string>(), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            testAggregate.IsNew.Should().BeTrue();
+        }
+
+        [Test]
         public async Task OptimisticConcurrency()
         {
-            var aggregate1 = EventStore.LoadAggregate<TestAggregate>("1", CancellationToken.None);
-            var aggregate2 = EventStore.LoadAggregate<TestAggregate>("1", CancellationToken.None);
+            // Arrange
+            var id = A<string>();
+            var aggregate1 = EventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
+            var aggregate2 = EventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
 
             aggregate1.DomainErrorAfterFirst();
             aggregate2.DomainErrorAfterFirst();
 
+            // Act
             await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
             Assert.Throws<OptimisticConcurrencyException>(async () => await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false));
         }

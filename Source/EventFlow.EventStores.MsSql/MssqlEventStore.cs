@@ -105,6 +105,10 @@ namespace EventFlow.EventStores.MsSql
             {
                 if (exception.Number == 2601)
                 {
+                    Log.Verbose(
+                        "Detected an optimistic concurrency exception for aggregate '{0}' with ID '{1}'",
+                        aggregateType.Name,
+                        id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
                 }
 
