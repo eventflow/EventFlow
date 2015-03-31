@@ -127,9 +127,31 @@ namespace EventFlow.Aggregates
 
         private void ApplyEvent(IAggregateEvent aggregateEvent)
         {
-            var applyMethod = GetApplyMethod(aggregateEvent.GetType());
-            applyMethod(this as TAggregate, aggregateEvent);
+            var eventType = aggregateEvent.GetType();
+            if (_eventHandlers.ContainsKey(eventType))
+            {
+                _eventHandlers[eventType](aggregateEvent);
+            }
+            else
+            {
+                var applyMethod = GetApplyMethod(eventType);
+                applyMethod(this as TAggregate, aggregateEvent);
+            }
             Version++;
+        }
+
+        private readonly Dictionary<Type, Action<object>> _eventHandlers = new Dictionary<Type, Action<object>>();
+        protected void Register<TAggregateEvent>(Action<TAggregateEvent> handler)
+            where TAggregateEvent : IAggregateEvent
+        {
+            var eventType = typeof (TAggregateEvent);
+            if (_eventHandlers.ContainsKey(eventType))
+            {
+                throw new ArgumentException(string.Format(
+                    "There's already a event handler registered for the aggregate event '{0}'",
+                    eventType.Name));
+            }
+            _eventHandlers[eventType] = e => handler((TAggregateEvent)e);
         }
 
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>>(); 
