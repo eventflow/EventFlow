@@ -20,20 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.Test.Aggregates.Test.Events;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Test.Aggregates.Test.Commands;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Test.Aggregates.Test.ReadModels
+namespace EventFlow.Test.Suites
 {
-    public class TestReadModel : IReadModel,
-        IAmReadModelFor<DomainErrorAfterFirstEvent>
+    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
+        where TConfiguration : IntegrationTestConfiguration, new()
     {
-        public bool TestAReceived { get; private set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
+        [Test]
+        public async Task ReadModelReceivesEvent()
         {
-            TestAReceived = true;
+            // Arrange
+            var id = A<string>();
+            
+            // Act
+            await Sut.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
+            var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
+
+            // Assert
+            readModel.Should().NotBeNull();
+            readModel.PingsReceived.Should().Be(1);
         }
     }
 }

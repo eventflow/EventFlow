@@ -50,15 +50,12 @@ namespace EventFlow.MsSql
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
         {
-            const string schema = "dbo";
-            var tableName = string.Format("Migrations-{0}", assembly.GetName().Name.Replace(".", string.Empty));
-
             var upgradeEngine = DeployChanges.To
                 .SqlDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(assembly)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
-                .JournalToSqlTable(schema, tableName)
+                .JournalToSqlTable("dbo", "EventFlowMigrations")
                 .LogTo(new DbUpUpgradeLog(_log))
                 .Build();
 

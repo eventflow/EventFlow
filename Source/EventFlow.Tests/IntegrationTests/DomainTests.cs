@@ -46,12 +46,12 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestReadModel>>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
                 var id = Guid.NewGuid().ToString();
 
                 // Act
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.IntegrationTests
 
                 // Assert
                 testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModel.TestAReceived.Should().BeTrue();
+                testReadModel.DomainErrorAfterFirstReceived.Should().BeTrue();
             }
         }
     }

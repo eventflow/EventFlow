@@ -20,24 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.ReadStores.MsSql
 {
-    public static class EventFlowOptionsExtensions
+    public interface IReadModelSqlGenerator
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            if (!eventFlowOptions.HasRegistration<IReadModelSqlGenerator>())
-            {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton));
-            }
+        string CreateInsertSql<TReadModel>()
+            where TReadModel : IMssqlReadModel;
 
-            eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>());
-            return eventFlowOptions;
-        }
+        string CreateSelectSql<TReadModel>()
+            where TReadModel : IMssqlReadModel;
+
+        string CreateUpdateSql<TReadModel>()
+            where TReadModel : IMssqlReadModel;
     }
 }

@@ -20,24 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using System;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.ReadStores.MsSql
 {
-    public static class EventFlowOptionsExtensions
+    public abstract class MssqlReadModel : IMssqlReadModel
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            if (!eventFlowOptions.HasRegistration<IReadModelSqlGenerator>())
-            {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton));
-            }
+        public string AggregateId { get; set; }
+        public DateTimeOffset CreateTime { get; set; }
+        public DateTimeOffset UpdatedTime { get; set; }
+        public int LastAggregateSequenceNumber { get; set; }
+        public long LastGlobalSequenceNumber { get; set; }
 
-            eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>());
-            return eventFlowOptions;
+        public override string ToString()
+        {
+            return string.Format(
+                "Read model '{0}' for '{1} ({2}/{3}'",
+                GetType().Name,
+                AggregateId,
+                LastGlobalSequenceNumber,
+                LastAggregateSequenceNumber);
         }
     }
 }

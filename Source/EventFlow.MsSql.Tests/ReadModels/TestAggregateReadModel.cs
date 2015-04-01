@@ -21,23 +21,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql;
+using EventFlow.Test.Aggregates.Test.Events;
+using EventFlow.Test.Aggregates.Test.ReadModels;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.MsSql.Tests.ReadModels
 {
-    public static class EventFlowOptionsExtensions
+    public class TestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel,
+        IAmReadModelFor<PingEvent>,
+        IAmReadModelFor<DomainErrorAfterFirstEvent>
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            if (!eventFlowOptions.HasRegistration<IReadModelSqlGenerator>())
-            {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton));
-            }
+        public bool DomainErrorAfterFirstReceived { get; set; }
+        public int PingsReceived { get; set; }
 
-            eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>());
-            return eventFlowOptions;
+        public void Apply(IReadModelContext context, IDomainEvent<PingEvent> e)
+        {
+            PingsReceived++;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
+        {
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

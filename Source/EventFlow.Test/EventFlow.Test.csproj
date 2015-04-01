@@ -65,13 +65,15 @@
     <Compile Include="Aggregates\Test\Commands\PingCommand.cs" />
     <Compile Include="Aggregates\Test\Events\DomainErrorAfterFirstEvent.cs" />
     <Compile Include="Aggregates\Test\Events\PingEvent.cs" />
-    <Compile Include="Aggregates\Test\ReadModels\TestReadModel.cs" />
+    <Compile Include="Aggregates\Test\ReadModels\ITestAggregateReadModel.cs" />
+    <Compile Include="Aggregates\Test\ReadModels\TestAggregateReadModel.cs" />
     <Compile Include="Aggregates\Test\TestAggregate.cs" />
     <Compile Include="EventFlowTest.cs" />
     <Compile Include="IntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Suites\EventStoreSuite.cs" />
+    <Compile Include="Suites\ReadModelStoreSuite.cs" />
     <Compile Include="TestsFor.cs" />
   </ItemGroup>
   <ItemGroup>
