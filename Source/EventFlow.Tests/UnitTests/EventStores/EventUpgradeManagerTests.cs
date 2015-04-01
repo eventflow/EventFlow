@@ -81,10 +81,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
         private IDomainEvent ToDomainEvent<TAggregateEvent>(TAggregateEvent aggregateEvent)
             where TAggregateEvent : IAggregateEvent
         {
-            var metadata = new Metadata(new Dictionary<string, string>
+            var metadata = new Metadata
                 {
-                    {MetadataKeys.Timestamp, A<DateTimeOffset>().ToString("o")}
-                });
+                    Timestamp = A<DateTimeOffset>()
+                };
 
             return _domainEventFactory.Create(
                 aggregateEvent,
