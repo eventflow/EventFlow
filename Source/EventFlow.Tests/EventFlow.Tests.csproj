@@ -66,6 +66,7 @@
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
+    <Compile Include="UnitTests\Aggregates\MetadataTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
   </ItemGroup>
