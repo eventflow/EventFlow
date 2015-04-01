@@ -22,7 +22,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -38,23 +37,27 @@ namespace EventFlow.ReadStores.MsSql
         where TAggregate : IAggregateRoot
     {
         private readonly IMsSqlConnection _connection;
-        private static readonly string InsertSql = GetInsertSql();
-        private static readonly string UpdateSql = GetUpdateSql();
-        private static readonly string SelectSql = GetSelectSql();
+        private readonly IReadModelSqlGenerator _readModelSqlGenerator;
 
         public MssqlReadModelStore(
             ILog log,
-            IMsSqlConnection connection)
+            IMsSqlConnection connection,
+            IReadModelSqlGenerator readModelSqlGenerator)
             : base(log)
         {
             _connection = connection;
+            _readModelSqlGenerator = readModelSqlGenerator;
         }
 
-        public override async Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        public override async Task UpdateReadModelAsync(
+            string aggregateId,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
+            var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
                 cancellationToken,
-                SelectSql,
+                selectSql,
                 new { AggregateId = aggregateId })
                 .ConfigureAwait(false);
             var readModel = readModels.SingleOrDefault();
@@ -76,53 +79,11 @@ namespace EventFlow.ReadStores.MsSql
             readModel.LastAggregateSequenceNumber = lastDomainEvent.AggregateSequenceNumber;
             readModel.LastGlobalSequenceNumber = lastDomainEvent.GlobalSequenceNumber;
 
-            var sql = isNew ? InsertSql : UpdateSql;
+            var sql = isNew
+                ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()
+                : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
 
             await _connection.ExecuteAsync(cancellationToken, sql, readModel).ConfigureAwait(false);
-        }
-
-        public static string GetInsertSql()
-        {
-            return string.Format(
-                "INSERT INTO {0} ({1}) VALUES ({2})",
-                GetTableName(),
-                string.Join(", ", GetInsertColumns()),
-                string.Join(", ", GetInsertColumns().Select(c => string.Format("@{0}", c))));
-        }
-
-        public static string GetUpdateSql()
-        {
-            return string.Format(
-                "UPDATE {0} SET {1} WHERE AggregateId = @AggregateId",
-                GetTableName(),
-                string.Join(", ", GetUpdateColumns().Select(c => string.Format("{0} = @{0}", c))));
-        }
-
-        public static string GetSelectSql()
-        {
-            return string.Format("SELECT * FROM {0} WHERE AggregateId = @AggregateId", GetTableName());
-        }
-
-        public static IReadOnlyCollection<string> GetUpdateColumns()
-        {
-            return GetInsertColumns()
-                .Where(c => c != "AggregateId")
-                .ToList();
-        }
-
-        public static IReadOnlyCollection<string> GetInsertColumns()
-        {
-            return typeof (TReadModel)
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.Name != "Id")
-                .OrderBy(p => p.Name)
-                .Select(p => p.Name)
-                .ToList();
-        }
-
-        private static string GetTableName()
-        {
-            return string.Format("[ReadModel-{0}]", typeof (TReadModel).Name.Replace("ReadModel", string.Empty));
         }
     }
 }

@@ -135,6 +135,12 @@ namespace EventFlow
             return this;
         }
 
+        public bool HasRegistration<TService>()
+        {
+            var serviceType = typeof (TService);
+            return _registrations.Any(r => r.ServiceType == serviceType);
+        }
+
         internal IEnumerable<Registration> GetRegistrations()
         {
             return _registrations;

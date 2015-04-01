@@ -21,28 +21,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading;
-using EventFlow.Test.Aggregates.Test;
+using System.Threading.Tasks;
 using EventFlow.Test.Aggregates.Test.Commands;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.Test.Suites
 {
-    [TestFixture]
-    public class DomainTests : MsSqlIntegrationTest
+    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
+        where TConfiguration : IntegrationTestConfiguration, new()
     {
         [Test]
-        public void BasicFlow()
+        public async Task ReadModelReceivesEvent()
         {
             // Arrange
             var id = A<string>();
-
+            
             // Act
-            Sut.Publish(new DomainErrorAfterFirstCommand(id));
-            var testAggregate = EventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
+            await Sut.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
+            var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
 
             // Assert
-            testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
+            readModel.Should().NotBeNull();
+            readModel.PingsReceived.Should().Be(1);
         }
     }
 }

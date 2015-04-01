@@ -51,6 +51,7 @@ namespace EventFlow.Configuration.Resolvers
             Check(regs, new Registration<IReadStoreManager, ReadStoreManager>(), false);
             Check(regs, new Registration<IJsonSerializer, JsonSerializer>(), false);
             Check(regs, new Registration<IAggregateFactory, AggregateFactory>(), false);
+            Check(regs, new Registration<IDomainEventPublisher, DomainEventPublisher>(), false);
 
             var eventFlowConfiguration = options.GetEventFlowConfiguration();
 

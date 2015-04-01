@@ -108,12 +108,14 @@
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="EventStores\ICommittedDomainEvent.cs" />
+    <Compile Include="Subscribers\DomainEventPublisher.cs" />
     <Compile Include="Subscribers\IDispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\IDomainEvent.cs" />
     <Compile Include="Aggregates\IEmit.cs" />
     <Compile Include="EventStores\IEventDefinitionService.cs" />
     <Compile Include="EventStores\IEventJsonSerializer.cs" />
     <Compile Include="EventStores\IEventStore.cs" />
+    <Compile Include="Subscribers\IDomainEventPublisher.cs" />
     <Compile Include="Subscribers\ISubscribeSynchronousTo.cs" />
     <Compile Include="ReadStores\IReadModelContext.cs" />
     <Compile Include="ReadStores\IReadModelStore.cs" />

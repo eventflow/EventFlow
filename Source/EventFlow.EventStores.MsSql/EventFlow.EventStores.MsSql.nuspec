@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EventFlow.EventStores.MsSql</id>
-    <title>EventFlow.EventStores.MsSql - MSSQL event store for EventFlow CQRS+ES framework</title>
+    <title>EventFlow.EventStores.MsSql - MSSQL event store</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
     <description>MSSQL event store for EventFlow</description>

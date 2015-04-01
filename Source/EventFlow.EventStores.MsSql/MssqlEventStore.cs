@@ -59,7 +59,10 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(string id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
+            string id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken)
         {
             var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
@@ -105,6 +108,10 @@ namespace EventFlow.EventStores.MsSql
             {
                 if (exception.Number == 2601)
                 {
+                    Log.Verbose(
+                        "Detected an optimistic concurrency exception for aggregate '{0}' with ID '{1}'",
+                        aggregateType.Name,
+                        id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
                 }
 
@@ -124,7 +131,9 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(string id, CancellationToken cancellationToken)
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            string id,
+            CancellationToken cancellationToken)
         {
             const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(cancellationToken, sql, new { AggregateId = id })

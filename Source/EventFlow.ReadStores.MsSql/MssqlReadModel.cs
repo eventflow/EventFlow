@@ -20,11 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Test;
+using System;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.ReadStores.MsSql
 {
-    public abstract class MsSqlIntegrationTest : IntegrationTest<MsSqlIntegrationTestConfiguration>
+    public abstract class MssqlReadModel : IMssqlReadModel
     {
+        public string AggregateId { get; set; }
+        public DateTimeOffset CreateTime { get; set; }
+        public DateTimeOffset UpdatedTime { get; set; }
+        public int LastAggregateSequenceNumber { get; set; }
+        public long LastGlobalSequenceNumber { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "Read model '{0}' for '{1} ({2}/{3}'",
+                GetType().Name,
+                AggregateId,
+                LastGlobalSequenceNumber,
+                LastAggregateSequenceNumber);
+        }
     }
 }

@@ -20,21 +20,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.ReadStores.InMemory;
+using EventFlow.Test;
+using EventFlow.Test.Aggregates.Test;
+using EventFlow.Test.Aggregates.Test.ReadModels;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.Tests.IntegrationTests
 {
-    public class OptimisticConcurrencyException : Exception
+    public class InMemoryConfiguration : IntegrationTestConfiguration
     {
-        public OptimisticConcurrencyException(string mesage)
-            : base(mesage)
+        private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
+
+        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
+            var resolver = eventFlowOptions
+                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                .CreateResolver();
+
+            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
+
+            return resolver;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+        {
+            return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
+        }
+
+        public override void TearDown()
         {
         }
     }

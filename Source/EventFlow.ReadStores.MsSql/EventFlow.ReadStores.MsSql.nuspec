@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EventFlow.ReadStores.MsSql</id>
-    <title>EventFlow.ReadStores.MsSql - MSSQL read store for EventFlow CQRS+ES framework</title>
+    <title>EventFlow.ReadStores.MsSql - MSSQL read store</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
     <description>MSSQL read store for EventFlow</description>

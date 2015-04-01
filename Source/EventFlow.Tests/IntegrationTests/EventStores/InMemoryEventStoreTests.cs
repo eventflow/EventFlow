@@ -20,20 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.Test.Aggregates.Test.Events;
+using EventFlow.Test.Suites;
 
-namespace EventFlow.Test.Aggregates.Test.ReadModels
+namespace EventFlow.Tests.IntegrationTests.EventStores
 {
-    public class TestReadModel : IReadModel,
-        IAmReadModelFor<DomainErrorAfterFirstEvent>
+    public class InMemoryEventStoreTests : EventStoreSuite<InMemoryConfiguration>
     {
-        public bool TestAReceived { get; private set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
-        {
-            TestAReceived = true;
-        }
     }
 }

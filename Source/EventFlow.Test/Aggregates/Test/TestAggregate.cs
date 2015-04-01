@@ -28,14 +28,14 @@ using EventFlow.Test.Aggregates.Test.Events;
 namespace EventFlow.Test.Aggregates.Test
 {
     public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<DomainErrorAfterFirstEvent>,
-        IEmit<PingEvent>
+        IEmit<DomainErrorAfterFirstEvent>
     {
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public int PingsReceived { get; private set; }
 
         public TestAggregate(string id) : base(id)
         {
+            Register<PingEvent>(e => PingsReceived++);
         }
 
         public void DomainErrorAfterFirst()
@@ -50,17 +50,12 @@ namespace EventFlow.Test.Aggregates.Test
 
         public void Ping()
         {
-            Emit(new PingEvent());
+            Emit(new PingEvent(Guid.NewGuid()));
         }
 
         public void Apply(DomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
-        }
-
-        public void Apply(PingEvent e)
-        {
-            PingsReceived++;
         }
     }
 }

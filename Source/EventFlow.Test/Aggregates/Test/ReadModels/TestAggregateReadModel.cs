@@ -20,22 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.Test.Aggregates.Test.Events;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.Test.Aggregates.Test.ReadModels
 {
-    public class OptimisticConcurrencyException : Exception
+    public class TestAggregateReadModel : IReadModel, ITestAggregateReadModel
     {
-        public OptimisticConcurrencyException(string mesage)
-            : base(mesage)
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
         {
+            DomainErrorAfterFirstReceived = true;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public void Apply(IReadModelContext context, IDomainEvent<PingEvent> e)
         {
+            PingsReceived++;
         }
     }
 }

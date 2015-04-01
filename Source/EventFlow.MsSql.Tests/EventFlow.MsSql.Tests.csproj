@@ -62,11 +62,11 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\MsSqlHelper.cs" />
     <Compile Include="Helpers\TestDatabase.cs" />
-    <Compile Include="IntegrationTests\DomainTests.cs" />
-    <Compile Include="IntegrationTests\MsSqlIntegrationTest.cs" />
     <Compile Include="IntegrationTests\MsSqlEventStoreTests.cs" />
     <Compile Include="IntegrationTests\MsSqlIntegrationTestConfiguration.cs" />
+    <Compile Include="IntegrationTests\MssqlReadModelStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModels\TestAggregateReadModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -95,6 +95,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\0001 - Create table ReadModel-TestAggregate.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -20,13 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Test.Aggregates.Test.ReadModels;
 
 namespace EventFlow.Test
 {
     public abstract class IntegrationTestConfiguration
     {
         public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
+
+        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id);
 
         public abstract void TearDown();
     }

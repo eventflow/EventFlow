@@ -20,22 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Test.Suites;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.MsSql.Tests.IntegrationTests
 {
-    public class OptimisticConcurrencyException : Exception
+    public class MssqlReadModelStoreTests : ReadModelStoreSuite<MsSqlIntegrationTestConfiguration>
     {
-        public OptimisticConcurrencyException(string mesage)
-            : base(mesage)
-        {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
-        }
     }
 }
