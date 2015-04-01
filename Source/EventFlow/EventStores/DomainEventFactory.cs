@@ -58,5 +58,16 @@ namespace EventFlow.EventStores
 
             return domainEvent;
         }
+
+        public IDomainEvent Upgrade(IDomainEvent domainEvent, IAggregateEvent aggregateEvent)
+        {
+            return Create(
+                aggregateEvent,
+                domainEvent.Metadata,
+                domainEvent.GlobalSequenceNumber,
+                domainEvent.AggregateId,
+                domainEvent.AggregateSequenceNumber,
+                domainEvent.BatchId);
+        }
     }
 }

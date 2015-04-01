@@ -34,5 +34,7 @@ namespace EventFlow.EventStores
             string aggregateId,
             int aggregateSequenceNumber,
             Guid batchId);
+
+        IDomainEvent Upgrade(IDomainEvent domainEvent, IAggregateEvent aggregateEvent);
     }
 }

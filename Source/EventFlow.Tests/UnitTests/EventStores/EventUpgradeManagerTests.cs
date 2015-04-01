@@ -48,8 +48,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<TestAggregate>>>())
                 .Returns(new IEventUpgrader<TestAggregate>[]
                     {
-                        new UpgradeTestEventV1ToTestEventV2(ToDomainEvent),
-                        new UpgradeTestEventV2ToTestEventV3(ToDomainEvent), 
+                        new UpgradeTestEventV1ToTestEventV2(_domainEventFactory),
+                        new UpgradeTestEventV2ToTestEventV3(_domainEventFactory), 
                     });
         }
 
@@ -70,7 +70,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             // Assert
             foreach (var upgradedEvent in upgradedEvents)
             {
-                upgradedEvent.Should().BeOfType<TestEventV3>();
+                upgradedEvent.Should().BeAssignableTo<IDomainEvent<TestEventV3>>();
             }
         }
 
@@ -97,11 +97,11 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<TestAggregate>
         {
-            private readonly Func<IAggregateEvent, IDomainEvent> _toDomainEvent;
+            private readonly IDomainEventFactory _domainEventFactory;
 
-            public UpgradeTestEventV1ToTestEventV2(Func<IAggregateEvent, IDomainEvent> toDomainEvent)
+            public UpgradeTestEventV1ToTestEventV2(IDomainEventFactory domainEventFactory)
             {
-                _toDomainEvent = toDomainEvent;
+                _domainEventFactory = domainEventFactory;
             }
 
             public IDomainEvent Upgrade(IDomainEvent domainEvent)
@@ -109,17 +109,17 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 var testEvent1 = domainEvent as IDomainEvent<TestEventV1>;
                 return testEvent1 == null
                     ? domainEvent
-                    : _toDomainEvent(new TestEventV2());
+                    : _domainEventFactory.Upgrade(domainEvent, new TestEventV2());
             }
         }
 
         public class UpgradeTestEventV2ToTestEventV3 : IEventUpgrader<TestAggregate>
         {
-            private readonly Func<IAggregateEvent, IDomainEvent> _toDomainEvent;
+            private readonly IDomainEventFactory _domainEventFactory;
 
-            public UpgradeTestEventV2ToTestEventV3(Func<IAggregateEvent, IDomainEvent> toDomainEvent)
+            public UpgradeTestEventV2ToTestEventV3(IDomainEventFactory domainEventFactory)
             {
-                _toDomainEvent = toDomainEvent;
+                _domainEventFactory = domainEventFactory;
             }
 
             public IDomainEvent Upgrade(IDomainEvent domainEvent)
@@ -127,7 +127,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 var testEvent2 = domainEvent as IDomainEvent<TestEventV2>;
                 return testEvent2 == null
                     ? domainEvent
-                    : _toDomainEvent(new TestEventV3());
+                    : _domainEventFactory.Upgrade(domainEvent, new TestEventV3());
             }
         }
     }
