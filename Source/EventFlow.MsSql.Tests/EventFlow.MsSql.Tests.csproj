@@ -62,8 +62,6 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\MsSqlHelper.cs" />
     <Compile Include="Helpers\TestDatabase.cs" />
-    <Compile Include="IntegrationTests\DomainTests.cs" />
-    <Compile Include="IntegrationTests\MsSqlIntegrationTest.cs" />
     <Compile Include="IntegrationTests\MsSqlEventStoreTests.cs" />
     <Compile Include="IntegrationTests\MsSqlIntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTests\MssqlReadModelStoreTests.cs" />

@@ -28,9 +28,7 @@ using EventFlow.Test.Aggregates.Test.ReadModels;
 
 namespace EventFlow.MsSql.Tests.ReadModels
 {
-    public class TestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel,
-        IAmReadModelFor<PingEvent>,
-        IAmReadModelFor<DomainErrorAfterFirstEvent>
+    public class TestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel
     {
         public bool DomainErrorAfterFirstReceived { get; set; }
         public int PingsReceived { get; set; }
