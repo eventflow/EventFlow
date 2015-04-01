@@ -55,7 +55,6 @@ namespace EventFlow.MsSql
                 .WithScriptsEmbeddedInAssembly(assembly)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
-                .JournalToSqlTable("dbo", "EventFlowMigrations")
                 .LogTo(new DbUpUpgradeLog(_log))
                 .Build();
 
