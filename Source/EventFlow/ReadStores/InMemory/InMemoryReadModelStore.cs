@@ -20,7 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -69,5 +71,16 @@ namespace EventFlow.ReadStores.InMemory
                 ? _readModels[id]
                 : default(TReadModel);
         }
+
+        public IEnumerable<TReadModel> GetAll()
+        {
+            return _readModels.Values;
+        }
+
+        public IEnumerable<TReadModel> Find(Func<TReadModel, bool> predicate)
+        {
+            return _readModels.Values
+                .Where(predicate);
+        } 
     }
 }
