@@ -55,16 +55,16 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver)
+        public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            AddRegistration(new Registration<IEventStore>(eventStoreResolver));
+            AddRegistration(new Registration<IEventStore>(eventStoreResolver, lifetime));
             return this;
         }
 
-        public EventFlowOptions UseEventStore<TEventStore>()
+        public EventFlowOptions UseEventStore<TEventStore>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TEventStore : class, IEventStore
         {
-            AddRegistration(new Registration<IEventStore, TEventStore>());
+            AddRegistration(new Registration<IEventStore, TEventStore>(lifetime));
             return this;
         }
 
@@ -90,24 +90,24 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions AddMetadataProvider<TMetadataProvider>()
+        public EventFlowOptions AddMetadataProvider<TMetadataProvider>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TMetadataProvider : class, IMetadataProvider
         {
-            AddRegistration(new Registration<IMetadataProvider, TMetadataProvider>());
+            AddRegistration(new Registration<IMetadataProvider, TMetadataProvider>(lifetime));
             return this;
         }
 
-        public EventFlowOptions AddReadModelStore<TAggregate, TReadModelStore>()
+        public EventFlowOptions AddReadModelStore<TAggregate, TReadModelStore>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TAggregate : IAggregateRoot
             where TReadModelStore : class, IReadModelStore<TAggregate>
         {
-            if (typeof (TReadModelStore).IsInterface)
+            if (typeof(TReadModelStore).IsInterface)
             {
-                AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>()));
+                AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>(), lifetime));
             }
             else
             {
-                AddRegistration(new Registration<IReadModelStore<TAggregate>, TReadModelStore>());
+                AddRegistration(new Registration<IReadModelStore<TAggregate>, TReadModelStore>(lifetime));
             }
 
             return this;
@@ -124,7 +124,7 @@ namespace EventFlow
 
         public EventFlowOptions AddEvents(params Type[] aggregateEventTypes)
         {
-            AddEvents((IEnumerable<Type>) aggregateEventTypes);
+            AddEvents((IEnumerable<Type>)aggregateEventTypes);
             return this;
         }
 
@@ -132,7 +132,7 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
                     throw new ArgumentException(string.Format(
                         "Type {0} is not a {1}",
@@ -152,7 +152,7 @@ namespace EventFlow
 
         public bool HasRegistration<TService>()
         {
-            var serviceType = typeof (TService);
+            var serviceType = typeof(TService);
             return _registrations.Any(r => r.ServiceType == serviceType);
         }
 
