@@ -20,34 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-
-namespace EventFlow.EventStores
+namespace EventFlow.EventStores.Files
 {
-    public interface IEventStore
+    public class FilesEventStoreConfiguration : IFilesEventStoreConfiguration
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        public string StorePath { get; private set; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        private FilesEventStoreConfiguration() { }
 
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        TAggregate LoadAggregate<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        public static IFilesEventStoreConfiguration Create(string storePath)
+        {
+            return new FilesEventStoreConfiguration
+                {
+                    StorePath = storePath,
+                };
+        }
     }
 }
