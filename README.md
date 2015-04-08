@@ -71,4 +71,4 @@ var resolver = EventFlowOptions.New
 
 ## Useful links
 
-* [https://msdn.microsoft.com/en-us/library/jj554200.aspx](CQRS Journey by Microsoft)
+* [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
