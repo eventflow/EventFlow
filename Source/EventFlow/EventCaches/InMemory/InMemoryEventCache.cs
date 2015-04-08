@@ -33,6 +33,7 @@ namespace EventFlow.EventCaches.InMemory
 {
     public class InMemoryEventCache : IEventCache, IDisposable
     {
+        private static readonly TimeSpan CacheTime = TimeSpan.FromMinutes(5);
         private readonly ILog _log;
         private readonly MemoryCache _memoryCache = new MemoryCache(string.Format(
             "{0}-{1}",
@@ -58,9 +59,9 @@ namespace EventFlow.EventCaches.InMemory
                 id));
 
             var cacheKey = GetKey(aggregateType, id);
-            _memoryCache.Set(cacheKey, domainEvents, DateTimeOffset.Now.AddMinutes(5));
+            _memoryCache.Set(cacheKey, domainEvents, DateTimeOffset.Now.Add(CacheTime));
             _log.Verbose(
-                "Added cache key {0} to in-memory event store cache. No has {1} streams cached.",
+                "Added cache key {0} to in-memory event store cache. Now it has {1} streams cached.",
                 cacheKey,
                 _memoryCache.GetCount());
             return Task.FromResult(0);
@@ -74,6 +75,10 @@ namespace EventFlow.EventCaches.InMemory
             var cacheKey = GetKey(aggregateType, id);
             if (_memoryCache.Contains(cacheKey))
             {
+                _log.Verbose(
+                    "Found and invalidated in-memory cache for aggregate '{0}' with ID '{1}'",
+                    aggregateType.Name,
+                    id);
                 _memoryCache.Remove(cacheKey);
             }
             return Task.FromResult(0);
@@ -85,7 +90,24 @@ namespace EventFlow.EventCaches.InMemory
             CancellationToken cancellationToken)
         {
             var cacheKey = GetKey(aggregateType, id);
-            return Task.FromResult(_memoryCache.Get(cacheKey) as IReadOnlyCollection<IDomainEvent>);
+            var domainEvents = _memoryCache.Get(cacheKey) as IReadOnlyCollection<IDomainEvent>;
+            if (domainEvents == null)
+            {
+                _log.Verbose(
+                    "Didn't not find anything in in-memory cache for aggregate '{0}' with ID '{1}'",
+                    aggregateType.Name,
+                    id);
+            }
+            else
+            {
+                _log.Verbose(
+                    "Found {0} events in in-memory cache for aggregate '{1}' with ID '{2}'",
+                    domainEvents.Count,
+                    aggregateType.Name,
+                    id);
+            }
+
+            return Task.FromResult(domainEvents);
         }
 
         private static string GetKey(Type aggregateType, string id)

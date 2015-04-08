@@ -89,6 +89,11 @@ namespace EventFlow.EventStores
             }
             catch (OptimisticConcurrencyException)
             {
+                Log.Verbose(
+                    "Detected a optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
+                    aggregateType.Name,
+                    id);
+
                 // TODO: Rework as soon as await is possible within catch
                 using (var a = AsyncHelper.Wait)
                 {
