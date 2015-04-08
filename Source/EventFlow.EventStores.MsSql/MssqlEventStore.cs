@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
@@ -53,8 +54,9 @@ namespace EventFlow.EventStores.MsSql
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEnumerable<IMetadataProvider> metadataProviders,
+            IEventCache eventCache,
             IMsSqlConnection connection)
-            : base(log, aggregateFactory, eventJsonSerializer, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventCache, metadataProviders)
         {
             _connection = connection;
         }

@@ -20,34 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-
-namespace EventFlow.EventStores
+namespace EventFlow.Extensions
 {
-    public interface IEventStore
+    public static class LongExtensions
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        TAggregate LoadAggregate<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        public static string ToPrettyDigitalSize(this long digitalSize)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB" };
+            var order = 0;
+            while (digitalSize >= 1024 && order + 1 < sizes.Length)
+            {
+                order++;
+                digitalSize = digitalSize / 1024;
+            }
+            return string.Format("{0:0.##} {1}", digitalSize, sizes[order]);
+        }
     }
 }

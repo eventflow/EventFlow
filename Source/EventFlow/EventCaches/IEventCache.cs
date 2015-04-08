@@ -20,34 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
-namespace EventFlow.EventStores
+namespace EventFlow.EventCaches
 {
-    public interface IEventStore
+    public interface IEventCache
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        TAggregate LoadAggregate<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        Task InsertAsync(Type aggregateType, string id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        Task InvalidateAsync(Type aggregateType, string id, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<IDomainEvent>> GetAsync(Type aggregateType, string id, CancellationToken cancellationToken);
     }
 }

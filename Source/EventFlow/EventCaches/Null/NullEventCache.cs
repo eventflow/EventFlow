@@ -20,34 +20,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
-namespace EventFlow.EventStores
+namespace EventFlow.EventCaches.Null
 {
-    public interface IEventStore
+    public class NullEventCache : IEventCache
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
-            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
+        public Task InsertAsync(
+            Type aggregateType,
+            string id, IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        {
+            return Task.FromResult(0);
+        }
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
+        public Task InvalidateAsync(
+            Type aggregateType,
             string id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        {
+            return Task.FromResult(0);
+        }
 
-        Task<TAggregate> LoadAggregateAsync<TAggregate>(
+        public Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
+            Type aggregateType,
             string id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
-
-        TAggregate LoadAggregate<TAggregate>(
-            string id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        {
+            return Task.FromResult(null as IReadOnlyCollection<IDomainEvent>);
+        }
     }
 }
