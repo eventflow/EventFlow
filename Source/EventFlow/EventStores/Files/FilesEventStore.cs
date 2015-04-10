@@ -37,6 +37,7 @@ namespace EventFlow.EventStores.Files
     {
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventStoreConfiguration _configuration;
+        private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public class FileEventData : ICommittedDomainEvent
         {
@@ -68,73 +69,79 @@ namespace EventFlow.EventStores.Files
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
-            var aggregateType = typeof (TAggregate);
-            var batchId = Guid.NewGuid();
-            var committedDomainEvents = new List<ICommittedDomainEvent>();
-
-            var aggregatePath = GetAggregatePath(aggregateType, id);
-            if (!Directory.Exists(aggregatePath))
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                Directory.CreateDirectory(aggregatePath);
-            }
+                var aggregateType = typeof (TAggregate);
+                var batchId = Guid.NewGuid();
+                var committedDomainEvents = new List<ICommittedDomainEvent>();
 
-            foreach (var serializedEvent in serializedEvents)
-            {
-                var fileEventData = new FileEventData
-                    {
-                        AggregateId = id,
-                        AggregateName = aggregateType.Name,
-                        AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
-                        BatchId = batchId,
-                        Data = serializedEvent.Data,
-                        GlobalSequenceNumber = serializedEvent.AggregateSequenceNumber, // TODO: Find a better number
-                        Metadata = serializedEvent.Meta,
-                    };
+                var aggregatePath = GetAggregatePath(aggregateType, id);
+                if (!Directory.Exists(aggregatePath))
+                {
+                    Directory.CreateDirectory(aggregatePath);
+                }
+
+                foreach (var serializedEvent in serializedEvents)
+                {
+                    var fileEventData = new FileEventData
+                        {
+                            AggregateId = id,
+                            AggregateName = aggregateType.Name,
+                            AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
+                            BatchId = batchId,
+                            Data = serializedEvent.Data,
+                            GlobalSequenceNumber = serializedEvent.AggregateSequenceNumber, // TODO: Find a better number
+                            Metadata = serializedEvent.Meta,
+                        };
             
-                var json = _jsonSerializer.Serialize(fileEventData);
-                var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
+                    var json = _jsonSerializer.Serialize(fileEventData);
+                    var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
 
-                if (File.Exists(eventPath))
-                {
-                    // TODO: This needs to be on file creation
-                    throw new OptimisticConcurrencyException(string.Format(
-                        "Event {0} already exists for aggregate '{1}' with ID '{2}'",
-                        fileEventData.AggregateSequenceNumber,
-                        aggregateType.Name,
-                        id));
-                }
+                    if (File.Exists(eventPath))
+                    {
+                        // TODO: This needs to be on file creation
+                        throw new OptimisticConcurrencyException(string.Format(
+                            "Event {0} already exists for aggregate '{1}' with ID '{2}'",
+                            fileEventData.AggregateSequenceNumber,
+                            aggregateType.Name,
+                            id));
+                    }
 
-                using (var streamWriter = File.CreateText(eventPath))
-                {
-                    Log.Verbose("Writing file '{0}'", eventPath);
-                    await streamWriter.WriteAsync(json).ConfigureAwait(false);
-                }
+                    using (var streamWriter = File.CreateText(eventPath))
+                    {
+                        Log.Verbose("Writing file '{0}'", eventPath);
+                        await streamWriter.WriteAsync(json).ConfigureAwait(false);
+                    }
                 
-                committedDomainEvents.Add(fileEventData);
-            }
+                    committedDomainEvents.Add(fileEventData);
+                }
 
-            return committedDomainEvents;
+                return committedDomainEvents;
+            }
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
             string id,
             CancellationToken cancellationToken)
         {
-            var aggregateType = typeof (TAggregate);
-            var committedDomainEvents = new List<ICommittedDomainEvent>();
-            for (var i = 1;; i++)
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var eventPath = GetEventPath(aggregateType, id, i);
-                if (!File.Exists(eventPath))
+                var aggregateType = typeof(TAggregate);
+                var committedDomainEvents = new List<ICommittedDomainEvent>();
+                for (var i = 1; ; i++)
                 {
-                    return committedDomainEvents;
-                }
+                    var eventPath = GetEventPath(aggregateType, id, i);
+                    if (!File.Exists(eventPath))
+                    {
+                        return committedDomainEvents;
+                    }
 
-                using (var streamReader = File.OpenText(eventPath))
-                {
-                    var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                    var committedDomainEvent = _jsonSerializer.Deserialize<FileEventData>(json);
-                    committedDomainEvents.Add(committedDomainEvent);
+                    using (var streamReader = File.OpenText(eventPath))
+                    {
+                        var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                        var committedDomainEvent = _jsonSerializer.Deserialize<FileEventData>(json);
+                        committedDomainEvents.Add(committedDomainEvent);
+                    }
                 }
             }
         }
