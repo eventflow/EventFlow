@@ -61,8 +61,9 @@ namespace EventFlow.EventCaches.InMemory
             var cacheKey = GetKey(aggregateType, id);
             _memoryCache.Set(cacheKey, domainEvents, DateTimeOffset.Now.Add(CacheTime));
             _log.Verbose(
-                "Added cache key {0} to in-memory event store cache. Now it has {1} streams cached.",
+                "Added cache key {0} with {1} events to in-memory event store cache. Now it has {2} streams cached.",
                 cacheKey,
+                domainEvents.Count,
                 _memoryCache.GetCount());
             return Task.FromResult(0);
         }
@@ -81,6 +82,7 @@ namespace EventFlow.EventCaches.InMemory
                     id);
                 _memoryCache.Remove(cacheKey);
             }
+
             return Task.FromResult(0);
         }
 
