@@ -38,6 +38,8 @@ namespace EventFlow.EventStores.Files
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventStoreConfiguration _configuration;
         private readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly string _globalSequenceNumberFilePath;
+        private long _globalSequenceNumber;
 
         public class FileEventData : ICommittedDomainEvent
         {
@@ -62,6 +64,12 @@ namespace EventFlow.EventStores.Files
         {
             _jsonSerializer = jsonSerializer;
             _configuration = configuration;
+            _globalSequenceNumberFilePath = Path.Combine(_configuration.StorePath, "GlobalSequenceNumber.store");
+
+            if (File.Exists(_globalSequenceNumberFilePath))
+            {
+                _globalSequenceNumber = long.Parse(File.ReadAllText(_globalSequenceNumberFilePath));
+            }
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
@@ -83,6 +91,7 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
+                    _globalSequenceNumber++;
                     var fileEventData = new FileEventData
                         {
                             AggregateId = id,
@@ -90,7 +99,7 @@ namespace EventFlow.EventStores.Files
                             AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
                             BatchId = batchId,
                             Data = serializedEvent.Data,
-                            GlobalSequenceNumber = serializedEvent.AggregateSequenceNumber, // TODO: Find a better number
+                            GlobalSequenceNumber = _globalSequenceNumber,
                             Metadata = serializedEvent.Meta,
                         };
             
@@ -112,8 +121,17 @@ namespace EventFlow.EventStores.Files
                         Log.Verbose("Writing file '{0}'", eventPath);
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
                     }
-                
+
                     committedDomainEvents.Add(fileEventData);
+                }
+
+                using (var streamWriter = File.CreateText(_globalSequenceNumberFilePath))
+                {
+                    Log.Verbose(
+                        "Writing global sequence number '{0}' to '{1}'",
+                        _globalSequenceNumber,
+                        _globalSequenceNumberFilePath);
+                    await streamWriter.WriteAsync(_globalSequenceNumber.ToString()).ConfigureAwait(false);
                 }
 
                 return committedDomainEvents;
