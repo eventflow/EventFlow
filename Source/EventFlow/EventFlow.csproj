@@ -79,6 +79,9 @@
     <Compile Include="EventCaches\InMemory\InMemoryEventCache.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventCaches\IEventCache.cs" />
+    <Compile Include="EventStores\Files\FilesEventStore.cs" />
+    <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
+    <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />

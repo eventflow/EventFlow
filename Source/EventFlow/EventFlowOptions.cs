@@ -33,6 +33,7 @@ using EventFlow.Configuration.Resolvers;
 using EventFlow.EventCaches;
 using EventFlow.EventCaches.Null;
 using EventFlow.EventStores;
+using EventFlow.EventStores.Files;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 
@@ -78,6 +79,13 @@ namespace EventFlow
             where TEventCache : class, IEventCache
         {
             AddRegistration(new Registration<IEventCache, TEventCache>(lifetime));
+            return this;
+        }
+        
+        public EventFlowOptions UseFilesEventStore(IFilesEventStoreConfiguration filesEventStoreConfiguration)
+        {
+            AddRegistration(new Registration<IFilesEventStoreConfiguration>(c => filesEventStoreConfiguration, Lifetime.Singleton));
+            AddRegistration(new Registration<IEventStore, FilesEventStore>());
             return this;
         }
 
