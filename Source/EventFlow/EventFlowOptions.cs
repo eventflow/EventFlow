@@ -30,6 +30,8 @@ using Autofac.Core;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Resolvers;
+using EventFlow.EventCaches;
+using EventFlow.EventCaches.Null;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
@@ -63,6 +65,19 @@ namespace EventFlow
             where TEventStore : class, IEventStore
         {
             AddRegistration(new Registration<IEventStore, TEventStore>(lifetime));
+            return this;
+        }
+
+        public EventFlowOptions UseNullEventCache()
+        {
+            AddRegistration(new Registration<IEventCache, NullEventCache>(Lifetime.Singleton));
+            return this;
+        }
+
+        public EventFlowOptions UseEventCache<TEventCache>(Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TEventCache : class, IEventCache
+        {
+            AddRegistration(new Registration<IEventCache, TEventCache>(lifetime));
             return this;
         }
 
