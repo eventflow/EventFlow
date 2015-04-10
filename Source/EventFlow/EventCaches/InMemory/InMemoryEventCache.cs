@@ -114,7 +114,7 @@ namespace EventFlow.EventCaches.InMemory
 
         private static string GetKey(Type aggregateType, string id)
         {
-            return string.Format("{0}-{1}", aggregateType.FullName, id);
+            return string.Format("{0} ({1})", aggregateType.FullName, id);
         }
 
         public void Dispose()
