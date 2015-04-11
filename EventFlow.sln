@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql.Tests", "So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Test", "Source\EventFlow.Test\EventFlow.Test.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ElasticSearch", "ElasticSearch", "{22E67323-33E2-43C5-A837-1EE763B7A3DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.ElasticSearch", "Source\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.ElasticSearch.csproj", "{371130B8-907A-4371-BF83-5F2BC20E4073}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,10 @@ Global
 		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{371130B8-907A-4371-BF83-5F2BC20E4073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{371130B8-907A-4371-BF83-5F2BC20E4073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{371130B8-907A-4371-BF83-5F2BC20E4073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{371130B8-907A-4371-BF83-5F2BC20E4073}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,5 +70,6 @@ Global
 		{8EC9D877-7351-4C7E-87A8-29BBD3D7FEBB} = {E4FC24C0-3EB3-4203-B4F2-0B534B42574A}
 		{CC886DD8-A471-4A08-822B-46F6DC5AE347} = {E4FC24C0-3EB3-4203-B4F2-0B534B42574A}
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90} = {E4FC24C0-3EB3-4203-B4F2-0B534B42574A}
+		{371130B8-907A-4371-BF83-5F2BC20E4073} = {22E67323-33E2-43C5-A837-1EE763B7A3DB}
 	EndGlobalSection
 EndGlobal
