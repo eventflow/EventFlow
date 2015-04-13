@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Elasticsearch.Net;
 using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
 using EventFlow.MsSql;
@@ -10,6 +11,7 @@ using EventFlow.ReadStores.ElasticSearch.Extensions;
 using EventFlow.Test;
 using EventFlow.Test.Aggregates.Test;
 using EventFlow.Test.Aggregates.Test.ReadModels;
+using Nest;
 using TestAggregateReadModel = EventFlow.ReadStores.ElasticSearch.Tests.ReadModels.TestAggregateReadModel;
 
 namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
@@ -18,6 +20,7 @@ namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
     {
         protected ITestDatabase TestDatabase { get; private set; }
         protected IMsSqlConnection MsSqlConnection { get; private set; }
+        protected IElasticClient ElasticClient { get; private set; }
         
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
@@ -31,6 +34,7 @@ namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
                 .CreateResolver();
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();
+            ElasticClient = resolver.Resolve<IElasticClient>();
             
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
@@ -41,15 +45,10 @@ namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
 
         public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
         {
-            //var sql = ReadModelSqlGenerator.CreateSelectSql<TestAggregateReadModel>();
-            //var readModels = await MsSqlConnection.QueryAsync<TestAggregateReadModel>(
-            //    CancellationToken.None,
-            //    sql,
-            //    new {AggregateId = id})
-            //    .ConfigureAwait(false);
-            //return readModels.SingleOrDefault();
+            var test = await ElasticClient.GetAsync<TestAggregateReadModel>(id)
+                .ConfigureAwait(false);
 
-            return await Task.FromResult(new TestAggregateReadModel());
+            return test.Source;
         }
 
         public override void TearDown()
