@@ -23,9 +23,11 @@
 using EventFlow.Aggregates;
 using EventFlow.Test.Aggregates.Test.Events;
 using EventFlow.Test.Aggregates.Test.ReadModels;
+using Nest;
 
 namespace EventFlow.ReadStores.ElasticSearch.Tests.ReadModels
 {
+    [ElasticType(IdProperty = "AggregateId", Name = "TestAggregateReadModel")]
     public class TestAggregateReadModel : EsReadModel, ITestAggregateReadModel
     {
         public bool DomainErrorAfterFirstReceived { get; set; }

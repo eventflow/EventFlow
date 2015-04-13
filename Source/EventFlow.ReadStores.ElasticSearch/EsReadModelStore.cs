@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -25,12 +26,19 @@ namespace EventFlow.ReadStores.ElasticSearch
             CancellationToken cancellationToken)
        {
            var readModelResponse = await _elasticClient.GetAsync<TReadModel>(aggregateId);
-           var readModel = readModelResponse.Source;
+           var readModel = readModelResponse.Source ??
+                           new TReadModel
+                           {
+                               AggregateId = aggregateId,
+                               CreateTime = DateTimeOffset.Now,
+                               UpdatedTime = DateTimeOffset.Now
+                           };
+
+           Log.Debug("ReadModel: " + readModel);
 
            ApplyEvents(readModel, domainEvents);
 
-           var indexRequest = new IndexRequest<TReadModel>(readModel);
-           await _elasticClient.IndexAsync(indexRequest);
+           await _elasticClient.IndexAsync(readModel);
        }
     }
 }

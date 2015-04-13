@@ -45,10 +45,10 @@ namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
 
         public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
         {
-            var test = await ElasticClient.GetAsync<TestAggregateReadModel>(id)
+            var aggregateResponse = await ElasticClient.GetAsync<TestAggregateReadModel>(id)
                 .ConfigureAwait(false);
 
-            return test.Source;
+            return aggregateResponse.Source;
         }
 
         public override void TearDown()

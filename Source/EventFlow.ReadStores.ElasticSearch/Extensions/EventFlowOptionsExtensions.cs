@@ -19,7 +19,7 @@ namespace EventFlow.ReadStores.ElasticSearch.Extensions
         {
             eventFlowOptions.AddRegistration(
                 new Registration<IElasticClient>(
-                    r => new ElasticClient(new ConnectionSettings(new Uri(esConfiguration.ConnectionString)))));
+                    r => new ElasticClient(new ConnectionSettings(new Uri(esConfiguration.ConnectionString), "eventflow"))));
             eventFlowOptions.AddRegistration(new Registration<IEsConfiguration>(r => esConfiguration, Lifetime.Singleton));
             
             return eventFlowOptions;
