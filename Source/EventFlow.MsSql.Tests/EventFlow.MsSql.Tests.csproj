@@ -66,6 +66,7 @@
     <Compile Include="IntegrationTests\MsSqlEventStoreTests.cs" />
     <Compile Include="IntegrationTests\MsSqlIntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTests\MssqlReadModelStoreTests.cs" />
+    <Compile Include="IntegrationTests\TableTypeReaderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadModels\TestAggregateReadModel.cs" />
     <Compile Include="UnitTests\ReadModels\ReadModelSqlGeneratorTests.cs" />
