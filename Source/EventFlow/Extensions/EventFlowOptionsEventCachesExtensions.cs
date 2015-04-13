@@ -20,38 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.EventCaches;
+using EventFlow.EventCaches.Null;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Extensions
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public static class EventFlowOptionsEventCachesExtensions
     {
-        private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
-
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseNullEventCache(this EventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
-
-            return resolver;
+            eventFlowOptions.AddRegistration(new Registration<IEventCache, NullEventCache>(Lifetime.Singleton));
+            return eventFlowOptions;
         }
 
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+        public static EventFlowOptions UseEventCache<TEventCache>(
+            this EventFlowOptions eventFlowOptions,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TEventCache : class, IEventCache
         {
-            return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
-        }
-
-        public override void TearDown()
-        {
+            eventFlowOptions.AddRegistration(new Registration<IEventCache, TEventCache>(lifetime));
+            return eventFlowOptions;
         }
     }
 }

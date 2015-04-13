@@ -85,6 +85,11 @@
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventCachesExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />

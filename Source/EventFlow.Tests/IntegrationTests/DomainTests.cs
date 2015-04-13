@@ -24,6 +24,7 @@ using System;
 using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
+using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.Test.Aggregates.Test;
