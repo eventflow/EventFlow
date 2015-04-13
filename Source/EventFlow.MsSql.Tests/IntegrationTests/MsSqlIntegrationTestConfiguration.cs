@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
+using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.Helpers;
 using EventFlow.MsSql.Tests.ReadModels;

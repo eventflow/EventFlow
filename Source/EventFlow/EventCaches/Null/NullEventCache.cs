@@ -20,38 +20,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.EventCaches.Null
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public class NullEventCache : IEventCache
     {
-        private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
-
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public Task InsertAsync(
+            Type aggregateType,
+            string id, IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
-
-            return resolver;
+            return Task.FromResult(0);
         }
 
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+        public Task InvalidateAsync(
+            Type aggregateType,
+            string id,
+            CancellationToken cancellationToken)
         {
-            return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
+            return Task.FromResult(0);
         }
 
-        public override void TearDown()
+        public Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
+            Type aggregateType,
+            string id,
+            CancellationToken cancellationToken)
         {
+            return Task.FromResult(null as IReadOnlyCollection<IDomainEvent>);
         }
     }
 }

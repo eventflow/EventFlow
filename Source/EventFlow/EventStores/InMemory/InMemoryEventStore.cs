@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -65,8 +66,9 @@ namespace EventFlow.EventStores.InMemory
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
+            IEventCache eventCache,
             IEnumerable<IMetadataProvider> metadataProviders)
-            : base(log, aggregateFactory, eventJsonSerializer, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventCache, metadataProviders)
         {
         }
 
@@ -126,7 +128,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
             string id,
             CancellationToken cancellationToken)
         {
