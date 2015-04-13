@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -115,7 +116,12 @@ namespace EventFlow.ReadStores.MsSql
         protected virtual string GetTableName<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
-            return string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty));
+            var readModelType = typeof (TReadModel);
+            var tableAttribute = readModelType.GetCustomAttribute<TableAttribute>();
+
+            return tableAttribute == null
+                ? string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty))
+                : string.Format("[{0}]", tableAttribute.Name);
         }
     }
 }
