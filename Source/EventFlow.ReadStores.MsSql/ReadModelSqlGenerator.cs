@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
@@ -88,13 +89,19 @@ namespace EventFlow.ReadStores.MsSql
             return sql;
         }
 
+        protected IEnumerable<PropertyInfo> GetProperties<TReadModel>()
+            where TReadModel : IMssqlReadModel
+        {
+            return typeof (TReadModel)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .OrderBy(p => p.Name);
+        }
+
         protected IEnumerable<string> GetInsertColumns<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
-            return typeof(TReadModel)
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.Name != "Id") // TODO: Maybe use the key attribute to mark this
-                .OrderBy(p => p.Name)
+            return GetProperties<TReadModel>()
+                .Where(p => p.GetCustomAttribute<KeyAttribute>(true) == null)
                 .Select(p => p.Name);
         }
 
@@ -105,7 +112,7 @@ namespace EventFlow.ReadStores.MsSql
                 .Where(c => c != "AggregateId");
         }
 
-        public virtual string GetTableName<TReadModel>()
+        protected virtual string GetTableName<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
             return string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty));
