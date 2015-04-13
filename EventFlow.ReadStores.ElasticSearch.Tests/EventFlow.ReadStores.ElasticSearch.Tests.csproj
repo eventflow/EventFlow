@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{38021A89-B616-4AFB-A09E-822625DDDFA7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EventFlow.ReadStores.ElasticSearch.Tests</RootNamespace>
+    <AssemblyName>EventFlow.ReadStores.ElasticSearch.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core">
+      <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Ploeh.AutoFixture">
+      <HintPath>..\packages\AutoFixture.3.24.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+    </Reference>
+    <Reference Include="Ploeh.AutoFixture.AutoMoq">
+      <HintPath>..\packages\AutoFixture.AutoMoq.3.24.3\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class1.cs" />
+    <Compile Include="IntegrationsTests\EsReadModelStoreTests.cs" />
+    <Compile Include="IntegrationsTests\EsIntegrationTestConfiguration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModels\TestAggregateReadModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Source\EventFlow.EventStores.MsSql\EventFlow.EventStores.MsSql.csproj">
+      <Project>{0c92026e-7e6d-40b9-a4dd-a7041e23aa7d}</Project>
+      <Name>EventFlow.EventStores.MsSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj">
+      <Project>{a6f6232b-764f-4428-9eb5-cc98be4f5e90}</Project>
+      <Name>EventFlow.MsSql.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\EventFlow.MsSql\EventFlow.MsSql.csproj">
+      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
+      <Name>EventFlow.MsSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.ElasticSearch.csproj">
+      <Project>{371130b8-907a-4371-bf83-5f2bc20e4073}</Project>
+      <Name>EventFlow.ReadStores.ElasticSearch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\EventFlow.Tests\EventFlow.Tests.csproj">
+      <Project>{7747e4a0-b378-46b6-837d-5e78c497b061}</Project>
+      <Name>EventFlow.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\EventFlow.Test\EventFlow.Test.csproj">
+      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
+      <Name>EventFlow.Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\EventFlow\EventFlow.csproj">
+      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
+      <Name>EventFlow</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

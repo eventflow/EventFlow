@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventFlow.ReadStores.ElasticSearch
+namespace EventFlow.ReadStores.ElasticSearch.Tests
 {
     public class Class1
     {
