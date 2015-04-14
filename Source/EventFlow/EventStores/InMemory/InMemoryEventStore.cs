@@ -67,8 +67,9 @@ namespace EventFlow.EventStores.InMemory
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEventCache eventCache,
-            IEnumerable<IMetadataProvider> metadataProviders)
-            : base(log, aggregateFactory, eventJsonSerializer, eventCache, metadataProviders)
+            IEnumerable<IMetadataProvider> metadataProviders,
+            IEventUpgradeManager eventUpgradeManager)
+            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
         {
         }
 
