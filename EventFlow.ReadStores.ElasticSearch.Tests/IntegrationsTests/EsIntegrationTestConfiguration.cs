@@ -1,12 +1,6 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System;
 using System.Threading.Tasks;
-using Elasticsearch.Net;
 using EventFlow.Configuration;
-using EventFlow.EventStores.MsSql;
-using EventFlow.MsSql;
-using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.Tests.Helpers;
 using EventFlow.ReadStores.ElasticSearch.Extensions;
 using EventFlow.Test;
 using EventFlow.Test.Aggregates.Test;
@@ -18,28 +12,23 @@ namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
 {
     public class EsIntegrationTestConfiguration : IntegrationTestConfiguration
     {
-        protected ITestDatabase TestDatabase { get; private set; }
-        protected IMsSqlConnection MsSqlConnection { get; private set; }
         protected IElasticClient ElasticClient { get; private set; }
         
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
-            TestDatabase = MsSqlHelper.CreateDatabase("eventflow");
+            var envUri = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+
+            var elasticsearchUrl = string.IsNullOrEmpty(envUri)
+                ? "http://127.0.0.1:9200"
+                : envUri;
 
             var resolver = eventFlowOptions
-                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
-                .ConfigureElasticSearch(EsConfiguration.New.SetConnectionString("http://127.0.0.1:9200"))
-                .UseEventStore<MsSqlEventStore>()
-                .UseElasticSearchReadModel<TestAggregate, TestAggregateReadModel>()
+                .ConfigureElasticsearch(new Uri(elasticsearchUrl))
+                .UseElasticsearchReadModel<TestAggregate, TestAggregateReadModel>()
                 .CreateResolver();
 
-            MsSqlConnection = resolver.Resolve<IMsSqlConnection>();
             ElasticClient = resolver.Resolve<IElasticClient>();
             
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
-            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
-            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
-
             return resolver;
         }
 
@@ -53,7 +42,6 @@ namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
 
         public override void TearDown()
         {
-            TestDatabase.Dispose();
         }
     }
 }

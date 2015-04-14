@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
@@ -80,18 +82,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Source\EventFlow.EventStores.MsSql\EventFlow.EventStores.MsSql.csproj">
-      <Project>{0c92026e-7e6d-40b9-a4dd-a7041e23aa7d}</Project>
-      <Name>EventFlow.EventStores.MsSql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj">
-      <Project>{a6f6232b-764f-4428-9eb5-cc98be4f5e90}</Project>
-      <Name>EventFlow.MsSql.Tests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Source\EventFlow.MsSql\EventFlow.MsSql.csproj">
-      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
-      <Name>EventFlow.MsSql</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Source\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.ElasticSearch.csproj">
       <Project>{371130b8-907a-4371-bf83-5f2bc20e4073}</Project>
       <Name>EventFlow.ReadStores.ElasticSearch</Name>

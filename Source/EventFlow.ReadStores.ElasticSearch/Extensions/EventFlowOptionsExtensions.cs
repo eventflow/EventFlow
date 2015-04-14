@@ -1,4 +1,5 @@
 ﻿using System;
+using Elasticsearch.Net.ConnectionPool;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using Nest;
@@ -7,7 +8,7 @@ namespace EventFlow.ReadStores.ElasticSearch.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions UseElasticSearchReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseElasticsearchReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot
             where TReadModel : class, IEsReadModel, new()
         {
@@ -15,13 +16,21 @@ namespace EventFlow.ReadStores.ElasticSearch.Extensions
             return eventFlowOptions;
         }
 
-        public static EventFlowOptions ConfigureElasticSearch(this EventFlowOptions eventFlowOptions, IEsConfiguration esConfiguration)
+        public static EventFlowOptions ConfigureElasticsearch(this EventFlowOptions eventFlowOptions, IConnectionSettingsValues connectionSettings)
         {
-            eventFlowOptions.AddRegistration(
-                new Registration<IElasticClient>(
-                    r => new ElasticClient(new ConnectionSettings(new Uri(esConfiguration.ConnectionString), "eventflow"))));
-            eventFlowOptions.AddRegistration(new Registration<IEsConfiguration>(r => esConfiguration, Lifetime.Singleton));
+            eventFlowOptions.AddRegistration(new Registration<IElasticClient>(
+                r => new ElasticClient(connectionSettings), Lifetime.Singleton));
             
+            return eventFlowOptions;
+        }
+
+        public static EventFlowOptions ConfigureElasticsearch(this EventFlowOptions eventFlowOptions, params Uri[] uris)
+        {
+            var connectionSettings = new ConnectionSettings(new StaticConnectionPool(uris))
+                .ThrowOnElasticsearchServerExceptions();
+
+            eventFlowOptions.ConfigureElasticsearch(connectionSettings);
+
             return eventFlowOptions;
         }
     }
