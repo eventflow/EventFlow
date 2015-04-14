@@ -26,7 +26,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
 
         public static EventFlowOptions ConfigureElasticsearch(this EventFlowOptions eventFlowOptions, params Uri[] uris)
         {
-            var connectionSettings = new ConnectionSettings(new StaticConnectionPool(uris))
+            var connectionSettings = new ConnectionSettings(new StaticConnectionPool(uris), "eventflow")
                 .ThrowOnElasticsearchServerExceptions();
 
             eventFlowOptions.ConfigureElasticsearch(connectionSettings);
