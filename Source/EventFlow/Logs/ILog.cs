@@ -29,9 +29,11 @@ namespace EventFlow.Logs
     {
         void Verbose(string format, params object[] args);
         void Verbose(Exception exception, string format, params object[] args);
+        void Verbose(Func<string> combersomeLogging);
         void Verbose(Action<StringBuilder> combersomeLogging);
         void Debug(string format, params object[] args);
         void Debug(Exception exception, string format, params object[] args);
+        void Debug(Func<string> combersomeLogging);
         void Debug(Action<StringBuilder> combersomeLogging);
         void Information(string format, params object[] args);
         void Information(Exception exception, string format, params object[] args);

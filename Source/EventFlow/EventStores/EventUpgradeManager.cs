@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
@@ -32,6 +34,7 @@ namespace EventFlow.EventStores
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
+        private readonly ConcurrentDictionary<Type, IReadOnlyCollection<IEventUpgrader>> _eventUpgraders = new ConcurrentDictionary<Type, IReadOnlyCollection<IEventUpgrader>>(); 
 
         public EventUpgradeManager(
             ILog log,
@@ -44,19 +47,34 @@ namespace EventFlow.EventStores
         public IReadOnlyCollection<IDomainEvent> Upgrade<TAggregate>(IReadOnlyCollection<IDomainEvent> domainEvents)
             where TAggregate : IAggregateRoot
         {
-            var eventUpgraders = _resolver
-                .Resolve<IEnumerable<IEventUpgrader<TAggregate>>>()
-                .OrderBy(u => u.GetType().Name)
-                .ToList();
+            var aggreateType = typeof (TAggregate);
+            var eventUpgraders = GetEventUpgraders<TAggregate>();
 
             if (!eventUpgraders.Any())
             {
+                _log.Verbose("No event upgraders for aggregate '{0}'", aggreateType.Name);
                 return domainEvents;
             }
+            
+            _log.Verbose(() => string.Format(
+                "Found '{0}' event upgraders for aggregate '{1}'",
+                string.Join(", ", eventUpgraders.Select(u => u.GetType().Name)),
+                aggreateType.Name));
 
             return domainEvents
                 .Select(e => eventUpgraders.Aggregate(e, (de, up) => up.Upgrade(de)))
                 .ToList();
+        }
+
+        private IReadOnlyCollection<IEventUpgrader> GetEventUpgraders<TAggregate>()
+            where TAggregate : IAggregateRoot
+        {
+            return _eventUpgraders.GetOrAdd(
+                typeof (TAggregate),
+                t => _resolver
+                    .Resolve<IEnumerable<IEventUpgrader<TAggregate>>>()
+                    .OrderBy(u => u.GetType().Name)
+                    .ToList());
         }
     }
 }

@@ -24,9 +24,13 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventUpgrader<TAggregate>
-        where TAggregate : IAggregateRoot
+    public interface IEventUpgrader
     {
         IDomainEvent Upgrade(IDomainEvent domainEvent);
+    }
+
+    public interface IEventUpgrader<TAggregate> : IEventUpgrader
+        where TAggregate : IAggregateRoot
+    {
     }
 }
