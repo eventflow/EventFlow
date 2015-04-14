@@ -25,7 +25,9 @@ namespace EventFlow.ReadStores.Elasticsearch
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
        {
-           var readModelResponse = await _elasticClient.GetAsync<TReadModel>(aggregateId);
+           var readModelResponse = await _elasticClient.GetAsync<TReadModel>(aggregateId)
+               .ConfigureAwait(false);
+
            var readModel = readModelResponse.Source ??
                            new TReadModel
                            {
@@ -38,7 +40,8 @@ namespace EventFlow.ReadStores.Elasticsearch
 
            ApplyEvents(readModel, domainEvents);
 
-           await _elasticClient.IndexAsync(readModel);
+           await _elasticClient.IndexAsync(readModel)
+               .ConfigureAwait(false);
        }
     }
 }
