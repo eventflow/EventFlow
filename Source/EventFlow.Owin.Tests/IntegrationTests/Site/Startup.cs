@@ -36,13 +36,13 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         {
             var resolver = EventFlowOptions.New
                 .AddEvents(EventFlowTest.Assembly)
-                .CreateResolver();
+                //.AddOwinMetadataProviders()
+                .CreateResolver(false);
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterApiControllers(typeof (Startup).Assembly);
             containerBuilder.Register(c => resolver.Resolve<ICommandBus>()).As<ICommandBus>();
             containerBuilder.Register(c => resolver.Resolve<ILog>()).As<ILog>();
-
             var container = containerBuilder.Build();
 
             var config = new HttpConfiguration
