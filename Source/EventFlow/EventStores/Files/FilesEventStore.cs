@@ -57,10 +57,11 @@ namespace EventFlow.EventStores.Files
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEnumerable<IMetadataProvider> metadataProviders,
+            IEventUpgradeManager eventUpgradeManager,
             IJsonSerializer jsonSerializer,
             IEventCache eventCache,
             IFilesEventStoreConfiguration configuration)
-            : base(log, aggregateFactory, eventJsonSerializer, eventCache, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
         {
             _jsonSerializer = jsonSerializer;
             _configuration = configuration;

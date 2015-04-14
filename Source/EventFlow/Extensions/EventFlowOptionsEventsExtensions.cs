@@ -21,27 +21,32 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Logs
+namespace EventFlow.Extensions
 {
-    public interface ILog
+    public static class EventFlowOptionsEventsExtensions
     {
-        void Verbose(string format, params object[] args);
-        void Verbose(Exception exception, string format, params object[] args);
-        void Verbose(Func<string> combersomeLogging);
-        void Verbose(Action<StringBuilder> combersomeLogging);
-        void Debug(string format, params object[] args);
-        void Debug(Exception exception, string format, params object[] args);
-        void Debug(Func<string> combersomeLogging);
-        void Debug(Action<StringBuilder> combersomeLogging);
-        void Information(string format, params object[] args);
-        void Information(Exception exception, string format, params object[] args);
-        void Warning(string format, params object[] args);
-        void Warning(Exception exception, string format, params object[] args);
-        void Error(string format, params object[] args);
-        void Error(Exception exception, string format, params object[] args);
-        void Fatal(string format, params object[] args);
-        void Fatal(Exception exception, string format, params object[] args);
+        public static EventFlowOptions AddEvents(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly)
+        {
+            var aggregateEventTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t));
+            eventFlowOptions.AddEvents(aggregateEventTypes);
+            return eventFlowOptions;
+        }
+
+        public static EventFlowOptions AddEvents(
+            this EventFlowOptions eventFlowOptions,
+            params Type[] aggregateEventTypes)
+        {
+            eventFlowOptions.AddEvents((IEnumerable<Type>)aggregateEventTypes);
+            return eventFlowOptions;
+        }
     }
 }

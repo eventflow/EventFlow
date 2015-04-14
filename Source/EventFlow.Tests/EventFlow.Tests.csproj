@@ -71,6 +71,7 @@
     <Compile Include="UnitTests\CommandBusTests.cs" />
     <Compile Include="UnitTests\EventCaches\InMemoryEventCacheTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
+    <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

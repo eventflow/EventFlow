@@ -37,6 +37,7 @@ namespace EventFlow.Logs
             Fatal
         }
 
+        protected abstract bool IsVerboseEnabled { get; }
         protected abstract bool IsInformationEnabled { get; }
         protected abstract bool IsDebugEnabled { get; }
 
@@ -54,9 +55,18 @@ namespace EventFlow.Logs
             Write(LogLevel.Verbose, exception, format, args);
         }
 
+        public void Verbose(Func<string> combersomeLogging)
+        {
+            if (!IsVerboseEnabled)
+            {
+                return;
+            }
+            Verbose(combersomeLogging());
+        }
+
         public virtual void Verbose(Action<StringBuilder> combersomeLogging)
         {
-            if (!IsInformationEnabled)
+            if (!IsVerboseEnabled)
             {
                 return;
             }
@@ -74,6 +84,16 @@ namespace EventFlow.Logs
         public void Debug(Exception exception, string format, params object[] args)
         {
             Write(LogLevel.Debug, exception, format, args);
+        }
+
+        public void Debug(Func<string> combersomeLogging)
+        {
+            if (!IsDebugEnabled)
+            {
+                return;
+            }
+            
+            Debug(combersomeLogging());
         }
 
         public void Debug(Action<StringBuilder> combersomeLogging)
