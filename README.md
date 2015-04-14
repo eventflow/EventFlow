@@ -10,7 +10,7 @@ and
 * Easy to use
 * No use of threads or background workers making it "web friendly"
 
-### Concepts
+### Overview
 
 Use the links to navigate to the documentation.
 
@@ -18,13 +18,20 @@ Use the links to navigate to the documentation.
   that guarantees the consistency of changes being made within
   each aggregate
 * **Command bus:** Entry point for all commands
-* **Event store:** Storage of the event stream for aggregates
+* **Event store:** Storage of the event stream for aggregates.
+  Currently there is support for these storage types.
+ * In-memory
+ * Files
+ * Microsoft SQL Server
 * **Read models:** Denormalized representation of aggregate events
-  optimized for reading fast.
+  optimized for reading fast. Currently there is support for these
+  storage types.
+  * In-memory
+  * Microsoft SQL Server
 * [**Metadata providers:**](./Documentation/MetadataProviders.md)
   Factories that provide additional information for each aggregate
   event, e.g. the IP of the user behind the event being emitted.
-  EventFlow has several that can be used.
+  EventFlow ships with several that are ready to use used.
 
 ## Full example
 Here's an example on how to use the in-memory event store (default)
@@ -71,4 +78,4 @@ var resolver = EventFlowOptions.New
 
 ## Useful links
 
-* [https://msdn.microsoft.com/en-us/library/jj554200.aspx](CQRS Journey by Microsoft)
+* [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)

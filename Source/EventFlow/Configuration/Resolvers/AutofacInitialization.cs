@@ -26,6 +26,8 @@ using System.Linq;
 using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventCaches;
+using EventFlow.EventCaches.InMemory;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
@@ -50,8 +52,11 @@ namespace EventFlow.Configuration.Resolvers
             Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton), false);
             Check(regs, new Registration<IReadStoreManager, ReadStoreManager>(), false);
             Check(regs, new Registration<IJsonSerializer, JsonSerializer>(), false);
+            Check(regs, new Registration<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton), false);
             Check(regs, new Registration<IAggregateFactory, AggregateFactory>(), false);
             Check(regs, new Registration<IDomainEventPublisher, DomainEventPublisher>(), false);
+            Check(regs, new Registration<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton), false);
+            Check(regs, new Registration<IEventCache, InMemoryEventCache>(Lifetime.Singleton), false);
 
             var eventFlowConfiguration = options.GetEventFlowConfiguration();
 

@@ -26,6 +26,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventCaches;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -34,22 +36,31 @@ namespace EventFlow.EventStores
     {
         protected ILog Log { get; private set; }
         protected IAggregateFactory AggregateFactory { get; private set; }
+        protected IEventUpgradeManager EventUpgradeManager { get; private set; }
         protected IEventJsonSerializer EventJsonSerializer { get; private set; }
+        protected IEventCache EventCache { get; private set; }
         protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
 
         protected EventStore(
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
+            IEventCache eventCache,
+            IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders)
         {
             Log = log;
             AggregateFactory = aggregateFactory;
             EventJsonSerializer = eventJsonSerializer;
+            EventCache = eventCache;
+            EventUpgradeManager = eventUpgradeManager;
             MetadataProviders = metadataProviders.ToList();
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(string id, IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents, CancellationToken cancellationToken)
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
+            string id,
+            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var aggregateType = typeof (TAggregate);
@@ -69,14 +80,35 @@ namespace EventFlow.EventStores
                     })
                 .ToList();
 
-            var committedDomainEvents = await CommitEventsAsync<TAggregate>(
-                id,
-                serializedEvents,
-                cancellationToken)
-                .ConfigureAwait(false);
+            IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
+            try
+            {
+                committedDomainEvents = await CommitEventsAsync<TAggregate>(
+                    id,
+                    serializedEvents,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (OptimisticConcurrencyException)
+            {
+                Log.Verbose(
+                    "Detected a optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
+                    aggregateType.Name,
+                    id);
+
+                // TODO: Rework as soon as await is possible within catch
+                using (var a = AsyncHelper.Wait)
+                {
+                    a.Run(EventCache.InvalidateAsync(aggregateType, id, cancellationToken));
+                }
+
+                throw;
+            }
 
             var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
-            
+
+            await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
+
             return domainEvents;
         }
 
@@ -85,16 +117,29 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
             string id,
             CancellationToken cancellationToken);
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(string id, CancellationToken cancellationToken)
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
+            string id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot
         {
-            var committedDomainEvents = await LoadCommittedEventsAsync(id, cancellationToken).ConfigureAwait(false);
-            var domainEvents = committedDomainEvents
+            var aggregateType = typeof (TAggregate);
+            var domainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            if (domainEvents != null)
+            {
+                return domainEvents;
+            }
+
+            var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
+            domainEvents = committedDomainEvents
                 .Select(EventJsonSerializer.Deserialize)
                 .ToList();
+
+            domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
+
             return domainEvents;
         }
 
@@ -110,7 +155,7 @@ namespace EventFlow.EventStores
                 aggregateType.Name,
                 id);
             
-            var domainEvents = await LoadEventsAsync(id, cancellationToken).ConfigureAwait(false);
+            var domainEvents = await LoadEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
             var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate>(id).ConfigureAwait(false);
             aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
 

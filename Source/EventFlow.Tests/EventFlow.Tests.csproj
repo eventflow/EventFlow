@@ -61,13 +61,17 @@
   <ItemGroup>
     <Compile Include="IntegrationTests\ConfigurationTests.cs" />
     <Compile Include="IntegrationTests\DomainTests.cs" />
+    <Compile Include="IntegrationTests\EventStores\FilesEventStoreTests.cs" />
     <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
     <Compile Include="IntegrationTests\InMemoryConfiguration.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
+    <Compile Include="UnitTests\Aggregates\MetadataTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
+    <Compile Include="UnitTests\EventCaches\InMemoryEventCacheTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
+    <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

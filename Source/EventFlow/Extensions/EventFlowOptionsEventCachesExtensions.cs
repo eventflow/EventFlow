@@ -20,28 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Text;
+using EventFlow.Configuration;
+using EventFlow.EventCaches;
+using EventFlow.EventCaches.Null;
 
-namespace EventFlow.Logs
+namespace EventFlow.Extensions
 {
-    public interface ILog
+    public static class EventFlowOptionsEventCachesExtensions
     {
-        void Verbose(string format, params object[] args);
-        void Verbose(Exception exception, string format, params object[] args);
-        void Verbose(Func<string> combersomeLogging);
-        void Verbose(Action<StringBuilder> combersomeLogging);
-        void Debug(string format, params object[] args);
-        void Debug(Exception exception, string format, params object[] args);
-        void Debug(Func<string> combersomeLogging);
-        void Debug(Action<StringBuilder> combersomeLogging);
-        void Information(string format, params object[] args);
-        void Information(Exception exception, string format, params object[] args);
-        void Warning(string format, params object[] args);
-        void Warning(Exception exception, string format, params object[] args);
-        void Error(string format, params object[] args);
-        void Error(Exception exception, string format, params object[] args);
-        void Fatal(string format, params object[] args);
-        void Fatal(Exception exception, string format, params object[] args);
+        public static EventFlowOptions UseNullEventCache(this EventFlowOptions eventFlowOptions)
+        {
+            eventFlowOptions.AddRegistration(new Registration<IEventCache, NullEventCache>(Lifetime.Singleton));
+            return eventFlowOptions;
+        }
+
+        public static EventFlowOptions UseEventCache<TEventCache>(
+            this EventFlowOptions eventFlowOptions,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TEventCache : class, IEventCache
+        {
+            eventFlowOptions.AddRegistration(new Registration<IEventCache, TEventCache>(lifetime));
+            return eventFlowOptions;
+        }
     }
 }

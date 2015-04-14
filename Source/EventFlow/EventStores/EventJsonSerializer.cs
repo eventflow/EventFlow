@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -33,13 +32,16 @@ namespace EventFlow.EventStores
     {
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IEventDefinitionService _eventDefinitionService;
+        private readonly IDomainEventFactory _domainEventFactory;
 
         public EventJsonSerializer(
             IJsonSerializer jsonSerializer,
-            IEventDefinitionService eventDefinitionService)
+            IEventDefinitionService eventDefinitionService,
+            IDomainEventFactory domainEventFactory)
         {
             _jsonSerializer = jsonSerializer;
             _eventDefinitionService = eventDefinitionService;
+            _domainEventFactory = domainEventFactory;
         }
 
         public SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas)
@@ -71,12 +73,9 @@ namespace EventFlow.EventStores
 
             var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(committedDomainEvent.Data, eventDefinition.Type);
 
-            var domainEventType = typeof (DomainEvent<>).MakeGenericType(eventDefinition.Type);
-            var domainEvent = (IDomainEvent) Activator.CreateInstance(
-                domainEventType,
+            var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,
                 metadata,
-                metadata.Timestamp,
                 committedDomainEvent.GlobalSequenceNumber,
                 committedDomainEvent.AggregateId,
                 committedDomainEvent.AggregateSequenceNumber,

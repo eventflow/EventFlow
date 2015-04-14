@@ -21,27 +21,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Text;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Logs
+namespace EventFlow.EventCaches
 {
-    public interface ILog
+    public interface IEventCache
     {
-        void Verbose(string format, params object[] args);
-        void Verbose(Exception exception, string format, params object[] args);
-        void Verbose(Func<string> combersomeLogging);
-        void Verbose(Action<StringBuilder> combersomeLogging);
-        void Debug(string format, params object[] args);
-        void Debug(Exception exception, string format, params object[] args);
-        void Debug(Func<string> combersomeLogging);
-        void Debug(Action<StringBuilder> combersomeLogging);
-        void Information(string format, params object[] args);
-        void Information(Exception exception, string format, params object[] args);
-        void Warning(string format, params object[] args);
-        void Warning(Exception exception, string format, params object[] args);
-        void Error(string format, params object[] args);
-        void Error(Exception exception, string format, params object[] args);
-        void Fatal(string format, params object[] args);
-        void Fatal(Exception exception, string format, params object[] args);
+        Task InsertAsync(
+            Type aggregateType,
+            string id,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
+        
+        Task InvalidateAsync(
+            Type aggregateType,
+            string id,
+            CancellationToken cancellationToken);
+        
+        Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
+            Type aggregateType,
+            string id,
+            CancellationToken cancellationToken);
     }
 }

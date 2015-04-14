@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
@@ -52,9 +53,11 @@ namespace EventFlow.EventStores.MsSql
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
+            IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
+            IEventCache eventCache,
             IMsSqlConnection connection)
-            : base(log, aggregateFactory, eventJsonSerializer, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
         {
             _connection = connection;
         }
@@ -131,7 +134,7 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
             string id,
             CancellationToken cancellationToken)
         {

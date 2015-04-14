@@ -24,15 +24,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Resolvers;
-using EventFlow.EventStores;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
 
 namespace EventFlow
 {
@@ -53,71 +49,11 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions UseEventStore(Func<IResolver, IEventStore> eventStoreResolver)
-        {
-            AddRegistration(new Registration<IEventStore>(eventStoreResolver));
-            return this;
-        }
-
-        public EventFlowOptions UseEventStore<TEventStore>()
-            where TEventStore : class, IEventStore
-        {
-            AddRegistration(new Registration<IEventStore, TEventStore>());
-            return this;
-        }
-
-        public EventFlowOptions UseInMemoryReadStoreFor<TAggregate, TReadModel>()
-            where TAggregate : IAggregateRoot
-            where TReadModel : IReadModel, new()
-        {
-            AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
-            AddRegistration(new Registration<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
-            return this;
-        }
-
-        public EventFlowOptions AddMetadataProvider<TMetadataProvider>()
-            where TMetadataProvider : class, IMetadataProvider
-        {
-            AddRegistration(new Registration<IMetadataProvider, TMetadataProvider>());
-            return this;
-        }
-
-        public EventFlowOptions AddReadModelStore<TAggregate, TReadModelStore>()
-            where TAggregate : IAggregateRoot
-            where TReadModelStore : class, IReadModelStore<TAggregate>
-        {
-            if (typeof (TReadModelStore).IsInterface)
-            {
-                AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>()));
-            }
-            else
-            {
-                AddRegistration(new Registration<IReadModelStore<TAggregate>, TReadModelStore>());
-            }
-
-            return this;
-        }
-
-        public EventFlowOptions AddEvents(Assembly fromAssembly)
-        {
-            var aggregateEventTypes = fromAssembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t));
-            AddEvents(aggregateEventTypes);
-            return this;
-        }
-
-        public EventFlowOptions AddEvents(params Type[] aggregateEventTypes)
-        {
-            AddEvents((IEnumerable<Type>) aggregateEventTypes);
-            return this;
-        }
-
         public EventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
                     throw new ArgumentException(string.Format(
                         "Type {0} is not a {1}",
@@ -137,7 +73,7 @@ namespace EventFlow
 
         public bool HasRegistration<TService>()
         {
-            var serviceType = typeof (TService);
+            var serviceType = typeof(TService);
             return _registrations.Any(r => r.ServiceType == serviceType);
         }
 
