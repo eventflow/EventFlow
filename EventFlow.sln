@@ -19,11 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql.Tests", "So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Test", "Source\EventFlow.Test\EventFlow.Test.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ElasticSearch", "ElasticSearch", "{22E67323-33E2-43C5-A837-1EE763B7A3DB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elasticsearch", "Elasticsearch", "{22E67323-33E2-43C5-A837-1EE763B7A3DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.ElasticSearch", "Source\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.ElasticSearch.csproj", "{371130B8-907A-4371-BF83-5F2BC20E4073}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.Elasticsearch", "Source\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.Elasticsearch.csproj", "{371130B8-907A-4371-BF83-5F2BC20E4073}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.ElasticSearch.Tests", "EventFlow.ReadStores.ElasticSearch.Tests\EventFlow.ReadStores.ElasticSearch.Tests.csproj", "{38021A89-B616-4AFB-A09E-822625DDDFA7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.Elasticsearch.Tests", "Source\EventFlow.ReadStores.Elasticsearch.Tests\EventFlow.ReadStores.Elasticsearch.Tests.csproj", "{38021A89-B616-4AFB-A09E-822625DDDFA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,8 +7,8 @@
     <ProjectGuid>{38021A89-B616-4AFB-A09E-822625DDDFA7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.ReadStores.ElasticSearch.Tests</RootNamespace>
-    <AssemblyName>EventFlow.ReadStores.ElasticSearch.Tests</AssemblyName>
+    <RootNamespace>EventFlow.ReadStores.Elasticsearch.Tests</RootNamespace>
+    <AssemblyName>EventFlow.ReadStores.Elasticsearch.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -33,35 +33,33 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Elasticsearch.Net.1.4.3\lib\net45\Elasticsearch.Net.dll</HintPath>
+    <Reference Include="Elasticsearch.Net">
+      <HintPath>..\..\packages\Elasticsearch.Net.1.4.3\lib\net45\Elasticsearch.Net.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
-      <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions.Core">
-      <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>
+      <HintPath>..\..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="Nest, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NEST.1.4.3\lib\net45\Nest.dll</HintPath>
+    <Reference Include="Nest">
+      <HintPath>..\..\packages\NEST.1.4.3\lib\net45\Nest.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Ploeh.AutoFixture">
-      <HintPath>..\packages\AutoFixture.3.24.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.3.24.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
     </Reference>
     <Reference Include="Ploeh.AutoFixture.AutoMoq">
-      <HintPath>..\packages\AutoFixture.AutoMoq.3.24.3\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.AutoMoq.3.24.3\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -72,6 +70,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="IntegrationsTests\EsReadModelStoreTests.cs" />
     <Compile Include="IntegrationsTests\EsIntegrationTestConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,19 +83,19 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Source\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.ElasticSearch.csproj">
+    <ProjectReference Include="..\EventFlow.ReadStores.ElasticSearch\EventFlow.ReadStores.Elasticsearch.csproj">
       <Project>{371130b8-907a-4371-bf83-5f2bc20e4073}</Project>
       <Name>EventFlow.ReadStores.ElasticSearch</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Source\EventFlow.Tests\EventFlow.Tests.csproj">
+    <ProjectReference Include="..\EventFlow.Tests\EventFlow.Tests.csproj">
       <Project>{7747e4a0-b378-46b6-837d-5e78c497b061}</Project>
       <Name>EventFlow.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Source\EventFlow.Test\EventFlow.Test.csproj">
+    <ProjectReference Include="..\EventFlow.Test\EventFlow.Test.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
       <Name>EventFlow.Test</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Source\EventFlow\EventFlow.csproj">
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
       <Name>EventFlow</Name>
     </ProjectReference>

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.ReadStores.ElasticSearch.Extensions;
+using EventFlow.ReadStores.Elasticsearch.Extensions;
 using EventFlow.Test;
 using EventFlow.Test.Aggregates.Test;
 using EventFlow.Test.Aggregates.Test.ReadModels;
 using Nest;
-using TestAggregateReadModel = EventFlow.ReadStores.ElasticSearch.Tests.ReadModels.TestAggregateReadModel;
+using TestAggregateReadModel = EventFlow.ReadStores.Elasticsearch.Tests.ReadModels.TestAggregateReadModel;
 
-namespace EventFlow.ReadStores.ElasticSearch.Tests.IntegrationsTests
+namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
 {
     public class EsIntegrationTestConfiguration : IntegrationTestConfiguration
     {
