@@ -52,6 +52,7 @@ namespace EventFlow.Configuration.Resolvers
             Check(regs, new Registration<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton), false);
             Check(regs, new Registration<IReadStoreManager, ReadStoreManager>(), false);
             Check(regs, new Registration<IJsonSerializer, JsonSerializer>(), false);
+            Check(regs, new Registration<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton), false);
             Check(regs, new Registration<IAggregateFactory, AggregateFactory>(), false);
             Check(regs, new Registration<IDomainEventPublisher, DomainEventPublisher>(), false);
             Check(regs, new Registration<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton), false);

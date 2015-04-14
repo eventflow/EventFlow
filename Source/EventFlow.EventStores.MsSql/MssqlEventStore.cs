@@ -53,10 +53,11 @@ namespace EventFlow.EventStores.MsSql
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
+            IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
             IEventCache eventCache,
             IMsSqlConnection connection)
-            : base(log, aggregateFactory, eventJsonSerializer, eventCache, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
         {
             _connection = connection;
         }
