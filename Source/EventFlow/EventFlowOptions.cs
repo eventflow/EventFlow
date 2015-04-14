@@ -92,7 +92,7 @@ namespace EventFlow
             return _eventFlowConfiguration;
         }
 
-        public IRootResolver CreateResolver(bool validateRegistrations = false)
+        public IRootResolver CreateResolver(bool validateRegistrations = true)
         {
             var container = AutofacInitialization.Configure(this);
 

@@ -20,12 +20,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
+using System.Web.Http;
+using Autofac;
+using Autofac.Integration.WebApi;
+using EventFlow.Extensions;
+using EventFlow.Logs;
+using EventFlow.Test;
+using Owin;
 
-namespace EventFlow.Owin
+namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
-    public static class EventFlowOwin
+    public class Startup
     {
-        public static Assembly Assembly { get { return typeof (EventFlowOwin).Assembly; } }
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            var resolver = EventFlowOptions.New
+                .AddEvents(EventFlowTest.Assembly)
+                .CreateResolver();
+
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterApiControllers(typeof (Startup).Assembly);
+            containerBuilder.Register(c => resolver.Resolve<ICommandBus>()).As<ICommandBus>();
+            containerBuilder.Register(c => resolver.Resolve<ILog>()).As<ILog>();
+
+            var container = containerBuilder.Build();
+
+            var config = new HttpConfiguration
+                {
+                    DependencyResolver = new AutofacWebApiDependencyResolver(container),
+                };
+            config.MapHttpAttributeRoutes();
+
+            appBuilder.UseAutofacMiddleware(container);
+            appBuilder.UseWebApi(config);
+        }
     }
 }

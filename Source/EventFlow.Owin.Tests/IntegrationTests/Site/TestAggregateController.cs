@@ -20,12 +20,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using EventFlow.Test.Aggregates.Test.Commands;
 
-namespace EventFlow.Owin
+namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
-    public static class EventFlowOwin
+    [RoutePrefix("testaggregate")]
+    public class TestAggregateController : ApiController
     {
-        public static Assembly Assembly { get { return typeof (EventFlowOwin).Assembly; } }
+        private readonly ICommandBus _commandBus;
+
+        public TestAggregateController(
+            ICommandBus commandBus)
+        {
+            _commandBus = commandBus;
+        }
+
+        [HttpGet]
+        [Route("ping")]
+        public async Task<IHttpActionResult> Ping(string id)
+        {
+            var pingCommand = new PingCommand(id);
+            await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
+            return Ok();
+        }
     }
 }

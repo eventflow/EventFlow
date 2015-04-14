@@ -21,39 +21,49 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Logs;
-using Microsoft.Owin;
+using Microsoft.Owin.Hosting;
+using NUnit.Framework;
 
-namespace EventFlow.Owin.Middlewares
+namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
-    public class EventFlowResolverMiddleware : OwinMiddleware
+    public class SiteTests
     {
-        private readonly IRootResolver _rootResolver;
-        private readonly ILog _log;
+        private static readonly HttpClient HttpClient = new HttpClient();
+        private IDisposable _site;
+        private Uri _uri;
 
-        public EventFlowResolverMiddleware(OwinMiddleware next, IRootResolver rootResolver)
-            : base(next)
+        [SetUp]
+        public void SetUp()
         {
-            _rootResolver = rootResolver;
-            _log = rootResolver.Resolve<ILog>();
+            _uri = new Uri("http://localhost:9000");
+            _site = WebApp.Start<Startup>(_uri.ToString());
         }
 
-        public override async Task Invoke(IOwinContext context)
+        [TearDown]
+        public void TearDown()
         {
-            try
+            _site.Dispose();
+        }
+
+        [Test]
+        public async Task Ping()
+        {
+            // Act
+            await GetAsync("testaggregate/ping?id=fancy").ConfigureAwait(false);
+        }
+
+        private async Task<string> GetAsync(string url)
+        {
+            var uri = new Uri(_uri, url);
+
+            using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
             {
-                using (var scope = _rootResolver.BeginScope(new Registration<IOwinContext>(d => context)))
-                {
-                    context.Set(EventFlowOwin.Constants.OwinEnvironmentResolver, scope);
-                    await Next.Invoke(context).ConfigureAwait(false);
-                }
-            }
-            catch (Exception exception)
-            {
-                _log.Fatal(exception, "Unexpected unhandled exception in EventFlow resolver middleware");
-                throw;
+                httpResponseMessage.EnsureSuccessStatusCode();
+                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                Console.WriteLine("Received content from {0} : {1}", url, content);
+                return content;
             }
         }
     }
