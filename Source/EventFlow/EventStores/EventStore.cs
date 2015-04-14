@@ -128,13 +128,15 @@ namespace EventFlow.EventStores
         {
             var aggregateType = typeof (TAggregate);
             var domainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
-            if (domainEvents == null)
+            if (domainEvents != null)
             {
-                var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
-                domainEvents = committedDomainEvents
-                    .Select(EventJsonSerializer.Deserialize)
-                    .ToList();
+                return domainEvents;
             }
+
+            var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
+            domainEvents = committedDomainEvents
+                .Select(EventJsonSerializer.Deserialize)
+                .ToList();
 
             domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
 
