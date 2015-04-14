@@ -104,10 +104,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IDomainEvent Upgrade(IDomainEvent domainEvent)
+            public IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent)
             {
                 var testEvent1 = domainEvent as IDomainEvent<TestEventV1>;
-                return testEvent1 == null
+                yield return testEvent1 == null
                     ? domainEvent
                     : _domainEventFactory.Upgrade(domainEvent, new TestEventV2());
             }
@@ -122,10 +122,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IDomainEvent Upgrade(IDomainEvent domainEvent)
+            public IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent)
             {
                 var testEvent2 = domainEvent as IDomainEvent<TestEventV2>;
-                return testEvent2 == null
+                yield return testEvent2 == null
                     ? domainEvent
                     : _domainEventFactory.Upgrade(domainEvent, new TestEventV3());
             }

@@ -62,7 +62,7 @@ namespace EventFlow.EventStores
                 aggreateType.Name));
 
             return domainEvents
-                .Select(e => eventUpgraders.Aggregate(e, (de, up) => up.Upgrade(de)))
+                .SelectMany(e => eventUpgraders.Aggregate((IEnumerable<IDomainEvent>) new []{e}, (de, up) => de.SelectMany(up.Upgrade)))
                 .ToList();
         }
     }
