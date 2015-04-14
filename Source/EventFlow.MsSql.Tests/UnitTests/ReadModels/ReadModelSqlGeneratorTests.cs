@@ -26,6 +26,7 @@ using EventFlow.ReadStores.MsSql;
 using EventFlow.Test;
 using FluentAssertions;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {
@@ -33,6 +34,12 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
     {
         [Table("TestName")]
         public class TableTestReadModel : MssqlReadModel { }
+
+        [SetUp]
+        public void SetUp()
+        {
+            Fixture.Inject<IReadModelConventions>(new ReadModelConventions());
+        }
 
         [Test]
         public void CreateInsertSql_ProducesCorrectSql_WithTableAttribute()

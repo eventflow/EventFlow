@@ -24,17 +24,18 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace EventFlow.ReadStores.MsSql
+namespace EventFlow.ReadStores.MsSql.TableGeneration
 {
-    public class ColumnDescription
+    public class DbColumn
     {
         public string Name { get; private set; }
         public SqlDbType DbType { get; private set; }
         public bool IsNullable { get; set; }
         public int? MaxLength { get; set; }
         public int? DateTimePrecision { get; set; }
+        public Type Type { get { return GetManagedType(); } }
 
-        public ColumnDescription(
+        public DbColumn(
             string name,
             SqlDbType dbType,
             bool isNullable,
@@ -57,6 +58,19 @@ namespace EventFlow.ReadStores.MsSql
                 };
             parts.Add(IsNullable ? "NULL" : "NOT NULL");
             return string.Join(" ", parts);
+        }
+
+        private Type GetManagedType()
+        {
+            switch (DbType)
+            {
+                case SqlDbType.Bit: return typeof(bool);
+                case SqlDbType.BigInt: return typeof(long);
+                case SqlDbType.DateTimeOffset: return typeof(DateTimeOffset);
+                case SqlDbType.NVarChar: return typeof(string);
+                case SqlDbType.Int: return typeof(int);
+                default: throw new ArgumentOutOfRangeException();
+            }
         }
 
         private string GetPrecision()

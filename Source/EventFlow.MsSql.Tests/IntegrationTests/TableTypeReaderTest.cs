@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using EventFlow.Logs;
 using EventFlow.MsSql.Tests.Helpers;
 using EventFlow.ReadStores.MsSql;
+using EventFlow.ReadStores.MsSql.TableGeneration;
 using EventFlow.Test;
 using FluentAssertions;
 using NUnit.Framework;

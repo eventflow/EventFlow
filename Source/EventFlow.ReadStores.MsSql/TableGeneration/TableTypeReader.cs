@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.MsSql;
 
-namespace EventFlow.ReadStores.MsSql
+namespace EventFlow.ReadStores.MsSql.TableGeneration
 {
     public class TableTypeReader : ITableTypeReader
     {
@@ -49,7 +49,7 @@ namespace EventFlow.ReadStores.MsSql
             _msSqlConnection = msSqlConnection;
         }
 
-        public async Task<IReadOnlyCollection<ColumnDescription>> GetColumnDescriptionsAsync(
+        public async Task<IReadOnlyCollection<DbColumn>> GetColumnDescriptionsAsync(
             string tableName,
             CancellationToken cancellationToken)
         {
@@ -67,11 +67,11 @@ namespace EventFlow.ReadStores.MsSql
             var columns = await _msSqlConnection.QueryAsync<Column>(
                 cancellationToken,
                 sql,
-                new {TableName = tableName})
+                new { TableName = tableName })
                 .ConfigureAwait(false);
 
             return columns
-                .Select(c => new ColumnDescription(
+                .Select(c => new DbColumn(
                     c.Name,
                     GetSqlDbType(c.DataType),
                     GetIsNullable(c.IsNullable),

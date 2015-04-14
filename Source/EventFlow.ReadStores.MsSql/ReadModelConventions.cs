@@ -20,34 +20,37 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Reflection;
 using EventFlow.ReadStores.MsSql.TableGeneration;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.ReadStores.MsSql
 {
-    public static class EventFlowOptionsExtensions
+    public class ReadModelConventions : IReadModelConventions
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
+        public string GetTableName<TReadModel>()
+            where TReadModel : IMssqlReadModel
         {
-            eventFlowOptions
-                .RegisterCore()
-                .AddRegistration(new Registration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>());
-            return eventFlowOptions;
+            var readModelType = typeof(TReadModel);
+            var tableAttribute = readModelType.GetCustomAttribute<TableAttribute>();
+
+            return tableAttribute == null
+                ? string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty))
+                : string.Format("[{0}]", tableAttribute.Name);
         }
 
-        private static EventFlowOptions RegisterCore(this EventFlowOptions eventFlowOptions)
+        public IReadOnlyCollection<ManagedColumn> GetColumns<TReadModel>()
+            where TReadModel : IMssqlReadModel
         {
-            if (!eventFlowOptions.HasRegistration<IReadModelSqlGenerator>())
-            {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton));
-                eventFlowOptions.AddRegistration(new Registration<ITableTypeReader, TableTypeReader>(Lifetime.Singleton));
-                eventFlowOptions.AddRegistration(new Registration<IReadModelConventions, ReadModelConventions>(Lifetime.Singleton));
-            }
-            
-            return eventFlowOptions;
+            return typeof(TReadModel)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.GetCustomAttribute<KeyAttribute>(true) == null)
+                .OrderBy(p => p.Name)
+                .Select(p => new ManagedColumn(p.Name, p.PropertyType))
+                .ToList();
         }
     }
 }

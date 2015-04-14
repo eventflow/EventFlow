@@ -22,18 +22,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Reflection;
 
 namespace EventFlow.ReadStores.MsSql
 {
     public class ReadModelSqlGenerator : IReadModelSqlGenerator
     {
+        private readonly IReadModelConventions _readModelConventions;
+
         private readonly Dictionary<Type, string> _insertSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
+
+        public ReadModelSqlGenerator(
+            IReadModelConventions readModelConventions)
+        {
+            _readModelConventions = readModelConventions;
+        }
 
         public string CreateInsertSql<TReadModel>()
             where TReadModel : IMssqlReadModel
@@ -47,7 +52,7 @@ namespace EventFlow.ReadStores.MsSql
 
             sql = string.Format(
                 "INSERT INTO {0} ({1}) VALUES ({2})",
-                GetTableName<TReadModel>(),
+                _readModelConventions.GetTableName<TReadModel>(),
                 string.Join(", ", GetInsertColumns<TReadModel>()),
                 string.Join(", ", GetInsertColumns<TReadModel>().Select(c => string.Format("@{0}", c))));
             _insertSqls[readModelType] = sql;
@@ -65,7 +70,7 @@ namespace EventFlow.ReadStores.MsSql
                 return sql;
             }
 
-            sql = string.Format("SELECT * FROM {0} WHERE AggregateId = @AggregateId", GetTableName<TReadModel>());
+            sql = string.Format("SELECT * FROM {0} WHERE AggregateId = @AggregateId", _readModelConventions.GetTableName<TReadModel>());
             _selectSqls[readModelType] = sql;
 
             return sql;
@@ -83,26 +88,17 @@ namespace EventFlow.ReadStores.MsSql
 
             sql = string.Format(
                 "UPDATE {0} SET {1} WHERE AggregateId = @AggregateId",
-                GetTableName<TReadModel>(),
+                _readModelConventions.GetTableName<TReadModel>(),
                 string.Join(", ", GetUpdateColumns<TReadModel>().Select(c => string.Format("{0} = @{0}", c))));
             _updateSqls[readModelType] = sql;
 
             return sql;
         }
 
-        protected IEnumerable<PropertyInfo> GetProperties<TReadModel>()
-            where TReadModel : IMssqlReadModel
-        {
-            return typeof (TReadModel)
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .OrderBy(p => p.Name);
-        }
-
         protected IEnumerable<string> GetInsertColumns<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
-            return GetProperties<TReadModel>()
-                .Where(p => p.GetCustomAttribute<KeyAttribute>(true) == null)
+            return _readModelConventions.GetColumns<TReadModel>()
                 .Select(p => p.Name);
         }
 
@@ -111,17 +107,6 @@ namespace EventFlow.ReadStores.MsSql
         {
             return GetInsertColumns<TReadModel>()
                 .Where(c => c != "AggregateId");
-        }
-
-        protected virtual string GetTableName<TReadModel>()
-            where TReadModel : IMssqlReadModel
-        {
-            var readModelType = typeof (TReadModel);
-            var tableAttribute = readModelType.GetCustomAttribute<TableAttribute>();
-
-            return tableAttribute == null
-                ? string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty))
-                : string.Format("[{0}]", tableAttribute.Name);
         }
     }
 }
