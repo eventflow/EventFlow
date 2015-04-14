@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventCaches;
-using EventFlow.EventCaches.InMemory;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 
@@ -37,6 +36,7 @@ namespace EventFlow.EventStores
     {
         protected ILog Log { get; private set; }
         protected IAggregateFactory AggregateFactory { get; private set; }
+        protected IEventUpgradeManager EventUpgradeManager { get; private set; }
         protected IEventJsonSerializer EventJsonSerializer { get; private set; }
         protected IEventCache EventCache { get; private set; }
         protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
@@ -46,12 +46,14 @@ namespace EventFlow.EventStores
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEventCache eventCache,
+            IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders)
         {
             Log = log;
             AggregateFactory = aggregateFactory;
             EventJsonSerializer = eventJsonSerializer;
             EventCache = eventCache;
+            EventUpgradeManager = eventUpgradeManager;
             MetadataProviders = metadataProviders.ToList();
         }
 
@@ -125,16 +127,19 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot
         {
             var aggregateType = typeof (TAggregate);
-            var cachedDomainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
-            if (cachedDomainEvents != null)
+            var domainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            if (domainEvents != null)
             {
-                return cachedDomainEvents;
+                return domainEvents;
             }
 
             var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
-            var domainEvents = committedDomainEvents
+            domainEvents = committedDomainEvents
                 .Select(EventJsonSerializer.Deserialize)
                 .ToList();
+
+            domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
+
             return domainEvents;
         }
 
