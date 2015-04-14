@@ -38,8 +38,8 @@ namespace EventFlow.ReadStores.MsSql
             var tableAttribute = readModelType.GetCustomAttribute<TableAttribute>();
 
             return tableAttribute == null
-                ? string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty))
-                : string.Format("[{0}]", tableAttribute.Name);
+                ? string.Format("ReadModel-{0}", typeof(TReadModel).Name.Replace("ReadModel", string.Empty))
+                : tableAttribute.Name;
         }
 
         public IReadOnlyCollection<ManagedColumn> GetColumns<TReadModel>()

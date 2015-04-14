@@ -51,7 +51,7 @@ namespace EventFlow.ReadStores.MsSql
             }
 
             sql = string.Format(
-                "INSERT INTO {0} ({1}) VALUES ({2})",
+                "INSERT INTO [{0}] ({1}) VALUES ({2})",
                 _readModelConventions.GetTableName<TReadModel>(),
                 string.Join(", ", GetInsertColumns<TReadModel>()),
                 string.Join(", ", GetInsertColumns<TReadModel>().Select(c => string.Format("@{0}", c))));
@@ -70,7 +70,7 @@ namespace EventFlow.ReadStores.MsSql
                 return sql;
             }
 
-            sql = string.Format("SELECT * FROM {0} WHERE AggregateId = @AggregateId", _readModelConventions.GetTableName<TReadModel>());
+            sql = string.Format("SELECT * FROM [{0}] WHERE AggregateId = @AggregateId", _readModelConventions.GetTableName<TReadModel>());
             _selectSqls[readModelType] = sql;
 
             return sql;
@@ -87,7 +87,7 @@ namespace EventFlow.ReadStores.MsSql
             }
 
             sql = string.Format(
-                "UPDATE {0} SET {1} WHERE AggregateId = @AggregateId",
+                "UPDATE [{0}] SET {1} WHERE AggregateId = @AggregateId",
                 _readModelConventions.GetTableName<TReadModel>(),
                 string.Join(", ", GetUpdateColumns<TReadModel>().Select(c => string.Format("{0} = @{0}", c))));
             _updateSqls[readModelType] = sql;
