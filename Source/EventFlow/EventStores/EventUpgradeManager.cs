@@ -44,6 +44,11 @@ namespace EventFlow.EventStores
         public IReadOnlyCollection<IDomainEvent> Upgrade<TAggregate>(IReadOnlyCollection<IDomainEvent> domainEvents)
             where TAggregate : IAggregateRoot
         {
+            if (!domainEvents.Any())
+            {
+                return new List<IDomainEvent>();
+            }
+
             var aggreateType = typeof (TAggregate);
             var eventUpgraders = _resolver
                     .Resolve<IEnumerable<IEventUpgrader<TAggregate>>>()
