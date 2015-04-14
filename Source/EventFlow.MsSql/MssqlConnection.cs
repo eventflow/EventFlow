@@ -28,22 +28,28 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using EventFlow.Logs;
 using EventFlow.MsSql.Integrations;
 
 namespace EventFlow.MsSql
 {
     public class MsSqlConnection : IMsSqlConnection
     {
+        private readonly ILog _log;
         private readonly IMsSqlConfiguration _configuration;
 
         public MsSqlConnection(
+            ILog log,
             IMsSqlConfiguration configuration)
         {
+            _log = log;
             _configuration = configuration;
         }
 
         public Task<int> ExecuteAsync(CancellationToken cancellationToken, string sql, object param = null)
         {
+            _log.Verbose("Executing SQL: {0}", sql);
+
             return WithConnectionAsync(c =>
                 {
                     var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken);
@@ -53,6 +59,8 @@ namespace EventFlow.MsSql
 
         public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(CancellationToken cancellationToken, string sql, object param = null)
         {
+            _log.Verbose("Query SQL: {0}", sql);
+
             return (await WithConnectionAsync(c =>
                 {
                     var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken);
@@ -63,6 +71,8 @@ namespace EventFlow.MsSql
         public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
             where TRow : class, new()
         {
+            _log.Verbose("Table insert SQL: {0}", sql);
+
             var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new {});
             return QueryAsync<TResult>(cancellationToken, sql, tableParameter);
         }

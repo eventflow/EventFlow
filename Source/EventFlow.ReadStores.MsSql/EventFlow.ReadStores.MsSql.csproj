@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,14 +45,22 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="IReadModelConventions.cs" />
+    <Compile Include="ReadModelConventions.cs" />
+    <Compile Include="TableGeneration\DbColumn.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMssqlReadModel.cs" />
     <Compile Include="IMssqlReadModelStore.cs" />
     <Compile Include="IReadModelSqlGenerator.cs" />
+    <Compile Include="TableGeneration\IReadModelTableGeneration.cs" />
+    <Compile Include="TableGeneration\ITableTypeReader.cs" />
     <Compile Include="MssqlReadModel.cs" />
     <Compile Include="MssqlReadModelStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadModelSqlGenerator.cs" />
+    <Compile Include="TableGeneration\ManagedColumn.cs" />
+    <Compile Include="TableGeneration\ReadModelTableGeneration.cs" />
+    <Compile Include="TableGeneration\TableTypeReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj">

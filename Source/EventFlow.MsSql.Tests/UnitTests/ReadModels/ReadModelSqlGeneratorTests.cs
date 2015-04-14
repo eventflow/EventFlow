@@ -20,16 +20,41 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.Test;
 using FluentAssertions;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {
     public class ReadModelSqlGeneratorTests : TestsFor<ReadModelSqlGenerator>
     {
+        [Table("TestName")]
+        public class TableTestReadModel : MssqlReadModel { }
+
+        [SetUp]
+        public void SetUp()
+        {
+            Fixture.Inject<IReadModelConventions>(new ReadModelConventions());
+        }
+
+        [Test]
+        public void CreateInsertSql_ProducesCorrectSql_WithTableAttribute()
+        {
+            // Act
+            var sql = Sut.CreateInsertSql<TableTestReadModel>();
+
+            // Assert
+            sql.Should().Be(
+                "INSERT INTO [TestName] " +
+                "(AggregateId, CreateTime, LastAggregateSequenceNumber, LastGlobalSequenceNumber, UpdatedTime) " +
+                "VALUES " +
+                "(@AggregateId, @CreateTime, @LastAggregateSequenceNumber, @LastGlobalSequenceNumber, @UpdatedTime)");
+        }
+
         [Test]
         public void CreateInsertSql_ProducesCorrectSql()
         {
