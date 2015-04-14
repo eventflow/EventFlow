@@ -22,6 +22,7 @@
 
 using EventFlow.Configuration;
 using EventFlow.EventStores;
+using EventFlow.Extensions;
 using NUnit.Framework;
 
 namespace EventFlow.Test

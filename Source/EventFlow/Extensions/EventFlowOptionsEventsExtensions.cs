@@ -20,38 +20,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Extensions
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public static class EventFlowOptionsEventsExtensions
     {
-        private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
-
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddEvents(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
-
-            return resolver;
+            var aggregateEventTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t));
+            eventFlowOptions.AddEvents(aggregateEventTypes);
+            return eventFlowOptions;
         }
 
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+        public static EventFlowOptions AddEvents(
+            this EventFlowOptions eventFlowOptions,
+            params Type[] aggregateEventTypes)
         {
-            return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
-        }
-
-        public override void TearDown()
-        {
+            eventFlowOptions.AddEvents((IEnumerable<Type>)aggregateEventTypes);
+            return eventFlowOptions;
         }
     }
 }

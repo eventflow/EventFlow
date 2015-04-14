@@ -23,6 +23,7 @@
 using System;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 

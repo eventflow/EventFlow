@@ -20,38 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.EventStores;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Extensions
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public static class EventFlowOptionsMetadataProvidersExtensions
     {
-        private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
-
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddMetadataProvider<TMetadataProvider>(
+            this EventFlowOptions eventFlowOptions,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TMetadataProvider : class, IMetadataProvider
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
-
-            return resolver;
-        }
-
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
-        {
-            return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
-        }
-
-        public override void TearDown()
-        {
+            eventFlowOptions.AddRegistration(new Registration<IMetadataProvider, TMetadataProvider>(lifetime));
+            return eventFlowOptions;
         }
     }
 }
