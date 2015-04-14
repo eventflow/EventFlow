@@ -21,14 +21,40 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.Logs;
+using Microsoft.Owin;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Owin.Middlewares
 {
-    public interface IScopeResolver : IResolver, IDisposable
+    public class EventFlowResolverMiddleware : OwinMiddleware
     {
-        IScopeResolver BeginScope();
-        IScopeResolver BeginScope(params Registration[] registrations);
-        IScopeResolver BeginScope(IEnumerable<Registration> registrations);
+        private readonly IRootResolver _rootResolver;
+        private readonly ILog _log;
+
+        public EventFlowResolverMiddleware(OwinMiddleware next, IRootResolver rootResolver)
+            : base(next)
+        {
+            _rootResolver = rootResolver;
+            _log = rootResolver.Resolve<ILog>();
+        }
+
+        public override async Task Invoke(IOwinContext context)
+        {
+            try
+            {
+                using (var scope = _rootResolver.BeginScope(new Registration<IOwinContext>(d => context)))
+                {
+                    context.Set(EventFlowOwin.Constants.OwinEnvironmentResolver, scope);
+                    await Next.Invoke(context).ConfigureAwait(false);
+                }
+            }
+            catch (Exception exception)
+            {
+                _log.Fatal(exception, "Unexpected unhandled exception in EventFlow resolver middleware");
+                throw;
+            }
+        }
     }
 }

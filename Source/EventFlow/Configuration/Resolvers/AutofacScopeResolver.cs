@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using Autofac;
 
 namespace EventFlow.Configuration.Resolvers
@@ -37,6 +38,22 @@ namespace EventFlow.Configuration.Resolvers
         public IScopeResolver BeginScope()
         {
             return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public IScopeResolver BeginScope(IEnumerable<Registration> registrations)
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope(b =>
+                {
+                    foreach (var registration in registrations)
+                    {
+                        registration.Configure(b);
+                    }
+                }));
+        }
+
+        public IScopeResolver BeginScope(params Registration[] registrations)
+        {
+            return BeginScope((IEnumerable<Registration>)registrations);
         }
 
         public void Dispose()

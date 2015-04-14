@@ -22,13 +22,40 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
+using Microsoft.Owin;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Owin.MetadataProviders
 {
-    public interface IScopeResolver : IResolver, IDisposable
+    public class AddRequestHeadersMetadataProvider : IMetadataProvider
     {
-        IScopeResolver BeginScope();
-        IScopeResolver BeginScope(params Registration[] registrations);
-        IScopeResolver BeginScope(IEnumerable<Registration> registrations);
+        private readonly IOwinContext _owinContext;
+
+        private static readonly ISet<string> RequestHeadersToSkip = new HashSet<string>
+            {
+                "Authorization",
+                "Cookie",
+            };
+
+        public AddRequestHeadersMetadataProvider(
+            IOwinContext owinContext)
+        {
+            _owinContext = owinContext;
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(
+            string id,
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata)
+            where TAggregate : IAggregateRoot
+        {
+            return _owinContext.Request.Headers
+                .Where(kv => !RequestHeadersToSkip.Contains(kv.Key))
+                .Select(kv => new KeyValuePair<string, string>(
+                    string.Format("request_header[{0}]", kv.Key),
+                    string.Join(Environment.NewLine, kv.Value)));
+        }
     }
 }

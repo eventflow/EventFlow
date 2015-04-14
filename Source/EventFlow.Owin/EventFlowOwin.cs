@@ -20,15 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Reflection;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Owin
 {
-    public interface IScopeResolver : IResolver, IDisposable
+    public static class EventFlowOwin
     {
-        IScopeResolver BeginScope();
-        IScopeResolver BeginScope(params Registration[] registrations);
-        IScopeResolver BeginScope(IEnumerable<Registration> registrations);
+        public static Assembly Assembly { get { return typeof (EventFlowOwin).Assembly; } }
+
+        public static class Constants
+        {
+            public const string OwinEnvironmentResolver = "EventFlowResolver";
+        }
     }
 }
