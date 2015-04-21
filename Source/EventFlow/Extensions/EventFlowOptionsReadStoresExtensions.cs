@@ -47,7 +47,7 @@ namespace EventFlow.Extensions
         {
             if (typeof(TReadModelStore).IsInterface)
             {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>(), lifetime));
+                eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolver.Resolve<TReadModelStore>(), lifetime));
             }
             else
             {

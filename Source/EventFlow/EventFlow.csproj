@@ -61,8 +61,10 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Configuration\EventFlowConfiguration.cs" />
     <Compile Include="Configuration\IEventFlowConfiguration.cs" />
+    <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\Resolvers\AutofacInitialization.cs" />
     <Compile Include="Configuration\Resolvers\AutofacResolver.cs" />
+    <Compile Include="Configuration\Resolvers\AutofacResolverContext.cs" />
     <Compile Include="Configuration\Resolvers\AutofacRootResolver.cs" />
     <Compile Include="Configuration\Resolvers\AutofacScopeResolver.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
@@ -81,7 +83,7 @@
     <Compile Include="EventCaches\IEventCache.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
-    <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />    
+    <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\DomainEventFactory.cs" />
     <Compile Include="EventStores\EventUpgradeManager.cs" />
     <Compile Include="EventStores\IDomainEventFactory.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="Extensions\EventFlowOptionsEventCachesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />

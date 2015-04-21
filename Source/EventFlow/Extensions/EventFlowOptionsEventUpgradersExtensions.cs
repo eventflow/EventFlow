@@ -21,38 +21,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
-using EventFlow.EventStores.Files;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsEventStoresExtensions
+    public static class EventFlowOptionsEventUpgradersExtensions
     {
-        public static EventFlowOptions UseEventStore(
-            this EventFlowOptions eventFlowOptions,
-            Func<IResolverContext, IEventStore> eventStoreResolver,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TEventUpgrader>(
+            this EventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot
+            where TEventUpgrader : class, IEventUpgrader<TAggregate>
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore>(eventStoreResolver, lifetime));
+            eventFlowOptions.AddRegistration(new Registration<IEventUpgrader<TAggregate>, TEventUpgrader>());
             return eventFlowOptions;
         }
 
-        public static EventFlowOptions UseEventStore<TEventStore>(
+        public static EventFlowOptions AddEventUpgrader<TAggregate>(
             this EventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventStore : class, IEventStore
+            Func<IResolverContext, IEventUpgrader<TAggregate>> factory)
+            where TAggregate : IAggregateRoot
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, TEventStore>(lifetime));
-            return eventFlowOptions;
-        }
-
-        public static EventFlowOptions UseFilesEventStore(
-            this EventFlowOptions eventFlowOptions,
-            IFilesEventStoreConfiguration filesEventStoreConfiguration)
-        {
-            eventFlowOptions.AddRegistration(new Registration<IFilesEventStoreConfiguration>(c => filesEventStoreConfiguration, Lifetime.Singleton));
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, FilesEventStore>());
+            eventFlowOptions.AddRegistration(new Registration<IEventUpgrader<TAggregate>>(factory));
             return eventFlowOptions;
         }
     }
