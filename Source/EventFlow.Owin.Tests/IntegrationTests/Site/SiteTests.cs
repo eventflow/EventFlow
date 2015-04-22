@@ -60,8 +60,9 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
 
             using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
             {
-                httpResponseMessage.EnsureSuccessStatusCode();
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);
+                httpResponseMessage.EnsureSuccessStatusCode();
                 Console.WriteLine("Received content from {0} : {1}", url, content);
                 return content;
             }

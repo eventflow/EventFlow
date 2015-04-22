@@ -24,14 +24,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
-using Autofac.Core;
-using EventFlow.Configuration.Resolvers;
+using EventFlow.Configuration.Registrations.Resolvers;
+using EventFlow.Extensions;
 
 namespace EventFlow.Configuration.Registrations
 {
-    public class AutofacRegistrationFactory : IRegistrationFactory
+    internal class AutofacRegistrationFactory : IRegistrationFactory
     {
-        private readonly List<Registration> _registrations = new List<Registration>(); 
+        private readonly ContainerBuilder _containerBuilder;
+        private readonly List<Registration> _registrations = new List<Registration>();
+
+        public AutofacRegistrationFactory() : this(null) { }
+        public AutofacRegistrationFactory(ContainerBuilder containerBuilder)
+        {
+            _containerBuilder = containerBuilder ?? new ContainerBuilder();
+        }
 
         public void AddRegistration<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TImplementation : class, TService
@@ -60,46 +67,18 @@ namespace EventFlow.Configuration.Registrations
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            /*
-            var container = AutofacInitialization.Configure(this);
+            _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
+            foreach (var reg in _registrations)
+            {
+                reg.Configure(_containerBuilder);
+            }
+
+            var container = _containerBuilder.Build();
 
             if (validateRegistrations)
             {
-                var services = container
-                    .ComponentRegistry
-                    .Registrations
-                    .SelectMany(x => x.Services)
-                    .OfType<TypedService>()
-                    .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                    .ToList();
-                var exceptions = new List<Exception>();
-                foreach (var typedService in services)
-                {
-                    try
-                    {
-                        container.Resolve(typedService.ServiceType);
-                    }
-                    catch (DependencyResolutionException ex)
-                    {
-                        exceptions.Add(ex);
-                    }
-                }
-                if (exceptions.Any())
-                {
-                    var message = string.Join(", ", exceptions.Select(e => e.Message));
-                    throw new AggregateException(message, exceptions);
-                }
-            }*/
-
-            var containerBuilder = new ContainerBuilder();
-
-            containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
-            foreach (var reg in _registrations)
-            {
-                reg.Configure(containerBuilder);
+                container.ValidateRegistrations();
             }
-
-            var container = containerBuilder.Build();
 
             return new AutofacRootResolver(container);
         }

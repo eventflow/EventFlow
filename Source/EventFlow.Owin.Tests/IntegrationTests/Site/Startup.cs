@@ -23,12 +23,11 @@
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
-using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Configuration.Registrations.Resolvers;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
 using EventFlow.Test;
-using Microsoft.Owin;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
@@ -37,16 +36,17 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
     {
         public void Configuration(IAppBuilder appBuilder)
         {
-            var initialContainerBuilder = new ContainerBuilder();
-            initialContainerBuilder.RegisterApiControllers(typeof(Startup).Assembly);
-            var container = initialContainerBuilder.Build();
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterApiControllers(typeof(Startup).Assembly).InstancePerRequest();
 
             var resolver = EventFlowOptions.New
+                .UseRegistrationFactory(new AutofacRegistrationFactory(containerBuilder))
                 .AddEvents(EventFlowTest.Assembly)
                 .AddOwinMetadataProviders()
                 .CreateResolver(false);
 
-            WireUpEventFlow(container, resolver);
+            var autofacRootResolver = (AutofacRootResolver) resolver;
+            var container = autofacRootResolver.Container;
 
             var config = new HttpConfiguration
                 {
@@ -55,15 +55,8 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             config.MapHttpAttributeRoutes();
 
             appBuilder.UseAutofacMiddleware(container);
+            appBuilder.UseAutofacWebApi(config);
             appBuilder.UseWebApi(config);
-        }
-
-        private static void WireUpEventFlow(IContainer container, IResolver resolver)
-        {
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.Register(c => resolver.Resolve<ICommandBus>()).As<ICommandBus>();
-            containerBuilder.Register(c => resolver.Resolve<ILog>()).As<ILog>();
-            containerBuilder.Update(container);
         }
     }
 }

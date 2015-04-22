@@ -23,13 +23,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using Autofac;
-using Autofac.Core;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
-using EventFlow.Configuration.Resolvers;
 using EventFlow.Core;
 using EventFlow.EventCaches;
 using EventFlow.EventCaches.InMemory;
@@ -91,30 +87,21 @@ namespace EventFlow
             return this;
         }
 
-        internal IEnumerable<Type> GetAggregateEventTypes()
-        {
-            return _aggregateEventTypes;
-        }
-
-        internal IEventFlowConfiguration GetEventFlowConfiguration()
-        {
-            return _eventFlowConfiguration;
-        }
-
         public IRootResolver CreateResolver(bool validateRegistrations = true)
         {
             var services = new HashSet<Type>(_lazyRegistrationFactory.Value.GetRegisteredServices());
 
             RegisterIfMissing<ILog, ConsoleLog>(services);
-            RegisterIfMissing<IEventStore, InMemoryEventStore>(services);
+            RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
             RegisterIfMissing<ICommandBus, CommandBus>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
-            RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services);
+            RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
+            RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventCache, InMemoryEventCache>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventFlowConfiguration>(services, f => f.AddRegistration<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
@@ -122,7 +109,7 @@ namespace EventFlow
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
 
             var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
-            eventDefinitionService.LoadEvents(GetAggregateEventTypes());
+            eventDefinitionService.LoadEvents(_aggregateEventTypes);
 
             return rootResolver;
         }
@@ -131,7 +118,7 @@ namespace EventFlow
             where TService : class
             where TImplementation : class, TService
         {
-            RegisterIfMissing<ILog>(registeredServices, f => f.AddRegistration<TService, TImplementation>());
+            RegisterIfMissing<ILog>(registeredServices, f => f.AddRegistration<TService, TImplementation>(lifetime));
         }
 
         private void RegisterIfMissing<TService>(ICollection<Type> registeredServices, Action<IRegistrationFactory> register)

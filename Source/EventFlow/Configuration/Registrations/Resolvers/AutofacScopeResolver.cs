@@ -22,9 +22,8 @@
 
 using System.Collections.Generic;
 using Autofac;
-using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.Configuration.Resolvers
+namespace EventFlow.Configuration.Registrations.Resolvers
 {
     public class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {

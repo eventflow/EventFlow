@@ -21,36 +21,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using Autofac.Core;
 
-namespace EventFlow.Configuration.Registrations.Resolvers
+namespace EventFlow.Extensions
 {
-    public class AutofacResolver : IResolver
+    internal static class ContainerExtensions
     {
-        private readonly IComponentContext _componentContext;
-
-        public AutofacResolver(IComponentContext componentContext)
+        internal static void ValidateRegistrations(this IContainer container)
         {
-            _componentContext = componentContext;
-        }
+            var services = container
+                .ComponentRegistry
+                .Registrations
+                .SelectMany(x => x.Services)
+                .OfType<TypedService>()
+                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
+                .ToList();
+            var exceptions = new List<Exception>();
+            foreach (var typedService in services)
+            {
+                try
+                {
+                    container.Resolve(typedService.ServiceType);
+                }
+                catch (DependencyResolutionException ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+            if (!exceptions.Any())
+            {
+                return;
+            }
 
-        public T Resolve<T>()
-        {
-            return _componentContext.Resolve<T>();
-        }
-
-        public object Resolve(Type serviceType)
-        {
-            return _componentContext.Resolve(serviceType);
-        }
-
-        public IEnumerable<object> ResolveAll(Type serviceType)
-        {
-            var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
-            return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
+            var message = string.Join(", ", exceptions.Select(e => e.Message));
+            throw new AggregateException(message, exceptions);
         }
     }
 }

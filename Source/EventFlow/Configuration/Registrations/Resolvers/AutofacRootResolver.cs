@@ -22,16 +22,16 @@
 
 using Autofac;
 
-namespace EventFlow.Configuration.Resolvers
+namespace EventFlow.Configuration.Registrations.Resolvers
 {
     public class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
-        private readonly IContainer _container;
+        public IContainer Container { get; private set; }
 
         public AutofacRootResolver(IContainer container)
             : base(container)
         {
-            _container = container;
+            Container = container;
         }
     }
 }

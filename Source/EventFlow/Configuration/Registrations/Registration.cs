@@ -22,7 +22,7 @@
 
 using System;
 using Autofac;
-using EventFlow.Configuration.Resolvers;
+using EventFlow.Configuration.Registrations.Resolvers;
 
 namespace EventFlow.Configuration.Registrations
 {

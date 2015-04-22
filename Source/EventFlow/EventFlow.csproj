@@ -91,6 +91,7 @@
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />
+    <Compile Include="Extensions\ContainerExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventCachesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
