@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.Configuration.Registrations;
 
 namespace EventFlow.Configuration
 {

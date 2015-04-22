@@ -21,7 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 
@@ -35,7 +35,7 @@ namespace EventFlow.Extensions
             where TReadModel : IReadModel, new()
         {
             eventFlowOptions.AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
-            eventFlowOptions.AddRegistration(new Registration<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
+            eventFlowOptions.Register(f => f.AddRegistration<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
             return eventFlowOptions;
         }
 
@@ -47,11 +47,11 @@ namespace EventFlow.Extensions
         {
             if (typeof(TReadModelStore).IsInterface)
             {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>(), lifetime));
+                eventFlowOptions.Register(f => f.AddRegistration<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>(), lifetime));
             }
             else
             {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>, TReadModelStore>(lifetime));
+                eventFlowOptions.Register(f => f.AddRegistration<IReadModelStore<TAggregate>, TReadModelStore>(lifetime));
             }
 
             return eventFlowOptions;

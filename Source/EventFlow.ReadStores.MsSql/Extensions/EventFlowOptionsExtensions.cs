@@ -21,7 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 
 namespace EventFlow.ReadStores.MsSql.Extensions
 {
@@ -31,12 +31,15 @@ namespace EventFlow.ReadStores.MsSql.Extensions
             where TAggregate : IAggregateRoot
             where TReadModel : IMssqlReadModel, new()
         {
-            if (!eventFlowOptions.HasRegistration<IReadModelSqlGenerator>())
-            {
-                eventFlowOptions.AddRegistration(new Registration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton));
-            }
+            eventFlowOptions.Register(f =>
+                {
+                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
+                    {
+                        f.AddRegistration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
+                    }
+                    f.AddRegistration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
+                });
 
-            eventFlowOptions.AddRegistration(new Registration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>());
             return eventFlowOptions;
         }
     }

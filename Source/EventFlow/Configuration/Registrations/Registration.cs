@@ -24,7 +24,7 @@ using System;
 using Autofac;
 using EventFlow.Configuration.Resolvers;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Registrations
 {
     public enum Lifetime
     {

@@ -20,45 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using Autofac;
+using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.Configuration.Resolvers
+namespace EventFlow.Configuration
 {
-    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
+    public interface IRegistrationFactory
     {
-        private readonly ILifetimeScope _lifetimeScope;
+        void AddRegistration<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TImplementation : class, TService
+            where TService : class;
 
-        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
-            : base(lifetimeScope)
-        {
-            _lifetimeScope = lifetimeScope;
-        }
+        void AddRegistration<TService>(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TService : class;
 
-        public IScopeResolver BeginScope()
-        {
-            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
-        }
+        bool HasRegistrationFor<TService>()
+            where TService : class;
 
-        public IScopeResolver BeginScope(IEnumerable<Registration> registrations)
-        {
-            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope(b =>
-                {
-                    foreach (var registration in registrations)
-                    {
-                        registration.Configure(b);
-                    }
-                }));
-        }
-
-        public IScopeResolver BeginScope(params Registration[] registrations)
-        {
-            return BeginScope((IEnumerable<Registration>)registrations);
-        }
-
-        public void Dispose()
-        {
-            _lifetimeScope.Dispose();
-        }
+        IEnumerable<Type> GetRegisteredServices();
+            
+        IRootResolver CreateResolver(bool validateRegistrations);
     }
 }

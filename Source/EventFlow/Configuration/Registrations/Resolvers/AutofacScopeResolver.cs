@@ -20,22 +20,46 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using Autofac;
 using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.MsSql.Extensions
+namespace EventFlow.Configuration.Resolvers
 {
-    public static class EventFlowOptionsExtensions
+    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        public static EventFlowOptions ConfigureMsSql(this EventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
-        {
-            eventFlowOptions.Register(f =>
-                {
-                    f.AddRegistration<IMsSqlConnection, MsSqlConnection>();
-                    f.AddRegistration(_ => msSqlConfiguration, Lifetime.Singleton);
-                    f.AddRegistration<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
-                });
+        private readonly ILifetimeScope _lifetimeScope;
 
-            return eventFlowOptions;
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
+        {
+            _lifetimeScope = lifetimeScope;
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public IScopeResolver BeginScope(IEnumerable<Registration> registrations)
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope(b =>
+                {
+                    foreach (var registration in registrations)
+                    {
+                        registration.Configure(b);
+                    }
+                }));
+        }
+
+        public IScopeResolver BeginScope(params Registration[] registrations)
+        {
+            return BeginScope((IEnumerable<Registration>)registrations);
+        }
+
+        public void Dispose()
+        {
+            _lifetimeScope.Dispose();
         }
     }
 }

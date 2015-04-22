@@ -22,6 +22,7 @@
 
 using System;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
 
@@ -31,10 +32,10 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions UseEventStore(
             this EventFlowOptions eventFlowOptions,
-            Func<IResolver, IEventStore> eventStoreResolver,
+            Func<IResolver, IEventStore> factory,
             Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore>(eventStoreResolver, lifetime));
+            eventFlowOptions.Register(f => f.AddRegistration(factory, lifetime));
             return eventFlowOptions;
         }
 
@@ -43,7 +44,7 @@ namespace EventFlow.Extensions
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TEventStore : class, IEventStore
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, TEventStore>(lifetime));
+            eventFlowOptions.Register(f => f.AddRegistration<IEventStore, TEventStore>(lifetime));
             return eventFlowOptions;
         }
 
@@ -51,8 +52,8 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
-            eventFlowOptions.AddRegistration(new Registration<IFilesEventStoreConfiguration>(c => filesEventStoreConfiguration, Lifetime.Singleton));
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, FilesEventStore>());
+            eventFlowOptions.Register(f => f.AddRegistration(_ => filesEventStoreConfiguration, Lifetime.Singleton));
+            eventFlowOptions.Register(f => f.AddRegistration<IEventStore, FilesEventStore>());
             return eventFlowOptions;
         }
     }

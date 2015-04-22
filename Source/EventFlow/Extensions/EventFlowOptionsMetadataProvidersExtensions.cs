@@ -20,7 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores;
 
 namespace EventFlow.Extensions
@@ -32,7 +32,7 @@ namespace EventFlow.Extensions
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TMetadataProvider : class, IMetadataProvider
         {
-            eventFlowOptions.AddRegistration(new Registration<IMetadataProvider, TMetadataProvider>(lifetime));
+            eventFlowOptions.Register(f => f.AddRegistration<IMetadataProvider, TMetadataProvider>(lifetime));
             return eventFlowOptions;
         }
     }
