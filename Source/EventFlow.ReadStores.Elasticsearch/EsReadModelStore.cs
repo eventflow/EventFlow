@@ -49,8 +49,11 @@ namespace EventFlow.ReadStores.Elasticsearch
 
             Log.Debug("Indexing readmodel into index '{0}': {1}", index, readModel);
 
-            await _elasticClient.IndexAsync(readModel, i => i.Index(index))
-                .ConfigureAwait(false);
+            await
+                _elasticClient.IndexAsync(readModel,
+                    i => i.Index(index)
+                        .Version(readModel.LastAggregateSequenceNumber))
+                    .ConfigureAwait(false);
         }
     }
 }
