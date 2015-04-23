@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
+using EventFlow.ReadStores.Elasticsearch.Configuration;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch
@@ -16,12 +17,12 @@ namespace EventFlow.ReadStores.Elasticsearch
         where TAggregate : IAggregateRoot
     {
         private readonly IElasticClient _elasticClient;
-        private readonly string[] _indicesToFeed;
+        private readonly IIndexProvider _indexProvider;
 
-        public EsReadModelStore(IElasticClient elasticClient, ILog log, string[] indicesToFeed) : base(log)
+        public EsReadModelStore(IElasticClient elasticClient, ILog log, IIndexProvider indexProvider) : base(log)
         {
             _elasticClient = elasticClient;
-            _indicesToFeed = indicesToFeed;
+            _indexProvider = indexProvider;
         }
 
         public override async Task UpdateReadModelAsync(
@@ -29,7 +30,8 @@ namespace EventFlow.ReadStores.Elasticsearch
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var feedTasks = _indicesToFeed.Select(i => FeedReadModelToIndex(aggregateId, domainEvents, i));
+            var indiciesToFeed = await _indexProvider.GetIndiciesAsync();
+            var feedTasks = indiciesToFeed.Select(i => FeedReadModelToIndex(aggregateId, domainEvents, i));
             await Task.WhenAll(feedTasks);
         }
 

@@ -55,6 +55,10 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\IIndexIdentifier.cs" />
+    <Compile Include="Configuration\IIndexProvider.cs" />
+    <Compile Include="Configuration\IndexProvider.cs" />
+    <Compile Include="Configuration\SimpleIndexIdentifier.cs" />
     <Compile Include="EsReadModel.cs" />
     <Compile Include="EsReadModelStore.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />

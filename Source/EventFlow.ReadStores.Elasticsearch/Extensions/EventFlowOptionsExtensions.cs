@@ -3,6 +3,7 @@ using Elasticsearch.Net.ConnectionPool;
 using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Logs;
+using EventFlow.ReadStores.Elasticsearch.Configuration;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Extensions
@@ -13,12 +14,21 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
             where TAggregate : IAggregateRoot
             where TReadModel : class, IEsReadModel, new()
         {
-            eventFlowOptions.RegisterServices(
-                sr =>
-                    sr.Register<IReadModelStore<TAggregate>>(
-                        f =>
-                            new EsReadModelStore<TAggregate, TReadModel>(f.Resolver.Resolve<IElasticClient>(),
-                                f.Resolver.Resolve<ILog>(), indicesToFeed)));
+            eventFlowOptions.UseElasticsearchReadModel<TAggregate, TReadModel>(new SimpleIndexIdentifier(indicesToFeed));
+
+            return eventFlowOptions;
+        }
+
+        public static EventFlowOptions UseElasticsearchReadModel<TAggregate, TReadModel>(
+            this EventFlowOptions eventFlowOptions, params IIndexIdentifier[] indexIdentifiers)
+            where TAggregate : IAggregateRoot
+            where TReadModel : class, IEsReadModel, new()
+        {
+            eventFlowOptions.RegisterServices(sr =>
+            {
+                sr.Register<IReadModelStore<TAggregate>, EsReadModelStore<TAggregate, TReadModel>>();
+                sr.Register<IIndexProvider>(f => new IndexProvider(indexIdentifiers, f.Resolver.Resolve<IElasticClient>()));
+            });
 
             return eventFlowOptions;
         }
