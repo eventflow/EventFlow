@@ -65,6 +65,7 @@
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Registrations\AutofacResolverContext.cs" />
     <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
+    <Compile Include="Configuration\Registrations\Decorator.cs" />
     <Compile Include="Configuration\Registrations\Resolvers\AutofacResolver.cs" />
     <Compile Include="Configuration\Registrations\Resolvers\AutofacRootResolver.cs" />
     <Compile Include="Configuration\Registrations\Resolvers\AutofacScopeResolver.cs" />

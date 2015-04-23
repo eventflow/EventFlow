@@ -33,6 +33,7 @@ namespace EventFlow.Configuration.Registrations
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly List<Registration> _registrations = new List<Registration>();
+        private readonly List<Decorator> _decorators = new List<Decorator>(); 
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
@@ -56,6 +57,11 @@ namespace EventFlow.Configuration.Registrations
         public void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             _registrations.Add(new Registration(serviceType, implementationType, lifetime));
+        }
+
+        public void Decorator<TService>(Func<IResolverContext, TService, TService> factory)
+        {
+            _decorators.Add(new Decorator<TService>(factory));
         }
 
         public bool HasRegistrationFor<TService>()
