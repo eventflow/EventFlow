@@ -107,6 +107,21 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             "Source/EventFlow.ReadStores.MsSql/EventFlow.ReadStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowReadStoresElasticsearch" (fun _ ->
+    let binDir = "Source/EventFlow.ReadStores.Elasticsearch/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.ReadStores.Elasticsearch.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.ReadStores.Elasticsearch"
+            Version = nugetVersion
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "EventFlow.Elasticsearch",  nugetVersionDep]
+            Publish = false })
+            "Source/EventFlow.ReadStores.Elasticsearch/EventFlow.ReadStores.Elasticsearch.nuspec"
+    )
+
 Target "Default" DoNothing
 
 "Clean"
@@ -117,6 +132,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
+    ==> "CreatePackageEventFlowReadStoresElasticsearch"
     ==> "Default"
 
 RunTargetOrDefault "Default"
