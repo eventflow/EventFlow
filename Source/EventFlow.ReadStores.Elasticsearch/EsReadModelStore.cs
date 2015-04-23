@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
 using Nest;
@@ -52,7 +53,8 @@ namespace EventFlow.ReadStores.Elasticsearch
             await
                 _elasticClient.IndexAsync(readModel,
                     i => i.Index(index)
-                        .Version(readModel.LastAggregateSequenceNumber))
+                        .Version(readModel.LastAggregateSequenceNumber)
+                        .VersionType(VersionType.External))
                     .ConfigureAwait(false);
         }
     }
