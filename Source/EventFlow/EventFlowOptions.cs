@@ -23,12 +23,17 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using Autofac;
-using Autofac.Core;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Resolvers;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Core;
+using EventFlow.EventCaches;
+using EventFlow.EventCaches.InMemory;
+using EventFlow.EventStores;
+using EventFlow.EventStores.InMemory;
+using EventFlow.Logs;
+using EventFlow.ReadStores;
+using EventFlow.Subscribers;
 
 namespace EventFlow
 {
@@ -36,9 +41,9 @@ namespace EventFlow
     {
         public static EventFlowOptions New { get { return new EventFlowOptions(); } }
 
-        private readonly ConcurrentBag<Registration> _registrations = new ConcurrentBag<Registration>();
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration()); 
 
         private EventFlowOptions() { }
 
@@ -65,66 +70,64 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions AddRegistration(Registration registration)
+        public EventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
-            _registrations.Add(registration);
+            register(_lazyRegistrationFactory.Value);
             return this;
         }
 
-        public bool HasRegistration<TService>()
+        public EventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
         {
-            var serviceType = typeof(TService);
-            return _registrations.Any(r => r.ServiceType == serviceType);
-        }
-
-        internal IEnumerable<Registration> GetRegistrations()
-        {
-            return _registrations;
-        }
-
-        internal IEnumerable<Type> GetAggregateEventTypes()
-        {
-            return _aggregateEventTypes;
-        }
-
-        internal IEventFlowConfiguration GetEventFlowConfiguration()
-        {
-            return _eventFlowConfiguration;
-        }
-
-        public IRootResolver CreateResolver(bool validateRegistrations = false)
-        {
-            var container = AutofacInitialization.Configure(this);
-
-            if (validateRegistrations)
+            if (_lazyRegistrationFactory.IsValueCreated)
             {
-                var services = container
-                    .ComponentRegistry
-                    .Registrations
-                    .SelectMany(x => x.Services)
-                    .OfType<TypedService>()
-                    .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                    .ToList();
-                var exceptions = new List<Exception>();
-                foreach (var typedService in services)
-                {
-                    try
-                    {
-                        container.Resolve(typedService.ServiceType);
-                    }
-                    catch (DependencyResolutionException ex)
-                    {
-                        exceptions.Add(ex);
-                    }
-                }
-                if (exceptions.Any())
-                {
-                    var message = string.Join(", ", exceptions.Select(e => e.Message));
-                    throw new AggregateException(message, exceptions);
-                }
+                throw new InvalidOperationException("Registration factory is already in use");
             }
 
-            return new AutofacRootResolver(container);
+            _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => serviceRegistration);
+            return this;
+        }
+
+        public IRootResolver CreateResolver(bool validateRegistrations = true)
+        {
+            var services = new HashSet<Type>(_lazyRegistrationFactory.Value.GetRegisteredServices());
+
+            RegisterIfMissing<ILog, ConsoleLog>(services);
+            RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
+            RegisterIfMissing<ICommandBus, CommandBus>(services);
+            RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
+            RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
+            RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
+            RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
+            RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
+            RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
+            RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
+            RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
+            RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
+            RegisterIfMissing<IEventCache, InMemoryEventCache>(services, Lifetime.Singleton);
+            RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
+
+            var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
+
+            var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
+            eventDefinitionService.LoadEvents(_aggregateEventTypes);
+
+            return rootResolver;
+        }
+
+        private void RegisterIfMissing<TService, TImplementation>(ICollection<Type> registeredServices, Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            RegisterIfMissing<TService>(registeredServices, f => f.Register<TService, TImplementation>(lifetime));
+        }
+
+        private void RegisterIfMissing<TService>(ICollection<Type> registeredServices, Action<IServiceRegistration> register)
+        {
+            if (registeredServices.Contains(typeof (TService)))
+            {
+                return;
+            }
+            register(_lazyRegistrationFactory.Value);
         }
     }
 }

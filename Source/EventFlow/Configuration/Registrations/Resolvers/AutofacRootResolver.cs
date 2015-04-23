@@ -20,27 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using Autofac;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Configuration.Registrations.Resolvers
 {
-    public static class EventFlowOptionsExtensions
+    public class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
+        public IContainer Container { get; private set; }
 
-            return eventFlowOptions;
+        public AutofacRootResolver(IContainer container)
+            : base(container)
+        {
+            Container = container;
         }
     }
 }

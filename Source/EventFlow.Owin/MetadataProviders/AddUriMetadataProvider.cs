@@ -20,37 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
+using Microsoft.Owin;
 
-namespace EventFlow.Configuration.Resolvers
+namespace EventFlow.Owin.MetadataProviders
 {
-    public class AutofacResolver : IResolver
+    public class AddUriMetadataProvider : IMetadataProvider
     {
-        private readonly IComponentContext _componentContext;
+        private readonly IOwinContext _owinContext;
 
-        public AutofacResolver(IComponentContext componentContext)
+        public AddUriMetadataProvider(
+            IOwinContext owinContext)
         {
-            _componentContext = componentContext;
+            _owinContext = owinContext;
         }
 
-        public T Resolve<T>()
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(
+            string id,
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata)
+            where TAggregate : IAggregateRoot
         {
-            return _componentContext.Resolve<T>();
-        }
+            // TODO: Handle X-Forwarded-Proto header
 
-        public object Resolve(Type serviceType)
-        {
-            return _componentContext.Resolve(serviceType);
-        }
-
-        public IEnumerable<object> ResolveAll(Type serviceType)
-        {
-            var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
-            return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
+            yield return new KeyValuePair<string, string>("request_uri", _owinContext.Request.Uri.ToString());
         }
     }
 }

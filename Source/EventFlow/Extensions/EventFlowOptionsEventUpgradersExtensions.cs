@@ -34,7 +34,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot
             where TEventUpgrader : class, IEventUpgrader<TAggregate>
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventUpgrader<TAggregate>, TEventUpgrader>());
+            eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate>, TEventUpgrader>());
             return eventFlowOptions;
         }
 
@@ -43,7 +43,7 @@ namespace EventFlow.Extensions
             Func<IResolverContext, IEventUpgrader<TAggregate>> factory)
             where TAggregate : IAggregateRoot
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventUpgrader<TAggregate>>(factory));
+            eventFlowOptions.RegisterServices(f => f.Register(factory));
             return eventFlowOptions;
         }
     }

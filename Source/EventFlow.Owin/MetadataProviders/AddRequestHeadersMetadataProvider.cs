@@ -20,27 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using EventFlow.EventStores;
+using Microsoft.Owin;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Owin.MetadataProviders
 {
-    public static class EventFlowOptionsExtensions
+    public class AddRequestHeadersMetadataProvider : IMetadataProvider
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
+        private readonly IOwinContext _owinContext;
 
-            return eventFlowOptions;
+        private static readonly ISet<string> RequestHeadersToSkip = new HashSet<string>
+            {
+                "Authorization",
+                "Cookie",
+            };
+
+        public AddRequestHeadersMetadataProvider(
+            IOwinContext owinContext)
+        {
+            _owinContext = owinContext;
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(
+            string id,
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata)
+            where TAggregate : IAggregateRoot
+        {
+            return _owinContext.Request.Headers
+                .Where(kv => !RequestHeadersToSkip.Contains(kv.Key))
+                .Select(kv => new KeyValuePair<string, string>(
+                    string.Format("request_header[{0}]", kv.Key),
+                    string.Join(Environment.NewLine, kv.Value)));
         }
     }
 }
