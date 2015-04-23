@@ -52,22 +52,26 @@ namespace EventFlow.Owin.MetadataProviders
             IMetadata metadata)
             where TAggregate : IAggregateRoot
         {
-            var headerValue = HeaderPriority
+            yield return new KeyValuePair<string, string>("remote_ip_address", _owinContext.Request.RemoteIpAddress);
+
+            var headerInfo = HeaderPriority
                 .Select(h =>
                     {
                         string[] value;
-                        return _owinContext.Request.Headers.TryGetValue(h, out value)
+                        var address = _owinContext.Request.Headers.TryGetValue(h, out value)
                             ? string.Join(string.Empty, value)
                             : string.Empty;
+                        return new {Header = h, Address = address};
                     })
-                .FirstOrDefault(v => !string.IsNullOrEmpty(v));
+                .FirstOrDefault(a => !string.IsNullOrEmpty(a.Address));
 
-            if (string.IsNullOrEmpty(headerValue))
+            if (headerInfo == null)
             {
                 yield break;
             }
 
-            yield return new KeyValuePair<string, string>("user_host_address", headerValue);
+            yield return new KeyValuePair<string, string>("user_host_address", headerInfo.Address);
+            yield return new KeyValuePair<string, string>("user_host_address_source_header", headerInfo.Header);
         }
     }
 }
