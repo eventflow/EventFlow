@@ -47,7 +47,13 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
 
         public override void TearDown()
         {
-            ElasticClient.DeleteIndex(d => d.Index(_indexToFeed));
+            try
+            {
+                ElasticClient.DeleteIndex(d => d.Index(_indexToFeed));
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 }
