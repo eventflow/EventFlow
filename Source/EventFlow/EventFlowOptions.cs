@@ -118,7 +118,7 @@ namespace EventFlow
             where TService : class
             where TImplementation : class, TService
         {
-            RegisterIfMissing<ILog>(registeredServices, f => f.Register<TService, TImplementation>(lifetime));
+            RegisterIfMissing<TService>(registeredServices, f => f.Register<TService, TImplementation>(lifetime));
         }
 
         private void RegisterIfMissing<TService>(ICollection<Type> registeredServices, Action<IServiceRegistration> register)

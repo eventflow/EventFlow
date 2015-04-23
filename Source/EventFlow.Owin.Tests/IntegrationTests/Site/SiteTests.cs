@@ -52,6 +52,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         {
             // Act
             await GetAsync("testaggregate/ping?id=fancy").ConfigureAwait(false);
+            await GetAsync("testaggregate/ping?id=fancy").ConfigureAwait(false);
         }
 
         private async Task<string> GetAsync(string url)

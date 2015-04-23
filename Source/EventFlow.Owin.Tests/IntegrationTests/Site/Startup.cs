@@ -20,7 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Net.Http;
+using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -29,6 +30,7 @@ using Autofac;
 using Autofac.Integration.WebApi;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Configuration.Registrations.Resolvers;
+using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
@@ -53,6 +55,25 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         }
     }
 
+    public class DirectoryCleaner : IDisposable
+    {
+        private readonly string _path;
+
+        public DirectoryCleaner(string path)
+        {
+            _path = path;
+        }
+
+        public void Dispose()
+        {
+            if (Directory.Exists(_path))
+            {
+                Console.WriteLine("Deleting directory {0}", _path);
+                Directory.Delete(_path, true);
+            }
+        }
+    }
+
     public class Startup
     {
         public void Configuration(IAppBuilder appBuilder)
@@ -60,11 +81,19 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterApiControllers(typeof(Startup).Assembly).InstancePerRequest();
 
+            var storePath = Path.Combine(
+                Path.GetTempPath(),
+                Guid.NewGuid().ToString());
+
             var resolver = EventFlowOptions.New
                 .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder))
                 .AddEvents(EventFlowTest.Assembly)
                 .AddOwinMetadataProviders()
+                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
+                .Register(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
                 .CreateResolver(false);
+
+            resolver.Resolve<DirectoryCleaner>();
 
             var autofacRootResolver = (AutofacRootResolver) resolver;
             var container = autofacRootResolver.Container;
