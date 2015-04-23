@@ -108,8 +108,12 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
     )
 
 Target "CreatePackageEventFlowReadStoresElasticsearch" (fun _ ->
-    let binDir = "Source/EventFlow.ReadStores.Elasticsearch/bin/"
-    CopyFile binDir (binDir + buildMode + "/EventFlow.ReadStores.Elasticsearch.dll")
+    let binDir = "Source\\EventFlow.ReadStores.Elasticsearch\\bin\\" + buildMode + "\\"
+    let result = ExecProcess (fun info ->
+       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.ReadStores.Elasticsearch\\bin\\EventFlow.ReadStores.Elasticsearch.dll " + binDir + "EventFlow.ReadStores.Elasticsearch.dll " + binDir + "Elasticsearch.Net.dll "  + binDir + "Nest.dll"
+       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
+    if result <> 0 then failwithf "ILMerge of EventFlow.ReadStores.Elasticsearch returned with a non-zero exit code"
+    
     NuGet (fun p ->
         {p with
             OutputPath = dirPackages
@@ -117,7 +121,7 @@ Target "CreatePackageEventFlowReadStoresElasticsearch" (fun _ ->
             Version = nugetVersion
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "EventFlow.Elasticsearch",  nugetVersionDep]
+                "Newtonsoft.Json", GetPackageVersion "./packages/" "Newtonsoft.Json"]
             Publish = false })
             "Source/EventFlow.ReadStores.Elasticsearch/EventFlow.ReadStores.Elasticsearch.nuspec"
     )
