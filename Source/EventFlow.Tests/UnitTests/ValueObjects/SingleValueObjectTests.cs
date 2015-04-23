@@ -50,5 +50,32 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Assert
             orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(orderedValues);
         }
+
+        [Test]
+        public void EqualsForSameValues()
+        {
+            // Arrange
+            var value = A<string>();
+            var obj1 = new StringSingleValue(value);
+            var obj2 = new StringSingleValue(value);
+
+            // Assert
+            (obj1 == obj2).Should().BeTrue();
+            obj1.Equals(obj2).Should().BeTrue();
+        }
+
+        [Test]
+        public void EqualsForDifferentValues()
+        {
+            // Arrange
+            var value1 = A<string>();
+            var value2 = A<string>();
+            var obj1 = new StringSingleValue(value1);
+            var obj2 = new StringSingleValue(value2);
+
+            // Assert
+            (obj1 == obj2).Should().BeFalse();
+            obj1.Equals(obj2).Should().BeFalse();
+        }
     }
 }
