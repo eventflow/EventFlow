@@ -31,7 +31,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
                 .CreateResolver();
 
             ElasticClient = resolver.Resolve<IElasticClient>();
-            
+
+            ElasticClient.CreateIndex(_indexToFeed);
+
             return resolver;
         }
 
