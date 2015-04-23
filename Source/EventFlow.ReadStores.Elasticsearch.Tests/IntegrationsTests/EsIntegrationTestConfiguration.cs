@@ -12,6 +12,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
 {
     public class EsIntegrationTestConfiguration : IntegrationTestConfiguration
     {
+        private string _indexToFeed;
         protected IElasticClient ElasticClient { get; private set; }
         
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
@@ -22,9 +23,11 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
                 ? "http://127.0.0.1:9200"
                 : envUri;
 
+            _indexToFeed = string.Format("testindex-{0}", Guid.NewGuid());
+
             var resolver = eventFlowOptions
                 .ConfigureElasticsearch(new Uri(elasticsearchUrl))
-                .UseElasticsearchReadModel<TestAggregate, TestAggregateReadModel>()
+                .UseElasticsearchReadModel<TestAggregate, TestAggregateReadModel>(_indexToFeed)
                 .CreateResolver();
 
             ElasticClient = resolver.Resolve<IElasticClient>();
@@ -34,7 +37,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
 
         public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
         {
-            var aggregateResponse = await ElasticClient.GetAsync<TestAggregateReadModel>(id)
+            var aggregateResponse = await ElasticClient.GetAsync<TestAggregateReadModel>(id, _indexToFeed)
                 .ConfigureAwait(false);
 
             return aggregateResponse.Source;
@@ -42,6 +45,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationsTests
 
         public override void TearDown()
         {
+            ElasticClient.DeleteIndex(d => d.Index(_indexToFeed));
         }
     }
 }
