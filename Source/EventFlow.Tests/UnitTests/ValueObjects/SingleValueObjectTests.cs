@@ -20,50 +20,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Linq;
+using EventFlow.TestHelpers;
+using EventFlow.ValueObjects;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.ValueObjects
+namespace EventFlow.Tests.UnitTests.ValueObjects
 {
-    public abstract class SingleValueObject<T> : ValueObject, IComparable
-        where T : IComparable, IComparable<T>
+    public class SingleValueObjectTests : Test
     {
-        public T Value { get; private set; }
-
-        protected SingleValueObject() { }
-
-        protected SingleValueObject(T value)
+        public class StringSingleValue : SingleValueObject<string>
         {
-            Value = value;
+            public StringSingleValue(string value) : base(value) { }
         }
 
-        public int CompareTo(object obj)
+        [Test]
+        public void Ordering()
         {
-            if (ReferenceEquals(null, obj))
-            {
-                throw new ArgumentNullException("obj");
-            }
+            // Arrange
+            var values = Many<string>(10);
+            var orderedValues = values.OrderBy(s => s).ToList();
+            var singleValueObjects = values.Select(s => new StringSingleValue(s)).ToList();
 
-            var other = obj as SingleValueObject<T>;
-            if (other == null)
-            {
-                throw new ArgumentException(string.Format(
-                    "Cannot compare '{0}' and '{1}'",
-                    GetType().Name,
-                    obj.GetType().Namespace));
-            }
+            // Act
+            var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
-            return Value.CompareTo(other.Value);
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
-
-        public override string ToString()
-        {
-            return Value.ToString();
+            // Assert
+            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(orderedValues);
         }
     }
 }
