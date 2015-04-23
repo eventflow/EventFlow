@@ -20,16 +20,50 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.ReadStores;
-using EventFlow.Test.Aggregates.Test.Events;
+using System;
+using System.Collections.Generic;
 
-namespace EventFlow.Test.Aggregates.Test.ReadModels
+namespace EventFlow.ValueObjects
 {
-    public interface ITestAggregateReadModel :
-        IAmReadModelFor<DomainErrorAfterFirstEvent>,
-        IAmReadModelFor<PingEvent>
+    public abstract class SingleValueObject<T> : ValueObject, IComparable
+        where T : IComparable, IComparable<T>
     {
-        bool DomainErrorAfterFirstReceived { get; }
-        int PingsReceived { get; }
+        public T Value { get; private set; }
+
+        protected SingleValueObject() { }
+
+        protected SingleValueObject(T value)
+        {
+            Value = value;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                throw new ArgumentNullException("obj");
+            }
+
+            var other = obj as SingleValueObject<T>;
+            if (other == null)
+            {
+                throw new ArgumentException(string.Format(
+                    "Cannot compare '{0}' and '{1}'",
+                    GetType().Name,
+                    obj.GetType().Namespace));
+            }
+
+            return Value.CompareTo(other.Value);
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Value;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

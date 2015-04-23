@@ -17,13 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Tests", "Source\E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql.Tests", "Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj", "{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Test", "Source\EventFlow.Test\EventFlow.Test.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Owin", "Source\EventFlow.Owin\EventFlow.Owin.csproj", "{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Owin", "Owin", "{9876C758-0A72-400E-A1B1-685E1C22ACB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Owin.Tests", "Source\EventFlow.Owin.Tests\EventFlow.Owin.Tests.csproj", "{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.TestHelpers", "Source\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,10 +55,6 @@ Global
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}.Release|Any CPU.Build.0 = Release|Any CPU
-		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -67,6 +63,10 @@ Global
 		{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415}.Release|Any CPU.Build.0 = Release|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

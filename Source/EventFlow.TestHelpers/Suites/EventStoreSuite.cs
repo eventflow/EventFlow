@@ -26,12 +26,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Test.Suites
+namespace EventFlow.TestHelpers.Suites
 {
     public class EventStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
         where TConfiguration : IntegrationTestConfiguration, new()

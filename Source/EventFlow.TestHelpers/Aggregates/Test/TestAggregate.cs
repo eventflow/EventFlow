@@ -22,16 +22,40 @@
 
 using System;
 using EventFlow.Aggregates;
+using EventFlow.Exceptions;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.Test.Aggregates.Test.Events
+namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class PingEvent : AggregateEvent<TestAggregate>
+    public class TestAggregate : AggregateRoot<TestAggregate>,
+        IEmit<DomainErrorAfterFirstEvent>
     {
-        public Guid PingId { get; private set; }
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
 
-        public PingEvent(Guid pingId)
+        public TestAggregate(string id) : base(id)
         {
-            PingId = pingId;
+            Register<PingEvent>(e => PingsReceived++);
+        }
+
+        public void DomainErrorAfterFirst()
+        {
+            if (DomainErrorAfterFirstReceived)
+            {
+                throw DomainError.With("DomainErrorAfterFirst already received!");
+            }
+
+            Emit(new DomainErrorAfterFirstEvent());
+        }
+
+        public void Ping()
+        {
+            Emit(new PingEvent(Guid.NewGuid()));
+        }
+
+        public void Apply(DomainErrorAfterFirstEvent e)
+        {
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

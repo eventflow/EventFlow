@@ -34,7 +34,7 @@ using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
-using EventFlow.Test;
+using EventFlow.TestHelpers;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site

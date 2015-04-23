@@ -21,41 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.Test.Aggregates.Test.Events;
+using NUnit.Framework;
+using Ploeh.AutoFixture;
 
-namespace EventFlow.Test.Aggregates.Test
+namespace EventFlow.TestHelpers
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<DomainErrorAfterFirstEvent>
+    public abstract class TestsFor<TSut> : Test
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        private Lazy<TSut> _lazySut; 
+        protected TSut Sut { get { return _lazySut.Value; } }
 
-        public TestAggregate(string id) : base(id)
+        [SetUp]
+        public void SetUpTestsFor()
         {
-            Register<PingEvent>(e => PingsReceived++);
+            _lazySut = new Lazy<TSut>(CreateSut);
         }
 
-        public void DomainErrorAfterFirst()
+        protected virtual TSut CreateSut()
         {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
-        }
-
-        public void Ping()
-        {
-            Emit(new PingEvent(Guid.NewGuid()));
-        }
-
-        public void Apply(DomainErrorAfterFirstEvent e)
-        {
-            DomainErrorAfterFirstReceived = true;
+            return Fixture.Create<TSut>();
         }
     }
 }

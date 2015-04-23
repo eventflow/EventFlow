@@ -7,8 +7,8 @@
     <ProjectGuid>{571D291C-5E4C-43AF-855F-7C4E2F318F4C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.Test</RootNamespace>
-    <AssemblyName>EventFlow.Test</AssemblyName>
+    <RootNamespace>EventFlow.TestHelpers</RootNamespace>
+    <AssemblyName>EventFlow.TestHelpers</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -74,6 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Suites\EventStoreSuite.cs" />
     <Compile Include="Suites\ReadModelStoreSuite.cs" />
+    <Compile Include="Test.cs" />
     <Compile Include="TestsFor.cs" />
   </ItemGroup>
   <ItemGroup>

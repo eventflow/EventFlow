@@ -23,7 +23,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using EventFlow.Test.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.Commands;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {

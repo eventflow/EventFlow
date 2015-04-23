@@ -26,9 +26,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventCaches.InMemory;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.Events;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
