@@ -47,17 +47,5 @@ namespace EventFlow.Tests.IntegrationTests
             eventStore.Should().NotBeNull();
             eventStore.Should().BeAssignableTo<InMemoryEventStore>();
         }
-
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
-        {
-            // Arrange
-            var options = EventFlowOptions.New
-                .UseEventStore<InMemoryEventStore>()
-                .UseEventStore<InMemoryEventStore>();
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
-        }
     }
 }

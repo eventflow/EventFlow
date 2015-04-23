@@ -113,6 +113,29 @@ namespace EventFlow.Test.Suites
         }
 
         [Test]
+        public async Task AggregateEventStreamsAreSeperate()
+        {
+            // Arrange
+            var id1 = A<string>();
+            var id2 = A<string>();
+            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate>(id1, CancellationToken.None).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1.Ping();
+            aggregate2.Ping();
+            aggregate2.Ping();
+
+            // Act
+            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate>(id1, CancellationToken.None).ConfigureAwait(false);
+            aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate>(id2, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            aggregate1.Version.Should().Be(1);
+            aggregate2.Version.Should().Be(2);
+        }
+
+        [Test]
         public async Task OptimisticConcurrency()
         {
             // Arrange

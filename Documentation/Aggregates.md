@@ -25,11 +25,12 @@ signature is correct.
 ```csharp
 public void Ping()
 {
+  // Fancy domain logic here...
   Emit(new PingEvent())
 }
 
 public void Apply(PingEvent e)
 {
-  // Fancy domain logic here...
+  // Save ping state here  
 }
 ```

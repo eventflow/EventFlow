@@ -21,36 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.Configuration.Resolvers
+namespace EventFlow.Configuration
 {
-    public class AutofacResolver : IResolver
+    public interface IServiceRegistration
     {
-        private readonly IComponentContext _componentContext;
+        void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TImplementation : class, TService
+            where TService : class;
 
-        public AutofacResolver(IComponentContext componentContext)
-        {
-            _componentContext = componentContext;
-        }
+        void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TService : class;
 
-        public T Resolve<T>()
-        {
-            return _componentContext.Resolve<T>();
-        }
+        bool HasRegistrationFor<TService>()
+            where TService : class;
 
-        public object Resolve(Type serviceType)
-        {
-            return _componentContext.Resolve(serviceType);
-        }
-
-        public IEnumerable<object> ResolveAll(Type serviceType)
-        {
-            var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
-            return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
-        }
+        IEnumerable<Type> GetRegisteredServices();
+            
+        IRootResolver CreateResolver(bool validateRegistrations);
     }
 }

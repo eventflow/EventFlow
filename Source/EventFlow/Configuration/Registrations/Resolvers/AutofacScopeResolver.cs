@@ -20,27 +20,45 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using System.Collections.Generic;
+using Autofac;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Configuration.Registrations.Resolvers
 {
-    public static class EventFlowOptionsExtensions
+    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
+        private readonly ILifetimeScope _lifetimeScope;
 
-            return eventFlowOptions;
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
+        {
+            _lifetimeScope = lifetimeScope;
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public IScopeResolver BeginScope(IEnumerable<Registration> registrations)
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope(b =>
+                {
+                    foreach (var registration in registrations)
+                    {
+                        registration.Configure(b);
+                    }
+                }));
+        }
+
+        public IScopeResolver BeginScope(params Registration[] registrations)
+        {
+            return BeginScope((IEnumerable<Registration>)registrations);
+        }
+
+        public void Dispose()
+        {
+            _lifetimeScope.Dispose();
         }
     }
 }

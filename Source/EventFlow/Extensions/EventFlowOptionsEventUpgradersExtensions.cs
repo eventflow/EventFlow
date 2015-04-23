@@ -20,26 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using EventFlow.Configuration;
+using EventFlow.EventStores;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class EventFlowOptionsEventUpgradersExtensions
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TEventUpgrader>(
+            this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
+            where TEventUpgrader : class, IEventUpgrader<TAggregate>
         {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
+            eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate>, TEventUpgrader>());
+            return eventFlowOptions;
+        }
 
+        public static EventFlowOptions AddEventUpgrader<TAggregate>(
+            this EventFlowOptions eventFlowOptions,
+            Func<IResolverContext, IEventUpgrader<TAggregate>> factory)
+            where TAggregate : IAggregateRoot
+        {
+            eventFlowOptions.RegisterServices(f => f.Register(factory));
             return eventFlowOptions;
         }
     }

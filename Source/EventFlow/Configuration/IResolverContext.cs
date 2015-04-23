@@ -20,28 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Autofac;
-
-namespace EventFlow.Configuration.Resolvers
+namespace EventFlow.Configuration
 {
-    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
+    public interface IResolverContext
     {
-        private readonly ILifetimeScope _lifetimeScope;
-
-        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
-            : base(lifetimeScope)
-        {
-            _lifetimeScope = lifetimeScope;
-        }
-
-        public IScopeResolver BeginScope()
-        {
-            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
-        }
-
-        public void Dispose()
-        {
-            _lifetimeScope.Dispose();
-        }
+        IResolver Resolver { get; }
     }
 }

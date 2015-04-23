@@ -20,27 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using EventFlow.EventStores;
+using Microsoft.Owin;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Owin.MetadataProviders
 {
-    public static class EventFlowOptionsExtensions
+    public class AddUriMetadataProvider : IMetadataProvider
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
+        private readonly IOwinContext _owinContext;
 
-            return eventFlowOptions;
+        public AddUriMetadataProvider(
+            IOwinContext owinContext)
+        {
+            _owinContext = owinContext;
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(
+            string id,
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata)
+            where TAggregate : IAggregateRoot
+        {
+            // TODO: Handle X-Forwarded-Proto header
+
+            yield return new KeyValuePair<string, string>("request_uri", _owinContext.Request.Uri.ToString());
         }
     }
 }

@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,31 +62,37 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException("command");
 
-            var commandType = command.GetType().Name;
+            var commandTypeName = command.GetType().Name;
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
                 "Executing command '{0}' on aggregate '{1}' with ID '{2}'",
-                commandType,
+                commandTypeName,
                 aggregateType.Name,
                 command.Id);
 
-            var domainEvents = await Retry.ThisAsync(
-                async () =>
-                    {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
-                        await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
-                        return await aggregate.CommitAsync(_eventStore, cancellationToken).ConfigureAwait(false);
-                    },
-                    _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
-                    new [] { typeof(OptimisticConcurrencyException) },
-                    _configuration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
-                .ConfigureAwait(false);
+            IReadOnlyCollection<IDomainEvent> domainEvents;
+            try
+            {
+                domainEvents = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                _log.Debug(
+                    exception,
+                    "Excution of command '{0}' on aggregate '{1}' with ID '{2}' failed due to exception '{3}' with message: {4}",
+                    commandTypeName,
+                    aggregateType.Name,
+                    command.Id,
+                    exception.GetType().Name,
+                    exception.Message);
+                throw;
+            }
 
             if (!domainEvents.Any())
             {
                 _log.Verbose(
                     "Execution command '{0}' on aggregate '{1}' with ID '{2}' did NOT result in any domain events",
-                    commandType,
+                    commandTypeName,
                     aggregateType.Name,
                     command.Id);
                 return;
@@ -101,6 +108,23 @@ namespace EventFlow
             {
                 a.Run(PublishAsync(command, CancellationToken.None));
             }
+        }
+
+        private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate>(
+            ICommand<TAggregate> command,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot
+        {
+            return Retry.ThisAsync(
+                async () =>
+                    {
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
+                        await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, cancellationToken).ConfigureAwait(false);
+                    },
+                _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
+                new[] { typeof(OptimisticConcurrencyException) },
+                _configuration.DelayBeforeRetryOnOptimisticConcurrencyExceptions);
         }
     }
 }

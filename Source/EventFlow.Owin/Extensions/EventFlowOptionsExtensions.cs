@@ -20,26 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using EventFlow.Extensions;
+using EventFlow.Owin.MetadataProviders;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Owin.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
+        public static EventFlowOptions AddOwinMetadataProviders(this EventFlowOptions eventFlowOptions)
         {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
-
+            eventFlowOptions.AddMetadataProvider<AddRequestHeadersMetadataProvider>();
+            eventFlowOptions.AddMetadataProvider<AddUriMetadataProvider>();
+            eventFlowOptions.AddMetadataProvider<AddUserHostAddressMetadataProvider>();
             return eventFlowOptions;
         }
     }

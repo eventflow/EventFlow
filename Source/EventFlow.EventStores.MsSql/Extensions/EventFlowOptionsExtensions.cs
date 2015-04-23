@@ -20,7 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using EventFlow.Extensions;
 
 namespace EventFlow.EventStores.MsSql.Extensions
 {
@@ -28,7 +28,7 @@ namespace EventFlow.EventStores.MsSql.Extensions
     {
         public static EventFlowOptions UseMssqlEventStore(this EventFlowOptions eventFlowOptions)
         {
-            eventFlowOptions.AddRegistration(new Registration<IEventStore, MsSqlEventStore>());
+            eventFlowOptions.UseEventStore<MsSqlEventStore>();
             return eventFlowOptions;
         }
     }

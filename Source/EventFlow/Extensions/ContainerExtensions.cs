@@ -20,27 +20,44 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Autofac;
+using Autofac.Core;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    internal static class ContainerExtensions
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TReadModel : IMssqlReadModel, new()
+        internal static void ValidateRegistrations(this IContainer container)
         {
-            eventFlowOptions.RegisterServices(f =>
+            var services = container
+                .ComponentRegistry
+                .Registrations
+                .SelectMany(x => x.Services)
+                .OfType<TypedService>()
+                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
+                .ToList();
+            var exceptions = new List<Exception>();
+            foreach (var typedService in services)
+            {
+                try
                 {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
-                });
+                    container.Resolve(typedService.ServiceType);
+                }
+                catch (DependencyResolutionException ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+            if (!exceptions.Any())
+            {
+                return;
+            }
 
-            return eventFlowOptions;
+            var message = string.Join(", ", exceptions.Select(e => e.Message));
+            throw new AggregateException(message, exceptions);
         }
     }
 }
