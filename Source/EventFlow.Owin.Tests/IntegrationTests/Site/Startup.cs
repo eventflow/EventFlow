@@ -20,18 +20,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
 using Autofac;
 using Autofac.Integration.WebApi;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Configuration.Registrations.Resolvers;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
 using EventFlow.Test;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
+    public class LogProviderExceptionLogger : IExceptionLogger
+    {
+        private readonly ILog _log;
+
+        public LogProviderExceptionLogger(ILog log)
+        {
+            _log = log;
+        }
+
+        public Task LogAsync(ExceptionLoggerContext context, CancellationToken cancellationToken)
+        {
+            _log.Error(context.Exception, "Unhandled exception!");
+            return Task.FromResult<object>(null);
+        }
+    }
+
     public class Startup
     {
         public void Configuration(IAppBuilder appBuilder)
@@ -51,8 +72,11 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             var config = new HttpConfiguration
                 {
                     DependencyResolver = new AutofacWebApiDependencyResolver(container),
+                    IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.LocalOnly,
                 };
             config.MapHttpAttributeRoutes();
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+            config.Services.Add(typeof(IExceptionLogger), new LogProviderExceptionLogger(resolver.Resolve<ILog>()));
 
             appBuilder.UseAutofacMiddleware(container);
             appBuilder.UseAutofacWebApi(config);
