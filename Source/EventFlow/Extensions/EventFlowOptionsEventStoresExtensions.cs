@@ -32,10 +32,10 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions UseEventStore(
             this EventFlowOptions eventFlowOptions,
-            Func<IResolver, IEventStore> factory,
+            Func<IResolverContext, IEventStore> eventStoreResolver,
             Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            eventFlowOptions.RegisterServices(f => f.Register(factory, lifetime));
+            eventFlowOptions.RegisterServices(f => f.Register(eventStoreResolver, lifetime));
             return eventFlowOptions;
         }
 

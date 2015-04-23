@@ -23,6 +23,7 @@
 using System;
 using Autofac;
 using EventFlow.Configuration.Registrations.Resolvers;
+using EventFlow.Configuration.Resolvers;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -75,9 +76,9 @@ namespace EventFlow.Configuration.Registrations
     public class Registration<TService> : Registration
         where TService : class
     {
-        public Func<IResolver, object> Factory { get; protected set; }
+        public Func<IResolverContext, object> Factory { get; protected set; }
 
-        public Registration(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public Registration(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             ServiceType = typeof (TService);
             Factory = factory;
@@ -89,10 +90,10 @@ namespace EventFlow.Configuration.Registrations
             switch (Lifetime)
             {
                 case Lifetime.AlwaysUnique:
-                    containerBuilder.Register(cc => Factory(new AutofacResolver(cc))).As(ServiceType);
+                    containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))).As(ServiceType);
                     break;
                 case Lifetime.Singleton:
-                    containerBuilder.Register(cc => Factory(new AutofacResolver(cc))).As(ServiceType).SingleInstance();
+                    containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))).As(ServiceType).SingleInstance();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

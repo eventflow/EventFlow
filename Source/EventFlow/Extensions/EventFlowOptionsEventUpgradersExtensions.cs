@@ -21,25 +21,30 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Configuration.Registrations;
+using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.EventStores;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Extensions
 {
-    public interface IServiceRegistration
+    public static class EventFlowOptionsEventUpgradersExtensions
     {
-        void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TImplementation : class, TService
-            where TService : class;
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TEventUpgrader>(
+            this EventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot
+            where TEventUpgrader : class, IEventUpgrader<TAggregate>
+        {
+            eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate>, TEventUpgrader>());
+            return eventFlowOptions;
+        }
 
-        void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TService : class;
-
-        bool HasRegistrationFor<TService>()
-            where TService : class;
-
-        IEnumerable<Type> GetRegisteredServices();
-            
-        IRootResolver CreateResolver(bool validateRegistrations);
+        public static EventFlowOptions AddEventUpgrader<TAggregate>(
+            this EventFlowOptions eventFlowOptions,
+            Func<IResolverContext, IEventUpgrader<TAggregate>> factory)
+            where TAggregate : IAggregateRoot
+        {
+            eventFlowOptions.RegisterServices(f => f.Register(factory));
+            return eventFlowOptions;
+        }
     }
 }

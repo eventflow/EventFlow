@@ -20,26 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using EventFlow.Configuration.Registrations;
-
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Resolvers
 {
-    public interface IServiceRegistration
+    public class AutofacResolverContext : IResolverContext
     {
-        void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TImplementation : class, TService
-            where TService : class;
+        public IResolver Resolver { get; private set; }
 
-        void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TService : class;
-
-        bool HasRegistrationFor<TService>()
-            where TService : class;
-
-        IEnumerable<Type> GetRegisteredServices();
-            
-        IRootResolver CreateResolver(bool validateRegistrations);
+        public AutofacResolverContext(
+            IResolver resolver)
+        {
+            Resolver = resolver;
+        }
     }
 }

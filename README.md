@@ -1,6 +1,5 @@
 # EventFlow
-EventFlow is a basic CQRS+ES framework designed to be easy to use
-and
+EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
 ### Features
 

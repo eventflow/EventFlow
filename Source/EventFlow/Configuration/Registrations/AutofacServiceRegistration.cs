@@ -47,7 +47,7 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new Registration<TService, TImplementation>(lifetime));
         }
 
-        public void Register<TService>(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
             where TService : class
         {
             _registrations.Add(new Registration<TService>(factory, lifetime));
