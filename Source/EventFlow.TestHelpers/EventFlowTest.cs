@@ -20,25 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
+using System.Reflection;
 
-namespace EventFlow.Test.Aggregates.Test.Commands
+namespace EventFlow.TestHelpers
 {
-    public class DomainErrorAfterFirstCommand : ICommand<TestAggregate>
+    public static class EventFlowTest
     {
-        public string Id { get; private set; }
-
-        public DomainErrorAfterFirstCommand(string id)
-        {
-            Id = id;
-        }
-
-        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken)
-        {
-            aggregate.DomainErrorAfterFirst();
-            return Task.FromResult(0);
-        }
+        public static Assembly Assembly { get { return typeof (EventFlowTest).Assembly; } }
     }
 }

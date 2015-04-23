@@ -20,18 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Aggregates;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
-namespace EventFlow.Test.Aggregates.Test.Events
+namespace EventFlow.TestHelpers
 {
-    public class PingEvent : AggregateEvent<TestAggregate>
+    public abstract class IntegrationTestConfiguration
     {
-        public Guid PingId { get; private set; }
+        public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
 
-        public PingEvent(Guid pingId)
-        {
-            PingId = pingId;
-        }
+        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id);
+
+        public abstract void TearDown();
     }
 }

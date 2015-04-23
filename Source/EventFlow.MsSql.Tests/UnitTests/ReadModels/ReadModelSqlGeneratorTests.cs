@@ -22,7 +22,7 @@
 
 using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores.MsSql;
-using EventFlow.Test;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 

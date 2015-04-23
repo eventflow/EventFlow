@@ -20,16 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.ReadStores;
-using EventFlow.Test.Aggregates.Test.Events;
+using System;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Test.Aggregates.Test.ReadModels
+namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {
-    public interface ITestAggregateReadModel :
-        IAmReadModelFor<DomainErrorAfterFirstEvent>,
-        IAmReadModelFor<PingEvent>
+    public class PingEvent : AggregateEvent<TestAggregate>
     {
-        bool DomainErrorAfterFirstReceived { get; }
-        int PingsReceived { get; }
+        public Guid PingId { get; private set; }
+
+        public PingEvent(Guid pingId)
+        {
+            PingId = pingId;
+        }
     }
 }

@@ -20,42 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.EventStores;
-using EventFlow.Extensions;
-using NUnit.Framework;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.Test
+namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public abstract class IntegrationTest<TIntegrationTestConfiguration> : TestsFor<ICommandBus>
-        where TIntegrationTestConfiguration : IntegrationTestConfiguration, new()
+    public class DomainErrorAfterFirstCommand : ICommand<TestAggregate>
     {
-        protected IRootResolver Resolver { get; private set; }
-        protected IEventStore EventStore { get; private set; }
-        protected TIntegrationTestConfiguration Configuration { get; private set; }
+        public string Id { get; private set; }
 
-        [SetUp]
-        public void SetUpIntegrationTest()
+        public DomainErrorAfterFirstCommand(string id)
         {
-            Configuration = new TIntegrationTestConfiguration();
-
-            var eventFlowOptions = EventFlowOptions.New
-                .AddEvents(EventFlowTest.Assembly);
-
-            Resolver = Configuration.CreateRootResolver(eventFlowOptions);
-            EventStore = Resolver.Resolve<IEventStore>();
+            Id = id;
         }
 
-        [TearDown]
-        public void TearDownIntegrationTest()
+        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken)
         {
-            Configuration.TearDown();
-            Resolver.Dispose();
-        }
-
-        protected override ICommandBus CreateSut()
-        {
-            return Resolver.Resolve<ICommandBus>();
+            aggregate.DomainErrorAfterFirst();
+            return Task.FromResult(0);
         }
     }
 }

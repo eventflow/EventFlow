@@ -20,50 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Linq;
-using Moq;
+using EventFlow.Configuration;
+using EventFlow.EventStores;
+using EventFlow.Extensions;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
 
-namespace EventFlow.Test
+namespace EventFlow.TestHelpers
 {
-    public abstract class TestsFor<TSut>
+    public abstract class IntegrationTest<TIntegrationTestConfiguration> : TestsFor<ICommandBus>
+        where TIntegrationTestConfiguration : IntegrationTestConfiguration, new()
     {
-        private Lazy<TSut> _lazySut; 
-        protected TSut Sut { get { return _lazySut.Value; } }
-        protected IFixture Fixture { get; private set; }
+        protected IRootResolver Resolver { get; private set; }
+        protected IEventStore EventStore { get; private set; }
+        protected TIntegrationTestConfiguration Configuration { get; private set; }
 
         [SetUp]
-        public void SetUpTests()
+        public void SetUpIntegrationTest()
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
-            _lazySut = new Lazy<TSut>(CreateSut);
+            Configuration = new TIntegrationTestConfiguration();
+
+            var eventFlowOptions = EventFlowOptions.New
+                .AddEvents(EventFlowTest.Assembly);
+
+            Resolver = Configuration.CreateRootResolver(eventFlowOptions);
+            EventStore = Resolver.Resolve<IEventStore>();
         }
 
-        protected Mock<T> Freze<T>()
-            where T : class
+        [TearDown]
+        public void TearDownIntegrationTest()
         {
-            var mock = new Mock<T>();
-            Fixture.Inject(mock.Object);
-            return mock;
+            Configuration.TearDown();
+            Resolver.Dispose();
         }
 
-        protected T A<T>()
+        protected override ICommandBus CreateSut()
         {
-            return Fixture.Create<T>();
-        }
-
-        protected System.Collections.Generic.List<T> Many<T>(int count = 3)
-        {
-            return Fixture.CreateMany<T>(count).ToList();
-        }
-
-        protected virtual TSut CreateSut()
-        {
-            return Fixture.Create<TSut>();
+            return Resolver.Resolve<ICommandBus>();
         }
     }
 }

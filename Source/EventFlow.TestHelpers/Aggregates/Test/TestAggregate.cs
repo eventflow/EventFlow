@@ -20,25 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.Test.Aggregates.Test.Events;
+using EventFlow.Exceptions;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.Test.Aggregates.Test.ReadModels
+namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class TestAggregateReadModel : IReadModel, ITestAggregateReadModel
+    public class TestAggregate : AggregateRoot<TestAggregate>,
+        IEmit<DomainErrorAfterFirstEvent>
     {
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public int PingsReceived { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
+        public TestAggregate(string id) : base(id)
         {
-            DomainErrorAfterFirstReceived = true;
+            Register<PingEvent>(e => PingsReceived++);
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<PingEvent> e)
+        public void DomainErrorAfterFirst()
         {
-            PingsReceived++;
+            if (DomainErrorAfterFirstReceived)
+            {
+                throw DomainError.With("DomainErrorAfterFirst already received!");
+            }
+
+            Emit(new DomainErrorAfterFirstEvent());
+        }
+
+        public void Ping()
+        {
+            Emit(new PingEvent(Guid.NewGuid()));
+        }
+
+        public void Apply(DomainErrorAfterFirstEvent e)
+        {
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

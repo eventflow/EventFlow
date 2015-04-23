@@ -20,18 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.Test
+namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
 {
-    public abstract class IntegrationTestConfiguration
+    public class TestAggregateReadModel : IReadModel, ITestAggregateReadModel
     {
-        public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
 
-        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id);
+        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
+        {
+            DomainErrorAfterFirstReceived = true;
+        }
 
-        public abstract void TearDown();
+        public void Apply(IReadModelContext context, IDomainEvent<PingEvent> e)
+        {
+            PingsReceived++;
+        }
     }
 }

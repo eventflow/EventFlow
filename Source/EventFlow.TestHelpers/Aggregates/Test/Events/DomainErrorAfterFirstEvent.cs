@@ -20,12 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Test
+namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {
-    public static class EventFlowTest
+    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate>
     {
-        public static Assembly Assembly { get { return typeof (EventFlowTest).Assembly; } }
     }
 }

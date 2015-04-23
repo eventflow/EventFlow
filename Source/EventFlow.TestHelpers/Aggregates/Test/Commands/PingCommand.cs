@@ -22,28 +22,23 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Test.Aggregates.Test.Commands;
-using FluentAssertions;
-using NUnit.Framework;
+using EventFlow.Commands;
 
-namespace EventFlow.Test.Suites
+namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public class PingCommand : ICommand<TestAggregate>
     {
-        [Test]
-        public async Task ReadModelReceivesEvent()
-        {
-            // Arrange
-            var id = A<string>();
-            
-            // Act
-            await Sut.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
+        public string Id { get; private set; }
 
-            // Assert
-            readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(1);
+        public PingCommand(string id)
+        {
+            Id = id;
+        }
+
+        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken)
+        {
+            aggregate.Ping();
+            return Task.FromResult(0);
         }
     }
 }
