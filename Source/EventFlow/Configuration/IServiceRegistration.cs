@@ -35,6 +35,8 @@ namespace EventFlow.Configuration
         void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
             where TService : class;
 
+        void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
+
         bool HasRegistrationFor<TService>()
             where TService : class;
 

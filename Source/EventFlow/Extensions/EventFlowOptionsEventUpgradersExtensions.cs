@@ -21,6 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
@@ -44,6 +47,49 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot
         {
             eventFlowOptions.RegisterServices(f => f.Register(factory));
+            return eventFlowOptions;
+        }
+
+        public static EventFlowOptions AddEventUpgraders(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly)
+        {
+            var eventUpgraderTypes = fromAssembly
+                .GetTypes()
+                .Where(t => typeof (IEventUpgrader).IsAssignableFrom(t))
+                .ToList();
+            return eventFlowOptions
+                .AddEventUpgraders(eventUpgraderTypes);
+        }
+
+        public static EventFlowOptions AddEventUpgraders(
+            this EventFlowOptions eventFlowOptions,
+            params Type[] eventUpgraderTypes)
+        {
+            return eventFlowOptions
+                .AddEventUpgraders((IEnumerable<Type>)eventUpgraderTypes);
+        }
+
+        public static EventFlowOptions AddEventUpgraders(
+            this EventFlowOptions eventFlowOptions,
+            IEnumerable<Type> eventUpgraderTypes)
+        {
+            foreach (var eventUpgraderType in eventUpgraderTypes)
+            {
+                var t = eventUpgraderType;
+                var eventUpgraderForAggregateType = t
+                    .GetInterfaces()
+                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEventUpgrader<>));
+                if (eventUpgraderForAggregateType == null)
+                {
+                    throw new ArgumentException(string.Format(
+                        "Type '{0}' does not have the IEventUpgrader<TAggregate> interface",
+                        eventUpgraderType.Name));
+                }
+
+                eventFlowOptions.RegisterServices(sr => sr.Register(eventUpgraderForAggregateType, t));
+            }
+
             return eventFlowOptions;
         }
     }

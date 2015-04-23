@@ -53,6 +53,11 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new Registration<TService>(factory, lifetime));
         }
 
+        public void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        {
+            _registrations.Add(new Registration(serviceType, implementationType, lifetime));
+        }
+
         public bool HasRegistrationFor<TService>()
             where TService : class
         {
