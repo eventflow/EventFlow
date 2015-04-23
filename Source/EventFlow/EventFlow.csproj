@@ -61,8 +61,8 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Configuration\EventFlowConfiguration.cs" />
     <Compile Include="Configuration\IEventFlowConfiguration.cs" />
-    <Compile Include="Configuration\IRegistrationFactory.cs" />
-    <Compile Include="Configuration\Registrations\AutofacRegistrationFactory.cs" />
+    <Compile Include="Configuration\IServiceRegistration.cs" />
+    <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
     <Compile Include="Configuration\Registrations\Resolvers\AutofacResolver.cs" />
     <Compile Include="Configuration\Registrations\Resolvers\AutofacRootResolver.cs" />
     <Compile Include="Configuration\Registrations\Resolvers\AutofacScopeResolver.cs" />

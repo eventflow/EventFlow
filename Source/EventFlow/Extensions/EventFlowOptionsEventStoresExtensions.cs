@@ -35,7 +35,7 @@ namespace EventFlow.Extensions
             Func<IResolver, IEventStore> factory,
             Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            eventFlowOptions.Register(f => f.AddRegistration(factory, lifetime));
+            eventFlowOptions.Register(f => f.Register(factory, lifetime));
             return eventFlowOptions;
         }
 
@@ -44,7 +44,7 @@ namespace EventFlow.Extensions
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TEventStore : class, IEventStore
         {
-            eventFlowOptions.Register(f => f.AddRegistration<IEventStore, TEventStore>(lifetime));
+            eventFlowOptions.Register(f => f.Register<IEventStore, TEventStore>(lifetime));
             return eventFlowOptions;
         }
 
@@ -52,8 +52,8 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
-            eventFlowOptions.Register(f => f.AddRegistration(_ => filesEventStoreConfiguration, Lifetime.Singleton));
-            eventFlowOptions.Register(f => f.AddRegistration<IEventStore, FilesEventStore>());
+            eventFlowOptions.Register(f => f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton));
+            eventFlowOptions.Register(f => f.Register<IEventStore, FilesEventStore>());
             return eventFlowOptions;
         }
     }

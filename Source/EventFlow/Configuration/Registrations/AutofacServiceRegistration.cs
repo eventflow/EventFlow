@@ -29,25 +29,25 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Configuration.Registrations
 {
-    internal class AutofacRegistrationFactory : IRegistrationFactory
+    internal class AutofacServiceRegistration : IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly List<Registration> _registrations = new List<Registration>();
 
-        public AutofacRegistrationFactory() : this(null) { }
-        public AutofacRegistrationFactory(ContainerBuilder containerBuilder)
+        public AutofacServiceRegistration() : this(null) { }
+        public AutofacServiceRegistration(ContainerBuilder containerBuilder)
         {
             _containerBuilder = containerBuilder ?? new ContainerBuilder();
         }
 
-        public void AddRegistration<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TImplementation : class, TService
             where TService : class
         {
             _registrations.Add(new Registration<TService, TImplementation>(lifetime));
         }
 
-        public void AddRegistration<TService>(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register<TService>(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
             where TService : class
         {
             _registrations.Add(new Registration<TService>(factory, lifetime));

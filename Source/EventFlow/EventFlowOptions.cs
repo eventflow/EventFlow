@@ -43,7 +43,7 @@ namespace EventFlow
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private Lazy<IRegistrationFactory> _lazyRegistrationFactory = new Lazy<IRegistrationFactory>(() => new AutofacRegistrationFactory()); 
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration()); 
 
         private EventFlowOptions() { }
 
@@ -70,20 +70,20 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions Register(Action<IRegistrationFactory> register)
+        public EventFlowOptions Register(Action<IServiceRegistration> register)
         {
             register(_lazyRegistrationFactory.Value);
             return this;
         }
 
-        public EventFlowOptions UseRegistrationFactory(IRegistrationFactory registrationFactory)
+        public EventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
         {
             if (_lazyRegistrationFactory.IsValueCreated)
             {
                 throw new InvalidOperationException("Registration factory is already in use");
             }
 
-            _lazyRegistrationFactory = new Lazy<IRegistrationFactory>(() => registrationFactory);
+            _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => serviceRegistration);
             return this;
         }
 
@@ -104,7 +104,7 @@ namespace EventFlow
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventCache, InMemoryEventCache>(services, Lifetime.Singleton);
-            RegisterIfMissing<IEventFlowConfiguration>(services, f => f.AddRegistration<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
+            RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
 
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
 
@@ -118,10 +118,10 @@ namespace EventFlow
             where TService : class
             where TImplementation : class, TService
         {
-            RegisterIfMissing<ILog>(registeredServices, f => f.AddRegistration<TService, TImplementation>(lifetime));
+            RegisterIfMissing<ILog>(registeredServices, f => f.Register<TService, TImplementation>(lifetime));
         }
 
-        private void RegisterIfMissing<TService>(ICollection<Type> registeredServices, Action<IRegistrationFactory> register)
+        private void RegisterIfMissing<TService>(ICollection<Type> registeredServices, Action<IServiceRegistration> register)
         {
             if (registeredServices.Contains(typeof (TService)))
             {

@@ -30,9 +30,9 @@ namespace EventFlow.MsSql.Extensions
         {
             eventFlowOptions.Register(f =>
                 {
-                    f.AddRegistration<IMsSqlConnection, MsSqlConnection>();
-                    f.AddRegistration(_ => msSqlConfiguration, Lifetime.Singleton);
-                    f.AddRegistration<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
+                    f.Register<IMsSqlConnection, MsSqlConnection>();
+                    f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
+                    f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
                 });
 
             return eventFlowOptions;

@@ -26,13 +26,13 @@ using EventFlow.Configuration.Registrations;
 
 namespace EventFlow.Configuration
 {
-    public interface IRegistrationFactory
+    public interface IServiceRegistration
     {
-        void AddRegistration<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+        void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TImplementation : class, TService
             where TService : class;
 
-        void AddRegistration<TService>(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        void Register<TService>(Func<IResolver, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
             where TService : class;
 
         bool HasRegistrationFor<TService>()

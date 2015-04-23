@@ -32,7 +32,7 @@ namespace EventFlow.Extensions
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TMetadataProvider : class, IMetadataProvider
         {
-            eventFlowOptions.Register(f => f.AddRegistration<IMetadataProvider, TMetadataProvider>(lifetime));
+            eventFlowOptions.Register(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
             return eventFlowOptions;
         }
     }

@@ -61,7 +61,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             containerBuilder.RegisterApiControllers(typeof(Startup).Assembly).InstancePerRequest();
 
             var resolver = EventFlowOptions.New
-                .UseRegistrationFactory(new AutofacRegistrationFactory(containerBuilder))
+                .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder))
                 .AddEvents(EventFlowTest.Assembly)
                 .AddOwinMetadataProviders()
                 .CreateResolver(false);

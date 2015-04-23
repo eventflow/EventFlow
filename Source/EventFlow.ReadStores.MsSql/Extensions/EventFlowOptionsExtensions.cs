@@ -35,9 +35,9 @@ namespace EventFlow.ReadStores.MsSql.Extensions
                 {
                     if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
                     {
-                        f.AddRegistration<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
+                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                     }
-                    f.AddRegistration<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
+                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
                 });
 
             return eventFlowOptions;
