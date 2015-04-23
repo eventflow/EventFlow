@@ -41,6 +41,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Arrange
             var values = Many<string>(10);
             var orderedValues = values.OrderBy(s => s).ToList();
+            values.Should().NotEqual(orderedValues); // Data test
             var singleValueObjects = values.Select(s => new StringSingleValue(s)).ToList();
 
             // Act
