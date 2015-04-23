@@ -55,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="EventFlow.Owin.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
