@@ -33,12 +33,14 @@ namespace EventFlow.Configuration.Registrations
 
         protected string GetKey(int level)
         {
-            if (level <= 0)
+            if (level < 0)
             {
                 throw new ArgumentOutOfRangeException("level");
             }
 
-            return string.Format("{0} (level {1})", ServiceType.FullName, level);
+            return level == 0
+                ? ServiceType.FullName
+                : string.Format("{0} (level {1})", ServiceType.FullName, level);
         }
     }
 
@@ -55,9 +57,11 @@ namespace EventFlow.Configuration.Registrations
 
         public override void Configure(ContainerBuilder containerBuilder, int level)
         {
-            containerBuilder.RegisterDecorator<TService>(
-                (r, inner) => _factory(new AutofacResolverContext(new AutofacResolver(r)), inner),
-                GetKey(level));
+            containerBuilder
+                .RegisterDecorator<TService>(
+                    (r, inner) => _factory(new AutofacResolverContext(new AutofacResolver(r)), inner),
+                    GetKey(level - 1))
+                .Named<TService>(GetKey(level));
         }
     }
 }

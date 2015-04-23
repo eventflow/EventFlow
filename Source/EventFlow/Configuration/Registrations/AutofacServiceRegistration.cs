@@ -79,9 +79,12 @@ namespace EventFlow.Configuration.Registrations
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
-            foreach (var reg in _registrations)
+
+            var decoratorLookup = _decorators.ToLookup(d => d.ServiceType);
+
+            foreach (var registration in _registrations)
             {
-                reg.Configure(_containerBuilder);
+                registration.Configure(_containerBuilder, decoratorLookup.Contains(registration.ServiceType));
             }
 
             var container = _containerBuilder.Build();

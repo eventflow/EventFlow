@@ -21,15 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Configuration.Registrations;
 
 namespace EventFlow.Configuration
 {
     public interface IScopeResolver : IResolver, IDisposable
     {
         IScopeResolver BeginScope();
-        IScopeResolver BeginScope(params Registration[] registrations);
-        IScopeResolver BeginScope(IEnumerable<Registration> registrations);
     }
 }
