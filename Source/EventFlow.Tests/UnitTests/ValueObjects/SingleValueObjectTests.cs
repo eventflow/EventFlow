@@ -21,54 +21,61 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
-using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Aggregates
+namespace EventFlow.Tests.UnitTests.ValueObjects
 {
-    [TestFixture]
-    public class AggregateRootTests : TestsFor<TestAggregate>
+    public class SingleValueObjectTests : Test
     {
-        [Test]
-        public void InitialVersionIsZero()
+        public class StringSingleValue : SingleValueObject<string>
         {
-            // Assert
-            Sut.Version.Should().Be(0);
-            Sut.IsNew.Should().BeTrue();
-            Sut.UncommittedEvents.Count().Should().Be(0);
+            public StringSingleValue(string value) : base(value) { }
         }
 
         [Test]
-        public void ApplyingEventIncrementsVersion()
-        {
-            // Act
-            Sut.Ping();
-
-            // Assert
-            Sut.Version.Should().Be(1);
-            Sut.IsNew.Should().BeFalse();
-            Sut.UncommittedEvents.Count().Should().Be(1);
-            Sut.PingsReceived.Should().Be(1);
-        }
-
-        [Test]
-        public void EventsCanBeApplied()
+        public void Ordering()
         {
             // Arrange
-            var events = Many<PingEvent>(2);
+            var values = Many<string>(10);
+            var orderedValues = values.OrderBy(s => s).ToList();
+            values.Should().NotEqual(orderedValues); // Data test
+            var singleValueObjects = values.Select(s => new StringSingleValue(s)).ToList();
 
             // Act
-            Sut.ApplyEvents(events);
+            var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            Sut.IsNew.Should().BeFalse();
-            Sut.Version.Should().Be(2);
-            Sut.PingsReceived.Should().Be(2);
-            Sut.UncommittedEvents.Count().Should().Be(0);
+            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(orderedValues);
+        }
+
+        [Test]
+        public void EqualsForSameValues()
+        {
+            // Arrange
+            var value = A<string>();
+            var obj1 = new StringSingleValue(value);
+            var obj2 = new StringSingleValue(value);
+
+            // Assert
+            (obj1 == obj2).Should().BeTrue();
+            obj1.Equals(obj2).Should().BeTrue();
+        }
+
+        [Test]
+        public void EqualsForDifferentValues()
+        {
+            // Arrange
+            var value1 = A<string>();
+            var value2 = A<string>();
+            var obj1 = new StringSingleValue(value1);
+            var obj2 = new StringSingleValue(value2);
+
+            // Assert
+            (obj1 == obj2).Should().BeFalse();
+            obj1.Equals(obj2).Should().BeFalse();
         }
     }
 }

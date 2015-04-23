@@ -24,9 +24,9 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.ReadStores.InMemory;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
 namespace EventFlow.Tests.IntegrationTests
 {

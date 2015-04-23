@@ -27,9 +27,9 @@ using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.ReadStores.InMemory;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.Commands;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
 

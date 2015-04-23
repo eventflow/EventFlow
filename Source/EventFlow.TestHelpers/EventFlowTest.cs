@@ -20,16 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Configuration.Registrations
-{
-    public class AutofacResolverContext : IResolverContext
-    {
-        public IResolver Resolver { get; private set; }
+using System.Reflection;
 
-        public AutofacResolverContext(
-            IResolver resolver)
-        {
-            Resolver = resolver;
-        }
+namespace EventFlow.TestHelpers
+{
+    public static class EventFlowTest
+    {
+        public static Assembly Assembly { get { return typeof (EventFlowTest).Assembly; } }
     }
 }

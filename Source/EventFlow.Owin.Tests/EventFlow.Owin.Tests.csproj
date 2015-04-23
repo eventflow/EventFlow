@@ -103,9 +103,9 @@
       <Project>{ee6f7b78-3ef1-488f-b90a-8e7f350b7d51}</Project>
       <Name>EventFlow.Owin</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EventFlow.Test\EventFlow.Test.csproj">
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
-      <Name>EventFlow.Test</Name>
+      <Name>EventFlow.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>

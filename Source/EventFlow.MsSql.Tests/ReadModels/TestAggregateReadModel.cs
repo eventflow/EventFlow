@@ -23,8 +23,8 @@
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
-using EventFlow.Test.Aggregates.Test.Events;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
 namespace EventFlow.MsSql.Tests.ReadModels
 {

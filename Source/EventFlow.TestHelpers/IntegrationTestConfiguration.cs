@@ -22,9 +22,9 @@
 
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
-namespace EventFlow.Test
+namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTestConfiguration
     {

@@ -25,13 +25,14 @@ using EventFlow.EventStores;
 using EventFlow.Extensions;
 using NUnit.Framework;
 
-namespace EventFlow.Test
+namespace EventFlow.TestHelpers
 {
-    public abstract class IntegrationTest<TIntegrationTestConfiguration> : TestsFor<ICommandBus>
+    public abstract class IntegrationTest<TIntegrationTestConfiguration> : Test
         where TIntegrationTestConfiguration : IntegrationTestConfiguration, new()
     {
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
+        protected ICommandBus CommandBus { get; private set; }
         protected TIntegrationTestConfiguration Configuration { get; private set; }
 
         [SetUp]
@@ -44,6 +45,7 @@ namespace EventFlow.Test
 
             Resolver = Configuration.CreateRootResolver(eventFlowOptions);
             EventStore = Resolver.Resolve<IEventStore>();
+            CommandBus = Resolver.Resolve<ICommandBus>();
         }
 
         [TearDown]
@@ -51,11 +53,6 @@ namespace EventFlow.Test
         {
             Configuration.TearDown();
             Resolver.Dispose();
-        }
-
-        protected override ICommandBus CreateSut()
-        {
-            return Resolver.Resolve<ICommandBus>();
         }
     }
 }

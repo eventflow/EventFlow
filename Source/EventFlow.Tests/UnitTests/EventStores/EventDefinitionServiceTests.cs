@@ -23,7 +23,7 @@
 using System;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
-using EventFlow.Test;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 

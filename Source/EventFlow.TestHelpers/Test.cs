@@ -20,30 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Test.Aggregates.Test.Commands;
-using FluentAssertions;
+using System.Collections.Generic;
+using System.Linq;
+using Moq;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.AutoMoq;
 
-namespace EventFlow.Test.Suites
+namespace EventFlow.TestHelpers
 {
-    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public abstract class Test
     {
-        [Test]
-        public async Task ReadModelReceivesEvent()
-        {
-            // Arrange
-            var id = A<string>();
-            
-            // Act
-            await Sut.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
+        protected IFixture Fixture { get; private set; }
 
-            // Assert
-            readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(1);
+        [SetUp]
+        public void SetUpTest()
+        {
+            Fixture = new Fixture()
+                .Customize(new AutoMoqCustomization());
+        }
+
+        protected T A<T>()
+        {
+            return Fixture.Create<T>();
+        }
+
+        protected List<T> Many<T>(int count = 3)
+        {
+            return Fixture.CreateMany<T>(count).ToList();
+        }
+
+        protected Mock<T> Freze<T>()
+            where T : class
+        {
+            var mock = new Mock<T>();
+            Fixture.Inject(mock.Object);
+            return mock;
         }
     }
 }

@@ -86,9 +86,9 @@
       <Project>{cc886dd8-a471-4a08-822b-46f6dc5ae347}</Project>
       <Name>EventFlow.ReadStores.MsSql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EventFlow.Test\EventFlow.Test.csproj">
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
-      <Name>EventFlow.Test</Name>
+      <Name>EventFlow.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>

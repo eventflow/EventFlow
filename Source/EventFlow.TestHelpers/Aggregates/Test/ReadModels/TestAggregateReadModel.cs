@@ -20,55 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
 using EventFlow.Aggregates;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Aggregates
+namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
 {
-    [TestFixture]
-    public class AggregateRootTests : TestsFor<TestAggregate>
+    public class TestAggregateReadModel : IReadModel, ITestAggregateReadModel
     {
-        [Test]
-        public void InitialVersionIsZero()
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
         {
-            // Assert
-            Sut.Version.Should().Be(0);
-            Sut.IsNew.Should().BeTrue();
-            Sut.UncommittedEvents.Count().Should().Be(0);
+            DomainErrorAfterFirstReceived = true;
         }
 
-        [Test]
-        public void ApplyingEventIncrementsVersion()
+        public void Apply(IReadModelContext context, IDomainEvent<PingEvent> e)
         {
-            // Act
-            Sut.Ping();
-
-            // Assert
-            Sut.Version.Should().Be(1);
-            Sut.IsNew.Should().BeFalse();
-            Sut.UncommittedEvents.Count().Should().Be(1);
-            Sut.PingsReceived.Should().Be(1);
-        }
-
-        [Test]
-        public void EventsCanBeApplied()
-        {
-            // Arrange
-            var events = Many<PingEvent>(2);
-
-            // Act
-            Sut.ApplyEvents(events);
-
-            // Assert
-            Sut.IsNew.Should().BeFalse();
-            Sut.Version.Should().Be(2);
-            Sut.PingsReceived.Should().Be(2);
-            Sut.UncommittedEvents.Count().Should().Be(0);
+            PingsReceived++;
         }
     }
 }
