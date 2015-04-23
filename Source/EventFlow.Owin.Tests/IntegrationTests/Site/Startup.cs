@@ -90,7 +90,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
                 .AddEvents(EventFlowTest.Assembly)
                 .AddOwinMetadataProviders()
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-                .Register(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
+                .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
                 .CreateResolver(false);
 
             resolver.Resolve<DirectoryCleaner>();

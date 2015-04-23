@@ -35,7 +35,7 @@ namespace EventFlow.Extensions
             where TReadModel : IReadModel, new()
         {
             eventFlowOptions.AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
-            eventFlowOptions.Register(f => f.Register<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
+            eventFlowOptions.RegisterServices(f => f.Register<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));
             return eventFlowOptions;
         }
 
@@ -47,11 +47,11 @@ namespace EventFlow.Extensions
         {
             if (typeof(TReadModelStore).IsInterface)
             {
-                eventFlowOptions.Register(f => f.Register<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>(), lifetime));
+                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore<TAggregate>>(r => r.Resolve<TReadModelStore>(), lifetime));
             }
             else
             {
-                eventFlowOptions.Register(f => f.Register<IReadModelStore<TAggregate>, TReadModelStore>(lifetime));
+                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore<TAggregate>, TReadModelStore>(lifetime));
             }
 
             return eventFlowOptions;

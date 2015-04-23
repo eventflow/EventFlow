@@ -70,7 +70,7 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions Register(Action<IServiceRegistration> register)
+        public EventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
             register(_lazyRegistrationFactory.Value);
             return this;

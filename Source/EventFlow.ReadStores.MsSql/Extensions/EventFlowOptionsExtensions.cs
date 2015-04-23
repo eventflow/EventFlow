@@ -31,7 +31,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
             where TAggregate : IAggregateRoot
             where TReadModel : IMssqlReadModel, new()
         {
-            eventFlowOptions.Register(f =>
+            eventFlowOptions.RegisterServices(f =>
                 {
                     if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
                     {

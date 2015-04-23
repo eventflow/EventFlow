@@ -30,7 +30,7 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions UseNullEventCache(this EventFlowOptions eventFlowOptions)
         {
-            eventFlowOptions.Register(f => f.Register<IEventCache, NullEventCache>(Lifetime.Singleton));
+            eventFlowOptions.RegisterServices(f => f.Register<IEventCache, NullEventCache>(Lifetime.Singleton));
             return eventFlowOptions;
         }
 
@@ -39,7 +39,7 @@ namespace EventFlow.Extensions
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TEventCache : class, IEventCache
         {
-            eventFlowOptions.Register(f => f.Register<IEventCache, TEventCache>(lifetime));
+            eventFlowOptions.RegisterServices(f => f.Register<IEventCache, TEventCache>(lifetime));
             return eventFlowOptions;
         }
     }

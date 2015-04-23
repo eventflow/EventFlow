@@ -28,7 +28,7 @@ namespace EventFlow.MsSql.Extensions
     {
         public static EventFlowOptions ConfigureMsSql(this EventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
         {
-            eventFlowOptions.Register(f =>
+            eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IMsSqlConnection, MsSqlConnection>();
                     f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
