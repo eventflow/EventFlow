@@ -20,6 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores;
 
@@ -32,7 +36,45 @@ namespace EventFlow.Extensions
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TMetadataProvider : class, IMetadataProvider
         {
-            eventFlowOptions.RegisterServices(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
+            return eventFlowOptions
+                .RegisterServices(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
+        }
+
+        public static EventFlowOptions AddMetadataProviders(
+            this EventFlowOptions eventFlowOptions,
+            params Type[] metadataProviderTypes)
+        {
+            return eventFlowOptions
+                .AddMetadataProviders((IEnumerable<Type>) metadataProviderTypes);
+        }
+
+        public static EventFlowOptions AddMetadataProviders(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly)
+        {
+            var metadataProviderTypes = fromAssembly
+                .GetTypes()
+                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t));
+            return eventFlowOptions
+                .AddMetadataProviders(metadataProviderTypes);
+        }
+
+        public static EventFlowOptions AddMetadataProviders(
+            this EventFlowOptions eventFlowOptions,
+            IEnumerable<Type> metadataProviderTypes)
+        {
+            foreach (var metadataProviderType in metadataProviderTypes)
+            {
+                var t = metadataProviderType;
+                if (!typeof (IMetadataProvider).IsAssignableFrom(t))
+                {
+                    throw new ArgumentException(string.Format(
+                        "Type '{0}' is not an IMetadataProvider",
+                        metadataProviderType.Name));
+                }
+
+                eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t));
+            }
             return eventFlowOptions;
         }
     }

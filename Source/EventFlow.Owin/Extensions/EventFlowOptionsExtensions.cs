@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Extensions;
-using EventFlow.Owin.MetadataProviders;
 
 namespace EventFlow.Owin.Extensions
 {
@@ -29,10 +28,8 @@ namespace EventFlow.Owin.Extensions
     {
         public static EventFlowOptions AddOwinMetadataProviders(this EventFlowOptions eventFlowOptions)
         {
-            eventFlowOptions.AddMetadataProvider<AddRequestHeadersMetadataProvider>();
-            eventFlowOptions.AddMetadataProvider<AddUriMetadataProvider>();
-            eventFlowOptions.AddMetadataProvider<AddUserHostAddressMetadataProvider>();
-            return eventFlowOptions;
+            return eventFlowOptions
+                .AddMetadataProviders(EventFlowOwin.Assembly);
         }
     }
 }
