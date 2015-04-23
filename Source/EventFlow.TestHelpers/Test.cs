@@ -20,26 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.AutoMoq;
 
 namespace EventFlow.TestHelpers
 {
-    public abstract class TestsFor<TSut> : Test
+    public abstract class Test
     {
-        private Lazy<TSut> _lazySut; 
-        protected TSut Sut { get { return _lazySut.Value; } }
+        protected IFixture Fixture { get; private set; }
 
         [SetUp]
-        public void SetUpTestsFor()
+        public void SetUpTest()
         {
-            _lazySut = new Lazy<TSut>(CreateSut);
+            Fixture = new Fixture()
+                .Customize(new AutoMoqCustomization());
         }
 
-        protected virtual TSut CreateSut()
+        protected T A<T>()
         {
-            return Fixture.Create<TSut>();
+            return Fixture.Create<T>();
+        }
+
+        protected List<T> Many<T>(int count = 3)
+        {
+            return Fixture.CreateMany<T>(count).ToList();
+        }
+
+        protected Mock<T> Freze<T>()
+            where T : class
+        {
+            var mock = new Mock<T>();
+            Fixture.Inject(mock.Object);
+            return mock;
         }
     }
 }

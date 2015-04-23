@@ -38,7 +38,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = A<string>();
             
             // Act
-            await Sut.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
+            await CommandBus.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
             var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
 
             // Assert
