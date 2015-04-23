@@ -73,6 +73,7 @@
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registrations\Registration.cs" />
     <Compile Include="Core\AsyncLock.cs" />
+    <Compile Include="EventCaches\Null\NullCacheEventStoreDecorator.cs" />
     <Compile Include="EventCaches\Null\NullEventCache.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />

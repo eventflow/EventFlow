@@ -57,11 +57,13 @@ namespace EventFlow.Configuration.Registrations
 
         public override void Configure(ContainerBuilder containerBuilder, int level)
         {
-            containerBuilder
-                .RegisterDecorator<TService>(
-                    (r, inner) => _factory(new AutofacResolverContext(new AutofacResolver(r)), inner),
-                    GetKey(level - 1))
-                .Named<TService>(GetKey(level));
+            var registration = containerBuilder.RegisterDecorator<TService>(
+                (r, inner) => _factory(new AutofacResolverContext(new AutofacResolver(r)), inner),
+                GetKey(level - 1));
+            if (level != 1)
+            {
+                registration.Named<TService>(GetKey(level));
+            }
         }
     }
 }

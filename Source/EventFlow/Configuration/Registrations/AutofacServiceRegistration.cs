@@ -59,7 +59,7 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new Registration(serviceType, implementationType, lifetime));
         }
 
-        public void Decorator<TService>(Func<IResolverContext, TService, TService> factory)
+        public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
             _decorators.Add(new Decorator<TService>(factory));
         }
@@ -85,6 +85,15 @@ namespace EventFlow.Configuration.Registrations
             foreach (var registration in _registrations)
             {
                 registration.Configure(_containerBuilder, decoratorLookup.Contains(registration.ServiceType));
+            }
+
+            foreach (var g in decoratorLookup)
+            {
+                var decorators = g.ToList();
+                foreach (var a in decorators.Select((d, i) => new { i, d }))
+                {
+                    a.d.Configure(_containerBuilder, a.i + 1);
+                }
             }
 
             var container = _containerBuilder.Build();
