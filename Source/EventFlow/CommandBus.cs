@@ -98,8 +98,7 @@ namespace EventFlow
                 return;
             }
 
-            // TODO: Determine if we can use cancellation token after there, this should be the "point of no return"
-            await _domainEventPublisher.PublishAsync<TAggregate>(command.Id, domainEvents, CancellationToken.None).ConfigureAwait(false);
+            await _domainEventPublisher.PublishAsync<TAggregate>(command.Id, domainEvents, cancellationToken).ConfigureAwait(false);
         }
 
         public void Publish<TAggregate>(ICommand<TAggregate> command) where TAggregate : IAggregateRoot
