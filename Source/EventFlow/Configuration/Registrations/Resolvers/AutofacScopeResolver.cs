@@ -40,22 +40,6 @@ namespace EventFlow.Configuration.Registrations.Resolvers
             return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
         }
 
-        public IScopeResolver BeginScope(IEnumerable<Registration> registrations)
-        {
-            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope(b =>
-                {
-                    foreach (var registration in registrations)
-                    {
-                        registration.Configure(b);
-                    }
-                }));
-        }
-
-        public IScopeResolver BeginScope(params Registration[] registrations)
-        {
-            return BeginScope((IEnumerable<Registration>)registrations);
-        }
-
         public void Dispose()
         {
             _lifetimeScope.Dispose();

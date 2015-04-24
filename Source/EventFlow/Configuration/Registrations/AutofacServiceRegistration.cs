@@ -33,6 +33,7 @@ namespace EventFlow.Configuration.Registrations
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly List<Registration> _registrations = new List<Registration>();
+        private readonly Dictionary<Type, List<Decorator>> _decorators = new Dictionary<Type, List<Decorator>>();
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
@@ -58,6 +59,20 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new Registration(serviceType, implementationType, lifetime));
         }
 
+        public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
+        {
+            var serviceType = typeof (TService);
+            List<Decorator> decorators;
+
+            if (!_decorators.TryGetValue(serviceType, out decorators))
+            {
+                decorators = new List<Decorator>();
+                _decorators.Add(serviceType, decorators);
+            }
+
+            decorators.Add(new Decorator<TService>(factory));
+        }
+
         public bool HasRegistrationFor<TService>()
             where TService : class
         {
@@ -73,9 +88,18 @@ namespace EventFlow.Configuration.Registrations
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
-            foreach (var reg in _registrations)
+
+            foreach (var registration in _registrations)
             {
-                reg.Configure(_containerBuilder);
+                registration.Configure(_containerBuilder, _decorators.ContainsKey(registration.ServiceType));
+            }
+
+            foreach (var kv in _decorators)
+            {
+                foreach (var a in kv.Value.Select((d, i) => new { i = kv.Value.Count - i, d }))
+                {
+                    a.d.Configure(_containerBuilder, a.i, kv.Value.Count != a.i);
+                }
             }
 
             var container = _containerBuilder.Build();

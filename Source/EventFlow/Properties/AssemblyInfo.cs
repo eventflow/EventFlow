@@ -23,5 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: Guid("422251da-e1ed-4d95-a0db-473c5444758e")]
 
 // Internals
+[assembly: InternalsVisibleTo("EventFlow.TestHelpers")]
+[assembly: InternalsVisibleTo("EventFlow.Tests")]
 [assembly: InternalsVisibleTo("EventFlow.Owin")]
 [assembly: InternalsVisibleTo("EventFlow.Owin.Tests")]
