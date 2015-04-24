@@ -22,6 +22,7 @@
 
 using System;
 using Autofac;
+using Autofac.Builder;
 using EventFlow.Configuration.Registrations.Resolvers;
 
 namespace EventFlow.Configuration.Registrations
@@ -56,18 +57,32 @@ namespace EventFlow.Configuration.Registrations
             _implementationType = implementationType;
         }
 
-        internal virtual void Configure(ContainerBuilder containerBuilder)
+        internal virtual void Configure(ContainerBuilder containerBuilder, bool hasDecorator)
         {
             switch (Lifetime)
             {
                 case Lifetime.AlwaysUnique:
-                    containerBuilder.RegisterType(_implementationType).As(ServiceType);
+                    HandleDecoration(containerBuilder.RegisterType(_implementationType), hasDecorator);
                     break;
                 case Lifetime.Singleton:
-                    containerBuilder.RegisterType(_implementationType).As(ServiceType).SingleInstance();
+                    HandleDecoration(containerBuilder.RegisterType(_implementationType).SingleInstance(), hasDecorator);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        protected void HandleDecoration(
+            IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle> registration,
+            bool hasDecorator)
+        {
+            if (hasDecorator)
+            {
+                registration.Named(ServiceType.FullName, ServiceType);
+            }
+            else
+            {
+                registration.As(ServiceType);
             }
         }
     }
@@ -84,15 +99,19 @@ namespace EventFlow.Configuration.Registrations
             Lifetime = lifetime;
         }
 
-        internal override void Configure(ContainerBuilder containerBuilder)
+        internal override void Configure(ContainerBuilder containerBuilder, bool hasDecorator)
         {
             switch (Lifetime)
             {
                 case Lifetime.AlwaysUnique:
-                    containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))).As(ServiceType);
+                    HandleDecoration(
+                        containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))),
+                        hasDecorator);
                     break;
                 case Lifetime.Singleton:
-                    containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))).As(ServiceType).SingleInstance();
+                    HandleDecoration(
+                        containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))).SingleInstance(),
+                        hasDecorator);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -118,15 +137,15 @@ namespace EventFlow.Configuration.Registrations
                 Lifetime);
         }
 
-        internal override void Configure(ContainerBuilder containerBuilder)
+        internal override void Configure(ContainerBuilder containerBuilder, bool hasDecorator)
         {
             switch (Lifetime)
             {
                 case Lifetime.AlwaysUnique:
-                    containerBuilder.RegisterType<TImplementation>().As<TService>();
+                    HandleDecoration(containerBuilder.RegisterType<TImplementation>(), hasDecorator);
                     break;
                 case Lifetime.Singleton:
-                    containerBuilder.RegisterType<TImplementation>().As<TService>().SingleInstance();
+                    HandleDecoration(containerBuilder.RegisterType<TImplementation>().SingleInstance(), hasDecorator);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

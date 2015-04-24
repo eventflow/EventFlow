@@ -24,57 +24,68 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Configuration.Registrations;
-using EventFlow.EventStores;
+using EventFlow.Aggregates;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsMetadataProvidersExtensions
+    public static class EventFlowOptionsSubscriberExtensions
     {
-        public static EventFlowOptions AddMetadataProvider<TMetadataProvider>(
-            this EventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TMetadataProvider : class, IMetadataProvider
+        public static EventFlowOptions AddSubscriber<TEvent, TSubscriber>(
+            this EventFlowOptions eventFlowOptions)
+            where TEvent : IAggregateEvent
+            where TSubscriber : class, ISubscribeSynchronousTo<TEvent>
         {
             return eventFlowOptions
-                .RegisterServices(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
+                .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TEvent>, TSubscriber>());
         }
 
-        public static EventFlowOptions AddMetadataProviders(
+        public static EventFlowOptions AddSubscribers(
             this EventFlowOptions eventFlowOptions,
-            params Type[] metadataProviderTypes)
+            params Type[] subscribeSynchronousToTypes)
         {
             return eventFlowOptions
-                .AddMetadataProviders((IEnumerable<Type>) metadataProviderTypes);
+                .AddSubscribers((IEnumerable<Type>) subscribeSynchronousToTypes);
         }
 
-        public static EventFlowOptions AddMetadataProviders(
+        public static EventFlowOptions AddSubscribers(
             this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly)
         {
-            var metadataProviderTypes = fromAssembly
+            var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
-                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t));
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<>)));
             return eventFlowOptions
-                .AddMetadataProviders(metadataProviderTypes);
+                .AddSubscribers(subscribeSynchronousToTypes);
         }
 
-        public static EventFlowOptions AddMetadataProviders(
+        public static EventFlowOptions AddSubscribers(
             this EventFlowOptions eventFlowOptions,
-            IEnumerable<Type> metadataProviderTypes)
+            IEnumerable<Type> subscribeSynchronousToTypes)
         {
-            foreach (var metadataProviderType in metadataProviderTypes)
+            foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
             {
-                var t = metadataProviderType;
-                if (!typeof (IMetadataProvider).IsAssignableFrom(t))
+                var t = subscribeSynchronousToType;
+                var subscribeTos = t
+                    .GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<>))
+                    .ToList();
+                if (!subscribeTos.Any())
                 {
                     throw new ArgumentException(string.Format(
-                        "Type '{0}' is not an IMetadataProvider",
-                        metadataProviderType.Name));
+                        "Type '{0}' is not a ISubscribeSynchronousTo<TEvent>",
+                        t.Name));
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t));
+                eventFlowOptions.RegisterServices(sr =>
+                    {
+                        foreach (var subscribeTo in subscribeTos)
+                        {
+                            sr.Register(subscribeTo, t);
+                        }
+                    });
             }
+
             return eventFlowOptions;
         }
     }
