@@ -29,7 +29,7 @@ namespace EventFlow.Configuration.Registrations
     internal abstract class Decorator
     {
         public abstract Type ServiceType { get; }
-        public abstract void Configure(ContainerBuilder containerBuilder, int level);
+        public abstract void Configure(ContainerBuilder containerBuilder, int level, bool hasMore);
 
         protected string GetKey(int level)
         {
@@ -55,12 +55,12 @@ namespace EventFlow.Configuration.Registrations
             _factory = factory;
         }
 
-        public override void Configure(ContainerBuilder containerBuilder, int level)
+        public override void Configure(ContainerBuilder containerBuilder, int level, bool hasMore)
         {
             var registration = containerBuilder.RegisterDecorator<TService>(
                 (r, inner) => _factory(new AutofacResolverContext(new AutofacResolver(r)), inner),
                 GetKey(level - 1));
-            if (level != 1)
+            if (hasMore)
             {
                 registration.Named<TService>(GetKey(level));
             }

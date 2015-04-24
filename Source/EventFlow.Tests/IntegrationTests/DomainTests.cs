@@ -22,7 +22,6 @@
 
 using System;
 using System.Threading;
-using EventFlow.EventCaches.Null;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
@@ -44,7 +43,6 @@ namespace EventFlow.Tests.IntegrationTests
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof (TestAggregate).Assembly)
-                .RegisterServices(sr => sr.Decorate<IEventStore>((r, inner) => new NullCacheEventStoreDecorator(inner)))
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()

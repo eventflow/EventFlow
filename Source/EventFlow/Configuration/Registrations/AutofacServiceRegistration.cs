@@ -33,7 +33,7 @@ namespace EventFlow.Configuration.Registrations
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly List<Registration> _registrations = new List<Registration>();
-        private readonly List<Decorator> _decorators = new List<Decorator>(); 
+        private readonly Dictionary<Type, List<Decorator>> _decorators = new Dictionary<Type, List<Decorator>>();
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
@@ -61,7 +61,16 @@ namespace EventFlow.Configuration.Registrations
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
-            _decorators.Add(new Decorator<TService>(factory));
+            var serviceType = typeof (TService);
+            List<Decorator> decorators;
+
+            if (!_decorators.TryGetValue(serviceType, out decorators))
+            {
+                decorators = new List<Decorator>();
+                _decorators.Add(serviceType, decorators);
+            }
+
+            decorators.Add(new Decorator<TService>(factory));
         }
 
         public bool HasRegistrationFor<TService>()
@@ -80,19 +89,16 @@ namespace EventFlow.Configuration.Registrations
         {
             _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
 
-            var decoratorLookup = _decorators.ToLookup(d => d.ServiceType);
-
             foreach (var registration in _registrations)
             {
-                registration.Configure(_containerBuilder, decoratorLookup.Contains(registration.ServiceType));
+                registration.Configure(_containerBuilder, _decorators.ContainsKey(registration.ServiceType));
             }
 
-            foreach (var g in decoratorLookup)
+            foreach (var kv in _decorators)
             {
-                var decorators = g.ToList();
-                foreach (var a in decorators.Select((d, i) => new { i, d }))
+                foreach (var a in kv.Value.Select((d, i) => new { i = kv.Value.Count - i, d }))
                 {
-                    a.d.Configure(_containerBuilder, a.i + 1);
+                    a.d.Configure(_containerBuilder, a.i, kv.Value.Count != a.i);
                 }
             }
 
