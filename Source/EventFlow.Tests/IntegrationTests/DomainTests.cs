@@ -22,12 +22,16 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.ReadStores.InMemory;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
@@ -37,6 +41,15 @@ namespace EventFlow.Tests.IntegrationTests
     [TestFixture]
     public class DomainTests
     {
+        public class Subscriber : ISubscribeSynchronousTo<DomainErrorAfterFirstEvent>
+        {
+            public Task HandleAsync(IDomainEvent<DomainErrorAfterFirstEvent> e)
+            {
+                Console.WriteLine("Subscriber got DomainErrorAfterFirstEvent");
+                return Task.FromResult(0);
+            }
+        }
+
         [Test]
         public void BasicFlow()
         {
@@ -47,6 +60,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
                 .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
