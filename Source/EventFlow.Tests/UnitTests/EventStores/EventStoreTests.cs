@@ -29,7 +29,6 @@ using EventFlow.Aggregates;
 using EventFlow.EventCaches;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
