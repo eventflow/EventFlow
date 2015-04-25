@@ -21,43 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.Exceptions;
-using EventFlow.Logs;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.TestHelpers.Aggregates.Test
+namespace EventFlow.Core
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
-        IEmit<DomainErrorAfterFirstEvent>
+    public class TimeMachine : ITimeMachine
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
-
-        public TestAggregate(string id, ITimeMachine timeMachine, ILog log) : base(id, timeMachine, log)
-        {
-            Register<PingEvent>(e => PingsReceived++);
-        }
-
-        public void DomainErrorAfterFirst()
-        {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
-        }
-
-        public void Ping()
-        {
-            Emit(new PingEvent(Guid.NewGuid()));
-        }
-
-        public void Apply(DomainErrorAfterFirstEvent e)
-        {
-            DomainErrorAfterFirstReceived = true;
-        }
+        public DateTimeOffset Now { get { return DateTimeOffset.Now; } }
     }
 }

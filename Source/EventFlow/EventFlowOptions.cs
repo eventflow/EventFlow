@@ -97,9 +97,10 @@ namespace EventFlow
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
+            RegisterIfMissing<ITimeMachine, TimeMachine>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
-            RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
+            RegisterIfMissing<IAggregateFactory, AggregateFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);

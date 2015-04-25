@@ -20,13 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventFlow.Aggregates
 {
     public interface IAggregateFactory
     {
-        Task<TAggregate> CreateNewAggregateAsync<TAggregate>(string id)
+        Task<TAggregate> CreateNewAggregateAsync<TAggregate>(string id, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
     }
 }

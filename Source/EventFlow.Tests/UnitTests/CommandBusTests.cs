@@ -24,8 +24,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
@@ -52,7 +54,7 @@ namespace EventFlow.Tests.UnitTests
         {
             _eventStoreMock
                 .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(new TestAggregate("42")));
+                .Returns(() => Task.FromResult(new TestAggregate("42", new TimeMachine(), new ConsoleLog())));
             _eventStoreMock
                 .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));

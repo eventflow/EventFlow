@@ -156,7 +156,7 @@ namespace EventFlow.EventStores
                 id);
             
             var domainEvents = await LoadEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
-            var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate>(id).ConfigureAwait(false);
+            var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
             aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
 
             Log.Verbose(
