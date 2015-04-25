@@ -97,7 +97,7 @@ namespace EventFlow.Subscribers
                         return new SubscriberInfomation
                             {
                                 SubscriberType = handlerType,
-                                HandleMethod = (Func<object, IDomainEvent, CancellationToken, Task>) ((h, e, c) => (Task) methodInfo.Invoke(h, new object[] {e}))
+                                HandleMethod = (Func<object, IDomainEvent, CancellationToken, Task>) ((h, e, c) => (Task) methodInfo.Invoke(h, new object[] {e, c}))
                             };
                     });
         }
