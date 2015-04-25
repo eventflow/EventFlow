@@ -107,7 +107,7 @@ namespace EventFlow.EventStores
 
             var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
 
-            await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
+            await EventCache.InvalidateAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }
