@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
@@ -40,7 +41,7 @@ namespace EventFlow.Subscribers
         private class SubscriberInfomation
         {
             public Type SubscriberType { get; set; }
-            public Func<object, IDomainEvent, Task> HandleMethod { get; set; }
+            public Func<object, IDomainEvent, CancellationToken, Task> HandleMethod { get; set; }
         }
 
         private static readonly ConcurrentDictionary<Type, SubscriberInfomation> HandlerInfomations = new ConcurrentDictionary<Type, SubscriberInfomation>();
@@ -53,20 +54,20 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
         }
 
-        public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents)
+        public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken)
         {
             foreach (var domainEvent in domainEvents)
             {
                 var subscriberInfomation = GetSubscriberInfomation(domainEvent.EventType);
                 var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
                 var subscriberDispatchTasks = subscribers
-                    .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent))
+                    .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent, cancellationToken))
                     .ToList();
                 await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
             }
         }
 
-        private async Task DispatchToSubscriberAsync(object handler, SubscriberInfomation subscriberInfomation, IDomainEvent domainEvent)
+        private async Task DispatchToSubscriberAsync(object handler, SubscriberInfomation subscriberInfomation, IDomainEvent domainEvent, CancellationToken cancellationToken)
         {
             try
             {
@@ -74,7 +75,7 @@ namespace EventFlow.Subscribers
                     "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
                     handler.GetType().Name,
                     domainEvent.EventType.Name);
-                await subscriberInfomation.HandleMethod(handler, domainEvent).ConfigureAwait(false);
+                await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -96,7 +97,7 @@ namespace EventFlow.Subscribers
                         return new SubscriberInfomation
                             {
                                 SubscriberType = handlerType,
-                                HandleMethod = (Func<object, IDomainEvent, Task>) ((h, e) => (Task) methodInfo.Invoke(h, new object[] {e}))
+                                HandleMethod = (Func<object, IDomainEvent, CancellationToken, Task>) ((h, e, c) => (Task) methodInfo.Invoke(h, new object[] {e}))
                             };
                     });
         }

@@ -107,6 +107,21 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             "Source/EventFlow.ReadStores.MsSql/EventFlow.ReadStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowOwin" (fun _ ->
+    let binDir = "Source/EventFlow.Owin/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.Owin.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Owin"
+            Version = nugetVersion
+            Dependencies = [
+                "Owin",  GetPackageVersion "./packages/" "Owin"
+                "Microsoft.Owin",  GetPackageVersion "./packages/" "Microsoft.Owin"]
+            Publish = false })
+            "Source/EventFlow.Owin/EventFlow.Owin.nuspec"
+    )
+
 Target "Default" DoNothing
 
 "Clean"
@@ -117,6 +132,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
+    ==> "CreatePackageEventFlowOwin"
     ==> "Default"
 
 RunTargetOrDefault "Default"

@@ -3,14 +3,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
+using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.Helpers;
 using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.ReadStores.MsSql.Extensions;
-using EventFlow.Test;
-using EventFlow.Test.Aggregates.Test;
-using EventFlow.Test.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using TestAggregateReadModel = EventFlow.MsSql.Tests.ReadModels.TestAggregateReadModel;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests

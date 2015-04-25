@@ -23,6 +23,7 @@
 using System;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -45,18 +46,6 @@ namespace EventFlow.Tests.IntegrationTests
             // Assert
             eventStore.Should().NotBeNull();
             eventStore.Should().BeAssignableTo<InMemoryEventStore>();
-        }
-
-        [Test]
-        public void MultipleRegistrations_ThrowsException()
-        {
-            // Arrange
-            var options = EventFlowOptions.New
-                .UseEventStore<InMemoryEventStore>()
-                .UseEventStore<InMemoryEventStore>();
-
-            // Act
-            Assert.Throws<InvalidOperationException>(() => options.CreateResolver(true));
         }
     }
 }

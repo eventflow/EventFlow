@@ -61,13 +61,17 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Configuration\EventFlowConfiguration.cs" />
     <Compile Include="Configuration\IEventFlowConfiguration.cs" />
-    <Compile Include="Configuration\Resolvers\AutofacInitialization.cs" />
-    <Compile Include="Configuration\Resolvers\AutofacResolver.cs" />
-    <Compile Include="Configuration\Resolvers\AutofacRootResolver.cs" />
-    <Compile Include="Configuration\Resolvers\AutofacScopeResolver.cs" />
+    <Compile Include="Configuration\IResolverContext.cs" />
+    <Compile Include="Configuration\IServiceRegistration.cs" />
+    <Compile Include="Configuration\Registrations\AutofacResolverContext.cs" />
+    <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
+    <Compile Include="Configuration\Registrations\Decorator.cs" />
+    <Compile Include="Configuration\Registrations\Resolvers\AutofacResolver.cs" />
+    <Compile Include="Configuration\Registrations\Resolvers\AutofacRootResolver.cs" />
+    <Compile Include="Configuration\Registrations\Resolvers\AutofacScopeResolver.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
-    <Compile Include="Configuration\Registration.cs" />
+    <Compile Include="Configuration\Registrations\Registration.cs" />
     <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="EventCaches\Null\NullEventCache.cs" />
     <Compile Include="EventFlowOptions.cs" />
@@ -82,9 +86,22 @@
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
+    <Compile Include="EventStores\DomainEventFactory.cs" />
+    <Compile Include="EventStores\EventUpgradeManager.cs" />
+    <Compile Include="EventStores\IDomainEventFactory.cs" />
+    <Compile Include="EventStores\IEventUpgradeManager.cs" />
+    <Compile Include="EventStores\IEventUpgrader.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />
+    <Compile Include="Extensions\ContainerExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventCachesExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />
@@ -131,6 +148,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadStores\ReadModelContext.cs" />
     <Compile Include="EventStores\UncommittedEvent.cs" />
+    <Compile Include="ValueObjects\SingleValueObject.cs" />
+    <Compile Include="ValueObjects\ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EventFlow.nuspec" />

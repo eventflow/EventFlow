@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
@@ -28,6 +29,6 @@ namespace EventFlow.Subscribers
     public interface ISubscribeSynchronousTo<in TEvent>
         where TEvent : IAggregateEvent
     {
-        Task HandleAsync(IDomainEvent<TEvent> e);
+        Task HandleAsync(IDomainEvent<TEvent> e, CancellationToken cancellationToken);
     }
 }
