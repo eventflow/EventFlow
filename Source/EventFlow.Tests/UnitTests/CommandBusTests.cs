@@ -44,7 +44,7 @@ namespace EventFlow.Tests.UnitTests
         public void SetUp()
         {
             Fixture.Inject<IEventFlowConfiguration>(new EventFlowConfiguration());
-            _eventStoreMock = Freze<IEventStore>();
+            _eventStoreMock = InjectMock<IEventStore>();
         }
 
         [Test]

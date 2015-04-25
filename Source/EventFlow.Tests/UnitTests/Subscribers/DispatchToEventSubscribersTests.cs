@@ -20,42 +20,43 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.Subscribers;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.Tests.UnitTests.Subscribers
 {
-    public abstract class Test
+    public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
     {
-        protected IFixture Fixture { get; private set; }
+        private Mock<IResolver> _resolverMock;
 
         [SetUp]
-        public void SetUpTest()
+        public void SetUp()
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
+            _resolverMock = InjectMock<IResolver>();
         }
 
-        protected T A<T>()
+        [Test]
+        public async Task SubscribersGetCalled()
         {
-            return Fixture.Create<T>();
-        }
+            // Arrange
+            var subscriberMock = new Mock<ISubscribeSynchronousTo<PingEvent>>();
+            _resolverMock
+                .Setup(r => r.ResolveAll(It.IsAny<Type>()))
+                .Returns(new object[] {subscriberMock.Object});
 
-        protected List<T> Many<T>(int count = 3)
-        {
-            return Fixture.CreateMany<T>(count).ToList();
-        }
+            // Act
+            await Sut.DispatchAsync(new[] {A<DomainEvent<PingEvent>>()}, CancellationToken.None).ConfigureAwait(false);
 
-        protected Mock<T> InjectMock<T>()
-            where T : class
-        {
-            var mock = new Mock<T>();
-            Fixture.Inject(mock.Object);
-            return mock;
+            // Assert
+            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<PingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
