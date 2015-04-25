@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Owin.Tests", "Sou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.TestHelpers", "Source\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac", "Source\EventFlow.Autofac\EventFlow.Autofac.csproj", "{26F06682-3364-4C22-B9B2-2F2653D0BE0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{571D291C-5E4C-43AF-855F-7C4E2F318F4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26F06682-3364-4C22-B9B2-2F2653D0BE0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26F06682-3364-4C22-B9B2-2F2653D0BE0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26F06682-3364-4C22-B9B2-2F2653D0BE0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26F06682-3364-4C22-B9B2-2F2653D0BE0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
