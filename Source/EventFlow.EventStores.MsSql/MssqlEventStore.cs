@@ -96,7 +96,8 @@ namespace EventFlow.EventStores.MsSql
                     SELECT
                         BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
                     FROM
-                        @rows";
+                        @rows
+                    ORDER BY AggregateSequenceNumber ASC";
 
             IReadOnlyCollection<long> ids;
             try
