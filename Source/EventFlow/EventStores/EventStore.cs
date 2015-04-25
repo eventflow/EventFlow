@@ -92,7 +92,7 @@ namespace EventFlow.EventStores
             catch (OptimisticConcurrencyException)
             {
                 Log.Verbose(
-                    "Detected a optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
+                    "Detected an optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
                     aggregateType.Name,
                     id);
 

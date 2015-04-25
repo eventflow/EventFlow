@@ -116,6 +116,7 @@ Target "CreatePackageEventFlowOwin" (fun _ ->
             WorkingDir = "Source/EventFlow.Owin"
             Version = nugetVersion
             Dependencies = [
+                "EventFlow",  nugetVersionDep
                 "Owin",  GetPackageVersion "./packages/" "Owin"
                 "Microsoft.Owin",  GetPackageVersion "./packages/" "Microsoft.Owin"]
             Publish = false })
