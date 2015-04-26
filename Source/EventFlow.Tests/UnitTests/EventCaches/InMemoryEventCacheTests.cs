@@ -25,17 +25,27 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.EventCaches.InMemory;
+using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using FluentAssertions;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.EventCaches
 {
     public class InMemoryEventCacheTests : TestsFor<InMemoryEventCache>
     {
+        [SetUp]
+        public void SetUp()
+        {
+            Fixture.Inject<ILog>(new ConsoleLog());
+            Fixture.Inject<ITimeMachine>(new TimeMachine());
+        }
+
         [Test]
         public void InsertNullThrowsException()
         {

@@ -20,14 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
 namespace EventFlow.Commands
 {
-    // ReSharper disable once UnusedTypeParameter
-    public interface ICommand<in TAggregate>
+    public interface ICommandHandler<in TAggregate, in TCommand>
         where TAggregate : IAggregateRoot
+        where TCommand : ICommand<TAggregate>
     {
-        string Id { get; }
+        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
     }
 }

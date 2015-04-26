@@ -39,17 +39,20 @@ namespace EventFlow
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
 
         public CommandBus(
             ILog log,
+            IResolver resolver,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
             IDomainEventPublisher domainEventPublisher)
         {
             _log = log;
+            _resolver = resolver;
             _configuration = configuration;
             _eventStore = eventStore;
             _domainEventPublisher = domainEventPublisher;
@@ -114,11 +117,38 @@ namespace EventFlow
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
+            var aggregateType = typeof (TAggregate);
+            var commandType = command.GetType();
+            var commandHandlerType = typeof (ICommandHandler<,>).MakeGenericType(aggregateType, commandType);
+
+            var commandHandlers = _resolver.ResolveAll(commandHandlerType).ToList();
+            if (!commandHandlers.Any())
+            {
+                throw new NoCommandHandlersException(string.Format(
+                    "No command handlers registered for the command '{0}' on aggregate '{1}'",
+                    commandType.Name,
+                    aggregateType.Name));
+            }
+            if (commandHandlers.Count > 1)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
+                    commandType.Name,
+                    aggregateType.Name,
+                    string.Join(", ", commandHandlers.Select(h => h.GetType().Name))));
+            }
+            var commandHandler = commandHandlers.Single();
+
+            var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync");
+
             return Retry.ThisAsync(
                 async () =>
                     {
                         var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
-                        await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
+
+                        var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, cancellationToken});
+                        await invokeTask.ConfigureAwait(false);
+
                         return await aggregate.CommitAsync(_eventStore, cancellationToken).ConfigureAwait(false);
                     },
                 _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,

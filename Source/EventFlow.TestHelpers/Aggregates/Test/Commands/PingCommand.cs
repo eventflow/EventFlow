@@ -26,16 +26,14 @@ using EventFlow.Commands;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class PingCommand : ICommand<TestAggregate>
+    public class PingCommand : Command<TestAggregate>
     {
-        public string Id { get; private set; }
+        public PingCommand(string id) : base (id) { }
+    }
 
-        public PingCommand(string id)
-        {
-            Id = id;
-        }
-
-        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken)
+    public class PingCommandHandler : CommandHandler<TestAggregate, PingCommand>
+    {
+        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
         {
             aggregate.Ping();
             return Task.FromResult(0);
