@@ -138,6 +138,11 @@ namespace EventFlow.EventStores
                 .Select(EventJsonSerializer.Deserialize)
                 .ToList();
 
+            if (!domainEvents.Any())
+            {
+                return domainEvents;
+            }
+
             domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
 
             await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
