@@ -56,6 +56,7 @@ namespace EventFlow.Tests.IntegrationTests
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof (TestAggregate).Assembly)
+                .AddCommandHandlers(typeof(TestAggregate).Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()

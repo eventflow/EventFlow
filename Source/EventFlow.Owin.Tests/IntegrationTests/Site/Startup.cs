@@ -88,6 +88,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             var resolver = EventFlowOptions.New
                 .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder))
                 .AddEvents(EventFlowTest.Assembly)
+                .AddCommandHandlers(EventFlowTest.Assembly)
                 .AddOwinMetadataProviders()
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
