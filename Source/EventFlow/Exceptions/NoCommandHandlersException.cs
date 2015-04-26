@@ -20,14 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.Exceptions
 {
-    // ReSharper disable once UnusedTypeParameter
-    public interface ICommand<in TAggregate>
-        where TAggregate : IAggregateRoot
+    public class NoCommandHandlersException : Exception
     {
-        string Id { get; }
+        public NoCommandHandlersException(string message) : base(message)
+        {
+        }
     }
 }
