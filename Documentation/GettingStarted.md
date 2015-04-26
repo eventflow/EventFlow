@@ -93,7 +93,7 @@ public class UserAggregate : AggregateRoot<UserAggregate>,
 
 Even though it is possible, we are not allowed to call the newly
 created `Create` method on our `UserAggregate`. The call must be
-made from a command.
+made from a command handler, and thus we first create the command.
 
 ```csharp
 public class UserCreateCommand : ICommand<UserAggregate>
@@ -111,16 +111,28 @@ public class UserCreateCommand : ICommand<UserAggregate>
     Username = username;
     Password = password;
   }
+}
+```
 
+## Create command handler
+
+Next we create the command handler that invokes the aggregate with the command
+arguments.
+
+```csharp
+public class UserCreateCommand : ICommand<UserAggregate, UserCreateCommand>
+{
   public Task ExecuteAsync(
     UserAggregate aggregate,
+    UserCreateCommand command,
     CancellationToken cancellationToken)
   {
-    aggregate.Create(Username, Password);
+    aggregate.Create(command.Username, command.Password);
     return Task.FromResult(0);
   }
 }
 ```
+
 
 ## Create a new user
 

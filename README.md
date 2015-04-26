@@ -42,6 +42,7 @@ and a in-memory read model store.
 ```csharp
 using (var resolver = EventFlowOptions.New
     .AddEvents(typeof (TestAggregate).Assembly)
+    .AddCommandHandlers(typeof (TestAggregate).Assembly)
     .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
     .CreateResolver())
 {
