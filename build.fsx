@@ -60,6 +60,21 @@ Target "CreatePackageEventFlow" (fun _ ->
             "Source/EventFlow/EventFlow.nuspec"
     )
 
+Target "CreatePackageEventFlowAutofac" (fun _ ->
+    let binDir = "Source/EventFlow.Autofac/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.Autofac.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Autofac"
+            Version = nugetVersion
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "Autofac",  GetPackageVersion "./packages/" "Autofac"]
+            Publish = false })
+            "Source/EventFlow.Autofac/EventFlow.Autofac.nuspec"
+    )
+
 Target "CreatePackageEventFlowMsSql" (fun _ ->
     let binDir = "Source\\EventFlow.MsSql\\bin\\" + buildMode + "\\"
     let result = ExecProcess (fun info ->
@@ -130,6 +145,7 @@ Target "Default" DoNothing
     ==> "BuildApp"
     ==> "UnitTest"
     ==> "CreatePackageEventFlow"
+    ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
