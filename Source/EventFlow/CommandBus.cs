@@ -39,17 +39,20 @@ namespace EventFlow
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
 
         public CommandBus(
             ILog log,
+            IResolver resolver,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
             IDomainEventPublisher domainEventPublisher)
         {
             _log = log;
+            _resolver = resolver;
             _configuration = configuration;
             _eventStore = eventStore;
             _domainEventPublisher = domainEventPublisher;
@@ -114,11 +117,13 @@ namespace EventFlow
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
+
+
             return Retry.ThisAsync(
                 async () =>
                     {
                         var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
-                        await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
+                        //await command.ExecuteAsync(aggregate, cancellationToken).ConfigureAwait(false);
                         return await aggregate.CommitAsync(_eventStore, cancellationToken).ConfigureAwait(false);
                     },
                 _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
