@@ -23,7 +23,6 @@
 using System;
 using Autofac;
 using EventFlow.Configuration.Registrations;
-using EventFlow.Configuration.Registrations.Resolvers;
 
 namespace EventFlow.Autofac.Extensions
 {

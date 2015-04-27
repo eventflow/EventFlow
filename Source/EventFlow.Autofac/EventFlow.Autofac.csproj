@@ -42,6 +42,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacDecorator.cs">
+      <Link>Registrations\AutofacDecorator.cs</Link>
+    </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacRegistration.cs">
+      <Link>Registrations\AutofacRegistration.cs</Link>
+    </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacResolver.cs">
+      <Link>Registrations\AutofacResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacRootResolver.cs">
+      <Link>Registrations\AutofacRootResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacScopeResolver.cs">
+      <Link>Registrations\AutofacScopeResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacServiceRegistration.cs">
+      <Link>Registrations\AutofacServiceRegistration.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>

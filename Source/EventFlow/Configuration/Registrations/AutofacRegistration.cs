@@ -23,26 +23,19 @@
 using System;
 using Autofac;
 using Autofac.Builder;
-using EventFlow.Configuration.Registrations.Resolvers;
 
 namespace EventFlow.Configuration.Registrations
 {
-    public enum Lifetime
-    {
-        AlwaysUnique,
-        Singleton,
-    }
-
-    public class Registration
+    internal class AutofacRegistration
     {
         private readonly Type _implementationType;
 
         public Type ServiceType { get; protected set; }
         public Lifetime Lifetime { get; protected set; }
 
-        public Registration(){ }
+        public AutofacRegistration(){ }
 
-        public Registration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public AutofacRegistration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             if (!serviceType.IsAssignableFrom(implementationType))
             {
@@ -87,12 +80,12 @@ namespace EventFlow.Configuration.Registrations
         }
     }
 
-    public class Registration<TService> : Registration
+    internal class AutofacRegistration<TService> : AutofacRegistration
         where TService : class
     {
         public Func<IResolverContext, object> Factory { get; protected set; }
 
-        public Registration(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public AutofacRegistration(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             ServiceType = typeof (TService);
             Factory = factory;
@@ -119,10 +112,10 @@ namespace EventFlow.Configuration.Registrations
         }
     }
 
-    public class Registration<TService, TImplementation> : Registration
+    internal class AutofacRegistration<TService, TImplementation> : AutofacRegistration
         where TImplementation : class, TService
     {
-        public Registration(Lifetime lifetime = Lifetime.AlwaysUnique)
+        public AutofacRegistration(Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             Lifetime = lifetime;
             ServiceType = typeof (TService);

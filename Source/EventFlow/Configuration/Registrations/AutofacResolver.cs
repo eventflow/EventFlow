@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 
-namespace EventFlow.Configuration.Registrations.Resolvers
+namespace EventFlow.Configuration.Registrations
 {
-    public class AutofacResolver : IResolver
+    internal class AutofacResolver : IResolver
     {
         private readonly IComponentContext _componentContext;
 
