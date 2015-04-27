@@ -29,7 +29,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Configuration.Registrations
 {
-    internal class AutofacServiceRegistration : IServiceRegistration
+    public class AutofacServiceRegistration : IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly List<Registration> _registrations = new List<Registration>();
