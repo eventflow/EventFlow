@@ -22,11 +22,10 @@
 
 using System;
 using Autofac;
-using EventFlow.Configuration.Registrations.Resolvers;
 
 namespace EventFlow.Configuration.Registrations
 {
-    internal abstract class Decorator
+    internal abstract class AutofacDecorator
     {
         public abstract Type ServiceType { get; }
         public abstract void Configure(ContainerBuilder containerBuilder, int level, bool hasMore);
@@ -44,13 +43,13 @@ namespace EventFlow.Configuration.Registrations
         }
     }
 
-    internal class Decorator<TService> : Decorator
+    internal class AutofacDecorator<TService> : AutofacDecorator
     {
         private readonly Func<IResolverContext, TService, TService> _factory;
         private readonly Type _serviceType = typeof(TService);
         public override Type ServiceType { get { return _serviceType; } }
 
-        public Decorator(Func<IResolverContext, TService, TService> factory)
+        public AutofacDecorator(Func<IResolverContext, TService, TService> factory)
         {
             _factory = factory;
         }
@@ -58,7 +57,7 @@ namespace EventFlow.Configuration.Registrations
         public override void Configure(ContainerBuilder containerBuilder, int level, bool hasMore)
         {
             var registration = containerBuilder.RegisterDecorator<TService>(
-                (r, inner) => _factory(new AutofacResolverContext(new AutofacResolver(r)), inner),
+                (r, inner) => _factory(new ResolverContext(new AutofacResolver(r)), inner),
                 GetKey(level - 1));
             if (hasMore)
             {

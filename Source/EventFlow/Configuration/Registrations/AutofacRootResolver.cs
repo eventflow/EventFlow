@@ -22,9 +22,9 @@
 
 using Autofac;
 
-namespace EventFlow.Configuration.Registrations.Resolvers
+namespace EventFlow.Configuration.Registrations
 {
-    public class AutofacRootResolver : AutofacScopeResolver, IRootResolver
+    internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
         public IContainer Container { get; private set; }
 

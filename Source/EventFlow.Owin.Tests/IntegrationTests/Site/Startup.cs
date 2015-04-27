@@ -28,8 +28,8 @@ using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using Autofac;
 using Autofac.Integration.WebApi;
+using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration.Registrations;
-using EventFlow.Configuration.Registrations.Resolvers;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -85,19 +85,16 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
                 Path.GetTempPath(),
                 Guid.NewGuid().ToString());
 
-            var resolver = EventFlowOptions.New
-                .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder))
+            var container = EventFlowOptions.New
+                .UseAutofacContainerBuilder(containerBuilder)
                 .AddEvents(EventFlowTest.Assembly)
                 .AddCommandHandlers(EventFlowTest.Assembly)
                 .AddOwinMetadataProviders()
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
-                .CreateResolver(false);
+                .CreateContainer(false);
 
-            resolver.Resolve<DirectoryCleaner>();
-
-            var autofacRootResolver = (AutofacRootResolver) resolver;
-            var container = autofacRootResolver.Container;
+            container.Resolve<DirectoryCleaner>();
 
             var config = new HttpConfiguration
                 {
@@ -106,7 +103,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
                 };
             config.MapHttpAttributeRoutes();
             config.Formatters.Remove(config.Formatters.XmlFormatter);
-            config.Services.Add(typeof(IExceptionLogger), new LogProviderExceptionLogger(resolver.Resolve<ILog>()));
+            config.Services.Add(typeof(IExceptionLogger), new LogProviderExceptionLogger(container.Resolve<ILog>()));
 
             appBuilder.UseAutofacMiddleware(container);
             appBuilder.UseAutofacWebApi(config);

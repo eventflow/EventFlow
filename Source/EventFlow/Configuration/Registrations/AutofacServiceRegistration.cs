@@ -24,16 +24,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
-using EventFlow.Configuration.Registrations.Resolvers;
-using EventFlow.Extensions;
+using Autofac.Core;
 
 namespace EventFlow.Configuration.Registrations
 {
-    public class AutofacServiceRegistration : IServiceRegistration
+    internal class AutofacServiceRegistration : IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
-        private readonly List<Registration> _registrations = new List<Registration>();
-        private readonly Dictionary<Type, List<Decorator>> _decorators = new Dictionary<Type, List<Decorator>>();
+        private readonly List<AutofacRegistration> _registrations = new List<AutofacRegistration>();
+        private readonly Dictionary<Type, List<AutofacDecorator>> _decorators = new Dictionary<Type, List<AutofacDecorator>>();
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
@@ -45,32 +44,32 @@ namespace EventFlow.Configuration.Registrations
             where TImplementation : class, TService
             where TService : class
         {
-            _registrations.Add(new Registration<TService, TImplementation>(lifetime));
+            _registrations.Add(new AutofacRegistration<TService, TImplementation>(lifetime));
         }
 
         public void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
             where TService : class
         {
-            _registrations.Add(new Registration<TService>(factory, lifetime));
+            _registrations.Add(new AutofacRegistration<TService>(factory, lifetime));
         }
 
         public void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            _registrations.Add(new Registration(serviceType, implementationType, lifetime));
+            _registrations.Add(new AutofacRegistration(serviceType, implementationType, lifetime));
         }
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
             var serviceType = typeof (TService);
-            List<Decorator> decorators;
+            List<AutofacDecorator> decorators;
 
             if (!_decorators.TryGetValue(serviceType, out decorators))
             {
-                decorators = new List<Decorator>();
+                decorators = new List<AutofacDecorator>();
                 _decorators.Add(serviceType, decorators);
             }
 
-            decorators.Add(new Decorator<TService>(factory));
+            decorators.Add(new AutofacDecorator<TService>(factory));
         }
 
         public bool HasRegistrationFor<TService>()
@@ -106,10 +105,40 @@ namespace EventFlow.Configuration.Registrations
 
             if (validateRegistrations)
             {
-                container.ValidateRegistrations();
+                ValidateRegistrations(container);
             }
 
             return new AutofacRootResolver(container);
+        }
+
+        private static void ValidateRegistrations(IComponentContext container)
+        {
+            var services = container
+                .ComponentRegistry
+                .Registrations
+                .SelectMany(x => x.Services)
+                .OfType<TypedService>()
+                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
+                .ToList();
+            var exceptions = new List<Exception>();
+            foreach (var typedService in services)
+            {
+                try
+                {
+                    container.Resolve(typedService.ServiceType);
+                }
+                catch (DependencyResolutionException ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+            if (!exceptions.Any())
+            {
+                return;
+            }
+
+            var message = string.Join(", ", exceptions.Select(e => e.Message));
+            throw new AggregateException(message, exceptions);
         }
     }
 }

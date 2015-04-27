@@ -20,44 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Autofac;
-using Autofac.Core;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Configuration.Registrations
 {
-    internal static class ContainerExtensions
+    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        internal static void ValidateRegistrations(this IContainer container)
-        {
-            var services = container
-                .ComponentRegistry
-                .Registrations
-                .SelectMany(x => x.Services)
-                .OfType<TypedService>()
-                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                .ToList();
-            var exceptions = new List<Exception>();
-            foreach (var typedService in services)
-            {
-                try
-                {
-                    container.Resolve(typedService.ServiceType);
-                }
-                catch (DependencyResolutionException ex)
-                {
-                    exceptions.Add(ex);
-                }
-            }
-            if (!exceptions.Any())
-            {
-                return;
-            }
+        private readonly ILifetimeScope _lifetimeScope;
 
-            var message = string.Join(", ", exceptions.Select(e => e.Message));
-            throw new AggregateException(message, exceptions);
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
+        {
+            _lifetimeScope = lifetimeScope;
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public void Dispose()
+        {
+            _lifetimeScope.Dispose();
         }
     }
 }
