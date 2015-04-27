@@ -105,12 +105,12 @@ namespace EventFlow.Configuration.Registrations
             {
                 case Lifetime.AlwaysUnique:
                     HandleDecoration(
-                        containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))),
+                        containerBuilder.Register(cc => Factory(new ResolverContext(new AutofacResolver(cc)))),
                         hasDecorator);
                     break;
                 case Lifetime.Singleton:
                     HandleDecoration(
-                        containerBuilder.Register(cc => Factory(new AutofacResolverContext(new AutofacResolver(cc)))).SingleInstance(),
+                        containerBuilder.Register(cc => Factory(new ResolverContext(new AutofacResolver(cc)))).SingleInstance(),
                         hasDecorator);
                     break;
                 default:
