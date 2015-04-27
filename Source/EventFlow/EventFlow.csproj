@@ -76,6 +76,8 @@
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacRegistration.cs" />
     <Compile Include="Core\AsyncLock.cs" />
+    <Compile Include="Core\ITimeMachine.cs" />
+    <Compile Include="Core\TimeMachine.cs" />
     <Compile Include="EventCaches\Null\NullEventCache.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />

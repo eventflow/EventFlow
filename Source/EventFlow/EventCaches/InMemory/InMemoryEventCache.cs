@@ -27,6 +27,7 @@ using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.Logs;
 
 namespace EventFlow.EventCaches.InMemory
@@ -35,15 +36,19 @@ namespace EventFlow.EventCaches.InMemory
     {
         private static readonly TimeSpan CacheTime = TimeSpan.FromMinutes(5);
         private readonly ILog _log;
+        private readonly ITimeMachine _timeMachine;
+
         private readonly MemoryCache _memoryCache = new MemoryCache(string.Format(
             "{0}-{1}",
             typeof(InMemoryEventCache).FullName,
             Guid.NewGuid())); 
 
         public InMemoryEventCache(
-            ILog log)
+            ILog log,
+            ITimeMachine timeMachine)
         {
             _log = log;
+            _timeMachine = timeMachine;
         }
 
         public Task InsertAsync(
@@ -59,7 +64,7 @@ namespace EventFlow.EventCaches.InMemory
                 id));
 
             var cacheKey = GetKey(aggregateType, id);
-            _memoryCache.Set(cacheKey, domainEvents, DateTimeOffset.Now.Add(CacheTime));
+            _memoryCache.Set(cacheKey, domainEvents, _timeMachine.Now.Add(CacheTime));
             _log.Verbose(
                 "Added cache key {0} with {1} events to in-memory event store cache. Now it has {2} streams cached.",
                 cacheKey,

@@ -26,8 +26,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Logs;
 
 namespace EventFlow.Aggregates
 {
@@ -36,12 +38,15 @@ namespace EventFlow.Aggregates
     {
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
+        protected ITimeMachine TimeMachine { get; private set; }
+        protected ILog Log { get; private set; }
+
         public string Id { get; private set; }
         public int Version { get; private set; }
         public bool IsNew { get { return Version <= 0; } }
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
-        protected AggregateRoot(string id)
+        protected AggregateRoot(string id, ITimeMachine timeMachine, ILog log)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -72,6 +77,8 @@ namespace EventFlow.Aggregates
             }
 
             Id = id;
+            TimeMachine = timeMachine;
+            Log = log;
         }
 
         protected void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
@@ -84,7 +91,7 @@ namespace EventFlow.Aggregates
 
             var extraMetadata = new Dictionary<string, string>
                 {
-                    {MetadataKeys.Timestamp, DateTimeOffset.Now.ToString("o")},
+                    {MetadataKeys.Timestamp, TimeMachine.Now.ToString("o")},
                     {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()}
                 };
 
