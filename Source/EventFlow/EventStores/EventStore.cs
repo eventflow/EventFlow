@@ -92,7 +92,7 @@ namespace EventFlow.EventStores
             catch (OptimisticConcurrencyException)
             {
                 Log.Verbose(
-                    "Detected a optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
+                    "Detected an optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
                     aggregateType.Name,
                     id);
 
@@ -107,7 +107,7 @@ namespace EventFlow.EventStores
 
             var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
 
-            await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
+            await EventCache.InvalidateAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }
@@ -138,7 +138,14 @@ namespace EventFlow.EventStores
                 .Select(EventJsonSerializer.Deserialize)
                 .ToList();
 
+            if (!domainEvents.Any())
+            {
+                return domainEvents;
+            }
+
             domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
+
+            await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }

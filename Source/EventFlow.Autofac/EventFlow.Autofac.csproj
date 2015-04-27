@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}</ProjectGuid>
+    <ProjectGuid>{26F06682-3364-4C22-B9B2-2F2653D0BE0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.Owin</RootNamespace>
-    <AssemblyName>EventFlow.Owin</AssemblyName>
+    <RootNamespace>EventFlow.Autofac</RootNamespace>
+    <AssemblyName>EventFlow.Autofac</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,14 +28,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Owin">
-      <HintPath>..\..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
-    </Reference>
-    <Reference Include="Owin">
-      <HintPath>..\..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    <Reference Include="Autofac">
+      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,15 +45,11 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="EventFlowOwin.cs" />
-    <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="MetadataProviders\AddRequestHeadersMetadataProvider.cs" />
-    <Compile Include="MetadataProviders\AddUriMetadataProvider.cs" />
-    <Compile Include="MetadataProviders\AddUserHostAddressMetadataProvider.cs" />
+    <Compile Include="Extensions\EventFlowOptionsAutofacExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.Owin.nuspec" />
+    <None Include="EventFlow.Autofac.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

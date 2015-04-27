@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EventFlow")]
+[assembly: AssemblyTitle("EventFlow.Autofac")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow")]
-[assembly: AssemblyCopyright("Copyright © 2015")]
+[assembly: AssemblyProduct("EventFlow.Autofac")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,11 +19,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("422251da-e1ed-4d95-a0db-473c5444758e")]
-
-// Internals
-[assembly: InternalsVisibleTo("EventFlow.Autofac")]
-[assembly: InternalsVisibleTo("EventFlow.Owin")]
-[assembly: InternalsVisibleTo("EventFlow.Owin.Tests")]
-[assembly: InternalsVisibleTo("EventFlow.TestHelpers")]
-[assembly: InternalsVisibleTo("EventFlow.Tests")]
+[assembly: Guid("e9aa6719-9bb0-40d2-aa45-dc024286a2d9")]

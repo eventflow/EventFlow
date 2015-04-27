@@ -41,7 +41,8 @@ namespace EventFlow.TestHelpers
             Configuration = new TIntegrationTestConfiguration();
 
             var eventFlowOptions = EventFlowOptions.New
-                .AddEvents(EventFlowTest.Assembly);
+                .AddEvents(EventFlowTest.Assembly)
+                .AddCommandHandlers(EventFlowTest.Assembly);
 
             Resolver = Configuration.CreateRootResolver(eventFlowOptions);
             EventStore = Resolver.Resolve<IEventStore>();

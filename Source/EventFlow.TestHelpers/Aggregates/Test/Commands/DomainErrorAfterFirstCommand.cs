@@ -26,16 +26,14 @@ using EventFlow.Commands;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class DomainErrorAfterFirstCommand : ICommand<TestAggregate>
+    public class DomainErrorAfterFirstCommand : Command<TestAggregate>
     {
-        public string Id { get; private set; }
+        public DomainErrorAfterFirstCommand(string id) : base(id) { }
+    }
 
-        public DomainErrorAfterFirstCommand(string id)
-        {
-            Id = id;
-        }
-
-        public Task ExecuteAsync(TestAggregate aggregate, CancellationToken cancellationToken)
+    public class DomainErrorAfterFirstCommandHander : CommandHandler<TestAggregate, DomainErrorAfterFirstCommand>
+    {
+        public override Task ExecuteAsync(TestAggregate aggregate, DomainErrorAfterFirstCommand command, CancellationToken cancellationToken)
         {
             aggregate.DomainErrorAfterFirst();
             return Task.FromResult(0);

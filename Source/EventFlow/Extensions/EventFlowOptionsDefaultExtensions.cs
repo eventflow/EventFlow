@@ -20,42 +20,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using Moq;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
+using System.Reflection;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.Extensions
 {
-    public abstract class Test
+    public static class EventFlowOptionsDefaultExtensions
     {
-        protected IFixture Fixture { get; private set; }
-
-        [SetUp]
-        public void SetUpTest()
+        public static EventFlowOptions AddDefaults(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly)
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
-        }
-
-        protected T A<T>()
-        {
-            return Fixture.Create<T>();
-        }
-
-        protected List<T> Many<T>(int count = 3)
-        {
-            return Fixture.CreateMany<T>(count).ToList();
-        }
-
-        protected Mock<T> InjectMock<T>()
-            where T : class
-        {
-            var mock = new Mock<T>();
-            Fixture.Inject(mock.Object);
-            return mock;
+            return eventFlowOptions
+                .AddCommandHandlers(fromAssembly)
+                .AddMetadataProviders(fromAssembly)
+                .AddSubscribers(fromAssembly)
+                .AddEventUpgraders(fromAssembly);
         }
     }
 }

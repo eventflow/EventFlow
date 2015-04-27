@@ -43,7 +43,7 @@ namespace EventFlow.Tests.IntegrationTests
     {
         public class Subscriber : ISubscribeSynchronousTo<DomainErrorAfterFirstEvent>
         {
-            public Task HandleAsync(IDomainEvent<DomainErrorAfterFirstEvent> e)
+            public Task HandleAsync(IDomainEvent<DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
             {
                 Console.WriteLine("Subscriber got DomainErrorAfterFirstEvent");
                 return Task.FromResult(0);
@@ -56,6 +56,7 @@ namespace EventFlow.Tests.IntegrationTests
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof (TestAggregate).Assembly)
+                .AddCommandHandlers(typeof(TestAggregate).Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()

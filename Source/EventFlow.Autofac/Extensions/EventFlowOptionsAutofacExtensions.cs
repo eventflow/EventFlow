@@ -20,42 +20,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using Moq;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
+using System;
+using Autofac;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Configuration.Registrations.Resolvers;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.Autofac.Extensions
 {
-    public abstract class Test
+    public static class EventFlowOptionsAutofacExtensions
     {
-        protected IFixture Fixture { get; private set; }
-
-        [SetUp]
-        public void SetUpTest()
+        public static EventFlowOptions UseAutofacContainerBuilder(
+            this EventFlowOptions eventFlowOptions,
+            ContainerBuilder containerBuilder)
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
+            return eventFlowOptions
+                .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder));
         }
 
-        protected T A<T>()
+        public static IContainer CreateContainer(
+            this EventFlowOptions eventFlowOptions,
+            bool validateRegistrations = true)
         {
-            return Fixture.Create<T>();
-        }
+            var rootResolver = eventFlowOptions.CreateResolver(validateRegistrations);
+            var autofacRootResolver = rootResolver as AutofacRootResolver;
+            if (autofacRootResolver == null)
+            {
+                throw new InvalidOperationException(
+                    "Make sure to configure the EventFlowOptions for Autofac using the .UseAutofacContainerBuilder(...)");
+            }
 
-        protected List<T> Many<T>(int count = 3)
-        {
-            return Fixture.CreateMany<T>(count).ToList();
-        }
-
-        protected Mock<T> InjectMock<T>()
-            where T : class
-        {
-            var mock = new Mock<T>();
-            Fixture.Inject(mock.Object);
-            return mock;
+            return autofacRootResolver.Container;
         }
     }
 }

@@ -23,6 +23,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
@@ -39,29 +41,69 @@ namespace EventFlow.Tests.UnitTests
     public class CommandBusTests : TestsFor<CommandBus>
     {
         private Mock<IEventStore> _eventStoreMock;
+        private Mock<IResolver> _resolverMock;
 
         [SetUp]
         public void SetUp()
         {
             Fixture.Inject<IEventFlowConfiguration>(new EventFlowConfiguration());
-            _eventStoreMock = Freze<IEventStore>();
+
+            _resolverMock = InjectMock<IResolver>();
+            _eventStoreMock = InjectMock<IEventStore>();
+
+            _eventStoreMock
+                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(new TestAggregate("42")));
         }
 
         [Test]
         public void RetryForOptimisticConcurrencyExceptionsAreDone()
         {
-            _eventStoreMock
-                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(new TestAggregate("42")));
+            // Arrange
+            ArrangeCommandHandlerExists<TestAggregate, DomainErrorAfterFirstCommand>();
             _eventStoreMock
                 .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
+            // Act
             Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new DomainErrorAfterFirstCommand("42"), CancellationToken.None).ConfigureAwait(false));
 
+            // Assert
             _eventStoreMock.Verify(
                 s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(3));
+        }
+
+        [Test]
+        public async Task CommandHandlerIsInvoked()
+        {
+            // Arrange
+            ArrangeWorkingEventStore();
+            var commandHandler = ArrangeCommandHandlerExists<TestAggregate, PingCommand>();
+
+            // Act
+            await Sut.PublishAsync(new PingCommand(A<string>()), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            commandHandler.Verify(h => h.ExecuteAsync(It.IsAny<TestAggregate>(), It.IsAny<PingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        private void ArrangeWorkingEventStore()
+        {
+            _eventStoreMock
+                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent>>(Many<IDomainEvent>()));
+        }
+
+        private Mock<ICommandHandler<TAggregate, TCommand>> ArrangeCommandHandlerExists<TAggregate, TCommand>()
+            where TAggregate : IAggregateRoot
+            where TCommand : ICommand<TAggregate>
+        {
+            var mock = new Mock<ICommandHandler<TAggregate, TCommand>>();
+            _resolverMock
+                .Setup(r => r.ResolveAll(typeof (ICommandHandler<TAggregate, TCommand>)))
+                .Returns(new[] {mock.Object});
+            return mock;
         }
     }
 }

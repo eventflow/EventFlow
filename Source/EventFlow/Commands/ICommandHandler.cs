@@ -20,42 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using Moq;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.Commands
 {
-    public abstract class Test
+    public interface ICommandHandler<in TAggregate, in TCommand>
+        where TAggregate : IAggregateRoot
+        where TCommand : ICommand<TAggregate>
     {
-        protected IFixture Fixture { get; private set; }
-
-        [SetUp]
-        public void SetUpTest()
-        {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
-        }
-
-        protected T A<T>()
-        {
-            return Fixture.Create<T>();
-        }
-
-        protected List<T> Many<T>(int count = 3)
-        {
-            return Fixture.CreateMany<T>(count).ToList();
-        }
-
-        protected Mock<T> InjectMock<T>()
-            where T : class
-        {
-            var mock = new Mock<T>();
-            Fixture.Inject(mock.Object);
-            return mock;
-        }
+        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
     }
 }

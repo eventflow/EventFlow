@@ -41,7 +41,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         [SetUp]
         public void SetUp()
         {
-            _resolverMock = Freze<IResolver>();
+            _resolverMock = InjectMock<IResolver>();
             _domainEventFactory = new DomainEventFactory();
 
             _resolverMock

@@ -47,8 +47,10 @@ namespace EventFlow.Subscribers
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
-            var readStoreTask = _readStoreManager.UpdateReadStoresAsync<TAggregate>(id, domainEvents, cancellationToken);
-            var subscriberTask = _dispatchToEventSubscribers.DispatchAsync(domainEvents);
+            // ARGH, dilemma, should we pass the cancellation token to read model update or not?
+            var readStoreTask = _readStoreManager.UpdateReadStoresAsync<TAggregate>(id, domainEvents, CancellationToken.None);
+
+            var subscriberTask = _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken);
 
             await Task.WhenAll(readStoreTask, subscriberTask).ConfigureAwait(false);
         }
