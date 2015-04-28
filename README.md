@@ -1,4 +1,7 @@
 # EventFlow
+
+[![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
+
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
 Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
