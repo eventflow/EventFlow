@@ -50,7 +50,7 @@ namespace EventFlow.ReadStores.MsSql
         }
 
         public override async Task UpdateReadModelAsync(
-            string aggregateId,
+            IAggregateId id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
@@ -58,7 +58,7 @@ namespace EventFlow.ReadStores.MsSql
             var readModels = await _connection.QueryAsync<TReadModel>(
                 cancellationToken,
                 selectSql,
-                new { AggregateId = aggregateId })
+                new { AggregateId = id.Value })
                 .ConfigureAwait(false);
             var readModel = readModels.SingleOrDefault();
             var isNew = false;
@@ -67,7 +67,7 @@ namespace EventFlow.ReadStores.MsSql
                 isNew = true;
                 readModel = new TReadModel
                     {
-                        AggregateId = aggregateId,
+                        AggregateId = id.Value,
                         CreateTime = domainEvents.First().Timestamp,
                     };
             }

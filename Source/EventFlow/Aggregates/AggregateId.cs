@@ -21,27 +21,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.MetadataProviders
+namespace EventFlow.Aggregates
 {
-    public class AddMachineNameMetadataProvider : IMetadataProvider
+    public class AggregateId : SingleValueObject<string>, IAggregateId
     {
-        private static readonly IEnumerable<KeyValuePair<string, string>> Metadata; 
-
-        static AddMachineNameMetadataProvider()
+        public AggregateId(string value) : base(value)
         {
-            Metadata = new[]
-                {
-                    new KeyValuePair<string, string>("environment_machinename", Environment.MachineName), 
-                };
-        }
-
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IAggregateId id, IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot
-        {
-            return Metadata;
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentNullException("value");
+            if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
+                throw new ArgumentException(string.Format("Aggregate ID '{0}' contains leading and/or traling spaces", value));
+            if (value.Length > 255)
+                throw new ArgumentException(string.Format("Aggregate ID '{0}' is more than 255 characters", value));
         }
     }
 }

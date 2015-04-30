@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
@@ -30,7 +31,7 @@ namespace EventFlow.TestHelpers
     {
         public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
 
-        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id);
+        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(IAggregateId id);
 
         public abstract void TearDown();
     }

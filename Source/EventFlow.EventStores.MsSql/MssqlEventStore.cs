@@ -63,7 +63,7 @@ namespace EventFlow.EventStores.MsSql
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
+            IAggregateId id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -73,7 +73,7 @@ namespace EventFlow.EventStores.MsSql
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
-                        AggregateId = id,
+                        AggregateId = id.Value,
                         AggregateName = aggregateName,
                         BatchId = batchId,
                         Data = e.Data,
@@ -136,11 +136,11 @@ namespace EventFlow.EventStores.MsSql
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            string id,
+            IAggregateId id,
             CancellationToken cancellationToken)
         {
             const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(cancellationToken, sql, new { AggregateId = id })
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(cancellationToken, sql, new { AggregateId = id.Value })
                 .ConfigureAwait(false);
             return eventDataModels;
         }

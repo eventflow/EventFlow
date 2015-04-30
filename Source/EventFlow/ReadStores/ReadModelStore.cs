@@ -38,7 +38,7 @@ namespace EventFlow.ReadStores
 
         protected ILog Log { get; private set; }
 
-        public abstract Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        public abstract Task UpdateReadModelAsync(IAggregateId id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
         protected ReadModelStore(ILog log)
         {

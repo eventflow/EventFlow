@@ -72,10 +72,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var ss = ManyUncommittedEvents(1);
 
             // Act
-            await Sut.StoreAsync<TestAggregate>(A<string>(), ss, CancellationToken.None).ConfigureAwait(false);
+            await Sut.StoreAsync<TestAggregate>(TestId.New, ss, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            _eventCacheMock.Verify(c => c.InvalidateAsync(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _eventCacheMock.Verify(c => c.InvalidateAsync(It.IsAny<Type>(), It.IsAny<TestId>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         private List<IUncommittedEvent> ManyUncommittedEvents(int count = 3)

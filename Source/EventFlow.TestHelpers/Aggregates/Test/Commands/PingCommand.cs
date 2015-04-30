@@ -22,13 +22,14 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Commands;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
     public class PingCommand : Command<TestAggregate>
     {
-        public PingCommand(string id) : base (id) { }
+        public PingCommand(IAggregateId id) : base (id) { }
     }
 
     public class PingCommandHandler : CommandHandler<TestAggregate, PingCommand>

@@ -32,7 +32,7 @@ namespace EventFlow.EventCaches.Null
     {
         public Task InsertAsync(
             Type aggregateType,
-            string id, IReadOnlyCollection<IDomainEvent> domainEvents,
+            IAggregateId id, IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
             return Task.FromResult(0);
@@ -40,7 +40,7 @@ namespace EventFlow.EventCaches.Null
 
         public Task InvalidateAsync(
             Type aggregateType,
-            string id,
+            IAggregateId id,
             CancellationToken cancellationToken)
         {
             return Task.FromResult(0);
@@ -48,7 +48,7 @@ namespace EventFlow.EventCaches.Null
 
         public Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
             Type aggregateType,
-            string id,
+            IAggregateId id,
             CancellationToken cancellationToken)
         {
             return Task.FromResult(null as IReadOnlyCollection<IDomainEvent>);

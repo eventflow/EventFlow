@@ -21,27 +21,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.EventStores;
 
-namespace EventFlow.MetadataProviders
+namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class AddMachineNameMetadataProvider : IMetadataProvider
+    public class TestId : AggregateId
     {
-        private static readonly IEnumerable<KeyValuePair<string, string>> Metadata; 
+        public static TestId New { get { return new TestId(Guid.NewGuid().ToString()); } }
+        public static TestId With(string id) { return new TestId(id); }
 
-        static AddMachineNameMetadataProvider()
+        public TestId(string value) : base(value)
         {
-            Metadata = new[]
-                {
-                    new KeyValuePair<string, string>("environment_machinename", Environment.MachineName), 
-                };
-        }
-
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IAggregateId id, IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot
-        {
-            return Metadata;
         }
     }
 }

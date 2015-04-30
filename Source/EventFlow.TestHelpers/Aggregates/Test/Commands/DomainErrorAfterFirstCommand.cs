@@ -22,13 +22,14 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Commands;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
     public class DomainErrorAfterFirstCommand : Command<TestAggregate>
     {
-        public DomainErrorAfterFirstCommand(string id) : base(id) { }
+        public DomainErrorAfterFirstCommand(IAggregateId id) : base(id) { }
     }
 
     public class DomainErrorAfterFirstCommandHander : CommandHandler<TestAggregate, DomainErrorAfterFirstCommand>

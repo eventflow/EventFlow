@@ -74,7 +74,7 @@ namespace EventFlow.EventStores.InMemory
         }
 
         protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
+            IAggregateId id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -89,14 +89,14 @@ namespace EventFlow.EventStores.InMemory
                 var batchId = Guid.NewGuid();
 
                 List<ICommittedDomainEvent> committedDomainEvents;
-                if (_eventStore.ContainsKey(id))
+                if (_eventStore.ContainsKey(id.Value))
                 {
-                    committedDomainEvents = _eventStore[id];
+                    committedDomainEvents = _eventStore[id.Value];
                 }
                 else
                 {
                     committedDomainEvents = new List<ICommittedDomainEvent>();
-                    _eventStore[id] = committedDomainEvents;
+                    _eventStore[id.Value] = committedDomainEvents;
                 }
 
                 var newCommittedDomainEvents = serializedEvents
@@ -104,7 +104,7 @@ namespace EventFlow.EventStores.InMemory
                         {
                             var committedDomainEvent = (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
                                 {
-                                    AggregateId = id,
+                                    AggregateId = id.Value,
                                     AggregateName = typeof (TAggregate).Name,
                                     AggregateSequenceNumber = e.AggregateSequenceNumber,
                                     BatchId = batchId,
@@ -130,13 +130,14 @@ namespace EventFlow.EventStores.InMemory
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            string id,
+            IAggregateId id,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                return _eventStore.ContainsKey(id)
-                    ? _eventStore[id]
+                List<ICommittedDomainEvent> committedDomainEvent;
+                return _eventStore.TryGetValue(id.Value, out committedDomainEvent)
+                    ? committedDomainEvent
                     : new List<ICommittedDomainEvent>();
             }
         }

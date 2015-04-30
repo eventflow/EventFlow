@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.ReadStores.InMemory;
@@ -45,7 +46,7 @@ namespace EventFlow.Tests.IntegrationTests
             return resolver;
         }
 
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IAggregateId id)
         {
             return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
         }
