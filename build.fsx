@@ -13,7 +13,7 @@ let filePathUnitTestReport = dirReports + "/NUnit.xml"
 let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
 let toolNUnit = "./Tools/NUnit.Runners/tools"
 let toolIlMerge = "./Tools/ilmerge/tools/ILMerge.exe"
-let nugetVersion = buildVersion + "-alpha"
+let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
 
 Target "Clean" (fun _ ->

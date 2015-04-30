@@ -63,6 +63,11 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
+            if (!uncommittedDomainEvents.Any())
+            {
+                return new IDomainEvent[] {};
+            }
+
             var aggregateType = typeof (TAggregate);
             Log.Verbose(
                 "Storing {0} events for aggregate '{1}' with ID '{2}'",
