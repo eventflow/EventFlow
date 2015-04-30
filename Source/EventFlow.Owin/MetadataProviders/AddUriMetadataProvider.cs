@@ -46,6 +46,7 @@ namespace EventFlow.Owin.MetadataProviders
             // TODO: Handle X-Forwarded-Proto header
 
             yield return new KeyValuePair<string, string>("request_uri", _owinContext.Request.Uri.ToString());
+            yield return new KeyValuePair<string, string>("request_method", _owinContext.Request.Method.ToUpperInvariant());
         }
     }
 }

@@ -50,7 +50,8 @@ some of its NuGet packages.
    is replace with the name of the header. E.g. the
    `request_header[Connection]` might contain the value `Keep-Alive`.
 * **AddUriMetadataProvider**
- * `request_uri` - Adds the OWIN request URI.
+ * `request_uri` - OWIN request URI.
+ * `request_method` - OWIN request method.
 * **AddUserHostAddressMetadataProvider**
  * `user_host_address` - The provider tries to find the correct user
    host address by inspecting request headers, i.e., if you have
