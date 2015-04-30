@@ -68,6 +68,7 @@ using (var resolver = EventFlowOptions.New
   var testReadModel = await readModelStore.GetAsync(id);
 }
 ```
+
 ## Useful links
 
 * [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
