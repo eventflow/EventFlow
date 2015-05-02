@@ -62,7 +62,7 @@ namespace EventFlow.ReadStores.InMemory
                 _readModels.Add(aggregateId, readModel);
             }
 
-            await ApplyEventsAsync(readModel, domainEvents, readModel.LastAggregateSequenceNumber).ConfigureAwait(false);
+            await ApplyEventsAsync(aggregateId, readModel.LastAggregateSequenceNumber, readModel, domainEvents, cancellationToken).ConfigureAwait(false);
 
             readModel.LastAggregateSequenceNumber = domainEvents.Last().AggregateSequenceNumber;
         }

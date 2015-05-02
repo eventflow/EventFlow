@@ -74,7 +74,7 @@ namespace EventFlow.ReadStores.MsSql
                     };
             }
 
-            await ApplyEventsAsync(readModel, domainEvents, readModel.LastAggregateSequenceNumber).ConfigureAwait(false);
+            await ApplyEventsAsync(aggregateId, readModel.LastAggregateSequenceNumber, readModel, domainEvents, cancellationToken).ConfigureAwait(false);
 
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;
