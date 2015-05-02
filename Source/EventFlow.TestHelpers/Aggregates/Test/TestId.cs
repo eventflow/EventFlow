@@ -20,16 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.Aggregates;
 
 namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class TestId : AggregateId
+    public class TestId : AggregateId<TestId>
     {
-        public static TestId New { get { return new TestId(Guid.NewGuid().ToString()); } }
-        public static TestId With(string id) { return new TestId(id); }
-
         public TestId(string value) : base(value)
         {
         }
