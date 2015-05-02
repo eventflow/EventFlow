@@ -30,7 +30,7 @@ namespace EventFlow.ValueObjects
 {
     public abstract class ValueObject
     {
-        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<FieldInfo>> TypeFields = new ConcurrentDictionary<Type, IReadOnlyCollection<FieldInfo>>();
+        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> TypeProperties = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
 
         public override bool Equals(object obj)
         {
@@ -62,29 +62,21 @@ namespace EventFlow.ValueObjects
         public override string ToString()
         {
             return string.Format(
-                "{{{0}}}",
-                string.Join(", ", GetFields().Select(f => string.Format("{0}: '{1}'", f.Name, f.GetValue(this)))));
+                "{{{0}{1}}}",
+                Environment.NewLine,
+                string.Join(", ", GetProperties().Select(f => string.Format("   {0}: '{1}'{2}", f.Name, f.GetValue(this), Environment.NewLine))));
         }
 
         protected virtual IEnumerable<object> GetEqualityComponents()
         {
-            return GetFields().Select(x => x.GetValue(this));
+            return GetProperties().Select(x => x.GetValue(this));
         }
 
-        private IEnumerable<FieldInfo> GetFields()
+        private IEnumerable<PropertyInfo> GetProperties()
         {
-            return TypeFields.GetOrAdd(
+            return TypeProperties.GetOrAdd(
                 GetType(),
-                t =>
-                    {
-                        var fields = new List<FieldInfo>();
-                        while (t != typeof (object) && t != null)
-                        {
-                            fields.AddRange(t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
-                            t = t.BaseType;
-                        }
-                        return fields.OrderBy(f => f.Name).ToList();
-                    });
+                t => t.GetProperties(BindingFlags.Instance | BindingFlags.Public).OrderBy(p => p.Name).ToList());
         }
     }
 }
