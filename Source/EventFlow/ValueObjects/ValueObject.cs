@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,37 +30,22 @@ namespace EventFlow.ValueObjects
 {
     public abstract class ValueObject
     {
-        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<FieldInfo>> TypeFields = new ConcurrentDictionary<Type, IReadOnlyCollection<FieldInfo>>();
+        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> TypeProperties = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj)) return true;
             if (ReferenceEquals(null, obj)) return false;
-            if (obj.GetType() != GetType()) return false;
-            return obj.GetHashCode() == GetHashCode();
+            if (GetType() != obj.GetType()) return false;
+            var other = obj as ValueObject;
+            return other != null && GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return GetEqualityComponents().Aggregate(17, (current, obj) => current*23 + CalculateHashcode(obj));
-            }
-        }
-
-        private static int CalculateHashcode(object obj)
-        {
-            unchecked
-            {
-                if (obj == null)
-                {
-                    return 0;
-                }
-
-                var enumerable = obj as IEnumerable;
-                return enumerable == null
-                    ? obj.GetHashCode()
-                    : enumerable.Cast<object>().Aggregate(17, (current, o) => current*23 + CalculateHashcode(o));
+                return GetEqualityComponents().Aggregate(17, (current, obj) => current * 23 + (obj != null ? obj.GetHashCode() : 0));
             }
         }
 
@@ -78,29 +62,21 @@ namespace EventFlow.ValueObjects
         public override string ToString()
         {
             return string.Format(
-                "{{{0}}}",
-                string.Join(", ", GetFields().Select(f => string.Format("{0}: '{1}'", f.Name, f.GetValue(this)))));
+                "{{{0}{1}}}",
+                Environment.NewLine,
+                string.Join(", ", GetProperties().Select(f => string.Format("   {0}: '{1}'{2}", f.Name, f.GetValue(this), Environment.NewLine))));
         }
 
         protected virtual IEnumerable<object> GetEqualityComponents()
         {
-            return GetFields().Select(x => x.GetValue(this));
+            return GetProperties().Select(x => x.GetValue(this));
         }
 
-        private IEnumerable<FieldInfo> GetFields()
+        private IEnumerable<PropertyInfo> GetProperties()
         {
-            return TypeFields.GetOrAdd(
+            return TypeProperties.GetOrAdd(
                 GetType(),
-                t =>
-                    {
-                        var fields = new List<FieldInfo>();
-                        while (t != typeof (object) && t != null)
-                        {
-                            fields.AddRange(t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
-                            t = t.BaseType;
-                        }
-                        return fields.OrderBy(f => f.Name).ToList();
-                    });
+                t => t.GetProperties(BindingFlags.Instance | BindingFlags.Public).OrderBy(p => p.Name).ToList());
         }
     }
 }
