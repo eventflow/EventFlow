@@ -60,9 +60,7 @@ namespace EventFlow.ReadStores.InMemory
                 _readModels.Add(aggregateId, readModel);
             }
 
-            ApplyEvents(readModel, domainEvents);
-
-            return Task.FromResult(0);
+            return ApplyEventsAsync(readModel, domainEvents);
         }
 
         public TReadModel Get(string id)

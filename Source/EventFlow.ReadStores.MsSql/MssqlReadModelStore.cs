@@ -72,7 +72,7 @@ namespace EventFlow.ReadStores.MsSql
                     };
             }
 
-            ApplyEvents(readModel, domainEvents);
+            await ApplyEventsAsync(readModel, domainEvents).ConfigureAwait(false);
 
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;

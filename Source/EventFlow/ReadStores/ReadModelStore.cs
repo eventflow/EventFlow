@@ -45,7 +45,7 @@ namespace EventFlow.ReadStores
             Log = log;
         }
 
-        protected void ApplyEvents(TReadModel readModel, IEnumerable<IDomainEvent> domainEvents)
+        protected Task ApplyEventsAsync(TReadModel readModel, IReadOnlyCollection<IDomainEvent> domainEvents)
         {
             var readModelType = typeof(TReadModel);
             var readModelContextType = typeof(IReadModelContext);
@@ -65,6 +65,8 @@ namespace EventFlow.ReadStores
                         });
                 applyMethod(readModel, readModelContext, domainEvent);
             }
+
+            return Task.FromResult(0);
         }
     }
 }
