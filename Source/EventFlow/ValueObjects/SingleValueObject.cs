@@ -63,7 +63,9 @@ namespace EventFlow.ValueObjects
 
         public override string ToString()
         {
-            return Value.ToString();
+            return ReferenceEquals(Value, null)
+                ? string.Empty
+                : Value.ToString();
         }
     }
 }
