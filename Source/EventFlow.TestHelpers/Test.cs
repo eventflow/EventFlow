@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.TestHelpers.Aggregates.Test;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -36,8 +37,8 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpTest()
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
+            Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            Fixture.Customize<TestId>(x => x.FromFactory(() => TestId.New));
         }
 
         protected T A<T>()

@@ -139,7 +139,7 @@ namespace EventFlow.TestHelpers.Suites
         public async Task NoEventsEmittedIsOk()
         {
             // Arrange
-            var id = A<string>();
+            var id = TestId.New;
             var aggregate = await EventStore.LoadAggregateAsync<TestAggregate>(id, CancellationToken.None).ConfigureAwait(false);
 
             // Act
