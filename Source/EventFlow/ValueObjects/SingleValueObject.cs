@@ -50,7 +50,7 @@ namespace EventFlow.ValueObjects
                 throw new ArgumentException(string.Format(
                     "Cannot compare '{0}' and '{1}'",
                     GetType().Name,
-                    obj.GetType().Namespace));
+                    obj.GetType().Name));
             }
 
             return Value.CompareTo(other.Value);
