@@ -77,6 +77,7 @@
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
+    <Compile Include="UnitTests\ValueObjects\ValueObjectTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

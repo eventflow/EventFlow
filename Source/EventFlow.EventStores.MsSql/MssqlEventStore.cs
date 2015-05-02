@@ -67,6 +67,11 @@ namespace EventFlow.EventStores.MsSql
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
+            if (!serializedEvents.Any())
+            {
+                return new ICommittedDomainEvent[] {};
+            }
+
             var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
             var aggregateName = aggregateType.Name.Replace("Aggregate", string.Empty);

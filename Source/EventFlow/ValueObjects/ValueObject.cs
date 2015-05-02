@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,13 +37,32 @@ namespace EventFlow.ValueObjects
         {
             if (ReferenceEquals(this, obj)) return true;
             if (ReferenceEquals(null, obj)) return false;
-            var other = obj as ValueObject;
-            return other != null && GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
+            if (obj.GetType() != GetType()) return false;
+            return obj.GetHashCode() == GetHashCode();
         }
 
         public override int GetHashCode()
         {
-            return GetEqualityComponents().Aggregate(17, (current, obj) => current*23 + (obj != null ? obj.GetHashCode() : 0));
+            unchecked
+            {
+                return GetEqualityComponents().Aggregate(17, (current, obj) => current*23 + CalculateHashcode(obj));
+            }
+        }
+
+        private static int CalculateHashcode(object obj)
+        {
+            unchecked
+            {
+                if (obj == null)
+                {
+                    return 0;
+                }
+
+                var enumerable = obj as IEnumerable;
+                return enumerable == null
+                    ? obj.GetHashCode()
+                    : enumerable.Cast<object>().Aggregate(17, (current, o) => current*23 + CalculateHashcode(o));
+            }
         }
 
         public static bool operator ==(ValueObject left, ValueObject right)

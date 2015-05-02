@@ -136,6 +136,17 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task NoEventsEmittedIsOk()
+        {
+            // Arrange
+            var id = A<string>();
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate>(id, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        [Test]
         public async Task OptimisticConcurrency()
         {
             // Arrange

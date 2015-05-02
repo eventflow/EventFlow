@@ -20,33 +20,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
-using Microsoft.Owin;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.Owin.MetadataProviders
+namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class AddUriMetadataProvider : IMetadataProvider
+    public class DoesNothingCommand : Command<TestAggregate>
     {
-        private readonly IOwinContext _owinContext;
-
-        public AddUriMetadataProvider(
-            IOwinContext owinContext)
+        public DoesNothingCommand(string id) : base(id)
         {
-            _owinContext = owinContext;
         }
+    }
 
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(
-            IAggregateId id,
-            IAggregateEvent aggregateEvent,
-            IMetadata metadata)
-            where TAggregate : IAggregateRoot
+    public class DoesNothingCommandHandler : CommandHandler<TestAggregate, DoesNothingCommand>
+    {
+        public override Task ExecuteAsync(TestAggregate aggregate, DoesNothingCommand command, CancellationToken cancellationToken)
         {
-            // TODO: Handle X-Forwarded-Proto header
-
-            yield return new KeyValuePair<string, string>("request_uri", _owinContext.Request.Uri.ToString());
-            yield return new KeyValuePair<string, string>("request_method", _owinContext.Request.Method.ToUpperInvariant());
+            return Task.FromResult(0);
         }
     }
 }
