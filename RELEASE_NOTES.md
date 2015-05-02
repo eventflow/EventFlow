@@ -2,7 +2,8 @@
 
 * Braking: `ValueObject` now uses public properties instead of both
   private and public fields
-* Feature: Release notes added to NuGet packages
+* New: Release notes added to NuGet packages
+* New: Better logging and more descriptive exceptions
 * Fixed: Unchecked missing in `ValueObject` when claculating hash
 * Fixed: `NullReferenceException` thrown if `null` was stored
   in `SingleValueObject` and `ToString()` was called
