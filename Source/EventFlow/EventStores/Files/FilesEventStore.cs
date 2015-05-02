@@ -139,15 +139,24 @@ namespace EventFlow.EventStores.Files
             }
         }
 
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            return LoadCommittedEventsAsync<TAggregate>(id, 1, int.MaxValue, cancellationToken);
+        }
+
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
             string id,
+            int fromAggregateSequenceNumber,
+            int toAggregateSequenceNumber,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var aggregateType = typeof(TAggregate);
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
-                for (var i = 1; ; i++)
+                for (var i = fromAggregateSequenceNumber; i <= toAggregateSequenceNumber ; i++)
                 {
                     var eventPath = GetEventPath(aggregateType, id, i);
                     if (!File.Exists(eventPath))
@@ -162,6 +171,7 @@ namespace EventFlow.EventStores.Files
                         committedDomainEvents.Add(committedDomainEvent);
                     }
                 }
+                return committedDomainEvents;
             }
         }
 

@@ -126,6 +126,12 @@ namespace EventFlow.EventStores
             string id,
             CancellationToken cancellationToken);
 
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
+            string id,
+            int fromAggregateSequenceNumber,
+            int toAggregateSequenceNumber,
+            CancellationToken cancellationToken);
+
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
             string id,
             CancellationToken cancellationToken)
@@ -151,6 +157,41 @@ namespace EventFlow.EventStores
             domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
 
             await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
+
+            return domainEvents;
+        }
+
+        public async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
+            string id,
+            int fromAggregateSequenceNumber,
+            int toAggregateSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot
+        {
+            var aggregateType = typeof(TAggregate);
+            var domainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            if (domainEvents != null)
+            {
+                return domainEvents
+                    .Where(e => e.AggregateSequenceNumber >= fromAggregateSequenceNumber && e.AggregateSequenceNumber <= toAggregateSequenceNumber)
+                    .ToList();
+            }
+
+            var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate>(
+                id,
+                fromAggregateSequenceNumber,
+                toAggregateSequenceNumber,
+                cancellationToken).ConfigureAwait(false);
+            domainEvents = committedDomainEvents
+                .Select(EventJsonSerializer.Deserialize)
+                .ToList();
+
+            if (!domainEvents.Any())
+            {
+                return domainEvents;
+            }
+
+            domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
 
             return domainEvents;
         }

@@ -149,5 +149,34 @@ namespace EventFlow.EventStores.MsSql
                 .ConfigureAwait(false);
             return eventDataModels;
         }
+
+        protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
+            string id,
+            int fromAggregateSequenceNumber,
+            int toAggregateSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT *
+                FROM
+                    EventFlow
+                WHERE
+                    AggregateId = @AggregateId AND 
+                    AggregateSequenceNumber >= @From AND 
+                    AggregateSequenceNumber <= @To
+                ORDER BY
+                    AggregateSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                cancellationToken,
+                sql,
+                new
+                    {
+                        AggregateId = id,
+                        From = fromAggregateSequenceNumber,
+                        To = toAggregateSequenceNumber,
+                    })
+                .ConfigureAwait(false);
+            return eventDataModels;
+        }
     }
 }

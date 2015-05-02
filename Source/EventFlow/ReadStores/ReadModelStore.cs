@@ -23,9 +23,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -37,19 +39,41 @@ namespace EventFlow.ReadStores
         private static readonly ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>> ApplyMethods = new ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>>();
 
         protected ILog Log { get; private set; }
+        protected IEventStore EventStore { get; private set; }
 
         public abstract Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
-        protected ReadModelStore(ILog log)
+        protected ReadModelStore(
+            ILog log,
+            IEventStore eventStore)
         {
             Log = log;
+            EventStore = eventStore;
         }
 
-        protected Task ApplyEventsAsync(TReadModel readModel, IReadOnlyCollection<IDomainEvent> domainEvents)
+        protected async Task ApplyEventsAsync(TReadModel readModel, IReadOnlyCollection<IDomainEvent> domainEvents, int readModelVersion)
         {
+            if (!domainEvents.Any())
+            {
+                return;
+            }
+
+            var expectedVersion = domainEvents.First().AggregateSequenceNumber - 1;
+            if (readModelVersion > expectedVersion)
+            {
+                throw new ArgumentException(string.Format("Already applied"));
+            }
+            if (readModelVersion < expectedVersion)
+            {
+                await ApplyMissingEvents(readModel, readModelVersion + 1, expectedVersion).ConfigureAwait(false);
+            }
+
+            await Task.Delay(10);
+
             var readModelType = typeof(TReadModel);
             var readModelContextType = typeof(IReadModelContext);
             var readModelContext = new ReadModelContext();
+
 
             foreach (var domainEvent in domainEvents)
             {
@@ -65,7 +89,10 @@ namespace EventFlow.ReadStores
                         });
                 applyMethod(readModel, readModelContext, domainEvent);
             }
+        }
 
+        private Task ApplyMissingEvents(TReadModel readModel, int fromVersion, int toVersion)
+        {
             return Task.FromResult(0);
         }
     }

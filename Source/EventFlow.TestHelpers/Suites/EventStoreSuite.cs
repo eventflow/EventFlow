@@ -161,5 +161,23 @@ namespace EventFlow.TestHelpers.Suites
             await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
             Assert.Throws<OptimisticConcurrencyException>(async () => await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false));
         }
+
+        [Test]
+        public async Task LoadEventRange()
+        {
+            // Arrange
+            var id = A<string>();
+            var aggregate = EventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
+            aggregate.Ping(); aggregate.Ping(); aggregate.Ping(); aggregate.Ping(); aggregate.Ping();
+            var createdEvents = await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var loadedEvents = await EventStore.LoadEventsAsync<TestAggregate>(id, 2, 3, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            loadedEvents.Should().HaveCount(2);
+            loadedEvents.Cast<IDomainEvent<PingEvent>>().Select(e => e.AggregateEvent.PingId).ShouldAllBeEquivalentTo(
+                createdEvents.Skip(1).Take(2).Cast<IDomainEvent<PingEvent>>().Select(e => e.AggregateEvent.PingId));
+        }
     }
 }
