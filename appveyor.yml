@@ -1,3 +1,8 @@
+init:
+  - git config --global core.autocrlf input
 version: 0.4.{build}
 build_script:
   - cmd: build.cmd
+test: off
+artifacts:
+  - path: Build\Packages\*.nupkg
