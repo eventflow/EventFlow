@@ -44,6 +44,11 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             {
                 StringValues = strings.Select(s => new StringObject{StringValue = s}).ToList();
             }
+
+            protected override IEnumerable<object> GetEqualityComponents()
+            {
+                return StringValues;
+            }
         }
 
         [Test]
