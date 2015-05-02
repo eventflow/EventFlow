@@ -31,11 +31,13 @@ namespace EventFlow.Aggregates
     public abstract class AggregateId<T> : SingleValueObject<string>, IAggregateId
         where T : AggregateId<T>
     {
+        // ReSharper disable StaticMemberInGenericType
         private static readonly Regex NameReplace = new Regex("Id$", RegexOptions.Compiled);
         private static readonly string Name = NameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
         private static readonly Regex ValueValidation = new Regex(
             @"^[a-z0-9]+\-[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$",
             RegexOptions.Compiled);
+        // ReSharper enable StaticMemberInGenericType
 
         public static T New
         {
@@ -60,16 +62,16 @@ namespace EventFlow.Aggregates
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return "ID is null or empty";
+                yield return string.Format("Aggregate ID of type '{0}' is null or empty", typeof(T).Name);
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return string.Format("Aggregate ID '{0}' contains leading and/or traling spaces", value);
+                yield return string.Format("Aggregate ID '{0}' of type '{1}' contains leading and/or traling spaces", value, typeof(T).Name);
             if (!value.StartsWith(Name))
-                yield return string.Format("Aggregate ID '{0}' does not start with '{1}'", value, Name);
+                yield return string.Format("Aggregate ID '{0}' of type '{1}' does not start with '{2}'", value, typeof(T).Name, Name);
             if (!ValueValidation.IsMatch(value))
-                yield return string.Format("Aggregate ID '{0}' does not follow the syntax '[NAME]-[GUID]' in lower case", value);
+                yield return string.Format("Aggregate ID '{0}' of type '{1}' does not follow the syntax '[NAME]-[GUID]' in lower case", value, typeof(T).Name);
         }
 
         protected AggregateId(string value) : base(value)
