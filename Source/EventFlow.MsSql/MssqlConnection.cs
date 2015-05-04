@@ -49,9 +49,14 @@ namespace EventFlow.MsSql
             _transientFaultHandler.Use<ISqlErrorRetryStrategy>();
         }
 
-        public Task<int> ExecuteAsync(CancellationToken cancellationToken, string sql, object param = null)
+        public Task<int> ExecuteAsync(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            object param = null)
         {
             return WithConnectionAsync(
+                label,
                 (c, ct) =>
                     {
                         var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
@@ -60,10 +65,16 @@ namespace EventFlow.MsSql
                 cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(CancellationToken cancellationToken, string sql, object param = null)
+        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            object param = null)
         {
             return (
-                await WithConnectionAsync((c, ct) =>
+                await WithConnectionAsync(
+                label,
+                (c, ct) =>
                     {
                         var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
                         return c.QueryAsync<TResult>(commandDefinition);
@@ -73,14 +84,22 @@ namespace EventFlow.MsSql
                 .ToList();
         }
 
-        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
+        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            IEnumerable<TRow> rows,
+            object param = null)
             where TRow : class, new()
         {
             var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new { });
-            return QueryAsync<TResult>(cancellationToken, sql, tableParameter);
+            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
         }
 
-        public Task<TResult> WithConnectionAsync<TResult>(Func<IDbConnection, CancellationToken, Task<TResult>> withConnection, CancellationToken cancellationToken)
+        public Task<TResult> WithConnectionAsync<TResult>(
+            Label label,
+            Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
+            CancellationToken cancellationToken)
         {
             return _transientFaultHandler.TryAsync(
                 async c =>
@@ -91,6 +110,7 @@ namespace EventFlow.MsSql
                             return await withConnection(sqlConnection, c).ConfigureAwait(false);
                         }
                     },
+                label,
                 cancellationToken);
         }
     }

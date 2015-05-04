@@ -57,7 +57,7 @@ namespace EventFlow.Core
             _retryStrategy = retryStrategy;
         }
 
-        public async Task<T> TryAsync<T>(Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken)
+        public async Task<T> TryAsync<T>(Func<CancellationToken, Task<T>> action, Label label, CancellationToken cancellationToken)
         {
             if (_retryStrategy == null)
             {
@@ -75,7 +75,8 @@ namespace EventFlow.Core
                 {
                     var result = await action(cancellationToken).ConfigureAwait(false);
                     _log.Verbose(
-                        "Finished execution after {0} retries and {1:0.###} seconds",
+                        "Finished execution of {0} after {1} retries and {2:0.###} seconds",
+                        label,
                         currentRetryCount,
                         stopwatch.Elapsed.TotalSeconds);
                     return result;
@@ -95,9 +96,10 @@ namespace EventFlow.Core
                 if (retry.RetryAfter != TimeSpan.Zero)
                 {
                     _log.Verbose(
-                        "Exception {0} with message {1} is transient, retrying after {2:0.###} seconds for retry count {3}",
+                        "Exception {0} with message {1} is transient, retrying action {2} after {3:0.###} seconds for retry count {4}",
                         currentException.GetType().Name,
                         currentException.Message,
+                        label,
                         retry.RetryAfter.TotalSeconds,
                         currentRetryCount);
                     await Task.Delay(retry.RetryAfter, cancellationToken).ConfigureAwait(false);
@@ -105,9 +107,10 @@ namespace EventFlow.Core
                 else
                 {
                     _log.Verbose(
-                        "Exception {0} with message {1} is transient, retrying NOW for retry count {2}",
+                        "Exception {0} with message {1} is transient, retrying action {2} NOW for retry count {3}",
                         currentException.GetType().Name,
                         currentException.Message,
+                        label,
                         currentRetryCount);
                 }
             }

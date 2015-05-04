@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Core;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -37,8 +38,8 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpTest()
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
+            Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
         }
 
         protected T A<T>()

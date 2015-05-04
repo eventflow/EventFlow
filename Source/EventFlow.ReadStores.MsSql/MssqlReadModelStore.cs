@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.MsSql;
 
@@ -54,8 +55,10 @@ namespace EventFlow.ReadStores.MsSql
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
+            var readModelNameLowerCased = typeof (TReadModel).Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
+                Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)), 
                 cancellationToken,
                 selectSql,
                 new { AggregateId = aggregateId })
@@ -83,7 +86,11 @@ namespace EventFlow.ReadStores.MsSql
                 ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()
                 : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
 
-            await _connection.ExecuteAsync(cancellationToken, sql, readModel).ConfigureAwait(false);
+            await _connection.ExecuteAsync(
+                Label.Named(string.Format("mssql-store-read-model-{0}", readModelNameLowerCased)),
+                cancellationToken,
+                sql,
+                readModel).ConfigureAwait(false);
         }
     }
 }

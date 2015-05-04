@@ -21,19 +21,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Core;
+using NUnit.Framework;
 
-namespace EventFlow.Core
+namespace EventFlow.Tests.UnitTests.Core
 {
-    public interface ITransientFaultHandler
+    public class LabelTests
     {
-        void Use<TRetryStrategy>(Action<TRetryStrategy> configureStrategy = null)
-            where TRetryStrategy : IRetryStrategy;
+        [TestCase("valid-label")]
+        public void ValidLabelsWorks(string name)
+        {
+            Assert.DoesNotThrow(() => Label.Named(name));
+        }
 
-        Task<T> TryAsync<T>(
-            Func<CancellationToken, Task<T>> action,
-            Label label,
-            CancellationToken cancellationToken);
+        [TestCase("invalid label")]
+        public void InvalidLabelThrows(string name)
+        {
+            Assert.Throws<ArgumentException>(() => Label.Named(name));
+        }
     }
 }

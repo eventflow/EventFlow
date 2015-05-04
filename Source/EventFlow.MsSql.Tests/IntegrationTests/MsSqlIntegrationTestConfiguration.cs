@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
@@ -67,6 +68,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         {
             var sql = ReadModelSqlGenerator.CreateSelectSql<TestAggregateReadModel>();
             var readModels = await MsSqlConnection.QueryAsync<TestAggregateReadModel>(
+                Label.Named("mssql-fetch-test-read-model"), 
                 CancellationToken.None,
                 sql,
                 new {AggregateId = id})

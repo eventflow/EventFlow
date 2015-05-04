@@ -157,6 +157,7 @@ namespace EventFlow
 
                         return await aggregate.CommitAsync(_eventStore, c).ConfigureAwait(false);
                     },
+                Label.Named(string.Format("command-execution-{0}", commandType.Name.ToLowerInvariant())), 
                 cancellationToken);
         }
     }

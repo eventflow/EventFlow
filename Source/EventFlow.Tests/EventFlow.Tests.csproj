@@ -70,6 +70,7 @@
     <Compile Include="UnitTests\Aggregates\MetadataTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
     <Compile Include="UnitTests\Configuration\Registrations\AutofacServiceRegistrationTests.cs" />
+    <Compile Include="UnitTests\Core\LabelTests.cs" />
     <Compile Include="UnitTests\Core\TransientFaultHandlerTests.cs" />
     <Compile Include="UnitTests\EventCaches\InMemoryEventCacheTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />

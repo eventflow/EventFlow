@@ -53,7 +53,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var action = CreateFailingFunction(Task.FromResult(A<int>()));
 
             // Act
-            await Sut.TryAsync(c => action.Object(), CancellationToken.None);
+            await Sut.TryAsync(c => action.Object(), A<Label>(), CancellationToken.None);
 
             // Assert
             action.Verify(f => f(), Times.Once);
@@ -72,7 +72,7 @@ namespace EventFlow.Tests.UnitTests.Core
             Sut.Use<IRetryStrategy>();
 
             // Act
-            var result = await Sut.TryAsync(c => action.Object(), CancellationToken.None).ConfigureAwait(false);
+            var result = await Sut.TryAsync(c => action.Object(), A<Label>(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             result.Should().Be(expectedResult);
@@ -96,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.Core
             Exception thrownException = null;
             try
             {
-                await Sut.TryAsync(c => action.Object(), CancellationToken.None).ConfigureAwait(false);
+                await Sut.TryAsync(c => action.Object(), A<Label>(), CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
