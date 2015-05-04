@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
@@ -56,6 +57,23 @@ namespace EventFlow.TestHelpers
             var mock = new Mock<T>();
             Fixture.Inject(mock.Object);
             return mock;
+        }
+
+        protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)
+        {
+            var function = new Mock<Func<T>>();
+            var exceptionStack = new Stack<Exception>(exceptions.Reverse());
+            function
+                .Setup(f => f())
+                .Returns(() =>
+                {
+                    if (exceptionStack.Any())
+                    {
+                        throw exceptionStack.Pop();
+                    }
+                    return result;
+                });
+            return function;
         }
     }
 }

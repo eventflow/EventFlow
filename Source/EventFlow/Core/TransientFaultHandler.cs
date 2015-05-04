@@ -59,7 +59,12 @@ namespace EventFlow.Core
 
         public async Task<T> TryAsync<T>(Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken)
         {
-            var stopwatch = new Stopwatch();
+            if (_retryStrategy == null)
+            {
+                throw new InvalidOperationException("You need to configure the retry strategy using the Use(...) method");
+            }
+
+            var stopwatch = Stopwatch.StartNew();
             var currentRetryCount = 0;
 
             while (true)
