@@ -67,7 +67,7 @@
     <Compile Include="Aggregates\Test\Events\DomainErrorAfterFirstEvent.cs" />
     <Compile Include="Aggregates\Test\Events\PingEvent.cs" />
     <Compile Include="Aggregates\Test\ReadModels\ITestAggregateReadModel.cs" />
-    <Compile Include="Aggregates\Test\ReadModels\TestAggregateReadModel.cs" />
+    <Compile Include="Aggregates\Test\ReadModels\InMemoryTestAggregateReadModel.cs" />
     <Compile Include="Aggregates\Test\TestAggregate.cs" />
     <Compile Include="EventFlowTest.cs" />
     <Compile Include="IntegrationTestConfiguration.cs" />

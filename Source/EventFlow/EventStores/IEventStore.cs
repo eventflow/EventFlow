@@ -40,6 +40,13 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
+        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
+            string id,
+            int fromAggregateSequenceNumber,
+            int toAggregateSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot;
+
         Task<TAggregate> LoadAggregateAsync<TAggregate>(
             string id,
             CancellationToken cancellationToken)

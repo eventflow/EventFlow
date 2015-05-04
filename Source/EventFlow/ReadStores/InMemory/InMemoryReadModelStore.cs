@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.InMemory
@@ -33,18 +34,19 @@ namespace EventFlow.ReadStores.InMemory
     public class InMemoryReadModelStore<TAggregate, TReadModel> :
         ReadModelStore<TAggregate, TReadModel>,
         IInMemoryReadModelStore<TAggregate, TReadModel>
-        where TReadModel : IReadModel, new()
+        where TReadModel : IInMemoryReadModel, new()
         where TAggregate : IAggregateRoot
     {
         private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>();
 
         public InMemoryReadModelStore(
-            ILog log)
-            : base(log)
+            ILog log,
+            IEventStore eventStore)
+            : base(log, eventStore)
         {
         }
 
-        public override Task UpdateReadModelAsync(
+        public override async Task UpdateReadModelAsync(
             string aggregateId,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -60,9 +62,9 @@ namespace EventFlow.ReadStores.InMemory
                 _readModels.Add(aggregateId, readModel);
             }
 
-            ApplyEvents(readModel, domainEvents);
+            await ApplyEventsAsync(aggregateId, readModel.LastAggregateSequenceNumber, readModel, domainEvents, cancellationToken).ConfigureAwait(false);
 
-            return Task.FromResult(0);
+            readModel.LastAggregateSequenceNumber = domainEvents.Last().AggregateSequenceNumber;
         }
 
         public TReadModel Get(string id)

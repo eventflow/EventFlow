@@ -20,38 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
-
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.ReadStores.InMemory
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public interface IInMemoryReadModel : IReadModel
     {
-        private IInMemoryReadModelStore<TestAggregate, InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
-
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
-        {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, InMemoryTestAggregateReadModel>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, InMemoryTestAggregateReadModel>>();
-
-            return resolver;
-        }
-
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
-        {
-            return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
-        }
-
-        public override void TearDown()
-        {
-        }
+        int LastAggregateSequenceNumber { get; set; }
     }
 }

@@ -22,12 +22,15 @@
 
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
+using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
 {
-    public class TestAggregateReadModel : IReadModel, ITestAggregateReadModel
+    public class InMemoryTestAggregateReadModel : IInMemoryReadModel, ITestAggregateReadModel
     {
+        public int LastAggregateSequenceNumber { get; set; }
+
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public int PingsReceived { get; private set; }
 

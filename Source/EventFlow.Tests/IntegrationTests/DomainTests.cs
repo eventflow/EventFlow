@@ -60,13 +60,13 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregate, InMemoryTestAggregateReadModel>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, InMemoryTestAggregateReadModel>>();
                 var id = Guid.NewGuid().ToString();
 
                 // Act

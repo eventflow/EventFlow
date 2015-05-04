@@ -32,7 +32,7 @@ namespace EventFlow.Extensions
         public static EventFlowOptions UseInMemoryReadStoreFor<TAggregate, TReadModel>(
             this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot
-            where TReadModel : IReadModel, new()
+            where TReadModel : IInMemoryReadModel, new()
         {
             eventFlowOptions.AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
             eventFlowOptions.RegisterServices(f => f.Register<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton));

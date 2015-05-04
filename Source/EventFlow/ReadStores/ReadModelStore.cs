@@ -23,9 +23,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -37,19 +39,48 @@ namespace EventFlow.ReadStores
         private static readonly ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>> ApplyMethods = new ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>>();
 
         protected ILog Log { get; private set; }
+        protected IEventStore EventStore { get; private set; }
 
         public abstract Task UpdateReadModelAsync(string aggregateId, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
-        protected ReadModelStore(ILog log)
+        protected ReadModelStore(
+            ILog log,
+            IEventStore eventStore)
         {
             Log = log;
+            EventStore = eventStore;
         }
 
-        protected void ApplyEvents(TReadModel readModel, IEnumerable<IDomainEvent> domainEvents)
+        protected async Task ApplyEventsAsync(
+            string id,
+            int readModelVersion,
+            TReadModel readModel,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
+            if (!domainEvents.Any())
+            {
+                return;
+            }
+
             var readModelType = typeof(TReadModel);
             var readModelContextType = typeof(IReadModelContext);
             var readModelContext = new ReadModelContext();
+            var expectedVersion = domainEvents.First().AggregateSequenceNumber - 1;
+
+            if (readModelVersion > expectedVersion)
+            {
+                throw new ArgumentException(string.Format("Already applied"));
+            }
+            if (readModelVersion < expectedVersion)
+            {
+                var missingEvents = await EventStore.LoadEventsAsync<TAggregate>(
+                    id,
+                    readModelVersion + 1,
+                    expectedVersion,
+                    cancellationToken);
+                domainEvents = missingEvents.Concat(domainEvents).ToList();
+            }
 
             foreach (var domainEvent in domainEvents)
             {

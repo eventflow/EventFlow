@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.MsSql;
 
@@ -41,9 +42,10 @@ namespace EventFlow.ReadStores.MsSql
 
         public MssqlReadModelStore(
             ILog log,
+            IEventStore eventStore,
             IMsSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator)
-            : base(log)
+            : base(log, eventStore)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
@@ -72,7 +74,7 @@ namespace EventFlow.ReadStores.MsSql
                     };
             }
 
-            ApplyEvents(readModel, domainEvents);
+            await ApplyEventsAsync(aggregateId, readModel.LastAggregateSequenceNumber, readModel, domainEvents, cancellationToken).ConfigureAwait(false);
 
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;

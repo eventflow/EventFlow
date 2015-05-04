@@ -141,6 +141,18 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
+            string id,
+            int fromAggregateSequenceNumber,
+            int toAggregateSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            var domainEvents = await LoadCommittedEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
+            return domainEvents
+                .Where(e => e.AggregateSequenceNumber >= fromAggregateSequenceNumber && e.AggregateSequenceNumber <= toAggregateSequenceNumber)
+                .ToList();
+        }
+
         public void Dispose()
         {
             _asyncLock.Dispose();
