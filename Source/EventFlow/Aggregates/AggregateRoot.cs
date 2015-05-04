@@ -162,5 +162,14 @@ namespace EventFlow.Aggregates
 
             return applyMethod;
         }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0} v{1}(-{2})",
+                GetType().Name,
+                Version,
+                _uncommittedEvents.Count);
+        }
     }
 }

@@ -68,10 +68,9 @@ namespace EventFlow
             var commandTypeName = command.GetType().Name;
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
-                "Executing command '{0}' on aggregate '{1}' with ID '{2}'",
+                "Executing command '{0}' on aggregate '{1}'",
                 commandTypeName,
-                aggregateType.Name,
-                command.Id);
+                aggregateType);
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
@@ -82,10 +81,9 @@ namespace EventFlow
             {
                 _log.Debug(
                     exception,
-                    "Excution of command '{0}' on aggregate '{1}' with ID '{2}' failed due to exception '{3}' with message: {4}",
+                    "Excution of command '{0}' on aggregate '{1}' failed due to exception '{2}' with message: {3}",
                     commandTypeName,
-                    aggregateType.Name,
-                    command.Id,
+                    aggregateType,
                     exception.GetType().Name,
                     exception.Message);
                 throw;
@@ -94,12 +92,17 @@ namespace EventFlow
             if (!domainEvents.Any())
             {
                 _log.Verbose(
-                    "Execution command '{0}' on aggregate '{1}' with ID '{2}' did NOT result in any domain events",
+                    "Execution command '{0}' on aggregate '{1}' did NOT result in any domain events",
                     commandTypeName,
-                    aggregateType.Name,
-                    command.Id);
+                    aggregateType);
                 return;
             }
+
+            _log.Verbose(() => string.Format(
+                "Execution command '{0}' on aggregate '{1}' resulted in these events: {2}",
+                commandTypeName,
+                aggregateType,
+                string.Join(", ", domainEvents.Select(d => d.EventType.Name))));
 
             await _domainEventPublisher.PublishAsync<TAggregate>(command.Id, domainEvents, cancellationToken).ConfigureAwait(false);
         }
