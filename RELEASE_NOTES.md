@@ -10,6 +10,6 @@
  - `ValueObject` now uses public properties instead of both private
    and public fields
 
-### New in 0.3 (released 2015-04-30)
+### New in 0.3.292 (released 2015-04-30)
 
 * First stable version of EventFlow
