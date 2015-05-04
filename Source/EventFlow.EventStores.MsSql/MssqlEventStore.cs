@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -108,6 +109,7 @@ namespace EventFlow.EventStores.MsSql
             try
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
+                    Label.Named("mssql-insert-events"), 
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -145,7 +147,11 @@ namespace EventFlow.EventStores.MsSql
             CancellationToken cancellationToken)
         {
             const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(cancellationToken, sql, new { AggregateId = id })
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                Label.Named("mssql-fetch-events"), 
+                cancellationToken,
+                sql,
+                new { AggregateId = id })
                 .ConfigureAwait(false);
             return eventDataModels;
         }

@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration.Registrations;
+using EventFlow.MsSql.RetryStrategies;
 
 namespace EventFlow.MsSql.Extensions
 {
@@ -31,6 +32,7 @@ namespace EventFlow.MsSql.Extensions
             eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IMsSqlConnection, MsSqlConnection>();
+                    f.Register<ISqlErrorRetryStrategy, SqlErrorRetryStrategy>();
                     f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
                     f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
                 });

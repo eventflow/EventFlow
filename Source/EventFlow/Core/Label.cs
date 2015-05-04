@@ -21,25 +21,32 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Text.RegularExpressions;
 
 namespace EventFlow.Core
 {
-    public class Retry
+    public class Label
     {
-        public static Retry Yes { get { return new Retry(true, TimeSpan.Zero); } }
-        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
-        public static Retry No { get { return new Retry(false, TimeSpan.Zero); } }
+        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
 
-        public bool ShouldBeRetried { get; set; }
-        public TimeSpan RetryAfter { get; set; }
+        public static Label Named(string name) { return new Label(name); }
 
-        private Retry(bool shouldBeRetried, TimeSpan retryAfter)
+        public string Name { get; private set; }
+
+        private Label(string name)
         {
-            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration()) throw new ArgumentOutOfRangeException("retryAfter");
-            if (!shouldBeRetried && retryAfter != TimeSpan.Zero) throw new ArgumentException("Invalid combination");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (!NameValidator.IsMatch(name)) throw new ArgumentException(string.Format(
+                "Label '{0}' is not a valid label, it must pass this regex '{1}'",
+                name,
+                NameValidator));
 
-            ShouldBeRetried = shouldBeRetried;
-            RetryAfter = retryAfter;
+            Name = name;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

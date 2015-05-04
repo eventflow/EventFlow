@@ -21,25 +21,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Core;
+using NUnit.Framework;
 
-namespace EventFlow.Core
+namespace EventFlow.Tests.UnitTests.Core
 {
-    public class Retry
+    public class LabelTests
     {
-        public static Retry Yes { get { return new Retry(true, TimeSpan.Zero); } }
-        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
-        public static Retry No { get { return new Retry(false, TimeSpan.Zero); } }
-
-        public bool ShouldBeRetried { get; set; }
-        public TimeSpan RetryAfter { get; set; }
-
-        private Retry(bool shouldBeRetried, TimeSpan retryAfter)
+        [TestCase("valid-label")]
+        public void ValidLabelsWorks(string name)
         {
-            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration()) throw new ArgumentOutOfRangeException("retryAfter");
-            if (!shouldBeRetried && retryAfter != TimeSpan.Zero) throw new ArgumentException("Invalid combination");
+            Assert.DoesNotThrow(() => Label.Named(name));
+        }
 
-            ShouldBeRetried = shouldBeRetried;
-            RetryAfter = retryAfter;
+        [TestCase("invalid label")]
+        public void InvalidLabelThrows(string name)
+        {
+            Assert.Throws<ArgumentException>(() => Label.Named(name));
         }
     }
 }
