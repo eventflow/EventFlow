@@ -46,7 +46,8 @@ namespace EventFlow.Core
         public void Use<TRetryStrategy>(Action<TRetryStrategy> configureStrategy = null) where TRetryStrategy : IRetryStrategy
         {
             if (_retryStrategy != null) throw new InvalidOperationException(string.Format(
-                "Retry stratety has already been configured as a '{0}' strategy", _retryStrategy.GetType().Name));
+                "Retry stratety has already been configured as a '{0}' strategy",
+                _retryStrategy.GetType().Name));
 
             var retryStrategy = _resolver.Resolve<TRetryStrategy>();
             if (configureStrategy != null)
@@ -75,7 +76,7 @@ namespace EventFlow.Core
                 {
                     var result = await action(cancellationToken).ConfigureAwait(false);
                     _log.Verbose(
-                        "Finished execution of {0} after {1} retries and {2:0.###} seconds",
+                        "Finished execution of '{0}' after {1} retries and {2:0.###} seconds",
                         label,
                         currentRetryCount,
                         stopwatch.Elapsed.TotalSeconds);
@@ -96,7 +97,7 @@ namespace EventFlow.Core
                 if (retry.RetryAfter != TimeSpan.Zero)
                 {
                     _log.Verbose(
-                        "Exception {0} with message {1} is transient, retrying action {2} after {3:0.###} seconds for retry count {4}",
+                        "Exception {0} with message '{1} 'is transient, retrying action '{2}' after {3:0.###} seconds for retry count {4}",
                         currentException.GetType().Name,
                         currentException.Message,
                         label,
@@ -107,7 +108,7 @@ namespace EventFlow.Core
                 else
                 {
                     _log.Verbose(
-                        "Exception {0} with message {1} is transient, retrying action {2} NOW for retry count {3}",
+                        "Exception {0} with message '{1}' is transient, retrying action '{2}' NOW for retry count {3}",
                         currentException.GetType().Name,
                         currentException.Message,
                         label,
