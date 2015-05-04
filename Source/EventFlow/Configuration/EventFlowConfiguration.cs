@@ -31,8 +31,8 @@ namespace EventFlow.Configuration
 
         public EventFlowConfiguration()
         {
-            NumberOfRetriesOnOptimisticConcurrencyExceptions = 2;
-            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(20);
+            NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
+            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
         }
     }
 }

@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.EventCaches;
 using EventFlow.EventCaches.InMemory;
 using EventFlow.EventStores;
@@ -98,6 +99,8 @@ namespace EventFlow
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
+            RegisterIfMissing<ITransientFaultHandler, TransientFaultHandler>(services);
+            RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);

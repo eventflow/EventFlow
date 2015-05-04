@@ -29,6 +29,7 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -40,22 +41,24 @@ namespace EventFlow
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
-        private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
+        private readonly ITransientFaultHandler _transientFaultHandler;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
-            IEventFlowConfiguration configuration,
             IEventStore eventStore,
-            IDomainEventPublisher domainEventPublisher)
+            IDomainEventPublisher domainEventPublisher,
+            ITransientFaultHandler transientFaultHandler)
         {
             _log = log;
             _resolver = resolver;
-            _configuration = configuration;
             _eventStore = eventStore;
             _domainEventPublisher = domainEventPublisher;
+            _transientFaultHandler = transientFaultHandler;
+
+            _transientFaultHandler.Use<IOptimisticConcurrencyRetryStrategy>();
         }
 
         public async Task PublishAsync<TAggregate>(
@@ -144,19 +147,17 @@ namespace EventFlow
 
             var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync");
 
-            return Retry.ThisAsync(
-                async () =>
+            return _transientFaultHandler.TryAsync(
+                async c =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, cancellationToken).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, c).ConfigureAwait(false);
 
-                        var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, cancellationToken});
+                        var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
                         await invokeTask.ConfigureAwait(false);
 
-                        return await aggregate.CommitAsync(_eventStore, cancellationToken).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, c).ConfigureAwait(false);
                     },
-                _configuration.NumberOfRetriesOnOptimisticConcurrencyExceptions,
-                new[] { typeof(OptimisticConcurrencyException) },
-                _configuration.DelayBeforeRetryOnOptimisticConcurrencyExceptions);
+                cancellationToken);
         }
     }
 }

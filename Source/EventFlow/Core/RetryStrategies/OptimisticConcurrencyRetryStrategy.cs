@@ -21,25 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
 
-namespace EventFlow.Core
+namespace EventFlow.Core.RetryStrategies
 {
-    public class Retry
+    public class OptimisticConcurrencyRetryStrategy : IOptimisticConcurrencyRetryStrategy
     {
-        public static Retry Yes { get { return new Retry(true, TimeSpan.Zero); } }
-        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
-        public static Retry No { get { return new Retry(false, TimeSpan.Zero); } }
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
-        public bool ShouldBeRetried { get; set; }
-        public TimeSpan RetryAfter { get; set; }
-
-        private Retry(bool shouldBeRetried, TimeSpan retryAfter)
+        public OptimisticConcurrencyRetryStrategy(
+            IEventFlowConfiguration eventFlowConfiguration)
         {
-            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration()) throw new ArgumentOutOfRangeException("retryAfter");
-            if (!shouldBeRetried && retryAfter != TimeSpan.Zero) throw new ArgumentException("Invalid combination");
+            _eventFlowConfiguration = eventFlowConfiguration;
+        }
 
-            ShouldBeRetried = shouldBeRetried;
-            RetryAfter = retryAfter;
+        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
+        {
+            return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions > currentRetryCount
+                ? Retry.YesAfter(_eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
+                : Retry.No;
         }
     }
 }

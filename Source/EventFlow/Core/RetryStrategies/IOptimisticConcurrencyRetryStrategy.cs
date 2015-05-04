@@ -20,26 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
-namespace EventFlow.Core
+namespace EventFlow.Core.RetryStrategies
 {
-    public class Retry
+    public interface IOptimisticConcurrencyRetryStrategy : IRetryStrategy
     {
-        public static Retry Yes { get { return new Retry(true, TimeSpan.Zero); } }
-        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
-        public static Retry No { get { return new Retry(false, TimeSpan.Zero); } }
-
-        public bool ShouldBeRetried { get; set; }
-        public TimeSpan RetryAfter { get; set; }
-
-        private Retry(bool shouldBeRetried, TimeSpan retryAfter)
-        {
-            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration()) throw new ArgumentOutOfRangeException("retryAfter");
-            if (!shouldBeRetried && retryAfter != TimeSpan.Zero) throw new ArgumentException("Invalid combination");
-
-            ShouldBeRetried = shouldBeRetried;
-            RetryAfter = retryAfter;
-        }
     }
 }
