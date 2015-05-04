@@ -28,53 +28,70 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using EventFlow.Core;
 using EventFlow.MsSql.Integrations;
+using EventFlow.MsSql.RetryStrategies;
 
 namespace EventFlow.MsSql
 {
     public class MsSqlConnection : IMsSqlConnection
     {
         private readonly IMsSqlConfiguration _configuration;
+        private readonly ITransientFaultHandler _transientFaultHandler;
 
         public MsSqlConnection(
-            IMsSqlConfiguration configuration)
+            IMsSqlConfiguration configuration,
+            ITransientFaultHandler transientFaultHandler)
         {
             _configuration = configuration;
+            _transientFaultHandler = transientFaultHandler;
+
+            _transientFaultHandler.Use<ISqlErrorRetryStrategy>();
         }
 
         public Task<int> ExecuteAsync(CancellationToken cancellationToken, string sql, object param = null)
         {
-            return WithConnectionAsync(c =>
-                {
-                    var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken);
-                    return c.ExecuteAsync(commandDefinition);
-                });
+            return WithConnectionAsync(
+                (c, ct) =>
+                    {
+                        var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
+                        return c.ExecuteAsync(commandDefinition);
+                    },
+                cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(CancellationToken cancellationToken, string sql, object param = null)
         {
-            return (await WithConnectionAsync(c =>
-                {
-                    var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken);
-                    return c.QueryAsync<TResult>(commandDefinition);
-                }).ConfigureAwait(false)).ToList();
+            return (
+                await WithConnectionAsync((c, ct) =>
+                    {
+                        var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
+                        return c.QueryAsync<TResult>(commandDefinition);
+                    },
+                cancellationToken)
+                .ConfigureAwait(false))
+                .ToList();
         }
 
         public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
             where TRow : class, new()
         {
-            var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new {});
+            var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new { });
             return QueryAsync<TResult>(cancellationToken, sql, tableParameter);
         }
 
-        public async Task<TResult> WithConnectionAsync<TResult>(
-            Func<IDbConnection, Task<TResult>> withConnection)
+        public Task<TResult> WithConnectionAsync<TResult>(Func<IDbConnection, CancellationToken, Task<TResult>> withConnection, CancellationToken cancellationToken)
         {
-            using (var sqlConnection = new SqlConnection(_configuration.ConnectionString))
-            {
-                await sqlConnection.OpenAsync().ConfigureAwait(false);
-                return await withConnection(sqlConnection).ConfigureAwait(false);
-            }
+            return _transientFaultHandler.TryAsync(
+                async c =>
+                    {
+                        using (var sqlConnection = new SqlConnection(_configuration.ConnectionString))
+                        {
+                            await sqlConnection.OpenAsync(c).ConfigureAwait(false);
+                            return await withConnection(sqlConnection, c).ConfigureAwait(false);
+                        }
+                    },
+                cancellationToken);
         }
     }
 }
