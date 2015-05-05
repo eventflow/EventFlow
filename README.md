@@ -56,10 +56,10 @@ using (var resolver = EventFlowOptions.New
   var readModelStore = resolver.Resolve<IInMemoryReadModelStore<
     TestAggregate,
     TestReadModel>>();
-  var id = Guid.NewGuid().ToString();
+  var id = TestId.New;
 
   // Publish a command
-  await commandBus.PublishAsync(new TestACommand(id));
+  await commandBus.PublishAsync(new PingCommand(id));
 
   // Load aggregate
   var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate>(id);

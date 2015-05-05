@@ -67,7 +67,7 @@ namespace EventFlow.Tests.IntegrationTests
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
                 var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
-                var id = Guid.NewGuid().ToString();
+                var id = TestId.New;
 
                 // Act
                 commandBus.Publish(new DomainErrorAfterFirstCommand(id));

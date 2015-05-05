@@ -27,9 +27,9 @@ namespace EventFlow.Commands
     public abstract class Command<TAggregate> : ICommand<TAggregate>
         where TAggregate : IAggregateRoot
     {
-        public string Id { get; private set; }
+        public IIdentity Id { get; private set; }
 
-        protected Command(string id)
+        protected Command(IIdentity id)
         {
             Id = id;
         }

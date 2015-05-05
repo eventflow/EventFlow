@@ -3,6 +3,10 @@ open System
 open Fake 
 open Fake.AssemblyInfoFile
 
+let releaseNotes = 
+    ReadFile "RELEASE_NOTES.md"
+    |> ReleaseNotesHelper.parseReleaseNotes
+
 let buildMode = getBuildParamOrDefault "buildMode" "Release"
 let buildVersion = getBuildParamOrDefault "buildVersion" "0.0.1"
 let nugetApikey = getBuildParamOrDefault "nugetApikey" ""
@@ -15,6 +19,7 @@ let toolNUnit = "./Tools/NUnit.Runners/tools"
 let toolIlMerge = "./Tools/ilmerge/tools/ILMerge.exe"
 let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
+
 
 Target "Clean" (fun _ ->
     CleanDirs [ dirPackages; dirReports ]
@@ -54,6 +59,7 @@ Target "CreatePackageEventFlow" (fun _ ->
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow"
             Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "Newtonsoft.Json",  GetPackageVersion "./packages/" "Newtonsoft.Json"]
             Publish = false })
@@ -68,6 +74,7 @@ Target "CreatePackageEventFlowAutofac" (fun _ ->
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.Autofac"
             Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
                 "Autofac",  GetPackageVersion "./packages/" "Autofac"]
@@ -86,6 +93,7 @@ Target "CreatePackageEventFlowMsSql" (fun _ ->
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.MsSql"
             Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep]
             Publish = false })
@@ -100,6 +108,7 @@ Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.EventStores.MsSql"
             Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
                 "EventFlow.MsSql",  nugetVersionDep]
@@ -115,6 +124,7 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.ReadStores.MsSql"
             Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
                 "EventFlow.MsSql",  nugetVersionDep]
@@ -130,6 +140,7 @@ Target "CreatePackageEventFlowOwin" (fun _ ->
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.Owin"
             Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
                 "Owin",  GetPackageVersion "./packages/" "Owin"
