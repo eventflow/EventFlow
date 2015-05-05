@@ -4,7 +4,7 @@
 
 * Breaking: `ValueObject` now uses public properties instead of both
   private and public fields
-- Braking: Aggregate IDs are no longer `string` but objects implementing
+* Breaking: Aggregate IDs are no longer `string` but objects implementing
   `IIdentity`
 * Breaking: MSSQL transient exceptions are now retried
 * Breaking: All methods on `IMsSqlConnection` has an extra `Label` argument
