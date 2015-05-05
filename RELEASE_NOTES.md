@@ -1,4 +1,6 @@
-### New in 0.4
+### New in 0.5
+
+### New in 0.4.353 (released 2015-05-05)
 
 * Breaking: `ValueObject` now uses public properties instead of both
   private and public fields
