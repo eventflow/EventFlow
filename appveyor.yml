@@ -34,7 +34,7 @@ deploy:
     auth_token:
       secure: uiVcx5TSmPy1GGF7GZeoAwXIQTswxvlyo0XKBgaWe1DyzOfJ7Fp3yNimR9IXzUrr
     tag: v$(appveyor_build_version)
-    draft: false
-    prerelease: true
+    draft: true
+    prerelease: false
     on:
       branch: master
