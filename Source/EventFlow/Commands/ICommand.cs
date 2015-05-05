@@ -28,6 +28,6 @@ namespace EventFlow.Commands
     public interface ICommand<in TAggregate>
         where TAggregate : IAggregateRoot
     {
-        IAggregateId Id { get; }
+        IIdentity Id { get; }
     }
 }

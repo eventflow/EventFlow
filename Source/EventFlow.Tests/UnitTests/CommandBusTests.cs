@@ -26,8 +26,11 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
+using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
@@ -46,7 +49,9 @@ namespace EventFlow.Tests.UnitTests
         [SetUp]
         public void SetUp()
         {
-            Fixture.Inject<IEventFlowConfiguration>(new EventFlowConfiguration());
+            var resolver = InjectMock<IResolver>();
+
+            Fixture.Inject<ITransientFaultHandler>(new TransientFaultHandler(resolver.Object, Fixture.Create<ILog>()));
 
             _resolverMock = InjectMock<IResolver>();
             _eventStoreMock = InjectMock<IEventStore>();
@@ -54,6 +59,9 @@ namespace EventFlow.Tests.UnitTests
             _eventStoreMock
                 .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<TestId>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new TestAggregate(TestId.New)));
+            resolver
+                .Setup(r => r.Resolve<IOptimisticConcurrencyRetryStrategy>())
+                .Returns(new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration()));
         }
 
         [Test]
@@ -71,7 +79,7 @@ namespace EventFlow.Tests.UnitTests
             // Assert
             _eventStoreMock.Verify(
                 s => s.StoreAsync<TestAggregate>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),
-                Times.Exactly(3));
+                Times.Exactly(5));
         }
 
         [Test]

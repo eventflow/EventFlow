@@ -20,18 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Commands
+namespace EventFlow.Core
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public interface ITransientFaultHandler
     {
-        public IIdentity Id { get; private set; }
+        void Use<TRetryStrategy>(Action<TRetryStrategy> configureStrategy = null)
+            where TRetryStrategy : IRetryStrategy;
 
-        protected Command(IIdentity id)
-        {
-            Id = id;
-        }
+        Task<T> TryAsync<T>(
+            Func<CancellationToken, Task<T>> action,
+            Label label,
+            CancellationToken cancellationToken);
     }
 }

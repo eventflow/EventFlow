@@ -45,7 +45,7 @@ namespace EventFlow.ReadStores.InMemory
         }
 
         public override Task UpdateReadModelAsync(
-            IAggregateId id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
@@ -65,7 +65,7 @@ namespace EventFlow.ReadStores.InMemory
             return Task.FromResult(0);
         }
 
-        public TReadModel Get(IAggregateId id)
+        public TReadModel Get(IIdentity id)
         {
             TReadModel readModel;
             return _readModels.TryGetValue(id.Value, out readModel)

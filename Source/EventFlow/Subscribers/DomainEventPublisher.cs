@@ -42,7 +42,7 @@ namespace EventFlow.Subscribers
         }
 
         public async Task PublishAsync<TAggregate>(
-            IAggregateId id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot

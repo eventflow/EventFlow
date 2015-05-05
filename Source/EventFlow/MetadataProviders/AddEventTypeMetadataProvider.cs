@@ -28,7 +28,7 @@ namespace EventFlow.MetadataProviders
 {
     public class AddEventTypeMetadataProvider : IMetadataProvider
     {
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IAggregateId id, IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot
         {
             var aggregateEventType = aggregateEvent.GetType();
             var assembly = aggregateEventType.Assembly;

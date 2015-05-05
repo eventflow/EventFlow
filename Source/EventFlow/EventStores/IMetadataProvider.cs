@@ -27,7 +27,7 @@ namespace EventFlow.EventStores
 {
     public interface IMetadataProvider
     {
-        IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IAggregateId id, IAggregateEvent aggregateEvent, IMetadata metadata)
+        IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
             where TAggregate : IAggregateRoot;
     }
 }

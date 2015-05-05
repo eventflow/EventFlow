@@ -20,18 +20,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System;
+using EventFlow.Core;
+using NUnit.Framework;
 
-namespace EventFlow.Commands
+namespace EventFlow.Tests.UnitTests.Core
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public class LabelTests
     {
-        public IIdentity Id { get; private set; }
-
-        protected Command(IIdentity id)
+        [TestCase("valid-label")]
+        public void ValidLabelsWorks(string name)
         {
-            Id = id;
+            Assert.DoesNotThrow(() => Label.Named(name));
+        }
+
+        [TestCase("invalid label")]
+        public void InvalidLabelThrows(string name)
+        {
+            Assert.Throws<ArgumentException>(() => Label.Named(name));
         }
     }
 }

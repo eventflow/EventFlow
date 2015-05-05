@@ -29,7 +29,7 @@ namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
     public class DomainErrorAfterFirstCommand : Command<TestAggregate>
     {
-        public DomainErrorAfterFirstCommand(IAggregateId id) : base(id) { }
+        public DomainErrorAfterFirstCommand(IIdentity id) : base(id) { }
     }
 
     public class DomainErrorAfterFirstCommandHander : CommandHandler<TestAggregate, DomainErrorAfterFirstCommand>

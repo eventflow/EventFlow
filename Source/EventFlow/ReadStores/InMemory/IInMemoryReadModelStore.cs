@@ -30,7 +30,7 @@ namespace EventFlow.ReadStores.InMemory
         where TAggregate : IAggregateRoot
         where TReadModel : IReadModel, new()
     {
-        TReadModel Get(IAggregateId id);
+        TReadModel Get(IIdentity id);
         IEnumerable<TReadModel> GetAll();
         IEnumerable<TReadModel> Find(Func<TReadModel, bool> predicate);
     }

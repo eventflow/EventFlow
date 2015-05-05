@@ -30,7 +30,7 @@ namespace EventFlow.ReadStores
     public interface IReadStoreManager
     {
         Task UpdateReadStoresAsync<TAggregate>(
-            IAggregateId id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;

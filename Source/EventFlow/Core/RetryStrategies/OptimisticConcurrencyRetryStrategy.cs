@@ -20,10 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System;
+using EventFlow.Configuration;
+
+namespace EventFlow.Core.RetryStrategies
 {
-    public interface IAggregateId
+    public class OptimisticConcurrencyRetryStrategy : IOptimisticConcurrencyRetryStrategy
     {
-        string Value { get; }
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+
+        public OptimisticConcurrencyRetryStrategy(
+            IEventFlowConfiguration eventFlowConfiguration)
+        {
+            _eventFlowConfiguration = eventFlowConfiguration;
+        }
+
+        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
+        {
+            return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions > currentRetryCount
+                ? Retry.YesAfter(_eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
+                : Retry.No;
+        }
     }
 }

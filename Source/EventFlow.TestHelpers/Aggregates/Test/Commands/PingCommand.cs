@@ -29,7 +29,7 @@ namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
     public class PingCommand : Command<TestAggregate>
     {
-        public PingCommand(IAggregateId id) : base (id) { }
+        public PingCommand(IIdentity id) : base (id) { }
     }
 
     public class PingCommandHandler : CommandHandler<TestAggregate, PingCommand>

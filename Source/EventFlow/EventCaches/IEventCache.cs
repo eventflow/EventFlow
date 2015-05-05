@@ -32,18 +32,18 @@ namespace EventFlow.EventCaches
     {
         Task InsertAsync(
             Type aggregateType,
-            IAggregateId id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken);
         
         Task InvalidateAsync(
             Type aggregateType,
-            IAggregateId id,
+            IIdentity id,
             CancellationToken cancellationToken);
         
         Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
             Type aggregateType,
-            IAggregateId id,
+            IIdentity id,
             CancellationToken cancellationToken);
     }
 }

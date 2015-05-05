@@ -20,18 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.Core
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public interface IRetryStrategy
     {
-        public IIdentity Id { get; private set; }
-
-        protected Command(IIdentity id)
-        {
-            Id = id;
-        }
+        Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount);
     }
 }

@@ -46,7 +46,7 @@ namespace EventFlow.Owin.MetadataProviders
         }
 
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(
-            IAggregateId id,
+            IIdentity id,
             IAggregateEvent aggregateEvent,
             IMetadata metadata)
             where TAggregate : IAggregateRoot

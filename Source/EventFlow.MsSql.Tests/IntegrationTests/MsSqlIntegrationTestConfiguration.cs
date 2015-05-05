@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
@@ -64,10 +65,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             return resolver;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IAggregateId id)
+        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
         {
             var sql = ReadModelSqlGenerator.CreateSelectSql<TestAggregateReadModel>();
             var readModels = await MsSqlConnection.QueryAsync<TestAggregateReadModel>(
+                Label.Named("mssql-fetch-test-read-model"), 
                 CancellationToken.None,
                 sql,
                 new { AggregateId = id.Value })

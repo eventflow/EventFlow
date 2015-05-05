@@ -60,7 +60,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 return resolver;
             }
 
-            public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IAggregateId id)
+            public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
             {
                 return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
             }

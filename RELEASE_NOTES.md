@@ -4,6 +4,10 @@
   private and public fields
 - Braking: Aggregate IDs are no longer `string` but objects implementing
   `IAggregateId`
+* Breaking: MSSQL transient exceptions are now retried
+* Breaking: All methods on `IMsSqlConnection` has an extra `Label` argument
+* New: `ITransientFaultHandler` added along with default retry strategies
+  for optimistic concurrency and MSSQL transient exceptions
 * New: Release notes added to NuGet packages
 * New: Better logging and more descriptive exceptions
 * Fixed: Unchecked missing in `ValueObject` when claculating hash

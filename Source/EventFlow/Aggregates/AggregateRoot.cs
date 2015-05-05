@@ -36,12 +36,12 @@ namespace EventFlow.Aggregates
     {
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
-        public IAggregateId Id { get; private set; }
+        public IIdentity Id { get; private set; }
         public int Version { get; private set; }
         public bool IsNew { get { return Version <= 0; } }
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
-        protected AggregateRoot(IAggregateId id)
+        protected AggregateRoot(IIdentity id)
         {
             if (id == null) throw new ArgumentNullException("id");
             if ((this as TAggregate) == null)

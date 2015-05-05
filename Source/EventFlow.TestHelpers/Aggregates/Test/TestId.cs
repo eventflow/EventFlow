@@ -24,7 +24,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class TestId : AggregateId<TestId>
+    public class TestId : Identity<TestId>
     {
         public TestId(string value) : base(value)
         {

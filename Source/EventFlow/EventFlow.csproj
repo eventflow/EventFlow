@@ -55,10 +55,10 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
-    <Compile Include="Aggregates\AggregateId.cs" />
+    <Compile Include="Aggregates\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
-    <Compile Include="Aggregates\IAggregateId.cs" />
+    <Compile Include="Aggregates\IIdentity.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="Commands\CommandHandler.cs" />
@@ -78,6 +78,12 @@
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacRegistration.cs" />
     <Compile Include="Core\AsyncLock.cs" />
+    <Compile Include="Core\IRetryStrategy.cs" />
+    <Compile Include="Core\ITransientFaultHandler.cs" />
+    <Compile Include="Core\Label.cs" />
+    <Compile Include="Core\RetryStrategies\IOptimisticConcurrencyRetryStrategy.cs" />
+    <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
+    <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="EventCaches\Null\NullEventCache.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />

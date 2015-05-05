@@ -31,7 +31,7 @@ namespace EventFlow.TestHelpers
     {
         public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
 
-        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(IAggregateId id);
+        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id);
 
         public abstract void TearDown();
     }

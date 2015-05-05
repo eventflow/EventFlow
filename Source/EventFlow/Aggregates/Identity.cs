@@ -28,8 +28,8 @@ using EventFlow.ValueObjects;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateId<T> : SingleValueObject<string>, IAggregateId
-        where T : AggregateId<T>
+    public abstract class Identity<T> : SingleValueObject<string>, IIdentity
+        where T : Identity<T>
     {
         // ReSharper disable StaticMemberInGenericType
         private static readonly Regex NameReplace = new Regex("Id$", RegexOptions.Compiled);
@@ -74,7 +74,7 @@ namespace EventFlow.Aggregates
                 yield return string.Format("Aggregate ID '{0}' of type '{1}' does not follow the syntax '[NAME]-[GUID]' in lower case", value, typeof(T).Name);
         }
 
-        protected AggregateId(string value) : base(value)
+        protected Identity(string value) : base(value)
         {
             var validationErrors = Validate(value).ToList();
             if (validationErrors.Any())

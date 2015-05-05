@@ -20,18 +20,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System;
+using System.Text.RegularExpressions;
 
-namespace EventFlow.Commands
+namespace EventFlow.Core
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public class Label
     {
-        public IIdentity Id { get; private set; }
+        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
 
-        protected Command(IIdentity id)
+        public static Label Named(string name) { return new Label(name); }
+
+        public string Name { get; private set; }
+
+        private Label(string name)
         {
-            Id = id;
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (!NameValidator.IsMatch(name)) throw new ArgumentException(string.Format(
+                "Label '{0}' is not a valid label, it must pass this regex '{1}'",
+                name,
+                NameValidator));
+
+            Name = name;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

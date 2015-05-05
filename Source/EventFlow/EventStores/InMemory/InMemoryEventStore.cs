@@ -74,7 +74,7 @@ namespace EventFlow.EventStores.InMemory
         }
 
         protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            IAggregateId id,
+            IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -130,7 +130,7 @@ namespace EventFlow.EventStores.InMemory
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            IAggregateId id,
+            IIdentity id,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))

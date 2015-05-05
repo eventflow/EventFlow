@@ -32,7 +32,7 @@ namespace EventFlow.MetadataProviders
     /// </summary>
     public class AddGuidMetadataProvider : IMetadataProvider
     {
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IAggregateId id, IAggregateEvent aggregateEvent, IMetadata metadata)
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
             where TAggregate : IAggregateRoot
         {
             yield return new KeyValuePair<string, string>("guid", Guid.NewGuid().ToString());
