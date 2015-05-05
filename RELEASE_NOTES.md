@@ -3,6 +3,7 @@
 * Breaking: `ValueObject` now uses public properties instead of both
   private and public fields
 * Breaking: MSSQL transient exceptions are now retried
+* Breaking: All methods on `IMsSqlConnection` has an extra `Label` argument
 * New: `ITransientFaultHandler` added along with default retry strategies
   for optimistic concurrency and MSSQL transient exceptions
 * New: Release notes added to NuGet packages
