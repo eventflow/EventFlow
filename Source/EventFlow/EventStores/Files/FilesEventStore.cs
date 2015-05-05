@@ -74,7 +74,7 @@ namespace EventFlow.EventStores.Files
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
+            IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -95,7 +95,7 @@ namespace EventFlow.EventStores.Files
                     _globalSequenceNumber++;
                     var fileEventData = new FileEventData
                         {
-                            AggregateId = id,
+                            AggregateId = id.Value,
                             AggregateName = aggregateType.Name,
                             AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
                             BatchId = batchId,
@@ -140,7 +140,7 @@ namespace EventFlow.EventStores.Files
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -165,15 +165,15 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        private string GetAggregatePath(Type aggregateType, string id)
+        private string GetAggregatePath(Type aggregateType, IIdentity id)
         {
             return Path.Combine(
                 _configuration.StorePath,
                 aggregateType.Name,
-                id);
+                id.Value);
         }
 
-        private string GetEventPath(Type aggregateType, string id, int aggregateSequenceNumber)
+        private string GetEventPath(Type aggregateType, IIdentity id, int aggregateSequenceNumber)
         {
             return Path.Combine(
                 GetAggregatePath(aggregateType, id),

@@ -23,6 +23,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores.MsSql;
@@ -64,14 +65,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             return resolver;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
         {
             var sql = ReadModelSqlGenerator.CreateSelectSql<TestAggregateReadModel>();
             var readModels = await MsSqlConnection.QueryAsync<TestAggregateReadModel>(
                 Label.Named("mssql-fetch-test-read-model"), 
                 CancellationToken.None,
                 sql,
-                new {AggregateId = id})
+                new { AggregateId = id.Value })
                 .ConfigureAwait(false);
             return readModels.SingleOrDefault();
         }

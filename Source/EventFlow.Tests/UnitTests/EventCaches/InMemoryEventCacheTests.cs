@@ -41,7 +41,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Act
             Assert.Throws<ArgumentNullException>(
-                async () => await Sut.InsertAsync(typeof (TestAggregate), A<string>(), null, CancellationToken.None).ConfigureAwait(false));
+                async () => await Sut.InsertAsync(typeof(TestAggregate), TestId.New, null, CancellationToken.None).ConfigureAwait(false));
         }
 
         [Test]
@@ -49,14 +49,14 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Act
             Assert.Throws<ArgumentException>(
-                async () => await Sut.InsertAsync(typeof(TestAggregate), A<string>(), new List<IDomainEvent>(), CancellationToken.None).ConfigureAwait(false));
+                async () => await Sut.InsertAsync(typeof(TestAggregate), TestId.New, new List<IDomainEvent>(), CancellationToken.None).ConfigureAwait(false));
         }
 
         [Test]
         public async Task NoneExistingReturnsNull()
         {
             // Arrange
-            var id = A<string>();
+            var id = TestId.New;
 
             // Act
             var domainEvents = await Sut.GetAsync(typeof(TestAggregate), id, CancellationToken.None).ConfigureAwait(false);
@@ -70,7 +70,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Arrange
             var aggregateType = typeof (TestAggregate);
-            var id = A<string>();
+            var id = TestId.New;
 
             // Act
             await Sut.InsertAsync(aggregateType, id, CreateStream(), CancellationToken.None).ConfigureAwait(false);
@@ -82,7 +82,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Arrange
             var aggregateType = typeof(TestAggregate);
-            var id = A<string>();
+            var id = TestId.New;
             var domainEvents = CreateStream();
 
             // Act
@@ -98,7 +98,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Arrange
             var aggregateType = typeof(TestAggregate);
-            var id = A<string>();
+            var id = TestId.New;
             var domainEvents = CreateStream();
             
             // Act

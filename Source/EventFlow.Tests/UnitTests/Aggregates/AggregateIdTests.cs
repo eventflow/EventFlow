@@ -20,31 +20,61 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.TestHelpers.Suites
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public class AggregateIdTests
     {
         [Test]
-        public async Task ReadModelReceivesEvent()
+        public void ManuallyCreatedIsOk()
         {
             // Arrange
-            var id = TestId.New;
-            
+            const string value = "test-d15b1562-11f2-4645-8b1a-f8b946b566d3";
+
             // Act
-            await CommandBus.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
+            var testId = TestId.With(value);
+
+            // Test
+            testId.Value.Should().Be(value);
+        }
+
+        [Test]
+        public void CreatedIsDifferent()
+        {
+            // Act
+            var id1 = TestId.New;
+            var id2 = TestId.New;
 
             // Assert
-            readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(1);
+            id1.Value.Should().NotBe(id2.Value);
+        }
+
+        [Test]
+        public void SameIdsAreEqual()
+        {
+            // Arrange
+            const string value = "test-d15b1562-11f2-4645-8b1a-f8b946b566d3";
+            var id1 = TestId.With(value);
+            var id2 = TestId.With(value);
+
+            // Assert
+            id1.Equals(id2).Should().BeTrue();
+            (id1 == id2).Should().BeTrue();
+        }
+
+        [Test]
+        public void DifferentAreNotEqual()
+        {
+            // Arrange
+            var id1 = TestId.With("test-7ddc487f-02ad-4be3-a6ef-71203d333c61");
+            var id2 = TestId.With("test-d15b1562-11f2-4645-8b1a-f8b946b566d3");
+
+            // Assert
+            id1.Equals(id2).Should().BeFalse();
+            (id1 == id2).Should().BeFalse();
         }
     }
 }

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.Core;
 using Moq;
 using NUnit.Framework;
@@ -39,6 +40,7 @@ namespace EventFlow.TestHelpers
         public void SetUpTest()
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            Fixture.Customize<TestId>(x => x.FromFactory(() => TestId.New));
             Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
         }
 

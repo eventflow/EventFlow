@@ -58,7 +58,7 @@ namespace EventFlow.EventStores
         }
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            string id,
+            IIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
@@ -118,16 +118,16 @@ namespace EventFlow.EventStores
         }
 
         protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id, IReadOnlyCollection<SerializedEvent> serializedEvents,
+            IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
         protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken);
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
@@ -156,7 +156,7 @@ namespace EventFlow.EventStores
         }
 
         public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate>(
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
@@ -180,7 +180,7 @@ namespace EventFlow.EventStores
             return aggregate;
         }
 
-        public virtual TAggregate LoadAggregate<TAggregate>(string id, CancellationToken cancellationToken)
+        public virtual TAggregate LoadAggregate<TAggregate>(IIdentity id, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
         {
             var aggregate = default(TAggregate);

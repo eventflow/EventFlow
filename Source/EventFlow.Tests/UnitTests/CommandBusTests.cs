@@ -57,8 +57,8 @@ namespace EventFlow.Tests.UnitTests
             _eventStoreMock = InjectMock<IEventStore>();
 
             _eventStoreMock
-                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(new TestAggregate("42")));
+                .Setup(s => s.LoadAggregateAsync<TestAggregate>(It.IsAny<TestId>(), It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(new TestAggregate(TestId.New)));
             resolver
                 .Setup(r => r.Resolve<IOptimisticConcurrencyRetryStrategy>())
                 .Returns(new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration()));
@@ -70,15 +70,15 @@ namespace EventFlow.Tests.UnitTests
             // Arrange
             ArrangeCommandHandlerExists<TestAggregate, DomainErrorAfterFirstCommand>();
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
             // Act
-            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new DomainErrorAfterFirstCommand("42"), CancellationToken.None).ConfigureAwait(false));
+            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new DomainErrorAfterFirstCommand(TestId.New), CancellationToken.None).ConfigureAwait(false));
 
             // Assert
             _eventStoreMock.Verify(
-                s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),
+                s => s.StoreAsync<TestAggregate>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(5));
         }
 
@@ -90,7 +90,7 @@ namespace EventFlow.Tests.UnitTests
             var commandHandler = ArrangeCommandHandlerExists<TestAggregate, PingCommand>();
 
             // Act
-            await Sut.PublishAsync(new PingCommand(A<string>()), CancellationToken.None).ConfigureAwait(false);
+            await Sut.PublishAsync(new PingCommand(TestId.New), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             commandHandler.Verify(h => h.ExecuteAsync(It.IsAny<TestAggregate>(), It.IsAny<PingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -99,7 +99,7 @@ namespace EventFlow.Tests.UnitTests
         private void ArrangeWorkingEventStore()
         {
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<TestAggregate>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent>>(Many<IDomainEvent>()));
         }
 

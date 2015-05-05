@@ -22,16 +22,12 @@
 
 using EventFlow.Aggregates;
 
-namespace EventFlow.Commands
+namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public class TestId : Identity<TestId>
     {
-        public IIdentity Id { get; private set; }
-
-        protected Command(IIdentity id)
+        public TestId(string value) : base(value)
         {
-            Id = id;
         }
     }
 }
