@@ -41,11 +41,12 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            var aggregateType = typeof (TAggregate);
             var aggregateEventType = aggregateEvent.GetType();
             Type domainEventType;
             if (!_aggregateEventToDomainEventTypeMap.TryGetValue(aggregateEventType, out domainEventType))
             {
-                domainEventType = typeof (DomainEvent<,>).MakeGenericType(aggregateEventType, id.GetType());
+                domainEventType = typeof(DomainEvent<,,>).MakeGenericType(aggregateType, id.GetType(), aggregateEventType);
                 _aggregateEventToDomainEventTypeMap[aggregateEventType] = domainEventType;
             }
 

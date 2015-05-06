@@ -38,16 +38,18 @@ namespace EventFlow.Aggregates
         IAggregateEvent GetAggregateEvent();
     }
 
-    public interface IDomainEvent<out TAggregateEvent> : IDomainEvent
-        where TAggregateEvent : IAggregateEvent
-    {
-        TAggregateEvent AggregateEvent { get; }
-    }
-
-    public interface IDomainEvent<out TAggregateEvent, out TIdentity> : IDomainEvent<TAggregateEvent>
-        where TAggregateEvent : IAggregateEvent
+    public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
+        where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
         TIdentity AggregateIdentity { get; }
+    }
+
+    public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TAggregateEvent : IAggregateEvent
+    {
+        TAggregateEvent AggregateEvent { get; }
     }
 }

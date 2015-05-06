@@ -112,7 +112,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
 
         private IReadOnlyCollection<IDomainEvent> CreateStream()
         {
-            return Many<DomainEvent<PingEvent, TestId>>();
+            return Many<DomainEvent<TestAggregate, TestId, PingEvent>>();
         }
     }
 }

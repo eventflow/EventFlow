@@ -48,6 +48,8 @@ namespace EventFlow.ReadStores
 
         protected void ApplyEvents(TReadModel readModel, IEnumerable<IDomainEvent> domainEvents)
         {
+            var aggregateType = typeof (TAggregate);
+            var identityType = typeof (TIdentity);
             var readModelType = typeof(TReadModel);
             var readModelContextType = typeof(IReadModelContext);
             var readModelContext = new ReadModelContext();
@@ -58,7 +60,7 @@ namespace EventFlow.ReadStores
                     domainEvent.EventType,
                     t =>
                         {
-                            var domainEventType = typeof(IDomainEvent<>).MakeGenericType(t);
+                            var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(aggregateType, identityType, t);
                             var methodInfo = readModelType.GetMethod("Apply", new[] { readModelContextType, domainEventType });
                             return  methodInfo == null
                                 ? (r ,c, e) => Log.Warning("Read model '{0}' does not handle event '{1}'", readModelType.Name, t.Name)

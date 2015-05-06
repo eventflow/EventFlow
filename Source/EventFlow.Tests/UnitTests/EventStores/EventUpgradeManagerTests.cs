@@ -86,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             upgradedEvents.Count.Should().Be(3);
             foreach (var upgradedEvent in upgradedEvents)
             {
-                upgradedEvent.Should().BeAssignableTo<IDomainEvent<TestEventV3>>();
+                upgradedEvent.Should().BeAssignableTo<IDomainEvent<TestAggregate, TestId, TestEventV3>>();
             }
         }
 
@@ -123,7 +123,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
             public IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent)
             {
-                var testEvent1 = domainEvent as IDomainEvent<TestEventV1>;
+                var testEvent1 = domainEvent as IDomainEvent<TestAggregate, TestId, TestEventV1>;
                 yield return testEvent1 == null
                     ? domainEvent
                     : _domainEventFactory.Upgrade<TestAggregate, TestId>(domainEvent, new TestEventV2());
@@ -141,7 +141,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
             public IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent)
             {
-                var testEvent2 = domainEvent as IDomainEvent<TestEventV2>;
+                var testEvent2 = domainEvent as IDomainEvent<TestAggregate, TestId, TestEventV2>;
                 yield return testEvent2 == null
                     ? domainEvent
                     : _domainEventFactory.Upgrade<TestAggregate, TestId>(domainEvent, new TestEventV3());
@@ -152,7 +152,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         {
             public IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent)
             {
-                var damagedEvent = domainEvent as IDomainEvent<DamagedEvent>;
+                var damagedEvent = domainEvent as IDomainEvent<TestAggregate, TestId, DamagedEvent>;
                 if (damagedEvent == null)
                 {
                     yield return domainEvent;

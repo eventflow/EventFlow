@@ -23,6 +23,7 @@
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
+using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
@@ -33,12 +34,12 @@ namespace EventFlow.MsSql.Tests.ReadModels
         public bool DomainErrorAfterFirstReceived { get; set; }
         public int PingsReceived { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<PingEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
         {
             PingsReceived++;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<DomainErrorAfterFirstEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
         {
             DomainErrorAfterFirstReceived = true;
         }

@@ -24,16 +24,11 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public interface IAmReadModelFor<in TEvent>
-        where TEvent : IAggregateEvent
-    {
-        void Apply(IReadModelContext context, IDomainEvent<TEvent> e);
-    }
-
-    public interface IAmReadModelFor<in TEvent, in TIdentity>
-        where TEvent : IAggregateEvent
+    public interface IAmReadModelFor<TAggregate, in TIdentity, in TEvent>
+        where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TEvent : IAggregateEvent
     {
-        void Apply(IReadModelContext context, IDomainEvent<TEvent, TIdentity> e);
+        void Apply(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> e);
     }
 }

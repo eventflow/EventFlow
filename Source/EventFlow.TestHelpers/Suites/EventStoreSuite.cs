@@ -60,7 +60,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             domainEvents.Count.Should().Be(1);
-            var pingEvent = domainEvents.Single() as IDomainEvent<PingEvent, TestId>;
+            var pingEvent = domainEvents.Single() as IDomainEvent<TestAggregate, TestId, PingEvent>;
             pingEvent.Should().NotBeNull();
             pingEvent.AggregateIdentity.Should().Be(id);
             pingEvent.AggregateSequenceNumber.Should().Be(1);

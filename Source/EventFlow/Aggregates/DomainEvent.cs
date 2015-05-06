@@ -24,9 +24,10 @@ using System;
 
 namespace EventFlow.Aggregates
 {
-    public class DomainEvent<TAggregateEvent, TIdentity> : IDomainEvent<TAggregateEvent, TIdentity>
-        where TAggregateEvent : IAggregateEvent
+    public class DomainEvent<TAggregate, TIdentity, TAggregateEvent> : IDomainEvent<TAggregate, TIdentity, TAggregateEvent>
+        where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TAggregateEvent : IAggregateEvent
     {
         public Type AggregateType { get { return AggregateEvent.GetAggregateType(); } }
         public Type EventType { get { return typeof (TAggregateEvent); } }

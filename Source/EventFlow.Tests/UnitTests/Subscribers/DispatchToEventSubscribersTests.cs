@@ -48,16 +48,16 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         public async Task SubscribersGetCalled()
         {
             // Arrange
-            var subscriberMock = new Mock<ISubscribeSynchronousTo<PingEvent>>();
+            var subscriberMock = new Mock<ISubscribeSynchronousTo<TestAggregate, TestId, PingEvent>>();
             _resolverMock
                 .Setup(r => r.ResolveAll(It.IsAny<Type>()))
                 .Returns(new object[] {subscriberMock.Object});
 
             // Act
-            await Sut.DispatchAsync(new[] {A<DomainEvent<PingEvent, TestId>>()}, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchAsync(new[] { A<DomainEvent<TestAggregate, TestId, PingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<PingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<TestAggregate, TestId, PingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

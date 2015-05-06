@@ -41,9 +41,9 @@ namespace EventFlow.Tests.IntegrationTests
     [TestFixture]
     public class DomainTests
     {
-        public class Subscriber : ISubscribeSynchronousTo<DomainErrorAfterFirstEvent>
+        public class Subscriber : ISubscribeSynchronousTo<TestAggregate, TestId, DomainErrorAfterFirstEvent>
         {
-            public Task HandleAsync(IDomainEvent<DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
             {
                 Console.WriteLine("Subscriber got DomainErrorAfterFirstEvent");
                 return Task.FromResult(0);
