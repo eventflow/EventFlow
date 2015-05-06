@@ -29,7 +29,7 @@ namespace EventFlow.Aggregates
 {
     public interface IAggregateRoot
     {
-        string Id { get; }
+        IIdentity Id { get; }
         int Version { get; }
         bool IsNew { get; }
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }

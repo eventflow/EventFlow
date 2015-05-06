@@ -45,19 +45,19 @@ namespace EventFlow.ReadStores.InMemory
         }
 
         public override Task UpdateReadModelAsync(
-            string aggregateId,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
             TReadModel readModel;
-            if (_readModels.ContainsKey(aggregateId))
+            if (_readModels.ContainsKey(id.Value))
             {
-                readModel = _readModels[aggregateId];
+                readModel = _readModels[id.Value];
             }
             else
             {
                 readModel = new TReadModel();
-                _readModels.Add(aggregateId, readModel);
+                _readModels.Add(id.Value, readModel);
             }
 
             ApplyEvents(readModel, domainEvents);
@@ -65,10 +65,11 @@ namespace EventFlow.ReadStores.InMemory
             return Task.FromResult(0);
         }
 
-        public TReadModel Get(string id)
+        public TReadModel Get(IIdentity id)
         {
-            return _readModels.ContainsKey(id)
-                ? _readModels[id]
+            TReadModel readModel;
+            return _readModels.TryGetValue(id.Value, out readModel)
+                ? readModel
                 : default(TReadModel);
         }
 

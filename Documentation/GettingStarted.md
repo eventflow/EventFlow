@@ -12,12 +12,25 @@ Implementation notes
 
 ## Create an aggregate
 
-Let us start by creating a aggregate to represent our users.
+Initially you need to create the object representing the _identity_
+of a user. Will use the class provided by EventFlow to help us to get
+started.
+
+```csharp
+public class UserId : Identity<UserId>
+{
+  public UserId(string value) : base(value)
+  {
+  }
+}
+```
+
+Next, let us start by creating a aggregate to represent our users.
 
 ```csharp
 public class UserAggregate : AggregateRoot<UserAggregate>
 {
-  public UserAggregate(string id)
+  public UserAggregate(UserId id)
     : base(id)
   {
   }
@@ -25,8 +38,6 @@ public class UserAggregate : AggregateRoot<UserAggregate>
 ```
 
 ## Create event
-
-
 
 ```csharp
 public class UserCreatedEvent : AggregateEvent<UserAggregate>
@@ -59,7 +70,7 @@ public class UserAggregate : AggregateRoot<UserAggregate>,
   public string Username { get; private set; }
   public string Password { get; private set; }
 
-  public UserAggregate(string id)
+  public UserAggregate(UserId id)
     : base(id)
   {
   }
@@ -96,18 +107,17 @@ created `Create` method on our `UserAggregate`. The call must be
 made from a command handler, and thus we first create the command.
 
 ```csharp
-public class UserCreateCommand : ICommand<UserAggregate>
+public class UserCreateCommand : Command<UserAggregate>
 {
-  public string Id { get; private set; }
   public string Username { get; private set; }
   public string Password { get; private set; }
 
   public UserCreateCommand(
-    string id,
+    UserId id,
     string username,
     string password)
+    : base(id)
   {
-    Id = id;
     Username = username;
     Password = password;
   }
@@ -140,7 +150,7 @@ Now all there is let is to create the user somewhere in your
 application by publishing the command.
 
 ```csharp
-var userId = GetNewRandomUserI();
+var userId = UserId.New;
 var username = GetUserEnteredUsername();
 var password = GetUserEnteredPassword();
 

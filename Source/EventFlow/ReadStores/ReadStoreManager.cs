@@ -45,7 +45,7 @@ namespace EventFlow.ReadStores
         }
 
         public async Task UpdateReadStoresAsync<TAggregate>(
-            string id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot
@@ -59,7 +59,7 @@ namespace EventFlow.ReadStores
 
         private async Task UpdateReadStoreAsync<TAggregate>(
             IReadModelStore<TAggregate> readModelStore,
-            string id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot

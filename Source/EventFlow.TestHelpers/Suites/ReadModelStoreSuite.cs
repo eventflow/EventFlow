@@ -22,6 +22,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using FluentAssertions;
 using NUnit.Framework;
@@ -35,7 +36,7 @@ namespace EventFlow.TestHelpers.Suites
         public async Task ReadModelReceivesEvent()
         {
             // Arrange
-            var id = A<string>();
+            var id = TestId.New;
             
             // Act
             await CommandBus.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);

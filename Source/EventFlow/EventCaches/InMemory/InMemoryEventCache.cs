@@ -48,7 +48,7 @@ namespace EventFlow.EventCaches.InMemory
 
         public Task InsertAsync(
             Type aggregateType,
-            string id,
+            IIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
@@ -70,7 +70,7 @@ namespace EventFlow.EventCaches.InMemory
 
         public Task InvalidateAsync(
             Type aggregateType,
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken)
         {
             var cacheKey = GetKey(aggregateType, id);
@@ -88,7 +88,7 @@ namespace EventFlow.EventCaches.InMemory
 
         public Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
             Type aggregateType,
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken)
         {
             var cacheKey = GetKey(aggregateType, id);
@@ -112,7 +112,7 @@ namespace EventFlow.EventCaches.InMemory
             return Task.FromResult(domainEvents);
         }
 
-        private static string GetKey(Type aggregateType, string id)
+        private static string GetKey(Type aggregateType, IIdentity id)
         {
             return string.Format("{0} ({1})", aggregateType.FullName, id);
         }

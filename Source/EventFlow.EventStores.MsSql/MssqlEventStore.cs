@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -63,7 +64,7 @@ namespace EventFlow.EventStores.MsSql
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            string id,
+            IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -78,7 +79,7 @@ namespace EventFlow.EventStores.MsSql
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
-                        AggregateId = id,
+                        AggregateId = id.Value,
                         AggregateName = aggregateName,
                         BatchId = batchId,
                         Data = e.Data,
@@ -108,6 +109,7 @@ namespace EventFlow.EventStores.MsSql
             try
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
+                    Label.Named("mssql-insert-events"), 
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -141,11 +143,15 @@ namespace EventFlow.EventStores.MsSql
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            string id,
+            IIdentity id,
             CancellationToken cancellationToken)
         {
             const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(cancellationToken, sql, new { AggregateId = id })
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                Label.Named("mssql-fetch-events"), 
+                cancellationToken,
+                sql,
+                new { AggregateId = id.Value })
                 .ConfigureAwait(false);
             return eventDataModels;
         }

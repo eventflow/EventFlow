@@ -33,7 +33,7 @@ namespace EventFlow.TestHelpers.Aggregates.Test
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public int PingsReceived { get; private set; }
 
-        public TestAggregate(string id) : base(id)
+        public TestAggregate(TestId id) : base(id)
         {
             Register<PingEvent>(e => PingsReceived++);
         }

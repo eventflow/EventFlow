@@ -23,25 +23,17 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 
 namespace EventFlow.MsSql
 {
     public interface IMsSqlConnection
     {
-        Task<int> ExecuteAsync(
-            CancellationToken cancellationToken,
-            string sql, object param = null);
+        Task<int> ExecuteAsync(Label label, CancellationToken cancellationToken, string sql, object param = null);
         
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
+        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(Label label, CancellationToken cancellationToken, string sql, object param = null);
         
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows,
-            object param = null)
+        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(Label label, CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
             where TRow : class, new();
     }
 }

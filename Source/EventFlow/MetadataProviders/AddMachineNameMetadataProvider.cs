@@ -39,7 +39,7 @@ namespace EventFlow.MetadataProviders
                 };
         }
 
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(string id, IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate>(IIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot
         {
             return Metadata;
         }

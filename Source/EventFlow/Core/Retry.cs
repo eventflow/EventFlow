@@ -21,66 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EventFlow.Core
 {
-    public static class Retry
+    public class Retry
     {
-        public static Task ThisAsync(
-            Func<Task> task,
-            int retries = 2,
-            IEnumerable<Type> transientExceptionTypes = null,
-            TimeSpan delayBeforeRetry = default(TimeSpan))
+        public static Retry Yes { get { return new Retry(true, TimeSpan.Zero); } }
+        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
+        public static Retry No { get { return new Retry(false, TimeSpan.Zero); } }
+
+        public bool ShouldBeRetried { get; set; }
+        public TimeSpan RetryAfter { get; set; }
+
+        private Retry(bool shouldBeRetried, TimeSpan retryAfter)
         {
-            return ThisAsync(
-                async () =>
-                    {
-                        await task().ConfigureAwait(false);
-                        return 0;
-                    },
-                retries,
-                transientExceptionTypes,
-                delayBeforeRetry);
-        }
+            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration()) throw new ArgumentOutOfRangeException("retryAfter");
+            if (!shouldBeRetried && retryAfter != TimeSpan.Zero) throw new ArgumentException("Invalid combination");
 
-        public static async Task<T> ThisAsync<T>(
-            Func<Task<T>> task,
-            int retries = 2,
-            IEnumerable<Type> transientExceptionTypes = null,
-            TimeSpan delayBeforeRetry = default(TimeSpan))
-        {
-            if (task == null) throw new ArgumentNullException("task");
-            if (retries <= 0) throw new ArgumentException(string.Format("It doesn't make any sense to have a total retries of {0}", retries), "retries");
-            if (delayBeforeRetry.Ticks < 0) throw new ArgumentOutOfRangeException("delayBeforeRetry", "Please specify zero or a positive delay");
-
-            var exceptionList = (transientExceptionTypes ?? Enumerable.Empty<Type>()).ToList();
-            var currentCount = 1;
-
-            while (true)
-            {
-                try
-                {
-                    if (currentCount > 1 && delayBeforeRetry != default(TimeSpan))
-                    {
-                        await Task.Delay(delayBeforeRetry);
-                    }
-
-                    return await task().ConfigureAwait(false);
-                }
-                catch (Exception exception)
-                {
-                    if (currentCount <= retries && exceptionList.Any(t => exception.GetType() == t))
-                    {
-                        currentCount++;
-                        continue;
-                    }
-
-                    throw;
-                }
-            }
+            ShouldBeRetried = shouldBeRetried;
+            RetryAfter = retryAfter;
         }
     }
 }

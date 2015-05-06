@@ -23,6 +23,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
@@ -59,7 +60,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 return resolver;
             }
 
-            public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(string id)
+            public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
             {
                 return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
             }

@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.4.{build}
+version: 0.5.{build}
 
 build_script:
   - cmd: build.cmd
@@ -34,8 +34,7 @@ deploy:
     auth_token:
       secure: uiVcx5TSmPy1GGF7GZeoAwXIQTswxvlyo0XKBgaWe1DyzOfJ7Fp3yNimR9IXzUrr
     tag: v$(appveyor_build_version)
-    draft: false
-    prerelease: true
+    draft: true
+    prerelease: false
     on:
       branch: master
-      appveyor_repo_tag: true

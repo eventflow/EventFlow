@@ -36,32 +36,14 @@ namespace EventFlow.Aggregates
     {
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
-        public string Id { get; private set; }
+        public IIdentity Id { get; private set; }
         public int Version { get; private set; }
         public bool IsNew { get { return Version <= 0; } }
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
-        protected AggregateRoot(string id)
+        protected AggregateRoot(IIdentity id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException("id");
-            }
-            if (!id.Trim().Equals(id))
-            {
-                throw new ArgumentException(
-                    string.Format(
-                        "Aggregate IDs should not contain leading and/or spaces as this does '{0}' for aggregate {1}",
-                        id,
-                        typeof(TAggregate).Name),
-                    "id");
-            }
-            if (id.Length > 255)
-            {
-                throw new ArgumentException(string.Format(
-                    "Aggregate IDs must not exceed 255 in length and '{0}' is too long with a length of {1}", id, id.Length),
-                    "id");
-            }
+            if (id == null) throw new ArgumentNullException("id");
             if ((this as TAggregate) == null)
             {
                 throw WrongImplementationException.With(

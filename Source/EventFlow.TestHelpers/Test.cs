@@ -20,8 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.Core;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -36,8 +39,9 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpTest()
         {
-            Fixture = new Fixture()
-                .Customize(new AutoMoqCustomization());
+            Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            Fixture.Customize<TestId>(x => x.FromFactory(() => TestId.New));
+            Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
         }
 
         protected T A<T>()
@@ -56,6 +60,23 @@ namespace EventFlow.TestHelpers
             var mock = new Mock<T>();
             Fixture.Inject(mock.Object);
             return mock;
+        }
+
+        protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)
+        {
+            var function = new Mock<Func<T>>();
+            var exceptionStack = new Stack<Exception>(exceptions.Reverse());
+            function
+                .Setup(f => f())
+                .Returns(() =>
+                {
+                    if (exceptionStack.Any())
+                    {
+                        throw exceptionStack.Pop();
+                    }
+                    return result;
+                });
+            return function;
         }
     }
 }
