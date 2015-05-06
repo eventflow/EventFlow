@@ -24,7 +24,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {
-    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate>
+    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate, TestId>
     {
     }
 }

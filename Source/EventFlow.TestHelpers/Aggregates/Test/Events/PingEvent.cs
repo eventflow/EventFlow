@@ -25,7 +25,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {
-    public class PingEvent : AggregateEvent<TestAggregate>
+    public class PingEvent : AggregateEvent<TestAggregate, TestId>
     {
         public Guid PingId { get; private set; }
 

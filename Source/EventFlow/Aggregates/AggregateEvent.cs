@@ -24,8 +24,9 @@ using System;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateEvent<TAggregate> : IAggregateEvent
-        where TAggregate : IAggregateRoot
+    public abstract class AggregateEvent<TAggregate, TIdentity> : IAggregateEvent
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
         public Type GetAggregateType()
         {

@@ -45,8 +45,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             _domainEventFactory = new DomainEventFactory();
 
             _resolverMock
-                .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<TestAggregate>>>())
-                .Returns(new IEventUpgrader<TestAggregate>[]
+                .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<TestAggregate, TestId>>>())
+                .Returns(new IEventUpgrader<TestAggregate, TestId>[]
                     {
                         new UpgradeTestEventV1ToTestEventV2(_domainEventFactory),
                         new UpgradeTestEventV2ToTestEventV3(_domainEventFactory), 
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var events = new IDomainEvent[]{};
 
             // Act
-            var upgradedEvents = Sut.Upgrade<TestAggregate>(events);
+            var upgradedEvents = Sut.Upgrade<TestAggregate, TestId>(events);
 
             // Assert
             upgradedEvents.Should().BeEmpty();
@@ -80,7 +80,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 };
 
             // Act
-            var upgradedEvents = Sut.Upgrade<TestAggregate>(events);
+            var upgradedEvents = Sut.Upgrade<TestAggregate, TestId>(events);
 
             // Assert
             upgradedEvents.Count.Should().Be(3);
@@ -90,10 +90,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
             }
         }
 
-        public class TestEventV1 : AggregateEvent<TestAggregate> { }
-        public class TestEventV2 : AggregateEvent<TestAggregate> { }
-        public class TestEventV3 : AggregateEvent<TestAggregate> { }
-        public class DamagedEvent : AggregateEvent<TestAggregate> { }
+        public class TestEventV1 : AggregateEvent<TestAggregate, TestId> { }
+        public class TestEventV2 : AggregateEvent<TestAggregate, TestId> { }
+        public class TestEventV3 : AggregateEvent<TestAggregate, TestId> { }
+        public class DamagedEvent : AggregateEvent<TestAggregate, TestId> { }
 
         private IDomainEvent ToDomainEvent<TAggregateEvent>(TAggregateEvent aggregateEvent)
             where TAggregateEvent : IAggregateEvent
@@ -112,7 +112,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 A<Guid>());
         }
 
-        public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<TestAggregate>
+        public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<TestAggregate, TestId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -130,7 +130,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             }
         }
 
-        public class UpgradeTestEventV2ToTestEventV3 : IEventUpgrader<TestAggregate>
+        public class UpgradeTestEventV2ToTestEventV3 : IEventUpgrader<TestAggregate, TestId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -148,7 +148,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             }
         }
 
-        public class DamagedEventRemover : IEventUpgrader<TestAggregate>
+        public class DamagedEventRemover : IEventUpgrader<TestAggregate, TestId>
         {
             public IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent)
             {

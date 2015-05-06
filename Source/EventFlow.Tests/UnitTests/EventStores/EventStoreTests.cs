@@ -54,7 +54,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             _eventUpgradeManagerMock = InjectMock<IEventUpgradeManager>();
 
             _eventUpgradeManagerMock
-                .Setup(m => m.Upgrade<TestAggregate>(It.IsAny<IReadOnlyCollection<IDomainEvent>>()))
+                .Setup(m => m.Upgrade<TestAggregate, TestId>(It.IsAny<IReadOnlyCollection<IDomainEvent>>()))
                 .Returns<IReadOnlyCollection<IDomainEvent>>(c => c);
             _eventJsonSerializerMock
                 .Setup(m => m.Serialize(It.IsAny<IAggregateEvent>(), It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
@@ -72,7 +72,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var ss = ManyUncommittedEvents(1);
 
             // Act
-            await Sut.StoreAsync<TestAggregate>(TestId.New, ss, CancellationToken.None).ConfigureAwait(false);
+            await Sut.StoreAsync<TestAggregate, TestId>(TestId.New, ss, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             _eventCacheMock.Verify(c => c.InvalidateAsync(It.IsAny<Type>(), It.IsAny<TestId>(), It.IsAny<CancellationToken>()), Times.Once);

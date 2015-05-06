@@ -27,7 +27,7 @@ using EventFlow.TestHelpers.Aggregates.Test.Events;
 
 namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
+    public class TestAggregate : AggregateRoot<TestAggregate, TestId>,
         IEmit<DomainErrorAfterFirstEvent>
     {
         public bool DomainErrorAfterFirstReceived { get; private set; }

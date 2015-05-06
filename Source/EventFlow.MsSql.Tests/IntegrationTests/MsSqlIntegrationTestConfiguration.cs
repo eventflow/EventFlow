@@ -52,7 +52,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             var resolver = eventFlowOptions
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
                 .UseEventStore<MsSqlEventStore>()
-                .UseMssqlReadModel<TestAggregate, TestAggregateReadModel>()
+                .UseMssqlReadModel<TestAggregate, TestId, TestAggregateReadModel>()
                 .CreateResolver();
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();

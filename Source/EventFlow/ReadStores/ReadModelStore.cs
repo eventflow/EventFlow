@@ -30,15 +30,16 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadModelStore<TAggregate, TReadModel> : IReadModelStore<TAggregate>
-        where TAggregate : IAggregateRoot
+    public abstract class ReadModelStore<TAggregate, TIdentity, TReadModel> : IReadModelStore<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
         where TReadModel : IReadModel
     {
         private static readonly ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>> ApplyMethods = new ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>>();
 
         protected ILog Log { get; private set; }
 
-        public abstract Task UpdateReadModelAsync(IIdentity id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        public abstract Task UpdateReadModelAsync(TIdentity id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
         protected ReadModelStore(ILog log)
         {

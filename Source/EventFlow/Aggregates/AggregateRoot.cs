@@ -31,17 +31,18 @@ using EventFlow.Exceptions;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateRoot<TAggregate> : IAggregateRoot
-        where TAggregate : AggregateRoot<TAggregate>
+    public abstract class AggregateRoot<TAggregate, TIdentity> : IAggregateRoot<TIdentity>
+        where TAggregate : AggregateRoot<TAggregate, TIdentity>
+        where TIdentity : IIdentity
     {
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
-        public IIdentity Id { get; private set; }
+        public TIdentity Id { get; private set; }
         public int Version { get; private set; }
         public bool IsNew { get { return Version <= 0; } }
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
-        protected AggregateRoot(IIdentity id)
+        protected AggregateRoot(TIdentity id)
         {
             if (id == null) throw new ArgumentNullException("id");
             if ((this as TAggregate) == null)
@@ -57,7 +58,7 @@ namespace EventFlow.Aggregates
         }
 
         protected void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
-            where TEvent : AggregateEvent<TAggregate>
+            where TEvent : AggregateEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null)
             {
@@ -82,7 +83,7 @@ namespace EventFlow.Aggregates
 
         public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken)
         {
-            var domainEvents = await eventStore.StoreAsync<TAggregate>(
+            var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
                 _uncommittedEvents,
                 cancellationToken)

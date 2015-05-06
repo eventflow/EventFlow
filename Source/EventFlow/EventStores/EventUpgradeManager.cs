@@ -41,8 +41,10 @@ namespace EventFlow.EventStores
             _resolver = resolver;
         }
 
-        public IReadOnlyCollection<IDomainEvent> Upgrade<TAggregate>(IReadOnlyCollection<IDomainEvent> domainEvents)
-            where TAggregate : IAggregateRoot
+        public IReadOnlyCollection<IDomainEvent> Upgrade<TAggregate, TIdentity>(
+            IReadOnlyCollection<IDomainEvent> domainEvents)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             if (!domainEvents.Any())
             {
@@ -51,7 +53,7 @@ namespace EventFlow.EventStores
 
             var aggreateType = typeof (TAggregate);
             var eventUpgraders = _resolver
-                    .Resolve<IEnumerable<IEventUpgrader<TAggregate>>>()
+                    .Resolve<IEnumerable<IEventUpgrader<TAggregate, TIdentity>>>()
                     .OrderBy(u => u.GetType().Name)
                     .ToList();
 

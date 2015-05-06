@@ -26,14 +26,14 @@ using EventFlow.Commands;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class DoesNothingCommand : Command<TestAggregate>
+    public class DoesNothingCommand : Command<TestAggregate, TestId>
     {
         public DoesNothingCommand(TestId id) : base(id)
         {
         }
     }
 
-    public class DoesNothingCommandHandler : CommandHandler<TestAggregate, DoesNothingCommand>
+    public class DoesNothingCommandHandler : CommandHandler<TestAggregate, TestId, DoesNothingCommand>
     {
         public override Task ExecuteAsync(TestAggregate aggregate, DoesNothingCommand command, CancellationToken cancellationToken)
         {

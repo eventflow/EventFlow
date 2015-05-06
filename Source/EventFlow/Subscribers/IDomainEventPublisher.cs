@@ -29,7 +29,11 @@ namespace EventFlow.Subscribers
 {
     public interface IDomainEventPublisher
     {
-        Task PublishAsync<TAggregate>(IIdentity id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+        Task PublishAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

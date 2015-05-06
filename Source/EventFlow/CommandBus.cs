@@ -61,10 +61,11 @@ namespace EventFlow
             _transientFaultHandler.Use<IOptimisticConcurrencyRetryStrategy>();
         }
 
-        public async Task PublishAsync<TAggregate>(
-            ICommand<TAggregate> command,
+        public async Task PublishAsync<TAggregate, TIdentity>(
+            ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             if (command == null) throw new ArgumentNullException("command");
 
@@ -107,10 +108,17 @@ namespace EventFlow
                 aggregateType,
                 string.Join(", ", domainEvents.Select(d => d.EventType.Name))));
 
-            await _domainEventPublisher.PublishAsync<TAggregate>(command.Id, domainEvents, cancellationToken).ConfigureAwait(false);
+            await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
+                command.Id,
+                domainEvents,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
-        public void Publish<TAggregate>(ICommand<TAggregate> command) where TAggregate : IAggregateRoot
+        public void Publish<TAggregate, TIdentity>(
+            ICommand<TAggregate, TIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             using (var a = AsyncHelper.Wait)
             {
@@ -118,14 +126,16 @@ namespace EventFlow
             }
         }
 
-        private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate>(
-            ICommand<TAggregate> command,
+        private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
+            ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             var aggregateType = typeof (TAggregate);
+            var identityType = typeof (TIdentity);
             var commandType = command.GetType();
-            var commandHandlerType = typeof (ICommandHandler<,>).MakeGenericType(aggregateType, commandType);
+            var commandHandlerType = typeof (ICommandHandler<,,>).MakeGenericType(aggregateType, identityType, commandType);
 
             var commandHandlers = _resolver.ResolveAll(commandHandlerType).ToList();
             if (!commandHandlers.Any())
@@ -150,7 +160,7 @@ namespace EventFlow
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate>(command.Id, c).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.Id, c).ConfigureAwait(false);
 
                         var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
                         await invokeTask.ConfigureAwait(false);

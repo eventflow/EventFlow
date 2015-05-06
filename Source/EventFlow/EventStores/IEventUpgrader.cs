@@ -30,8 +30,9 @@ namespace EventFlow.EventStores
         IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent);
     }
 
-    public interface IEventUpgrader<TAggregate> : IEventUpgrader
-        where TAggregate : IAggregateRoot
+    public interface IEventUpgrader<TAggregate, TIdentity> : IEventUpgrader
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
     }
 }
