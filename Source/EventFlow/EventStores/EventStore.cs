@@ -111,7 +111,9 @@ namespace EventFlow.EventStores
                 throw;
             }
 
-            var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
+            var domainEvents = committedDomainEvents
+                .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                .ToList();
 
             await EventCache.InvalidateAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
 
@@ -146,7 +148,7 @@ namespace EventFlow.EventStores
 
             var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             domainEvents = committedDomainEvents
-                .Select(EventJsonSerializer.Deserialize)
+                .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
             if (!domainEvents.Any())

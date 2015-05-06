@@ -103,7 +103,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     Timestamp = A<DateTimeOffset>()
                 };
 
-            return _domainEventFactory.Create(
+            return _domainEventFactory.Create<TestAggregate, TestId>(
                 aggregateEvent,
                 metadata,
                 A<long>(),
@@ -126,7 +126,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 var testEvent1 = domainEvent as IDomainEvent<TestEventV1>;
                 yield return testEvent1 == null
                     ? domainEvent
-                    : _domainEventFactory.Upgrade(domainEvent, new TestEventV2());
+                    : _domainEventFactory.Upgrade<TestAggregate, TestId>(domainEvent, new TestEventV2());
             }
         }
 
@@ -144,7 +144,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 var testEvent2 = domainEvent as IDomainEvent<TestEventV2>;
                 yield return testEvent2 == null
                     ? domainEvent
-                    : _domainEventFactory.Upgrade(domainEvent, new TestEventV3());
+                    : _domainEventFactory.Upgrade<TestAggregate, TestId>(domainEvent, new TestEventV3());
             }
         }
 

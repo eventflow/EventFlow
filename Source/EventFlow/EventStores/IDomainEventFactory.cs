@@ -27,24 +27,20 @@ namespace EventFlow.EventStores
 {
     public interface IDomainEventFactory
     {
-        IDomainEvent Create(
+        IDomainEvent Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             long globalSequenceNumber,
-            string aggregateId,
+            TIdentity id,
             int aggregateSequenceNumber,
-            Guid batchId);
+            Guid batchId)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
 
-        IDomainEvent Create(
-            IAggregateEvent aggregateEvent,
-            IMetadata metadata,
-            long globalSequenceNumber,
-            IIdentity id,
-            int aggregateSequenceNumber,
-            Guid batchId);
-
-        IDomainEvent Upgrade(
+        IDomainEvent Upgrade<TAggregate, TIdentity>(
             IDomainEvent domainEvent,
-            IAggregateEvent aggregateEvent);
+            IAggregateEvent aggregateEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }
