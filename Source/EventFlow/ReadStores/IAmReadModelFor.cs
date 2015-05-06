@@ -29,4 +29,11 @@ namespace EventFlow.ReadStores
     {
         void Apply(IReadModelContext context, IDomainEvent<TEvent> e);
     }
+
+    public interface IAmReadModelFor<in TEvent, in TIdentity>
+        where TEvent : IAggregateEvent
+        where TIdentity : IIdentity
+    {
+        void Apply(IReadModelContext context, IDomainEvent<TEvent, TIdentity> e);
+    }
 }

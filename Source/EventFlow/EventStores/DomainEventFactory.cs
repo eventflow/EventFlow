@@ -73,7 +73,7 @@ namespace EventFlow.EventStores
             Type domainEventType;
             if (!_aggregateEventToDomainEventTypeMap.TryGetValue(aggregateEventType, out domainEventType))
             {
-                domainEventType = typeof (DomainEvent<>).MakeGenericType(aggregateEventType);
+                domainEventType = typeof (DomainEvent<,>).MakeGenericType(aggregateEventType, id.GetType());
                 _aggregateEventToDomainEventTypeMap[aggregateEventType] = domainEventType;
             }
 
@@ -96,7 +96,7 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 domainEvent.Metadata,
                 domainEvent.GlobalSequenceNumber,
-                domainEvent.AggregateIdentity,
+                domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber,
                 domainEvent.BatchId);
         }

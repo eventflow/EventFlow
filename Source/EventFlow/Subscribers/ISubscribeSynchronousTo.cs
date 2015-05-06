@@ -31,4 +31,11 @@ namespace EventFlow.Subscribers
     {
         Task HandleAsync(IDomainEvent<TEvent> e, CancellationToken cancellationToken);
     }
+
+    public interface ISubscribeSynchronousTo<in TEvent, in TIdentity>
+        where TEvent : IAggregateEvent
+        where TIdentity : IIdentity
+    {
+        Task HandleAsync(IDomainEvent<TEvent, TIdentity> e, CancellationToken cancellationToken);
+    }
 }

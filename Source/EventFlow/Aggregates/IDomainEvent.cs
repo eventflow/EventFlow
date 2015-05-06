@@ -26,7 +26,6 @@ namespace EventFlow.Aggregates
 {
     public interface IDomainEvent
     {
-        IIdentity AggregateIdentity { get; }
         Type AggregateType { get; }
         Type EventType { get; }
         int AggregateSequenceNumber { get; }
@@ -34,6 +33,8 @@ namespace EventFlow.Aggregates
         long GlobalSequenceNumber { get; }
         IMetadata Metadata { get; }
         DateTimeOffset Timestamp { get; }
+
+        IIdentity GetIdentity();
         IAggregateEvent GetAggregateEvent();
     }
 
@@ -41,5 +42,12 @@ namespace EventFlow.Aggregates
         where TAggregateEvent : IAggregateEvent
     {
         TAggregateEvent AggregateEvent { get; }
+    }
+
+    public interface IDomainEvent<out TAggregateEvent, out TIdentity> : IDomainEvent<TAggregateEvent>
+        where TAggregateEvent : IAggregateEvent
+        where TIdentity : IIdentity
+    {
+        TIdentity AggregateIdentity { get; }
     }
 }

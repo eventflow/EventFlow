@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using Moq;
 using NUnit.Framework;
@@ -53,7 +54,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Returns(new object[] {subscriberMock.Object});
 
             // Act
-            await Sut.DispatchAsync(new[] {A<DomainEvent<PingEvent>>()}, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchAsync(new[] {A<DomainEvent<PingEvent, TestId>>()}, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<PingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
