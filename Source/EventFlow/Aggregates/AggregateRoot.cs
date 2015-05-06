@@ -58,7 +58,7 @@ namespace EventFlow.Aggregates
         }
 
         protected void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
-            where TEvent : AggregateEvent<TAggregate, TIdentity>
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null)
             {
