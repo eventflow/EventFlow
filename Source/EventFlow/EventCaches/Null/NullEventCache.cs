@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,28 +29,32 @@ namespace EventFlow.EventCaches.Null
 {
     public class NullEventCache : IEventCache
     {
-        public Task InsertAsync(
-            Type aggregateType,
-            IIdentity id, IReadOnlyCollection<IDomainEvent> domainEvents,
+        public Task InsertAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             return Task.FromResult(0);
         }
 
-        public Task InvalidateAsync(
-            Type aggregateType,
-            IIdentity id,
+        public Task InvalidateAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             return Task.FromResult(0);
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
-            Type aggregateType,
-            IIdentity id,
+        public Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> GetAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            return Task.FromResult(null as IReadOnlyCollection<IDomainEvent>);
+            return Task.FromResult(null as IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>);
         }
     }
 }

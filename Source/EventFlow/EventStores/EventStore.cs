@@ -57,7 +57,7 @@ namespace EventFlow.EventStores
             MetadataProviders = metadataProviders.ToList();
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
+        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             CancellationToken cancellationToken)
@@ -66,7 +66,7 @@ namespace EventFlow.EventStores
         {
             if (!uncommittedDomainEvents.Any())
             {
-                return new IDomainEvent[] {};
+                return new IDomainEvent<TAggregate, TIdentity>[] {};
             }
 
             var aggregateType = typeof (TAggregate);
@@ -105,7 +105,7 @@ namespace EventFlow.EventStores
                 // TODO: Rework as soon as await is possible within catch
                 using (var a = AsyncHelper.Wait)
                 {
-                    a.Run(EventCache.InvalidateAsync(aggregateType, id, cancellationToken));
+                    a.Run(EventCache.InvalidateAsync<TAggregate, TIdentity>(id, cancellationToken));
                 }
 
                 throw;
@@ -115,7 +115,7 @@ namespace EventFlow.EventStores
                 .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
-            await EventCache.InvalidateAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            await EventCache.InvalidateAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }
@@ -133,14 +133,13 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate, TIdentity>(
+        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
-            var domainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            var domainEvents = await EventCache.GetAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             if (domainEvents != null)
             {
                 return domainEvents;
@@ -156,9 +155,9 @@ namespace EventFlow.EventStores
                 return domainEvents;
             }
 
-            domainEvents = EventUpgradeManager.Upgrade<TAggregate, TIdentity>(domainEvents);
+            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
 
-            await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
+            await EventCache.InsertAsync(id, domainEvents, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }

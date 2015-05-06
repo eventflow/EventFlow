@@ -31,7 +31,7 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IEnumerable<KeyValuePair<string, string>> metadatas);
 
-        IDomainEvent Deserialize<TAggregate, TIdentity>(
+        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
             TIdentity id,
             ICommittedDomainEvent committedDomainEvent)
             where TAggregate : IAggregateRoot<TIdentity>

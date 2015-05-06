@@ -58,8 +58,7 @@ namespace EventFlow.Extensions
         {
             var eventUpgraderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => typeof (IEventUpgrader).IsAssignableFrom(t))
-                .ToList();
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>)));
             return eventFlowOptions
                 .AddEventUpgraders(eventUpgraderTypes);
         }

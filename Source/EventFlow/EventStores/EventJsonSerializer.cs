@@ -63,7 +63,7 @@ namespace EventFlow.EventStores
                 metadata.AggregateSequenceNumber);
         }
 
-        public IDomainEvent Deserialize<TAggregate, TIdentity>(
+        public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
             TIdentity id,
             ICommittedDomainEvent committedDomainEvent)
             where TAggregate : IAggregateRoot<TIdentity>

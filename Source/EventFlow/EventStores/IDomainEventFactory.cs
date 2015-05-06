@@ -27,7 +27,7 @@ namespace EventFlow.EventStores
 {
     public interface IDomainEventFactory
     {
-        IDomainEvent Create<TAggregate, TIdentity>(
+        IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             long globalSequenceNumber,
@@ -37,7 +37,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        IDomainEvent Upgrade<TAggregate, TIdentity>(
+        IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
             IDomainEvent domainEvent,
             IAggregateEvent aggregateEvent)
             where TAggregate : IAggregateRoot<TIdentity>

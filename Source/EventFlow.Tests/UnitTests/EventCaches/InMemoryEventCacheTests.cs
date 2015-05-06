@@ -41,7 +41,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Act
             Assert.Throws<ArgumentNullException>(
-                async () => await Sut.InsertAsync(typeof(TestAggregate), TestId.New, null, CancellationToken.None).ConfigureAwait(false));
+                async () => await Sut.InsertAsync<TestAggregate, TestId>(TestId.New, null, CancellationToken.None).ConfigureAwait(false));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         {
             // Act
             Assert.Throws<ArgumentException>(
-                async () => await Sut.InsertAsync(typeof(TestAggregate), TestId.New, new List<IDomainEvent>(), CancellationToken.None).ConfigureAwait(false));
+                async () => await Sut.InsertAsync(TestId.New, new List<IDomainEvent<TestAggregate, TestId>>(), CancellationToken.None).ConfigureAwait(false));
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace EventFlow.Tests.UnitTests.EventCaches
             var id = TestId.New;
 
             // Act
-            var domainEvents = await Sut.GetAsync(typeof(TestAggregate), id, CancellationToken.None).ConfigureAwait(false);
+            var domainEvents = await Sut.GetAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             domainEvents.Should().BeNull();
@@ -69,25 +69,23 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         public async Task StreamCanBeUpdated()
         {
             // Arrange
-            var aggregateType = typeof (TestAggregate);
             var id = TestId.New;
 
             // Act
-            await Sut.InsertAsync(aggregateType, id, CreateStream(), CancellationToken.None).ConfigureAwait(false);
-            await Sut.InsertAsync(aggregateType, id, CreateStream(), CancellationToken.None).ConfigureAwait(false);
+            await Sut.InsertAsync(id, CreateStream(), CancellationToken.None).ConfigureAwait(false);
+            await Sut.InsertAsync(id, CreateStream(), CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]
         public async Task InsertAndGetWorks()
         {
             // Arrange
-            var aggregateType = typeof(TestAggregate);
             var id = TestId.New;
             var domainEvents = CreateStream();
 
             // Act
-            await Sut.InsertAsync(aggregateType, id, domainEvents, CancellationToken.None).ConfigureAwait(false);
-            var storedDomainEvents = await Sut.GetAsync(aggregateType, id, CancellationToken.None).ConfigureAwait(false);
+            await Sut.InsertAsync(id, domainEvents, CancellationToken.None).ConfigureAwait(false);
+            var storedDomainEvents = await Sut.GetAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             storedDomainEvents.Should().BeSameAs(domainEvents);
@@ -97,20 +95,19 @@ namespace EventFlow.Tests.UnitTests.EventCaches
         public async Task InvalidateRemoves()
         {
             // Arrange
-            var aggregateType = typeof(TestAggregate);
             var id = TestId.New;
             var domainEvents = CreateStream();
             
             // Act
-            await Sut.InsertAsync(aggregateType, id, domainEvents, CancellationToken.None).ConfigureAwait(false);
-            await Sut.InvalidateAsync(aggregateType, id, CancellationToken.None).ConfigureAwait(false);
-            var storedEvents = await Sut.GetAsync(aggregateType, id, CancellationToken.None).ConfigureAwait(false);
+            await Sut.InsertAsync(id, domainEvents, CancellationToken.None).ConfigureAwait(false);
+            await Sut.InvalidateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var storedEvents = await Sut.GetAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             storedEvents.Should().BeNull();
         }
 
-        private IReadOnlyCollection<IDomainEvent> CreateStream()
+        private IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>> CreateStream()
         {
             return Many<DomainEvent<TestAggregate, TestId, PingEvent>>();
         }

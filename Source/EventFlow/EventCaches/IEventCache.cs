@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,20 +29,23 @@ namespace EventFlow.EventCaches
 {
     public interface IEventCache
     {
-        Task InsertAsync(
-            Type aggregateType,
-            IIdentity id,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+        Task InsertAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
         
-        Task InvalidateAsync(
-            Type aggregateType,
-            IIdentity id,
-            CancellationToken cancellationToken);
-        
-        Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
-            Type aggregateType,
-            IIdentity id,
-            CancellationToken cancellationToken);
+        Task InvalidateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
+        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> GetAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

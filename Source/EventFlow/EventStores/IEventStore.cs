@@ -29,14 +29,14 @@ namespace EventFlow.EventStores
 {
     public interface IEventStore
     {
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
+        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate, TIdentity>(
+        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

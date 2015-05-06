@@ -46,12 +46,15 @@ namespace EventFlow.EventCaches.InMemory
             _log = log;
         }
 
-        public Task InsertAsync(
-            Type aggregateType,
-            IIdentity id,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+        public Task InsertAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
+            var aggregateType = typeof (TAggregate);
+
             if (domainEvents == null) throw new ArgumentNullException("domainEvents");
             if (!domainEvents.Any()) throw new ArgumentException(string.Format(
                 "You must provide events to cache for aggregate '{0}' with ID '{1}'",
@@ -68,11 +71,13 @@ namespace EventFlow.EventCaches.InMemory
             return Task.FromResult(0);
         }
 
-        public Task InvalidateAsync(
-            Type aggregateType,
-            IIdentity id,
+        public Task InvalidateAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
+            var aggregateType = typeof (TAggregate);
             var cacheKey = GetKey(aggregateType, id);
             if (_memoryCache.Contains(cacheKey))
             {
@@ -86,13 +91,15 @@ namespace EventFlow.EventCaches.InMemory
             return Task.FromResult(0);
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> GetAsync(
-            Type aggregateType,
-            IIdentity id,
+        public Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> GetAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
+            var aggregateType = typeof (TAggregate);
             var cacheKey = GetKey(aggregateType, id);
-            var domainEvents = _memoryCache.Get(cacheKey) as IReadOnlyCollection<IDomainEvent>;
+            var domainEvents = _memoryCache.Get(cacheKey) as IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>;
             if (domainEvents == null)
             {
                 _log.Verbose(

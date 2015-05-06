@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
@@ -31,7 +30,7 @@ namespace EventFlow.EventStores
     {
         private readonly Dictionary<Type, Type> _aggregateEventToDomainEventTypeMap = new Dictionary<Type, Type>(); 
 
-        public IDomainEvent Create<TAggregate, TIdentity>(
+        public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             long globalSequenceNumber,
@@ -50,7 +49,7 @@ namespace EventFlow.EventStores
                 _aggregateEventToDomainEventTypeMap[aggregateEventType] = domainEventType;
             }
 
-            var domainEvent = (IDomainEvent)Activator.CreateInstance(
+            var domainEvent = (IDomainEvent<TAggregate, TIdentity>)Activator.CreateInstance(
                 domainEventType,
                 aggregateEvent,
                 metadata,
@@ -63,7 +62,7 @@ namespace EventFlow.EventStores
             return domainEvent;
         }
 
-        public IDomainEvent Upgrade<TAggregate, TIdentity>(
+        public IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
             IDomainEvent domainEvent,
             IAggregateEvent aggregateEvent)
             where TAggregate : IAggregateRoot<TIdentity>
