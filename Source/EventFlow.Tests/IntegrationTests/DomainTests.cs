@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
+using EventFlow.Queries;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates.Test;
@@ -66,17 +67,20 @@ namespace EventFlow.Tests.IntegrationTests
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
+                var queryProcessor = resolver.Resolve<IQueryProcessor>();
                 var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
                 var id = TestId.New;
 
                 // Act
                 commandBus.Publish(new DomainErrorAfterFirstCommand(id));
                 var testAggregate = eventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
-                var testReadModel = readModelStore.Get(id);
+                var testReadModelFromStore = readModelStore.Get(id);
+                //var testReadModelFromQuery = queryProcessor.Process(
+                //    new InMemoryQuery<TestAggregate, TestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived), )
 
                 // Assert
                 testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModel.DomainErrorAfterFirstReceived.Should().BeTrue();
+                testReadModelFromStore.DomainErrorAfterFirstReceived.Should().BeTrue();
             }
         }
     }

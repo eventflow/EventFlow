@@ -20,40 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Core;
+using EventFlow.Aggregates;
+using EventFlow.Queries;
 
-namespace EventFlow.Queries
+namespace EventFlow.ReadStores.InMemory
 {
-    public class QueryProcessor : IQueryProcessor
+    public class InMemoryQueryHandler<TAggregate, TReadModel> : IQueryHandler<InMemoryQuery<TAggregate, TReadModel>, IEnumerable<TReadModel>>
+        where TAggregate : IAggregateRoot
+        where TReadModel : IReadModel, new()
     {
-        private readonly IResolver _resolver;
+        private readonly IInMemoryReadModelStore<TAggregate, TReadModel> _readModelStore;
 
-        public QueryProcessor(
-            IResolver resolver)
+        public InMemoryQueryHandler(
+            IInMemoryReadModelStore<TAggregate, TReadModel> readModelStore)
         {
-            _resolver = resolver;
+            _readModelStore = readModelStore;
         }
 
-        public Task<TResult> ProcessAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
+        public Task<IEnumerable<TReadModel>> HandleAsync(InMemoryQuery<TAggregate, TReadModel> query, CancellationToken cancellationToken)
         {
-            var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResult));
-            var queryHandler = _resolver.Resolve(queryHandlerType);
-            var methodInfo = queryHandlerType.GetMethod("HandleAsync");
-
-            return (Task<TResult>)methodInfo.Invoke(queryHandler, new object[] { query, cancellationToken });
-        }
-
-        public TResult Process<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
-        {
-            var result = default(TResult);
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(ProcessAsync(query, cancellationToken), r => result = r);
-            }
-            return result;
+            var result = _readModelStore.Find(query.Query);
+            return Task.FromResult(result);
         }
     }
 }

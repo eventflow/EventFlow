@@ -33,6 +33,7 @@ using EventFlow.EventCaches.InMemory;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
+using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Subscribers;
 
@@ -97,6 +98,7 @@ namespace EventFlow
             RegisterIfMissing<ICommandBus, CommandBus>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
+            RegisterIfMissing<IQueryProcessor, QueryProcessor>(services);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
             RegisterIfMissing<ITransientFaultHandler, TransientFaultHandler>(services);
