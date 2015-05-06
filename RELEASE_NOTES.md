@@ -1,4 +1,4 @@
-### New in 0.5
+### New in 0.5 (not released yet)
 
 * Breaking: `IDomainEvent` property `AggregateId` has been renamed
   to `AggregateIdentity` and its type changed from `string` to
