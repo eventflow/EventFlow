@@ -48,7 +48,7 @@ namespace EventFlow.Aggregates
     public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent
+        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
         TAggregateEvent AggregateEvent { get; }
     }

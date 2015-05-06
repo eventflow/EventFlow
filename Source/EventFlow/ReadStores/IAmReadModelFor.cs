@@ -27,7 +27,7 @@ namespace EventFlow.ReadStores
     public interface IAmReadModelFor<TAggregate, in TIdentity, in TEvent>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TEvent : IAggregateEvent
+        where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
         void Apply(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> e);
     }

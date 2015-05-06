@@ -27,9 +27,9 @@ namespace EventFlow.Aggregates
     public class DomainEvent<TAggregate, TIdentity, TAggregateEvent> : IDomainEvent<TAggregate, TIdentity, TAggregateEvent>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent
+        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        public Type AggregateType { get { return AggregateEvent.GetAggregateType(); } }
+        public Type AggregateType { get { return typeof (TAggregate); } }
         public Type EventType { get { return typeof (TAggregateEvent); } }
 
         public int AggregateSequenceNumber { get; private set; }

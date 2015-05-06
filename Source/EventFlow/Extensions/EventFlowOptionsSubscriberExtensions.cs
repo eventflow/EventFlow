@@ -35,7 +35,7 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TEvent : IAggregateEvent
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
             where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
         {
             return eventFlowOptions
