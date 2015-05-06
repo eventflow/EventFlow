@@ -35,6 +35,16 @@ namespace EventFlow.EventStores
             int aggregateSequenceNumber,
             Guid batchId);
 
-        IDomainEvent Upgrade(IDomainEvent domainEvent, IAggregateEvent aggregateEvent);
+        IDomainEvent Create(
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata,
+            long globalSequenceNumber,
+            IIdentity id,
+            int aggregateSequenceNumber,
+            Guid batchId);
+
+        IDomainEvent Upgrade(
+            IDomainEvent domainEvent,
+            IAggregateEvent aggregateEvent);
     }
 }

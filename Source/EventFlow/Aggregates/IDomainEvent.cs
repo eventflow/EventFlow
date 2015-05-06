@@ -26,7 +26,7 @@ namespace EventFlow.Aggregates
 {
     public interface IDomainEvent
     {
-        string AggregateId { get; }
+        IIdentity AggregateIdentity { get; }
         Type AggregateType { get; }
         Type EventType { get; }
         int AggregateSequenceNumber { get; }

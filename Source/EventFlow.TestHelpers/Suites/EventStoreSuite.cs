@@ -62,7 +62,7 @@ namespace EventFlow.TestHelpers.Suites
             domainEvents.Count.Should().Be(1);
             var pingEvent = domainEvents.Single() as IDomainEvent<PingEvent>;
             pingEvent.Should().NotBeNull();
-            pingEvent.AggregateId.Should().Be(id.Value);
+            pingEvent.AggregateIdentity.Should().Be(id);
             pingEvent.AggregateSequenceNumber.Should().Be(1);
             pingEvent.AggregateType.Should().Be(typeof (TestAggregate));
             pingEvent.BatchId.Should().NotBe(default(Guid));

@@ -22,13 +22,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
     public class DomainEventFactory : IDomainEventFactory
     {
-        private readonly Dictionary<Type, Type> _typeMap = new Dictionary<Type, Type>(); 
+        private readonly Dictionary<Type, Type> _aggregateEventToDomainEventTypeMap = new Dictionary<Type, Type>(); 
+        private readonly Dictionary<Type, Type> _aggregateToIdentityTypeMap = new Dictionary<Type, Type>();
 
         public IDomainEvent Create(
             IAggregateEvent aggregateEvent,
@@ -38,12 +40,41 @@ namespace EventFlow.EventStores
             int aggregateSequenceNumber,
             Guid batchId)
         {
+            var aggregateType = aggregateEvent.GetAggregateType();
+            Type identityType;
+            if (!_aggregateToIdentityTypeMap.TryGetValue(aggregateType, out identityType))
+            {
+                var constructor = aggregateType.GetConstructors().Single();
+                identityType = constructor.GetParameters().Single().ParameterType;
+                _aggregateToIdentityTypeMap[aggregateType] = identityType;
+            }
+
+            var identity = (IIdentity)Activator.CreateInstance(identityType, aggregateId);
+
+            return Create(
+                aggregateEvent,
+                metadata,
+                globalSequenceNumber,
+                identity,
+                aggregateSequenceNumber,
+                batchId);
+        }
+
+        public IDomainEvent Create(
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata,
+            long globalSequenceNumber,
+            IIdentity id,
+            int aggregateSequenceNumber,
+            Guid batchId)
+        {
+
             var aggregateEventType = aggregateEvent.GetType();
             Type domainEventType;
-            if (!_typeMap.TryGetValue(aggregateEventType, out domainEventType))
+            if (!_aggregateEventToDomainEventTypeMap.TryGetValue(aggregateEventType, out domainEventType))
             {
                 domainEventType = typeof (DomainEvent<>).MakeGenericType(aggregateEventType);
-                _typeMap[aggregateEventType] = domainEventType;
+                _aggregateEventToDomainEventTypeMap[aggregateEventType] = domainEventType;
             }
 
             var domainEvent = (IDomainEvent)Activator.CreateInstance(
@@ -52,7 +83,7 @@ namespace EventFlow.EventStores
                 metadata,
                 metadata.Timestamp,
                 globalSequenceNumber,
-                aggregateId,
+                id,
                 aggregateSequenceNumber,
                 batchId);
 
@@ -65,7 +96,7 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 domainEvent.Metadata,
                 domainEvent.GlobalSequenceNumber,
-                domainEvent.AggregateId,
+                domainEvent.AggregateIdentity,
                 domainEvent.AggregateSequenceNumber,
                 domainEvent.BatchId);
         }

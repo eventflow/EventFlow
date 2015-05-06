@@ -1,5 +1,9 @@
 ### New in 0.5
 
+* Breaking: `IDomainEvent` property `AggregateId` has been renamed
+  to `AggregateIdentity` and its type changed from `string` to
+  `IIdentity`
+
 ### New in 0.4.353 (released 2015-05-05)
 
 * Breaking: `ValueObject` now uses public properties instead of both

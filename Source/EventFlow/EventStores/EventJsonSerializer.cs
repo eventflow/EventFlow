@@ -25,11 +25,19 @@ using System.Globalization;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.EventStores
 {
     public class EventJsonSerializer : IEventJsonSerializer
     {
+        private class DezerializeIdentity : SingleValueObject<string>, IIdentity
+        {
+            public DezerializeIdentity(string value) : base (value)
+            {
+            }
+        }
+
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IDomainEventFactory _domainEventFactory;

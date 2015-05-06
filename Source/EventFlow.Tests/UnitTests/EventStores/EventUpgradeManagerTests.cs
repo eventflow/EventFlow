@@ -107,7 +107,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 aggregateEvent,
                 metadata,
                 A<long>(),
-                A<string>(),
+                A<TestId>(),
                 A<int>(),
                 A<Guid>());
         }
