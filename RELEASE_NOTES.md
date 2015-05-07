@@ -1,11 +1,21 @@
 ### New in 0.5 (not released yet)
 
- * Breaking: `IDomainEvent` property `AggregateId` has been renamed
-   to `AggregateIdentity` and its type changed from `string` to
-   `IIdentity`
- * Breaking: Files event store now stores its log as JSON instead of
-   an `int` in the form `{"GlobalSequenceNumber":2}`. So rename the
-   current file and put in the global sequence number to continue  
+ * POTENTIAL DATA LOSS for files event store: Files event store now
+   stores its log as JSON instead of an `int` in the form
+   `{"GlobalSequenceNumber":2}`. So rename the current file and put in the
+   global sequence number before startup
+ * Breaking: Major changes has been made regarding how the aggregate
+   identity is implemented and referenced through interfaces. These changes makes
+   it possible to access the identity type directly though all interface. Some
+   notable examples are listed here. Note that this has NO impact on how data
+   is stored!
+   - `IAggregateRoot` changed to `IAggregateRoot<TIdentity>`
+   - `ICommand<TAggregate>` changed to `ICommand<TAggregate,TIdentity>`
+   - `ICommandHandler<TAggregate,TCommand>` changed to
+     `ICommandHandler<TAggregate,TIdentity, TCommand>`
+   - `IAmReadModelFor<TEvent>` changed to
+     `IAmReadModelFor<TAggregate,TIdentity,TEvent>`
+   - `IDomainEvent<TEvent>` changed to `IDomainEvent<TAggregate,TIdentity>`  
  * New: `ICommandBus.Publish` now takes a `CancellationToken` argument
 
 
