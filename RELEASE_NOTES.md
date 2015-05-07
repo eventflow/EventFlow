@@ -1,8 +1,10 @@
 ### New in 0.5 (not released yet)
 
-* Breaking: `IDomainEvent` property `AggregateId` has been renamed
-  to `AggregateIdentity` and its type changed from `string` to
-  `IIdentity`
+ * Breaking: `IDomainEvent` property `AggregateId` has been renamed
+   to `AggregateIdentity` and its type changed from `string` to
+   `IIdentity`
+ * New: `ICommandBus.Publish` now takes a `CancellationToken` argument
+
 
 ### New in 0.4.353 (released 2015-05-05)
 

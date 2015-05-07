@@ -110,11 +110,14 @@ namespace EventFlow
             await _domainEventPublisher.PublishAsync<TAggregate>(command.Id, domainEvents, cancellationToken).ConfigureAwait(false);
         }
 
-        public void Publish<TAggregate>(ICommand<TAggregate> command) where TAggregate : IAggregateRoot
+        public void Publish<TAggregate>(
+            ICommand<TAggregate> command,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot
         {
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command, CancellationToken.None));
+                a.Run(PublishAsync(command, cancellationToken));
             }
         }
 

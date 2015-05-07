@@ -32,7 +32,7 @@ namespace EventFlow
         Task PublishAsync<TAggregate>(ICommand<TAggregate> command, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
 
-        void Publish<TAggregate>(ICommand<TAggregate> command)
+        void Publish<TAggregate>(ICommand<TAggregate> command, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot;
     }
 }
