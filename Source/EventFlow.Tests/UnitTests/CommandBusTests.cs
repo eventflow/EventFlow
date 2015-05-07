@@ -34,6 +34,7 @@ using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -90,7 +91,7 @@ namespace EventFlow.Tests.UnitTests
             var commandHandler = ArrangeCommandHandlerExists<TestAggregate, TestId, PingCommand>();
 
             // Act
-            await Sut.PublishAsync(new PingCommand(TestId.New), CancellationToken.None).ConfigureAwait(false);
+            await Sut.PublishAsync(new PingCommand(TestId.New, PingId.New), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             commandHandler.Verify(h => h.ExecuteAsync(It.IsAny<TestAggregate>(), It.IsAny<PingCommand>(), It.IsAny<CancellationToken>()), Times.Once);

@@ -70,7 +70,7 @@ namespace EventFlow.Tests.IntegrationTests
                 var id = TestId.New;
 
                 // Act
-                commandBus.Publish(new DomainErrorAfterFirstCommand(id));
+                commandBus.Publish(new DomainErrorAfterFirstCommand(id), CancellationToken.None);
                 var testAggregate = eventStore.LoadAggregate<TestAggregate, TestId>(id, CancellationToken.None);
                 var testReadModel = readModelStore.Get(id);
 

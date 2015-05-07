@@ -116,13 +116,14 @@ namespace EventFlow
         }
 
         public void Publish<TAggregate, TIdentity>(
-            ICommand<TAggregate, TIdentity> command)
+            ICommand<TAggregate, TIdentity> command,
+			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command, CancellationToken.None));
+                a.Run(PublishAsync(command, cancellationToken));
             }
         }
 

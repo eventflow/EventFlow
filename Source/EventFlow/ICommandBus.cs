@@ -36,7 +36,8 @@ namespace EventFlow
             where TIdentity : IIdentity;
 
         void Publish<TAggregate, TIdentity>(
-            ICommand<TAggregate, TIdentity> command)
+		    ICommand<TAggregate, TIdentity> command,
+			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
     }

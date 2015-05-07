@@ -24,6 +24,7 @@ using System.Linq;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -45,13 +46,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void ApplyingEventIncrementsVersion()
         {
             // Act
-            Sut.Ping();
+            Sut.Ping(PingId.New);
 
             // Assert
             Sut.Version.Should().Be(1);
             Sut.IsNew.Should().BeFalse();
             Sut.UncommittedEvents.Count().Should().Be(1);
-            Sut.PingsReceived.Should().Be(1);
+            Sut.PingsReceived.Count.Should().Be(1);
         }
 
         [Test]
@@ -66,7 +67,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             // Assert
             Sut.IsNew.Should().BeFalse();
             Sut.Version.Should().Be(2);
-            Sut.PingsReceived.Should().Be(2);
+            Sut.PingsReceived.Count.Should().Be(2);
             Sut.UncommittedEvents.Count().Should().Be(0);
         }
     }
