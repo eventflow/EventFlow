@@ -20,12 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.IO;
 using System.Reflection;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.Core
 {
-    public static class EventFlowTest
+    public static class ReflectionHelper
     {
-        public static Assembly Assembly { get { return typeof (EventFlowTest).Assembly; } }
+        public static string GetCodeBase(Assembly assembly, bool includeFileName = false)
+        {
+            var codebase = assembly.GetName().CodeBase;
+            var uri = new UriBuilder(codebase);
+            var path = Path.GetFullPath(Uri.UnescapeDataString(uri.Path));
+            var codeBase = includeFileName ?
+                path :
+                Path.GetDirectoryName(path);
+            return codeBase;
+        }
     }
 }

@@ -3,6 +3,9 @@
  * Breaking: `IDomainEvent` property `AggregateId` has been renamed
    to `AggregateIdentity` and its type changed from `string` to
    `IIdentity`
+ * Breaking: Files event store now stores its log as JSON instead of
+   an `int` in the form `{"GlobalSequenceNumber":2}`. So rename the
+   current file and put in the global sequence number to continue  
  * New: `ICommandBus.Publish` now takes a `CancellationToken` argument
 
 
@@ -21,6 +24,7 @@
 * Fixed: Unchecked missing in `ValueObject` when claculating hash
 * Fixed: `NullReferenceException` thrown if `null` was stored
   in `SingleValueObject` and `ToString()` was called
+
 
 ### New in 0.3.292 (released 2015-04-30)
 

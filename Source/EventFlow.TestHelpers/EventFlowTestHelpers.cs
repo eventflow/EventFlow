@@ -20,36 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using Newtonsoft.Json;
+using System.Reflection;
 
-namespace EventFlow.Core
+namespace EventFlow.TestHelpers
 {
-    public class JsonSerializer : IJsonSerializer
+    public static class EventFlowTestHelpers
     {
-        private static readonly JsonSerializerSettings SettingsNotIndented = new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-            };
-        private static readonly JsonSerializerSettings SettingsIndented = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-            };
-
-        public string Serialize(object obj, bool indented = false)
-        {
-            var settings = indented ? SettingsIndented : SettingsNotIndented;
-            return JsonConvert.SerializeObject(obj, settings);
-        }
-
-        public object Deserialize(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type);
-        }
-
-        public T Deserialize<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json);
-        }
+        public static Assembly Assembly { get { return typeof (EventFlowTestHelpers).Assembly; } }
     }
 }

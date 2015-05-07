@@ -20,22 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Test
 {
     public class TestAggregate : AggregateRoot<TestAggregate>,
         IEmit<DomainErrorAfterFirstEvent>
     {
+        private readonly List<PingId> _pingsReceived = new List<PingId>();
+
         public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        public IReadOnlyCollection<PingId> PingsReceived { get {return _pingsReceived; } }
 
         public TestAggregate(TestId id) : base(id)
         {
-            Register<PingEvent>(e => PingsReceived++);
+            Register<PingEvent>(e => _pingsReceived.Add(e.PingId));
         }
 
         public void DomainErrorAfterFirst()
@@ -48,9 +51,9 @@ namespace EventFlow.TestHelpers.Aggregates.Test
             Emit(new DomainErrorAfterFirstEvent());
         }
 
-        public void Ping()
+        public void Ping(PingId pingId)
         {
-            Emit(new PingEvent(Guid.NewGuid()));
+            Emit(new PingEvent(pingId));
         }
 
         public void Apply(DomainErrorAfterFirstEvent e)

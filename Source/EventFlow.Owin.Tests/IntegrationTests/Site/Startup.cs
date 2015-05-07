@@ -87,8 +87,8 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
 
             var container = EventFlowOptions.New
                 .UseAutofacContainerBuilder(containerBuilder)
-                .AddEvents(EventFlowTest.Assembly)
-                .AddCommandHandlers(EventFlowTest.Assembly)
+                .AddEvents(EventFlowTestHelpers.Assembly)
+                .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .AddOwinMetadataProviders()
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))

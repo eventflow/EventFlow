@@ -21,35 +21,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using Newtonsoft.Json;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Core
+namespace EventFlow.TestHelpers.Aggregates.Test.ValueObjects
 {
-    public class JsonSerializer : IJsonSerializer
+    public class PingId : SingleValueObject<string>
     {
-        private static readonly JsonSerializerSettings SettingsNotIndented = new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-            };
-        private static readonly JsonSerializerSettings SettingsIndented = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-            };
+        public static PingId New { get { return new PingId(Guid.NewGuid().ToString()); } }
+        public static PingId With(string value) { return new PingId(value); }
 
-        public string Serialize(object obj, bool indented = false)
+        public PingId(string value) : base (value)
         {
-            var settings = indented ? SettingsIndented : SettingsNotIndented;
-            return JsonConvert.SerializeObject(obj, settings);
-        }
-
-        public object Deserialize(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type);
-        }
-
-        public T Deserialize<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }
