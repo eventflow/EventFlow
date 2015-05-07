@@ -92,7 +92,7 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
-        public void ApplyEvents(IEnumerable<IAggregateEvent> domainEvents)
+        public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
             if (Version > 0)
             {
@@ -102,13 +102,22 @@ namespace EventFlow.Aggregates
                     Id));
             }
 
-            foreach (var domainEvent in domainEvents)
+            foreach (var aggregateEvent in aggregateEvents)
             {
-                ApplyEvent(domainEvent);
+                var e = aggregateEvent as IAggregateEvent<TAggregate, TIdentity>;
+                if (e == null)
+                {
+                    throw new ArgumentException(string.Format(
+                        "Aggregate event of type '{0}' does not belong with aggregate '{1}'," +
+                        aggregateEvent.GetType(),
+                        this));
+                }
+
+                ApplyEvent(e);
             }
         }
 
-        private void ApplyEvent(IAggregateEvent aggregateEvent)
+        private void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
             var eventType = aggregateEvent.GetType();
             if (_eventHandlers.ContainsKey(eventType))
@@ -125,7 +134,7 @@ namespace EventFlow.Aggregates
 
         private readonly Dictionary<Type, Action<object>> _eventHandlers = new Dictionary<Type, Action<object>>();
         protected void Register<TAggregateEvent>(Action<TAggregateEvent> handler)
-            where TAggregateEvent : IAggregateEvent
+            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
             var eventType = typeof (TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))

@@ -24,7 +24,6 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Commands
 {
-    // ReSharper disable once UnusedTypeParameter
     public interface ICommand<in TAggregate, out TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
