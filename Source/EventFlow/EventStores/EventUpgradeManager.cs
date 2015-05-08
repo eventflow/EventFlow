@@ -41,19 +41,21 @@ namespace EventFlow.EventStores
             _resolver = resolver;
         }
 
-        public IReadOnlyCollection<IDomainEvent> Upgrade<TAggregate>(IReadOnlyCollection<IDomainEvent> domainEvents)
-            where TAggregate : IAggregateRoot
+        public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             if (!domainEvents.Any())
             {
-                return new List<IDomainEvent>();
+                return new IDomainEvent<TAggregate, TIdentity>[]{};
             }
 
             var aggreateType = typeof (TAggregate);
             var eventUpgraders = _resolver
-                    .Resolve<IEnumerable<IEventUpgrader<TAggregate>>>()
-                    .OrderBy(u => u.GetType().Name)
-                    .ToList();
+                .Resolve<IEnumerable<IEventUpgrader<TAggregate, TIdentity>>>()
+                .OrderBy(u => u.GetType().Name)
+                .ToList();
 
             if (!eventUpgraders.Any())
             {
@@ -67,7 +69,10 @@ namespace EventFlow.EventStores
                 aggreateType.Name));
 
             return domainEvents
-                .SelectMany(e => eventUpgraders.Aggregate((IEnumerable<IDomainEvent>) new []{e}, (de, up) => de.SelectMany(up.Upgrade)))
+                .SelectMany(e => eventUpgraders
+                    .Aggregate(
+                        (IEnumerable<IDomainEvent<TAggregate, TIdentity>>)new[] { e },
+                        (de, up) => de.SelectMany(up.Upgrade)))
                 .ToList();
         }
     }

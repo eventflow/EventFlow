@@ -58,7 +58,7 @@ namespace EventFlow.Subscribers
         {
             foreach (var domainEvent in domainEvents)
             {
-                var subscriberInfomation = GetSubscriberInfomation(domainEvent.EventType);
+                var subscriberInfomation = GetSubscriberInfomation(domainEvent.GetType());
                 var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
                 var subscriberDispatchTasks = subscribers
                     .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent, cancellationToken))
@@ -86,13 +86,18 @@ namespace EventFlow.Subscribers
             }
         }
 
-        private static SubscriberInfomation GetSubscriberInfomation(Type eventType)
+        private static SubscriberInfomation GetSubscriberInfomation(Type domainEventType)
         {
             return HandlerInfomations.GetOrAdd(
-                eventType,
+                domainEventType,
                 t =>
                     {
-                        var handlerType = typeof(ISubscribeSynchronousTo<>).MakeGenericType(t);
+                        var arguments = t
+                            .GetInterfaces()
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IDomainEvent<,,>))
+                            .GetGenericArguments();
+
+                        var handlerType = typeof(ISubscribeSynchronousTo<,,>).MakeGenericType(arguments[0], arguments[1], arguments[2]);
                         var methodInfo = handlerType.GetMethod("HandleAsync", BindingFlags.Instance | BindingFlags.Public);
                         return new SubscriberInfomation
                             {

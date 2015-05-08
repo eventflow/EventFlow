@@ -1,0 +1,9 @@
+{
+  "GlobalSequenceNumber": 2,
+  "BatchId": "208a20e8-cd83-4eee-bf9e-dc32fefb7991",
+  "AggregateId": "test-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7",
+  "AggregateName": "TestAggregate",
+  "Data": "{\"PingId\":{\"Value\":\"2352d09b-4712-48cc-bb4f-5560d7c52558\"}}",
+  "Metadata": "{\"timestamp\":\"2015-05-07T22:09:34.8387144+02:00\",\"aggregate_sequence_number\":\"2\",\"event_name\":\"PingEvent\",\"event_version\":\"1\"}",
+  "AggregateSequenceNumber": 2
+}

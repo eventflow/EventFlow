@@ -41,14 +41,15 @@ namespace EventFlow.Subscribers
             _readStoreManager = readStoreManager;
         }
 
-        public async Task PublishAsync<TAggregate>(
-            IIdentity id,
+        public async Task PublishAsync<TAggregate, TIdentity>(
+            TIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             // ARGH, dilemma, should we pass the cancellation token to read model update or not?
-            var readStoreTask = _readStoreManager.UpdateReadStoresAsync<TAggregate>(id, domainEvents, CancellationToken.None);
+            var readStoreTask = _readStoreManager.UpdateReadStoresAsync<TAggregate, TIdentity>(id, domainEvents, CancellationToken.None);
 
             var subscriberTask = _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken);
 

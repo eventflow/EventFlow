@@ -28,44 +28,51 @@ namespace EventFlow.EventStores
 {
     public class DomainEventFactory : IDomainEventFactory
     {
-        private readonly Dictionary<Type, Type> _typeMap = new Dictionary<Type, Type>(); 
+        private readonly Dictionary<Type, Type> _aggregateEventToDomainEventTypeMap = new Dictionary<Type, Type>(); 
 
-        public IDomainEvent Create(
+        public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             long globalSequenceNumber,
-            string aggregateId,
+            TIdentity id,
             int aggregateSequenceNumber,
             Guid batchId)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
+            var aggregateType = typeof (TAggregate);
             var aggregateEventType = aggregateEvent.GetType();
             Type domainEventType;
-            if (!_typeMap.TryGetValue(aggregateEventType, out domainEventType))
+            if (!_aggregateEventToDomainEventTypeMap.TryGetValue(aggregateEventType, out domainEventType))
             {
-                domainEventType = typeof (DomainEvent<>).MakeGenericType(aggregateEventType);
-                _typeMap[aggregateEventType] = domainEventType;
+                domainEventType = typeof(DomainEvent<,,>).MakeGenericType(aggregateType, id.GetType(), aggregateEventType);
+                _aggregateEventToDomainEventTypeMap[aggregateEventType] = domainEventType;
             }
 
-            var domainEvent = (IDomainEvent)Activator.CreateInstance(
+            var domainEvent = (IDomainEvent<TAggregate, TIdentity>)Activator.CreateInstance(
                 domainEventType,
                 aggregateEvent,
                 metadata,
                 metadata.Timestamp,
                 globalSequenceNumber,
-                aggregateId,
+                id,
                 aggregateSequenceNumber,
                 batchId);
 
             return domainEvent;
         }
 
-        public IDomainEvent Upgrade(IDomainEvent domainEvent, IAggregateEvent aggregateEvent)
+        public IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
+            IDomainEvent domainEvent,
+            IAggregateEvent aggregateEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            return Create(
+            return Create<TAggregate, TIdentity>(
                 aggregateEvent,
                 domainEvent.Metadata,
                 domainEvent.GlobalSequenceNumber,
-                domainEvent.AggregateId,
+                (TIdentity) domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber,
                 domainEvent.BatchId);
         }

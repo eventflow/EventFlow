@@ -41,9 +41,9 @@ namespace EventFlow.Tests.IntegrationTests
     [TestFixture]
     public class DomainTests
     {
-        public class Subscriber : ISubscribeSynchronousTo<DomainErrorAfterFirstEvent>
+        public class Subscriber : ISubscribeSynchronousTo<TestAggregate, TestId, DomainErrorAfterFirstEvent>
         {
-            public Task HandleAsync(IDomainEvent<DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
             {
                 Console.WriteLine("Subscriber got DomainErrorAfterFirstEvent");
                 return Task.FromResult(0);
@@ -60,18 +60,18 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregate, TestId, TestAggregateReadModel>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestId, TestAggregateReadModel>>();
                 var id = TestId.New;
 
                 // Act
-                commandBus.Publish(new DomainErrorAfterFirstCommand(id));
-                var testAggregate = eventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
+                commandBus.Publish(new DomainErrorAfterFirstCommand(id), CancellationToken.None);
+                var testAggregate = eventStore.LoadAggregate<TestAggregate, TestId>(id, CancellationToken.None);
                 var testReadModel = readModelStore.Get(id);
 
                 // Assert

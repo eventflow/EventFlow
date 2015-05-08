@@ -26,7 +26,8 @@ namespace EventFlow.Aggregates
 {
     public interface IAggregateFactory
     {
-        Task<TAggregate> CreateNewAggregateAsync<TAggregate>(IIdentity id)
-            where TAggregate : IAggregateRoot;
+        Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

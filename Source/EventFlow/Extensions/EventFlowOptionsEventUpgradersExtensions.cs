@@ -32,19 +32,21 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsEventUpgradersExtensions
     {
-        public static EventFlowOptions AddEventUpgrader<TAggregate, TEventUpgrader>(
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
             this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
-            where TEventUpgrader : class, IEventUpgrader<TAggregate>
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
         {
-            eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate>, TEventUpgrader>());
+            eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
             return eventFlowOptions;
         }
 
-        public static EventFlowOptions AddEventUpgrader<TAggregate>(
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
             this EventFlowOptions eventFlowOptions,
-            Func<IResolverContext, IEventUpgrader<TAggregate>> factory)
-            where TAggregate : IAggregateRoot
+            Func<IResolverContext, IEventUpgrader<TAggregate, TIdentity>> factory)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             eventFlowOptions.RegisterServices(f => f.Register(factory));
             return eventFlowOptions;
@@ -56,8 +58,7 @@ namespace EventFlow.Extensions
         {
             var eventUpgraderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => typeof (IEventUpgrader).IsAssignableFrom(t))
-                .ToList();
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>)));
             return eventFlowOptions
                 .AddEventUpgraders(eventUpgraderTypes);
         }
@@ -79,11 +80,11 @@ namespace EventFlow.Extensions
                 var t = eventUpgraderType;
                 var eventUpgraderForAggregateType = t
                     .GetInterfaces()
-                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEventUpgrader<>));
+                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEventUpgrader<,>));
                 if (eventUpgraderForAggregateType == null)
                 {
                     throw new ArgumentException(string.Format(
-                        "Type '{0}' does not have the IEventUpgrader<TAggregate> interface",
+                        "Type '{0}' does not have the IEventUpgrader<TAggregate, TIdentity> interface",
                         eventUpgraderType.Name));
                 }
 

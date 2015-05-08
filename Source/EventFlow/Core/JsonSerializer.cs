@@ -27,14 +27,19 @@ namespace EventFlow.Core
 {
     public class JsonSerializer : IJsonSerializer
     {
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings SettingsNotIndented = new JsonSerializerSettings
             {
                 Formatting = Formatting.None,
             };
+        private static readonly JsonSerializerSettings SettingsIndented = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+            };
 
-        public string Serialize(object obj)
+        public string Serialize(object obj, bool indented = false)
         {
-            return JsonConvert.SerializeObject(obj, Settings);
+            var settings = indented ? SettingsIndented : SettingsNotIndented;
+            return JsonConvert.SerializeObject(obj, settings);
         }
 
         public object Deserialize(string json, Type type)

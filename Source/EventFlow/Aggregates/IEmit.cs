@@ -22,9 +22,9 @@
 
 namespace EventFlow.Aggregates
 {
-    public interface IEmit<in TDomainEvent>
-        where TDomainEvent : IAggregateEvent
+    public interface IEmit<in TAggregateEvent>
+        where TAggregateEvent : IAggregateEvent
     {
-        void Apply(TDomainEvent e);
+        void Apply(TAggregateEvent e);
     }
 }

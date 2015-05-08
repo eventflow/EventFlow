@@ -30,11 +30,12 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.InMemory
 {
-    public class InMemoryReadModelStore<TAggregate, TReadModel> :
-        ReadModelStore<TAggregate, TReadModel>,
-        IInMemoryReadModelStore<TAggregate, TReadModel>
+    public class InMemoryReadModelStore<TAggregate, TIdentity, TReadModel> :
+        ReadModelStore<TAggregate, TIdentity, TReadModel>,
+        IInMemoryReadModelStore<TAggregate, TIdentity, TReadModel>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
         where TReadModel : IReadModel, new()
-        where TAggregate : IAggregateRoot
     {
         private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>();
 
@@ -45,7 +46,7 @@ namespace EventFlow.ReadStores.InMemory
         }
 
         public override Task UpdateReadModelAsync(
-            IIdentity id,
+            TIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
