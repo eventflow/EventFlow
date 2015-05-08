@@ -17,6 +17,7 @@
      `IAmReadModelFor<TAggregate,TIdentity,TEvent>`
    - `IDomainEvent<TEvent>` changed to `IDomainEvent<TAggregate,TIdentity>`  
  * New: `ICommandBus.Publish` now takes a `CancellationToken` argument
+ * Fixed: MSSQL should list columns to SELECT when fetching events 
 
 
 ### New in 0.4.353 (released 2015-05-05)

@@ -146,7 +146,14 @@ namespace EventFlow.EventStores.MsSql
             TIdentity id,
             CancellationToken cancellationToken)
         {
-            const string sql = @"SELECT * FROM EventFlow WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber ASC";
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    AggregateId = @AggregateId
+                ORDER BY
+                    AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                 Label.Named("mssql-fetch-events"), 
                 cancellationToken,
