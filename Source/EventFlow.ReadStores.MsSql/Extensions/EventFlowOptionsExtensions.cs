@@ -27,8 +27,9 @@ namespace EventFlow.ReadStores.MsSql.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions UseMssqlReadModel<TAggregate, TReadModel>(this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
+        public static EventFlowOptions UseMssqlReadModel<TAggregate, TIdentity, TReadModel>(this EventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
             where TReadModel : IMssqlReadModel, new()
         {
             eventFlowOptions.RegisterServices(f =>
@@ -37,7 +38,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
                     {
                         f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                     }
-                    f.Register<IReadModelStore<TAggregate>, MssqlReadModelStore<TAggregate, TReadModel>>();
+                    f.Register<IReadModelStore<TAggregate, TIdentity>, MssqlReadModelStore<TAggregate, TIdentity, TReadModel>>();
                 });
 
             return eventFlowOptions;

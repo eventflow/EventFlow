@@ -26,9 +26,10 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Commands
 {
-    public abstract class CommandHandler<TAggregate, TCommand> : ICommandHandler<TAggregate, TCommand>
-        where TAggregate : IAggregateRoot
-        where TCommand : ICommand<TAggregate>
+    public abstract class CommandHandler<TAggregate, TIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TCommand>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TCommand : ICommand<TAggregate, TIdentity>
     {
         public abstract Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
     }

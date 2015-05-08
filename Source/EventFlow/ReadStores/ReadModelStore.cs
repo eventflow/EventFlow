@@ -30,15 +30,16 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadModelStore<TAggregate, TReadModel> : IReadModelStore<TAggregate>
-        where TAggregate : IAggregateRoot
+    public abstract class ReadModelStore<TAggregate, TIdentity, TReadModel> : IReadModelStore<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
         where TReadModel : IReadModel
     {
         private static readonly ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>> ApplyMethods = new ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>>();
 
         protected ILog Log { get; private set; }
 
-        public abstract Task UpdateReadModelAsync(IIdentity id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        public abstract Task UpdateReadModelAsync(TIdentity id, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
         protected ReadModelStore(ILog log)
         {
@@ -47,6 +48,8 @@ namespace EventFlow.ReadStores
 
         protected void ApplyEvents(TReadModel readModel, IEnumerable<IDomainEvent> domainEvents)
         {
+            var aggregateType = typeof (TAggregate);
+            var identityType = typeof (TIdentity);
             var readModelType = typeof(TReadModel);
             var readModelContextType = typeof(IReadModelContext);
             var readModelContext = new ReadModelContext();
@@ -57,7 +60,7 @@ namespace EventFlow.ReadStores
                     domainEvent.EventType,
                     t =>
                         {
-                            var domainEventType = typeof(IDomainEvent<>).MakeGenericType(t);
+                            var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(aggregateType, identityType, t);
                             var methodInfo = readModelType.GetMethod("Apply", new[] { readModelContextType, domainEventType });
                             return  methodInfo == null
                                 ? (r ,c, e) => Log.Warning("Read model '{0}' does not handle event '{1}'", readModelType.Name, t.Name)

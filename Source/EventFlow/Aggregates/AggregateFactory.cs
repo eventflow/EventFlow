@@ -27,7 +27,9 @@ namespace EventFlow.Aggregates
 {
     public class AggregateFactory : IAggregateFactory
     {
-        public Task<TAggregate> CreateNewAggregateAsync<TAggregate>(IIdentity id) where TAggregate : IAggregateRoot
+        public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             var aggregate = (TAggregate) Activator.CreateInstance(typeof(TAggregate), id);
             return Task.FromResult(aggregate);

@@ -24,9 +24,10 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores.MsSql
 {
-    public interface IMssqlReadModelStore<TAggregate, TReadModel> : IReadModelStore<TAggregate>
+    public interface IMssqlReadModelStore<TAggregate, in TIdentity, TReadModel> : IReadModelStore<TAggregate, TIdentity>
         where TReadModel : IMssqlReadModel, new()
-        where TAggregate : IAggregateRoot
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
     }
 }

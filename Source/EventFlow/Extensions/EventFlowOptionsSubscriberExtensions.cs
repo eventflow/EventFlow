@@ -31,13 +31,15 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
-        public static EventFlowOptions AddSubscriber<TEvent, TSubscriber>(
+        public static EventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this EventFlowOptions eventFlowOptions)
-            where TEvent : IAggregateEvent
-            where TSubscriber : class, ISubscribeSynchronousTo<TEvent>
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
         {
             return eventFlowOptions
-                .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TEvent>, TSubscriber>());
+                .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
         public static EventFlowOptions AddSubscribers(
@@ -54,7 +56,7 @@ namespace EventFlow.Extensions
         {
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<>)));
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>)));
             return eventFlowOptions
                 .AddSubscribers(subscribeSynchronousToTypes);
         }
@@ -68,7 +70,7 @@ namespace EventFlow.Extensions
                 var t = subscribeSynchronousToType;
                 var subscribeTos = t
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<>))
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>))
                     .ToList();
                 if (!subscribeTos.Any())
                 {

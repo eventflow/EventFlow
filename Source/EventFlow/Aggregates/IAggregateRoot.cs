@@ -27,14 +27,15 @@ using EventFlow.EventStores;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateRoot
+    public interface IAggregateRoot<out TIdentity>
+        where TIdentity : IIdentity
     {
-        IIdentity Id { get; }
+        TIdentity Id { get; }
         int Version { get; }
         bool IsNew { get; }
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
 
         Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken);
-        void ApplyEvents(IEnumerable<IAggregateEvent> domainEvents);
+        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
     }
 }

@@ -25,19 +25,11 @@ using System.Globalization;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.ValueObjects;
 
 namespace EventFlow.EventStores
 {
     public class EventJsonSerializer : IEventJsonSerializer
     {
-        private class DezerializeIdentity : SingleValueObject<string>, IIdentity
-        {
-            public DezerializeIdentity(string value) : base (value)
-            {
-            }
-        }
-
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IDomainEventFactory _domainEventFactory;
@@ -71,7 +63,11 @@ namespace EventFlow.EventStores
                 metadata.AggregateSequenceNumber);
         }
 
-        public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
+        public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
+            TIdentity id,
+            ICommittedDomainEvent committedDomainEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
 
@@ -81,11 +77,11 @@ namespace EventFlow.EventStores
 
             var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(committedDomainEvent.Data, eventDefinition.Type);
 
-            var domainEvent = _domainEventFactory.Create(
+            var domainEvent = _domainEventFactory.Create<TAggregate, TIdentity>(
                 aggregateEvent,
                 metadata,
                 committedDomainEvent.GlobalSequenceNumber,
-                committedDomainEvent.AggregateId,
+                id,
                 committedDomainEvent.AggregateSequenceNumber,
                 committedDomainEvent.BatchId);
 

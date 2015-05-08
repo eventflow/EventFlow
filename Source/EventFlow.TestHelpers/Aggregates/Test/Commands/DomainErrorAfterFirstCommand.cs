@@ -22,17 +22,16 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Commands;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class DomainErrorAfterFirstCommand : Command<TestAggregate>
+    public class DomainErrorAfterFirstCommand : Command<TestAggregate, TestId>
     {
-        public DomainErrorAfterFirstCommand(IIdentity id) : base(id) { }
+        public DomainErrorAfterFirstCommand(TestId id) : base(id) { }
     }
 
-    public class DomainErrorAfterFirstCommandHander : CommandHandler<TestAggregate, DomainErrorAfterFirstCommand>
+    public class DomainErrorAfterFirstCommandHander : CommandHandler<TestAggregate, TestId, DomainErrorAfterFirstCommand>
     {
         public override Task ExecuteAsync(TestAggregate aggregate, DomainErrorAfterFirstCommand command, CancellationToken cancellationToken)
         {

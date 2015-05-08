@@ -64,7 +64,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void ValidateTestAggregate()
         {
             // Arrange
-            var testAggregate = _eventStore.LoadAggregate<TestAggregate>(_testId, CancellationToken.None);
+            var testAggregate = _eventStore.LoadAggregate<TestAggregate, TestId>(_testId, CancellationToken.None);
 
             // Assert
             testAggregate.Version.Should().Be(2);

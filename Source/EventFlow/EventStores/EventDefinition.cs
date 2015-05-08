@@ -27,8 +27,8 @@ namespace EventFlow.EventStores
     public class EventDefinition
     {
         public int Version { get; private set; }
-        public Type Type { get; set; }
-        public string Name { get; set; }
+        public Type Type { get; private set; }
+        public string Name { get; private set; }
 
         public EventDefinition(
             int version,

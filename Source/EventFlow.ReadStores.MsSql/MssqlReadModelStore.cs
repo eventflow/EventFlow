@@ -31,11 +31,12 @@ using EventFlow.MsSql;
 
 namespace EventFlow.ReadStores.MsSql
 {
-    public class MssqlReadModelStore<TAggregate, TReadModel> :
-        ReadModelStore<TAggregate, TReadModel>,
-        IMssqlReadModelStore<TAggregate, TReadModel>
+    public class MssqlReadModelStore<TAggregate, TIdentity, TReadModel> :
+        ReadModelStore<TAggregate, TIdentity, TReadModel>,
+        IMssqlReadModelStore<TAggregate, TIdentity, TReadModel>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
         where TReadModel : IMssqlReadModel, new()
-        where TAggregate : IAggregateRoot
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
@@ -51,7 +52,7 @@ namespace EventFlow.ReadStores.MsSql
         }
 
         public override async Task UpdateReadModelAsync(
-            IIdentity id,
+            TIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {

@@ -24,12 +24,13 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Commands
 {
-    public abstract class Command<TAggregate> : ICommand<TAggregate>
-        where TAggregate : IAggregateRoot
+    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
-        public IIdentity Id { get; private set; }
+        public TIdentity Id { get; private set; }
 
-        protected Command(IIdentity id)
+        protected Command(TIdentity id)
         {
             Id = id;
         }

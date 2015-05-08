@@ -33,15 +33,15 @@ namespace EventFlow.Tests.IntegrationTests
 {
     public class InMemoryConfiguration : IntegrationTestConfiguration
     {
-        private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
+        private IInMemoryReadModelStore<TestAggregate, TestId, TestAggregateReadModel> _inMemoryReadModelStore;
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
             var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregate, TestId, TestAggregateReadModel>()
                 .CreateResolver();
 
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
+            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestId, TestAggregateReadModel>>();
 
             return resolver;
         }

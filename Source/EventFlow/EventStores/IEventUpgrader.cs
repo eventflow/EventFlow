@@ -25,13 +25,10 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventUpgrader
+    public interface IEventUpgrader<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
-        IEnumerable<IDomainEvent> Upgrade(IDomainEvent domainEvent);
-    }
-
-    public interface IEventUpgrader<TAggregate> : IEventUpgrader
-        where TAggregate : IAggregateRoot
-    {
+        IEnumerable<IDomainEvent<TAggregate, TIdentity>> Upgrade(IDomainEvent<TAggregate, TIdentity> domainEvent);
     }
 }

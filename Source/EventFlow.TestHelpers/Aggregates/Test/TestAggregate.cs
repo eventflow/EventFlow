@@ -28,7 +28,7 @@ using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    public class TestAggregate : AggregateRoot<TestAggregate>,
+    public class TestAggregate : AggregateRoot<TestAggregate, TestId>,
         IEmit<DomainErrorAfterFirstEvent>
     {
         private readonly List<PingId> _pingsReceived = new List<PingId>();

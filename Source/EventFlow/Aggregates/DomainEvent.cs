@@ -24,17 +24,19 @@ using System;
 
 namespace EventFlow.Aggregates
 {
-    public class DomainEvent<TAggregateEvent> : IDomainEvent<TAggregateEvent>
-        where TAggregateEvent : IAggregateEvent
+    public class DomainEvent<TAggregate, TIdentity, TAggregateEvent> : IDomainEvent<TAggregate, TIdentity, TAggregateEvent>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        public Type AggregateType { get { return AggregateEvent.GetAggregateType(); } }
+        public Type AggregateType { get { return typeof (TAggregate); } }
         public Type EventType { get { return typeof (TAggregateEvent); } }
 
         public int AggregateSequenceNumber { get; private set; }
         public Guid BatchId { get; private set; }
         public TAggregateEvent AggregateEvent { get; private set; }
         public long GlobalSequenceNumber { get; private set; }
-        public IIdentity AggregateIdentity { get; private set; }
+        public TIdentity AggregateIdentity { get; private set; }
         public IMetadata Metadata { get; private set; }
         public DateTimeOffset Timestamp { get; private set; }
 
@@ -43,7 +45,7 @@ namespace EventFlow.Aggregates
             IMetadata metadata,
             DateTimeOffset timestamp,
             long globalSequenceNumber,
-            IIdentity aggregateIdentity,
+            TIdentity aggregateIdentity,
             int aggregateSequenceNumber,
             Guid batchId)
         {
@@ -54,6 +56,11 @@ namespace EventFlow.Aggregates
             AggregateIdentity = aggregateIdentity;
             AggregateSequenceNumber = aggregateSequenceNumber;
             BatchId = batchId;
+        }
+
+        public IIdentity GetIdentity()
+        {
+            return AggregateIdentity;
         }
 
         public IAggregateEvent GetAggregateEvent()
