@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.5.{build}
+version: 0.6.{build}
 
 build_script:
   - cmd: build.cmd

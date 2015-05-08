@@ -1,4 +1,8 @@
-### New in 0.5 (not released yet)
+### New in 0.6 (not released yet)
+ 
+ * _Nothing yet_
+
+### New in 0.5.390 (released 2015-05-08)
 
  * POTENTIAL DATA LOSS for files event store: Files event store now
    stores its log as JSON instead of an `int` in the form
