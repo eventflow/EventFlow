@@ -43,22 +43,20 @@ namespace EventFlow
         private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
-        private readonly ITransientFaultHandler _transientFaultHandler;
+        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
             IEventStore eventStore,
             IDomainEventPublisher domainEventPublisher,
-            ITransientFaultHandler transientFaultHandler)
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _resolver = resolver;
             _eventStore = eventStore;
             _domainEventPublisher = domainEventPublisher;
             _transientFaultHandler = transientFaultHandler;
-
-            _transientFaultHandler.Use<IOptimisticConcurrencyRetryStrategy>();
         }
 
         public async Task PublishAsync<TAggregate, TIdentity>(

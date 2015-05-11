@@ -58,6 +58,11 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new AutofacRegistration(serviceType, implementationType, lifetime));
         }
 
+        public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        {
+            _registrations.Add(new AutofacGeneticRegistration(serviceType, implementationType, lifetime));
+        }
+
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
             var serviceType = typeof (TService);
