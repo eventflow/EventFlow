@@ -24,24 +24,24 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
 namespace EventFlow.Tests.IntegrationTests
 {
     public class InMemoryConfiguration : IntegrationTestConfiguration
     {
-        private IInMemoryReadModelStore<TestAggregate, TestId, TestAggregateReadModel> _inMemoryReadModelStore;
+        private IInMemoryReadModelStore<TestAggregateReadModel> _inMemoryReadModelStore;
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
             var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<TestAggregate, TestId, TestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregateReadModel, LocateByAggregateId>()
                 .CreateResolver();
 
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestId, TestAggregateReadModel>>();
+            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
 
             return resolver;
         }

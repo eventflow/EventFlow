@@ -23,12 +23,13 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 
-namespace EventFlow.ReadStores.Views
+namespace EventFlow.ReadStores
 {
-    public interface IResolveViewIds
+    public class LocateByAggregateId : IReadModelLocator
     {
-        IEnumerable<string> GetViewIds<TAggregate, TIdentity>(IDomainEvent<TAggregate, TIdentity> domainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvents)
+        {
+            yield return domainEvents.GetIdentity().Value;
+        }
     }
 }

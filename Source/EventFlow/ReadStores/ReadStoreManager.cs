@@ -51,34 +51,23 @@ namespace EventFlow.ReadStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TAggregate, TIdentity>>>().ToList();
+            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore>>().ToList();
             var updateTasks = readModelStores
-                .Select(s => UpdateReadStoreAsync(s, id, domainEvents, cancellationToken))
+                .Select(s => UpdateReadStoreAsync(s, domainEvents, cancellationToken))
                 .ToArray();
             await Task.WhenAll(updateTasks).ConfigureAwait(false);
         }
 
-        private async Task UpdateReadStoreAsync<TAggregate, TIdentity>(
-            IReadModelStore<TAggregate, TIdentity> readModelStore,
-            TIdentity id,
+        private async Task UpdateReadStoreAsync(
+            IReadModelStore readModelStore,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
             var readModelStoreType = readModelStore.GetType();
-            var aggregateType = typeof(TAggregate);
-
-            _log.Verbose(
-                "Updating read model store '{0}' for aggregate '{1}' with '{2}' by applying {3} events",
-                readModelStoreType.Name,
-                aggregateType.Name,
-                id,
-                domainEvents.Count);
 
             try
             {
-                await readModelStore.UpdateReadModelAsync(id, domainEvents, cancellationToken).ConfigureAwait(false);
+                await readModelStore.ApplyDomainEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

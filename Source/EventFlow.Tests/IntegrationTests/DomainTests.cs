@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
+using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates.Test;
@@ -60,13 +61,13 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregate, TestId, TestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregateReadModel, LocateByAggregateId>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestId, TestAggregateReadModel>>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
                 var id = TestId.New;
 
                 // Act

@@ -117,13 +117,9 @@
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
-    <Compile Include="ReadStores\Views\IResolveViewIds.cs" />
-    <Compile Include="ReadStores\Views\IViewContainer.cs" />
-    <Compile Include="ReadStores\Views\IViewManager.cs" />
-    <Compile Include="ReadStores\Views\IViewStore.cs" />
-    <Compile Include="ReadStores\Views\ResolveViewIdsByAggregate.cs" />
-    <Compile Include="ReadStores\Views\ViewManager.cs" />
-    <Compile Include="ReadStores\Views\InMemoryViewStore.cs" />
+    <Compile Include="ReadStores\LocateByAggregateId.cs" />
+    <Compile Include="ReadStores\IReadModelLocator.cs" />
+    <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />

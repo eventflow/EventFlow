@@ -20,10 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.ReadStores.Views
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+
+namespace EventFlow.ReadStores
 {
-    public interface IViewContainer
+    public interface IReadModelLocator
     {
-        string Id { get; }
+        IEnumerable<string> GetReadModelIds(IDomainEvent domainEvents);
     }
 }
