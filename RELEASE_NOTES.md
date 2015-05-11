@@ -1,6 +1,8 @@
 ### New in 0.6 (not released yet)
- 
- * _Nothing yet_
+
+ * Fixed: Subscribers are invoked _after_ read stores have been updated,
+   which ensures that subscribers can use any read models that the
+   updated
 
 ### New in 0.5.390 (released 2015-05-08)
 
@@ -21,7 +23,7 @@
      `IAmReadModelFor<TAggregate,TIdentity,TEvent>`
    - `IDomainEvent<TEvent>` changed to `IDomainEvent<TAggregate,TIdentity>`  
  * New: `ICommandBus.Publish` now takes a `CancellationToken` argument
- * Fixed: MSSQL should list columns to SELECT when fetching events 
+ * Fixed: MSSQL should list columns to SELECT when fetching events
 
 
 ### New in 0.4.353 (released 2015-05-05)
