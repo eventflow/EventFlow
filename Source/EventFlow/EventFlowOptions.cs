@@ -99,7 +99,6 @@ namespace EventFlow
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
-            RegisterIfMissing<ITransientFaultHandler, TransientFaultHandler>(services);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
@@ -108,6 +107,11 @@ namespace EventFlow
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventCache, InMemoryEventCache>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
+
+            if (!services.Contains(typeof (ITransientFaultHandler<>)))
+            {
+                _lazyRegistrationFactory.Value.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            }
 
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
 

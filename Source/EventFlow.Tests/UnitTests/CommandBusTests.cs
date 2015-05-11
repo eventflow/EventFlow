@@ -50,9 +50,10 @@ namespace EventFlow.Tests.UnitTests
         [SetUp]
         public void SetUp()
         {
-            var resolver = InjectMock<IResolver>();
-
-            Fixture.Inject<ITransientFaultHandler>(new TransientFaultHandler(resolver.Object, Fixture.Create<ILog>()));
+            Fixture.Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
+                new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
+                    Fixture.Create<ILog>(),
+                    new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
 
             _resolverMock = InjectMock<IResolver>();
             _eventStoreMock = InjectMock<IEventStore>();
@@ -60,9 +61,6 @@ namespace EventFlow.Tests.UnitTests
             _eventStoreMock
                 .Setup(s => s.LoadAggregateAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new TestAggregate(TestId.New)));
-            resolver
-                .Setup(r => r.Resolve<IOptimisticConcurrencyRetryStrategy>())
-                .Returns(new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration()));
         }
 
         [Test]

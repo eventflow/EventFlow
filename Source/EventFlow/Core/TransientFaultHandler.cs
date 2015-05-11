@@ -24,38 +24,32 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Logs;
 
 namespace EventFlow.Core
 {
-    public class TransientFaultHandler : ITransientFaultHandler
+    public class TransientFaultHandler<TRetryStrategy> : ITransientFaultHandler<TRetryStrategy>
+        where TRetryStrategy : IRetryStrategy
     {
-        private readonly IResolver _resolver;
         private readonly ILog _log;
-        private IRetryStrategy _retryStrategy;
+        private readonly TRetryStrategy _retryStrategy;
 
         public TransientFaultHandler(
-            IResolver resolver,
-            ILog log)
+            ILog log,
+            TRetryStrategy retryStrategy)
         {
-            _resolver = resolver;
             _log = log;
+            _retryStrategy = retryStrategy;
         }
 
-        public void Use<TRetryStrategy>(Action<TRetryStrategy> configureStrategy = null) where TRetryStrategy : IRetryStrategy
+        public void ConfigureRetryStrategy(Action<TRetryStrategy> configureStrategy)
         {
-            if (_retryStrategy != null) throw new InvalidOperationException(string.Format(
-                "Retry stratety has already been configured as a '{0}' strategy",
-                _retryStrategy.GetType().Name));
-
-            var retryStrategy = _resolver.Resolve<TRetryStrategy>();
-            if (configureStrategy != null)
+            if (configureStrategy == null)
             {
-                configureStrategy(retryStrategy);
+                throw new ArgumentNullException("configureStrategy");
             }
 
-            _retryStrategy = retryStrategy;
+            configureStrategy(_retryStrategy);
         }
 
         public async Task<T> TryAsync<T>(Func<CancellationToken, Task<T>> action, Label label, CancellationToken cancellationToken)

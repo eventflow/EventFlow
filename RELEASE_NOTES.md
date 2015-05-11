@@ -1,5 +1,11 @@
 ### New in 0.6 (not released yet)
 
+ * Breaking: `ITransientFaultHandler` now takes the strategy as a generic
+   argument instead of the `Use<>` method. If you want to configure the
+   retry strategy, use `ConfigureRetryStrategy(...)` instead
+ * New: Its now possible to register generic services without them being
+   constructed generic types, i.e., register `typeof(IMyService<>)` as
+   `typeof(MyService<>)`  
  * Fixed: Subscribers are invoked _after_ read stores have been updated,
    which ensures that subscribers can use any read models that the
    updated

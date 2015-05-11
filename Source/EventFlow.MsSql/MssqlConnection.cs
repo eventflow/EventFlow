@@ -37,16 +37,14 @@ namespace EventFlow.MsSql
     public class MsSqlConnection : IMsSqlConnection
     {
         private readonly IMsSqlConfiguration _configuration;
-        private readonly ITransientFaultHandler _transientFaultHandler;
+        private readonly ITransientFaultHandler<ISqlErrorRetryStrategy> _transientFaultHandler;
 
         public MsSqlConnection(
             IMsSqlConfiguration configuration,
-            ITransientFaultHandler transientFaultHandler)
+            ITransientFaultHandler<ISqlErrorRetryStrategy> transientFaultHandler)
         {
             _configuration = configuration;
             _transientFaultHandler = transientFaultHandler;
-
-            _transientFaultHandler.Use<ISqlErrorRetryStrategy>();
         }
 
         public Task<int> ExecuteAsync(
