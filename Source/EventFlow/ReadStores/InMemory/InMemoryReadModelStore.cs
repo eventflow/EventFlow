@@ -43,9 +43,10 @@ namespace EventFlow.ReadStores.InMemory
         {
         }
 
-        public Task UpdateReadModelAsync(
+        private Task UpdateReadModelAsync(
             string id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
             CancellationToken cancellationToken)
         {
             TReadModel readModel;
@@ -59,7 +60,7 @@ namespace EventFlow.ReadStores.InMemory
                 _readModels.Add(id, readModel);
             }
 
-            return ApplyEventsAsync(readModel, domainEvents);
+            return ApplyEventsAsync(readModel, readModelContext, domainEvents);
         }
 
         public TReadModel Get(IIdentity id)
@@ -81,10 +82,10 @@ namespace EventFlow.ReadStores.InMemory
                 .Where(predicate);
         }
 
-        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, CancellationToken cancellationToken)
+        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
-                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, cancellationToken));
+                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));
             return Task.WhenAll(updateTasks);
         }
     }

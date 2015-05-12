@@ -54,6 +54,7 @@ namespace EventFlow.ReadStores.MsSql
         private async Task UpdateReadModelAsync(
             string id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
             CancellationToken cancellationToken)
         {
             var readModelNameLowerCased = typeof (TReadModel).Name.ToLowerInvariant();
@@ -76,7 +77,7 @@ namespace EventFlow.ReadStores.MsSql
                     };
             }
 
-            await ApplyEventsAsync(readModel, domainEvents).ConfigureAwait(false);
+            await ApplyEventsAsync(readModel, readModelContext, domainEvents).ConfigureAwait(false);
 
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;
@@ -94,10 +95,10 @@ namespace EventFlow.ReadStores.MsSql
                 readModel).ConfigureAwait(false);
         }
 
-        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, CancellationToken cancellationToken)
+        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
-                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, cancellationToken));
+                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));
             return Task.WhenAll(updateTasks);
         }
     }

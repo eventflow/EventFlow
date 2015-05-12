@@ -57,16 +57,17 @@ namespace EventFlow.ReadStores
                 select new ReadModelUpdate(g.Key, g.ToList())
                 ).ToList();
 
-            return UpdateReadModelsAsync(readModelUpdates, cancellationToken);
+            var readModelContext = new ReadModelContext();
+
+            return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
         }
 
-        protected abstract Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, CancellationToken cancellationToken);
+        protected abstract Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken);
 
-        protected virtual Task<bool> ApplyEventsAsync(TReadModel readModel, IEnumerable<IDomainEvent> domainEvents)
+        protected virtual Task<bool> ApplyEventsAsync(TReadModel readModel, IReadModelContext readModelContext, IEnumerable<IDomainEvent> domainEvents)
         {
             var readModelType = typeof(TReadModel);
             var readModelContextType = typeof(IReadModelContext);
-            var readModelContext = new ReadModelContext();
             var appliedAny = false;
 
             foreach (var domainEvent in domainEvents)
