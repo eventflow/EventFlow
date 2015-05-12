@@ -27,6 +27,14 @@ namespace EventFlow.EventStores
 {
     public interface IDomainEventFactory
     {
+        IDomainEvent Create(
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata,
+            long globalSequenceNumber,
+            string aggregateIdentity,
+            int aggregateSequenceNumber,
+            Guid batchId);
+
         IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
