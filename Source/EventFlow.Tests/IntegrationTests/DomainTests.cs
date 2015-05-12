@@ -61,7 +61,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregateReadModel, LocateByAggregateId>()
+                .UseInMemoryReadStoreFor<TestAggregateReadModel, ILocateByAggregateId>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {

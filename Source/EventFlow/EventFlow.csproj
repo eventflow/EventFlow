@@ -117,6 +117,7 @@
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
+    <Compile Include="ReadStores\ILocateByAggregateId.cs" />
     <Compile Include="ReadStores\LocateByAggregateId.cs" />
     <Compile Include="ReadStores\IReadModelLocator.cs" />
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
