@@ -21,14 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
     public class DomainEventFactory : IDomainEventFactory
     {
-        private readonly Dictionary<Type, Type> _aggregateEventToDomainEventTypeMap = new Dictionary<Type, Type>(); 
+        private static readonly ConcurrentDictionary<Type, Type> AggregateEventToDomainEventTypeMap = new ConcurrentDictionary<Type, Type>();
 
         public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
@@ -42,12 +42,10 @@ namespace EventFlow.EventStores
         {
             var aggregateType = typeof (TAggregate);
             var aggregateEventType = aggregateEvent.GetType();
-            Type domainEventType;
-            if (!_aggregateEventToDomainEventTypeMap.TryGetValue(aggregateEventType, out domainEventType))
-            {
-                domainEventType = typeof(DomainEvent<,,>).MakeGenericType(aggregateType, id.GetType(), aggregateEventType);
-                _aggregateEventToDomainEventTypeMap[aggregateEventType] = domainEventType;
-            }
+
+            var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(
+                aggregateEventType,
+                t => typeof (DomainEvent<,,>).MakeGenericType(aggregateType, id.GetType(), aggregateEventType));
 
             var domainEvent = (IDomainEvent<TAggregate, TIdentity>)Activator.CreateInstance(
                 domainEventType,
