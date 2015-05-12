@@ -5,7 +5,9 @@
    retry strategy, use `ConfigureRetryStrategy(...)` instead
  * New: Its now possible to register generic services without them being
    constructed generic types, i.e., register `typeof(IMyService<>)` as
-   `typeof(MyService<>)`  
+   `typeof(MyService<>)`
+ * New: Table names for MSSQL read models can be assigned using the
+   `TableAttribute` from `System.ComponentModel.DataAnnotations`
  * Fixed: Subscribers are invoked _after_ read stores have been updated,
    which ensures that subscribers can use any read models that the
    updated
