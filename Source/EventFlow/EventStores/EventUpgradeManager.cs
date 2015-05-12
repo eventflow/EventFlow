@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
@@ -32,6 +33,20 @@ namespace EventFlow.EventStores
 {
     public class EventUpgradeManager : IEventUpgradeManager
     {
+        private static readonly ConcurrentDictionary<Type, EventUpgraderCacheItem> EventUpgraderCacheItems = new ConcurrentDictionary<Type, EventUpgraderCacheItem>();
+
+        private class EventUpgraderCacheItem
+        {
+            public Type EventUpgraderType { get; private set; }
+            public Func<object, IDomainEvent, IEnumerable<IDomainEvent>> Upgrade { get; private set; }
+
+            public EventUpgraderCacheItem(Type eventUpgraderType, Func<object, IDomainEvent, IEnumerable<IDomainEvent>> upgrade)
+            {
+                EventUpgraderType = eventUpgraderType;
+                Upgrade = upgrade;
+            }
+        }
+
         private readonly ILog _log;
         private readonly IResolver _resolver;
 
@@ -65,15 +80,12 @@ namespace EventFlow.EventStores
                     t => t,
                     t =>
                         {
-                            var aggregateRootInterface = t.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
-                            var arguments = aggregateRootInterface.GetGenericArguments();
-                            var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
-                            var methodInfo = eventUpgraderType.GetMethod("Upgrade");
-                            var upgraders = _resolver.ResolveAll(eventUpgraderType).OrderBy(u => u.GetType().Name).ToList();
+                            var cache = GetCache(t);
+                            var upgraders = _resolver.ResolveAll(cache.EventUpgraderType).OrderBy(u => u.GetType().Name).ToList();
                             return new
                                 {
                                     EventUpgraders = upgraders,
-                                    Invoker = (Func<object, IDomainEvent, IEnumerable<IDomainEvent>>)((o, e) => ((IEnumerable) methodInfo.Invoke(o, new object[]{e})).Cast<IDomainEvent>())
+                                    cache.Upgrade
                                 };
                         });
 
@@ -83,7 +95,7 @@ namespace EventFlow.EventStores
                         var a = eventUpgraders[e.AggregateType];
                         return a.EventUpgraders.Aggregate(
                             (IEnumerable<IDomainEvent>) new[] {e},
-                            (de, up) => de.SelectMany(ee => a.Invoker(up, ee)));
+                            (de, up) => de.SelectMany(ee => a.Upgrade(up, ee)));
                     })
                 .OrderBy(d => d.GlobalSequenceNumber);
         }
@@ -94,6 +106,30 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
         {
             return Upgrade(domainEvents.Cast<IDomainEvent>()).Cast<IDomainEvent<TAggregate, TIdentity>>().ToList();
+        }
+
+        private static EventUpgraderCacheItem GetCache(Type aggregateType)
+        {
+            return EventUpgraderCacheItems.GetOrAdd(
+                aggregateType,
+                t =>
+                    {
+                        var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                        if (aggregateRootInterface == null)
+                        {
+                            throw new ArgumentException(string.Format(
+                                "Type '{0}' is not a '{1}'",
+                                t.Name,
+                                typeof(IAggregateRoot<>).Name));
+                        }
+
+                        var arguments = aggregateRootInterface.GetGenericArguments();
+                        var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
+                        var methodInfo = eventUpgraderType.GetMethod("Upgrade");
+                        return new EventUpgraderCacheItem(
+                            eventUpgraderType,
+                            (o, e) => ((IEnumerable)methodInfo.Invoke(o, new object[] { e })).Cast<IDomainEvent>());
+                    });
         }
     }
 }
