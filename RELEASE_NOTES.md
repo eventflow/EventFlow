@@ -3,6 +3,8 @@
  * Breaking: `ITransientFaultHandler` now takes the strategy as a generic
    argument instead of the `Use<>` method. If you want to configure the
    retry strategy, use `ConfigureRetryStrategy(...)` instead
+ * New: `IEventStore` now has a `LoadEventsAsync` that loads `IDomainEvent`s
+   based on global sequence number range
  * New: Its now possible to register generic services without them being
    constructed generic types, i.e., register `typeof(IMyService<>)` as
    `typeof(MyService<>)`
