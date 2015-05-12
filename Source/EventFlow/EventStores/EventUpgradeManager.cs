@@ -22,10 +22,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Logs;
@@ -37,10 +35,6 @@ namespace EventFlow.EventStores
         private readonly ILog _log;
         private readonly IResolver _resolver;
 
-        private static readonly MethodInfo UpgradeGeneric = typeof (EventUpgradeManager).GetMethods()
-            .Single(mi => mi.Name == "Upgrade" && mi.IsGenericMethod);
-        private static readonly ConcurrentDictionary<Type, Func<EventUpgradeManager, IReadOnlyCollection<IDomainEvent>, IEnumerable<IDomainEvent>>> UpgradeMethods = new ConcurrentDictionary<Type, Func<EventUpgradeManager, IReadOnlyCollection<IDomainEvent>, IEnumerable<IDomainEvent>>>(); 
-
         public EventUpgradeManager(
             ILog log,
             IResolver resolver)
@@ -49,27 +43,37 @@ namespace EventFlow.EventStores
             _resolver = resolver;
         }
 
-        private static Func<EventUpgradeManager, IReadOnlyCollection<IDomainEvent>, IEnumerable<IDomainEvent>> GetUpgrader(Type aggregateType, Type identityType)
-        {
-            return UpgradeMethods.GetOrAdd(
-                aggregateType,
-                _ =>
-                    {
-                        var methodInfo = UpgradeGeneric.MakeGenericMethod(aggregateType, identityType);
-                        return (eu, de) => ((IEnumerable) (methodInfo.Invoke(eu, new object[]{ de }))).Cast<IDomainEvent>();
-                    });
-        }
-
         public IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
+            // TODO: Clean this up!
+
+            var eventUpgraders = domainEvents
+                .Select(d => d.AggregateType)
+                .Distinct()
+                .ToDictionary(
+                    t => t,
+                    t =>
+                        {
+                            var aggregateRootInterface = t.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                            var arguments = aggregateRootInterface.GetGenericArguments();
+                            var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
+                            var methodInfo = eventUpgraderType.GetMethod("Upgrade");
+                            return new
+                                {
+                                    EventUpgraders = _resolver.ResolveAll(eventUpgraderType).OrderBy(u => u.GetType().Name).ToList(),
+                                    Invoker = (Func<object, IDomainEvent, IEnumerable<IDomainEvent>>)((o, e) => ((IEnumerable) methodInfo.Invoke(o, new object[]{e})).Cast<IDomainEvent>())
+                                };
+                        });
+
             return domainEvents
-                .GroupBy(de => new { de.AggregateType, IdentityType = de.GetIdentity().GetType() })
-                .SelectMany(g =>
+                .SelectMany(e =>
                     {
-                        var upgrader = GetUpgrader(g.Key.AggregateType, g.Key.IdentityType);
-                        return upgrader(this, g.ToList());
+                        var a = eventUpgraders[e.AggregateType];
+                        return a.EventUpgraders.Aggregate(
+                            (IEnumerable<IDomainEvent>) new[] {e},
+                            (de, up) => de.SelectMany(ee => a.Invoker(up, ee)));
                     })
-                .OrderBy(de => de.GlobalSequenceNumber)
+                .OrderBy(d => d.GlobalSequenceNumber)
                 .ToList();
         }
 
@@ -105,6 +109,7 @@ namespace EventFlow.EventStores
                     .Aggregate(
                         (IEnumerable<IDomainEvent<TAggregate, TIdentity>>)new[] { e },
                         (de, up) => de.SelectMany(up.Upgrade)))
+                .OrderBy(e => e.GlobalSequenceNumber)
                 .ToList();
         }
     }

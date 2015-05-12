@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -145,6 +146,28 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task DomainEventCanBeLoaded()
+        {
+            // Arrange
+            var id1 = TestId.New;
+            var id2 = TestId.New;
+            var pingId1 = PingId.New;
+            var pingId2 = PingId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1.Ping(pingId1);
+            aggregate2.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadEventsAsync(GlobalSequenceNumberRange.Range(1, 2), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.Count.Should().Be(2);
         }
 
         [Test]

@@ -28,11 +28,16 @@ namespace EventFlow.EventStores
 {
     public class GlobalSequenceNumberRange : ValueObject
     {
+        public static GlobalSequenceNumberRange Range(long from, long to)
+        {
+            return new GlobalSequenceNumberRange(from, to);
+        }
+
         public long From { get; private set; }
         public long To { get; private set; }
         public long Count { get { return To - From + 1; } }
 
-        public GlobalSequenceNumberRange(
+        private GlobalSequenceNumberRange(
             long from,
             long to)
         {
@@ -51,6 +56,11 @@ namespace EventFlow.EventStores
         {
             yield return From;
             yield return To;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[{0},{1}]", From, To);
         }
     }
 }

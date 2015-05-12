@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -40,6 +41,7 @@ namespace EventFlow.EventStores.Files
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
         private long _globalSequenceNumber;
+        private Dictionary<long, string> _log; 
 
         public class FileEventData : ICommittedDomainEvent
         {
@@ -55,6 +57,7 @@ namespace EventFlow.EventStores.Files
         public class EventStoreLog
         {
             public long GlobalSequenceNumber { get; set; }
+            public Dictionary<long, string> Log { get; set; }
         }
 
         public FilesEventStore(
@@ -75,7 +78,13 @@ namespace EventFlow.EventStores.Files
             if (File.Exists(_logFilePath))
             {
                 var json = File.ReadAllText(_logFilePath);
-                _globalSequenceNumber = _jsonSerializer.Deserialize<EventStoreLog>(json).GlobalSequenceNumber;
+                var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json);
+                _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
+                _log = eventStoreLog.Log ?? new Dictionary<long, string>();
+            }
+            else
+            {
+                _log = new Dictionary<long, string>();
             }
         }
 
@@ -98,7 +107,10 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
+                    var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
+                    _log[_globalSequenceNumber] = eventPath;
+
                     var fileEventData = new FileEventData
                         {
                             AggregateId = id.Value,
@@ -111,7 +123,6 @@ namespace EventFlow.EventStores.Files
                         };
             
                     var json = _jsonSerializer.Serialize(fileEventData, true);
-                    var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
 
                     if (File.Exists(eventPath))
                     {
@@ -142,6 +153,7 @@ namespace EventFlow.EventStores.Files
                         new EventStoreLog
                             {
                                 GlobalSequenceNumber = _globalSequenceNumber,
+                                Log = _log,
                             },
                         true);
                     await streamWriter.WriteAsync(json).ConfigureAwait(false);
@@ -167,21 +179,38 @@ namespace EventFlow.EventStores.Files
                         return committedDomainEvents;
                     }
 
-                    using (var streamReader = File.OpenText(eventPath))
-                    {
-                        var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                        var committedDomainEvent = _jsonSerializer.Deserialize<FileEventData>(json);
-                        committedDomainEvents.Add(committedDomainEvent);
-                    }
+                    var committedDomainEvent = await LoadFileEventDataFile(eventPath).ConfigureAwait(false);
+                    committedDomainEvents.Add(committedDomainEvent);
                 }
             }
         }
 
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        private async Task<FileEventData> LoadFileEventDataFile(string eventPath)
+        {
+            using (var streamReader = File.OpenText(eventPath))
+            {
+                var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                return _jsonSerializer.Deserialize<FileEventData>(json);
+            }
+        }
+
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             GlobalSequenceNumberRange globalSequenceNumberRange,
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var paths = Enumerable.Range((int) globalSequenceNumberRange.From, (int) globalSequenceNumberRange.Count)
+                .TakeWhile(g => _log.ContainsKey(g))
+                .Select(g => _log[g])
+                .ToList();
+
+            var committedDomainEvents = new List<ICommittedDomainEvent>();
+            foreach (var path in paths)
+            {
+                var committedDomainEvent = await LoadFileEventDataFile(path).ConfigureAwait(false);
+                committedDomainEvents.Add(committedDomainEvent);
+            }
+
+            return committedDomainEvents;
         }
 
         private string GetAggregatePath(Type aggregateType, IIdentity id)
