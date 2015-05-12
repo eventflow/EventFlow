@@ -45,9 +45,20 @@ namespace EventFlow.EventStores
 
         public IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
+            return Upgrade((IEnumerable<IDomainEvent>) domainEvents).ToList();
+        }
+
+        private IEnumerable<IDomainEvent> Upgrade(IEnumerable<IDomainEvent> domainEvents)
+        {
             // TODO: Clean this up!
 
-            var eventUpgraders = domainEvents
+            var domainEventList = domainEvents.ToList();
+            if (!domainEventList.Any())
+            {
+                return new IDomainEvent[] { };
+            }
+
+            var eventUpgraders = domainEventList
                 .Select(d => d.AggregateType)
                 .Distinct()
                 .ToDictionary(
@@ -58,14 +69,15 @@ namespace EventFlow.EventStores
                             var arguments = aggregateRootInterface.GetGenericArguments();
                             var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
                             var methodInfo = eventUpgraderType.GetMethod("Upgrade");
+                            var upgraders = _resolver.ResolveAll(eventUpgraderType).OrderBy(u => u.GetType().Name).ToList();
                             return new
                                 {
-                                    EventUpgraders = _resolver.ResolveAll(eventUpgraderType).OrderBy(u => u.GetType().Name).ToList(),
+                                    EventUpgraders = upgraders,
                                     Invoker = (Func<object, IDomainEvent, IEnumerable<IDomainEvent>>)((o, e) => ((IEnumerable) methodInfo.Invoke(o, new object[]{e})).Cast<IDomainEvent>())
                                 };
                         });
 
-            return domainEvents
+            return domainEventList
                 .SelectMany(e =>
                     {
                         var a = eventUpgraders[e.AggregateType];
@@ -73,8 +85,7 @@ namespace EventFlow.EventStores
                             (IEnumerable<IDomainEvent>) new[] {e},
                             (de, up) => de.SelectMany(ee => a.Invoker(up, ee)));
                     })
-                .OrderBy(d => d.GlobalSequenceNumber)
-                .ToList();
+                .OrderBy(d => d.GlobalSequenceNumber);
         }
 
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
@@ -82,35 +93,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            if (!domainEvents.Any())
-            {
-                return new IDomainEvent<TAggregate, TIdentity>[]{};
-            }
-
-            var aggreateType = typeof (TAggregate);
-            var eventUpgraders = _resolver
-                .Resolve<IEnumerable<IEventUpgrader<TAggregate, TIdentity>>>()
-                .OrderBy(u => u.GetType().Name)
-                .ToList();
-
-            if (!eventUpgraders.Any())
-            {
-                _log.Verbose("No event upgraders for aggregate '{0}'", aggreateType.Name);
-                return domainEvents;
-            }
-            
-            _log.Verbose(() => string.Format(
-                "Found '{0}' event upgraders for aggregate '{1}'",
-                string.Join(", ", eventUpgraders.Select(u => u.GetType().Name)),
-                aggreateType.Name));
-
-            return domainEvents
-                .SelectMany(e => eventUpgraders
-                    .Aggregate(
-                        (IEnumerable<IDomainEvent<TAggregate, TIdentity>>)new[] { e },
-                        (de, up) => de.SelectMany(up.Upgrade)))
-                .OrderBy(e => e.GlobalSequenceNumber)
-                .ToList();
+            return Upgrade(domainEvents.Cast<IDomainEvent>()).Cast<IDomainEvent<TAggregate, TIdentity>>().ToList();
         }
     }
 }

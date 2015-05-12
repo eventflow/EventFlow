@@ -52,6 +52,15 @@ namespace EventFlow.Tests.UnitTests.EventStores
                         new UpgradeTestEventV2ToTestEventV3(_domainEventFactory), 
                         new DamagedEventRemover(),
                     });
+            _resolverMock
+                .Setup(r => r.ResolveAll(typeof(IEventUpgrader<TestAggregate, TestId>)))
+                .Returns(new object[]
+                    {
+                        new UpgradeTestEventV1ToTestEventV2(_domainEventFactory),
+                        new UpgradeTestEventV2ToTestEventV3(_domainEventFactory), 
+                        new DamagedEventRemover(),
+                    });
+
         }
 
         [Test]
