@@ -40,27 +40,9 @@ namespace EventFlow.EventStores
             int aggregateSequenceNumber,
             Guid batchId)
         {
-            var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(
-                aggregateEvent.GetType(),
-                t =>
-                    {
-                        var aggregateEventInterfaceType = t
-                            .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAggregateEvent<,>));
-                        var genericArguments = aggregateEventInterfaceType.GetGenericArguments();
-                        return typeof(DomainEvent<,,>).MakeGenericType(genericArguments[0], genericArguments[1], t);
-                    });
-            var identityType = DomainEventToIdentityTypeMap.GetOrAdd(
-                domainEventType,
-                t =>
-                    {
-                        var aggregateEventInterfaceType = t
-                            .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,>));
-                        var genericArguments = aggregateEventInterfaceType.GetGenericArguments();
-                        return genericArguments[1];
-                    });
-            var identity = Activator.CreateInstance(identityType, new object[] {aggregateIdentity});
+            var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(aggregateEvent.GetType(), GetDomainEventType);
+            var identityType = DomainEventToIdentityTypeMap.GetOrAdd(domainEventType, GetIdentityType);
+            var identity = Activator.CreateInstance(identityType, aggregateIdentity);
 
             var domainEvent = (IDomainEvent)Activator.CreateInstance(
                 domainEventType,
@@ -107,6 +89,42 @@ namespace EventFlow.EventStores
                 (TIdentity) domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber,
                 domainEvent.BatchId);
+        }
+
+        private static Type GetIdentityType(Type domainEventType)
+        {
+            var domainEventInterfaceType = domainEventType
+                .GetInterfaces()
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,>));
+
+            if (domainEventInterfaceType == null)
+            {
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not a '{1}'",
+                    domainEventType.Name,
+                    typeof(IDomainEvent<,>).Name));
+            }
+
+            var genericArguments = domainEventInterfaceType.GetGenericArguments();
+            return genericArguments[1];
+        }
+
+        private static Type GetDomainEventType(Type aggregateEventType)
+        {
+            var aggregateEventInterfaceType = aggregateEventType
+                .GetInterfaces()
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>));
+
+            if (aggregateEventInterfaceType == null)
+            {
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not a '{1}'",
+                    aggregateEventType.Name,
+                    typeof(IAggregateEvent<,>).Name));
+            }
+
+            var genericArguments = aggregateEventInterfaceType.GetGenericArguments();
+            return typeof(DomainEvent<,,>).MakeGenericType(genericArguments[0], genericArguments[1], aggregateEventType);
         }
     }
 }
