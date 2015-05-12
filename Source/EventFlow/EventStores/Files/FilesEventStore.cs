@@ -177,6 +177,13 @@ namespace EventFlow.EventStores.Files
             }
         }
 
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private string GetAggregatePath(Type aggregateType, IIdentity id)
         {
             return Path.Combine(

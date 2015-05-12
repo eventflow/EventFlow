@@ -27,6 +27,8 @@ namespace EventFlow.EventStores
 {
     public interface IEventUpgradeManager
     {
+        IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents);
+            
         IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
             IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
             where TAggregate : IAggregateRoot<TIdentity>

@@ -20,8 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Logs;
@@ -33,12 +37,40 @@ namespace EventFlow.EventStores
         private readonly ILog _log;
         private readonly IResolver _resolver;
 
+        private static readonly MethodInfo UpgradeGeneric = typeof (EventUpgradeManager).GetMethods()
+            .Single(mi => mi.Name == "Upgrade" && mi.IsGenericMethod);
+        private static readonly ConcurrentDictionary<Type, Func<EventUpgradeManager, IReadOnlyCollection<IDomainEvent>, IEnumerable<IDomainEvent>>> UpgradeMethods = new ConcurrentDictionary<Type, Func<EventUpgradeManager, IReadOnlyCollection<IDomainEvent>, IEnumerable<IDomainEvent>>>(); 
+
         public EventUpgradeManager(
             ILog log,
             IResolver resolver)
         {
             _log = log;
             _resolver = resolver;
+        }
+
+        private static Func<EventUpgradeManager, IReadOnlyCollection<IDomainEvent>, IEnumerable<IDomainEvent>> GetUpgrader(Type aggregateType, Type identityType)
+        {
+            return UpgradeMethods.GetOrAdd(
+                aggregateType,
+                _ =>
+                    {
+                        var methodInfo = UpgradeGeneric.MakeGenericMethod(aggregateType, identityType);
+                        return (eu, de) => ((IEnumerable) (methodInfo.Invoke(eu, new object[]{ de }))).Cast<IDomainEvent>();
+                    });
+        }
+
+        public IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents)
+        {
+            return domainEvents
+                .GroupBy(de => new { de.AggregateType, IdentityType = de.GetIdentity().GetType() })
+                .SelectMany(g =>
+                    {
+                        var upgrader = GetUpgrader(g.Key.AggregateType, g.Key.IdentityType);
+                        return upgrader(this, g.ToList());
+                    })
+                .OrderBy(de => de.GlobalSequenceNumber)
+                .ToList();
         }
 
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(

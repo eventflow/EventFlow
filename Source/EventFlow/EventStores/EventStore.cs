@@ -133,6 +133,10 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken);
+
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -159,6 +163,18 @@ namespace EventFlow.EventStores
 
             await EventCache.InsertAsync(id, domainEvents, cancellationToken).ConfigureAwait(false);
 
+            return domainEvents;
+        }
+
+        public async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            var committedDomainEvents = await LoadCommittedEventsAsync(globalSequenceNumberRange, cancellationToken).ConfigureAwait(false);
+            var domainEvents = (IReadOnlyCollection<IDomainEvent>) committedDomainEvents
+                .Select(e => EventJsonSerializer.Deserialize(e))
+                .ToList();
+            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
             return domainEvents;
         }
 

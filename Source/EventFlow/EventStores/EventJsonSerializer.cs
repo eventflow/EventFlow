@@ -63,6 +63,11 @@ namespace EventFlow.EventStores
                 metadata.AggregateSequenceNumber);
         }
 
+        public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
             TIdentity id,
             ICommittedDomainEvent committedDomainEvent)

@@ -162,5 +162,12 @@ namespace EventFlow.EventStores.MsSql
                 .ConfigureAwait(false);
             return eventDataModels;
         }
+
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
