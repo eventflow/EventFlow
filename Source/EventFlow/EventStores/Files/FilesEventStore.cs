@@ -81,6 +81,13 @@ namespace EventFlow.EventStores.Files
                 var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json);
                 _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
                 _log = eventStoreLog.Log ?? new Dictionary<long, string>();
+
+                if (_log.Count != _globalSequenceNumber)
+                {
+                    eventStoreLog = RecreateEventStoreLog(_configuration.StorePath);
+                    _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
+                    _log = eventStoreLog.Log;
+                }
             }
             else
             {
@@ -211,6 +218,30 @@ namespace EventFlow.EventStores.Files
             }
 
             return committedDomainEvents;
+        }
+
+        private EventStoreLog RecreateEventStoreLog(string path)
+        {
+            var directory = Directory.GetDirectories(path)
+                .SelectMany(Directory.GetDirectories)
+                .SelectMany(Directory.GetFiles)
+                .Select(f =>
+                    {
+                        Console.WriteLine(f);
+                        using (var streamReader = File.OpenText(f))
+                        {
+                            var json = streamReader.ReadToEnd();
+                            var fileEventData = _jsonSerializer.Deserialize<FileEventData>(json);
+                            return new {fileEventData.GlobalSequenceNumber, Path = f};
+                        }
+                    })
+                .ToDictionary(a => a.GlobalSequenceNumber, a => a.Path);
+
+            return new EventStoreLog
+                {
+                    GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
+                    Log = directory,
+                };
         }
 
         private string GetAggregatePath(Type aggregateType, IIdentity id)

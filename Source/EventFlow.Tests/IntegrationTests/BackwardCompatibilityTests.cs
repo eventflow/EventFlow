@@ -63,13 +63,23 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public void ValidateTestAggregate()
         {
-            // Arrange
+            // Act
             var testAggregate = _eventStore.LoadAggregate<TestAggregate, TestId>(_testId, CancellationToken.None);
 
             // Assert
             testAggregate.Version.Should().Be(2);
             testAggregate.PingsReceived.Should().Contain(PingId.With("95433aa0-11f7-4128-bd5f-18e0ecc4d7c1"));
             testAggregate.PingsReceived.Should().Contain(PingId.With("2352d09b-4712-48cc-bb4f-5560d7c52558"));
+        }
+
+        [Test]
+        public void DomainEventsCanBeLoaded()
+        {
+            // Act
+            var domainEvents = _eventStore.LoadEvents(GlobalSequenceNumberRange.Range(1, 2), CancellationToken.None);
+
+            // Assert
+            domainEvents.Count.Should().Be(2);
         }
 
         [Test, Explicit]

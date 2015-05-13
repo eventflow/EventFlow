@@ -46,6 +46,10 @@ namespace EventFlow.EventStores
             GlobalSequenceNumberRange globalSequenceNumberRange,
             CancellationToken cancellationToken);
 
+        IReadOnlyCollection<IDomainEvent> LoadEvents(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken);
+
         Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
