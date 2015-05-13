@@ -42,6 +42,12 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
+        IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
         Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
             GlobalSequenceNumberRange globalSequenceNumberRange,
             CancellationToken cancellationToken);

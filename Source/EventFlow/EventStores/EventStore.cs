@@ -166,6 +166,19 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
+        public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity
+        {
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents = null;
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken), d => domainEvents = d);
+            }
+            return domainEvents;
+        }
+
         public async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
             GlobalSequenceNumberRange globalSequenceNumberRange,
             CancellationToken cancellationToken)
