@@ -27,6 +27,8 @@ using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -74,6 +76,24 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
             // Assert
             upgradedEvents.Should().BeEmpty();
+        }
+
+        [Test]
+        public void EventWithNoUpgradersIsReturned()
+        {
+            // Arrange
+            var events = new[]
+                {
+                    ToDomainEvent(new PingEvent(PingId.New)),
+                    ToDomainEvent(new DomainErrorAfterFirstEvent())
+                };
+
+            // Act
+            var upgradedEvents = Sut.Upgrade(events);
+
+            // Assert
+            upgradedEvents.Count.Should().Be(2);
+            upgradedEvents.Should().Contain(events);
         }
 
         [Test]
