@@ -20,24 +20,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using EventFlow.Aggregates;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventJsonSerializer
+    public class GlobalSequenceNumberRange : ValueObject
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        public static GlobalSequenceNumberRange Range(long from, long to)
+        {
+            return new GlobalSequenceNumberRange(from, to);
+        }
 
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
+        public long From { get; private set; }
+        public long To { get; private set; }
+        public long Count { get { return To - From + 1; } }
 
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        private GlobalSequenceNumberRange(
+            long from,
+            long to)
+        {
+            if (from <= 0) throw new ArgumentOutOfRangeException("from");
+            if (to <= 0) throw new ArgumentOutOfRangeException("to");
+            if (from > to) throw new ArgumentException(string.Format(
+                "The 'from' value ({0}) must be less or equal to the 'to' value ({1})",
+                from,
+                to));
+
+            From = from;
+            To = to;
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return From;
+            yield return To;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[{0},{1}]", From, To);
+        }
     }
 }
