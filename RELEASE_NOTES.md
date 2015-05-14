@@ -11,7 +11,7 @@
  * New: Table names for MSSQL read models can be assigned using the
    `TableAttribute` from `System.ComponentModel.DataAnnotations`
  * Fixed: Subscribers are invoked _after_ read stores have been updated,
-   which ensures that subscribers can use any read models that the
+   which ensures that subscribers can use any read models that were
    updated
 
 ### New in 0.5.390 (released 2015-05-08)
