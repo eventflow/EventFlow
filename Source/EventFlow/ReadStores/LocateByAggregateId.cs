@@ -27,9 +27,9 @@ namespace EventFlow.ReadStores
 {
     public class LocateByAggregateId : ILocateByAggregateId
     {
-        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvents)
+        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
         {
-            yield return domainEvents.GetIdentity().Value;
+            yield return domainEvent.GetIdentity().Value;
         }
     }
 }

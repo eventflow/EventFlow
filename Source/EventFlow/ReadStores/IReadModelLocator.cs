@@ -27,6 +27,6 @@ namespace EventFlow.ReadStores
 {
     public interface IReadModelLocator
     {
-        IEnumerable<string> GetReadModelIds(IDomainEvent domainEvents);
+        IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent);
     }
 }
