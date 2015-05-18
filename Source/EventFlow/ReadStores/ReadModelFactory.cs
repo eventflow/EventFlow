@@ -31,7 +31,7 @@ namespace EventFlow.ReadStores
 {
     public class ReadModelFactory : IReadModelFactory
     {
-        private static readonly ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>> ApplyMethods = new ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>();
+        private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>>();
 
         public Task<TReadModel> CreateReadModelAsync<TReadModel>(
             IReadOnlyCollection<IDomainEvent> domainEvents,
@@ -62,17 +62,19 @@ namespace EventFlow.ReadStores
             where TReadModel : IReadModel
         {
             var readModelType = typeof(TReadModel);
-            var readModelContextType = typeof(IReadModelContext);
             var appliedAny = false;
 
             foreach (var domainEvent in domainEvents)
             {
-                var applyMethod = ApplyMethods.GetOrAdd(
+                var applyMethods = ApplyMethods.GetOrAdd(
+                    readModelType,
+                    t => new ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>());
+                var applyMethod = applyMethods.GetOrAdd(
                     domainEvent.EventType,
                     t =>
                         {
                             var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
-                            var methodInfo = readModelType.GetMethod("Apply", new[] { readModelContextType, domainEventType });
+                            var methodInfo = readModelType.GetMethod("Apply", new[] { typeof(IReadModelContext), domainEventType });
                             return methodInfo == null
                                 ? null
                                 : (Action<IReadModel, IReadModelContext, IDomainEvent>)((r, c, e) => methodInfo.Invoke(r, new object[] { c, e }));
