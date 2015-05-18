@@ -26,9 +26,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores.InMemory
 {
-    public interface IInMemoryReadModelStore<TAggregate, in TIdentity, out TReadModel> : IReadModelStore<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface IInMemoryReadModelStore<out TReadModel> : IReadModelStore
         where TReadModel : IReadModel, new()
     {
         TReadModel Get(IIdentity id);

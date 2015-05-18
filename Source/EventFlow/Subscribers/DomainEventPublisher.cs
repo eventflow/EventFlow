@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -31,14 +32,14 @@ namespace EventFlow.Subscribers
     public class DomainEventPublisher : IDomainEventPublisher
     {
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
-        private readonly IReadStoreManager _readStoreManager;
+        private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
-            IReadStoreManager readStoreManager)
+            IEnumerable<IReadStoreManager> readStoreManagers)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
-            _readStoreManager = readStoreManager;
+            _readStoreManagers = readStoreManagers.ToList();
         }
 
         public async Task PublishAsync<TAggregate, TIdentity>(
@@ -49,8 +50,11 @@ namespace EventFlow.Subscribers
             where TIdentity : IIdentity
         {
             // ARGH, dilemma, should we pass the cancellation token to read model update or not?
-            await _readStoreManager.UpdateReadStoresAsync<TAggregate, TIdentity>(id, domainEvents, CancellationToken.None).ConfigureAwait(false);
+            var updateReadStoresTasks = _readStoreManagers
+                .Select(rsm => rsm.UpdateReadStoresAsync<TAggregate, TIdentity>(id, domainEvents, CancellationToken.None));
+            await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
 
+            // Update subscriptions AFTER read stores have been updated
             await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
     }

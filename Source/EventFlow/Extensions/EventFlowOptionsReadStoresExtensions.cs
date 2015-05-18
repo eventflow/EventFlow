@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
@@ -29,31 +28,28 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsReadStoresExtensions
     {
-        public static EventFlowOptions UseInMemoryReadStoreFor<TAggregate, TIdentity, TReadModel>(
+        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
             this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
             where TReadModel : IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
         {
-            eventFlowOptions.AddReadModelStore<TAggregate, TIdentity, IInMemoryReadModelStore<TAggregate, TIdentity, TReadModel>>();
-            eventFlowOptions.RegisterServices(f => f.Register<IInMemoryReadModelStore<TAggregate, TIdentity, TReadModel>, InMemoryReadModelStore<TAggregate, TIdentity, TReadModel>>(Lifetime.Singleton));
+            eventFlowOptions.AddReadModelStore<IInMemoryReadModelStore<TReadModel>>();
+            eventFlowOptions.RegisterServices(f => f.Register<IInMemoryReadModelStore<TReadModel>, InMemoryReadModelStore<TReadModel, TReadModelLocator>>(Lifetime.Singleton));
             return eventFlowOptions;
         }
 
-        public static EventFlowOptions AddReadModelStore<TAggregate, TIdentity, TReadModelStore>(
+        public static EventFlowOptions AddReadModelStore<TReadModelStore>(
             this EventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TReadModelStore : class, IReadModelStore<TAggregate, TIdentity>
+            where TReadModelStore : class, IReadModelStore
         {
             if (typeof(TReadModelStore).IsInterface)
             {
-                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore<TAggregate, TIdentity>>(r => r.Resolver.Resolve<TReadModelStore>(), lifetime));
+                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore>(r => r.Resolver.Resolve<TReadModelStore>(), lifetime));
             }
             else
             {
-                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore<TAggregate, TIdentity>, TReadModelStore>(lifetime));
+                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore, TReadModelStore>(lifetime));
             }
 
             return eventFlowOptions;

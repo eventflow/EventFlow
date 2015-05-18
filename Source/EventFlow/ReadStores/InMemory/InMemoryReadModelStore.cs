@@ -30,40 +30,40 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.InMemory
 {
-    public class InMemoryReadModelStore<TAggregate, TIdentity, TReadModel> :
-        ReadModelStore<TAggregate, TIdentity, TReadModel>,
-        IInMemoryReadModelStore<TAggregate, TIdentity, TReadModel>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class InMemoryReadModelStore<TReadModel, TReadModelLocator> :
+        ReadModelStore<TReadModel, TReadModelLocator>,
+        IInMemoryReadModelStore<TReadModel>
         where TReadModel : IReadModel, new()
+        where TReadModelLocator : IReadModelLocator
     {
         private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>();
 
         public InMemoryReadModelStore(
-            ILog log)
-            : base(log)
+            ILog log,
+            TReadModelLocator readModelLocator,
+            IReadModelFactory readModelFactory)
+            : base(log, readModelLocator, readModelFactory)
         {
         }
 
-        public override Task UpdateReadModelAsync(
-            TIdentity id,
+        private Task UpdateReadModelAsync(
+            string id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
             CancellationToken cancellationToken)
         {
             TReadModel readModel;
-            if (_readModels.ContainsKey(id.Value))
+            if (_readModels.ContainsKey(id))
             {
-                readModel = _readModels[id.Value];
+                readModel = _readModels[id];
             }
             else
             {
                 readModel = new TReadModel();
-                _readModels.Add(id.Value, readModel);
+                _readModels.Add(id, readModel);
             }
 
-            ApplyEvents(readModel, domainEvents);
-
-            return Task.FromResult(0);
+            return ReadModelFactory.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken);
         }
 
         public TReadModel Get(IIdentity id)
@@ -83,6 +83,13 @@ namespace EventFlow.ReadStores.InMemory
         {
             return _readModels.Values
                 .Where(predicate);
-        } 
+        }
+
+        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
+        {
+            var updateTasks = readModelUpdates
+                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));
+            return Task.WhenAll(updateTasks);
+        }
     }
 }

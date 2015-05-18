@@ -95,6 +95,7 @@ namespace EventFlow
             RegisterIfMissing<ILog, ConsoleLog>(services);
             RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
             RegisterIfMissing<ICommandBus, CommandBus>(services);
+            RegisterIfMissing<ILocateByAggregateId, LocateByAggregateId>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
@@ -102,6 +103,7 @@ namespace EventFlow
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
+            RegisterIfMissing<IReadModelFactory, ReadModelFactory>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);

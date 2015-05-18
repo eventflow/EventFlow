@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
@@ -38,31 +37,28 @@ namespace EventFlow.Tests.UnitTests.EventStores
     public class EventUpgradeManagerTests : TestsFor<EventUpgradeManager>
     {
         private Mock<IResolver> _resolverMock;
-        private IDomainEventFactory _domainEventFactory;
 
         [SetUp]
         public void SetUp()
         {
             _resolverMock = InjectMock<IResolver>();
-            _domainEventFactory = new DomainEventFactory();
 
             _resolverMock
                 .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<TestAggregate, TestId>>>())
                 .Returns(new IEventUpgrader<TestAggregate, TestId>[]
                     {
-                        new UpgradeTestEventV1ToTestEventV2(_domainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(_domainEventFactory), 
+                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
+                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
                         new DamagedEventRemover(),
                     });
             _resolverMock
                 .Setup(r => r.ResolveAll(typeof(IEventUpgrader<TestAggregate, TestId>)))
                 .Returns(new object[]
                     {
-                        new UpgradeTestEventV1ToTestEventV2(_domainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(_domainEventFactory), 
+                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
+                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
                         new DamagedEventRemover(),
                     });
-
         }
 
         [Test]
@@ -123,23 +119,6 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public class TestEventV2 : AggregateEvent<TestAggregate, TestId> { }
         public class TestEventV3 : AggregateEvent<TestAggregate, TestId> { }
         public class DamagedEvent : AggregateEvent<TestAggregate, TestId> { }
-
-        private IDomainEvent<TestAggregate, TestId> ToDomainEvent<TAggregateEvent>(TAggregateEvent aggregateEvent)
-            where TAggregateEvent : IAggregateEvent
-        {
-            var metadata = new Metadata
-                {
-                    Timestamp = A<DateTimeOffset>()
-                };
-
-            return _domainEventFactory.Create<TestAggregate, TestId>(
-                aggregateEvent,
-                metadata,
-                A<long>(),
-                A<TestId>(),
-                A<int>(),
-                A<Guid>());
-        }
 
         public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<TestAggregate, TestId>
         {

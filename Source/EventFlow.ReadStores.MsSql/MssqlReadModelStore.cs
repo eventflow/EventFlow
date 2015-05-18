@@ -31,29 +31,31 @@ using EventFlow.MsSql;
 
 namespace EventFlow.ReadStores.MsSql
 {
-    public class MssqlReadModelStore<TAggregate, TIdentity, TReadModel> :
-        ReadModelStore<TAggregate, TIdentity, TReadModel>,
-        IMssqlReadModelStore<TAggregate, TIdentity, TReadModel>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class MssqlReadModelStore<TReadModel, TReadModelLocator> :
+        ReadModelStore<TReadModel, TReadModelLocator>,
+        IMssqlReadModelStore<TReadModel>
         where TReadModel : IMssqlReadModel, new()
+        where TReadModelLocator : IReadModelLocator
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
 
         public MssqlReadModelStore(
             ILog log,
+            TReadModelLocator readModelLocator,
+            IReadModelFactory readModelFactory,
             IMsSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator)
-            : base(log)
+            : base(log, readModelLocator, readModelFactory)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
         }
 
-        public override async Task UpdateReadModelAsync(
-            TIdentity id,
+        private async Task UpdateReadModelAsync(
+            string id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
             CancellationToken cancellationToken)
         {
             var readModelNameLowerCased = typeof (TReadModel).Name.ToLowerInvariant();
@@ -62,7 +64,7 @@ namespace EventFlow.ReadStores.MsSql
                 Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)), 
                 cancellationToken,
                 selectSql,
-                new { AggregateId = id.Value })
+                new { AggregateId = id })
                 .ConfigureAwait(false);
             var readModel = readModels.SingleOrDefault();
             var isNew = false;
@@ -71,12 +73,21 @@ namespace EventFlow.ReadStores.MsSql
                 isNew = true;
                 readModel = new TReadModel
                     {
-                        AggregateId = id.Value,
+                        AggregateId = id,
                         CreateTime = domainEvents.First().Timestamp,
                     };
             }
 
-            ApplyEvents(readModel, domainEvents);
+            var appliedAny = await ReadModelFactory.UpdateReadModelAsync(
+                readModel,
+                domainEvents,
+                readModelContext,
+                cancellationToken)
+                .ConfigureAwait(false);
+            if (!appliedAny)
+            {
+                return;
+            }
 
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;
@@ -92,6 +103,13 @@ namespace EventFlow.ReadStores.MsSql
                 cancellationToken,
                 sql,
                 readModel).ConfigureAwait(false);
+        }
+
+        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
+        {
+            var updateTasks = readModelUpdates
+                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));
+            return Task.WhenAll(updateTasks);
         }
     }
 }

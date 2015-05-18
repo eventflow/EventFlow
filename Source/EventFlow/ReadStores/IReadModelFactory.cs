@@ -22,58 +22,32 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public class ReadStoreManager : IReadStoreManager
+    public interface IReadModelFactory
     {
-        private readonly ILog _log;
-        private readonly IResolver _resolver;
-
-        public ReadStoreManager(
-            ILog log,
-            IResolver resolver)
-        {
-            _log = log;
-            _resolver = resolver;
-        }
-
-        public async Task UpdateReadStoresAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        Task<TReadModel> CreateReadModelAsync<TReadModel>(
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore>>().ToList();
-            var updateTasks = readModelStores
-                .Select(s => UpdateReadStoreAsync(s, domainEvents, cancellationToken))
-                .ToArray();
-            await Task.WhenAll(updateTasks).ConfigureAwait(false);
-        }
+            where TReadModel : IReadModel, new();
 
-        private async Task UpdateReadStoreAsync(
-            IReadModelStore readModelStore,
+        Task<TReadModel> CreateReadModelAsync<TReadModel>(
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
+            Func<TReadModel> readModelCreator,
             CancellationToken cancellationToken)
-        {
-            try
-            {
-                await readModelStore.ApplyDomainEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Error(
-                    exception,
-                    "Failed to updated read model store {0}",
-                    readModelStore.GetType().Name);
-            }
-        }
+            where TReadModel : IReadModel;
+
+        Task<bool> UpdateReadModelAsync<TReadModel>(
+            TReadModel readModel,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken)
+            where TReadModel : IReadModel;
     }
 }
