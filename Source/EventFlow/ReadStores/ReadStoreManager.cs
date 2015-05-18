@@ -63,8 +63,6 @@ namespace EventFlow.ReadStores
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var readModelStoreType = readModelStore.GetType();
-
             try
             {
                 await readModelStore.ApplyDomainEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
@@ -74,7 +72,7 @@ namespace EventFlow.ReadStores
                 _log.Error(
                     exception,
                     "Failed to updated read model store {0}",
-                    readModelStoreType.Name);
+                    readModelStore.GetType().Name);
             }
         }
     }
