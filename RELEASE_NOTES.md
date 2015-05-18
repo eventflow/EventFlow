@@ -1,8 +1,22 @@
 ### New in 0.6 (not released yet)
 
+ * Breaking: Read models have been significantly improved as they can now
+   subscribe to events from multiple aggregates. Use a custom
+   `IReadModelLocator` to define how read models are located. The supplied
+   `ILocateByAggregateId` simply uses the aggregate ID. To subscribe
+   to other events, simply implement `IAmReadModelFor<,,>` and make sure
+   you have supplied a proper read model locator.
+   - `UseMssqlReadModel` signature changed, change to
+   `.UseMssqlReadModel<MyReadModel, ILocateByAggregateId>()` in
+   order to have the previous functionality
+   - `UseInMemoryReadStoreFor` signature changed, change to
+   `.UseInMemoryReadStoreFor<MyReadModel, ILocateByAggregateId>()` in
+   order to have the previous functionality
  * Breaking: `ITransientFaultHandler` now takes the strategy as a generic
    argument instead of the `Use<>` method. If you want to configure the
    retry strategy, use `ConfigureRetryStrategy(...)` instead
+ * New: You can now have multiple `IReadStoreManager` if you would like to
+   implement your own read model handling
  * New: `IEventStore` now has a `LoadEventsAsync` and `LoadEvents`
    that loads `IDomainEvent`s based on global sequence number range
  * New: Its now possible to register generic services without them being
