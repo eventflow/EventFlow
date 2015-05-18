@@ -188,3 +188,7 @@ FakesAssemblies/
 # Project specific files
 /Tools
 /Build
+
+# NCrunch
+*.ncrunchsolution
+*.ncrunchproject

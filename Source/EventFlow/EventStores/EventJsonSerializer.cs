@@ -63,11 +63,7 @@ namespace EventFlow.EventStores
                 metadata.AggregateSequenceNumber);
         }
 
-        public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
         {
             var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
 
@@ -77,15 +73,24 @@ namespace EventFlow.EventStores
 
             var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(committedDomainEvent.Data, eventDefinition.Type);
 
-            var domainEvent = _domainEventFactory.Create<TAggregate, TIdentity>(
+            var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,
                 metadata,
                 committedDomainEvent.GlobalSequenceNumber,
-                id,
+                committedDomainEvent.AggregateId,
                 committedDomainEvent.AggregateSequenceNumber,
                 committedDomainEvent.BatchId);
 
             return domainEvent;
+        }
+
+        public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
+            TIdentity id,
+            ICommittedDomainEvent committedDomainEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return (IDomainEvent<TAggregate, TIdentity>)Deserialize(committedDomainEvent);
         }
     }
 }

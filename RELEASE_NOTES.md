@@ -3,13 +3,15 @@
  * Breaking: `ITransientFaultHandler` now takes the strategy as a generic
    argument instead of the `Use<>` method. If you want to configure the
    retry strategy, use `ConfigureRetryStrategy(...)` instead
+ * New: `IEventStore` now has a `LoadEventsAsync` and `LoadEvents`
+   that loads `IDomainEvent`s based on global sequence number range
  * New: Its now possible to register generic services without them being
    constructed generic types, i.e., register `typeof(IMyService<>)` as
    `typeof(MyService<>)`
  * New: Table names for MSSQL read models can be assigned using the
    `TableAttribute` from `System.ComponentModel.DataAnnotations`
  * Fixed: Subscribers are invoked _after_ read stores have been updated,
-   which ensures that subscribers can use any read models that the
+   which ensures that subscribers can use any read models that were
    updated
 
 ### New in 0.5.390 (released 2015-05-08)
