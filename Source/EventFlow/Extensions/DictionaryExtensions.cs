@@ -20,10 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.ReadStores
+using System;
+using System.Collections.Generic;
+
+namespace EventFlow.Extensions
 {
-    public interface IReadModelContext
+    public static class DictionaryExtensions
     {
-        long GlobalSequenceNumber { get; }
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
+        {
+            TValue value;
+            if (dictionary.TryGetValue(key, out value))
+            {
+                return value;
+            }
+
+            value = factory(key);
+
+            dictionary[key] = value;
+
+            return value;
+        }
     }
 }

@@ -20,10 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelContext
+    public class ReadModelUpdate
     {
-        long GlobalSequenceNumber { get; }
+        public string ReadModelId { get; private set; }
+        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; private set; }
+
+        public ReadModelUpdate(string readModelId, IReadOnlyCollection<IDomainEvent> domainEvents)
+        {
+            ReadModelId = readModelId;
+            DomainEvents = domainEvents;
+        }
     }
 }

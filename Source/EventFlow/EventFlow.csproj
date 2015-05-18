@@ -100,6 +100,7 @@
     <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\DomainEventFactory.cs" />
     <Compile Include="EventStores\EventUpgradeManager.cs" />
+    <Compile Include="EventStores\GlobalSequenceNumberRange.cs" />
     <Compile Include="EventStores\IDomainEventFactory.cs" />
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventCachesExtensions.cs" />
@@ -116,6 +118,12 @@
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
+    <Compile Include="ReadStores\ILocateByAggregateId.cs" />
+    <Compile Include="ReadStores\IReadModelFactory.cs" />
+    <Compile Include="ReadStores\LocateByAggregateId.cs" />
+    <Compile Include="ReadStores\IReadModelLocator.cs" />
+    <Compile Include="ReadStores\ReadModelFactory.cs" />
+    <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />

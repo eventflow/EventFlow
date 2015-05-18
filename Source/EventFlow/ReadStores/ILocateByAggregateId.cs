@@ -22,8 +22,7 @@
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelContext
+    public interface ILocateByAggregateId : IReadModelLocator
     {
-        long GlobalSequenceNumber { get; }
     }
 }

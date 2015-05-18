@@ -158,7 +158,35 @@ namespace EventFlow.EventStores.MsSql
                 Label.Named("mssql-fetch-events"), 
                 cancellationToken,
                 sql,
-                new { AggregateId = id.Value })
+                new
+                    {
+                        AggregateId = id.Value
+                    })
+                .ConfigureAwait(false);
+            return eventDataModels;
+        }
+
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    GlobalSequenceNumber >= @FromId AND GlobalSequenceNumber <= @ToId
+                ORDER BY
+                    GlobalSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                Label.Named("mssql-fetch-events"),
+                cancellationToken,
+                sql,
+                new
+                    {
+                        FromId = globalSequenceNumberRange.From,
+                        ToId = globalSequenceNumberRange.To,
+                    })
                 .ConfigureAwait(false);
             return eventDataModels;
         }

@@ -23,8 +23,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.Core;
+using EventFlow.EventStores;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -35,6 +37,7 @@ namespace EventFlow.TestHelpers
     public abstract class Test
     {
         protected IFixture Fixture { get; private set; }
+        protected IDomainEventFactory DomainEventFactory;
 
         [SetUp]
         public void SetUpTest()
@@ -42,6 +45,8 @@ namespace EventFlow.TestHelpers
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
             Fixture.Customize<TestId>(x => x.FromFactory(() => TestId.New));
             Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
+
+            DomainEventFactory = new DomainEventFactory();
         }
 
         protected T A<T>()
@@ -60,6 +65,24 @@ namespace EventFlow.TestHelpers
             var mock = new Mock<T>();
             Fixture.Inject(mock.Object);
             return mock;
+        }
+
+        protected IDomainEvent<TestAggregate, TestId> ToDomainEvent<TAggregateEvent>(
+            TAggregateEvent aggregateEvent)
+            where TAggregateEvent : IAggregateEvent
+        {
+            var metadata = new Metadata
+            {
+                Timestamp = A<DateTimeOffset>()
+            };
+
+            return DomainEventFactory.Create<TestAggregate, TestId>(
+                aggregateEvent,
+                metadata,
+                A<long>(),
+                A<TestId>(),
+                A<int>(),
+                A<Guid>());
         }
 
         protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)
