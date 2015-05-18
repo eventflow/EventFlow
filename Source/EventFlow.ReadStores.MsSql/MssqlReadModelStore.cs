@@ -43,9 +43,10 @@ namespace EventFlow.ReadStores.MsSql
         public MssqlReadModelStore(
             ILog log,
             TReadModelLocator readModelLocator,
+            IReadModelFactory readModelFactory,
             IMsSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator)
-            : base(log, readModelLocator)
+            : base(log, readModelLocator, readModelFactory)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
@@ -77,7 +78,16 @@ namespace EventFlow.ReadStores.MsSql
                     };
             }
 
-            await ApplyEventsAsync(readModel, readModelContext, domainEvents).ConfigureAwait(false);
+            var appliedAny = await ReadModelFactory.UpdateReadModelAsync(
+                readModel,
+                domainEvents,
+                readModelContext,
+                cancellationToken)
+                .ConfigureAwait(false);
+            if (!appliedAny)
+            {
+                return;
+            }
 
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;

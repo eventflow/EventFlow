@@ -20,8 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -35,19 +33,23 @@ namespace EventFlow.ReadStores
         where TReadModel : IReadModel
         where TReadModelLocator : IReadModelLocator
     {
-        private static readonly ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>> ApplyMethods = new ConcurrentDictionary<Type, Action<TReadModel, IReadModelContext, IDomainEvent>>();
-
         protected ILog Log { get; private set; }
         protected TReadModelLocator ReadModelLocator { get; private set; }
+        protected IReadModelFactory ReadModelFactory { get; private set; }
 
         protected ReadModelStore(
-            ILog log, TReadModelLocator readModelLocator)
+            ILog log,
+            TReadModelLocator readModelLocator,
+            IReadModelFactory readModelFactory)
         {
             Log = log;
             ReadModelLocator = readModelLocator;
+            ReadModelFactory = readModelFactory;
         }
 
-        public virtual Task ApplyDomainEventsAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        public virtual Task ApplyDomainEventsAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
             var readModelUpdates = (
                 from de in domainEvents
@@ -65,35 +67,9 @@ namespace EventFlow.ReadStores
             return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
         }
 
-        protected abstract Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken);
-
-        protected virtual Task<bool> ApplyEventsAsync(TReadModel readModel, IReadModelContext readModelContext, IEnumerable<IDomainEvent> domainEvents)
-        {
-            var readModelType = typeof(TReadModel);
-            var readModelContextType = typeof(IReadModelContext);
-            var appliedAny = false;
-
-            foreach (var domainEvent in domainEvents)
-            {
-                var applyMethod = ApplyMethods.GetOrAdd(
-                    domainEvent.EventType,
-                    t =>
-                        {
-                            var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
-                            var methodInfo = readModelType.GetMethod("Apply", new[] { readModelContextType, domainEventType });
-                            return methodInfo == null
-                                ? null
-                                : (Action<TReadModel, IReadModelContext, IDomainEvent>)((r, c, e) => methodInfo.Invoke(r, new object[] { c, e }));
-                        });
-
-                if (applyMethod != null)
-                {
-                    applyMethod(readModel, readModelContext, domainEvent);
-                    appliedAny = true;
-                }
-            }
-
-            return Task.FromResult(appliedAny);
-        }
+        protected abstract Task UpdateReadModelsAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken);
     }
 }

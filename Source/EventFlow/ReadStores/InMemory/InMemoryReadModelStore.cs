@@ -38,8 +38,11 @@ namespace EventFlow.ReadStores.InMemory
     {
         private readonly Dictionary<string, TReadModel> _readModels = new Dictionary<string, TReadModel>();
 
-
-        public InMemoryReadModelStore(ILog log, TReadModelLocator readModelLocator) : base(log, readModelLocator)
+        public InMemoryReadModelStore(
+            ILog log,
+            TReadModelLocator readModelLocator,
+            IReadModelFactory readModelFactory)
+            : base(log, readModelLocator, readModelFactory)
         {
         }
 
@@ -60,7 +63,7 @@ namespace EventFlow.ReadStores.InMemory
                 _readModels.Add(id, readModel);
             }
 
-            return ApplyEventsAsync(readModel, readModelContext, domainEvents);
+            return ReadModelFactory.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken);
         }
 
         public TReadModel Get(IIdentity id)
