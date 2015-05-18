@@ -12,6 +12,9 @@
    - `UseInMemoryReadStoreFor` signature changed, change to
    `.UseInMemoryReadStoreFor<MyReadModel, ILocateByAggregateId>()` in
    order to have the previous functionality
+ * Breaking: A warning is no longer logged if you forgot to subscribe to
+   a aggregate event in your read model as read models are no longer
+   strongly coupled to a specific aggregate and its events
  * Breaking: `ITransientFaultHandler` now takes the strategy as a generic
    argument instead of the `Use<>` method. If you want to configure the
    retry strategy, use `ConfigureRetryStrategy(...)` instead
