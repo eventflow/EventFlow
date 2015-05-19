@@ -20,38 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Core
+namespace EventFlow.ReadStores
 {
-    public class Label
+    public class ReadModelPopulator : IReadModelPopulator
     {
-        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
+        private readonly IReadOnlyCollection<IReadModelStore> _readModelStores;
 
-        public static Label Named(string name) { return new Label(name.ToLowerInvariant()); }
-
-        public static Label Named(params string[] parts)
+        public ReadModelPopulator(
+            IEnumerable<IReadModelStore> readModelStores)
         {
-            return Named(string.Join("-", parts));
+            _readModelStores = readModelStores.ToList();
         }
 
-        public string Name { get; private set; }
-
-        private Label(string name)
+        public Task PurgeAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
-            if (!NameValidator.IsMatch(name)) throw new ArgumentException(string.Format(
-                "Label '{0}' is not a valid label, it must pass this regex '{1}'",
-                name,
-                NameValidator));
-
-            Name = name;
-        }
-
-        public override string ToString()
-        {
-            return Name;
+            var purgeTasks = _readModelStores.Select(s => s.PurgeAsync<TReadModel>(cancellationToken));
+            return Task.WhenAll(purgeTasks);
         }
     }
 }

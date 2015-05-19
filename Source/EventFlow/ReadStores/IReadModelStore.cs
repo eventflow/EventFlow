@@ -30,5 +30,8 @@ namespace EventFlow.ReadStores
     public interface IReadModelStore
     {
         Task ApplyDomainEventsAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+
+        Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
+            where TReadModelToPurge : IReadModel;
     }
 }

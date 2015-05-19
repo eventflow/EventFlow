@@ -44,6 +44,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         protected ITestDatabase TestDatabase { get; private set; }
         protected IMsSqlConnection MsSqlConnection { get; private set; }
         protected IReadModelSqlGenerator ReadModelSqlGenerator { get; private set; }
+        protected IReadModelPopulator ReadModelPopulator { get; private set; }
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
@@ -57,6 +58,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();
             ReadModelSqlGenerator = resolver.Resolve<IReadModelSqlGenerator>();
+            ReadModelPopulator = resolver.Resolve<IReadModelPopulator>();
 
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
@@ -65,7 +67,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             return resolver;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
             var sql = ReadModelSqlGenerator.CreateSelectSql<TestAggregateReadModel>();
             var readModels = await MsSqlConnection.QueryAsync<TestAggregateReadModel>(
@@ -75,6 +77,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
                 new { AggregateId = id.Value })
                 .ConfigureAwait(false);
             return readModels.SingleOrDefault();
+        }
+
+        public override Task PurgeTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
         }
 
         public override void TearDown()
