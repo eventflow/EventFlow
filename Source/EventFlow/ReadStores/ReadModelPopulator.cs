@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -48,9 +47,20 @@ namespace EventFlow.ReadStores
             return Task.WhenAll(purgeTasks);
         }
 
-        public Task PopulateAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
+        public async Task PopulateAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
         {
-            throw new NotImplementedException();
+            var maxGlobalSequenceNumber = await _eventStore.GetMaxGlobalSequenceNumberAsync(cancellationToken).ConfigureAwait(false);
+            if (maxGlobalSequenceNumber < 1)
+            {
+                return;
+            }
+
+            foreach (var globalSequenceNumberRange in GlobalSequenceNumberRange.Batches(1, maxGlobalSequenceNumber, 10))
+            {
+                var domainEvents = await _eventStore.LoadEventsAsync(globalSequenceNumberRange, cancellationToken).ConfigureAwait(false);
+
+                // TODO: Do stuff
+            }
         }
     }
 }
