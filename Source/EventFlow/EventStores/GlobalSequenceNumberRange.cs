@@ -33,6 +33,22 @@ namespace EventFlow.EventStores
             return new GlobalSequenceNumberRange(from, to);
         }
 
+        public static IEnumerable<GlobalSequenceNumberRange> Batches(long from, long to, long batchSize)
+        {
+            if (from <= 0) throw new ArgumentOutOfRangeException("from");
+            if (to <= 0) throw new ArgumentOutOfRangeException("to");
+            if (from > to) throw new ArgumentException(string.Format(
+                "The 'from' value ({0}) must be less or equal to the 'to' value ({1})",
+                from,
+                to));
+            if (batchSize <= 0) throw new ArgumentOutOfRangeException("batchSize");
+
+            for (var start = from; start <= to; start = start + batchSize)
+            {
+                yield return Range(start, Math.Min(to, start + batchSize - 1));
+            }
+        }
+
         public long From { get; private set; }
         public long To { get; private set; }
         public long Count { get { return To - From + 1; } }
