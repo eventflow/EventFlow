@@ -20,20 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.EventStores;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelPopulator : IReadModelPopulator
     {
+        private readonly IEventStore _eventStore;
         private readonly IReadOnlyCollection<IReadModelStore> _readModelStores;
 
         public ReadModelPopulator(
+            IEventStore eventStore,
             IEnumerable<IReadModelStore> readModelStores)
         {
+            _eventStore = eventStore;
             _readModelStores = readModelStores.ToList();
         }
 
@@ -41,6 +46,11 @@ namespace EventFlow.ReadStores
         {
             var purgeTasks = _readModelStores.Select(s => s.PurgeAsync<TReadModel>(cancellationToken));
             return Task.WhenAll(purgeTasks);
+        }
+
+        public Task PopulateAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
+        {
+            throw new NotImplementedException();
         }
     }
 }

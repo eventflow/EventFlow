@@ -29,5 +29,8 @@ namespace EventFlow.ReadStores
     {
         Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
             where TReadModel : IReadModel;
+
+        Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : IReadModel;
     }
 }

@@ -67,5 +67,7 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
+
+        Task<long> GetMaxGlobalSequenceNumberAsync(CancellationToken cancellationToken);
     }
 }
