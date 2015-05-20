@@ -30,6 +30,7 @@ using EventFlow.MetadataProviders;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
+using EventFlow.ReadStores.InMemory.Queries;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;

@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using EventFlow.Queries;
 
-namespace EventFlow.ReadStores.InMemory
+namespace EventFlow.ReadStores.InMemory.Queries
 {
     public class InMemoryQuery<TReadModel> : IQuery<IEnumerable<TReadModel>>
         where TReadModel : IReadModel, new()

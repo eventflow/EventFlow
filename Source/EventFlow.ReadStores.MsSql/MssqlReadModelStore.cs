@@ -105,7 +105,10 @@ namespace EventFlow.ReadStores.MsSql
                 readModel).ConfigureAwait(false);
         }
 
-        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
+        protected override Task UpdateReadModelsAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
                 .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));

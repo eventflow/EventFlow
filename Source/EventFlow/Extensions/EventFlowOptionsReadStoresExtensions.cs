@@ -25,6 +25,7 @@ using EventFlow.Configuration.Registrations;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
+using EventFlow.ReadStores.InMemory.Queries;
 
 namespace EventFlow.Extensions
 {

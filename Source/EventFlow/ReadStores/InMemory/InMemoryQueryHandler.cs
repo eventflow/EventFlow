@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory.Queries;
 
 namespace EventFlow.ReadStores.InMemory
 {
