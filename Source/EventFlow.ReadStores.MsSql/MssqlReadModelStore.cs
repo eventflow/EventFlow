@@ -28,6 +28,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.MsSql;
+using EventFlow.Queries;
 
 namespace EventFlow.ReadStores.MsSql
 {
@@ -38,6 +39,7 @@ namespace EventFlow.ReadStores.MsSql
         where TReadModelLocator : IReadModelLocator
     {
         private readonly IMsSqlConnection _connection;
+        private readonly IQueryProcessor _queryProcessor;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
 
         public MssqlReadModelStore(
@@ -45,10 +47,12 @@ namespace EventFlow.ReadStores.MsSql
             TReadModelLocator readModelLocator,
             IReadModelFactory readModelFactory,
             IMsSqlConnection connection,
+            IQueryProcessor queryProcessor,
             IReadModelSqlGenerator readModelSqlGenerator)
             : base(log, readModelLocator, readModelFactory)
         {
             _connection = connection;
+            _queryProcessor = queryProcessor;
             _readModelSqlGenerator = readModelSqlGenerator;
         }
 
@@ -59,14 +63,7 @@ namespace EventFlow.ReadStores.MsSql
             CancellationToken cancellationToken)
         {
             var readModelNameLowerCased = typeof (TReadModel).Name.ToLowerInvariant();
-            var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
-            var readModels = await _connection.QueryAsync<TReadModel>(
-                Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)), 
-                cancellationToken,
-                selectSql,
-                new { AggregateId = id })
-                .ConfigureAwait(false);
-            var readModel = readModels.SingleOrDefault();
+            var readModel = await GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
             var isNew = false;
             if (readModel == null)
             {
@@ -103,6 +100,13 @@ namespace EventFlow.ReadStores.MsSql
                 cancellationToken,
                 sql,
                 readModel).ConfigureAwait(false);
+        }
+
+        public override Task<TReadModel> GetByIdAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            return _queryProcessor.ProcessAsync(new ReadModelByIdQuery<TReadModel>(id), cancellationToken);
         }
 
         protected override Task UpdateReadModelsAsync(

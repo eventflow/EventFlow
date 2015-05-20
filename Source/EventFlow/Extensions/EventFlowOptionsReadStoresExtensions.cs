@@ -41,6 +41,7 @@ namespace EventFlow.Extensions
                 {
                     f.Register<IInMemoryReadModelStore<TReadModel>, InMemoryReadModelStore<TReadModel, TReadModelLocator>>(Lifetime.Singleton);
                     f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, InMemoryQueryHandler<TReadModel>>();
                 });
             return eventFlowOptions;
         }

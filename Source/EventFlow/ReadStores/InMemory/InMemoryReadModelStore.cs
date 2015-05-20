@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
+using EventFlow.Queries;
 
 namespace EventFlow.ReadStores.InMemory
 {
@@ -81,11 +82,21 @@ namespace EventFlow.ReadStores.InMemory
 
         public IEnumerable<TReadModel> Find(Func<TReadModel, bool> predicate)
         {
-            return _readModels.Values
-                .Where(predicate);
+            return _readModels.Values.Where(predicate);
         }
 
-        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
+        public override Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken)
+        {
+            TReadModel readModel;
+            return _readModels.TryGetValue(id, out readModel)
+                ? Task.FromResult(readModel)
+                : Task.FromResult(default(TReadModel));
+        }
+
+        protected override Task UpdateReadModelsAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
                 .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));

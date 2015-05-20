@@ -21,6 +21,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration.Registrations;
+using EventFlow.Queries;
+using EventFlow.ReadStores.MsSql.Queries;
 
 namespace EventFlow.ReadStores.MsSql.Extensions
 {
@@ -37,6 +39,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
                         f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                     }
                     f.Register<IReadModelStore, MssqlReadModelStore<TReadModel, TReadModelLocator>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, MsSqlReadModelByIdQueryHandler<TReadModel>>();
                 });
 
             return eventFlowOptions;

@@ -123,6 +123,7 @@
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />
     <Compile Include="Queries\QueryProcessor.cs" />
+    <Compile Include="Queries\ReadModelByIdQuery.cs" />
     <Compile Include="ReadStores\InMemory\Queries\InMemoryQuery.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryQueryHandler.cs" />
     <Compile Include="ReadStores\ILocateByAggregateId.cs" />

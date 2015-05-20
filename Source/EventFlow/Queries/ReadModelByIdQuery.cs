@@ -20,25 +20,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System;
 using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
+namespace EventFlow.Queries
 {
-    public class TestAggregateReadModel : IReadModel, ITestAggregateReadModel
+    public class ReadModelByIdQuery<TReadModel> : IQuery<TReadModel>
+        where TReadModel : IReadModel
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        public string Id { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
+        public ReadModelByIdQuery(string id)
         {
-            DomainErrorAfterFirstReceived = true;
-        }
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
-        {
-            PingsReceived++;
+            Id = id;
         }
     }
 }

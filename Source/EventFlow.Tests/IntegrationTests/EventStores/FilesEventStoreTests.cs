@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
@@ -39,7 +40,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     {
         public class FilesConfiguration : IntegrationTestConfiguration
         {
-            private IInMemoryReadModelStore<TestAggregateReadModel> _inMemoryReadModelStore;
+            private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
             private IFilesEventStoreConfiguration _configuration;
 
             public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
@@ -50,19 +51,19 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 Directory.CreateDirectory(storePath);
 
                 var resolver = eventFlowOptions
-                    .UseInMemoryReadStoreFor<TestAggregateReadModel, ILocateByAggregateId>()
+                    .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
                     .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                     .CreateResolver();
 
-                _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
+                _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
                 _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
 
                 return resolver;
             }
 
-            public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+            public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
             {
-                return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
+                return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
             }
 
             public override void TearDown()

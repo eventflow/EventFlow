@@ -54,7 +54,7 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test]
-        public void BasicFlow()
+        public async Task BasicFlow()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
@@ -63,28 +63,30 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregateReadModel, ILocateByAggregateId>()
+                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
                 var id = TestId.New;
 
                 // Act
                 commandBus.Publish(new DomainErrorAfterFirstCommand(id), CancellationToken.None);
                 var testAggregate = eventStore.LoadAggregate<TestAggregate, TestId>(id, CancellationToken.None);
-                var testReadModelFromStore = readModelStore.Get(id);
-                var testReadModelFromQuery = queryProcessor.Process(
-                    new InMemoryQuery<TestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived),
-                    CancellationToken.None);
+                var testReadModelFromStore = await readModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
+                var testReadModelFromQuery1 = queryProcessor.Process(
+                    new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value), CancellationToken.None);
+                var testReadModelFromQuery2 = queryProcessor.Process(
+                    new InMemoryQuery<InMemoryTestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
 
                 // Assert
                 testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModelFromStore.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModelFromQuery.Should().NotBeNull();
+                testReadModelFromQuery1.DomainErrorAfterFirstReceived.Should().BeTrue();
+                testReadModelFromQuery2.Should().NotBeNull();
+                testReadModelFromStore.Should().NotBeNull();
             }
         }
     }

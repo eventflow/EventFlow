@@ -22,14 +22,15 @@
 
 using System;
 using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.ReadStores.InMemory
 {
-    public interface IInMemoryReadModelStore<out TReadModel> : IReadModelStore
+    public interface IInMemoryReadModelStore<TReadModel> : IReadModelStore
         where TReadModel : IReadModel, new()
     {
-        TReadModel Get(IIdentity id);
+        Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken);
         IEnumerable<TReadModel> GetAll();
         IEnumerable<TReadModel> Find(Func<TReadModel, bool> predicate);
     }

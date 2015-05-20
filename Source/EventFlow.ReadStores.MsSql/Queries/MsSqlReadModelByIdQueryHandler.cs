@@ -20,36 +20,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
+using EventFlow.MsSql;
 using EventFlow.Queries;
-using EventFlow.ReadStores.InMemory.Queries;
 
-namespace EventFlow.ReadStores.InMemory
+namespace EventFlow.ReadStores.MsSql.Queries
 {
-    public class InMemoryQueryHandler<TReadModel> :
-        IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>,
-        IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
-        where TReadModel : IReadModel, new()
+    public class MsSqlReadModelByIdQueryHandler<TReadModel> : IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
+        where TReadModel : IMssqlReadModel
     {
-        private readonly IInMemoryReadModelStore<TReadModel> _readModelStore;
+        private readonly IReadModelSqlGenerator _readModelSqlGenerator;
+        private readonly IMsSqlConnection _connection;
 
-        public InMemoryQueryHandler(
-            IInMemoryReadModelStore<TReadModel> readModelStore)
+        public MsSqlReadModelByIdQueryHandler(
+            IReadModelSqlGenerator readModelSqlGenerator,
+            IMsSqlConnection connection)
         {
-            _readModelStore = readModelStore;
+            _readModelSqlGenerator = readModelSqlGenerator;
+            _connection = connection;
         }
 
-        public Task<IEnumerable<TReadModel>> HandleAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
+        public async Task<TReadModel> HandleAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
         {
-            var result = _readModelStore.Find(query.Query);
-            return Task.FromResult(result);
-        }
-
-        public Task<TReadModel> HandleAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
-        {
-            return _readModelStore.GetByIdAsync(query.Id, cancellationToken);
+            var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
+            var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
+            var readModels = await _connection.QueryAsync<TReadModel>(
+                Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)),
+                cancellationToken,
+                selectSql,
+                new { AggregateId = query.Id })
+                .ConfigureAwait(false);
+            return readModels.SingleOrDefault();            
         }
     }
 }
