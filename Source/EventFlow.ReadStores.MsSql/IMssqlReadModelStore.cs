@@ -20,13 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-
 namespace EventFlow.ReadStores.MsSql
 {
-    public interface IMssqlReadModelStore<TAggregate, TReadModel> : IReadModelStore<TAggregate>
+    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore
         where TReadModel : IMssqlReadModel, new()
-        where TAggregate : IAggregateRoot
     {
     }
 }

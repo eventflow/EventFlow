@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -39,7 +40,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = TestId.New;
             
             // Act
-            await CommandBus.PublishAsync(new PingCommand(id), CancellationToken.None).ConfigureAwait(false);
+            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
             var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
 
             // Assert

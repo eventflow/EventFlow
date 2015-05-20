@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers;
@@ -30,6 +31,9 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {
     public class ReadModelSqlGeneratorTests : TestsFor<ReadModelSqlGenerator>
     {
+        [Table("FancyTable")]
+        public class TestTableAttribute : MssqlReadModel { }
+
         [Test]
         public void CreateInsertSql_ProducesCorrectSql()
         {
@@ -67,6 +71,16 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 
             // Assert
             sql.Should().Be("SELECT * FROM [ReadModel-TestAggregate] WHERE AggregateId = @AggregateId");
+        }
+
+        [Test]
+        public void GetTableName_UsesTableAttribute()
+        {
+            // Act
+            var tableName = Sut.GetTableName<TestTableAttribute>();
+
+            // Assert
+            tableName.Should().Be("[FancyTable]");
         }
     }
 }

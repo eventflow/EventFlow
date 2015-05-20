@@ -27,12 +27,8 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelStore<TAggregate>
-        where TAggregate : IAggregateRoot
+    public interface IReadModelStore
     {
-        Task UpdateReadModelAsync(
-            IIdentity id,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+        Task ApplyDomainEventsAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
     }
 }

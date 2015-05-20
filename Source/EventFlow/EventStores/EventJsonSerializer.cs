@@ -83,5 +83,14 @@ namespace EventFlow.EventStores
 
             return domainEvent;
         }
+
+        public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
+            TIdentity id,
+            ICommittedDomainEvent committedDomainEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return (IDomainEvent<TAggregate, TIdentity>)Deserialize(committedDomainEvent);
+        }
     }
 }

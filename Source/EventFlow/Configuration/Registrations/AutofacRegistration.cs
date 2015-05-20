@@ -80,6 +80,47 @@ namespace EventFlow.Configuration.Registrations
         }
     }
 
+    internal class AutofacGeneticRegistration : AutofacRegistration
+    {
+        private readonly Type _implementationType;
+
+        public AutofacGeneticRegistration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        {
+            ServiceType = serviceType;
+            Lifetime = lifetime;
+            _implementationType = implementationType;
+        }
+
+        internal override void Configure(ContainerBuilder containerBuilder, bool hasDecorator)
+        {
+            switch (Lifetime)
+            {
+                case Lifetime.AlwaysUnique:
+                    HandleDecoration(containerBuilder.RegisterGeneric(_implementationType), hasDecorator);
+                    break;
+                case Lifetime.Singleton:
+                    HandleDecoration(containerBuilder.RegisterGeneric(_implementationType).SingleInstance(), hasDecorator);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        protected void HandleDecoration(
+            IRegistrationBuilder<object, ReflectionActivatorData, DynamicRegistrationStyle> registration,
+            bool hasDecorator)
+        {
+            if (hasDecorator)
+            {
+                registration.Named(ServiceType.FullName, ServiceType);
+            }
+            else
+            {
+                registration.As(ServiceType);
+            }
+        }
+    }
+
     internal class AutofacRegistration<TService> : AutofacRegistration
         where TService : class
     {

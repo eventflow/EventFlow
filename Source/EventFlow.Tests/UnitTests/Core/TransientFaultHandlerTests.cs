@@ -23,8 +23,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using Moq;
@@ -32,24 +32,22 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
-    public class TransientFaultHandlerTests : TestsFor<TransientFaultHandler>
+    public class TransientFaultHandlerTests : TestsFor<TransientFaultHandler<IRetryStrategy>>
     {
         private Mock<IRetryStrategy> _retryStrategyMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<ILog> _logMock;
 
         [SetUp]
         public void SetUp()
         {
+            _logMock = new Mock<ILog>();
             _retryStrategyMock = new Mock<IRetryStrategy>();
-            _resolverMock = InjectMock<IResolver>();
         }
 
         [Test]
         public async Task WorkingActionsSucceed()
         {
             // Arrange
-            ArrangeMockRetryStrategy();
-            Sut.Use<IRetryStrategy>();
             var action = CreateFailingFunction(Task.FromResult(A<int>()));
 
             // Act
@@ -69,7 +67,6 @@ namespace EventFlow.Tests.UnitTests.Core
             var action = CreateFailingFunction(Task.FromResult(expectedResult),
                 new ArgumentException(),
                 new InvalidOperationException());
-            Sut.Use<IRetryStrategy>();
 
             // Act
             var result = await Sut.TryAsync(c => action.Object(), A<Label>(), CancellationToken.None).ConfigureAwait(false);
@@ -90,7 +87,6 @@ namespace EventFlow.Tests.UnitTests.Core
                 new ArgumentException(),
                 new InvalidOperationException(),
                 new DivideByZeroException());
-            Sut.Use<IRetryStrategy>();
 
             // Act
             Exception thrownException = null;
@@ -109,22 +105,21 @@ namespace EventFlow.Tests.UnitTests.Core
             action.Verify(f => f(), Times.Exactly(numberOfRetries + 1));
         }
 
+        protected override TransientFaultHandler<IRetryStrategy> CreateSut()
+        {
+            return new TransientFaultHandler<IRetryStrategy>(
+                _logMock.Object,
+                _retryStrategyMock.Object);
+        }
+
         private void ArrangeRetryStrategy(int numberOfRetries)
         {
-            ArrangeMockRetryStrategy();
             _retryStrategyMock
                 .Setup(rs => rs.ShouldThisBeRetried(It.IsAny<Exception>(), It.IsAny<TimeSpan>(), It.Is<int>(i => i != numberOfRetries)))
                 .Returns(() => Retry.Yes);
             _retryStrategyMock
                 .Setup(rs => rs.ShouldThisBeRetried(It.IsAny<Exception>(), It.IsAny<TimeSpan>(), It.Is<int>(i => i == numberOfRetries)))
                 .Returns(() => Retry.No);
-        }
-
-        private void ArrangeMockRetryStrategy()
-        {
-            _resolverMock
-                .Setup(r => r.Resolve<IRetryStrategy>())
-                .Returns(() => _retryStrategyMock.Object);
         }
     }
 }

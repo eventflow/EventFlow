@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
@@ -31,33 +30,32 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsReadStoresExtensions
     {
-        public static EventFlowOptions UseInMemoryReadStoreFor<TAggregate, TReadModel>(
+        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
             this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot
             where TReadModel : IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
         {
-            eventFlowOptions.AddReadModelStore<TAggregate, IInMemoryReadModelStore<TAggregate, TReadModel>>();
+            eventFlowOptions.AddReadModelStore<IInMemoryReadModelStore<TReadModel>>();
             eventFlowOptions.RegisterServices(f =>
                 {
-                    f.Register<IInMemoryReadModelStore<TAggregate, TReadModel>, InMemoryReadModelStore<TAggregate, TReadModel>>(Lifetime.Singleton);
-                    f.Register<IQueryHandler<InMemoryQuery<TAggregate, TReadModel>, IEnumerable<TReadModel>>, InMemoryQueryHandler<TAggregate, TReadModel>>();
+                    f.Register<IInMemoryReadModelStore<TReadModel>, InMemoryReadModelStore<TReadModel, TReadModelLocator>>(Lifetime.Singleton);
+                    f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
                 });
             return eventFlowOptions;
         }
 
-        public static EventFlowOptions AddReadModelStore<TAggregate, TReadModelStore>(
+        public static EventFlowOptions AddReadModelStore<TReadModelStore>(
             this EventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TAggregate : IAggregateRoot
-            where TReadModelStore : class, IReadModelStore<TAggregate>
+            where TReadModelStore : class, IReadModelStore
         {
             if (typeof(TReadModelStore).IsInterface)
             {
-                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore<TAggregate>>(r => r.Resolver.Resolve<TReadModelStore>(), lifetime));
+                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore>(r => r.Resolver.Resolve<TReadModelStore>(), lifetime));
             }
             else
             {
-                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore<TAggregate>, TReadModelStore>(lifetime));
+                eventFlowOptions.RegisterServices(f => f.Register<IReadModelStore, TReadModelStore>(lifetime));
             }
 
             return eventFlowOptions;

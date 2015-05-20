@@ -57,15 +57,16 @@ namespace EventFlow.EventStores
             MetadataProviders = metadataProviders.ToList();
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate>(
-            IIdentity id,
+        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
+            TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             if (!uncommittedDomainEvents.Any())
             {
-                return new IDomainEvent[] {};
+                return new IDomainEvent<TAggregate, TIdentity>[] {};
             }
 
             var aggregateType = typeof (TAggregate);
@@ -79,7 +80,7 @@ namespace EventFlow.EventStores
                 .Select(e =>
                     {
                         var metadata = MetadataProviders
-                            .SelectMany(p => p.ProvideMetadata<TAggregate>(id, e.AggregateEvent, e.Metadata))
+                            .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.AggregateEvent, e.Metadata))
                             .Concat(e.Metadata);
                         return EventJsonSerializer.Serialize(e.AggregateEvent, metadata);
                     })
@@ -88,7 +89,7 @@ namespace EventFlow.EventStores
             IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
             try
             {
-                committedDomainEvents = await CommitEventsAsync<TAggregate>(
+                committedDomainEvents = await CommitEventsAsync<TAggregate, TIdentity>(
                     id,
                     serializedEvents,
                     cancellationToken)
@@ -104,43 +105,53 @@ namespace EventFlow.EventStores
                 // TODO: Rework as soon as await is possible within catch
                 using (var a = AsyncHelper.Wait)
                 {
-                    a.Run(EventCache.InvalidateAsync(aggregateType, id, cancellationToken));
+                    a.Run(EventCache.InvalidateAsync<TAggregate, TIdentity>(id, cancellationToken));
                 }
 
                 throw;
             }
 
-            var domainEvents = committedDomainEvents.Select(EventJsonSerializer.Deserialize).ToList();
+            var domainEvents = committedDomainEvents
+                .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                .ToList();
 
-            await EventCache.InvalidateAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            await EventCache.InvalidateAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents,
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot;
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            IIdentity id,
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
+        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
             CancellationToken cancellationToken);
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync<TAggregate>(
-            IIdentity id,
+        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
-            var domainEvents = await EventCache.GetAsync(aggregateType, id, cancellationToken).ConfigureAwait(false);
+            var domainEvents = await EventCache.GetAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             if (domainEvents != null)
             {
                 return domainEvents;
             }
 
-            var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
+            var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             domainEvents = committedDomainEvents
-                .Select(EventJsonSerializer.Deserialize)
+                .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
             if (!domainEvents.Any())
@@ -148,17 +159,55 @@ namespace EventFlow.EventStores
                 return domainEvents;
             }
 
-            domainEvents = EventUpgradeManager.Upgrade<TAggregate>(domainEvents);
+            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
 
-            await EventCache.InsertAsync(aggregateType, id, domainEvents, cancellationToken).ConfigureAwait(false);
+            await EventCache.InsertAsync(id, domainEvents, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }
 
-        public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate>(
-            IIdentity id,
+        public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity
+        {
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents = null;
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken), d => domainEvents = d);
+            }
+            return domainEvents;
+        }
+
+        public async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            var committedDomainEvents = await LoadCommittedEventsAsync(globalSequenceNumberRange, cancellationToken).ConfigureAwait(false);
+            var domainEvents = (IReadOnlyCollection<IDomainEvent>) committedDomainEvents
+                .Select(e => EventJsonSerializer.Deserialize(e))
+                .ToList();
+            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
+            return domainEvents;
+        }
+
+        public IReadOnlyCollection<IDomainEvent> LoadEvents(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            IReadOnlyCollection<IDomainEvent> domainEvents = null;
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(LoadEventsAsync(globalSequenceNumberRange, cancellationToken), d => domainEvents = d);
+            }
+            return domainEvents;
+        }
+
+        public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             var aggregateType = typeof(TAggregate);
 
@@ -167,8 +216,8 @@ namespace EventFlow.EventStores
                 aggregateType.Name,
                 id);
             
-            var domainEvents = await LoadEventsAsync<TAggregate>(id, cancellationToken).ConfigureAwait(false);
-            var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate>(id).ConfigureAwait(false);
+            var domainEvents = await LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
+            var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
             aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
 
             Log.Verbose(
@@ -180,13 +229,16 @@ namespace EventFlow.EventStores
             return aggregate;
         }
 
-        public virtual TAggregate LoadAggregate<TAggregate>(IIdentity id, CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot
+        public virtual TAggregate LoadAggregate<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             var aggregate = default(TAggregate);
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(LoadAggregateAsync<TAggregate>(id, cancellationToken), r => aggregate = r);
+                a.Run(LoadAggregateAsync<TAggregate, TIdentity>(id, cancellationToken), r => aggregate = r);
             }
             return aggregate;
         }

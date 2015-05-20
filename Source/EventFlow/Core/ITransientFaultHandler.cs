@@ -26,10 +26,10 @@ using System.Threading.Tasks;
 
 namespace EventFlow.Core
 {
-    public interface ITransientFaultHandler
+    public interface ITransientFaultHandler<out TRetryStrategy>
+        where TRetryStrategy : IRetryStrategy
     {
-        void Use<TRetryStrategy>(Action<TRetryStrategy> configureStrategy = null)
-            where TRetryStrategy : IRetryStrategy;
+        void ConfigureRetryStrategy(Action<TRetryStrategy> configureStrategy);
 
         Task<T> TryAsync<T>(
             Func<CancellationToken, Task<T>> action,

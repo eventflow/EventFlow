@@ -26,9 +26,11 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Subscribers
 {
-    public interface ISubscribeSynchronousTo<in TEvent>
-        where TEvent : IAggregateEvent
+    public interface ISubscribeSynchronousTo<TAggregate, in TIdentity, in TEvent>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        Task HandleAsync(IDomainEvent<TEvent> e, CancellationToken cancellationToken);
+        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> e, CancellationToken cancellationToken);
     }
 }

@@ -21,7 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -32,6 +34,7 @@ namespace EventFlow.ReadStores.MsSql
         private readonly Dictionary<Type, string> _insertSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
+        private static readonly ConcurrentDictionary<Type, string> TableNames = new ConcurrentDictionary<Type, string>();
 
         public string CreateInsertSql<TReadModel>()
             where TReadModel : IMssqlReadModel
@@ -108,7 +111,15 @@ namespace EventFlow.ReadStores.MsSql
         public virtual string GetTableName<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
-            return string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty));
+            return TableNames.GetOrAdd(
+                typeof (TReadModel),
+                t =>
+                    {
+                        var tableAttribute = t.GetCustomAttribute<TableAttribute>(false);
+                        return tableAttribute != null
+                            ? string.Format("[{0}]", tableAttribute.Name)
+                            : string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty));
+                    });
         }
     }
 }

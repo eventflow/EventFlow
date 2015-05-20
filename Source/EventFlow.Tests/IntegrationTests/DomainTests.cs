@@ -28,6 +28,7 @@ using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.Queries;
+using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates.Test;
@@ -42,9 +43,9 @@ namespace EventFlow.Tests.IntegrationTests
     [TestFixture]
     public class DomainTests
     {
-        public class Subscriber : ISubscribeSynchronousTo<DomainErrorAfterFirstEvent>
+        public class Subscriber : ISubscribeSynchronousTo<TestAggregate, TestId, DomainErrorAfterFirstEvent>
         {
-            public Task HandleAsync(IDomainEvent<DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
             {
                 Console.WriteLine("Subscriber got DomainErrorAfterFirstEvent");
                 return Task.FromResult(0);
@@ -61,26 +62,28 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<TestAggregateReadModel, ILocateByAggregateId>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
+                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
                 var id = TestId.New;
 
                 // Act
-                commandBus.Publish(new DomainErrorAfterFirstCommand(id));
-                var testAggregate = eventStore.LoadAggregate<TestAggregate>(id, CancellationToken.None);
+                commandBus.Publish(new DomainErrorAfterFirstCommand(id), CancellationToken.None);
+                var testAggregate = eventStore.LoadAggregate<TestAggregate, TestId>(id, CancellationToken.None);
                 var testReadModelFromStore = readModelStore.Get(id);
-                //var testReadModelFromQuery = queryProcessor.Process(
-                //    new InMemoryQuery<TestAggregate, TestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived), )
+                var testReadModelFromQuery = queryProcessor.Process(
+                    new InMemoryQuery<TestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived),
+                    CancellationToken.None);
 
                 // Assert
                 testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModelFromStore.DomainErrorAfterFirstReceived.Should().BeTrue();
+                testReadModelFromQuery.Should().NotBeNull();
             }
         }
     }

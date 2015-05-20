@@ -1,8 +1,8 @@
 # EventFlow
 
 [![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
-![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)
-![License](https://img.shields.io/github/license/rasmus/eventflow.svg)
+[![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
+[![License](https://img.shields.io/github/license/rasmus/eventflow.svg)](./LICENSE)
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
@@ -27,13 +27,13 @@ to the documentation.
 * **Command bus:** Entry point for all command execution.
 * **Event store:** Storage of the event stream for aggregates.
   Currently there is support for these storage types.
- * In-memory
- * Files
+ * In-memory - only for test
+ * Files - only for test
  * [Microsoft SQL Server](./Documentation/ReadStores-MSSQL.md)
 * **Read models:** Denormalized representation of aggregate events
   optimized for reading fast. Currently there is support for these
   read model storage types.
-  * In-memory
+  * In-memory - only for test
   * Microsoft SQL Server
 * [**Metadata:**](./Documentation/Metadata.md)
   Additional information for each aggregate event, e.g. the IP of

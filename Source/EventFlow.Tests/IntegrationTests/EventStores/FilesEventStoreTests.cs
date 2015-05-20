@@ -27,9 +27,9 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using EventFlow.TestHelpers.Suites;
 
@@ -39,7 +39,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     {
         public class FilesConfiguration : IntegrationTestConfiguration
         {
-            private IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel> _inMemoryReadModelStore;
+            private IInMemoryReadModelStore<TestAggregateReadModel> _inMemoryReadModelStore;
             private IFilesEventStoreConfiguration _configuration;
 
             public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
@@ -50,11 +50,11 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 Directory.CreateDirectory(storePath);
 
                 var resolver = eventFlowOptions
-                    .UseInMemoryReadStoreFor<TestAggregate, TestAggregateReadModel>()
+                    .UseInMemoryReadStoreFor<TestAggregateReadModel, ILocateByAggregateId>()
                     .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                     .CreateResolver();
 
-                _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregate, TestAggregateReadModel>>();
+                _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
                 _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
 
                 return resolver;

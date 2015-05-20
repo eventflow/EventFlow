@@ -20,18 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateEvent<TAggregate> : IAggregateEvent
-        where TAggregate : IAggregateRoot
+    public abstract class AggregateEvent<TAggregate, TIdentity> : IAggregateEvent<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
-        public Type GetAggregateType()
-        {
-            return typeof (TAggregate);
-        }
-
         public override string ToString()
         {
             return string.Format("{0}/{1}", typeof(TAggregate).Name, GetType().Name);

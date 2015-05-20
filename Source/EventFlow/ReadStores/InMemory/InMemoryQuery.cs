@@ -22,13 +22,11 @@
 
 using System;
 using System.Collections.Generic;
-using EventFlow.Aggregates;
 using EventFlow.Queries;
 
 namespace EventFlow.ReadStores.InMemory
 {
-    public class InMemoryQuery<TAggregate, TReadModel> : IQuery<IEnumerable<TReadModel>>
-        where TAggregate : IAggregateRoot
+    public class InMemoryQuery<TReadModel> : IQuery<IEnumerable<TReadModel>>
         where TReadModel : IReadModel, new()
     {
         public Func<TReadModel, bool> Query { get; private set; }

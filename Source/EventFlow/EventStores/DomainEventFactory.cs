@@ -21,30 +21,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Linq;
 using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
     public class DomainEventFactory : IDomainEventFactory
     {
-        private readonly Dictionary<Type, Type> _typeMap = new Dictionary<Type, Type>(); 
+        private static readonly ConcurrentDictionary<Type, Type> AggregateEventToDomainEventTypeMap = new ConcurrentDictionary<Type, Type>();
+        private static readonly ConcurrentDictionary<Type, Type> DomainEventToIdentityTypeMap = new ConcurrentDictionary<Type, Type>();
 
         public IDomainEvent Create(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             long globalSequenceNumber,
-            string aggregateId,
+            string aggregateIdentity,
             int aggregateSequenceNumber,
             Guid batchId)
         {
-            var aggregateEventType = aggregateEvent.GetType();
-            Type domainEventType;
-            if (!_typeMap.TryGetValue(aggregateEventType, out domainEventType))
-            {
-                domainEventType = typeof (DomainEvent<>).MakeGenericType(aggregateEventType);
-                _typeMap[aggregateEventType] = domainEventType;
-            }
+            var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(aggregateEvent.GetType(), GetDomainEventType);
+            var identityType = DomainEventToIdentityTypeMap.GetOrAdd(domainEventType, GetIdentityType);
+            var identity = Activator.CreateInstance(identityType, aggregateIdentity);
 
             var domainEvent = (IDomainEvent)Activator.CreateInstance(
                 domainEventType,
@@ -52,22 +50,81 @@ namespace EventFlow.EventStores
                 metadata,
                 metadata.Timestamp,
                 globalSequenceNumber,
-                aggregateId,
+                identity,
                 aggregateSequenceNumber,
                 batchId);
 
             return domainEvent;
         }
 
-        public IDomainEvent Upgrade(IDomainEvent domainEvent, IAggregateEvent aggregateEvent)
+        public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata,
+            long globalSequenceNumber,
+            TIdentity id,
+            int aggregateSequenceNumber,
+            Guid batchId)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            return Create(
+            return (IDomainEvent<TAggregate, TIdentity>)Create(
+                aggregateEvent,
+                metadata,
+                globalSequenceNumber,
+                id.Value,
+                aggregateSequenceNumber,
+                batchId);
+        }
+
+        public IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
+            IDomainEvent domainEvent,
+            IAggregateEvent aggregateEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return Create<TAggregate, TIdentity>(
                 aggregateEvent,
                 domainEvent.Metadata,
                 domainEvent.GlobalSequenceNumber,
-                domainEvent.AggregateId,
+                (TIdentity) domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber,
                 domainEvent.BatchId);
+        }
+
+        private static Type GetIdentityType(Type domainEventType)
+        {
+            var domainEventInterfaceType = domainEventType
+                .GetInterfaces()
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,>));
+
+            if (domainEventInterfaceType == null)
+            {
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not a '{1}'",
+                    domainEventType.Name,
+                    typeof(IDomainEvent<,>).Name));
+            }
+
+            var genericArguments = domainEventInterfaceType.GetGenericArguments();
+            return genericArguments[1];
+        }
+
+        private static Type GetDomainEventType(Type aggregateEventType)
+        {
+            var aggregateEventInterfaceType = aggregateEventType
+                .GetInterfaces()
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>));
+
+            if (aggregateEventInterfaceType == null)
+            {
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not a '{1}'",
+                    aggregateEventType.Name,
+                    typeof(IAggregateEvent<,>).Name));
+            }
+
+            var genericArguments = aggregateEventInterfaceType.GetGenericArguments();
+            return typeof(DomainEvent<,,>).MakeGenericType(genericArguments[0], genericArguments[1], aggregateEventType);
         }
     }
 }

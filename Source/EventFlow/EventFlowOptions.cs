@@ -96,20 +96,26 @@ namespace EventFlow
             RegisterIfMissing<ILog, ConsoleLog>(services);
             RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
             RegisterIfMissing<ICommandBus, CommandBus>(services);
+            RegisterIfMissing<ILocateByAggregateId, LocateByAggregateId>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IQueryProcessor, QueryProcessor>(services);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
-            RegisterIfMissing<ITransientFaultHandler, TransientFaultHandler>(services);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
+            RegisterIfMissing<IReadModelFactory, ReadModelFactory>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventCache, InMemoryEventCache>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
+
+            if (!services.Contains(typeof (ITransientFaultHandler<>)))
+            {
+                _lazyRegistrationFactory.Value.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            }
 
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
 

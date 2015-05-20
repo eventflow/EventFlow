@@ -31,10 +31,24 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             long globalSequenceNumber,
-            string aggregateId,
+            string aggregateIdentity,
             int aggregateSequenceNumber,
             Guid batchId);
 
-        IDomainEvent Upgrade(IDomainEvent domainEvent, IAggregateEvent aggregateEvent);
+        IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata,
+            long globalSequenceNumber,
+            TIdentity id,
+            int aggregateSequenceNumber,
+            Guid batchId)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
+        IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
+            IDomainEvent domainEvent,
+            IAggregateEvent aggregateEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

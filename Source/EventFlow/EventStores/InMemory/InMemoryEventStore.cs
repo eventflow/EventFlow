@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,7 +38,7 @@ namespace EventFlow.EventStores.InMemory
 {
     public class InMemoryEventStore : EventStore, IDisposable
     {
-        private readonly Dictionary<string, List<ICommittedDomainEvent>> _eventStore = new Dictionary<string, List<ICommittedDomainEvent>>();
+        private readonly ConcurrentDictionary<string, List<ICommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<ICommittedDomainEvent>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
@@ -73,8 +74,8 @@ namespace EventFlow.EventStores.InMemory
         {
         }
 
-        protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate>(
-            IIdentity id,
+        protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -129,8 +130,8 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate>(
-            IIdentity id,
+        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -140,6 +141,17 @@ namespace EventFlow.EventStores.InMemory
                     ? committedDomainEvent
                     : new List<ICommittedDomainEvent>();
             }
+        }
+
+        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            GlobalSequenceNumberRange globalSequenceNumberRange,
+            CancellationToken cancellationToken)
+        {
+            var committedDomainEvents = _eventStore
+                .SelectMany(kv => kv.Value)
+                .Where(e => e.GlobalSequenceNumber >= globalSequenceNumberRange.From && e.GlobalSequenceNumber <= globalSequenceNumberRange.To)
+                .ToList();
+            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
         }
 
         public void Dispose()

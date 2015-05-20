@@ -27,7 +27,17 @@ namespace EventFlow.EventStores
 {
     public interface IEventJsonSerializer
     {
-        SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas);
-        IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent);
+        SerializedEvent Serialize(
+            IAggregateEvent aggregateEvent,
+            IEnumerable<KeyValuePair<string, string>> metadatas);
+
+        IDomainEvent Deserialize(
+            ICommittedDomainEvent committedDomainEvent);
+
+        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
+            TIdentity id,
+            ICommittedDomainEvent committedDomainEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

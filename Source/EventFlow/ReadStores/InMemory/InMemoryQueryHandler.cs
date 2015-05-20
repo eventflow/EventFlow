@@ -23,24 +23,22 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Queries;
 
 namespace EventFlow.ReadStores.InMemory
 {
-    public class InMemoryQueryHandler<TAggregate, TReadModel> : IQueryHandler<InMemoryQuery<TAggregate, TReadModel>, IEnumerable<TReadModel>>
-        where TAggregate : IAggregateRoot
+    public class InMemoryQueryHandler<TReadModel> : IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>
         where TReadModel : IReadModel, new()
     {
-        private readonly IInMemoryReadModelStore<TAggregate, TReadModel> _readModelStore;
+        private readonly IInMemoryReadModelStore<TReadModel> _readModelStore;
 
         public InMemoryQueryHandler(
-            IInMemoryReadModelStore<TAggregate, TReadModel> readModelStore)
+            IInMemoryReadModelStore<TReadModel> readModelStore)
         {
             _readModelStore = readModelStore;
         }
 
-        public Task<IEnumerable<TReadModel>> HandleAsync(InMemoryQuery<TAggregate, TReadModel> query, CancellationToken cancellationToken)
+        public Task<IEnumerable<TReadModel>> HandleAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
         {
             var result = _readModelStore.Find(query.Query);
             return Task.FromResult(result);
