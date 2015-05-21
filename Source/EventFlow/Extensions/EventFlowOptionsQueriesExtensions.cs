@@ -28,7 +28,7 @@ using EventFlow.Queries;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowQueriesExtensions
+    public static class EventFlowOptionsQueriesExtensions
     {
         public static EventFlowOptions AddQueryHandler<TQueryHandler, TQuery, TResult>(
             this EventFlowOptions eventFlowOptions)

@@ -118,7 +118,7 @@
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
-    <Compile Include="Extensions\EventFlowQueriesExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />

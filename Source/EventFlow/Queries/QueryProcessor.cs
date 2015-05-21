@@ -75,7 +75,7 @@ namespace EventFlow.Queries
                 .GetInterfaces()
                 .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
             var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
-            var methodInfo = queryHandlerType.GetMethod("HandleAsync");
+            var methodInfo = queryHandlerType.GetMethod("ExecuteQueryAsync");
             return new CacheItem
                 {
                     QueryHandlerType = queryHandlerType,

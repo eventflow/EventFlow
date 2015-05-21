@@ -43,7 +43,7 @@ namespace EventFlow.ReadStores.MsSql.Queries
             _connection = connection;
         }
 
-        public async Task<TReadModel> HandleAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
+        public async Task<TReadModel> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
         {
             var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();

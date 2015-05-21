@@ -41,13 +41,13 @@ namespace EventFlow.ReadStores.InMemory
             _readModelStore = readModelStore;
         }
 
-        public Task<IEnumerable<TReadModel>> HandleAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
+        public Task<IEnumerable<TReadModel>> ExecuteQueryAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
         {
             var result = _readModelStore.Find(query.Query);
             return Task.FromResult(result);
         }
 
-        public Task<TReadModel> HandleAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
+        public Task<TReadModel> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
         {
             return _readModelStore.GetByIdAsync(query.Id, cancellationToken);
         }

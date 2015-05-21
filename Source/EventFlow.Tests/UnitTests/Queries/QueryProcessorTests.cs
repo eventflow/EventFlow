@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.Queries
                 .Setup(r => r.Resolve(It.Is<Type>(t => t == typeof(IQueryHandler<TestQuery, int>))))
                 .Returns(() => _queryHandlerMock.Object);
             _queryHandlerMock
-                .Setup(h => h.HandleAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()))
+                .Setup(h => h.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(42));
         }
 
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.UnitTests.Queries
 
             // Assert
             result.Should().Be(42);
-            _queryHandlerMock.Verify(q => q.HandleAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _queryHandlerMock.Verify(q => q.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

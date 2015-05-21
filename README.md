@@ -22,7 +22,7 @@ Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
 Here is a list of the EventFlow concepts. Use the links to navigate
 to the documentation.
 
-* [**Aggregates:**](./Documentation/Aggregates.md) Domains object
+* [**Aggregates**](./Documentation/Aggregates.md): Domains object
   that guarantees the consistency of changes being made within
   each aggregate
 * **Command bus:** Entry point for all command execution.
@@ -36,10 +36,12 @@ to the documentation.
   read model storage types.
   * In-memory - only for test
   * Microsoft SQL Server
+* [**Queries**](./Documentation/Queries.md): Value objects that represent
+  a query without specifying how its executed, that is let to a query handler 
 * [**Event upgrade**](./Documentation/EventUpgrade.md): As events committed to
   the event store is never changed, EventFlow uses the concept of event upgraders
   to deprecate events and replace them with new during aggregate load.
-* [**Metadata:**](./Documentation/Metadata.md)
+* [**Metadata**](./Documentation/Metadata.md):
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.

@@ -32,6 +32,6 @@ namespace EventFlow.ReadStores.InMemory
     {
         Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken);
         IEnumerable<TReadModel> GetAll();
-        IEnumerable<TReadModel> Find(Func<TReadModel, bool> predicate);
+        IEnumerable<TReadModel> Find(Predicate<TReadModel> predicate);
     }
 }

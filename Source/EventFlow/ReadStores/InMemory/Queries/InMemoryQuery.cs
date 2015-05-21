@@ -29,9 +29,9 @@ namespace EventFlow.ReadStores.InMemory.Queries
     public class InMemoryQuery<TReadModel> : IQuery<IEnumerable<TReadModel>>
         where TReadModel : IReadModel, new()
     {
-        public Func<TReadModel, bool> Query { get; private set; }
+        public Predicate<TReadModel> Query { get; private set; }
 
-        public InMemoryQuery(Func<TReadModel, bool> query)
+        public InMemoryQuery(Predicate<TReadModel> query)
         {
             Query = query;
         }

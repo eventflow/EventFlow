@@ -80,9 +80,9 @@ namespace EventFlow.ReadStores.InMemory
             return _readModels.Values;
         }
 
-        public IEnumerable<TReadModel> Find(Func<TReadModel, bool> predicate)
+        public IEnumerable<TReadModel> Find(Predicate<TReadModel> predicate)
         {
-            return _readModels.Values.Where(predicate);
+            return _readModels.Values.Where(rm => predicate(rm));
         }
 
         public override Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken)
