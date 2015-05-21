@@ -15,6 +15,7 @@ Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
 * Highly configurable and extendable
 * Easy to use
 * No use of threads or background workers making it "web friendly"
+* Cancellation
 
 ### Overview
 
@@ -35,6 +36,9 @@ to the documentation.
   read model storage types.
   * In-memory - only for test
   * Microsoft SQL Server
+* [**Event upgrade**](./Documentation/EventUpgrade.md): As events committed to
+  the event store is never changed, EventFlow uses the concept of event upgraders
+  to deprecate events and replace them with new during aggregate load.
 * [**Metadata:**](./Documentation/Metadata.md)
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
