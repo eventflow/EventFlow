@@ -20,38 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Core
+namespace EventFlow.ReadStores
 {
-    public class Label
+    public interface IReadModelPopulator
     {
-        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
+        Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : IReadModel;
 
-        public static Label Named(string name) { return new Label(name.ToLowerInvariant()); }
-
-        public static Label Named(params string[] parts)
-        {
-            return Named(string.Join("-", parts));
-        }
-
-        public string Name { get; private set; }
-
-        private Label(string name)
-        {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
-            if (!NameValidator.IsMatch(name)) throw new ArgumentException(string.Format(
-                "Label '{0}' is not a valid label, it must pass this regex '{1}'",
-                name,
-                NameValidator));
-
-            Name = name;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
+        Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : IReadModel;
     }
 }

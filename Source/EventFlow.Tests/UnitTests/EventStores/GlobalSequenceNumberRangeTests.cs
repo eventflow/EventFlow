@@ -20,38 +20,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Text.RegularExpressions;
+using System.Linq;
+using EventFlow.EventStores;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Core
+namespace EventFlow.Tests.UnitTests.EventStores
 {
-    public class Label
+    [Timeout(5000)]
+    public class GlobalSequenceNumberRangeTests : Test
     {
-        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
-
-        public static Label Named(string name) { return new Label(name.ToLowerInvariant()); }
-
-        public static Label Named(params string[] parts)
+        [TestCase(1, 1, 1, 1)]
+        [TestCase(1, 2, 1, 2)]
+        [TestCase(1, 3, 2, 2)]
+        [TestCase(2, 3, 1, 2)]
+        [TestCase(3, 8, 3, 2)]
+        [TestCase(8, 8, 8, 1)]
+        public void BatchesAreCorrect(long from, long to, long batchSize, int expectedNumberOfBatches)
         {
-            return Named(string.Join("-", parts));
-        }
+            // Act
+            var batches = GlobalSequenceNumberRange.Batches(from, to, batchSize).ToList();
 
-        public string Name { get; private set; }
+            // Assert
+            batches.Count.Should().Be(expectedNumberOfBatches);
+            batches.Min(r => r.From).Should().Be(from);
+            batches.Max(r => r.To).Should().Be(to);
 
-        private Label(string name)
-        {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
-            if (!NameValidator.IsMatch(name)) throw new ArgumentException(string.Format(
-                "Label '{0}' is not a valid label, it must pass this regex '{1}'",
-                name,
-                NameValidator));
-
-            Name = name;
-        }
-
-        public override string ToString()
-        {
-            return Name;
+            batches.Zip(batches.Skip(1), (r1, r2) => r2.From - r1.To).Sum().Should().Be(expectedNumberOfBatches - 1);
         }
     }
 }

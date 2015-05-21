@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -99,13 +100,38 @@ namespace EventFlow.ReadStores.MsSql
                 : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
 
             await _connection.ExecuteAsync(
-                Label.Named(string.Format("mssql-store-read-model-{0}", readModelNameLowerCased)),
+                Label.Named("mssql-store-read-model", readModelNameLowerCased),
                 cancellationToken,
                 sql,
                 readModel).ConfigureAwait(false);
         }
 
-        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
+        public override async Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
+        {
+            if (typeof (TReadModel) != typeof(TReadModelToPurge))
+            {
+                return;
+            }
+
+            var sql = _readModelSqlGenerator.CreatePurgeSql<TReadModelToPurge>();
+            var readModelName = typeof (TReadModelToPurge).Name;
+
+            var rowsAffected = await _connection.ExecuteAsync(
+                Label.Named("mssql-purge-read-model", readModelName),
+                cancellationToken,
+                sql)
+                .ConfigureAwait(false);
+
+            Log.Verbose(
+                "Purge {0} read models of type '{1}'",
+                rowsAffected,
+                readModelName);
+        }
+
+        protected override Task UpdateReadModelsAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
                 .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));

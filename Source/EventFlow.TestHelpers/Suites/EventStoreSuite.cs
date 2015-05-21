@@ -171,6 +171,24 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task MaxGlobalSequenceNumberCanBeFetched()
+        {
+            // Arrange
+            var id = TestId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var maxGlobalSequenceNumber = await EventStore.GetMaxGlobalSequenceNumberAsync(CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            maxGlobalSequenceNumber.Should().Be(2);
+        }
+
+        [Test]
         public async Task OptimisticConcurrency()
         {
             // Arrange

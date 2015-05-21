@@ -85,7 +85,19 @@ namespace EventFlow.ReadStores.InMemory
                 .Where(predicate);
         }
 
-        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
+        public override Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
+        {
+            if (typeof (TReadModel) == typeof(TReadModelToPurge))
+            {
+                _readModels.Clear();
+            }
+            return Task.FromResult(0);
+        }
+
+        protected override Task UpdateReadModelsAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
                 .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));

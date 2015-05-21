@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
@@ -46,9 +47,14 @@ namespace EventFlow.Tests.IntegrationTests
             return resolver;
         }
 
-        public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public override Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
             return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
+        }
+
+        public override Task PurgeTestAggregateReadModelAsync()
+        {
+            return _inMemoryReadModelStore.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
         }
 
         public override void TearDown()

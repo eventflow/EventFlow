@@ -220,6 +220,11 @@ namespace EventFlow.EventStores.Files
             return committedDomainEvents;
         }
 
+        public override Task<long> GetMaxGlobalSequenceNumberAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_globalSequenceNumber);
+        }
+
         private EventStoreLog RecreateEventStoreLog(string path)
         {
             var directory = Directory.GetDirectories(path)

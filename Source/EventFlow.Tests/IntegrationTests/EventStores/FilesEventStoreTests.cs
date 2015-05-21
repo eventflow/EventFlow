@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
@@ -41,6 +42,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
         {
             private IInMemoryReadModelStore<TestAggregateReadModel> _inMemoryReadModelStore;
             private IFilesEventStoreConfiguration _configuration;
+            private IReadModelPopulator _readModelPopulator;
 
             public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
             {
@@ -56,13 +58,19 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
 
                 _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
                 _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
+                _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
 
                 return resolver;
             }
 
-            public override Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+            public override Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
             {
                 return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
+            }
+
+            public override Task PurgeTestAggregateReadModelAsync()
+            {
+                return _readModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
             }
 
             public override void TearDown()

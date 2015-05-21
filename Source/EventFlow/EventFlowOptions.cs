@@ -95,6 +95,7 @@ namespace EventFlow
             RegisterIfMissing<ILog, ConsoleLog>(services);
             RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
             RegisterIfMissing<ICommandBus, CommandBus>(services);
+            RegisterIfMissing<IReadModelPopulator, ReadModelPopulator>(services);
             RegisterIfMissing<ILocateByAggregateId, LocateByAggregateId>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
