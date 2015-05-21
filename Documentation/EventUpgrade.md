@@ -12,9 +12,9 @@ the event store. Each event upgrader receives the entire event stream one event
 at a time.
 
 Note that the _ordering_ of event upgraders is important as you might implement
-to upgraders, one upgrade a event from version one to version two and then another
-upgrading vesion two to version three. EventFlow orders the event upgraders by
-name before starting the event upgrade.
+two upgraders, one upgrade a event from V1 to V2 and then another upgrading V2
+to V3. EventFlow orders the event upgraders by name before starting the event
+upgrade.
 
 ## Example - removing a damaged event
 
