@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace EventFlow.Queries
         }
 
         private readonly IResolver _resolver;
-        private static readonly AsyncDictionary<Type, CacheItem> CacheItems = new AsyncDictionary<Type, CacheItem>(); 
+        private readonly ConcurrentDictionary<Type, CacheItem> _cacheItems = new ConcurrentDictionary<Type, CacheItem>(); 
 
         public QueryProcessor(
             IResolver resolver)
@@ -48,11 +49,9 @@ namespace EventFlow.Queries
 
         public async Task<TResult> ProcessAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
         {
-            var cacheItem = await CacheItems.GetOrAddAsync(
+            var cacheItem = _cacheItems.GetOrAdd(
                 query.GetType(),
-                CreateCacheItem,
-                cancellationToken)
-                .ConfigureAwait(false);
+                CreateCacheItem);
 
             var queryHandler = _resolver.Resolve(cacheItem.QueryHandlerType);
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);

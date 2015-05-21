@@ -77,7 +77,6 @@
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacRegistration.cs" />
-    <Compile Include="Core\AsyncDictionary.cs" />
     <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="Core\IRetryStrategy.cs" />
     <Compile Include="Core\ITransientFaultHandler.cs" />
