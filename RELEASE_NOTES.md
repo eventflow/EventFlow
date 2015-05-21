@@ -1,4 +1,8 @@
-### New in 0.6 (not released yet)
+### New in 0.7 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.6.456 (released 2015-05-18)
 
  * Breaking: Read models have been significantly improved as they can now
    subscribe to events from multiple aggregates. Use a custom
