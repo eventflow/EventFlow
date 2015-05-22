@@ -1,4 +1,8 @@
-### New in 0.7 (not released yet)
+### New in 0.8 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.7.481 (released 2015-05-22)
 
  * New: EventFlow now includes a `IQueryProcessor` that enables you to implement
    queries and query handlers in a structure manner. EventFlow ships with two
