@@ -20,40 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers;
+using EventFlow.ReadStores.MsSql;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.MsSql.Tests.ReadModels
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    [Table("ReadModel-TestAggregate")]
+    public class MsSqlTestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
+        public bool DomainErrorAfterFirstReceived { get; set; }
+        public int PingsReceived { get; set; }
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
-
-            return resolver;
+            PingsReceived++;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
         {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
-        }
-
-        public override void TearDown()
-        {
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

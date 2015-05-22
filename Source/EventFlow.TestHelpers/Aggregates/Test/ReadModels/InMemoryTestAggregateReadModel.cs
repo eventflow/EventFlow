@@ -20,40 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public class InMemoryTestAggregateReadModel : IReadModel, ITestAggregateReadModel
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
-
-            return resolver;
+            DomainErrorAfterFirstReceived = true;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
         {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
-        }
-
-        public override void TearDown()
-        {
+            PingsReceived++;
         }
     }
 }

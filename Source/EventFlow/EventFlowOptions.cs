@@ -33,6 +33,7 @@ using EventFlow.EventCaches.InMemory;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
+using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Subscribers;
 
@@ -98,6 +99,7 @@ namespace EventFlow
             RegisterIfMissing<ILocateByAggregateId, LocateByAggregateId>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
+            RegisterIfMissing<IQueryProcessor, QueryProcessor>(services, Lifetime.Singleton);
             RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);

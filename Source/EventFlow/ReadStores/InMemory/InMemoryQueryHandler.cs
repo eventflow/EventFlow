@@ -20,40 +20,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory.Queries;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.ReadStores.InMemory
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public class InMemoryQueryHandler<TReadModel> :
+        IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>,
+        IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
+        where TReadModel : IReadModel, new()
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
+        private readonly IInMemoryReadModelStore<TReadModel> _readModelStore;
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public InMemoryQueryHandler(
+            IInMemoryReadModelStore<TReadModel> readModelStore)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
-
-            return resolver;
+            _readModelStore = readModelStore;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public Task<IEnumerable<TReadModel>> ExecuteQueryAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
         {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
+            var result = _readModelStore.Find(query.Query);
+            return Task.FromResult(result);
         }
 
-        public override void TearDown()
+        public Task<TReadModel> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
         {
+            return _readModelStore.GetByIdAsync(query.Id, cancellationToken);
         }
     }
 }

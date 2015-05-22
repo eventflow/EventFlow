@@ -20,40 +20,48 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
+using EventFlow.Queries;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Tests.UnitTests.Queries
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public class QueryProcessorTests : TestsFor<QueryProcessor>
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
+        private Mock<IResolver> _resolverMock;
+        private Mock<IQueryHandler<IQuery<int>, int>> _queryHandlerMock;
+    
+        public class TestQuery : IQuery<int> { }
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        [SetUp]
+        public void SetUp()
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
-                .CreateResolver();
+            _resolverMock = InjectMock<IResolver>();
+            _queryHandlerMock = new Mock<IQueryHandler<IQuery<int>, int>>();
 
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
-
-            return resolver;
+            _resolverMock
+                .Setup(r => r.Resolve(It.Is<Type>(t => t == typeof(IQueryHandler<TestQuery, int>))))
+                .Returns(() => _queryHandlerMock.Object);
+            _queryHandlerMock
+                .Setup(h => h.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(42));
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        [Test]
+        public async Task QueryHandlerIsInvoked()
         {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
-        }
+            // Act
+            var result = await Sut.ProcessAsync(new TestQuery(), CancellationToken.None).ConfigureAwait(false);
 
-        public override void TearDown()
-        {
+            // Assert
+            result.Should().Be(42);
+            _queryHandlerMock.Verify(q => q.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

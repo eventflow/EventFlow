@@ -66,6 +66,7 @@
     <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
     <Compile Include="IntegrationTests\InMemoryConfiguration.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
+    <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateIdTests.cs" />

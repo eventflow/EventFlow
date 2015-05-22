@@ -52,6 +52,7 @@
     <Compile Include="MssqlReadModel.cs" />
     <Compile Include="MssqlReadModelStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\MsSqlReadModelByIdQueryHandler.cs" />
     <Compile Include="ReadModelSqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>

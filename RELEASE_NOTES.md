@@ -1,4 +1,14 @@
-### New in 0.6 (not released yet)
+### New in 0.7 (not released yet)
+
+ * New: EventFlow now includes a `IQueryProcessor` that enables you to implement
+   queries and query handlers in a structure manner. EventFlow ships with two
+   ready-to-use queries and related handlers
+   - `ReadModelByIdQuery<TReadModel>`: Supported by in-memory and MSSQL read
+     model stores
+   - `InMemoryQuery<TReadModel>`: Only supported by in-memory read model store,
+     but lets you search for any read model based on a `Predicate<TReadModel>`
+
+### New in 0.6.456 (released 2015-05-18)
 
  * Breaking: Read models have been significantly improved as they can now
    subscribe to events from multiple aggregates. Use a custom
