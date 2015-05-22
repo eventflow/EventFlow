@@ -43,9 +43,9 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
             // Assert
             sql.Should().Be(
                 "INSERT INTO [ReadModel-TestAggregate] " +
-                "(AggregateId, CreateTime, DomainErrorAfterFirstReceived, LastAggregateSequenceNumber, LastGlobalSequenceNumber, PingsReceived, UpdatedTime) " +
+                "(AggregateId, CreateTime, DomainErrorAfterFirstReceived, LastAggregateSequenceNumber, PingsReceived, UpdatedTime) " +
                 "VALUES " +
-                "(@AggregateId, @CreateTime, @DomainErrorAfterFirstReceived, @LastAggregateSequenceNumber, @LastGlobalSequenceNumber, @PingsReceived, @UpdatedTime)");
+                "(@AggregateId, @CreateTime, @DomainErrorAfterFirstReceived, @LastAggregateSequenceNumber, @PingsReceived, @UpdatedTime)");
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
             sql.Should().Be(
                 "UPDATE [ReadModel-TestAggregate] SET " +
                 "CreateTime = @CreateTime, DomainErrorAfterFirstReceived = @DomainErrorAfterFirstReceived, " +
-                "LastAggregateSequenceNumber = @LastAggregateSequenceNumber, LastGlobalSequenceNumber = @LastGlobalSequenceNumber, " +
+                "LastAggregateSequenceNumber = @LastAggregateSequenceNumber, " +
                 "PingsReceived = @PingsReceived, UpdatedTime = @UpdatedTime " +
                 "WHERE AggregateId = @AggregateId");
         }

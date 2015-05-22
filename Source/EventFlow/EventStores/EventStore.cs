@@ -133,10 +133,6 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken);
-
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -175,30 +171,6 @@ namespace EventFlow.EventStores
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken), d => domainEvents = d);
-            }
-            return domainEvents;
-        }
-
-        public async Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken)
-        {
-            var committedDomainEvents = await LoadCommittedEventsAsync(globalSequenceNumberRange, cancellationToken).ConfigureAwait(false);
-            var domainEvents = (IReadOnlyCollection<IDomainEvent>) committedDomainEvents
-                .Select(e => EventJsonSerializer.Deserialize(e))
-                .ToList();
-            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
-            return domainEvents;
-        }
-
-        public IReadOnlyCollection<IDomainEvent> LoadEvents(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken)
-        {
-            IReadOnlyCollection<IDomainEvent> domainEvents = null;
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(LoadEventsAsync(globalSequenceNumberRange, cancellationToken), d => domainEvents = d);
             }
             return domainEvents;
         }

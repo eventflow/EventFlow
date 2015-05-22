@@ -79,7 +79,6 @@ namespace EventFlow.TestHelpers
             return DomainEventFactory.Create<TestAggregate, TestId>(
                 aggregateEvent,
                 metadata,
-                A<long>(),
                 A<TestId>(),
                 A<int>(),
                 A<Guid>());
