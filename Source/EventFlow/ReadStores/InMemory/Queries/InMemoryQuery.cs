@@ -20,40 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using System;
+using System.Collections.Generic;
+using EventFlow.Queries;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.ReadStores.InMemory.Queries
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public class InMemoryQuery<TReadModel> : IQuery<IEnumerable<TReadModel>>
+        where TReadModel : IReadModel, new()
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
+        public Predicate<TReadModel> Query { get; private set; }
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public InMemoryQuery(Predicate<TReadModel> query)
         {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
-
-            return resolver;
-        }
-
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
-        {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
-        }
-
-        public override void TearDown()
-        {
+            Query = query;
         }
     }
 }

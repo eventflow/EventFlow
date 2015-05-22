@@ -67,6 +67,8 @@ namespace EventFlow.ReadStores
             return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
         }
 
+        public abstract Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken);
+
         protected abstract Task UpdateReadModelsAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,

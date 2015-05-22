@@ -22,38 +22,12 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Queries
 {
-    public class InMemoryConfiguration : IntegrationTestConfiguration
+    public interface IQueryProcessor
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
-
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
-        {
-            var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
-                .CreateResolver();
-
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
-
-            return resolver;
-        }
-
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
-        {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
-        }
-
-        public override void TearDown()
-        {
-        }
+        Task<TResult> ProcessAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken);
+        TResult Process<TResult>(IQuery<TResult> query, CancellationToken cancellationToken);
     }
 }
