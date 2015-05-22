@@ -154,12 +154,6 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
         }
 
-        public override Task<long> GetMaxGlobalSequenceNumberAsync(CancellationToken cancellationToken)
-        {
-            var globalSequencenUmber = (long) _eventStore.Values.SelectMany(e => e).Count();
-            return Task.FromResult(globalSequencenUmber);
-        }
-
         public void Dispose()
         {
             _asyncLock.Dispose();

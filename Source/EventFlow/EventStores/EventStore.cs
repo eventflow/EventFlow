@@ -242,7 +242,5 @@ namespace EventFlow.EventStores
             }
             return aggregate;
         }
-
-        public abstract Task<long> GetMaxGlobalSequenceNumberAsync(CancellationToken cancellationToken);
     }
 }

@@ -190,16 +190,5 @@ namespace EventFlow.EventStores.MsSql
                 .ConfigureAwait(false);
             return eventDataModels;
         }
-
-        public override async Task<long> GetMaxGlobalSequenceNumberAsync(CancellationToken cancellationToken)
-        {
-            const string sql = "SELECT MAX(GlobalSequenceNumber) FROM EventFlow";
-            var globalSeuqnceNumber = await _connection.QueryAsync<long>(
-                Label.Named("mssql-fetch-max--global-sequence-number"),
-                cancellationToken,
-                sql)
-                .ConfigureAwait(false);
-            return globalSeuqnceNumber.Single();
-        }
     }
 }
