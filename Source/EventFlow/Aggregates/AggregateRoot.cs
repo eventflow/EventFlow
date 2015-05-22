@@ -108,7 +108,7 @@ namespace EventFlow.Aggregates
                 if (e == null)
                 {
                     throw new ArgumentException(string.Format(
-                        "Aggregate event of type '{0}' does not belong with aggregate '{1}'," +
+                        "Aggregate event of type '{0}' does not belong with aggregate '{1}',",
                         aggregateEvent.GetType(),
                         this));
                 }
