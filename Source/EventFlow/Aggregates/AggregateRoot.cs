@@ -92,6 +92,17 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
+        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
+        {
+            if (!domainEvents.Any())
+            {
+                return;
+            }
+
+            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
+        }
+
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
             if (Version > 0)

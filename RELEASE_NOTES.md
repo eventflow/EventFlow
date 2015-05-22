@@ -16,6 +16,9 @@
    - `IDomainEvent.GlobalSequenceNumber` removed
    - `IEventStore.LoadEventsAsync` and `IEventStore.LoadEvents` taking
      a `GlobalSequenceNumberRange` removed
+ * Fixed: `AggregateRoot<>` now reads the aggregate version from
+   domain events applied during aggregate load. This resolves an issue
+   for when an `IEventUpgrader` removed events from the event stream
 
 ### New in 0.7.481 (released 2015-05-22)
 
