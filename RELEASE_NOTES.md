@@ -1,6 +1,14 @@
 ### New in 0.8 (not released yet)
 
- * _Nothing yet_
+ * Breaking: Remove all functionality related to global sequence
+   numbers as it proved problematic. It also matches this quote:
+
+   > Order is only assured per a handler within an aggregate root
+   > boundary. There is no assurance of order between handlers or
+   > between aggregates. Trying to provide those things leads to
+   > the dark side.
+
+   Greg Young
 
 ### New in 0.7.481 (released 2015-05-22)
 
