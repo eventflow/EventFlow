@@ -59,10 +59,7 @@ namespace EventFlow.ReadStores
                 select new ReadModelUpdate(g.Key, g.ToList())
                 ).ToList();
 
-            var globalSequenceNumber = domainEvents.Max(de => de.GlobalSequenceNumber);
-
-            var readModelContext = new ReadModelContext(
-                globalSequenceNumber);
+            var readModelContext = new ReadModelContext();
 
             return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
         }

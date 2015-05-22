@@ -35,7 +35,6 @@ namespace EventFlow.EventStores
         public IDomainEvent Create(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
-            long globalSequenceNumber,
             string aggregateIdentity,
             int aggregateSequenceNumber,
             Guid batchId)
@@ -49,7 +48,6 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 metadata,
                 metadata.Timestamp,
-                globalSequenceNumber,
                 identity,
                 aggregateSequenceNumber,
                 batchId);
@@ -60,7 +58,6 @@ namespace EventFlow.EventStores
         public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
-            long globalSequenceNumber,
             TIdentity id,
             int aggregateSequenceNumber,
             Guid batchId)
@@ -70,7 +67,6 @@ namespace EventFlow.EventStores
             return (IDomainEvent<TAggregate, TIdentity>)Create(
                 aggregateEvent,
                 metadata,
-                globalSequenceNumber,
                 id.Value,
                 aggregateSequenceNumber,
                 batchId);
@@ -85,7 +81,6 @@ namespace EventFlow.EventStores
             return Create<TAggregate, TIdentity>(
                 aggregateEvent,
                 domainEvent.Metadata,
-                domainEvent.GlobalSequenceNumber,
                 (TIdentity) domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber,
                 domainEvent.BatchId);
