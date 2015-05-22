@@ -20,29 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration.Registrations;
-using EventFlow.Queries;
-using EventFlow.ReadStores.MsSql.Queries;
-
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.Queries
 {
-    public static class EventFlowOptionsExtensions
+    public interface IQuery<TResult>
     {
-        public static EventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(this EventFlowOptions eventFlowOptions)
-            where TReadModel : IMssqlReadModel, new()
-            where TReadModelLocator : IReadModelLocator
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore, MssqlReadModelStore<TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, MsSqlReadModelByIdQueryHandler<TReadModel>>();
-                });
-
-            return eventFlowOptions;
-        }
     }
 }

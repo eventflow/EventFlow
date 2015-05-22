@@ -1,6 +1,21 @@
-### New in 0.7 (not released yet)
+### New in 0.8 (not released yet)
 
- * _Nothing yet_
+ * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
+   stream. Please consider carefully if you really want to use it. Storage
+   might be cheaper than the historic knowledge within your events
+ * Fixed: `AggregateRoot<>` now reads the aggregate version from
+   domain events applied during aggregate load. This resolves an issue
+   for when an `IEventUpgrader` removed events from the event stream
+
+### New in 0.7.481 (released 2015-05-22)
+
+ * New: EventFlow now includes a `IQueryProcessor` that enables you to implement
+   queries and query handlers in a structure manner. EventFlow ships with two
+   ready-to-use queries and related handlers
+   - `ReadModelByIdQuery<TReadModel>`: Supported by in-memory and MSSQL read
+     model stores
+   - `InMemoryQuery<TReadModel>`: Only supported by in-memory read model store,
+     but lets you search for any read model based on a `Predicate<TReadModel>`
 
 ### New in 0.6.456 (released 2015-05-18)
 

@@ -92,6 +92,17 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
+        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
+        {
+            if (!domainEvents.Any())
+            {
+                return;
+            }
+
+            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
+        }
+
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
             if (Version > 0)
@@ -108,7 +119,7 @@ namespace EventFlow.Aggregates
                 if (e == null)
                 {
                     throw new ArgumentException(string.Format(
-                        "Aggregate event of type '{0}' does not belong with aggregate '{1}'," +
+                        "Aggregate event of type '{0}' does not belong with aggregate '{1}',",
                         aggregateEvent.GetType(),
                         this));
                 }

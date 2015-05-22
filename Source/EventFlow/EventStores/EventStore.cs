@@ -218,7 +218,7 @@ namespace EventFlow.EventStores
             
             var domainEvents = await LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
-            aggregate.ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            aggregate.ApplyEvents(domainEvents);
 
             Log.Verbose(
                 "Done loading aggregate '{0}' with ID '{1}' after applying {2} events",
@@ -242,5 +242,11 @@ namespace EventFlow.EventStores
             }
             return aggregate;
         }
+
+        public abstract Task DeleteAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

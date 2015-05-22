@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
+using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -69,6 +70,30 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.Version.Should().Be(2);
             Sut.PingsReceived.Count.Should().Be(2);
             Sut.UncommittedEvents.Count().Should().Be(0);
+        }
+
+        [Test]
+        public void EmptyListCanBeApplied()
+        {
+            // Act
+            Sut.ApplyEvents(new IDomainEvent[]{});
+
+            // Assert
+            Sut.Version.Should().Be(0);
+        }
+
+        [Test]
+        public void ApplyEventsReadsAggregateSequenceNumber()
+        {
+            // Arrange
+            const int expectedVersion = 7;
+            var domainEvent = ToDomainEvent(A<PingEvent>(), expectedVersion);
+
+            // Act
+            Sut.ApplyEvents(new []{ domainEvent });
+
+            // Assert
+            Sut.Version.Should().Be(expectedVersion);
         }
     }
 }

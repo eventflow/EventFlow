@@ -81,6 +81,10 @@ namespace EventFlow.ReadStores
         public abstract Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
             where TReadModelToPurge : IReadModel;
 
+		public abstract Task<TReadModel> GetByIdAsync(
+			string id,
+			CancellationToken cancellationToken);
+
         protected abstract Task UpdateReadModelsAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,

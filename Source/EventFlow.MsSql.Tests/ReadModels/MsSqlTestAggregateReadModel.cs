@@ -20,29 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration.Registrations;
-using EventFlow.Queries;
-using EventFlow.ReadStores.MsSql.Queries;
+using System.ComponentModel.DataAnnotations.Schema;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.MsSql.Tests.ReadModels
 {
-    public static class EventFlowOptionsExtensions
+    [Table("ReadModel-TestAggregate")]
+    public class MsSqlTestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel
     {
-        public static EventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(this EventFlowOptions eventFlowOptions)
-            where TReadModel : IMssqlReadModel, new()
-            where TReadModelLocator : IReadModelLocator
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore, MssqlReadModelStore<TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, MsSqlReadModelByIdQueryHandler<TReadModel>>();
-                });
+        public bool DomainErrorAfterFirstReceived { get; set; }
+        public int PingsReceived { get; set; }
 
-            return eventFlowOptions;
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+        {
+            PingsReceived++;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
+        {
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

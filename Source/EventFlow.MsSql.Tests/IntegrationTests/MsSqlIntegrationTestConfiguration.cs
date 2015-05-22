@@ -30,12 +30,12 @@ using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.Helpers;
+using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
-using TestAggregateReadModel = EventFlow.MsSql.Tests.ReadModels.TestAggregateReadModel;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
@@ -53,7 +53,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             var resolver = eventFlowOptions
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
                 .UseEventStore<MsSqlEventStore>()
-                .UseMssqlReadModel<TestAggregateReadModel, ILocateByAggregateId>()
+                .UseMssqlReadModel<MsSqlTestAggregateReadModel, ILocateByAggregateId>()
                 .CreateResolver();
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();
@@ -69,8 +69,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
         public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
-            var sql = ReadModelSqlGenerator.CreateSelectSql<TestAggregateReadModel>();
-            var readModels = await MsSqlConnection.QueryAsync<TestAggregateReadModel>(
+            var sql = ReadModelSqlGenerator.CreateSelectSql<MsSqlTestAggregateReadModel>();
+            var readModels = await MsSqlConnection.QueryAsync<MsSqlTestAggregateReadModel>(
                 Label.Named("mssql-fetch-test-read-model"), 
                 CancellationToken.None,
                 sql,
@@ -81,12 +81,12 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
         public override Task PurgeTestAggregateReadModelAsync()
         {
-            return ReadModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
+            return ReadModelPopulator.PurgeAsync<MsSqlTestAggregateReadModel>(CancellationToken.None);
         }
 
         public override Task PopulateTestAggregateReadModelAsync()
         {
-            return ReadModelPopulator.PopulateAsync<TestAggregateReadModel>(CancellationToken.None);
+            return ReadModelPopulator.PopulateAsync<MsSqlTestAggregateReadModel>(CancellationToken.None);
         }
 
         public override void TearDown()

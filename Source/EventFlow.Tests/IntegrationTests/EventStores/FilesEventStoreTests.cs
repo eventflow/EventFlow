@@ -40,7 +40,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     {
         public class FilesConfiguration : IntegrationTestConfiguration
         {
-            private IInMemoryReadModelStore<TestAggregateReadModel> _inMemoryReadModelStore;
+            private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
             private IFilesEventStoreConfiguration _configuration;
             private IReadModelPopulator _readModelPopulator;
 
@@ -52,30 +52,30 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 Directory.CreateDirectory(storePath);
 
                 var resolver = eventFlowOptions
-                    .UseInMemoryReadStoreFor<TestAggregateReadModel, ILocateByAggregateId>()
+                    .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
                     .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                     .CreateResolver();
 
-                _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
+                _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
                 _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
                 _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
 
                 return resolver;
             }
 
-            public override Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
+            public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
             {
-                return Task.FromResult<ITestAggregateReadModel>(_inMemoryReadModelStore.Get(id));
+                return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
             }
 
             public override Task PurgeTestAggregateReadModelAsync()
             {
-                return _readModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
+                return _readModelPopulator.PurgeAsync<InMemoryTestAggregateReadModel>(CancellationToken.None);
             }
 
             public override Task PopulateTestAggregateReadModelAsync()
             {
-                return _readModelPopulator.PopulateAsync<TestAggregateReadModel>(CancellationToken.None);
+                return _readModelPopulator.PopulateAsync<InMemoryTestAggregateReadModel>(CancellationToken.None);
             }
 
             public override void TearDown()

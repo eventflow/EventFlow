@@ -20,9 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using EventFlow.Configuration.Registrations;
+using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
+using EventFlow.ReadStores.InMemory.Queries;
 
 namespace EventFlow.Extensions
 {
@@ -34,7 +37,12 @@ namespace EventFlow.Extensions
             where TReadModelLocator : IReadModelLocator
         {
             eventFlowOptions.AddReadModelStore<IInMemoryReadModelStore<TReadModel>>();
-            eventFlowOptions.RegisterServices(f => f.Register<IInMemoryReadModelStore<TReadModel>, InMemoryReadModelStore<TReadModel, TReadModelLocator>>(Lifetime.Singleton));
+            eventFlowOptions.RegisterServices(f =>
+                {
+                    f.Register<IInMemoryReadModelStore<TReadModel>, InMemoryReadModelStore<TReadModel, TReadModelLocator>>(Lifetime.Singleton);
+                    f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, InMemoryQueryHandler<TReadModel>>();
+                });
             return eventFlowOptions;
         }
 

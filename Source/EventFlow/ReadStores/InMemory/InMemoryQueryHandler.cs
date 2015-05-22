@@ -20,29 +20,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration.Registrations;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Queries;
-using EventFlow.ReadStores.MsSql.Queries;
+using EventFlow.ReadStores.InMemory.Queries;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.ReadStores.InMemory
 {
-    public static class EventFlowOptionsExtensions
+    public class InMemoryQueryHandler<TReadModel> :
+        IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>,
+        IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
+        where TReadModel : IReadModel, new()
     {
-        public static EventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(this EventFlowOptions eventFlowOptions)
-            where TReadModel : IMssqlReadModel, new()
-            where TReadModelLocator : IReadModelLocator
-        {
-            eventFlowOptions.RegisterServices(f =>
-                {
-                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                    {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                    }
-                    f.Register<IReadModelStore, MssqlReadModelStore<TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, MsSqlReadModelByIdQueryHandler<TReadModel>>();
-                });
+        private readonly IInMemoryReadModelStore<TReadModel> _readModelStore;
 
-            return eventFlowOptions;
+        public InMemoryQueryHandler(
+            IInMemoryReadModelStore<TReadModel> readModelStore)
+        {
+            _readModelStore = readModelStore;
+        }
+
+        public Task<IEnumerable<TReadModel>> ExecuteQueryAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
+        {
+            var result = _readModelStore.Find(query.Query);
+            return Task.FromResult(result);
+        }
+
+        public Task<TReadModel> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
+        {
+            return _readModelStore.GetByIdAsync(query.Id, cancellationToken);
         }
     }
 }
