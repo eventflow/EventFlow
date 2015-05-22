@@ -22,9 +22,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 
@@ -53,9 +55,20 @@ namespace EventFlow.ReadStores
             return Task.WhenAll(purgeTasks);
         }
 
+        public void Purge<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : IReadModel
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(PurgeAsync<TReadModel>(cancellationToken));
+            }
+        }
+
         public async Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
             where TReadModel : IReadModel
         {
+            var stopwatch = Stopwatch.StartNew();
+
             var readModelType = typeof (TReadModel);
             var aggregateEventTypes = new HashSet<Type>(readModelType
                 .GetInterfaces()
@@ -67,20 +80,27 @@ namespace EventFlow.ReadStores
                 readModelType.Name,
                 string.Join(", ", aggregateEventTypes.Select(e => e.Name).OrderBy(s => s))));
 
+            long totalEvents = 0;
+            long relevantEvents = 0;
+
             foreach (var globalSequenceNumberRange in GlobalSequenceNumberRange.Batches(1, long.MaxValue, 1))
             {
                 _log.Verbose("Loading domain events from global position {0}", globalSequenceNumberRange);
 
                 var domainEvents = await _eventStore.LoadEventsAsync(globalSequenceNumberRange, cancellationToken).ConfigureAwait(false);
+                totalEvents += domainEvents.Count;
+
                 if (!domainEvents.Any())
                 {
                     _log.Verbose("No more events in event store, stopping population of read model '{0}'", readModelType.Name);
-                    return;
+                    break;
                 }
 
                 domainEvents = domainEvents
                     .Where(e => aggregateEventTypes.Contains(e.EventType))
                     .ToList();
+                relevantEvents += domainEvents.Count;
+
                 if (!domainEvents.Any())
                 {
                     continue;
@@ -89,6 +109,23 @@ namespace EventFlow.ReadStores
                 var applyTasks = _readModelStores
                     .Select(rms => rms.ApplyDomainEventsAsync<TReadModel>(domainEvents, cancellationToken));
                 await Task.WhenAll(applyTasks).ConfigureAwait(false);
+            }
+
+            stopwatch.Stop();
+            _log.Information(
+                "Population of read model '{0}' took {1:0.###} seconds, in which {2} events was loaded and {3} was relevant",
+                readModelType.Name,
+                stopwatch.Elapsed.TotalSeconds,
+                totalEvents,
+                relevantEvents);
+        }
+
+        public void Populate<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : IReadModel
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(PopulateAsync<TReadModel>(cancellationToken));
             }
         }
     }
