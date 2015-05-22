@@ -214,5 +214,11 @@ namespace EventFlow.EventStores
             }
             return aggregate;
         }
+
+        public abstract Task DeleteAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

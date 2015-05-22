@@ -115,6 +115,30 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task AggregateEventStreamsCanBeDeleted()
+        {
+            // Arrange
+            var id1 = TestId.New;
+            var id2 = TestId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1.Ping(PingId.New);
+            aggregate2.Ping(PingId.New);
+            aggregate2.Ping(PingId.New);
+            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            await EventStore.DeleteAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
+            aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1.Version.Should().Be(1);
+            aggregate2.Version.Should().Be(0);
+        }
+
+        [Test]
         public async Task NoEventsEmittedIsOk()
         {
             // Arrange

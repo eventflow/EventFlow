@@ -142,6 +142,20 @@ namespace EventFlow.EventStores.Files
             }
         }
 
+        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+        {
+            var aggregateType = typeof (TAggregate);
+            Log.Verbose(
+                "Deleting aggregate '{0}' with ID '{1}'",
+                aggregateType.Name,
+                id);
+            var path = GetAggregatePath(aggregateType, id);
+            Directory.Delete(path, true);
+            return Task.FromResult(0);
+        }
+
         private async Task<FileEventData> LoadFileEventDataFile(string eventPath)
         {
             using (var streamReader = File.OpenText(eventPath))

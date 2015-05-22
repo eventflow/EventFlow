@@ -16,6 +16,9 @@
    - `IDomainEvent.GlobalSequenceNumber` removed
    - `IEventStore.LoadEventsAsync` and `IEventStore.LoadEvents` taking
      a `GlobalSequenceNumberRange` removed
+ * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
+   stream. Please consider carefully if you really want to use it. Storage
+   might be cheaper than the historic knowledge within your events
  * Fixed: `AggregateRoot<>` now reads the aggregate version from
    domain events applied during aggregate load. This resolves an issue
    for when an `IEventUpgrader` removed events from the event stream

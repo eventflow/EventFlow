@@ -141,6 +141,24 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
+        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+        {
+            if (_eventStore.ContainsKey(id.Value))
+            {
+                List<ICommittedDomainEvent> committedDomainEvents;
+                _eventStore.TryRemove(id.Value, out committedDomainEvents);
+                Log.Verbose(
+                    "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
+                    typeof(TAggregate).Name,
+                    id,
+                    committedDomainEvents.Count);
+            }
+
+            return Task.FromResult(0);
+        }
+
         public void Dispose()
         {
             _asyncLock.Dispose();

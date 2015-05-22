@@ -165,5 +165,24 @@ namespace EventFlow.EventStores.MsSql
                 .ConfigureAwait(false);
             return eventDataModels;
         }
+
+        public override async Task DeleteAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
+            var affectedRows = await _connection.ExecuteAsync(
+                Label.Named("mssql-delete-aggregate"),
+                cancellationToken,
+                sql,
+                new {AggregateId = id.Value})
+                .ConfigureAwait(false);
+
+            Log.Verbose(
+                "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
+                typeof(TAggregate).Name,
+                id,
+                affectedRows);
+        }
     }
 }
