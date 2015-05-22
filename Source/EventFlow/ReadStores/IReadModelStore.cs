@@ -31,6 +31,9 @@ namespace EventFlow.ReadStores
     {
         Task ApplyDomainEventsAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
+        Task ApplyDomainEventsAsync<TReadModelToPopulate>(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+            where TReadModelToPopulate : IReadModel;
+
         Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
             where TReadModelToPurge : IReadModel;
     }

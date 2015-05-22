@@ -49,7 +49,7 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
-        public async Task PurgeRemoveReadModels()
+        public async Task PurgeRemovesReadModels()
         {
             // Arrange
             var id = TestId.New;
@@ -61,6 +61,24 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             readModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task PopulateCreatesReadModels()
+        {
+            // Arrange
+            var id = TestId.New;
+            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            
+            // Act
+            await Configuration.PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
+            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+
+            // Assert
+            readModel.Should().NotBeNull();
+            readModel.PingsReceived.Should().Be(2);
         }
     }
 }

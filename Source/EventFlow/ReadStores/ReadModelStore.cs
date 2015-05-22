@@ -68,6 +68,16 @@ namespace EventFlow.ReadStores
             return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
         }
 
+        public Task ApplyDomainEventsAsync<TReadModelToPopulate>(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+            where TReadModelToPopulate : IReadModel
+        {
+            return (typeof (TReadModel) == typeof (TReadModelToPopulate))
+                ? ApplyDomainEventsAsync(domainEvents, cancellationToken)
+                : Task.FromResult(0);
+        }
+
         public abstract Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
             where TReadModelToPurge : IReadModel;
 

@@ -84,6 +84,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             return ReadModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
         }
 
+        public override Task PopulateTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PopulateAsync<TestAggregateReadModel>(CancellationToken.None);
+        }
+
         public override void TearDown()
         {
             TestDatabase.Dispose();

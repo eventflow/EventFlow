@@ -35,6 +35,7 @@ namespace EventFlow.Tests.IntegrationTests
     public class InMemoryConfiguration : IntegrationTestConfiguration
     {
         private IInMemoryReadModelStore<TestAggregateReadModel> _inMemoryReadModelStore;
+        private IReadModelPopulator _readModelPopulator;
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
@@ -43,6 +44,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver();
 
             _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<TestAggregateReadModel>>();
+            _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
 
             return resolver;
         }
@@ -54,7 +56,12 @@ namespace EventFlow.Tests.IntegrationTests
 
         public override Task PurgeTestAggregateReadModelAsync()
         {
-            return _inMemoryReadModelStore.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
+            return _readModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
+        }
+
+        public override Task PopulateTestAggregateReadModelAsync()
+        {
+            return _readModelPopulator.PopulateAsync<TestAggregateReadModel>(CancellationToken.None);
         }
 
         public override void TearDown()

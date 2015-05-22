@@ -73,6 +73,11 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 return _readModelPopulator.PurgeAsync<TestAggregateReadModel>(CancellationToken.None);
             }
 
+            public override Task PopulateTestAggregateReadModelAsync()
+            {
+                return _readModelPopulator.PopulateAsync<TestAggregateReadModel>(CancellationToken.None);
+            }
+
             public override void TearDown()
             {
                 Directory.Delete(_configuration.StorePath, true);

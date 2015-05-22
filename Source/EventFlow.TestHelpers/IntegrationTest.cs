@@ -23,6 +23,7 @@
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
@@ -33,6 +34,7 @@ namespace EventFlow.TestHelpers
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
+        protected IReadModelPopulator ReadModelPopulator { get; private set; }
         protected TIntegrationTestConfiguration Configuration { get; private set; }
 
         [SetUp]
@@ -47,6 +49,7 @@ namespace EventFlow.TestHelpers
             Resolver = Configuration.CreateRootResolver(eventFlowOptions);
             EventStore = Resolver.Resolve<IEventStore>();
             CommandBus = Resolver.Resolve<ICommandBus>();
+            ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
         }
 
         [TearDown]

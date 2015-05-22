@@ -35,6 +35,8 @@ namespace EventFlow.TestHelpers
 
         public abstract Task PurgeTestAggregateReadModelAsync();
 
+        public abstract Task PopulateTestAggregateReadModelAsync();
+
         public abstract void TearDown();
     }
 }
