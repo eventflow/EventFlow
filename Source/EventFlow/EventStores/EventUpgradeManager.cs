@@ -102,7 +102,7 @@ namespace EventFlow.EventStores
                             (IEnumerable<IDomainEvent>) new[] {e},
                             (de, up) => de.SelectMany(ee => a.Upgrade(up, ee)));
                     })
-                .OrderBy(d => d.AggregateSequenceNumber);
+                .OrderBy(d => d.GlobalSequenceNumber);
         }
 
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(

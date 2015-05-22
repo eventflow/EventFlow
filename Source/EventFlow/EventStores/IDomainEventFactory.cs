@@ -30,6 +30,7 @@ namespace EventFlow.EventStores
         IDomainEvent Create(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
+            long globalSequenceNumber,
             string aggregateIdentity,
             int aggregateSequenceNumber,
             Guid batchId);
@@ -37,6 +38,7 @@ namespace EventFlow.EventStores
         IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
+            long globalSequenceNumber,
             TIdentity id,
             int aggregateSequenceNumber,
             Guid batchId)

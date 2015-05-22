@@ -89,6 +89,7 @@ namespace EventFlow.ReadStores.MsSql
             var lastDomainEvent = domainEvents.Last();
             readModel.UpdatedTime = lastDomainEvent.Timestamp;
             readModel.LastAggregateSequenceNumber = lastDomainEvent.AggregateSequenceNumber;
+            readModel.LastGlobalSequenceNumber = lastDomainEvent.GlobalSequenceNumber;
 
             var sql = isNew
                 ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()

@@ -30,6 +30,7 @@ namespace EventFlow.Aggregates
         Type EventType { get; }
         int AggregateSequenceNumber { get; }
         Guid BatchId { get; }
+        long GlobalSequenceNumber { get; }
         IMetadata Metadata { get; }
         DateTimeOffset Timestamp { get; }
 

@@ -8,6 +8,7 @@
 	[CreateTime] [datetimeoffset](7) NOT NULL,
 	[UpdatedTime] [datetimeoffset](7) NOT NULL,
 	[LastAggregateSequenceNumber] [int] NOT NULL,
+	[LastGlobalSequenceNumber] [bigint] NOT NULL,
 	CONSTRAINT [PK_ReadModel-TestAggregate] PRIMARY KEY CLUSTERED 
 	(
 		[Id] ASC
