@@ -26,7 +26,6 @@ namespace EventFlow.EventStores
 {
     public interface ICommittedDomainEvent
     {
-        long GlobalSequenceNumber { get; set; }
         Guid BatchId { get; set; }
         string AggregateId { get; set; }
         string AggregateName { get; set; }

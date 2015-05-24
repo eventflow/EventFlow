@@ -43,7 +43,6 @@ namespace EventFlow.EventStores.InMemory
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
         {
-            public long GlobalSequenceNumber { get; set; }
             public Guid BatchId { get; set; }
             public string AggregateId { get; set; }
             public string AggregateName { get; set; }
@@ -111,7 +110,6 @@ namespace EventFlow.EventStores.InMemory
                                     BatchId = batchId,
                                     Data = e.Data,
                                     Metadata = e.Meta,
-                                    GlobalSequenceNumber = globalCount + i + 1
                                 };
                             Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
                             return committedDomainEvent;
@@ -159,16 +157,6 @@ namespace EventFlow.EventStores.InMemory
             }
 
             return Task.FromResult(0);
-        }
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken)
-        {
-            var committedDomainEvents = _eventStore
-                .SelectMany(kv => kv.Value)
-                .Where(e => e.GlobalSequenceNumber >= globalSequenceNumberRange.From && e.GlobalSequenceNumber <= globalSequenceNumberRange.To)
-                .ToList();
-            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
         }
 
         public void Dispose()

@@ -1,5 +1,21 @@
 ### New in 0.8 (not released yet)
 
+ * Breaking: Remove _all_ functionality related to global sequence
+   numbers as it proved problematic to maintain. It also matches this
+   quote:
+
+   > Order is only assured per a handler within an aggregate root
+   > boundary. There is no assurance of order between handlers or
+   > between aggregates. Trying to provide those things leads to
+   > the dark side.
+   >> Greg Young
+
+   - If you use a MSSQL read store, be sure to delete the
+     `LastGlobalSequenceNumber` column during update, or set it to
+     default `NULL`
+   - `IDomainEvent.GlobalSequenceNumber` removed
+   - `IEventStore.LoadEventsAsync` and `IEventStore.LoadEvents` taking
+     a `GlobalSequenceNumberRange` removed
  * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
    stream. Please consider carefully if you really want to use it. Storage
    might be cheaper than the historic knowledge within your events

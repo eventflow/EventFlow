@@ -166,31 +166,6 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken)
-        {
-            const string sql = @"
-                SELECT
-                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                FROM EventFlow
-                WHERE
-                    GlobalSequenceNumber >= @FromId AND GlobalSequenceNumber <= @ToId
-                ORDER BY
-                    GlobalSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("mssql-fetch-events"),
-                cancellationToken,
-                sql,
-                new
-                    {
-                        FromId = globalSequenceNumberRange.From,
-                        ToId = globalSequenceNumberRange.To,
-                    })
-                .ConfigureAwait(false);
-            return eventDataModels;
-        }
-
         public override async Task DeleteAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -210,5 +185,4 @@ namespace EventFlow.EventStores.MsSql
                 affectedRows);
         }
     }
-
 }
