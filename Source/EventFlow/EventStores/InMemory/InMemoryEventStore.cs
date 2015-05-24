@@ -38,7 +38,7 @@ namespace EventFlow.EventStores.InMemory
 {
     public class InMemoryEventStore : EventStore, IDisposable
     {
-        private readonly ConcurrentDictionary<string, List<ICommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<ICommittedDomainEvent>>();
+        private readonly ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
@@ -74,6 +74,23 @@ namespace EventFlow.EventStores.InMemory
         {
         }
 
+        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+            long startPostion,
+            long endPosition,
+            CancellationToken cancellationToken)
+        {
+            var committedDomainEvents = _eventStore
+                .SelectMany(kv => kv.Value)
+                .Where(e => e.GlobalSequenceNumber >= startPostion && e.GlobalSequenceNumber <= endPosition)
+                .ToList();
+
+            var nextPosition = committedDomainEvents.Any()
+                ? committedDomainEvents.Max(e => e.GlobalSequenceNumber)
+                : 1;
+
+            return Task.FromResult(new AllCommittedEventsPage(nextPosition, committedDomainEvents));
+        }
+
         protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
@@ -89,21 +106,21 @@ namespace EventFlow.EventStores.InMemory
                 var globalCount = _eventStore.Values.SelectMany(e => e).Count();
                 var batchId = Guid.NewGuid();
 
-                List<ICommittedDomainEvent> committedDomainEvents;
+                List<InMemoryCommittedDomainEvent> committedDomainEvents;
                 if (_eventStore.ContainsKey(id.Value))
                 {
                     committedDomainEvents = _eventStore[id.Value];
                 }
                 else
                 {
-                    committedDomainEvents = new List<ICommittedDomainEvent>();
+                    committedDomainEvents = new List<InMemoryCommittedDomainEvent>();
                     _eventStore[id.Value] = committedDomainEvents;
                 }
 
                 var newCommittedDomainEvents = serializedEvents
                     .Select((e, i) =>
                         {
-                            var committedDomainEvent = (ICommittedDomainEvent) new InMemoryCommittedDomainEvent
+                            var committedDomainEvent = new InMemoryCommittedDomainEvent
                                 {
                                     AggregateId = id.Value,
                                     AggregateName = typeof (TAggregate).Name,
@@ -111,7 +128,7 @@ namespace EventFlow.EventStores.InMemory
                                     BatchId = batchId,
                                     Data = e.Data,
                                     Metadata = e.Meta,
-                                    GlobalSequenceNumber = globalCount + i + 1
+                                    GlobalSequenceNumber = globalCount + i + 1,
                                 };
                             Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
                             return committedDomainEvent;
@@ -136,10 +153,10 @@ namespace EventFlow.EventStores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                List<ICommittedDomainEvent> committedDomainEvent;
+                List<InMemoryCommittedDomainEvent> committedDomainEvent;
                 return _eventStore.TryGetValue(id.Value, out committedDomainEvent)
                     ? committedDomainEvent
-                    : new List<ICommittedDomainEvent>();
+                    : new List<InMemoryCommittedDomainEvent>();
             }
         }
 
@@ -149,7 +166,7 @@ namespace EventFlow.EventStores.InMemory
         {
             if (_eventStore.ContainsKey(id.Value))
             {
-                List<ICommittedDomainEvent> committedDomainEvents;
+                List<InMemoryCommittedDomainEvent> committedDomainEvents;
                 _eventStore.TryRemove(id.Value, out committedDomainEvents);
                 Log.Verbose(
                     "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
@@ -159,16 +176,6 @@ namespace EventFlow.EventStores.InMemory
             }
 
             return Task.FromResult(0);
-        }
-        protected override Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken)
-        {
-            var committedDomainEvents = _eventStore
-                .SelectMany(kv => kv.Value)
-                .Where(e => e.GlobalSequenceNumber >= globalSequenceNumberRange.From && e.GlobalSequenceNumber <= globalSequenceNumberRange.To)
-                .ToList();
-            return Task.FromResult<IReadOnlyCollection<ICommittedDomainEvent>>(committedDomainEvents);
         }
 
         public void Dispose()

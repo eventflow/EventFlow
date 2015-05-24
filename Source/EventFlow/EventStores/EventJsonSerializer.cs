@@ -76,7 +76,6 @@ namespace EventFlow.EventStores
             var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,
                 metadata,
-                committedDomainEvent.GlobalSequenceNumber,
                 committedDomainEvent.AggregateId,
                 committedDomainEvent.AggregateSequenceNumber,
                 committedDomainEvent.BatchId);

@@ -20,34 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using EventFlow.EventStores;
-using EventFlow.TestHelpers;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Collections.Generic;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Tests.UnitTests.EventStores
+namespace EventFlow.EventStores
 {
-    [Timeout(5000)]
-    public class GlobalSequenceNumberRangeTests : Test
+    public class AllEventsPage
     {
-        [TestCase(1, 1, 1, 1)]
-        [TestCase(1, 2, 1, 2)]
-        [TestCase(1, 3, 2, 2)]
-        [TestCase(2, 3, 1, 2)]
-        [TestCase(3, 8, 3, 2)]
-        [TestCase(8, 8, 8, 1)]
-        public void BatchesAreCorrect(long from, long to, long batchSize, int expectedNumberOfBatches)
+        public long NextPosition { get; private set; }
+        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; private set; }
+
+        public AllEventsPage(
+            long nextPosition,
+            IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            // Act
-            var batches = GlobalSequenceNumberRange.Batches(from, to, batchSize).ToList();
-
-            // Assert
-            batches.Count.Should().Be(expectedNumberOfBatches);
-            batches.Min(r => r.From).Should().Be(from);
-            batches.Max(r => r.To).Should().Be(to);
-
-            batches.Zip(batches.Skip(1), (r1, r2) => r2.From - r1.To).Sum().Should().Be(expectedNumberOfBatches - 1);
+            NextPosition = nextPosition;
+            DomainEvents = domainEvents;
         }
     }
 }

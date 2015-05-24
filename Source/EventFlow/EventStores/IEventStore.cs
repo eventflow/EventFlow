@@ -36,6 +36,11 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
+        Task<AllEventsPage> LoadAllEventsAsync(
+            long startPosition,
+            long pageSize,
+            CancellationToken cancellationToken);
+
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -47,14 +52,6 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
-
-        Task<IReadOnlyCollection<IDomainEvent>> LoadEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken);
-
-        IReadOnlyCollection<IDomainEvent> LoadEvents(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
-            CancellationToken cancellationToken);
 
         Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
@@ -73,5 +70,10 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
+
+        AllEventsPage LoadEvents(
+            long startPosition,
+            long pageSize,
+            CancellationToken cancellationToken);
     }
 }

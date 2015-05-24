@@ -82,27 +82,28 @@ namespace EventFlow.ReadStores
 
             long totalEvents = 0;
             long relevantEvents = 0;
+            long currentPosition = 0;
 
-            foreach (var globalSequenceNumberRange in GlobalSequenceNumberRange.Batches(1, long.MaxValue, 1))
+            while (true)
             {
-                _log.Verbose("Loading domain events from global position {0}", globalSequenceNumberRange);
+                var allEventsPage = await _eventStore.LoadAllEventsAsync(currentPosition, 100, cancellationToken).ConfigureAwait(false);
+                totalEvents += allEventsPage.DomainEvents.Count;
+                currentPosition += allEventsPage.NextPosition;
 
-                var domainEvents = await _eventStore.LoadEventsAsync(globalSequenceNumberRange, cancellationToken).ConfigureAwait(false);
-                totalEvents += domainEvents.Count;
-
-                if (!domainEvents.Any())
+                if (!allEventsPage.DomainEvents.Any())
                 {
                     _log.Verbose("No more events in event store, stopping population of read model '{0}'", readModelType.Name);
                     break;
                 }
 
-                domainEvents = domainEvents
+                var domainEvents = allEventsPage.DomainEvents
                     .Where(e => aggregateEventTypes.Contains(e.EventType))
                     .ToList();
                 relevantEvents += domainEvents.Count;
 
                 if (!domainEvents.Any())
                 {
+
                     continue;
                 }
 

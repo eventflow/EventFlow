@@ -24,6 +24,5 @@ namespace EventFlow.ReadStores
 {
     public interface IReadModelContext
     {
-        long GlobalSequenceNumber { get; }
     }
 }

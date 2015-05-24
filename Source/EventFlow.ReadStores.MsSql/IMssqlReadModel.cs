@@ -30,6 +30,5 @@ namespace EventFlow.ReadStores.MsSql
         DateTimeOffset CreateTime { get; set; }
         DateTimeOffset UpdatedTime { get; set; }
         int LastAggregateSequenceNumber { get; set; }
-        long LastGlobalSequenceNumber { get; set; }
     }
 }

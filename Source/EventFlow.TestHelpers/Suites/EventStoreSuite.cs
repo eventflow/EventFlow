@@ -25,7 +25,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -69,7 +68,6 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.AggregateType.Should().Be(typeof (TestAggregate));
             pingEvent.BatchId.Should().NotBe(default(Guid));
             pingEvent.EventType.Should().Be(typeof (PingEvent));
-            pingEvent.GlobalSequenceNumber.Should().Be(1);
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
         }
@@ -94,27 +92,6 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
-        public async Task GlobalSequenceNumberIncrements()
-        {
-            // Arrange
-            var id1 = TestId.New;
-            var id2 = TestId.New;
-            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
-            aggregate1.Ping(PingId.New);
-            aggregate2.Ping(PingId.New);
-
-            // Act
-            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
-            var domainEvents = await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            var pingEvent = domainEvents.SingleOrDefault();
-            pingEvent.Should().NotBeNull();
-            pingEvent.GlobalSequenceNumber.Should().Be(2);
-        }
-
-        [Test]
         public async Task AggregateEventStreamsAreSeperate()
         {
             // Arrange
@@ -135,6 +112,28 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             aggregate1.Version.Should().Be(1);
             aggregate2.Version.Should().Be(2);
+        }
+
+        [Test]
+        public async Task DomainEventCanBeLoaded()
+        {
+            // Arrange
+            var id1 = TestId.New;
+            var id2 = TestId.New;
+            var pingId1 = PingId.New;
+            var pingId2 = PingId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1.Ping(pingId1);
+            aggregate2.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(1, 2, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.DomainEvents.Count.Should().Be(2);
         }
 
         [Test]
@@ -170,28 +169,6 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
-        }
-
-        [Test]
-        public async Task DomainEventCanBeLoaded()
-        {
-            // Arrange
-            var id1 = TestId.New;
-            var id2 = TestId.New;
-            var pingId1 = PingId.New;
-            var pingId2 = PingId.New;
-            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
-            aggregate1.Ping(pingId1);
-            aggregate2.Ping(pingId2);
-            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
-            await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
-
-            // Act
-            var domainEvents = await EventStore.LoadEventsAsync(GlobalSequenceNumberRange.Range(1, 2), CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            domainEvents.Count.Should().Be(2);
         }
 
         [Test]
