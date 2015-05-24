@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 
@@ -67,9 +66,8 @@ namespace EventFlow.EventStores.Files
             IEnumerable<IMetadataProvider> metadataProviders,
             IEventUpgradeManager eventUpgradeManager,
             IJsonSerializer jsonSerializer,
-            IEventCache eventCache,
             IFilesEventStoreConfiguration configuration)
-            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
         {
             _jsonSerializer = jsonSerializer;
             _configuration = configuration;

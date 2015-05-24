@@ -16,6 +16,8 @@
    - `IDomainEvent.GlobalSequenceNumber` removed
    - `IEventStore.LoadEventsAsync` and `IEventStore.LoadEvents` taking
      a `GlobalSequenceNumberRange` removed
+ * Breaking: Remove the concept of event caches. If you really need this
+   then implement it by registering a decorator for `IEventStore`
  * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
    stream. Please consider carefully if you really want to use it. Storage
    might be cheaper than the historic knowledge within your events

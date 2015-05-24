@@ -28,8 +28,6 @@ using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
-using EventFlow.EventCaches;
-using EventFlow.EventCaches.InMemory;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
@@ -110,7 +108,6 @@ namespace EventFlow
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
-            RegisterIfMissing<IEventCache, InMemoryEventCache>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
 
             if (!services.Contains(typeof (ITransientFaultHandler<>)))
