@@ -26,8 +26,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventCaches;
-using EventFlow.Exceptions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -38,21 +36,18 @@ namespace EventFlow.EventStores
         protected IAggregateFactory AggregateFactory { get; private set; }
         protected IEventUpgradeManager EventUpgradeManager { get; private set; }
         protected IEventJsonSerializer EventJsonSerializer { get; private set; }
-        protected IEventCache EventCache { get; private set; }
         protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
 
         protected EventStore(
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
-            IEventCache eventCache,
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders)
         {
             Log = log;
             AggregateFactory = aggregateFactory;
             EventJsonSerializer = eventJsonSerializer;
-            EventCache = eventCache;
             EventUpgradeManager = eventUpgradeManager;
             MetadataProviders = metadataProviders.ToList();
         }
@@ -86,36 +81,15 @@ namespace EventFlow.EventStores
                     })
                 .ToList();
 
-            IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
-            try
-            {
-                committedDomainEvents = await CommitEventsAsync<TAggregate, TIdentity>(
-                    id,
-                    serializedEvents,
-                    cancellationToken)
-                    .ConfigureAwait(false);
-            }
-            catch (OptimisticConcurrencyException)
-            {
-                Log.Verbose(
-                    "Detected an optimisting concurrency exception for aggregate '{0}' with ID '{1}', invalidating cache",
-                    aggregateType.Name,
-                    id);
-
-                // TODO: Rework as soon as await is possible within catch
-                using (var a = AsyncHelper.Wait)
-                {
-                    a.Run(EventCache.InvalidateAsync<TAggregate, TIdentity>(id, cancellationToken));
-                }
-
-                throw;
-            }
+            var committedDomainEvents = await CommitEventsAsync<TAggregate, TIdentity>(
+                id,
+                serializedEvents,
+                cancellationToken)
+                .ConfigureAwait(false);
 
             var domainEvents = committedDomainEvents
                 .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
-
-            await EventCache.InvalidateAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }
@@ -139,14 +113,8 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var domainEvents = await EventCache.GetAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
-            if (domainEvents != null)
-            {
-                return domainEvents;
-            }
-
             var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
-            domainEvents = committedDomainEvents
+            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
                 .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
@@ -156,8 +124,6 @@ namespace EventFlow.EventStores
             }
 
             domainEvents = EventUpgradeManager.Upgrade(domainEvents);
-
-            await EventCache.InsertAsync(id, domainEvents, cancellationToken).ConfigureAwait(false);
 
             return domainEvents;
         }

@@ -29,7 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -66,10 +65,9 @@ namespace EventFlow.EventStores.InMemory
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
-            IEventCache eventCache,
             IEnumerable<IMetadataProvider> metadataProviders,
             IEventUpgradeManager eventUpgradeManager)
-            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
         {
         }
 

@@ -85,16 +85,13 @@
     <Compile Include="Core\RetryStrategies\IOptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
-    <Compile Include="EventCaches\Null\NullEventCache.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
     <Compile Include="Core\IJsonSerializer.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
-    <Compile Include="EventCaches\InMemory\InMemoryEventCache.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
-    <Compile Include="EventCaches\IEventCache.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
@@ -110,7 +107,6 @@
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
-    <Compile Include="Extensions\EventFlowOptionsEventCachesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
