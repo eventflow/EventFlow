@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -113,9 +114,12 @@ namespace EventFlow.EventStores
             long pageSize,
             CancellationToken cancellationToken)
         {
+            if (pageSize <= 0) throw new ArgumentOutOfRangeException("pageSize");
+            if (startPosition < 0) throw new ArgumentOutOfRangeException("startPosition");
+
             var allCommittedEventsPage = await LoadAllCommittedDomainEvents(
                 startPosition,
-                startPosition + pageSize + 1,
+                startPosition + pageSize - 1,
                 cancellationToken)
                 .ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent>)allCommittedEventsPage.CommittedDomainEvents

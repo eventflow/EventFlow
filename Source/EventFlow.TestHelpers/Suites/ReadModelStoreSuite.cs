@@ -20,11 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -40,7 +37,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = TestId.New;
             
             // Act
-            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            await PublishPingCommandAsync(id).ConfigureAwait(false);
             var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
 
             // Assert
@@ -53,7 +50,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             var id = TestId.New;
-            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            await PublishPingCommandAsync(id).ConfigureAwait(false);
 
             // Act
             await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
@@ -68,8 +65,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             var id = TestId.New;
-            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
-            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            await PublishPingCommandAsync(id, 2).ConfigureAwait(false);
             await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             
             // Act

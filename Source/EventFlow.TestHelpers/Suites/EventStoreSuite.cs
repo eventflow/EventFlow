@@ -172,6 +172,28 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task LoadingFirstPageShouldOnlyLoadCorrectEvents()
+        {
+            // Arrange
+            var id = TestId.New;
+            var pingIds = new[] {PingId.New, PingId.New, PingId.New};
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(pingIds[0]);
+            aggregate.Ping(pingIds[1]);
+            aggregate.Ping(pingIds[2]);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(1, 2, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.NextPosition.Should().Be(3);
+            domainEvents.DomainEvents.Count.Should().Be(2);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[0]);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[1]);
+        }
+
+        [Test]
         public async Task OptimisticConcurrency()
         {
             // Arrange

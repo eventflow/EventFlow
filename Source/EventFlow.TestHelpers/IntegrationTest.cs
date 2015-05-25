@@ -20,10 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
@@ -57,6 +62,14 @@ namespace EventFlow.TestHelpers
         {
             Configuration.TearDown();
             Resolver.Dispose();
+        }
+
+        protected async Task PublishPingCommandAsync(TestId testId, int count = 1)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                await CommandBus.PublishAsync(new PingCommand(testId, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            }
         }
     }
 }
