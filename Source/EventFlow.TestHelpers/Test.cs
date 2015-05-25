@@ -86,8 +86,7 @@ namespace EventFlow.TestHelpers
                 aggregateEvent,
                 metadata,
                 A<TestId>(),
-                aggregateSequenceNumber,
-                A<Guid>());
+                aggregateSequenceNumber);
         }
 
         protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)

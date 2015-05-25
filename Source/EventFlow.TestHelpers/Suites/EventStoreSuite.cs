@@ -66,7 +66,6 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.AggregateIdentity.Should().Be(id);
             pingEvent.AggregateSequenceNumber.Should().Be(1);
             pingEvent.AggregateType.Should().Be(typeof (TestAggregate));
-            pingEvent.BatchId.Should().NotBe(default(Guid));
             pingEvent.EventType.Should().Be(typeof (PingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);

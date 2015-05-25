@@ -71,15 +71,13 @@ namespace EventFlow.EventStores.MsSql
                 return new ICommittedDomainEvent[] {};
             }
 
-            var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
-            var aggregateName = aggregateType.Name.Replace("Aggregate", string.Empty);
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
                         AggregateId = id.Value,
-                        AggregateName = aggregateName,
-                        BatchId = batchId,
+                        AggregateName = e.Metadata[MetadataKeys.AggregateName],
+                        BatchId = Guid.Parse(e.Metadata[MetadataKeys.BatchId]),
                         Data = e.SerializedData,
                         Metadata = e.SerializedMetadata,
                         AggregateSequenceNumber = e.AggregateSequenceNumber,

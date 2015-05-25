@@ -78,8 +78,7 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 metadata,
                 committedDomainEvent.AggregateId,
-                committedDomainEvent.AggregateSequenceNumber,
-                committedDomainEvent.BatchId);
+                committedDomainEvent.AggregateSequenceNumber);
 
             return domainEvent;
         }

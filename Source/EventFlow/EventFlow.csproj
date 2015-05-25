@@ -104,6 +104,7 @@
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />
+    <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />

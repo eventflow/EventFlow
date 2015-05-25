@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
@@ -31,15 +30,13 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             string aggregateIdentity,
-            int aggregateSequenceNumber,
-            Guid batchId);
+            int aggregateSequenceNumber);
 
         IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             TIdentity id,
-            int aggregateSequenceNumber,
-            Guid batchId)
+            int aggregateSequenceNumber)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 

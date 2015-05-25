@@ -33,7 +33,6 @@ namespace EventFlow.Aggregates
         public Type EventType { get { return typeof (TAggregateEvent); } }
 
         public int AggregateSequenceNumber { get; private set; }
-        public Guid BatchId { get; private set; }
         public TAggregateEvent AggregateEvent { get; private set; }
         public TIdentity AggregateIdentity { get; private set; }
         public IMetadata Metadata { get; private set; }
@@ -44,15 +43,13 @@ namespace EventFlow.Aggregates
             IMetadata metadata,
             DateTimeOffset timestamp,
             TIdentity aggregateIdentity,
-            int aggregateSequenceNumber,
-            Guid batchId)
+            int aggregateSequenceNumber)
         {
             AggregateEvent = aggregateEvent;
             Metadata = metadata;
             Timestamp = timestamp;
             AggregateIdentity = aggregateIdentity;
             AggregateSequenceNumber = aggregateSequenceNumber;
-            BatchId = batchId;
         }
 
         public IIdentity GetIdentity()
