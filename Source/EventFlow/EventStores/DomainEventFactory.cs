@@ -36,8 +36,7 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             string aggregateIdentity,
-            int aggregateSequenceNumber,
-            Guid batchId)
+            int aggregateSequenceNumber)
         {
             var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(aggregateEvent.GetType(), GetDomainEventType);
             var identityType = DomainEventToIdentityTypeMap.GetOrAdd(domainEventType, GetIdentityType);
@@ -49,8 +48,7 @@ namespace EventFlow.EventStores
                 metadata,
                 metadata.Timestamp,
                 identity,
-                aggregateSequenceNumber,
-                batchId);
+                aggregateSequenceNumber);
 
             return domainEvent;
         }
@@ -59,8 +57,7 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
             TIdentity id,
-            int aggregateSequenceNumber,
-            Guid batchId)
+            int aggregateSequenceNumber)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
@@ -68,8 +65,7 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 metadata,
                 id.Value,
-                aggregateSequenceNumber,
-                batchId);
+                aggregateSequenceNumber);
         }
 
         public IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
@@ -82,8 +78,7 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 domainEvent.Metadata,
                 (TIdentity) domainEvent.GetIdentity(),
-                domainEvent.AggregateSequenceNumber,
-                domainEvent.BatchId);
+                domainEvent.AggregateSequenceNumber);
         }
 
         private static Type GetIdentityType(Type domainEventType)

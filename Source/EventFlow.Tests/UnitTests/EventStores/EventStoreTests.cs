@@ -56,7 +56,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     (a, m) => new SerializedEvent(
                         string.Empty,
                         string.Empty,
-                        int.Parse(m.Single(kv => kv.Key == MetadataKeys.AggregateSequenceNumber).Value)));
+                        int.Parse(m.Single(kv => kv.Key == MetadataKeys.AggregateSequenceNumber).Value),
+                        new Metadata()));
         }
 
         private List<IUncommittedEvent> ManyUncommittedEvents(int count = 3)
