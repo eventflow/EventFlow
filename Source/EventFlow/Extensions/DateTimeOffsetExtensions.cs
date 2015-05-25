@@ -20,14 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System;
+
+namespace EventFlow.Extensions
 {
-    public sealed class MetadataKeys
+    public static class DateTimeOffsetExtensions
     {
-        public const string EventName = "event_name";
-        public const string EventVersion = "event_version";
-        public const string Timestamp = "timestamp";
-        public const string TimestampEpoch = "timestamp_epoch";
-        public const string AggregateSequenceNumber = "aggregate_sequence_number";
+        public static long ToUnixTime(this DateTimeOffset dateTimeOffset)
+        {
+            return Convert.ToInt64((dateTimeOffset.UtcDateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
+        }
     }
 }
