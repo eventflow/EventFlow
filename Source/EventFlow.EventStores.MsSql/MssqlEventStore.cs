@@ -34,7 +34,7 @@ using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql
 {
-    public class MsSqlEventStore : EventStore
+    public class MsSqlEventStore : EventStoreBase
     {
         public class EventDataModel : ICommittedDomainEvent
         {
@@ -80,8 +80,8 @@ namespace EventFlow.EventStores.MsSql
                         AggregateId = id.Value,
                         AggregateName = aggregateName,
                         BatchId = batchId,
-                        Data = e.Data,
-                        Metadata = e.Meta,
+                        Data = e.SerializedData,
+                        Metadata = e.SerializedMetadata,
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
                     })
                 .ToList();

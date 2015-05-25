@@ -35,7 +35,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventStore : EventStore, IDisposable
+    public class InMemoryEventStore : EventStoreBase, IDisposable
     {
         private readonly ConcurrentDictionary<string, List<ICommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<ICommittedDomainEvent>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
@@ -106,8 +106,8 @@ namespace EventFlow.EventStores.InMemory
                                     AggregateName = typeof (TAggregate).Name,
                                     AggregateSequenceNumber = e.AggregateSequenceNumber,
                                     BatchId = batchId,
-                                    Data = e.Data,
-                                    Metadata = e.Meta,
+                                    Data = e.SerializedData,
+                                    Metadata = e.SerializedMetadata,
                                 };
                             Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
                             return committedDomainEvent;

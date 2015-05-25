@@ -30,7 +30,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores
 {
-    public abstract class EventStore : IEventStore
+    public abstract class EventStoreBase : IEventStore
     {
         protected ILog Log { get; private set; }
         protected IAggregateFactory AggregateFactory { get; private set; }
@@ -38,7 +38,7 @@ namespace EventFlow.EventStores
         protected IEventJsonSerializer EventJsonSerializer { get; private set; }
         protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
 
-        protected EventStore(
+        protected EventStoreBase(
             ILog log,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,

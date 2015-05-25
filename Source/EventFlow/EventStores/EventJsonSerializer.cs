@@ -60,7 +60,8 @@ namespace EventFlow.EventStores
             return new SerializedEvent(
                 metaJson,
                 dataJson,
-                metadata.AggregateSequenceNumber);
+                metadata.AggregateSequenceNumber,
+                metadata);
         }
 
         public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)

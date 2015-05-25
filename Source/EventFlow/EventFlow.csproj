@@ -129,7 +129,7 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
-    <Compile Include="EventStores\EventStore.cs" />
+    <Compile Include="EventStores\EventStoreBase.cs" />
     <Compile Include="EventStores\IMetadataProvider.cs" />
     <Compile Include="EventStores\InMemory\InMemoryEventStore.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />

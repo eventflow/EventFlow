@@ -32,7 +32,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
 {
-    public class FilesEventStore : EventStore
+    public class FilesEventStore : EventStoreBase
     {
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventStoreConfiguration _configuration;
@@ -89,8 +89,8 @@ namespace EventFlow.EventStores.Files
                             AggregateName = aggregateType.Name,
                             AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
                             BatchId = batchId,
-                            Data = serializedEvent.Data,
-                            Metadata = serializedEvent.Meta,
+                            Data = serializedEvent.SerializedData,
+                            Metadata = serializedEvent.SerializedMetadata,
                         };
             
                     var json = _jsonSerializer.Serialize(fileEventData, true);
