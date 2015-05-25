@@ -83,10 +83,16 @@ namespace EventFlow.ReadStores
             long totalEvents = 0;
             long relevantEvents = 0;
             long currentPosition = 0;
+            const long pageSize = 100;
 
             while (true)
             {
-                var allEventsPage = await _eventStore.LoadAllEventsAsync(currentPosition, 100, cancellationToken).ConfigureAwait(false);
+                _log.Verbose(
+                    "Loading events starting from {0} and the next {1} for populating '{2}'",
+                    currentPosition,
+                    pageSize,
+                    readModelType.Name);
+                var allEventsPage = await _eventStore.LoadAllEventsAsync(currentPosition, pageSize, cancellationToken).ConfigureAwait(false);
                 totalEvents += allEventsPage.DomainEvents.Count;
                 currentPosition += allEventsPage.NextPosition;
 
@@ -103,7 +109,6 @@ namespace EventFlow.ReadStores
 
                 if (!domainEvents.Any())
                 {
-
                     continue;
                 }
 
