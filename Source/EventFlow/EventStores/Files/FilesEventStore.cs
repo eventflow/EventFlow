@@ -42,7 +42,6 @@ namespace EventFlow.EventStores.Files
         {
             public Guid BatchId { get; set; }
             public string AggregateId { get; set; }
-            public string AggregateName { get; set; }
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
@@ -86,7 +85,6 @@ namespace EventFlow.EventStores.Files
                     var fileEventData = new FileEventData
                         {
                             AggregateId = id.Value,
-                            AggregateName = aggregateType.Name,
                             AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
                             BatchId = batchId,
                             Data = serializedEvent.Data,

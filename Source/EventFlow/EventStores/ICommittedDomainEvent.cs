@@ -28,7 +28,6 @@ namespace EventFlow.EventStores
     {
         Guid BatchId { get; set; }
         string AggregateId { get; set; }
-        string AggregateName { get; set; }
         string Data { get; set; }
         string Metadata { get; set; }
         int AggregateSequenceNumber { get; set; }
