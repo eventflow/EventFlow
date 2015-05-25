@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
@@ -35,15 +36,18 @@ namespace EventFlow.ReadStores
     public class ReadModelPopulator : IReadModelPopulator
     {
         private readonly ILog _log;
+        private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IReadOnlyCollection<IReadModelStore> _readModelStores;
 
         public ReadModelPopulator(
             ILog log,
+            IEventFlowConfiguration configuration,
             IEventStore eventStore,
             IEnumerable<IReadModelStore> readModelStores)
         {
             _log = log;
+            _configuration = configuration;
             _eventStore = eventStore;
             _readModelStores = readModelStores.ToList();
         }
@@ -83,18 +87,21 @@ namespace EventFlow.ReadStores
             long totalEvents = 0;
             long relevantEvents = 0;
             long currentPosition = 0;
-            const long pageSize = 100;
 
             while (true)
             {
                 _log.Verbose(
                     "Loading events starting from {0} and the next {1} for populating '{2}'",
                     currentPosition,
-                    pageSize,
+                    _configuration.PopulateReadModelEventPageSize,
                     readModelType.Name);
-                var allEventsPage = await _eventStore.LoadAllEventsAsync(currentPosition, pageSize, cancellationToken).ConfigureAwait(false);
+                var allEventsPage = await _eventStore.LoadAllEventsAsync(
+                    currentPosition,
+                    _configuration.PopulateReadModelEventPageSize,
+                    cancellationToken)
+                    .ConfigureAwait(false);
                 totalEvents += allEventsPage.DomainEvents.Count;
-                currentPosition += allEventsPage.NextPosition;
+                currentPosition = allEventsPage.NextPosition;
 
                 if (!allEventsPage.DomainEvents.Any())
                 {

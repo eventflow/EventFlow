@@ -79,6 +79,7 @@
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\EventStores\EventStoreTests.cs" />
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
     <Compile Include="UnitTests\ValueObjects\ValueObjectTests.cs" />

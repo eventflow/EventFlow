@@ -54,6 +54,12 @@ namespace EventFlow
             return this;
         }
 
+        public EventFlowOptions Configure(Action<EventFlowConfiguration> configure)
+        {
+            configure(_eventFlowConfiguration);
+            return this;
+        }
+
         public EventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
             foreach (var aggregateEventType in aggregateEventTypes)
