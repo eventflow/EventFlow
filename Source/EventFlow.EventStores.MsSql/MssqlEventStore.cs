@@ -87,7 +87,7 @@ namespace EventFlow.EventStores.MsSql
 
             var nextPosition = eventDataModels.Any()
                 ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
-                : 1;
+                : startPostion;
 
             return new AllCommittedEventsPage(nextPosition, eventDataModels);
         }

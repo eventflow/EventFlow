@@ -84,7 +84,7 @@ namespace EventFlow.EventStores.InMemory
 
             var nextPosition = committedDomainEvents.Any()
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
-                : 1;
+                : startPostion;
 
             return Task.FromResult(new AllCommittedEventsPage(nextPosition, committedDomainEvents));
         }

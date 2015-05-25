@@ -112,7 +112,7 @@ namespace EventFlow.EventStores.Files
 
             var nextPosition = committedDomainEvents.Any()
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
-                : 1;
+                : startPostion;
 
             return new AllCommittedEventsPage(nextPosition, committedDomainEvents);
         }

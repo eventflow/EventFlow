@@ -172,6 +172,39 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task NextPositionIsIdOfNextEvent()
+        {
+            // Arrange
+            var id = TestId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(1, 10, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.NextPosition.Should().Be(2);
+        }
+
+        [Test]
+        public async Task NextPositionIsStartIfNoEvents()
+        {
+            // Arrange
+            var id = TestId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(3, 10, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.NextPosition.Should().Be(3);
+            domainEvents.DomainEvents.Should().BeEmpty();
+        }
+
+        [Test]
         public async Task LoadingFirstPageShouldOnlyLoadCorrectEvents()
         {
             // Arrange
