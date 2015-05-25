@@ -43,9 +43,8 @@ namespace EventFlow.EventStores.InMemory
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
         {
             public long GlobalSequenceNumber { get; set; }
-            public Guid BatchId { get; set; }
             public string AggregateId { get; set; }
-            public string AggregateName { get; set; }
+            public string AggregateName { private get; set; }
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
@@ -102,7 +101,6 @@ namespace EventFlow.EventStores.InMemory
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var globalCount = _eventStore.Values.SelectMany(e => e).Count();
-                var batchId = Guid.NewGuid();
 
                 List<InMemoryCommittedDomainEvent> committedDomainEvents;
                 if (_eventStore.ContainsKey(id.Value))
@@ -121,9 +119,8 @@ namespace EventFlow.EventStores.InMemory
                             var committedDomainEvent = new InMemoryCommittedDomainEvent
                                 {
                                     AggregateId = id.Value,
-                                    AggregateName = typeof (TAggregate).Name,
+                                    AggregateName = e.Metadata[MetadataKeys.AggregateName],
                                     AggregateSequenceNumber = e.AggregateSequenceNumber,
-                                    BatchId = batchId,
                                     Data = e.Data,
                                     Metadata = e.Meta,
                                     GlobalSequenceNumber = globalCount + i + 1,

@@ -103,12 +103,11 @@ namespace EventFlow.EventStores.MsSql
             }
 
             var aggregateType = typeof(TAggregate);
-            var aggregateName = aggregateType.Name.Replace("Aggregate", string.Empty);
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
                         AggregateId = id.Value,
-                        AggregateName = aggregateName,
+                        AggregateName = e.Metadata[MetadataKeys.AggregateName],
                         BatchId = Guid.Parse(e.Metadata[MetadataKeys.BatchId]),
                         Data = e.Data,
                         Metadata = e.Meta,

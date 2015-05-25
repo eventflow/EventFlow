@@ -71,7 +71,8 @@ namespace EventFlow.Aggregates
                 {
                     {MetadataKeys.Timestamp, now.ToString("o")},
                     {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
-                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()}
+                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()},
+                    {MetadataKeys.AggregateName, GetType().Name.Replace("Aggregate", string.Empty)},
                 };
 
             metadata = metadata == null

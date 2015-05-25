@@ -45,9 +45,7 @@ namespace EventFlow.EventStores.Files
         public class FileEventData : ICommittedDomainEvent
         {
             public long GlobalSequenceNumber { get; set; }
-            public Guid BatchId { get; set; }
             public string AggregateId { get; set; }
-            public string AggregateName { get; set; }
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
@@ -125,7 +123,6 @@ namespace EventFlow.EventStores.Files
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var aggregateType = typeof(TAggregate);
-                var batchId = Guid.NewGuid();
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
 
                 var aggregatePath = GetAggregatePath(aggregateType, id);
@@ -143,9 +140,7 @@ namespace EventFlow.EventStores.Files
                     var fileEventData = new FileEventData
                     {
                         AggregateId = id.Value,
-                        AggregateName = aggregateType.Name,
                         AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
-                        BatchId = batchId,
                         Data = serializedEvent.Data,
                         GlobalSequenceNumber = _globalSequenceNumber,
                         Metadata = serializedEvent.Meta,
