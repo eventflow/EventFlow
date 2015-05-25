@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
@@ -65,9 +66,11 @@ namespace EventFlow.Aggregates
                 throw new ArgumentNullException("aggregateEvent");
             }
 
+            var now = DateTimeOffset.Now;
             var extraMetadata = new Dictionary<string, string>
                 {
-                    {MetadataKeys.Timestamp, DateTimeOffset.Now.ToString("o")},
+                    {MetadataKeys.Timestamp, now.ToString("o")},
+                    {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
                     {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()}
                 };
 

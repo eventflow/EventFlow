@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
@@ -44,6 +45,17 @@ namespace EventFlow.Aggregates
         {
             get { return DateTimeOffset.Parse(this[MetadataKeys.Timestamp]); }
             set { this[MetadataKeys.Timestamp] = value.ToString("O"); }
+        }
+
+        public long TimestampEpoch
+        {
+            get
+            {
+                string timestampEpoch;
+                return TryGetValue(MetadataKeys.TimestampEpoch, out timestampEpoch)
+                    ? long.Parse(this[MetadataKeys.TimestampEpoch])
+                    : Timestamp.ToUnixTime();
+            }
         }
 
         public int AggregateSequenceNumber
