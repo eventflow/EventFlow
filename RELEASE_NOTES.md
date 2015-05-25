@@ -18,9 +18,16 @@
      a `GlobalSequenceNumberRange` removed
  * Breaking: Remove the concept of event caches. If you really need this
    then implement it by registering a decorator for `IEventStore`
+ * Breaking: Moved `IDomainEvent.BatchId` to metadata and created
+   `MetadataKeys.BatchId` to help access it
  * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
    stream. Please consider carefully if you really want to use it. Storage
    might be cheaper than the historic knowledge within your events
+ * New: `IMetadata.TimestampEpoch` contains the Unix timestamp version
+   of `IMetadata.Timestamp`. Also, an additional metadata key
+   `timestamp_epoch` is added to events containing the same data. Note,
+   the `TimestampEpoch` on `IMetadata` handles cases in which the
+   `timestamp_epoch` is not present by using the existing timestamp
  * Fixed: `AggregateRoot<>` now reads the aggregate version from
    domain events applied during aggregate load. This resolves an issue
    for when an `IEventUpgrader` removed events from the event stream

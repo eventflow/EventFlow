@@ -86,12 +86,19 @@ namespace EventFlow.EventStores
                 aggregateType.Name,
                 id);
 
+            var batchId = Guid.NewGuid().ToString();
+            var storeMetadata = new[]
+                {
+                    new KeyValuePair<string, string>(MetadataKeys.BatchId, batchId), 
+                };
+
             var serializedEvents = uncommittedDomainEvents
                 .Select(e =>
                     {
                         var metadata = MetadataProviders
                             .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.AggregateEvent, e.Metadata))
-                            .Concat(e.Metadata);
+                            .Concat(e.Metadata)
+                            .Concat(storeMetadata);
                         return EventJsonSerializer.Serialize(e.AggregateEvent, metadata);
                     })
                 .ToList();
