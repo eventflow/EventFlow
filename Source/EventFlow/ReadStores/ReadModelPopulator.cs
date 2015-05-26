@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -131,6 +132,62 @@ namespace EventFlow.ReadStores
                 stopwatch.Elapsed.TotalSeconds,
                 totalEvents,
                 relevantEvents);
+        }
+
+        public async Task PopulateAggregateReadModelAsync<TAggregate, TIdentity, TReadModel>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TReadModel : IReadModel
+        {
+            var readModelType = typeof (TReadModel);
+            var iAmReadModelForInterfaceTypes = readModelType
+                .GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+                .ToList();
+            var aggregateTypes = iAmReadModelForInterfaceTypes
+                .Select(i => i.GetGenericArguments()[0])
+                .Distinct()
+                .ToList();
+
+            if (!aggregateTypes.Any())
+            {
+                throw new ArgumentException(string.Format(
+                    "Read model type '{0}' does not implement 'IAmReadModelFor<>'",
+                    readModelType.Name));
+            }
+            if (aggregateTypes.Count != 1)
+            {
+                throw new ArgumentException(string.Format(
+                    "Use 'PopulateAsync' to populate read models than registers events from more than one aggregate. '{0}' registers to these: {1}",
+                    readModelType.Name,
+                    string.Join(", ", aggregateTypes.Select(t => t.Name))));
+            }
+            if (aggregateTypes.Single() != typeof (TReadModel))
+            {
+                throw new ArgumentException(string.Format(
+                    "Read model '{0}' registers to aggregate '{1}', but you supplied '{2}' as the generic argument",
+                    readModelType.Name,
+                    aggregateTypes.Single().Name,
+                    typeof(TAggregate).Name));
+            }
+
+            var domainEvens = await _eventStore.LoadEventsAsync<TAggregate, TIdentity>(
+                id,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            var readModelContext = new ReadModelContext();
+
+            var populateTasks = _readModelStores
+                .Select(s => s.PopulateReadModelAsync<TReadModel>(
+                    id.Value,
+                    domainEvens,
+                    readModelContext,
+                    cancellationToken));
+
+            await Task.WhenAll(populateTasks).ConfigureAwait(false);
         }
 
         public void Populate<TReadModel>(CancellationToken cancellationToken)

@@ -77,13 +77,13 @@ namespace EventFlow.ReadStores
         public abstract Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
             where TReadModelToPurge : IReadModel;
 
-		public abstract Task<TReadModel> GetByIdAsync(
+        public abstract Task PopulateReadModelAsync<TReadModelToPopulate>(string id, IReadOnlyCollection<IDomainEvent> domainEvents, IReadModelContext readModelContext, CancellationToken cancellationToken)
+            where TReadModelToPopulate : IReadModel;
+
+        public abstract Task<TReadModel> GetByIdAsync(
 			string id,
 			CancellationToken cancellationToken);
 
-        protected abstract Task UpdateReadModelsAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken);
+        protected abstract Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken);
     }
 }

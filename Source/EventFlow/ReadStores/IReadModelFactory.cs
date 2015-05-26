@@ -43,11 +43,7 @@ namespace EventFlow.ReadStores
             CancellationToken cancellationToken)
             where TReadModel : IReadModel;
 
-        Task<bool> UpdateReadModelAsync<TReadModel>(
-            TReadModel readModel,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
+        Task<bool> UpdateReadModelAsync<TReadModel>(TReadModel readModel, IReadOnlyCollection<IDomainEvent> domainEvents, IReadModelContext readModelContext, CancellationToken cancellationToken)
             where TReadModel : IReadModel;
     }
 }

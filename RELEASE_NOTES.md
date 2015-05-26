@@ -31,6 +31,7 @@
  * Fixed: `AggregateRoot<>` now reads the aggregate version from
    domain events applied during aggregate load. This resolves an issue
    for when an `IEventUpgrader` removed events from the event stream
+ * Fixed: `InMemoryReadModelStore<,>` is now thread safe
 
 ### New in 0.7.481 (released 2015-05-22)
 

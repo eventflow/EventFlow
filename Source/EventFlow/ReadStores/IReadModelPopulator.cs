@@ -22,6 +22,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
@@ -37,6 +38,13 @@ namespace EventFlow.ReadStores
             where TReadModel : IReadModel;
 
         void Populate<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : IReadModel;
+
+        Task PopulateAggregateReadModelAsync<TAggregate, TIdentity, TReadModel>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
             where TReadModel : IReadModel;
     }
 }

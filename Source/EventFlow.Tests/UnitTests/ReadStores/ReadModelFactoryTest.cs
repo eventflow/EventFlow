@@ -148,7 +148,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             var appliedAny = Sut.UpdateReadModelAsync(
                 new PingReadModel(),
                 events,
-                A<IReadModelContext>(),
+                A<IReadModelContext>(), 
                 CancellationToken.None)
                 .Result;
 

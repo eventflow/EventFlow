@@ -29,12 +29,19 @@ namespace EventFlow.ReadStores
 {
     public interface IReadModelStore
     {
-        Task ApplyDomainEventsAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        Task ApplyDomainEventsAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
 
-        Task ApplyDomainEventsAsync<TReadModelToPopulate>(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        Task ApplyDomainEventsAsync<TReadModelToPopulate>(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
             where TReadModelToPopulate : IReadModel;
 
         Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
             where TReadModelToPurge : IReadModel;
+
+        Task PopulateReadModelAsync<TReadModelToPopulate>(string id, IReadOnlyCollection<IDomainEvent> domainEvents, IReadModelContext readModelContext, CancellationToken cancellationToken)
+            where TReadModelToPopulate : IReadModel;
     }
 }

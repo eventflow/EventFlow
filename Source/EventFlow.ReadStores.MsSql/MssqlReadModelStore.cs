@@ -58,16 +58,16 @@ namespace EventFlow.ReadStores.MsSql
 
         private async Task UpdateReadModelAsync(
             string id,
+            bool forceNew,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             IReadModelContext readModelContext,
             CancellationToken cancellationToken)
         {
             var readModelNameLowerCased = typeof (TReadModel).Name.ToLowerInvariant();
             var readModel = await GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
-            var isNew = false;
-            if (readModel == null)
+            var isNew = readModel == null;
+            if (readModel == null || forceNew)
             {
-                isNew = true;
                 readModel = new TReadModel
                     {
                         AggregateId = id,
@@ -101,6 +101,15 @@ namespace EventFlow.ReadStores.MsSql
                 readModel).ConfigureAwait(false);
         }
 
+        public override Task PopulateReadModelAsync<TReadModelToPopulate>(
+            string id,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
+            CancellationToken cancellationToken)
+        {
+            return UpdateReadModelAsync(id, true, domainEvents, readModelContext, cancellationToken);
+        }
+
         public override Task<TReadModel> GetByIdAsync(
             string id,
             CancellationToken cancellationToken)
@@ -130,13 +139,10 @@ namespace EventFlow.ReadStores.MsSql
                 readModelName);
         }
 
-        protected override Task UpdateReadModelsAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
+        protected override Task UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates, IReadModelContext readModelContext, CancellationToken cancellationToken)
         {
             var updateTasks = readModelUpdates
-                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, rmu.DomainEvents, readModelContext, cancellationToken));
+                .Select(rmu => UpdateReadModelAsync(rmu.ReadModelId, false, rmu.DomainEvents, readModelContext, cancellationToken));
             return Task.WhenAll(updateTasks);
         }
     }
