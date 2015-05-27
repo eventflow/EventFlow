@@ -35,16 +35,16 @@ namespace EventFlow.ReadStores
     {
         protected ILog Log { get; private set; }
         protected TReadModelLocator ReadModelLocator { get; private set; }
-        protected IReadModelFactory ReadModelFactory { get; private set; }
+        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
 
         protected ReadModelStore(
             ILog log,
             TReadModelLocator readModelLocator,
-            IReadModelFactory readModelFactory)
+            IReadModelDomainEventApplier readModelDomainEventApplier)
         {
             Log = log;
             ReadModelLocator = readModelLocator;
-            ReadModelFactory = readModelFactory;
+            ReadModelDomainEventApplier = readModelDomainEventApplier;
         }
 
         public virtual Task ApplyDomainEventsAsync(

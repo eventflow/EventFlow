@@ -28,7 +28,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelFactory
+    public interface IReadModelDomainEventApplier
     {
         Task<TReadModel> CreateReadModelAsync<TReadModel>(
             IReadOnlyCollection<IDomainEvent> domainEvents,

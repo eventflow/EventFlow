@@ -29,7 +29,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public class ReadModelFactory : IReadModelFactory
+    public class ReadModelDomainEventApplier : IReadModelDomainEventApplier
     {
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>>();
 

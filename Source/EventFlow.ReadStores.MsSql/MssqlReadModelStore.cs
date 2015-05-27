@@ -45,11 +45,11 @@ namespace EventFlow.ReadStores.MsSql
         public MssqlReadModelStore(
             ILog log,
             TReadModelLocator readModelLocator,
-            IReadModelFactory readModelFactory,
+            IReadModelDomainEventApplier readModelDomainEventApplier,
             IMsSqlConnection connection,
             IQueryProcessor queryProcessor,
             IReadModelSqlGenerator readModelSqlGenerator)
-            : base(log, readModelLocator, readModelFactory)
+            : base(log, readModelLocator, readModelDomainEventApplier)
         {
             _connection = connection;
             _queryProcessor = queryProcessor;
@@ -75,7 +75,7 @@ namespace EventFlow.ReadStores.MsSql
                     };
             }
 
-            var appliedAny = await ReadModelFactory.UpdateReadModelAsync(
+            var appliedAny = await ReadModelDomainEventApplier.UpdateReadModelAsync(
                 readModel,
                 domainEvents,
                 readModelContext,

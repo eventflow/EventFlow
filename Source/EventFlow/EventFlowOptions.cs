@@ -110,7 +110,7 @@ namespace EventFlow
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
-            RegisterIfMissing<IReadModelFactory, ReadModelFactory>(services);
+            RegisterIfMissing<IReadModelDomainEventApplier, ReadModelDomainEventApplier>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);

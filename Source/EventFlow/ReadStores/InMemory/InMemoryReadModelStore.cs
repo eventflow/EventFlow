@@ -43,8 +43,8 @@ namespace EventFlow.ReadStores.InMemory
         public InMemoryReadModelStore(
             ILog log,
             TReadModelLocator readModelLocator,
-            IReadModelFactory readModelFactory)
-            : base(log, readModelLocator, readModelFactory)
+            IReadModelDomainEventApplier readModelDomainEventApplier)
+            : base(log, readModelLocator, readModelDomainEventApplier)
         {
         }
 
@@ -68,7 +68,7 @@ namespace EventFlow.ReadStores.InMemory
                     _readModels[id] = readModel;
                 }
 
-                await ReadModelFactory.UpdateReadModelAsync(
+                await ReadModelDomainEventApplier.UpdateReadModelAsync(
                     readModel,
                     domainEvents,
                     readModelContext,

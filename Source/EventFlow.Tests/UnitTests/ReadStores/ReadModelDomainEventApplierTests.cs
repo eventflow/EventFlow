@@ -31,7 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    public class ReadModelFactoryTest : TestsFor<ReadModelFactory>
+    public class ReadModelDomainEventApplierTests : TestsFor<ReadModelDomainEventApplier>
     {
         public class PingReadModel : IReadModel,
             IAmReadModelFor<TestAggregate, TestId, PingEvent>
