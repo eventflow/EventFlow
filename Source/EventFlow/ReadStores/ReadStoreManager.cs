@@ -26,22 +26,56 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public class ReadStoreManager : IReadStoreManager
+    public abstract class ReadStoreManager<TReadModelStore, TReadModel> : IReadStoreManager
+        where TReadModelStore : IReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
-        private readonly ILog _log;
-        private readonly IResolver _resolver;
+        // ReSharper disable StaticMemberInGenericType
+        private static readonly Type ReadModelType = typeof(TReadModel);
+        private static readonly ISet<Type> AggregateTypes;
+        private static readonly ISet<Type> DomainEventTypes;
+        // ReSharper enable StaticMemberInGenericType
 
-        public ReadStoreManager(
-            ILog log,
-            IResolver resolver)
+        protected ILog Log { get; private set; }
+        protected TReadModelStore ReadModelStore { get; private set; }
+        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
+
+        protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
+        protected ISet<Type> GetDomainEventTypes() { return DomainEventTypes; } 
+
+        static ReadStoreManager()
         {
-            _log = log;
-            _resolver = resolver;
+            var iAmReadModelForInterfaceTypes = ReadModelType
+                .GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+                .ToList();
+            if (!iAmReadModelForInterfaceTypes.Any())
+            {
+                throw new ArgumentException(string.Format(
+                    "Read model type '{0}' does not implement any 'IAmReadModelFor<>'",
+                    ReadModelType.Name));
+            }
+
+            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
+            DomainEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i =>
+                {
+                    var genericArguments = i.GetGenericArguments();
+                    return typeof (IDomainEvent<,,>).MakeGenericType(genericArguments);
+                }));
+        }
+
+        protected ReadStoreManager(
+            ILog log,
+            TReadModelStore readModelStore,
+            IReadModelDomainEventApplier readModelDomainEventApplier)
+        {
+            Log = log;
+            ReadModelStore = readModelStore;
+            ReadModelDomainEventApplier = readModelDomainEventApplier;
         }
 
         public async Task UpdateReadStoresAsync<TAggregate, TIdentity>(
@@ -51,29 +85,48 @@ namespace EventFlow.ReadStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore>>().ToList();
-            var updateTasks = readModelStores
-                .Select(s => UpdateReadStoreAsync(s, domainEvents, cancellationToken))
-                .ToArray();
-            await Task.WhenAll(updateTasks).ConfigureAwait(false);
+            var aggregateType = typeof (TAggregate);
+            if (!AggregateTypes.Contains(aggregateType))
+            {
+                Log.Verbose(() => string.Format(
+                    "Read model does not care about aggregate '{0}' so skipping update, only these: {1}",
+                    ReadModelType.Name,
+                    string.Join(", ", AggregateTypes.Select(t => t.Name))
+                    ));
+                return;
+            }
+
+            var relevantDomainEvents = domainEvents
+                .Where(e => DomainEventTypes.Contains(e.GetType()))
+                .ToList();
+            if (!relevantDomainEvents.Any())
+            {
+                Log.Verbose(() => string.Format(
+                    "None of these events was relevant for read model '{0}', skipping update: {1}",
+                    ReadModelType.Name,
+                    string.Join(", ", domainEvents.Select(e => e.EventType.Name))
+                    ));
+                return;
+            }
+
+            var readModelContext = new ReadModelContext();
+            var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
+
+            await ReadModelStore.UpdateAsync(
+                readModelUpdates,
+                readModelContext,
+                UpdateAsync,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
-        private async Task UpdateReadStoreAsync(
-            IReadModelStore readModelStore,
+        protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
+            IReadOnlyCollection<IDomainEvent> domainEvents);
+
+        protected abstract Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+            IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                await readModelStore.ApplyDomainEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Error(
-                    exception,
-                    "Failed to updated read model store {0}",
-                    readModelStore.GetType().Name);
-            }
-        }
+            ReadModelEnvelope<TReadModel> readModelEnvelope,
+            CancellationToken cancellationToken);
     }
 }

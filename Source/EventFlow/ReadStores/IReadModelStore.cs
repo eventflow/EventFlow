@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,21 +28,24 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelStore
+    public interface IReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
-        Task ApplyDomainEventsAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+        Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
             CancellationToken cancellationToken);
 
-        Task ApplyDomainEventsAsync<TReadModelToPopulate>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-            where TReadModelToPopulate : IReadModel;
+        Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken);
 
-        Task PurgeAsync<TReadModelToPurge>(CancellationToken cancellationToken)
-            where TReadModelToPurge : IReadModel;
+        Task DeleteAllAsync(
+            CancellationToken cancellationToken);
 
-        Task PopulateReadModelAsync<TReadModelToPopulate>(string id, IReadOnlyCollection<IDomainEvent> domainEvents, IReadModelContext readModelContext, CancellationToken cancellationToken)
-            where TReadModelToPopulate : IReadModel;
+        Task UpdateAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken);
     }
 }

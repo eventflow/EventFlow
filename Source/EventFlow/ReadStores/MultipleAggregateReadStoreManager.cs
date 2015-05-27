@@ -27,10 +27,10 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
 
-namespace EventFlow.ReadStores.V2
+namespace EventFlow.ReadStores
 {
-    public class MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator> : ReadStoreManagerV2<TReadStore, TReadModel>
-        where TReadStore : IReadModelStoreV2<TReadModel>
+    public class MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator> : ReadStoreManager<TReadStore, TReadModel>
+        where TReadStore : IReadModelStore<TReadModel>
         where TReadModel : class, IReadModel, new()
         where TReadModelLocator : IReadModelLocator
     {

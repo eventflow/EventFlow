@@ -21,26 +21,45 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration.Registrations;
-using EventFlow.Queries;
-using EventFlow.ReadStores.MsSql.Queries;
+using EventFlow.Extensions;
 
 namespace EventFlow.ReadStores.MsSql.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(this EventFlowOptions eventFlowOptions)
-            where TReadModel : IMssqlReadModel, new()
+        public static EventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(
+            this EventFlowOptions eventFlowOptions)
+            where TReadModel : class, IMssqlReadModel, new()
             where TReadModelLocator : IReadModelLocator
         {
-            eventFlowOptions.RegisterServices(f =>
+            eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
+                        {
+                            f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
+                        }
+                        f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                    })
+                .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+
+            return eventFlowOptions;
+        }
+
+        public static EventFlowOptions UseMssqlReadModel<TReadModel>(
+            this EventFlowOptions eventFlowOptions)
+            where TReadModel : class, IMssqlReadModel, new()
+        {
+            eventFlowOptions
+                .RegisterServices(f =>
                 {
                     if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
                     {
                         f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                     }
-                    f.Register<IReadModelStore, MssqlReadModelStore<TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, MsSqlReadModelByIdQueryHandler<TReadModel>>();
-                });
+                    f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                })
+                .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel>();
 
             return eventFlowOptions;
         }

@@ -27,7 +27,7 @@ using EventFlow.Queries;
 using EventFlow.ReadStores.InMemory.Queries;
 
 namespace EventFlow.ReadStores.InMemory
-{
+{/*
     public class InMemoryQueryHandler<TReadModel> :
         IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>,
         IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
@@ -51,5 +51,5 @@ namespace EventFlow.ReadStores.InMemory
         {
             return _readModelStore.GetByIdAsync(query.Id, cancellationToken);
         }
-    }
+    }*/
 }

@@ -25,8 +25,8 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.Queries;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
@@ -34,8 +34,8 @@ namespace EventFlow.Tests.IntegrationTests
 {
     public class InMemoryConfiguration : IntegrationTestConfiguration
     {
-        private IInMemoryReadModelStore<InMemoryTestAggregateReadModel> _inMemoryReadModelStore;
         private IReadModelPopulator _readModelPopulator;
+        private IQueryProcessor _queryProcessor;
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
@@ -43,15 +43,18 @@ namespace EventFlow.Tests.IntegrationTests
                 .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
                 .CreateResolver();
 
-            _inMemoryReadModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
             _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
+            _queryProcessor = resolver.Resolve<IQueryProcessor>();
 
             return resolver;
         }
 
         public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
-            return await _inMemoryReadModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
+            return await _queryProcessor.ProcessAsync(
+                new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value),
+                CancellationToken.None)
+                .ConfigureAwait(false);
         }
 
         public override Task PurgeTestAggregateReadModelAsync()

@@ -21,19 +21,42 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
+    public class ReadModelPopulator : IReadModelPopulator
+    {
+        public Task PurgeAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Purge<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task PopulateAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Populate<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task PopulateAggregateReadModelAsync<TAggregate, TIdentity, TReadModel>(TIdentity id,
+            CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TReadModel : IReadModel
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /*
     public class ReadModelPopulator : IReadModelPopulator
     {
         private readonly ILog _log;
@@ -199,4 +222,5 @@ namespace EventFlow.ReadStores
             }
         }
     }
+    */
 }

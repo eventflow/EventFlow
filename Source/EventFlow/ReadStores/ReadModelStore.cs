@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,38 +29,32 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadModelStore<TReadModel> : IReadModelStore
-        where TReadModel : IReadModel
+    public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
         protected ILog Log { get; private set; }
-        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
 
         protected ReadModelStore(
-            ILog log,
-            IReadModelDomainEventApplier readModelDomainEventApplier)
+            ILog log)
         {
             Log = log;
-            ReadModelDomainEventApplier = readModelDomainEventApplier;
         }
 
-        public abstract Task ApplyDomainEventsAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+        public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
             CancellationToken cancellationToken);
 
-        public abstract Task ApplyDomainEventsAsync<TReadModelToPopulate>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-            where TReadModelToPopulate : IReadModel;
-
-        public abstract Task PurgeAsync<TReadModelToPurge>(
-            CancellationToken cancellationToken)
-            where TReadModelToPurge : IReadModel;
-
-        public abstract Task PopulateReadModelAsync<TReadModelToPopulate>(
+        public abstract Task DeleteAsync(
             string id,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
+
+        public abstract Task DeleteAllAsync(
+            CancellationToken cancellationToken);
+
+        public abstract Task UpdateAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModelToPopulate : IReadModel;
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken);
     }
 }

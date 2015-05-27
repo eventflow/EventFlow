@@ -28,15 +28,15 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Logs;
 
-namespace EventFlow.ReadStores.V2
+namespace EventFlow.ReadStores
 {
-    public class InMemoryReadStoreV2<TReadModel> : ReadModelStoreV2<TReadModel>, IInMemoryReadStoreV2<TReadModel>
+    public class InMemoryReadStore<TReadModel> : ReadModelStore<TReadModel>, IInMemoryReadStore<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
         private readonly Dictionary<string, ReadModelEnvelope<TReadModel>> _readModels = new Dictionary<string, ReadModelEnvelope<TReadModel>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        public InMemoryReadStoreV2(
+        public InMemoryReadStore(
             ILog log)
             : base(log)
         {
