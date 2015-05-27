@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -30,31 +29,34 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.V2
 {
-    public class SingleAggregateReadStoreManager<TReadModelStore, TReadModel> : ReadStoreManagerV2<TReadModelStore, TReadModel>
-        where TReadModelStore : IReadModelStoreV2<TReadModel>
+    public class MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator> : ReadStoreManagerV2<TReadStore, TReadModel>
+        where TReadStore : IReadModelStoreV2<TReadModel>
         where TReadModel : class, IReadModel, new()
+        where TReadModelLocator : IReadModelLocator
     {
-        public SingleAggregateReadStoreManager(
+        private readonly TReadModelLocator _readModelLocator;
+
+        public MultipleAggregateReadStoreManager(
             ILog log,
-            TReadModelStore readModelStore,
-            IReadModelDomainEventApplier readModelDomainEventApplier)
+            TReadStore readModelStore,
+            IReadModelDomainEventApplier readModelDomainEventApplier,
+            TReadModelLocator readModelLocator)
             : base(log, readModelStore, readModelDomainEventApplier)
         {
+            _readModelLocator = readModelLocator;
         }
 
         protected override IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
             IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            var readModelIds = domainEvents
-                .Select(e => e.GetIdentity().Value)
-                .Distinct()
-                .ToList();
-            if (readModelIds.Count != 1)
-            {
-                throw new ArgumentException("Only domain events from the same aggregate is allowed");
-            }
-
-            return new[] {new ReadModelUpdate(readModelIds.Single(), domainEvents)};
+            var readModelUpdates = (
+                from de in domainEvents
+                let readModelIds = _readModelLocator.GetReadModelIds(de)
+                from rid in readModelIds
+                group de by rid into g
+                select new ReadModelUpdate(g.Key, g.ToList())
+                ).ToList();
+            return readModelUpdates;
         }
 
         protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
@@ -64,12 +66,8 @@ namespace EventFlow.ReadStores.V2
             CancellationToken cancellationToken)
         {
             var readModel = readModelEnvelope.ReadModel ?? new TReadModel();
-
             await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
-
-            var readModelVersion = domainEvents.Max(e => e.AggregateSequenceNumber);
-
-            return ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion);
+            return ReadModelEnvelope<TReadModel>.With(readModel);
         }
     }
 }

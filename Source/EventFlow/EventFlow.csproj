@@ -121,6 +121,7 @@
     <Compile Include="Queries\IQueryProcessor.cs" />
     <Compile Include="Queries\QueryProcessor.cs" />
     <Compile Include="Queries\ReadModelByIdQuery.cs" />
+    <Compile Include="ReadStores\V2\IInMemoryReadStoreV2.cs" />
     <Compile Include="ReadStores\V2\InMemoryReadStoreV2.cs" />
     <Compile Include="ReadStores\InMemory\Queries\InMemoryQuery.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryQueryHandler.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="ReadStores\LocateByAggregateId.cs" />
     <Compile Include="ReadStores\IReadModelLocator.cs" />
     <Compile Include="ReadStores\ReadModelDomainEventApplier.cs" />
+    <Compile Include="ReadStores\V2\MultipleAggregateReadStoreManager.cs" />
     <Compile Include="ReadStores\V2\ReadModelEnvelope.cs" />
     <Compile Include="ReadStores\ReadModelPopulator.cs" />
     <Compile Include="ReadStores\ReadModelStore.cs" />

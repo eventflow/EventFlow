@@ -40,6 +40,10 @@ namespace EventFlow.ReadStores.V2
             Log = log;
         }
 
+        public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
+            CancellationToken cancellationToken);
+
         public abstract Task DeleteAsync(
             string id,
             CancellationToken cancellationToken);
@@ -48,8 +52,7 @@ namespace EventFlow.ReadStores.V2
             CancellationToken cancellationToken);
 
         public abstract Task UpdateAsync(
-            string id,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken);

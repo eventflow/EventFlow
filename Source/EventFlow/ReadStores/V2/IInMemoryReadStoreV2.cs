@@ -22,35 +22,8 @@
 
 namespace EventFlow.ReadStores.V2
 {
-    public class ReadModelEnvelope<TReadModel>
+    public interface IInMemoryReadStoreV2<TReadModel> : IReadModelStoreV2<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
-        private static readonly ReadModelEnvelope<TReadModel> EmptyInstance = new ReadModelEnvelope<TReadModel>(null, null);
-
-        public static ReadModelEnvelope<TReadModel> Empty
-        {
-            get { return EmptyInstance; }
-        } 
-
-        public static ReadModelEnvelope<TReadModel> With(TReadModel readModel)
-        {
-            return new ReadModelEnvelope<TReadModel>(readModel, null);
-        }
-
-        public static ReadModelEnvelope<TReadModel> With(TReadModel readModel, long version)
-        {
-            return new ReadModelEnvelope<TReadModel>(readModel, version);
-        }
-
-        public TReadModel ReadModel { get; private set; }
-        public long? Version { get; private set; }
-
-        private ReadModelEnvelope(
-            TReadModel readModel,
-            long? version)
-        {
-            ReadModel = readModel;
-            Version = version;
-        }
     }
 }

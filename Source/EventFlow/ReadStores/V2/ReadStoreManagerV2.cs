@@ -110,15 +110,18 @@ namespace EventFlow.ReadStores.V2
             }
 
             var readModelContext = new ReadModelContext();
+            var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 
             await ReadModelStore.UpdateAsync(
-                id.Value,
-                relevantDomainEvents,
+                readModelUpdates,
                 readModelContext,
                 UpdateAsync,
                 cancellationToken)
                 .ConfigureAwait(false);
         }
+
+        protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
+            IReadOnlyCollection<IDomainEvent> domainEvents);
 
         protected abstract Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,

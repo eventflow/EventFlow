@@ -20,17 +20,58 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using EventFlow.Configuration.Registrations;
-using EventFlow.Queries;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.InMemory;
-using EventFlow.ReadStores.InMemory.Queries;
+using EventFlow.ReadStores.V2;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsReadStoresExtensions
     {
+        public static EventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
+            this EventFlowOptions eventFlowOptions)
+            where TReadStore : class, IReadModelStoreV2<TReadModel>
+            where TReadModel : class, IReadModel, new()
+        {
+            return eventFlowOptions.RegisterServices(f =>
+                {
+                    f.Register<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
+                });
+        }
+
+        public static EventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
+            this EventFlowOptions eventFlowOptions)
+            where TReadStore : class, IReadModelStoreV2<TReadModel>
+            where TReadModel : class, IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
+        {
+            return eventFlowOptions.RegisterServices(f =>
+                {
+                    f.Register<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
+                });
+        }
+
+        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
+            this EventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
+        {
+            return eventFlowOptions
+                .RegisterServices(f => f.Register<IInMemoryReadStoreV2<TReadModel>, InMemoryReadStoreV2<TReadModel>>(Lifetime.Singleton))
+                .UseReadStoreFor<IInMemoryReadStoreV2<TReadModel>, TReadModel>();
+        }
+
+        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
+            this EventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
+        {
+            return eventFlowOptions
+                .RegisterServices(f => f.Register<IInMemoryReadStoreV2<TReadModel>, InMemoryReadStoreV2<TReadModel>>(Lifetime.Singleton))
+                .UseReadStoreFor<IInMemoryReadStoreV2<TReadModel>, TReadModel, TReadModelLocator>();
+        }
+
+
+        /*
         public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
             this EventFlowOptions eventFlowOptions)
             where TReadModel : IReadModel, new()
@@ -61,6 +102,6 @@ namespace EventFlow.Extensions
             }
 
             return eventFlowOptions;
-        }
+        }*/
     }
 }

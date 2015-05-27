@@ -54,7 +54,7 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test]
-        public async Task BasicFlow()
+        public void BasicFlow()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
@@ -63,20 +63,20 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
+                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
+                //var readModelStore = resolver.Resolve<IInMemoryReadModelStore<InMemoryTestAggregateReadModel>>();
                 var id = TestId.New;
 
                 // Act
                 commandBus.Publish(new DomainErrorAfterFirstCommand(id), CancellationToken.None);
                 var testAggregate = eventStore.LoadAggregate<TestAggregate, TestId>(id, CancellationToken.None);
-                var testReadModelFromStore = await readModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
+                //var testReadModelFromStore = await readModelStore.GetByIdAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
                 var testReadModelFromQuery1 = queryProcessor.Process(
                     new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value), CancellationToken.None);
                 var testReadModelFromQuery2 = queryProcessor.Process(
@@ -86,7 +86,7 @@ namespace EventFlow.Tests.IntegrationTests
                 testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModelFromQuery1.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModelFromQuery2.Should().NotBeNull();
-                testReadModelFromStore.Should().NotBeNull();
+                //testReadModelFromStore.Should().NotBeNull();
             }
         }
     }
