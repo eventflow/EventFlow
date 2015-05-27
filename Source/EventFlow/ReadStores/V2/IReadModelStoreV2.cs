@@ -21,8 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores.V2
 {
@@ -38,8 +40,9 @@ namespace EventFlow.ReadStores.V2
 
         Task UpdateAsync(
             string id,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
             IReadModelContext readModelContext,
-            Func<IReadModelContext, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken);
     }
 }

@@ -20,8 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.V2
@@ -38,10 +40,8 @@ namespace EventFlow.ReadStores.V2
         {
         }
 
-        protected override Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
-            IReadModelContext readModelContext,
-            ReadModelEnvelope<TReadModel> readModelEnvelope,
-            CancellationToken cancellationToken)
+        protected override Task<ReadModelEnvelope<TReadModel>> UpdateAsync(IReadModelContext readModelContext, IReadOnlyCollection<IDomainEvent> domainEvents,
+            ReadModelEnvelope<TReadModel> readModelEnvelope, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }

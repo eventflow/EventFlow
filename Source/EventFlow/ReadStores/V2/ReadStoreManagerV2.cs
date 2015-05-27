@@ -113,6 +113,7 @@ namespace EventFlow.ReadStores.V2
 
             await ReadModelStore.UpdateAsync(
                 id.Value,
+                relevantDomainEvents,
                 readModelContext,
                 UpdateAsync,
                 cancellationToken)
@@ -121,6 +122,7 @@ namespace EventFlow.ReadStores.V2
 
         protected abstract Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken);
     }

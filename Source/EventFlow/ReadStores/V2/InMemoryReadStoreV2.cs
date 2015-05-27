@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Logs;
 
@@ -64,9 +65,9 @@ namespace EventFlow.ReadStores.V2
 
         public override async Task UpdateAsync(
             string id,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
             IReadModelContext readModelContext,
-            Func<IReadModelContext,
-            ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -74,7 +75,7 @@ namespace EventFlow.ReadStores.V2
                 ReadModelEnvelope<TReadModel> readModelEnvelope;
                 _readModels.TryGetValue(id, out readModelEnvelope);
 
-                readModelEnvelope = await updateReadModel(readModelContext, readModelEnvelope, cancellationToken).ConfigureAwait(false);
+                readModelEnvelope = await updateReadModel(readModelContext, domainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);
 
                 _readModels[id] = readModelEnvelope;
             }
