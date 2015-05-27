@@ -32,7 +32,7 @@ using EventFlow.Logs;
 namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryReadModelStore<TReadModel, TReadModelLocator> :
-        ReadModelStore<TReadModel, TReadModelLocator>,
+        MultiAggregateReadModelStore<TReadModel, TReadModelLocator>,
         IInMemoryReadModelStore<TReadModel>
         where TReadModel : IReadModel, new()
         where TReadModelLocator : IReadModelLocator

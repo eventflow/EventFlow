@@ -33,7 +33,7 @@ using EventFlow.Queries;
 namespace EventFlow.ReadStores.MsSql
 {
     public class MssqlReadModelStore<TReadModel, TReadModelLocator> :
-        ReadModelStore<TReadModel, TReadModelLocator>,
+        MultiAggregateReadModelStore<TReadModel, TReadModelLocator>,
         IMssqlReadModelStore<TReadModel>
         where TReadModel : IMssqlReadModel, new()
         where TReadModelLocator : IReadModelLocator

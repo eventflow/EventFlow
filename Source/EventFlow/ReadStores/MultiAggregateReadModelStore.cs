@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -28,38 +29,54 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadModelStore<TReadModel> : IReadModelStore
+    public abstract class MultiAggregateReadModelStore<TReadModel, TReadModelLocator> : ReadModelStore<TReadModel>
         where TReadModel : IReadModel
+        where TReadModelLocator : IReadModelLocator
     {
-        protected ILog Log { get; private set; }
-        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
+        protected TReadModelLocator ReadModelLocator { get; private set; }
 
-        protected ReadModelStore(
+        protected MultiAggregateReadModelStore(
             ILog log,
+            TReadModelLocator readModelLocator,
             IReadModelDomainEventApplier readModelDomainEventApplier)
+            : base (log, readModelDomainEventApplier)
         {
-            Log = log;
-            ReadModelDomainEventApplier = readModelDomainEventApplier;
+            ReadModelLocator = readModelLocator;
         }
 
-        public abstract Task ApplyDomainEventsAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
-
-        public abstract Task ApplyDomainEventsAsync<TReadModelToPopulate>(
+        public override Task ApplyDomainEventsAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
-            where TReadModelToPopulate : IReadModel;
+        {
+            var readModelUpdates = (
+                from de in domainEvents
+                let readModelIds = ReadModelLocator.GetReadModelIds(de)
+                from rid in readModelIds
+                group de by rid into g
+                select new ReadModelUpdate(g.Key, g.ToList())
+                ).ToList();
 
-        public abstract Task PurgeAsync<TReadModelToPurge>(
-            CancellationToken cancellationToken)
-            where TReadModelToPurge : IReadModel;
+            var readModelContext = new ReadModelContext();
 
-        public abstract Task PopulateReadModelAsync<TReadModelToPopulate>(
-            string id,
+            return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
+        }
+
+        public override Task ApplyDomainEventsAsync<TReadModelToPopulate>(
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            return (typeof (TReadModel) == typeof (TReadModelToPopulate))
+                ? ApplyDomainEventsAsync(domainEvents, cancellationToken)
+                : Task.FromResult(0);
+        }
+
+        public abstract Task<TReadModel> GetByIdAsync(
+			string id,
+			CancellationToken cancellationToken);
+
+        protected abstract Task UpdateReadModelsAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModelToPopulate : IReadModel;
+            CancellationToken cancellationToken);
     }
 }
