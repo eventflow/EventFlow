@@ -20,34 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Logs;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.ReadStores.V2
 {
-    public interface IReadModelDomainEventApplier
+    public class SingleAggregateReadStoreManager<TReadModelStore, TReadModel> : ReadStoreManagerV2<TReadModelStore, TReadModel>
+        where TReadModelStore : IReadModelStoreV2<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
-        Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel, new();
+        public SingleAggregateReadStoreManager(
+            ILog log,
+            TReadModelStore readModelStore,
+            IReadModelDomainEventApplier readModelDomainEventApplier)
+            : base(log, readModelStore, readModelDomainEventApplier)
+        {
+        }
 
-        Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+        protected override Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
-            Func<TReadModel> readModelCreator,
+            ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
-
-        Task<bool> UpdateReadModelAsync<TReadModel>(
-            TReadModel readModel,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

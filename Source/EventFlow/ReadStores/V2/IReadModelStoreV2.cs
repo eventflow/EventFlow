@@ -21,33 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.ReadStores.V2
 {
-    public interface IReadModelDomainEventApplier
+    public interface IReadModelStoreV2<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
-        Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel, new();
+        Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken);
 
-        Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            Func<TReadModel> readModelCreator,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+        Task DeleteAllAsync(
+            CancellationToken cancellationToken);
 
-        Task<bool> UpdateReadModelAsync<TReadModel>(
-            TReadModel readModel,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
+        Task UpdateAsync(
+            string id,
             IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+            Func<IReadModelContext, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken);
     }
 }
