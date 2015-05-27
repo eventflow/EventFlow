@@ -132,6 +132,7 @@
     <Compile Include="ReadStores\ReadModelPopulator.cs" />
     <Compile Include="ReadStores\ReadModelStore.cs" />
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
+    <Compile Include="ReadStores\SingleAggregateReadModelStore.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStore.cs" />
