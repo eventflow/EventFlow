@@ -102,7 +102,10 @@ namespace EventFlow.ReadStores.InMemory
                 foreach (var readModelUpdate in readModelUpdates)
                 {
                     ReadModelEnvelope<TReadModel> readModelEnvelope;
-                    _readModels.TryGetValue(readModelUpdate.ReadModelId, out readModelEnvelope);
+                    if (!_readModels.TryGetValue(readModelUpdate.ReadModelId, out readModelEnvelope))
+                    {
+                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty;
+                    }
 
                     readModelEnvelope = await updateReadModel(
                         readModelContext,

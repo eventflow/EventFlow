@@ -37,7 +37,7 @@ namespace EventFlow.ReadStores
         // ReSharper disable StaticMemberInGenericType
         private static readonly Type ReadModelType = typeof(TReadModel);
         private static readonly ISet<Type> AggregateTypes;
-        private static readonly ISet<Type> DomainEventTypes;
+        private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
 
         protected ILog Log { get; private set; }
@@ -45,7 +45,7 @@ namespace EventFlow.ReadStores
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
 
         protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
-        protected ISet<Type> GetDomainEventTypes() { return DomainEventTypes; } 
+        protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
 
         static ReadStoreManager()
         {
@@ -61,11 +61,7 @@ namespace EventFlow.ReadStores
             }
 
             AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
-            DomainEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i =>
-                {
-                    var genericArguments = i.GetGenericArguments();
-                    return typeof (IDomainEvent<,,>).MakeGenericType(genericArguments);
-                }));
+            AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[2]));
         }
 
         protected ReadStoreManager(
@@ -97,7 +93,7 @@ namespace EventFlow.ReadStores
             }
 
             var relevantDomainEvents = domainEvents
-                .Where(e => DomainEventTypes.Contains(e.GetType()))
+                .Where(e => AggregateEventTypes.Contains(e.EventType))
                 .ToList();
             if (!relevantDomainEvents.Any())
             {
