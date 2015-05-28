@@ -34,10 +34,9 @@ using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
-{/*
+{
     [Timeout(5000)]
     public class ReadModelPopulatorTests : TestsFor<ReadModelPopulator>
     {
@@ -49,9 +48,11 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             }
         }
 
-        private Mock<IReadModelStore<TestAggregate>> _readModelStoreMock;
+        private Mock<IReadModelStore<TestReadModel>> _readModelStoreMock;
+        private Mock<IReadStoreManager<TestReadModel>> _readStoreManagerMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
         private Mock<IEventStore> _eventStoreMock;
+        private Mock<IResolver> _resolverMock;
         private List<IDomainEvent> _eventStoreData;
 
         [SetUp]
@@ -59,10 +60,17 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             _eventStoreMock = InjectMock<IEventStore>();
             _eventStoreData = null;
-            _readModelStoreMock = new Mock<IReadModelStore>();
+            _resolverMock = InjectMock<IResolver>();
+            _readModelStoreMock = new Mock<IReadModelStore<TestReadModel>>();
+            _readStoreManagerMock = new Mock<IReadStoreManager<TestReadModel>>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
 
-            Fixture.Inject<IEnumerable<IReadModelStore>>(new []{ _readModelStoreMock.Object });
+            _resolverMock
+                .Setup(r => r.Resolve<IEnumerable<IReadStoreManager>>())
+                .Returns(new[] {_readStoreManagerMock.Object});
+            _resolverMock
+                .Setup(r => r.Resolve<IEnumerable<IReadModelStore<TestReadModel>>>())
+                .Returns(new[] {_readModelStoreMock.Object});
 
             _eventFlowConfigurationMock
                 .Setup(c => c.PopulateReadModelEventPageSize)
@@ -80,7 +88,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.PurgeAsync<TestReadModel>(CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            _readModelStoreMock.Verify(s => s.PurgeAsync<TestReadModel>(It.IsAny<CancellationToken>()), Times.Once);
+            _readModelStoreMock.Verify(s => s.DeleteAllAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
@@ -93,8 +101,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.PopulateAsync<TestReadModel>(CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            _readModelStoreMock.Verify(
-                s => s.ApplyDomainEventsAsync<TestReadModel>(
+            _readStoreManagerMock.Verify(
+                s => s.UpdateReadStoresAsync(
                     It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == 3),
                     It.IsAny<CancellationToken>()),
                 Times.Exactly(2));
@@ -116,9 +124,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.PopulateAsync<TestReadModel>(CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            _readModelStoreMock
+            _readStoreManagerMock
                 .Verify(
-                    s => s.ApplyDomainEventsAsync<TestReadModel>(
+                    s => s.UpdateReadStoresAsync(
                         It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == 2 && l.All(e => e.EventType == typeof(PingEvent))),
                         It.IsAny<CancellationToken>()),
                     Times.Once);
@@ -144,5 +152,5 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             _eventStoreData = domainEvents.ToList();
         }
-    }*/
+    }
 }
