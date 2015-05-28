@@ -22,29 +22,21 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
     public interface IReadModelPopulator
     {
         Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+            where TReadModel : class, IReadModel, new();
 
         void Purge<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+            where TReadModel : class, IReadModel, new();
 
         Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+            where TReadModel : class, IReadModel, new();
 
         void Populate<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
-
-        Task PopulateAggregateReadModelAsync<TAggregate, TIdentity, TReadModel>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TReadModel : IReadModel;
+            where TReadModel : class, IReadModel, new();
     }
 }

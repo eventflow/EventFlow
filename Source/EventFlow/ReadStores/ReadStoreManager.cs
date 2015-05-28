@@ -30,7 +30,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadStoreManager<TReadModelStore, TReadModel> : IReadStoreManager
+    public abstract class ReadStoreManager<TReadModelStore, TReadModel> : IReadStoreManager<TReadModel>
         where TReadModelStore : IReadModelStore<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
@@ -74,24 +74,10 @@ namespace EventFlow.ReadStores
             ReadModelDomainEventApplier = readModelDomainEventApplier;
         }
 
-        public async Task UpdateReadStoresAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public async Task UpdateReadStoresAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
-            if (!AggregateTypes.Contains(aggregateType))
-            {
-                Log.Verbose(() => string.Format(
-                    "Read model does not care about aggregate '{0}' so skipping update, only these: {1}",
-                    ReadModelType.Name,
-                    string.Join(", ", AggregateTypes.Select(t => t.Name))
-                    ));
-                return;
-            }
-
             var relevantDomainEvents = domainEvents
                 .Where(e => AggregateEventTypes.Contains(e.EventType))
                 .ToList();

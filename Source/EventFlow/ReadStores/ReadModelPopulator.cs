@@ -21,70 +21,54 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.Core;
+using EventFlow.EventStores;
+using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelPopulator : IReadModelPopulator
     {
-        public Task PurgeAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Purge<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task PopulateAsync<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Populate<TReadModel>(CancellationToken cancellationToken) where TReadModel : IReadModel
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task PopulateAggregateReadModelAsync<TAggregate, TIdentity, TReadModel>(TIdentity id,
-            CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TReadModel : IReadModel
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /*
-    public class ReadModelPopulator : IReadModelPopulator
-    {
         private readonly ILog _log;
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
-        private readonly IReadOnlyCollection<IReadModelStore> _readModelStores;
+        private readonly IResolver _resolver;
 
         public ReadModelPopulator(
             ILog log,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
-            IEnumerable<IReadModelStore> readModelStores)
+            IResolver resolver)
         {
             _log = log;
             _configuration = configuration;
             _eventStore = eventStore;
-            _readModelStores = readModelStores.ToList();
+            _resolver = resolver;
         }
 
         public Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel
+            where TReadModel : class, IReadModel, new()
         {
-            var purgeTasks = _readModelStores.Select(s => s.PurgeAsync<TReadModel>(cancellationToken));
-            return Task.WhenAll(purgeTasks);
+            var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TReadModel>>>().ToList();
+            if (!readModelStores.Any())
+            {
+                throw new ArgumentException(string.Format(
+                    "Could not find any read stores for read model '{0}'",
+                    typeof(TReadModel).Name));
+            }
+
+            var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
+            return Task.WhenAll(deleteTasks);
         }
 
         public void Purge<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel
+            where TReadModel : class, IReadModel, new()
         {
             using (var a = AsyncHelper.Wait)
             {
@@ -92,12 +76,14 @@ namespace EventFlow.ReadStores
             }
         }
 
-        public async Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel
+        public async Task PopulateAsync<TReadModel>(
+            CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new()
         {
             var stopwatch = Stopwatch.StartNew();
-
             var readModelType = typeof (TReadModel);
+            var readStoreManagers = ResolveReadStoreManager<TReadModel>();
+
             var aggregateEventTypes = new HashSet<Type>(readModelType
                 .GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
@@ -143,8 +129,8 @@ namespace EventFlow.ReadStores
                     continue;
                 }
 
-                var applyTasks = _readModelStores
-                    .Select(rms => rms.ApplyDomainEventsAsync<TReadModel>(domainEvents, cancellationToken));
+                var applyTasks = readStoreManagers
+                    .Select(m => m.UpdateReadStoresAsync(domainEvents, cancellationToken));
                 await Task.WhenAll(applyTasks).ConfigureAwait(false);
             }
 
@@ -157,70 +143,31 @@ namespace EventFlow.ReadStores
                 relevantEvents);
         }
 
-        public async Task PopulateAggregateReadModelAsync<TAggregate, TIdentity, TReadModel>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TReadModel : IReadModel
-        {
-            var readModelType = typeof (TReadModel);
-            var iAmReadModelForInterfaceTypes = readModelType
-                .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
-                .ToList();
-            var aggregateTypes = iAmReadModelForInterfaceTypes
-                .Select(i => i.GetGenericArguments()[0])
-                .Distinct()
-                .ToList();
-
-            if (!aggregateTypes.Any())
-            {
-                throw new ArgumentException(string.Format(
-                    "Read model type '{0}' does not implement 'IAmReadModelFor<>'",
-                    readModelType.Name));
-            }
-            if (aggregateTypes.Count != 1)
-            {
-                throw new ArgumentException(string.Format(
-                    "Use 'PopulateAsync' to populate read models than registers events from more than one aggregate. '{0}' registers to these: {1}",
-                    readModelType.Name,
-                    string.Join(", ", aggregateTypes.Select(t => t.Name))));
-            }
-            if (aggregateTypes.Single() != typeof (TReadModel))
-            {
-                throw new ArgumentException(string.Format(
-                    "Read model '{0}' registers to aggregate '{1}', but you supplied '{2}' as the generic argument",
-                    readModelType.Name,
-                    aggregateTypes.Single().Name,
-                    typeof(TAggregate).Name));
-            }
-
-            var domainEvens = await _eventStore.LoadEventsAsync<TAggregate, TIdentity>(
-                id,
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            var readModelContext = new ReadModelContext();
-
-            var populateTasks = _readModelStores
-                .Select(s => s.PopulateReadModelAsync<TReadModel>(
-                    id.Value,
-                    domainEvens,
-                    readModelContext,
-                    cancellationToken));
-
-            await Task.WhenAll(populateTasks).ConfigureAwait(false);
-        }
-
         public void Populate<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : IReadModel
+            where TReadModel : class, IReadModel, new()
         {
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(PopulateAsync<TReadModel>(cancellationToken));
             }
         }
+
+        private IReadOnlyCollection<IReadStoreManager<TReadModel>> ResolveReadStoreManager<TReadModel>()
+            where TReadModel : class, IReadModel, new()
+        {
+            var readStoreManagers = _resolver.Resolve<IEnumerable<IReadStoreManager>>()
+                .Select(m => m as IReadStoreManager<TReadModel>)
+                .Where(m => m != null)
+                .ToList();
+
+            if (!readStoreManagers.Any())
+            {
+                throw new ArgumentException(string.Format(
+                    "Did not find any read store managers for read model type '{0}'",
+                    typeof(TReadModel).Name));
+            }
+
+            return readStoreManagers;
+        }
     }
-    */
 }

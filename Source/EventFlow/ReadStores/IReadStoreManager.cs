@@ -29,11 +29,13 @@ namespace EventFlow.ReadStores
 {
     public interface IReadStoreManager
     {
-        Task UpdateReadStoresAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        Task UpdateReadStoresAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            CancellationToken cancellationToken);
+    }
+
+    public interface IReadStoreManager<TReadModel> : IReadStoreManager
+        where TReadModel : class, IReadModel, new()
+    {
     }
 }

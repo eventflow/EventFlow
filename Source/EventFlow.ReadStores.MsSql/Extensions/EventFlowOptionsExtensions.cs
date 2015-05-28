@@ -40,6 +40,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
                             f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                         }
                         f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
                     })
                 .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
 
@@ -58,6 +59,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
                         f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                     }
                     f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                    f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
                 })
                 .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel>();
 
