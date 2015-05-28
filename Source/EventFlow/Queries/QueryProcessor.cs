@@ -27,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Extensions;
+using EventFlow.Logs;
 
 namespace EventFlow.Queries
 {
@@ -38,22 +40,31 @@ namespace EventFlow.Queries
             public Func<object, object, CancellationToken, object> HandlerFunc { get; set; }
         }
 
+        private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly ConcurrentDictionary<Type, CacheItem> _cacheItems = new ConcurrentDictionary<Type, CacheItem>(); 
 
         public QueryProcessor(
+            ILog log,
             IResolver resolver)
         {
+            _log = log;
             _resolver = resolver;
         }
 
         public async Task<TResult> ProcessAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
         {
+            var queryType = query.GetType();
             var cacheItem = _cacheItems.GetOrAdd(
-                query.GetType(),
+                queryType,
                 CreateCacheItem);
 
             var queryHandler = _resolver.Resolve(cacheItem.QueryHandlerType);
+            _log.Verbose(
+                "Executing query '{0}' by using query handler '{1}'",
+                queryType.Name,
+                cacheItem.QueryHandlerType.Name);
+            
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
 
             return await task.ConfigureAwait(false);
