@@ -22,13 +22,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Logs;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryReadStore<TReadModel> : ReadModelStore<TReadModel>, IInMemoryReadStore<TReadModel>
         where TReadModel : class, IReadModel, new()
@@ -46,7 +47,7 @@ namespace EventFlow.ReadStores
             string id,
             CancellationToken cancellationToken)
         {
-            using (await _asyncLock.WaitAsync(cancellationToken))
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 ReadModelEnvelope<TReadModel> readModelEnvelope;
                 return _readModels.TryGetValue(id, out readModelEnvelope)
@@ -55,11 +56,24 @@ namespace EventFlow.ReadStores
             }
         }
 
+        public async Task<IReadOnlyCollection<TReadModel>> FindAsync(
+            Predicate<TReadModel> predicate,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                return _readModels.Values
+                    .Where(e => predicate(e.ReadModel))
+                    .Select(e => e.ReadModel)
+                    .ToList();
+            }
+        }
+
         public override async Task DeleteAsync(
             string id,
             CancellationToken cancellationToken)
         {
-            using (await _asyncLock.WaitAsync(cancellationToken))
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (_readModels.ContainsKey(id))
                 {
@@ -71,7 +85,7 @@ namespace EventFlow.ReadStores
         public async override Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {
-            using (await _asyncLock.WaitAsync(cancellationToken))
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 _readModels.Clear();
             }

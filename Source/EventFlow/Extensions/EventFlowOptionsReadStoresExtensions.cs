@@ -20,9 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.ReadStores.InMemory;
+using EventFlow.ReadStores.InMemory.Queries;
 
 namespace EventFlow.Extensions
 {
@@ -58,7 +61,11 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
-                .RegisterServices(f => f.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton))
+                .RegisterServices(f =>
+                    {
+                        f.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
+                        f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
+                    })
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel>();
         }
 
@@ -68,7 +75,11 @@ namespace EventFlow.Extensions
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
-                .RegisterServices(f => f.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton))
+                .RegisterServices(f =>
+                    {
+                        f.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
+                        f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
+                    })
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
     }

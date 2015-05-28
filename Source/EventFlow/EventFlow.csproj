@@ -121,8 +121,8 @@
     <Compile Include="Queries\IQueryProcessor.cs" />
     <Compile Include="Queries\QueryProcessor.cs" />
     <Compile Include="Queries\ReadModelByIdQuery.cs" />
-    <Compile Include="ReadStores\IInMemoryReadStore.cs" />
-    <Compile Include="ReadStores\InMemoryReadStore.cs" />
+    <Compile Include="ReadStores\InMemory\IInMemoryReadStore.cs" />
+    <Compile Include="ReadStores\InMemory\InMemoryReadStore.cs" />
     <Compile Include="ReadStores\InMemory\Queries\InMemoryQuery.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryQueryHandler.cs" />
     <Compile Include="ReadStores\ILocateByAggregateId.cs" />
