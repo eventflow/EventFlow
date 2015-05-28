@@ -125,12 +125,10 @@
     <Compile Include="ReadStores\InMemory\InMemoryReadStore.cs" />
     <Compile Include="ReadStores\InMemory\Queries\InMemoryQuery.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryQueryHandler.cs" />
-    <Compile Include="ReadStores\ILocateByAggregateId.cs" />
     <Compile Include="ReadStores\IReadModelDomainEventApplier.cs" />
     <Compile Include="ReadStores\IReadModelPopulator.cs" />
     <Compile Include="ReadStores\IReadModelStore.cs" />
     <Compile Include="ReadStores\IReadStoreManager.cs" />
-    <Compile Include="ReadStores\LocateByAggregateId.cs" />
     <Compile Include="ReadStores\IReadModelLocator.cs" />
     <Compile Include="ReadStores\ReadModelDomainEventApplier.cs" />
     <Compile Include="ReadStores\MultipleAggregateReadStoreManager.cs" />

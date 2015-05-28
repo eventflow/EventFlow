@@ -40,7 +40,7 @@ namespace EventFlow.Tests.IntegrationTests
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
             var resolver = eventFlowOptions
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel, ILocateByAggregateId>()
+                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
                 .CreateResolver();
 
             _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
