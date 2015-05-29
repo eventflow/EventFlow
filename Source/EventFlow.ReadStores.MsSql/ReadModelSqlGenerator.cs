@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using EventFlow.Extensions;
 
 namespace EventFlow.ReadStores.MsSql
 {
@@ -34,6 +35,7 @@ namespace EventFlow.ReadStores.MsSql
         private readonly Dictionary<Type, string> _insertSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
+        private readonly Dictionary<Type, string> _purgeSqls = new Dictionary<Type, string>(); 
         private static readonly ConcurrentDictionary<Type, string> TableNames = new ConcurrentDictionary<Type, string>();
 
         public string CreateInsertSql<TReadModel>()
@@ -91,6 +93,14 @@ namespace EventFlow.ReadStores.MsSql
             return sql;
         }
 
+        public string CreatePurgeSql<TReadModel>()
+            where TReadModel : IReadModel
+        {
+            return _purgeSqls.GetOrCreate(
+                typeof (TReadModel),
+                t => string.Format("DELETE FROM {0}", GetTableName(t)));
+        }
+
         protected IEnumerable<string> GetInsertColumns<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
@@ -108,17 +118,22 @@ namespace EventFlow.ReadStores.MsSql
                 .Where(c => c != "AggregateId");
         }
 
-        public virtual string GetTableName<TReadModel>()
+        public string GetTableName<TReadModel>()
             where TReadModel : IMssqlReadModel
         {
+            return GetTableName(typeof(TReadModel));
+        }
+
+        protected virtual string GetTableName(Type readModelType)
+        {
             return TableNames.GetOrAdd(
-                typeof (TReadModel),
+                readModelType,
                 t =>
                     {
                         var tableAttribute = t.GetCustomAttribute<TableAttribute>(false);
                         return tableAttribute != null
                             ? string.Format("[{0}]", tableAttribute.Name)
-                            : string.Format("[ReadModel-{0}]", typeof(TReadModel).Name.Replace("ReadModel", string.Empty));
+                            : string.Format("[ReadModel-{0}]", t.Name.Replace("ReadModel", string.Empty));
                     });
         }
     }

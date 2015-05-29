@@ -22,7 +22,35 @@
 
 namespace EventFlow.ReadStores
 {
-    public interface ILocateByAggregateId : IReadModelLocator
+    public class ReadModelEnvelope<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
+        private static readonly ReadModelEnvelope<TReadModel> EmptyInstance = new ReadModelEnvelope<TReadModel>(null, null);
+
+        public static ReadModelEnvelope<TReadModel> Empty
+        {
+            get { return EmptyInstance; }
+        } 
+
+        public static ReadModelEnvelope<TReadModel> With(TReadModel readModel)
+        {
+            return new ReadModelEnvelope<TReadModel>(readModel, null);
+        }
+
+        public static ReadModelEnvelope<TReadModel> With(TReadModel readModel, long version)
+        {
+            return new ReadModelEnvelope<TReadModel>(readModel, version);
+        }
+
+        public TReadModel ReadModel { get; private set; }
+        public long? Version { get; private set; }
+
+        private ReadModelEnvelope(
+            TReadModel readModel,
+            long? version)
+        {
+            ReadModel = readModel;
+            Version = version;
+        }
     }
 }

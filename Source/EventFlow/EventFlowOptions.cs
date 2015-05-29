@@ -54,6 +54,12 @@ namespace EventFlow
             return this;
         }
 
+        public EventFlowOptions Configure(Action<EventFlowConfiguration> configure)
+        {
+            configure(_eventFlowConfiguration);
+            return this;
+        }
+
         public EventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
             foreach (var aggregateEventType in aggregateEventTypes)
@@ -94,16 +100,15 @@ namespace EventFlow
             RegisterIfMissing<ILog, ConsoleLog>(services);
             RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
             RegisterIfMissing<ICommandBus, CommandBus>(services);
-            RegisterIfMissing<ILocateByAggregateId, LocateByAggregateId>(services);
+            RegisterIfMissing<IReadModelPopulator, ReadModelPopulator>(services);
             RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IQueryProcessor, QueryProcessor>(services, Lifetime.Singleton);
-            RegisterIfMissing<IReadStoreManager, ReadStoreManager>(services);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
-            RegisterIfMissing<IReadModelFactory, ReadModelFactory>(services);
+            RegisterIfMissing<IReadModelDomainEventApplier, ReadModelDomainEventApplier>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);

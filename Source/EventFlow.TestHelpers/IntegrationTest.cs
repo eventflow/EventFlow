@@ -20,9 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
@@ -33,6 +39,7 @@ namespace EventFlow.TestHelpers
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
+        protected IReadModelPopulator ReadModelPopulator { get; private set; }
         protected TIntegrationTestConfiguration Configuration { get; private set; }
 
         [SetUp]
@@ -47,6 +54,7 @@ namespace EventFlow.TestHelpers
             Resolver = Configuration.CreateRootResolver(eventFlowOptions);
             EventStore = Resolver.Resolve<IEventStore>();
             CommandBus = Resolver.Resolve<ICommandBus>();
+            ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
         }
 
         [TearDown]
@@ -54,6 +62,14 @@ namespace EventFlow.TestHelpers
         {
             Configuration.TearDown();
             Resolver.Dispose();
+        }
+
+        protected async Task PublishPingCommandAsync(TestId testId, int count = 1)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                await CommandBus.PublishAsync(new PingCommand(testId, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            }
         }
     }
 }

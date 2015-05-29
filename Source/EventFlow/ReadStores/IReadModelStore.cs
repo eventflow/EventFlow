@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +28,24 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelStore
+    public interface IReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
-        Task ApplyDomainEventsAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
+            CancellationToken cancellationToken);
+
+        Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken);
+
+        Task DeleteAllAsync(
+            CancellationToken cancellationToken);
+
+        Task UpdateAsync(
+            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken);
     }
 }

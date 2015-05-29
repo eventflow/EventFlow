@@ -61,6 +61,37 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
+        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+            long startPostion,
+            long endPosition,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    GlobalSequenceNumber >= @FromId AND GlobalSequenceNumber <= @ToId
+                ORDER BY
+                    GlobalSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                Label.Named("mssql-fetch-events"),
+                cancellationToken,
+                sql,
+                new
+                    {
+                        FromId = startPostion,
+                        ToId = endPosition,
+                    })
+                .ConfigureAwait(false);
+
+            var nextPosition = eventDataModels.Any()
+                ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
+                : startPostion;
+
+            return new AllCommittedEventsPage(nextPosition, eventDataModels);
+        }
+
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,

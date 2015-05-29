@@ -44,6 +44,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         protected ITestDatabase TestDatabase { get; private set; }
         protected IMsSqlConnection MsSqlConnection { get; private set; }
         protected IReadModelSqlGenerator ReadModelSqlGenerator { get; private set; }
+        protected IReadModelPopulator ReadModelPopulator { get; private set; }
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
@@ -52,11 +53,12 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             var resolver = eventFlowOptions
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
                 .UseEventStore<MsSqlEventStore>()
-                .UseMssqlReadModel<MsSqlTestAggregateReadModel, ILocateByAggregateId>()
+                .UseMssqlReadModel<MsSqlTestAggregateReadModel>()
                 .CreateResolver();
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();
             ReadModelSqlGenerator = resolver.Resolve<IReadModelSqlGenerator>();
+            ReadModelPopulator = resolver.Resolve<IReadModelPopulator>();
 
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
@@ -65,7 +67,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             return resolver;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
             var sql = ReadModelSqlGenerator.CreateSelectSql<MsSqlTestAggregateReadModel>();
             var readModels = await MsSqlConnection.QueryAsync<MsSqlTestAggregateReadModel>(
@@ -75,6 +77,16 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
                 new { AggregateId = id.Value })
                 .ConfigureAwait(false);
             return readModels.SingleOrDefault();
+        }
+
+        public override Task PurgeTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PurgeAsync<MsSqlTestAggregateReadModel>(CancellationToken.None);
+        }
+
+        public override Task PopulateTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PopulateAsync<MsSqlTestAggregateReadModel>(CancellationToken.None);
         }
 
         public override void TearDown()
