@@ -136,7 +136,7 @@ namespace EventFlow.EventStores
             return new AllEventsPage(allCommittedEventsPage.NextPosition, domainEvents);
         }
 
-        public AllEventsPage LoadEvents(
+        public AllEventsPage LoadAllEvents(
             long startPosition,
             long pageSize,
             CancellationToken cancellationToken)

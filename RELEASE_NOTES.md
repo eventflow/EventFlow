@@ -23,6 +23,8 @@
  * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
    stream. Please consider carefully if you really want to use it. Storage
    might be cheaper than the historic knowledge within your events
+ * New: `IEventStore` now has `LoadAllEventsAsync` and `LoadAllEvents` that
+   enables you to load all events in the event store a few at a time.
  * New: `IMetadata.TimestampEpoch` contains the Unix timestamp version
    of `IMetadata.Timestamp`. Also, an additional metadata key
    `timestamp_epoch` is added to events containing the same data. Note,

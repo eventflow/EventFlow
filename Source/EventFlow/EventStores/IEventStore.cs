@@ -41,6 +41,11 @@ namespace EventFlow.EventStores
             long pageSize,
             CancellationToken cancellationToken);
 
+        AllEventsPage LoadAllEvents(
+            long startPosition,
+            long pageSize,
+            CancellationToken cancellationToken);
+
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -70,10 +75,5 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
-
-        AllEventsPage LoadEvents(
-            long startPosition,
-            long pageSize,
-            CancellationToken cancellationToken);
     }
 }
