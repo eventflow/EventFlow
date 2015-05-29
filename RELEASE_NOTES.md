@@ -1,4 +1,8 @@
-### New in 0.8 (not released yet)
+### New in 0.9 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.8.560 (released 2015-05-29)
 
  * Breaking: Remove _all_ functionality related to global sequence
    numbers as it proved problematic to maintain. It also matches this
