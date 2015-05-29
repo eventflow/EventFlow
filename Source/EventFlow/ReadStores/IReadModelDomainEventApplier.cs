@@ -25,27 +25,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
-namespace EventFlow.EventCaches
+namespace EventFlow.ReadStores
 {
-    public interface IEventCache
+    public interface IReadModelDomainEventApplier
     {
-        Task InsertAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents,
+        Task<bool> UpdateReadModelAsync<TReadModel>(
+            TReadModel readModel,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            IReadModelContext readModelContext,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
-        
-        Task InvalidateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
-
-        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> GetAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            where TReadModel : IReadModel;
     }
 }

@@ -1,4 +1,44 @@
-### New in 0.7 (not released yet)
+### New in 0.8 (not released yet)
+
+ * Breaking: Remove _all_ functionality related to global sequence
+   numbers as it proved problematic to maintain. It also matches this
+   quote:
+
+   > Order is only assured per a handler within an aggregate root
+   > boundary. There is no assurance of order between handlers or
+   > between aggregates. Trying to provide those things leads to
+   > the dark side.
+   >> Greg Young
+
+   - If you use a MSSQL read store, be sure to delete the
+     `LastGlobalSequenceNumber` column during update, or set it to
+     default `NULL`
+   - `IDomainEvent.GlobalSequenceNumber` removed
+   - `IEventStore.LoadEventsAsync` and `IEventStore.LoadEvents` taking
+     a `GlobalSequenceNumberRange` removed
+ * Breaking: Remove the concept of event caches. If you really need this
+   then implement it by registering a decorator for `IEventStore`
+ * Breaking: Moved `IDomainEvent.BatchId` to metadata and created
+   `MetadataKeys.BatchId` to help access it
+ * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
+   stream. Please consider carefully if you really want to use it. Storage
+   might be cheaper than the historic knowledge within your events
+ * New: `IReadModelPopulator` is new and enables you to both purge and
+   populate read models by going though the entire event store. Currently
+   its only basic functionality, but more will be added
+ * New: `IEventStore` now has `LoadAllEventsAsync` and `LoadAllEvents` that
+   enables you to load all events in the event store a few at a time.
+ * New: `IMetadata.TimestampEpoch` contains the Unix timestamp version
+   of `IMetadata.Timestamp`. Also, an additional metadata key
+   `timestamp_epoch` is added to events containing the same data. Note,
+   the `TimestampEpoch` on `IMetadata` handles cases in which the
+   `timestamp_epoch` is not present by using the existing timestamp
+ * Fixed: `AggregateRoot<>` now reads the aggregate version from
+   domain events applied during aggregate load. This resolves an issue
+   for when an `IEventUpgrader` removed events from the event stream
+ * Fixed: `InMemoryReadModelStore<,>` is now thread safe
+
+### New in 0.7.481 (released 2015-05-22)
 
  * New: EventFlow now includes a `IQueryProcessor` that enables you to implement
    queries and query handlers in a structure manner. EventFlow ships with two

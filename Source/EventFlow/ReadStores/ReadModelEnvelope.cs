@@ -20,41 +20,37 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-
-namespace EventFlow.EventCaches.Null
+namespace EventFlow.ReadStores
 {
-    public class NullEventCache : IEventCache
+    public class ReadModelEnvelope<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
-        public Task InsertAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        private static readonly ReadModelEnvelope<TReadModel> EmptyInstance = new ReadModelEnvelope<TReadModel>(null, null);
+
+        public static ReadModelEnvelope<TReadModel> Empty
         {
-            return Task.FromResult(0);
+            get { return EmptyInstance; }
+        } 
+
+        public static ReadModelEnvelope<TReadModel> With(TReadModel readModel)
+        {
+            return new ReadModelEnvelope<TReadModel>(readModel, null);
         }
 
-        public Task InvalidateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        public static ReadModelEnvelope<TReadModel> With(TReadModel readModel, long version)
         {
-            return Task.FromResult(0);
+            return new ReadModelEnvelope<TReadModel>(readModel, version);
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> GetAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        public TReadModel ReadModel { get; private set; }
+        public long? Version { get; private set; }
+
+        private ReadModelEnvelope(
+            TReadModel readModel,
+            long? version)
         {
-            return Task.FromResult(null as IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>);
+            ReadModel = readModel;
+            Version = version;
         }
     }
 }

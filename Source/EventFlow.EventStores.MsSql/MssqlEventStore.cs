@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventCaches;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
@@ -56,11 +55,41 @@ namespace EventFlow.EventStores.MsSql
             IEventJsonSerializer eventJsonSerializer,
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
-            IEventCache eventCache,
             IMsSqlConnection connection)
-            : base(log, aggregateFactory, eventJsonSerializer, eventCache, eventUpgradeManager, metadataProviders)
+            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
         {
             _connection = connection;
+        }
+
+        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+            long startPostion,
+            long endPosition,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    GlobalSequenceNumber >= @FromId AND GlobalSequenceNumber <= @ToId
+                ORDER BY
+                    GlobalSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                Label.Named("mssql-fetch-events"),
+                cancellationToken,
+                sql,
+                new
+                    {
+                        FromId = startPostion,
+                        ToId = endPosition,
+                    })
+                .ConfigureAwait(false);
+
+            var nextPosition = eventDataModels.Any()
+                ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
+                : startPostion;
+
+            return new AllCommittedEventsPage(nextPosition, eventDataModels);
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
@@ -73,15 +102,13 @@ namespace EventFlow.EventStores.MsSql
                 return new ICommittedDomainEvent[] {};
             }
 
-            var batchId = Guid.NewGuid();
             var aggregateType = typeof(TAggregate);
-            var aggregateName = aggregateType.Name.Replace("Aggregate", string.Empty);
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
                         AggregateId = id.Value,
-                        AggregateName = aggregateName,
-                        BatchId = batchId,
+                        AggregateName = e.Metadata[MetadataKeys.AggregateName],
+                        BatchId = Guid.Parse(e.Metadata[MetadataKeys.BatchId]),
                         Data = e.Data,
                         Metadata = e.Meta,
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
@@ -166,29 +193,23 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            GlobalSequenceNumberRange globalSequenceNumberRange,
+        public override async Task DeleteAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
             CancellationToken cancellationToken)
         {
-            const string sql = @"
-                SELECT
-                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                FROM EventFlow
-                WHERE
-                    GlobalSequenceNumber >= @FromId AND GlobalSequenceNumber <= @ToId
-                ORDER BY
-                    GlobalSequenceNumber ASC";
-            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("mssql-fetch-events"),
+            const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
+            var affectedRows = await _connection.ExecuteAsync(
+                Label.Named("mssql-delete-aggregate"),
                 cancellationToken,
                 sql,
-                new
-                    {
-                        FromId = globalSequenceNumberRange.From,
-                        ToId = globalSequenceNumberRange.To,
-                    })
+                new {AggregateId = id.Value})
                 .ConfigureAwait(false);
-            return eventDataModels;
+
+            Log.Verbose(
+                "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
+                typeof(TAggregate).Name,
+                id,
+                affectedRows);
         }
     }
 }

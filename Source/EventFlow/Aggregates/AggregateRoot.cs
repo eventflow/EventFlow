@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
@@ -65,10 +66,13 @@ namespace EventFlow.Aggregates
                 throw new ArgumentNullException("aggregateEvent");
             }
 
+            var now = DateTimeOffset.Now;
             var extraMetadata = new Dictionary<string, string>
                 {
-                    {MetadataKeys.Timestamp, DateTimeOffset.Now.ToString("o")},
-                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()}
+                    {MetadataKeys.Timestamp, now.ToString("o")},
+                    {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
+                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()},
+                    {MetadataKeys.AggregateName, GetType().Name.Replace("Aggregate", string.Empty)},
                 };
 
             metadata = metadata == null
@@ -92,6 +96,17 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
+        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
+        {
+            if (!domainEvents.Any())
+            {
+                return;
+            }
+
+            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
+        }
+
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
             if (Version > 0)
@@ -108,7 +123,7 @@ namespace EventFlow.Aggregates
                 if (e == null)
                 {
                     throw new ArgumentException(string.Format(
-                        "Aggregate event of type '{0}' does not belong with aggregate '{1}'," +
+                        "Aggregate event of type '{0}' does not belong with aggregate '{1}',",
                         aggregateEvent.GetType(),
                         this));
                 }

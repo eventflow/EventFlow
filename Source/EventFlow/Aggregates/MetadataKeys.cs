@@ -24,9 +24,12 @@ namespace EventFlow.Aggregates
 {
     public sealed class MetadataKeys
     {
+        public const string BatchId = "batch_id";
         public const string EventName = "event_name";
         public const string EventVersion = "event_version";
         public const string Timestamp = "timestamp";
+        public const string TimestampEpoch = "timestamp_epoch";
         public const string AggregateSequenceNumber = "aggregate_sequence_number";
+        public const string AggregateName = "aggregate_name";
     }
 }

@@ -29,8 +29,6 @@ namespace EventFlow.Aggregates
         Type AggregateType { get; }
         Type EventType { get; }
         int AggregateSequenceNumber { get; }
-        Guid BatchId { get; }
-        long GlobalSequenceNumber { get; }
         IMetadata Metadata { get; }
         DateTimeOffset Timestamp { get; }
 

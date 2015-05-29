@@ -30,15 +30,13 @@ namespace EventFlow.ReadStores.MsSql
         public DateTimeOffset CreateTime { get; set; }
         public DateTimeOffset UpdatedTime { get; set; }
         public int LastAggregateSequenceNumber { get; set; }
-        public long LastGlobalSequenceNumber { get; set; }
 
         public override string ToString()
         {
             return string.Format(
-                "Read model '{0}' for '{1} ({2}/{3}'",
+                "Read model '{0}' for '{1} v{2}'",
                 GetType().Name,
                 AggregateId,
-                LastGlobalSequenceNumber,
                 LastAggregateSequenceNumber);
         }
     }

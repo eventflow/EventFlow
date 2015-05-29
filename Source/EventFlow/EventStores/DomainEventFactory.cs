@@ -35,10 +35,8 @@ namespace EventFlow.EventStores
         public IDomainEvent Create(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
-            long globalSequenceNumber,
             string aggregateIdentity,
-            int aggregateSequenceNumber,
-            Guid batchId)
+            int aggregateSequenceNumber)
         {
             var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(aggregateEvent.GetType(), GetDomainEventType);
             var identityType = DomainEventToIdentityTypeMap.GetOrAdd(domainEventType, GetIdentityType);
@@ -49,10 +47,8 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 metadata,
                 metadata.Timestamp,
-                globalSequenceNumber,
                 identity,
-                aggregateSequenceNumber,
-                batchId);
+                aggregateSequenceNumber);
 
             return domainEvent;
         }
@@ -60,20 +56,16 @@ namespace EventFlow.EventStores
         public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
             IMetadata metadata,
-            long globalSequenceNumber,
             TIdentity id,
-            int aggregateSequenceNumber,
-            Guid batchId)
+            int aggregateSequenceNumber)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             return (IDomainEvent<TAggregate, TIdentity>)Create(
                 aggregateEvent,
                 metadata,
-                globalSequenceNumber,
                 id.Value,
-                aggregateSequenceNumber,
-                batchId);
+                aggregateSequenceNumber);
         }
 
         public IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
@@ -85,10 +77,8 @@ namespace EventFlow.EventStores
             return Create<TAggregate, TIdentity>(
                 aggregateEvent,
                 domainEvent.Metadata,
-                domainEvent.GlobalSequenceNumber,
                 (TIdentity) domainEvent.GetIdentity(),
-                domainEvent.AggregateSequenceNumber,
-                domainEvent.BatchId);
+                domainEvent.AggregateSequenceNumber);
         }
 
         private static Type GetIdentityType(Type domainEventType)

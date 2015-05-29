@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
@@ -31,7 +32,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    public class ReadModelFactoryTest : TestsFor<ReadModelFactory>
+    public class ReadModelDomainEventApplierTests : TestsFor<ReadModelDomainEventApplier>
     {
         public class PingReadModel : IReadModel,
             IAmReadModelFor<TestAggregate, TestId, PingEvent>
@@ -67,41 +68,46 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void ReadModelDoesNotReceiveOtherEvents()
+        public async Task ReadModelDoesNotReceiveOtherEvents()
         {
             // Arrange
             var events = new[]
                 {
                     ToDomainEvent(A<DomainErrorAfterFirstEvent>()),
                 };
+            var readModel = new PingReadModel();
 
             // Act
-            var readModel = Sut.CreateReadModelAsync<PingReadModel>(events, A<IReadModelContext>(), CancellationToken.None).Result;
+            await Sut.UpdateReadModelAsync(readModel, events, A<IReadModelContext>(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             readModel.PingEventsReceived.Should().BeFalse();
         }
 
         [Test]
-        public void DifferentReadModelsCanSubscribeToSameEvent()
+        public async Task DifferentReadModelsCanSubscribeToSameEvent()
         {
             // Arrange
             var events = new[]
                 {
                     ToDomainEvent(A<PingEvent>()),
                 };
+            var pingReadModel = new PingReadModel();
+            var theOtherPingReadModel = new TheOtherPingReadModel();
 
             // Act
-            var pingReadModel = Sut.CreateReadModelAsync<PingReadModel>(
+            await Sut.UpdateReadModelAsync(
+                pingReadModel,
                 events,
                 A<IReadModelContext>(),
                 CancellationToken.None)
-                .Result;
-            var theOtherPingReadModel = Sut.CreateReadModelAsync<TheOtherPingReadModel>(
+                .ConfigureAwait(false);
+            await Sut.UpdateReadModelAsync(
+                theOtherPingReadModel,
                 events,
                 A<IReadModelContext>(),
                 CancellationToken.None)
-                .Result;
+                .ConfigureAwait(false);
 
             // Assert
             pingReadModel.PingEventsReceived.Should().BeTrue();
@@ -109,7 +115,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void DifferentReadModelsCanBeUpdated()
+        public async Task DifferentReadModelsCanBeUpdated()
         {
             // Arrange
             var events = new[]
@@ -117,18 +123,22 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     ToDomainEvent(A<PingEvent>()),
                     ToDomainEvent(A<DomainErrorAfterFirstEvent>()),
                 };
+            var pingReadModel = new PingReadModel();
+            var domainErrorAfterFirstReadModel = new DomainErrorAfterFirstReadModel();
 
             // Act
-            var pingReadModel = Sut.CreateReadModelAsync<PingReadModel>(
+            await Sut.UpdateReadModelAsync(
+                pingReadModel,
                 events,
                 A<IReadModelContext>(),
                 CancellationToken.None)
-                .Result;
-            var domainErrorAfterFirstReadModel = Sut.CreateReadModelAsync<DomainErrorAfterFirstReadModel>(
+                .ConfigureAwait(false);
+            await Sut.UpdateReadModelAsync(
+                domainErrorAfterFirstReadModel,
                 events,
                 A<IReadModelContext>(),
                 CancellationToken.None)
-                .Result;
+                .ConfigureAwait(false);
 
             // Assert
             pingReadModel.PingEventsReceived.Should().BeTrue();
@@ -148,7 +158,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             var appliedAny = Sut.UpdateReadModelAsync(
                 new PingReadModel(),
                 events,
-                A<IReadModelContext>(),
+                A<IReadModelContext>(), 
                 CancellationToken.None)
                 .Result;
 
@@ -178,16 +188,22 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void ReadModelReceivesEvent()
+        public async Task ReadModelReceivesEvent()
         {
             // Arrange
             var events = new[]
                 {
                     ToDomainEvent(A<PingEvent>()),
                 };
+            var readModel = new PingReadModel();
 
             // Act
-            var readModel = Sut.CreateReadModelAsync<PingReadModel>(events, A<IReadModelContext>(), CancellationToken.None).Result;
+            await Sut.UpdateReadModelAsync(
+                readModel,
+                events,
+                A<IReadModelContext>(),
+                CancellationToken.None)
+                .ConfigureAwait(false);
 
             // Assert
             readModel.PingEventsReceived.Should().BeTrue();

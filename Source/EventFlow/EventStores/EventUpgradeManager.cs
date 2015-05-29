@@ -92,7 +92,7 @@ namespace EventFlow.EventStores
             _log.Verbose(() => string.Format(
                 "Upgrading {0} events and found these event upgraders to use: {1}",
                 domainEventList.Count,
-                string.Join(", ", eventUpgraders.Values.Select(e => e.GetType().Name))));
+                string.Join(", ", eventUpgraders.Values.SelectMany(a => a.EventUpgraders.Select(e => e.GetType().Name)))));
 
             return domainEventList
                 .SelectMany(e =>
@@ -102,7 +102,7 @@ namespace EventFlow.EventStores
                             (IEnumerable<IDomainEvent>) new[] {e},
                             (de, up) => de.SelectMany(ee => a.Upgrade(up, ee)));
                     })
-                .OrderBy(d => d.GlobalSequenceNumber);
+                .OrderBy(d => d.AggregateSequenceNumber);
         }
 
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(

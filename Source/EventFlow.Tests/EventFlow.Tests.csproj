@@ -67,7 +67,7 @@
     <Compile Include="IntegrationTests\InMemoryConfiguration.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
-    <Compile Include="UnitTests\ReadStores\ReadModelFactoryTest.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadModelDomainEventApplierTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateIdTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
@@ -76,10 +76,11 @@
     <Compile Include="UnitTests\Configuration\Registrations\AutofacServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\LabelTests.cs" />
     <Compile Include="UnitTests\Core\TransientFaultHandlerTests.cs" />
-    <Compile Include="UnitTests\EventCaches\InMemoryEventCacheTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\EventStores\EventStoreTests.cs" />
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
     <Compile Include="UnitTests\ValueObjects\ValueObjectTests.cs" />

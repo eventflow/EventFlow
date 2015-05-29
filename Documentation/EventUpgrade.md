@@ -11,10 +11,19 @@ EventFlow event upgraders are invoked whenever the event stream is loaded from
 the event store. Each event upgrader receives the entire event stream one event
 at a time.
 
+A new instance of a event upgrader is created each time an aggregate is loaded.
+This enables you to store information from previous events on the upgrader
+instance to be used later, e.g. to determine an action to take on a event
+or provide additional information for a new event.
+
 Note that the _ordering_ of event upgraders is important as you might implement
 two upgraders, one upgrade a event from V1 to V2 and then another upgrading V2
 to V3. EventFlow orders the event upgraders by name before starting the event
 upgrade.
+
+**Be careful** if working with event upgraders that return zero or more than one
+event, as this have an influence on the aggregate version and you need to make
+sure that the aggregate sequence number on upgraded events have a valid value.
 
 ## Example - removing a damaged event
 

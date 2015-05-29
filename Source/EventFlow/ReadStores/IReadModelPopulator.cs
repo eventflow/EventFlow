@@ -20,27 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration.Registrations;
-using EventFlow.EventCaches;
-using EventFlow.EventCaches.Null;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Extensions
+namespace EventFlow.ReadStores
 {
-    public static class EventFlowOptionsEventCachesExtensions
+    public interface IReadModelPopulator
     {
-        public static EventFlowOptions UseNullEventCache(this EventFlowOptions eventFlowOptions)
-        {
-            eventFlowOptions.RegisterServices(f => f.Register<IEventCache, NullEventCache>(Lifetime.Singleton));
-            return eventFlowOptions;
-        }
+        Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
 
-        public static EventFlowOptions UseEventCache<TEventCache>(
-            this EventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventCache : class, IEventCache
-        {
-            eventFlowOptions.RegisterServices(f => f.Register<IEventCache, TEventCache>(lifetime));
-            return eventFlowOptions;
-        }
+        void Purge<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
+
+        Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
+
+        void Populate<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
     }
 }

@@ -72,16 +72,6 @@ namespace EventFlow.Tests.IntegrationTests
             testAggregate.PingsReceived.Should().Contain(PingId.With("2352d09b-4712-48cc-bb4f-5560d7c52558"));
         }
 
-        [Test]
-        public void DomainEventsCanBeLoaded()
-        {
-            // Act
-            var domainEvents = _eventStore.LoadEvents(GlobalSequenceNumberRange.Range(1, 2), CancellationToken.None);
-
-            // Assert
-            domainEvents.Count.Should().Be(2);
-        }
-
         [Test, Explicit]
         public void CreateEventHelper()
         {

@@ -22,8 +22,8 @@
 
 namespace EventFlow.ReadStores.MsSql
 {
-    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore
-        where TReadModel : IMssqlReadModel, new()
+    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
+        where TReadModel : class, IMssqlReadModel, new()
     {
     }
 }

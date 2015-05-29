@@ -20,13 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.EventCaches;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.TestHelpers;
@@ -40,7 +36,6 @@ namespace EventFlow.Tests.UnitTests.EventStores
 {
     public class EventStoreTests : TestsFor<InMemoryEventStore>
     {
-        private Mock<IEventCache> _eventCacheMock;
         private Mock<IEventUpgradeManager> _eventUpgradeManagerMock;
         private Mock<IEventJsonSerializer> _eventJsonSerializerMock;
 
@@ -50,7 +45,6 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Fixture.Inject(Enumerable.Empty<IMetadataProvider>());
 
             _eventJsonSerializerMock = InjectMock<IEventJsonSerializer>();
-            _eventCacheMock = InjectMock<IEventCache>();
             _eventUpgradeManagerMock = InjectMock<IEventUpgradeManager>();
 
             _eventUpgradeManagerMock
@@ -62,20 +56,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     (a, m) => new SerializedEvent(
                         string.Empty,
                         string.Empty,
-                        int.Parse(m.Single(kv => kv.Key == MetadataKeys.AggregateSequenceNumber).Value)));
-        }
-
-        [Test]
-        public async Task CacheIsInvalidatedOnStore()
-        {
-            // Arrange
-            var ss = ManyUncommittedEvents(1);
-
-            // Act
-            await Sut.StoreAsync<TestAggregate, TestId>(TestId.New, ss, CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            _eventCacheMock.Verify(c => c.InvalidateAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<CancellationToken>()), Times.Once);
+                        int.Parse(m.Single(kv => kv.Key == MetadataKeys.AggregateSequenceNumber).Value),
+                        new Metadata()));
         }
 
         private List<IUncommittedEvent> ManyUncommittedEvents(int count = 3)

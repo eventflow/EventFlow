@@ -20,8 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -29,49 +29,32 @@ using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadModelStore<TReadModel, TReadModelLocator> : IReadModelStore
-        where TReadModel : IReadModel
-        where TReadModelLocator : IReadModelLocator
+    public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
         protected ILog Log { get; private set; }
-        protected TReadModelLocator ReadModelLocator { get; private set; }
-        protected IReadModelFactory ReadModelFactory { get; private set; }
 
         protected ReadModelStore(
-            ILog log,
-            TReadModelLocator readModelLocator,
-            IReadModelFactory readModelFactory)
+            ILog log)
         {
             Log = log;
-            ReadModelLocator = readModelLocator;
-            ReadModelFactory = readModelFactory;
         }
 
-        public virtual Task ApplyDomainEventsAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            var readModelUpdates = (
-                from de in domainEvents
-                let readModelIds = ReadModelLocator.GetReadModelIds(de)
-                from rid in readModelIds
-                group de by rid into g
-                select new ReadModelUpdate(g.Key, g.ToList())
-                ).ToList();
+        public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
+            CancellationToken cancellationToken);
 
-            var globalSequenceNumber = domainEvents.Max(de => de.GlobalSequenceNumber);
+        public abstract Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken);
 
-            var readModelContext = new ReadModelContext(
-                globalSequenceNumber);
+        public abstract Task DeleteAllAsync(
+            CancellationToken cancellationToken);
 
-            return UpdateReadModelsAsync(readModelUpdates, readModelContext, cancellationToken);
-        }
-
-        public abstract Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken);
-
-        protected abstract Task UpdateReadModelsAsync(
+        public abstract Task UpdateAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken);
     }
 }

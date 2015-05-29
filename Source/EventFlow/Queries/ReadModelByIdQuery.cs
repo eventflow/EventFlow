@@ -21,12 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.ReadStores;
 
 namespace EventFlow.Queries
 {
     public class ReadModelByIdQuery<TReadModel> : IQuery<TReadModel>
-        where TReadModel : IReadModel
+        where TReadModel : class, IReadModel, new()
     {
         public string Id { get; private set; }
 
@@ -35,6 +37,25 @@ namespace EventFlow.Queries
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
 
             Id = id;
+        }
+    }
+
+    public class ReadModelByIdQueryHandler<TReadStore, TReadModel> : IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
+        where TReadStore : IReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
+    {
+        private readonly TReadStore _readStore;
+
+        public ReadModelByIdQueryHandler(
+            TReadStore readStore)
+        {
+            _readStore = readStore;
+        }
+
+        public async Task<TReadModel> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
+        {
+            var readModelEnvelope = await _readStore.GetAsync(query.Id, cancellationToken).ConfigureAwait(false);
+            return readModelEnvelope.ReadModel;
         }
     }
 }

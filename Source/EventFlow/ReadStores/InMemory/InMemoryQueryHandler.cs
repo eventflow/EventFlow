@@ -29,27 +29,22 @@ using EventFlow.ReadStores.InMemory.Queries;
 namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryQueryHandler<TReadModel> :
-        IQueryHandler<InMemoryQuery<TReadModel>, IEnumerable<TReadModel>>,
-        IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
-        where TReadModel : IReadModel, new()
+        IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>
+        where TReadModel : class, IReadModel, new()
     {
-        private readonly IInMemoryReadModelStore<TReadModel> _readModelStore;
+        private readonly IInMemoryReadStore<TReadModel> _readModelStore;
 
         public InMemoryQueryHandler(
-            IInMemoryReadModelStore<TReadModel> readModelStore)
+            IInMemoryReadStore<TReadModel> readModelStore)
         {
             _readModelStore = readModelStore;
         }
 
-        public Task<IEnumerable<TReadModel>> ExecuteQueryAsync(InMemoryQuery<TReadModel> query, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<TReadModel>> ExecuteQueryAsync(
+            InMemoryQuery<TReadModel> query,
+            CancellationToken cancellationToken)
         {
-            var result = _readModelStore.Find(query.Query);
-            return Task.FromResult(result);
-        }
-
-        public Task<TReadModel> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
-        {
-            return _readModelStore.GetByIdAsync(query.Id, cancellationToken);
+            return _readModelStore.FindAsync(query.Query, cancellationToken);
         }
     }
 }

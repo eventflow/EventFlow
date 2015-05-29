@@ -68,21 +68,25 @@ namespace EventFlow.TestHelpers
         }
 
         protected IDomainEvent<TestAggregate, TestId> ToDomainEvent<TAggregateEvent>(
-            TAggregateEvent aggregateEvent)
+            TAggregateEvent aggregateEvent,
+            int aggregateSequenceNumber = 0)
             where TAggregateEvent : IAggregateEvent
         {
             var metadata = new Metadata
+                {
+                    Timestamp = A<DateTimeOffset>()
+                };
+
+            if (aggregateSequenceNumber == 0)
             {
-                Timestamp = A<DateTimeOffset>()
-            };
+                aggregateSequenceNumber = A<int>();
+            }
 
             return DomainEventFactory.Create<TestAggregate, TestId>(
                 aggregateEvent,
                 metadata,
-                A<long>(),
                 A<TestId>(),
-                A<int>(),
-                A<Guid>());
+                aggregateSequenceNumber);
         }
 
         protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)

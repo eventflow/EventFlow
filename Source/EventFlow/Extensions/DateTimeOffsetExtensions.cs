@@ -21,33 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Extensions
 {
-    public interface IReadModelFactory
+    public static class DateTimeOffsetExtensions
     {
-        Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel, new();
-
-        Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            Func<TReadModel> readModelCreator,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
-
-        Task<bool> UpdateReadModelAsync<TReadModel>(
-            TReadModel readModel,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+        public static long ToUnixTime(this DateTimeOffset dateTimeOffset)
+        {
+            return Convert.ToInt64((dateTimeOffset.UtcDateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
+        }
     }
 }
