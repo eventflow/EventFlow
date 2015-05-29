@@ -23,6 +23,9 @@
  * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
    stream. Please consider carefully if you really want to use it. Storage
    might be cheaper than the historic knowledge within your events
+ * New: `IReadModelPopulator` is new and enables you to both purge and
+   populate read models by going though the entire event store. Currently
+   its only basic functionality, but more will be added
  * New: `IEventStore` now has `LoadAllEventsAsync` and `LoadAllEvents` that
    enables you to load all events in the event store a few at a time.
  * New: `IMetadata.TimestampEpoch` contains the Unix timestamp version
