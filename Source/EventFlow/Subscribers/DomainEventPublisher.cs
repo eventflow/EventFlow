@@ -51,7 +51,7 @@ namespace EventFlow.Subscribers
         {
             // ARGH, dilemma, should we pass the cancellation token to read model update or not?
             var updateReadStoresTasks = _readStoreManagers
-                .Select(rsm => rsm.UpdateReadStoresAsync<TAggregate, TIdentity>(id, domainEvents, CancellationToken.None));
+                .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, CancellationToken.None));
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
 
             // Update subscriptions AFTER read stores have been updated

@@ -114,6 +114,28 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task DomainEventCanBeLoaded()
+        {
+            // Arrange
+            var id1 = TestId.New;
+            var id2 = TestId.New;
+            var pingId1 = PingId.New;
+            var pingId2 = PingId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1.Ping(pingId1);
+            aggregate2.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(1, 2, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.DomainEvents.Count.Should().Be(2);
+        }
+
+        [Test]
         public async Task AggregateEventStreamsCanBeDeleted()
         {
             // Arrange
@@ -146,6 +168,61 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task NextPositionIsIdOfNextEvent()
+        {
+            // Arrange
+            var id = TestId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(1, 10, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.NextPosition.Should().Be(2);
+        }
+
+        [Test]
+        public async Task NextPositionIsStartIfNoEvents()
+        {
+            // Arrange
+            var id = TestId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(3, 10, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.NextPosition.Should().Be(3);
+            domainEvents.DomainEvents.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task LoadingFirstPageShouldOnlyLoadCorrectEvents()
+        {
+            // Arrange
+            var id = TestId.New;
+            var pingIds = new[] {PingId.New, PingId.New, PingId.New};
+            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            aggregate.Ping(pingIds[0]);
+            aggregate.Ping(pingIds[1]);
+            aggregate.Ping(pingIds[2]);
+            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadAllEventsAsync(1, 2, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.NextPosition.Should().Be(3);
+            domainEvents.DomainEvents.Count.Should().Be(2);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[0]);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[1]);
         }
 
         [Test]

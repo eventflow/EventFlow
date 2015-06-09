@@ -20,16 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.ReadStores
 {
-    public class LocateByAggregateId : ILocateByAggregateId
+    public interface IReadModelPopulator
     {
-        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
-        {
-            yield return domainEvent.GetIdentity().Value;
-        }
+        Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
+
+        void Purge<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
+
+        Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
+
+        void Populate<TReadModel>(CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new();
     }
 }

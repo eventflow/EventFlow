@@ -32,5 +32,8 @@ namespace EventFlow.ReadStores.MsSql
 
         string CreateUpdateSql<TReadModel>()
             where TReadModel : IMssqlReadModel;
+
+        string CreatePurgeSql<TReadModel>()
+            where TReadModel : IReadModel;
     }
 }

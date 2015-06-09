@@ -58,6 +58,11 @@ namespace EventFlow.EventStores.EventStore
             _connection = connection;
         }
 
+        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(long startPostion, long endPosition, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,

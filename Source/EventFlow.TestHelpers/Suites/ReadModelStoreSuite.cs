@@ -20,11 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -40,12 +37,44 @@ namespace EventFlow.TestHelpers.Suites
             var id = TestId.New;
             
             // Act
-            await CommandBus.PublishAsync(new PingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModel(id).ConfigureAwait(false);
+            await PublishPingCommandAsync(id).ConfigureAwait(false);
+            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
             readModel.PingsReceived.Should().Be(1);
+        }
+
+        [Test]
+        public async Task PurgeRemovesReadModels()
+        {
+            // Arrange
+            var id = TestId.New;
+            await PublishPingCommandAsync(id).ConfigureAwait(false);
+
+            // Act
+            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+
+            // Assert
+            readModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task PopulateCreatesReadModels()
+        {
+            // Arrange
+            var id = TestId.New;
+            await PublishPingCommandAsync(id, 2).ConfigureAwait(false);
+            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            
+            // Act
+            await Configuration.PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
+            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+
+            // Assert
+            readModel.Should().NotBeNull();
+            readModel.PingsReceived.Should().Be(2);
         }
     }
 }

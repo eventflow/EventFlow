@@ -33,6 +33,20 @@ namespace EventFlow.EventStores
 {
     public abstract class EventStoreBase : IEventStore
     {
+        protected class AllCommittedEventsPage
+        {
+            public long NextPosition { get; private set; }
+            public IReadOnlyCollection<ICommittedDomainEvent> CommittedDomainEvents { get; private set; }
+
+            public AllCommittedEventsPage(
+                long nextPosition,
+                IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents)
+            {
+                NextPosition = nextPosition;
+                CommittedDomainEvents = committedDomainEvents;
+            }
+        }
+
         protected ILog Log { get; private set; }
         protected IAggregateFactory AggregateFactory { get; private set; }
         protected IEventUpgradeManager EventUpgradeManager { get; private set; }
@@ -101,6 +115,44 @@ namespace EventFlow.EventStores
 
             return domainEvents;
         }
+
+        public async Task<AllEventsPage> LoadAllEventsAsync(
+            long startPosition,
+            long pageSize,
+            CancellationToken cancellationToken)
+        {
+            if (pageSize <= 0) throw new ArgumentOutOfRangeException("pageSize");
+            if (startPosition < 0) throw new ArgumentOutOfRangeException("startPosition");
+
+            var allCommittedEventsPage = await LoadAllCommittedDomainEvents(
+                startPosition,
+                startPosition + pageSize - 1,
+                cancellationToken)
+                .ConfigureAwait(false);
+            var domainEvents = (IReadOnlyCollection<IDomainEvent>)allCommittedEventsPage.CommittedDomainEvents
+                .Select(e => EventJsonSerializer.Deserialize(e))
+                .ToList();
+            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
+            return new AllEventsPage(allCommittedEventsPage.NextPosition, domainEvents);
+        }
+
+        public AllEventsPage LoadAllEvents(
+            long startPosition,
+            long pageSize,
+            CancellationToken cancellationToken)
+        {
+            AllEventsPage allEventsPage = null;
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(LoadAllEventsAsync(startPosition, pageSize, cancellationToken), p => allEventsPage = p);
+            }
+            return allEventsPage;
+        }
+
+        protected abstract Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+            long startPostion,
+            long endPosition,
+            CancellationToken cancellationToken);
 
         protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,

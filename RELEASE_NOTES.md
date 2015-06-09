@@ -1,4 +1,8 @@
-### New in 0.8 (not released yet)
+### New in 0.9 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.8.560 (released 2015-05-29)
 
  * Breaking: Remove _all_ functionality related to global sequence
    numbers as it proved problematic to maintain. It also matches this
@@ -23,6 +27,11 @@
  * New: `IEventStore.DeleteAggregateAsync` to delete an entire aggregate
    stream. Please consider carefully if you really want to use it. Storage
    might be cheaper than the historic knowledge within your events
+ * New: `IReadModelPopulator` is new and enables you to both purge and
+   populate read models by going though the entire event store. Currently
+   its only basic functionality, but more will be added
+ * New: `IEventStore` now has `LoadAllEventsAsync` and `LoadAllEvents` that
+   enables you to load all events in the event store a few at a time.
  * New: `IMetadata.TimestampEpoch` contains the Unix timestamp version
    of `IMetadata.Timestamp`. Also, an additional metadata key
    `timestamp_epoch` is added to events containing the same data. Note,
@@ -31,6 +40,7 @@
  * Fixed: `AggregateRoot<>` now reads the aggregate version from
    domain events applied during aggregate load. This resolves an issue
    for when an `IEventUpgrader` removed events from the event stream
+ * Fixed: `InMemoryReadModelStore<,>` is now thread safe
 
 ### New in 0.7.481 (released 2015-05-22)
 

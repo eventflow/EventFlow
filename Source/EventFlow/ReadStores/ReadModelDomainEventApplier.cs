@@ -29,30 +29,9 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public class ReadModelFactory : IReadModelFactory
+    public class ReadModelDomainEventApplier : IReadModelDomainEventApplier
     {
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<IReadModel, IReadModelContext, IDomainEvent>>>();
-
-        public Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel, new()
-        {
-            return CreateReadModelAsync(domainEvents, readModelContext, () => new TReadModel(), cancellationToken);
-        }
-
-        public async Task<TReadModel> CreateReadModelAsync<TReadModel>(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            Func<TReadModel> readModelCreator,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel
-        {
-            var readModel = readModelCreator();
-            await UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
-            return readModel;
-        }
 
         public Task<bool> UpdateReadModelAsync<TReadModel>(
             TReadModel readModel,

@@ -20,18 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow.ReadStores.InMemory
+namespace EventFlow.EventStores
 {
-    public interface IInMemoryReadModelStore<TReadModel> : IReadModelStore
-        where TReadModel : IReadModel, new()
+    public class AllEventsPage
     {
-        Task<TReadModel> GetByIdAsync(string id, CancellationToken cancellationToken);
-        IEnumerable<TReadModel> GetAll();
-        IEnumerable<TReadModel> Find(Predicate<TReadModel> predicate);
+        public long NextPosition { get; private set; }
+        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; private set; }
+
+        public AllEventsPage(
+            long nextPosition,
+            IReadOnlyCollection<IDomainEvent> domainEvents)
+        {
+            NextPosition = nextPosition;
+            DomainEvents = domainEvents;
+        }
     }
 }

@@ -20,11 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
+using System;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
@@ -45,9 +44,19 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
             return resolver;
         }
 
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModel(IIdentity id)
+        public override Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
-            return await _queryProcessor.ProcessAsync(new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value), CancellationToken.None).ConfigureAwait(false);
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeTestAggregateReadModelAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PopulateTestAggregateReadModelAsync()
+        {
+            throw new NotImplementedException();
         }
 
         public override void TearDown()
