@@ -38,7 +38,6 @@ namespace EventFlow.EventStores.EventStore
 
         private class EventStoreEvent : ICommittedDomainEvent
         {
-            public Guid BatchId { get; set; }
             public string AggregateId { get; set; }
             public string AggregateName { get; set; }
             public string Data { get; set; }
@@ -58,7 +57,10 @@ namespace EventFlow.EventStores.EventStore
             _connection = connection;
         }
 
-        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(long startPostion, long endPosition, CancellationToken cancellationToken)
+        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+            long startPostion,
+            long endPosition,
+            CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -68,7 +70,6 @@ namespace EventFlow.EventStores.EventStore
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
-            var batchId = Guid.NewGuid();
             var aggregateName = typeof (TAggregate).Name;
             var committedDomainEvents = serializedEvents
                 .Select(e => new EventStoreEvent
@@ -77,7 +78,6 @@ namespace EventFlow.EventStores.EventStore
                         Metadata = e.SerializedMetadata,
                         AggregateId = id.Value,
                         AggregateName = aggregateName,
-                        BatchId = batchId,
                         Data = e.SerializedData
                     })
                 .ToList();
@@ -89,13 +89,14 @@ namespace EventFlow.EventStores.EventStore
                         var guid = Guid.Parse(e.Metadata["guid"]);
                         var eventType = string.Format("{0}.{1}", e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
-                        var meta = Encoding.UTF8.GetBytes(e.SerializedData);
+                        var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
                         return new EventData(guid, eventType, true, data, meta);
-                    });
+                    })
+                .ToList();
 
             await _connection.AppendToStreamAsync(
                 id.Value,
-                expectedVersion,
+                expectedVersion == 0 ? -1 : expectedVersion,
                 eventDatas)
                 .ConfigureAwait(false);
 
@@ -123,9 +124,6 @@ namespace EventFlow.EventStores.EventStore
 
             } while (!currentSlice.IsEndOfStream);
 
-            // TODO: Move to eventstore and into meta data
-            var batchId = Guid.NewGuid();
-
             var eventStoreEvents = streamEvents
                 .Select(e => new EventStoreEvent
                     {
@@ -134,7 +132,6 @@ namespace EventFlow.EventStores.EventStore
                         AggregateId = id.Value,
                         AggregateName = typeof (TAggregate).Name,
                         Data = Encoding.UTF8.GetString(e.Event.Data),
-                        BatchId = batchId,
                     })
                 .ToList();
             return eventStoreEvents;
