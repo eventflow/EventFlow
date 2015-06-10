@@ -25,7 +25,7 @@ using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
-    [Explicit]
+    [Explicit("EventStore from https://geteventstore.com/ required to run")]
     public class EventStoreEventStoreTests : EventStoreSuite<EventStoreEventStoreTestConfiguration>
     {
     }

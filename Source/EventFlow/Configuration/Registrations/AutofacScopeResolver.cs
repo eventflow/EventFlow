@@ -39,7 +39,7 @@ namespace EventFlow.Configuration.Registrations
             return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _lifetimeScope.Dispose();
         }

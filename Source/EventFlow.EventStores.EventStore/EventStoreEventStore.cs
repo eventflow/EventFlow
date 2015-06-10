@@ -27,8 +27,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.Exceptions;
 
 namespace EventFlow.EventStores.EventStore
 {
@@ -94,11 +96,27 @@ namespace EventFlow.EventStores.EventStore
                     })
                 .ToList();
 
-            await _connection.AppendToStreamAsync(
-                id.Value,
-                expectedVersion == 0 ? -1 : expectedVersion,
-                eventDatas)
-                .ConfigureAwait(false);
+            try
+            {
+                using (var transaction = await _connection.StartTransactionAsync(
+                    id.Value,
+                    expectedVersion == 0 ? ExpectedVersion.NoStream : expectedVersion)
+                    .ConfigureAwait(false))
+                {
+                    await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
+                    var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
+                    Log.Verbose(
+                        "Wrote aggregate {0} with version {1} ({2},{3})",
+                        aggregateName,
+                        writeResult.NextExpectedVersion - 1,
+                        writeResult.LogPosition.CommitPosition,
+                        writeResult.LogPosition.PreparePosition);
+                }
+            }
+            catch (WrongExpectedVersionException e)
+            {
+                throw new OptimisticConcurrencyException(e.Message, e);
+            }
 
             return committedDomainEvents;
         }
@@ -127,7 +145,7 @@ namespace EventFlow.EventStores.EventStore
             var eventStoreEvents = streamEvents
                 .Select(e => new EventStoreEvent
                     {
-                        AggregateSequenceNumber = e.Event.EventNumber,
+                        AggregateSequenceNumber = e.Event.EventNumber + 1,
                         Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
                         AggregateId = id.Value,
                         AggregateName = typeof (TAggregate).Name,

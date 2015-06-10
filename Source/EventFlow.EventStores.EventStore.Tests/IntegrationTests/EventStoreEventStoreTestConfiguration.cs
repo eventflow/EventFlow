@@ -32,6 +32,7 @@ using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventStore.ClientAPI;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
@@ -42,10 +43,16 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
+            var connectionSettings = ConnectionSettings.Create();
+            connectionSettings.EnableVerboseLogging();
+            connectionSettings.KeepReconnecting();
+
+            connectionSettings.Build();
+
             var resolver = eventFlowOptions
                 .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .UseEventStoreEventStore(new IPEndPoint(IPAddress.Loopback, 1113))
+                .UseEventStoreEventStore(new IPEndPoint(IPAddress.Loopback, 1113), connectionSettings)
                 .CreateResolver();
 
             _queryProcessor = resolver.Resolve<IQueryProcessor>();
