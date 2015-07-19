@@ -29,6 +29,21 @@ namespace EventFlow.Aggregates
 {
     public class Metadata : Dictionary<string, string>, IMetadata
     {
+        public static IMetadata With(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        {
+            return new Metadata(keyValuePairs);
+        }
+
+        public static IMetadata With(params KeyValuePair<string, string>[] keyValuePairs)
+        {
+            return new Metadata(keyValuePairs);
+        }
+
+        public static IMetadata With(IDictionary<string, string> keyValuePairs)
+        {
+            return new Metadata(keyValuePairs);
+        }
+
         public string EventName
         {
             get { return this[MetadataKeys.EventName]; }
@@ -66,13 +81,18 @@ namespace EventFlow.Aggregates
 
         public Metadata() { }
 
-        public Metadata(IDictionary<string, string> dictionary)
-            : base(dictionary)
+        public Metadata(IDictionary<string, string> keyValuePairs)
+            : base(keyValuePairs)
         {
         }
 
         public Metadata(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
             : base(keyValuePairs.ToDictionary(kv => kv.Key, kv => kv.Value))
+        {
+        }
+
+        public Metadata(params KeyValuePair<string, string>[] keyValuePairs)
+            : this((IEnumerable<KeyValuePair<string, string>>) keyValuePairs)
         {
         }
 
