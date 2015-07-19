@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using JetBrains.Annotations;
 
 namespace EventFlow.Exceptions
 {
@@ -28,6 +29,7 @@ namespace EventFlow.Exceptions
     {
         private DomainError(string message) : base(message) { }
 
+        [StringFormatMethod("format")]
         public static DomainError With(string format, params object[] args)
         {
             return new DomainError(string.Format(format, args));
