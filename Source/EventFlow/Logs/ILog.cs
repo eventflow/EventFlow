@@ -22,26 +22,54 @@
 
 using System;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace EventFlow.Logs
 {
     public interface ILog
     {
+        [StringFormatMethod("format")]
         void Verbose(string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Verbose(Exception exception, string format, params object[] args);
+        
         void Verbose(Func<string> combersomeLogging);
+        
         void Verbose(Action<StringBuilder> combersomeLogging);
+
+        [StringFormatMethod("format")]
         void Debug(string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Debug(Exception exception, string format, params object[] args);
+        
         void Debug(Func<string> combersomeLogging);
+        
         void Debug(Action<StringBuilder> combersomeLogging);
+
+        [StringFormatMethod("format")]
         void Information(string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Information(Exception exception, string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Warning(string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Warning(Exception exception, string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Error(string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Error(Exception exception, string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Fatal(string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Fatal(Exception exception, string format, params object[] args);
     }
 }
