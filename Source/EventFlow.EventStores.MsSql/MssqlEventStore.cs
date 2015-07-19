@@ -62,10 +62,15 @@ namespace EventFlow.EventStores.MsSql
         }
 
         protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
-            long startPostion,
-            long endPosition,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken)
         {
+            var startPostion = globalPosition.IsStart
+                ? 0
+                : long.Parse(globalPosition.Value);
+            var endPosition = startPostion + pageSize;
+
             const string sql = @"
                 SELECT
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
@@ -89,7 +94,7 @@ namespace EventFlow.EventStores.MsSql
                 ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
                 : startPostion;
 
-            return new AllCommittedEventsPage(nextPosition, eventDataModels);
+            return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(

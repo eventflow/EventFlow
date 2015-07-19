@@ -92,11 +92,15 @@ namespace EventFlow.EventStores.Files
         }
 
         protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
-            long startPostion,
-            long endPosition,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken)
         {
-            var paths = Enumerable.Range((int)startPostion, (int)endPosition)
+            var startPostion = globalPosition.IsStart
+                ? 1
+                : int.Parse(globalPosition.Value);
+
+            var paths = Enumerable.Range(startPostion, pageSize)
                 .TakeWhile(g => _log.ContainsKey(g))
                 .Select(g => _log[g])
                 .ToList();
@@ -112,7 +116,7 @@ namespace EventFlow.EventStores.Files
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
                 : startPostion;
 
-            return new AllCommittedEventsPage(nextPosition, committedDomainEvents);
+            return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(

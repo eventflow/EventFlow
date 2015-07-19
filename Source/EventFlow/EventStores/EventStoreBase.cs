@@ -35,14 +35,14 @@ namespace EventFlow.EventStores
     {
         protected class AllCommittedEventsPage
         {
-            public long NextPosition { get; private set; }
+            public GlobalPosition NextGlobalPosition { get; private set; }
             public IReadOnlyCollection<ICommittedDomainEvent> CommittedDomainEvents { get; private set; }
 
             public AllCommittedEventsPage(
-                long nextPosition,
+                GlobalPosition nextGlobalPosition,
                 IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents)
             {
-                NextPosition = nextPosition;
+                NextGlobalPosition = nextGlobalPosition;
                 CommittedDomainEvents = committedDomainEvents;
             }
         }
@@ -117,41 +117,37 @@ namespace EventFlow.EventStores
         }
 
         public async Task<AllEventsPage> LoadAllEventsAsync(
-            long startPosition,
-            long pageSize,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken)
         {
             if (pageSize <= 0) throw new ArgumentOutOfRangeException("pageSize");
-            if (startPosition < 0) throw new ArgumentOutOfRangeException("startPosition");
 
             var allCommittedEventsPage = await LoadAllCommittedDomainEvents(
-                startPosition,
-                startPosition + pageSize - 1,
+                globalPosition,
+                pageSize,
                 cancellationToken)
                 .ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent>)allCommittedEventsPage.CommittedDomainEvents
                 .Select(e => EventJsonSerializer.Deserialize(e))
                 .ToList();
             domainEvents = EventUpgradeManager.Upgrade(domainEvents);
-            return new AllEventsPage(allCommittedEventsPage.NextPosition, domainEvents);
+            return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
         }
 
-        public AllEventsPage LoadAllEvents(
-            long startPosition,
-            long pageSize,
-            CancellationToken cancellationToken)
+        public AllEventsPage LoadAllEvents(GlobalPosition globalPosition, int pageSize, CancellationToken cancellationToken)
         {
             AllEventsPage allEventsPage = null;
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(LoadAllEventsAsync(startPosition, pageSize, cancellationToken), p => allEventsPage = p);
+                a.Run(LoadAllEventsAsync(globalPosition, pageSize, cancellationToken), p => allEventsPage = p);
             }
             return allEventsPage;
         }
 
         protected abstract Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
-            long startPostion,
-            long endPosition,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken);
 
         protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(

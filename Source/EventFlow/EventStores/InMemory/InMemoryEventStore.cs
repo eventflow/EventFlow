@@ -72,10 +72,15 @@ namespace EventFlow.EventStores.InMemory
         }
 
         protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
-            long startPostion,
-            long endPosition,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken)
         {
+            var startPostion = globalPosition.IsStart
+                ? 0
+                : long.Parse(globalPosition.Value);
+            var endPosition = startPostion + pageSize;
+
             var committedDomainEvents = _eventStore
                 .SelectMany(kv => kv.Value)
                 .Where(e => e.GlobalSequenceNumber >= startPostion && e.GlobalSequenceNumber <= endPosition)
@@ -85,7 +90,7 @@ namespace EventFlow.EventStores.InMemory
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
                 : startPostion;
 
-            return Task.FromResult(new AllCommittedEventsPage(nextPosition, committedDomainEvents));
+            return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
         protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(

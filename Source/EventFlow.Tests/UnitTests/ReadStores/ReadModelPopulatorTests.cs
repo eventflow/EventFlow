@@ -77,8 +77,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .Returns(3);
 
             _eventStoreMock
-                .Setup(s => s.LoadAllEventsAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
-                .Returns<long, long, CancellationToken>((s, p, c) => Task.FromResult(GetEvents(s, p)));
+                .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .Returns<GlobalPosition, int, CancellationToken>((s, p, c) => Task.FromResult(GetEvents(s, p)));
         }
 
         [Test]
@@ -132,15 +132,20 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     Times.Once);
         }
 
-        private AllEventsPage GetEvents(long startPosition, long pageSize)
+        private AllEventsPage GetEvents(GlobalPosition globalPosition, int pageSize)
         {
+            var startPosition = globalPosition.IsStart
+                ? 1
+                : int.Parse(globalPosition.Value);
+
             var events = _eventStoreData
-                .Skip((int) Math.Max(startPosition - 1, 0))
-                .Take((int)pageSize)
+                .Skip(Math.Max(startPosition - 1, 0))
+                .Take(pageSize)
                 .ToList();
+            
             var nextPosition = Math.Min(Math.Max(startPosition, 1) + pageSize, _eventStoreData.Count + 1);
 
-            return new AllEventsPage(nextPosition, events);
+            return new AllEventsPage(new GlobalPosition(nextPosition.ToString()), events);
         }
 
         private void ArrangeEventStore(IEnumerable<IAggregateEvent> aggregateEvents)

@@ -60,8 +60,8 @@ namespace EventFlow.EventStores.EventStore
         }
 
         protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
-            long startPostion,
-            long endPosition,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken)
         {
             throw new NotImplementedException();

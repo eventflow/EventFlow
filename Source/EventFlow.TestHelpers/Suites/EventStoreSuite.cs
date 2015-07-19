@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -129,7 +130,7 @@ namespace EventFlow.TestHelpers.Suites
             await aggregate2.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
 
             // Act
-            var domainEvents = await EventStore.LoadAllEventsAsync(1, 2, CancellationToken.None).ConfigureAwait(false);
+            var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 2, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             domainEvents.DomainEvents.Count.Should().Be(2);
@@ -180,27 +181,10 @@ namespace EventFlow.TestHelpers.Suites
             await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
 
             // Act
-            var domainEvents = await EventStore.LoadAllEventsAsync(1, 10, CancellationToken.None).ConfigureAwait(false);
+            var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 10, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            domainEvents.NextPosition.Should().Be(2);
-        }
-
-        [Test]
-        public async Task NextPositionIsStartIfNoEvents()
-        {
-            // Arrange
-            var id = TestId.New;
-            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
-            aggregate.Ping(PingId.New);
-            await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
-
-            // Act
-            var domainEvents = await EventStore.LoadAllEventsAsync(3, 10, CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            domainEvents.NextPosition.Should().Be(3);
-            domainEvents.DomainEvents.Should().BeEmpty();
+            domainEvents.NextGlobalPosition.Value.Should().NotBe(string.Empty);
         }
 
         [Test]
@@ -216,10 +200,9 @@ namespace EventFlow.TestHelpers.Suites
             await aggregate.CommitAsync(EventStore, CancellationToken.None).ConfigureAwait(false);
 
             // Act
-            var domainEvents = await EventStore.LoadAllEventsAsync(1, 2, CancellationToken.None).ConfigureAwait(false);
+            var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 2, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            domainEvents.NextPosition.Should().Be(3);
             domainEvents.DomainEvents.Count.Should().Be(2);
             domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[0]);
             domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[1]);

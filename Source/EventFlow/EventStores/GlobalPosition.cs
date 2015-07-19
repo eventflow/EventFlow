@@ -20,21 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Configuration
+namespace EventFlow.EventStores
 {
-    public class EventFlowConfiguration : IEventFlowConfiguration
+    public class GlobalPosition : SingleValueObject<string>
     {
-        public int PopulateReadModelEventPageSize { get; set; }
-        public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
-        public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
+        public static GlobalPosition Start { get { return new GlobalPosition(string.Empty); } }
 
-        public EventFlowConfiguration()
+        public bool IsStart { get { return string.IsNullOrEmpty(Value); } }
+
+        public GlobalPosition(string value)
+            : base(value ?? string.Empty)
         {
-            PopulateReadModelEventPageSize = 200;
-            NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
-            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
         }
     }
 }

@@ -96,7 +96,7 @@ namespace EventFlow.ReadStores
 
             long totalEvents = 0;
             long relevantEvents = 0;
-            long currentPosition = 0;
+            var currentPosition = GlobalPosition.Start;
 
             while (true)
             {
@@ -111,7 +111,7 @@ namespace EventFlow.ReadStores
                     cancellationToken)
                     .ConfigureAwait(false);
                 totalEvents += allEventsPage.DomainEvents.Count;
-                currentPosition = allEventsPage.NextPosition;
+                currentPosition = allEventsPage.NextGlobalPosition;
 
                 if (!allEventsPage.DomainEvents.Any())
                 {
