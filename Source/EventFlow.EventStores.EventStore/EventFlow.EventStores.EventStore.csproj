@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="EventStoreEventStore.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
