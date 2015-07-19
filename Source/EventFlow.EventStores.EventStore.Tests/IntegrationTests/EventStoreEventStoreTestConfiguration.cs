@@ -33,6 +33,7 @@ using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
@@ -43,11 +44,11 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
-            var connectionSettings = ConnectionSettings.Create();
-            connectionSettings.EnableVerboseLogging();
-            connectionSettings.KeepReconnecting();
-
-            connectionSettings.Build();
+            var connectionSettings = ConnectionSettings.Create()
+                .EnableVerboseLogging()
+                .KeepReconnecting()
+                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
+                .Build();
 
             var resolver = eventFlowOptions
                 .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()

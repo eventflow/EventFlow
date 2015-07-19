@@ -59,12 +59,49 @@ namespace EventFlow.EventStores.EventStore
             _connection = connection;
         }
 
-        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var nextPosition = ParsePosition(globalPosition);
+            var resolvedEvents = new List<ResolvedEvent>();
+            AllEventsSlice allEventsSlice;
+
+            do
+            {
+                allEventsSlice = await _connection.ReadAllEventsForwardAsync(nextPosition, pageSize, false).ConfigureAwait(false);
+                resolvedEvents.AddRange(allEventsSlice.Events.Where(e => !e.OriginalStreamId.StartsWith("$")));
+                nextPosition = allEventsSlice.NextPosition;
+
+            } while (resolvedEvents.Count < pageSize && !allEventsSlice.IsEndOfStream);
+
+            var eventStoreEvents = Map(resolvedEvents);
+
+            return new AllCommittedEventsPage(
+                new GlobalPosition(string.Format("{0}-{1}", nextPosition.CommitPosition, nextPosition.PreparePosition)),
+                eventStoreEvents);
+        }
+
+        private static Position ParsePosition(GlobalPosition globalPosition)
+        {
+            if (globalPosition.IsStart)
+            {
+                return Position.Start;
+            }
+
+            var parts = globalPosition.Value.Split('-');
+            if (parts.Length != 2)
+            {
+                throw new ArgumentException(string.Format(
+                    "Unknown structure for global position '{0}'. Expected it to be empty or in the form 'L-L'",
+                    globalPosition.Value));
+            }
+
+            var commitPosition = long.Parse(parts[0]);
+            var preparePosition = long.Parse(parts[1]);
+
+            return new Position(commitPosition, preparePosition);
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
@@ -89,7 +126,7 @@ namespace EventFlow.EventStores.EventStore
                 .Select(e =>
                     {
                         var guid = Guid.Parse(e.Metadata["guid"]);
-                        var eventType = string.Format("{0}.{1}", e.Metadata.EventName, e.Metadata.EventVersion);
+                        var eventType = string.Format("{0}.{1}.{2}", aggregateName, e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
                         return new EventData(guid, eventType, true, data, meta);
@@ -142,17 +179,7 @@ namespace EventFlow.EventStores.EventStore
 
             } while (!currentSlice.IsEndOfStream);
 
-            var eventStoreEvents = streamEvents
-                .Select(e => new EventStoreEvent
-                    {
-                        AggregateSequenceNumber = e.Event.EventNumber + 1,
-                        Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
-                        AggregateId = id.Value,
-                        AggregateName = typeof (TAggregate).Name,
-                        Data = Encoding.UTF8.GetString(e.Event.Data),
-                    })
-                .ToList();
-            return eventStoreEvents;
+            return Map(streamEvents);
         }
 
         public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
@@ -160,6 +187,20 @@ namespace EventFlow.EventStores.EventStore
             CancellationToken cancellationToken)
         {
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
+        }
+
+        private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
+        {
+            return resolvedEvents
+                .Select(e => new EventStoreEvent
+                    {
+                        AggregateSequenceNumber = e.Event.EventNumber + 1,
+                        Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
+                        AggregateId = e.OriginalStreamId,
+                        AggregateName = e.Event.EventType.Split('.')[0],
+                        Data = Encoding.UTF8.GetString(e.Event.Data),
+                    })
+                .ToList();
         }
     }
 }
