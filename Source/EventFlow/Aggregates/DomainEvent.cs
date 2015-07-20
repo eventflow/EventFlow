@@ -45,6 +45,12 @@ namespace EventFlow.Aggregates
             TIdentity aggregateIdentity,
             int aggregateSequenceNumber)
         {
+            if (aggregateEvent == null) throw new ArgumentNullException("aggregateEvent");
+            if (metadata == null) throw new ArgumentNullException("metadata");
+            if (timestamp == default(DateTimeOffset)) throw new ArgumentNullException("timestamp");
+            if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException("aggregateIdentity");
+            if (aggregateSequenceNumber <= 0) throw new ArgumentOutOfRangeException("aggregateSequenceNumber");
+
             AggregateEvent = aggregateEvent;
             Metadata = metadata;
             Timestamp = timestamp;

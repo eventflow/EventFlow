@@ -116,6 +116,22 @@ Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
             "Source/EventFlow.EventStores.MsSql/EventFlow.EventStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowEventStoresEventStore" (fun _ ->
+    let binDir = "Source/EventFlow.EventStores.EventStore/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.EventStores.EventStore.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.EventStores.EventStore"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "EventStore.Client",  GetPackageVersion "./packages/" "EventStore.Client"]
+            Publish = false })
+            "Source/EventFlow.EventStores.EventStore/EventFlow.EventStores.EventStore.nuspec"
+    )
+
 Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
     let binDir = "Source/EventFlow.ReadStores.MsSql/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.ReadStores.MsSql.dll")
@@ -160,6 +176,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
+    ==> "CreatePackageEventFlowEventStoresEventStore"
     ==> "CreatePackageEventFlowOwin"
     ==> "Default"
 

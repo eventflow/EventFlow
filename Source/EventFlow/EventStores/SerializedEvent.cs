@@ -26,19 +26,19 @@ namespace EventFlow.EventStores
 {
     public class SerializedEvent
     {
-        public string Meta { get; private set; }
-        public string Data { get; private set; }
+        public string SerializedMetadata { get; private set; }
+        public string SerializedData { get; private set; }
         public int AggregateSequenceNumber { get; set; }
         public IMetadata Metadata { get; private set; }
 
         public SerializedEvent(
-            string meta,
-            string data,
+            string serializedMetadata,
+            string serializedData,
             int aggregateSequenceNumber,
             IMetadata metadata)
         {
-            Meta = meta;
-            Data = data;
+            SerializedMetadata = serializedMetadata;
+            SerializedData = serializedData;
             AggregateSequenceNumber = aggregateSequenceNumber;
             Metadata = metadata;
         }

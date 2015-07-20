@@ -20,21 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Configuration
+namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
-    public class EventFlowConfiguration : IEventFlowConfiguration
+    [Explicit("EventStore from https://geteventstore.com/ required to run")]
+    public class EventStoreEventStoreTests : EventStoreSuite<EventStoreEventStoreTestConfiguration>
     {
-        public int PopulateReadModelEventPageSize { get; set; }
-        public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
-        public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
-
-        public EventFlowConfiguration()
-        {
-            PopulateReadModelEventPageSize = 200;
-            NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
-            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
-        }
     }
 }

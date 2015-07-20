@@ -101,6 +101,7 @@
     <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\DomainEventFactory.cs" />
     <Compile Include="EventStores\EventUpgradeManager.cs" />
+    <Compile Include="EventStores\GlobalPosition.cs" />
     <Compile Include="EventStores\IDomainEventFactory.cs" />
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
@@ -143,7 +144,7 @@
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
-    <Compile Include="EventStores\EventStore.cs" />
+    <Compile Include="EventStores\EventStoreBase.cs" />
     <Compile Include="EventStores\IMetadataProvider.cs" />
     <Compile Include="EventStores\InMemory\InMemoryEventStore.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />

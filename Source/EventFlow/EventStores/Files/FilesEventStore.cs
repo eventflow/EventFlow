@@ -33,7 +33,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
 {
-    public class FilesEventStore : EventStore
+    public class FilesEventStore : EventStoreBase
     {
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventStoreConfiguration _configuration;
@@ -92,11 +92,15 @@ namespace EventFlow.EventStores.Files
         }
 
         protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
-            long startPostion,
-            long endPosition,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken)
         {
-            var paths = Enumerable.Range((int)startPostion, (int)endPosition)
+            var startPostion = globalPosition.IsStart
+                ? 1
+                : int.Parse(globalPosition.Value);
+
+            var paths = Enumerable.Range(startPostion, pageSize)
                 .TakeWhile(g => _log.ContainsKey(g))
                 .Select(g => _log[g])
                 .ToList();
@@ -112,7 +116,7 @@ namespace EventFlow.EventStores.Files
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
                 : startPostion;
 
-            return new AllCommittedEventsPage(nextPosition, committedDomainEvents);
+            return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
         protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
@@ -138,14 +142,14 @@ namespace EventFlow.EventStores.Files
                     _log[_globalSequenceNumber] = eventPath;
 
                     var fileEventData = new FileEventData
-                    {
-                        AggregateId = id.Value,
-                        AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
-                        Data = serializedEvent.Data,
-                        GlobalSequenceNumber = _globalSequenceNumber,
-                        Metadata = serializedEvent.Meta,
-                    };
-
+                        {
+                            AggregateId = id.Value,
+                            AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
+                            Data = serializedEvent.SerializedData,
+                            Metadata = serializedEvent.SerializedMetadata,
+                            GlobalSequenceNumber = _globalSequenceNumber,
+                        };
+            
                     var json = _jsonSerializer.Serialize(fileEventData, true);
 
                     if (File.Exists(eventPath))
@@ -213,7 +217,7 @@ namespace EventFlow.EventStores.Files
             TIdentity id,
             CancellationToken cancellationToken)
         {
-            var aggregateType = typeof(TAggregate);
+            var aggregateType = typeof (TAggregate);
             Log.Verbose(
                 "Deleting aggregate '{0}' with ID '{1}'",
                 aggregateType.Name,

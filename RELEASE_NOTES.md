@@ -1,6 +1,12 @@
 ### New in 0.9 (not released yet)
 
- * _Nothing yet_
+ * Braking: `IEventStore.LoadAllEventsAsync` and `IEventStore.LoadAllEvents`
+   now take a `GlobalPosition` as an argument instead of a `long` for the
+   starting position. The `GlobalPosition` is basically a wrapper around a
+   string that hides the inner workings of each event store.
+ * New: NuGet package `EventFlow.EventStores.EventStore` that provides
+   integration to [Event Store](https://geteventstore.com/). Its an initial
+   version and shouldn't be used in production.
 
 ### New in 0.8.560 (released 2015-05-29)
 

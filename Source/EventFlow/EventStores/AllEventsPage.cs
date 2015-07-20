@@ -27,14 +27,14 @@ namespace EventFlow.EventStores
 {
     public class AllEventsPage
     {
-        public long NextPosition { get; private set; }
+        public GlobalPosition NextGlobalPosition { get; private set; }
         public IReadOnlyCollection<IDomainEvent> DomainEvents { get; private set; }
 
         public AllEventsPage(
-            long nextPosition,
+            GlobalPosition nextGlobalPosition,
             IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            NextPosition = nextPosition;
+            NextGlobalPosition = nextGlobalPosition;
             DomainEvents = domainEvents;
         }
     }
