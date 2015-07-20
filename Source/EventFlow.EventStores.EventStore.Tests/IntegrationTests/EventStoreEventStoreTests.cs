@@ -20,19 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using JetBrains.Annotations;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
-    public class DomainError : Exception
+    [Explicit("EventStore from https://geteventstore.com/ required to run")]
+    public class EventStoreEventStoreTests : EventStoreSuite<EventStoreEventStoreTestConfiguration>
     {
-        private DomainError(string message) : base(message) { }
-
-        [StringFormatMethod("format")]
-        public static DomainError With(string format, params object[] args)
-        {
-            return new DomainError(string.Format(format, args));
-        }
     }
 }

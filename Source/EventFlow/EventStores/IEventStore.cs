@@ -37,13 +37,13 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity;
 
         Task<AllEventsPage> LoadAllEventsAsync(
-            long startPosition,
-            long pageSize,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken);
 
         AllEventsPage LoadAllEvents(
-            long startPosition,
-            long pageSize,
+            GlobalPosition globalPosition,
+            int pageSize,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(

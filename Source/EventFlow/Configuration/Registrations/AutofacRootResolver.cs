@@ -33,5 +33,11 @@ namespace EventFlow.Configuration.Registrations
         {
             Container = container;
         }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Container.Dispose();
+        }
     }
 }

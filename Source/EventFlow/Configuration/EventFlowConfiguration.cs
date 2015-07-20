@@ -26,7 +26,7 @@ namespace EventFlow.Configuration
 {
     public class EventFlowConfiguration : IEventFlowConfiguration
     {
-        public long PopulateReadModelEventPageSize { get; set; }
+        public int PopulateReadModelEventPageSize { get; set; }
         public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
         public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
 

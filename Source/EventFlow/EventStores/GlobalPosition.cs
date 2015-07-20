@@ -20,19 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using JetBrains.Annotations;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EventStores
 {
-    public class DomainError : Exception
+    public class GlobalPosition : SingleValueObject<string>
     {
-        private DomainError(string message) : base(message) { }
+        public static GlobalPosition Start { get { return new GlobalPosition(string.Empty); } }
 
-        [StringFormatMethod("format")]
-        public static DomainError With(string format, params object[] args)
+        public bool IsStart { get { return string.IsNullOrEmpty(Value); } }
+
+        public GlobalPosition(string value)
+            : base(value ?? string.Empty)
         {
-            return new DomainError(string.Format(format, args));
         }
     }
 }
