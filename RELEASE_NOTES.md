@@ -1,4 +1,8 @@
-### New in 0.9 (not released yet)
+### New in 0.10 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.9.580 (released 2015-07-20)
 
  * Braking: `IEventStore.LoadAllEventsAsync` and `IEventStore.LoadAllEvents`
    now take a `GlobalPosition` as an argument instead of a `long` for the
