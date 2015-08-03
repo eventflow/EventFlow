@@ -1,6 +1,8 @@
 ### New in 0.10 (not released yet)
 
- * _Nothing yet_
+ * Updated NuGet packages
+  - `Newtonsoft.Json` v7.0.1 (up from v6.0.8)
+  - `Dapper` v1.42 (up from v1.38, internal)
 
 ### New in 0.9.580 (released 2015-07-20)
 
