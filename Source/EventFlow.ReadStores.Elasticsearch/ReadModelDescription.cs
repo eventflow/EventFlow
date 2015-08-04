@@ -28,20 +28,16 @@ namespace EventFlow.ReadStores.Elasticsearch
     public class ReadModelDescription : ValueObject
     {
         public IndexName IndexName { get; private set; }
-        public TypeName TypeName { get; private set; }
 
         public ReadModelDescription(
-            IndexName indexName,
-            TypeName typeName)
+            IndexName indexName)
         {
             IndexName = indexName;
-            TypeName = typeName;
         }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return IndexName;
-            yield return TypeName;
         }
     }
 }

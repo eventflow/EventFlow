@@ -24,9 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
+using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch
 {
@@ -34,16 +34,16 @@ namespace EventFlow.ReadStores.Elasticsearch
         IElasticsearchReadModelStore<TReadModel>
         where TReadModel : class, IElasticsearchReadModel, new()
     {
-        private readonly IElasticsearchClient _elasticsearchClient;
+        private readonly IElasticClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
         public ElasticsearchReadModelStore(
             ILog log,
-            IElasticsearchClient elasticsearchClient,
+            IElasticClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider)
             : base(log)
         {
-            _elasticsearchClient = elasticsearchClient;
+            _elasticClient = elasticClient;
             _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
@@ -52,26 +52,26 @@ namespace EventFlow.ReadStores.Elasticsearch
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-            var elasticsearchResponse = await _elasticsearchClient.GetAsync<TReadModel>(
-                readModelDescription.IndexName.Value,
-                readModelDescription.TypeName.Value,
-                id)
+
+            var getResponse = await _elasticClient.GetAsync<TReadModel>(
+                id,
+                readModelDescription.IndexName.Value)
                 .ConfigureAwait(false);
 
-            return elasticsearchResponse.Response == null
-                ? ReadModelEnvelope<TReadModel>.Empty
-                : ReadModelEnvelope<TReadModel>.With(elasticsearchResponse.Response);
+            if (!getResponse.IsValid || !getResponse.Found)
+            {
+                return ReadModelEnvelope<TReadModel>.Empty;
+            }
+
+            var version = long.Parse(getResponse.Version);
+            return ReadModelEnvelope<TReadModel>.With(getResponse.Source, version);
         }
 
         public override Task DeleteAsync(
             string id,
             CancellationToken cancellationToken)
         {
-            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-            return _elasticsearchClient.DeleteAsync(
-                readModelDescription.IndexName.Value,
-                readModelDescription.TypeName.Value,
-                id);
+            throw new NotImplementedException();
         }
 
         public override Task DeleteAllAsync(
