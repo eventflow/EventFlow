@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow", "Source\EventFlow\EventFlow.csproj", "{11131251-778D-4D2E-BDD1-4844A789BCA9}"
 EndProject
@@ -32,6 +32,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.EventStores.EventStore", "Source\EventFlow.EventStores.EventStore\EventFlow.EventStores.EventStore.csproj", "{E42A253D-2011-4799-B55D-1D0C61E171C2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.EventStores.EventStore.Tests", "Source\EventFlow.EventStores.EventStore.Tests\EventFlow.EventStores.EventStore.Tests.csproj", "{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elasticsearch", "Elasticsearch", "{C07C0A53-9D6D-4EC7-97F6-CB54AE384656}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.ReadStores.Elasticsearch", "Source\EventFlow.ReadStores.Elasticsearch\EventFlow.ReadStores.Elasticsearch.csproj", "{404C6099-E82F-4433-8505-5479D76660CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +91,10 @@ Global
 		{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{404C6099-E82F-4433-8505-5479D76660CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{404C6099-E82F-4433-8505-5479D76660CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{404C6099-E82F-4433-8505-5479D76660CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{404C6099-E82F-4433-8505-5479D76660CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,5 +108,6 @@ Global
 		{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415} = {9876C758-0A72-400E-A1B1-685E1C22ACB2}
 		{E42A253D-2011-4799-B55D-1D0C61E171C2} = {F6D62A27-50EA-4846-8F36-F3D36F52DCA6}
 		{BC4F0E41-6659-4D6D-9D25-1558CBA1649B} = {F6D62A27-50EA-4846-8F36-F3D36F52DCA6}
+		{404C6099-E82F-4433-8505-5479D76660CD} = {C07C0A53-9D6D-4EC7-97F6-CB54AE384656}
 	EndGlobalSection
 EndGlobal
