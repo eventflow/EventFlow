@@ -30,14 +30,15 @@ to the documentation.
   Currently there is support for these storage types.
  * In-memory - only for test
  * Files - only for test
- * [Microsoft SQL Server](./Documentation/ReadStores-MSSQL.md)
+ * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
+ * EventStore - only for test (for now) [home page](https://geteventstore.com/)
 * **Read models:** Denormalized representation of aggregate events
   optimized for reading fast. Currently there is support for these
   read model storage types.
   * In-memory - only for test
   * Microsoft SQL Server
 * [**Queries**](./Documentation/Queries.md): Value objects that represent
-  a query without specifying how its executed, that is let to a query handler 
+  a query without specifying how its executed, that is let to a query handler
 * [**Event upgrade**](./Documentation/EventUpgrade.md): As events committed to
   the event store is never changed, EventFlow uses the concept of event upgraders
   to deprecate events and replace them with new during aggregate load.
@@ -75,6 +76,8 @@ using (var resolver = EventFlowOptions.New
 }
 ```
 
+Note: `.ConfigureAwait(false)` omitted in above example.
+
 ## Useful links
 
 * [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
@@ -105,4 +108,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-

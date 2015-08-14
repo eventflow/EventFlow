@@ -2,8 +2,8 @@
 
 Initially before you can create a aggregate, you need to create its
 identity. You can create your own implementation by implementing
-the `IIdentity` interface or you can use one EventFlow provides like
-this.
+the `IIdentity` interface or you can use a base class that EventFlow provides
+like this.
 
 ```csharp
 public class TestId : Identity<TestId>
@@ -17,12 +17,12 @@ public class TestId : Identity<TestId>
 Note that its important to call the constructor argument for `value` as
 its significant if you serialize the ID.
 
-Next, to create a new aggregate, simply inherit from `AggregateRoot<>` like
-this, making sure to pass test aggregate own type as the generic
-argument.
+Next, to create a new aggregate, simply inherit from `AggregateRoot<,>` like
+this, making sure to pass test aggregate own type as the first generic
+argument and the identity as the second.
 
 ```csharp
-public class TestAggregate : AggregateRoot<TestAggregate>
+public class TestAggregate : AggregateRoot<TestAggregate, TestId>
 {
   public TestAggregate(TestId id)
     : base(id)
@@ -31,13 +31,11 @@ public class TestAggregate : AggregateRoot<TestAggregate>
 }
 ```
 
-## Events
+## Emitting events
 
 In order to emit an event from an aggregate, call the `protected`
-`Emit(...)` method and apply the corresponding `Apply(...)` method
-for that event. You should include the `IEmit<>` in the list of
-interfaces for your aggregate as it helps to ensure that the method
-signature is correct.
+`Emit(...)` method which applies the event and adds it to the list of
+uncommitted events.
 
 ```csharp
 public void Ping()
@@ -45,9 +43,21 @@ public void Ping()
   // Fancy domain logic here...
   Emit(new PingEvent())
 }
-
-public void Apply(PingEvent e)
-{
-  // Save ping state here  
-}
 ```
+
+Remember not to do any changes to the aggregate with the these methods, as
+as state are only stored through events and how they are applied to the
+aggregate root.
+
+## Applying events
+
+Currently EventFlow has three methods of applying events to the aggregate when
+emitted or loaded from the event store.
+
+- Create a method called `Apply` that takes the event as argument. To get the
+  method signature right, implement the `IEmit<SomeEvent>` on your aggregate
+- Register a specific handler for a event using the protected
+ `Register<SomeEvent>(e => Handler(e))` from within the constructor
+- Override how _all_ events are applied to the aggregate by creating
+  an override of the `ApplyEvent(IAggregateEvent<TAggregate, TIdentity> e)`
+  method.
