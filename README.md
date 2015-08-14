@@ -46,6 +46,9 @@ to the documentation.
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.
+* [**Customize**](./Documentation/Customize.md): Almost every single part of
+  EventFlow can be swapped with a custom implementation through the embedded
+  IoC container.
 
 ## Full example
 Here's an example on how to use the in-memory event store (default)
@@ -77,6 +80,18 @@ using (var resolver = EventFlowOptions.New
 ```
 
 Note: `.ConfigureAwait(false)` omitted in above example.
+
+## State of EventFlow
+
+EventFlow is still under development, especially the parts regarding
+how read models are re-populated.
+
+EventFlow  _is_ currently used in production environments and performs very well,
+but it need to mature before key APIs are stable.
+
+EventFlow is greatly opinionated, but its possible to create new implementations
+for almost every part of EventFlow to registering a different implementation to
+a interface.
 
 ## Useful links
 
