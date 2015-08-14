@@ -3,6 +3,10 @@
  * Updated NuGet packages
   - `Newtonsoft.Json` v7.0.1 (up from v6.0.8)
   - `Dapper` v1.42 (up from v1.38, internal)
+ * New: Made `AggregateRoot<,>.Emit(...)` protected and virtual to allow
+   overrides that e.g. add a standard set of metadata from the aggregate state.
+ * New: Made `AggregateRoot<,>.ApplyEvent(...)` protected and virtual to
+   allow more custom implementations of applying events to the aggregate root.
 
 ### New in 0.9.580 (released 2015-07-20)
 
