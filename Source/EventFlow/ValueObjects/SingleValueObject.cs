@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 namespace EventFlow.ValueObjects
 {
-    public abstract class SingleValueObject<T> : ValueObject, IComparable
+    public abstract class SingleValueObject<T> : ValueObject, IComparable, ISingleValueObject
         where T : IComparable, IComparable<T>
     {
         public T Value { get; private set; }
@@ -66,6 +66,11 @@ namespace EventFlow.ValueObjects
             return ReferenceEquals(Value, null)
                 ? string.Empty
                 : Value.ToString();
+        }
+
+        public object GetValue()
+        {
+            return Value;
         }
     }
 }
