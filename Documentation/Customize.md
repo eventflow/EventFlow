@@ -45,7 +45,7 @@ class StatsCommandBus : ICommandBus
 
 ## Registering new implementations
 
-The more drastic step is to completely replace a implementation. For this
+The more drastic step is to completely replace an implementation. For this
 you use the `Register(...)` and related methods on `IServiceRegistration`
 instead of the `Decorate(...)` method.
 
