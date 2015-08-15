@@ -60,8 +60,9 @@ public `Apply` methods.
 - Create a method called `Apply` that takes the event as argument. To get the
   method signature right, implement the `IEmit<SomeEvent>` on your aggregate.
   This is the default fallback and you will get an exception if no other
-  strategies are configured
+  strategies are configured. Although you _can_ implement `IEmit<SomeEvent>`,
+  its optional, the `Apply` methods can be `protected` or `private`
 - Register a specific handler for a event using the protected
- `Register<SomeEvent>(e => Handler(e))` from within the constructor
+  `Register<SomeEvent>(e => Handler(e))` from within the constructor
 - Register an event applier using `Register(IEventApplier eventApplier)`,
   which could be a e.g state object
