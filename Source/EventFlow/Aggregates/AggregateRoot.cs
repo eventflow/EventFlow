@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
@@ -190,7 +191,12 @@ namespace EventFlow.Aggregates
                 aggregateEventType,
                 t =>
                     {
-                        var m = aggregateType.GetMethod("Apply", new []{ t });
+                        var m = aggregateType.GetMethod(
+                            "Apply",
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                            null,
+                            new []{ t },
+                            null);
                         if (m == null)
                         {
                             throw WrongImplementationException.With(
