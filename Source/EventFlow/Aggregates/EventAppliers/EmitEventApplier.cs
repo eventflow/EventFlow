@@ -28,14 +28,14 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates.EventAppliers
 {
-    public abstract class EmitEventApplier<TEventApplier, TAggregate, TIdentity> : IEventApplier<TAggregate, TIdentity>
+    public abstract class StateEventApplier<TEventApplier, TAggregate, TIdentity> : IEventApplier<TAggregate, TIdentity>
         where TEventApplier : class, IEventApplier<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
         private static readonly Dictionary<Type, Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>> ApplyMethods; 
 
-        static EmitEventApplier()
+        static StateEventApplier()
         {
             var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
 
@@ -54,7 +54,7 @@ namespace EventFlow.Aggregates.EventAppliers
                     mi => (Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>) ((ea, e) => mi.Invoke(ea, new []{ e } )));
         }
 
-        protected EmitEventApplier()
+        protected StateEventApplier()
         {
             var me = this as TEventApplier;
             if (me == null)
@@ -66,7 +66,7 @@ namespace EventFlow.Aggregates.EventAppliers
             }
         }
 
-        public void Apply(
+        public bool Apply(
             TAggregate aggregate,
             IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
@@ -75,13 +75,11 @@ namespace EventFlow.Aggregates.EventAppliers
 
             if (!ApplyMethods.TryGetValue(aggregateEventType, out applier))
             {
-                throw new ArgumentException(string.Format(
-                    "Event applier '{0}' does not implement 'Apply' method for event '{1}'",
-                    GetType().PrettyPrint(),
-                    aggregateEventType.PrettyPrint()));
+                return false;
             }
 
             applier((TEventApplier) (object) this, aggregateEvent);
+            return true;
         }
     }
 }

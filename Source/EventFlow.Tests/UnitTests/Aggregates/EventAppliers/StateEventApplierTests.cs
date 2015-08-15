@@ -32,7 +32,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates.EventAppliers
 {
-    public class EmitEventApplierTests : TestsFor<EmitEventApplierTests.TestEmitEventApplier>
+    public class StateEventApplierTests : TestsFor<StateEventApplierTests.TestStateEventApplier>
     {
         [Test]
         public void ApplyIsInvoked()
@@ -47,12 +47,12 @@ namespace EventFlow.Tests.UnitTests.Aggregates.EventAppliers
             Sut.PingIds.Should().Contain(pingId);
         }
 
-        public class TestEmitEventApplier : EmitEventApplier<TestEmitEventApplier, TestAggregate, TestId>,
+        public class TestStateEventApplier : StateEventApplier<TestStateEventApplier, TestAggregate, TestId>,
             IEmit<PingEvent>
         {
             public ISet<PingId> PingIds { get; private set; }
 
-            public TestEmitEventApplier()
+            public TestStateEventApplier()
             {
                 PingIds = new HashSet<PingId>();
             }

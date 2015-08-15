@@ -26,6 +26,6 @@ namespace EventFlow.Aggregates
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        void Apply(TAggregate aggregate, IAggregateEvent<TAggregate, TIdentity> aggregateEvent);
+        bool Apply(TAggregate aggregate, IAggregateEvent<TAggregate, TIdentity> aggregateEvent);
     }
 }
