@@ -26,16 +26,16 @@ using System.Linq;
 using System.Reflection;
 using EventFlow.Extensions;
 
-namespace EventFlow.Aggregates.EventAppliers
+namespace EventFlow.Aggregates
 {
-    public abstract class StateEventApplier<TAggregate, TIdentity, TEventApplier> : IEventApplier<TAggregate, TIdentity>
+    public abstract class AggregateState<TAggregate, TIdentity, TEventApplier> : IEventApplier<TAggregate, TIdentity>
         where TEventApplier : class, IEventApplier<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
         private static readonly Dictionary<Type, Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>> ApplyMethods; 
 
-        static StateEventApplier()
+        static AggregateState()
         {
             var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
 
@@ -54,7 +54,7 @@ namespace EventFlow.Aggregates.EventAppliers
                     mi => (Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>) ((ea, e) => mi.Invoke(ea, new []{ e } )));
         }
 
-        protected StateEventApplier()
+        protected AggregateState()
         {
             var me = this as TEventApplier;
             if (me == null)

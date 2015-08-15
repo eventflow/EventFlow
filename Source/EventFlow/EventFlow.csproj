@@ -58,7 +58,7 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
-    <Compile Include="Aggregates\EventAppliers\EmitEventApplier.cs" />
+    <Compile Include="Aggregates\AggregateState.cs" />
     <Compile Include="Aggregates\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />

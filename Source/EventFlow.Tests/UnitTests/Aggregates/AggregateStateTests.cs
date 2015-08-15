@@ -22,7 +22,6 @@
 
 using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Aggregates.EventAppliers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -30,9 +29,9 @@ using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Aggregates.EventAppliers
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    public class StateEventApplierTests : TestsFor<StateEventApplierTests.TestStateEventApplier>
+    public class AggregateStateTests : TestsFor<AggregateStateTests.TestAggregateState>
     {
         [Test]
         public void ApplyIsInvoked()
@@ -47,12 +46,12 @@ namespace EventFlow.Tests.UnitTests.Aggregates.EventAppliers
             Sut.PingIds.Should().Contain(pingId);
         }
 
-        public class TestStateEventApplier : StateEventApplier<TestAggregate, TestId, TestStateEventApplier>,
+        public class TestAggregateState : AggregateState<TestAggregate, TestId, TestAggregateState>,
             IEmit<PingEvent>
         {
             public ISet<PingId> PingIds { get; private set; }
 
-            public TestStateEventApplier()
+            public TestAggregateState()
             {
                 PingIds = new HashSet<PingId>();
             }
