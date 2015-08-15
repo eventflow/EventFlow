@@ -30,8 +30,6 @@ namespace EventFlow.ValueObjects
     {
         public T Value { get; private set; }
 
-        protected SingleValueObject() { }
-
         protected SingleValueObject(T value)
         {
             Value = value;
