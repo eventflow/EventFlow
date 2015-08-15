@@ -9,6 +9,8 @@ Implementation notes
   easier to read the guide and distinguish the different types
 * `.ConfigureAwait(false)` is omitted to make the code easier
   to read
+* Make sure to read the comments about how this code should be improved at
+  the bottom
 
 ## Create an aggregate
 
@@ -63,8 +65,19 @@ Important notes regarding events
 
 ## Update aggregate
 
+We update our aggregate by creating a new method called `Create(...)` that
+takes the username and password and emits the `UserCreatedEvent` if there's
+no domain errors.
+
+We also create the `Apply(UserCreatedEvent e)` method than applies the event
+to the aggregate root.
+
+Note that there are alternatives to applying events using `Apply(...)` methods,
+have a look at the [aggregate documentation](./Aggregates.md) for further
+details.
+
 ```csharp
-public class UserAggregate : AggregateRoot<UserAggregate>,
+public class UserAggregate : AggregateRoot<UserAggregate, UserId>,
   IEmit<UserCreatedEvent>
 {
   public string Username { get; private set; }
@@ -161,3 +174,10 @@ var command = new UserCreateCommand(
 
 await _commandBus.PublishAsync(command, cancellationToken);
 ```
+
+## Improvements
+
+There are several areas the code can be improved.
+
+- Use value objects for e.g. username and password that validate the value,
+  i.e., ensure that the username isn't the empty string
