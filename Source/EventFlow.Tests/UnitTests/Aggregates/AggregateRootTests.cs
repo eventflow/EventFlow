@@ -83,6 +83,16 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         }
 
         [Test]
+        public void ApplyIsInvoked()
+        {
+            // Act
+            Sut.DomainErrorAfterFirst();
+
+            // Assert
+            Sut.DomainErrorAfterFirstReceived.Should().BeTrue();
+        }
+
+        [Test]
         public void ApplyEventsReadsAggregateSequenceNumber()
         {
             // Arrange
