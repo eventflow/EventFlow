@@ -28,7 +28,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates.EventAppliers
 {
-    public abstract class StateEventApplier<TEventApplier, TAggregate, TIdentity> : IEventApplier<TAggregate, TIdentity>
+    public abstract class StateEventApplier<TAggregate, TIdentity, TEventApplier> : IEventApplier<TAggregate, TIdentity>
         where TEventApplier : class, IEventApplier<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity

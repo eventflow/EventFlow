@@ -47,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates.EventAppliers
             Sut.PingIds.Should().Contain(pingId);
         }
 
-        public class TestStateEventApplier : StateEventApplier<TestStateEventApplier, TestAggregate, TestId>,
+        public class TestStateEventApplier : StateEventApplier<TestAggregate, TestId, TestStateEventApplier>,
             IEmit<PingEvent>
         {
             public ISet<PingId> PingIds { get; private set; }
