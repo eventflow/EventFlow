@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
+    <Compile Include="Aggregates\EventAppliers\EmitEventApplier.cs" />
     <Compile Include="Aggregates\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />

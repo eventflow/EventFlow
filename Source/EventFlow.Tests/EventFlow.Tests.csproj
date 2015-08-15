@@ -72,6 +72,7 @@
     <Compile Include="IntegrationTests\InMemoryConfiguration.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
+    <Compile Include="UnitTests\Aggregates\EventAppliers\EmitEventApplierTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelDomainEventApplierTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
