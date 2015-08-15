@@ -58,7 +58,7 @@ namespace EventFlow.Aggregates
             Id = id;
         }
 
-        protected void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
+        protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null)
@@ -85,7 +85,9 @@ namespace EventFlow.Aggregates
             _uncommittedEvents.Add(uncommittedEvent);
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+            IEventStore eventStore,
+            CancellationToken cancellationToken)
         {
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
@@ -132,7 +134,7 @@ namespace EventFlow.Aggregates
             }
         }
 
-        private void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
+        protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
             var eventType = aggregateEvent.GetType();
             if (_eventHandlers.ContainsKey(eventType))
@@ -177,7 +179,7 @@ namespace EventFlow.Aggregates
         }
 
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>>(); 
-        private Action<TAggregate, IAggregateEvent> GetApplyMethod(Type aggregateEventType)
+        protected Action<TAggregate, IAggregateEvent> GetApplyMethod(Type aggregateEventType)
         {
             var aggregateType = GetType();
             var typeDictionary = ApplyMethods.GetOrAdd(
