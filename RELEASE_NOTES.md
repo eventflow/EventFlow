@@ -2,6 +2,9 @@
 
  * Breaking: Updated NuGet reference `Newtonsoft.Json` to v7.0.1
    (up from v6.0.8)
+ * New: Added a protected method `Register(IEventApplier)` to
+   `AggregateRoot<,>` that enables developers to override how events are
+   applied. Use this to e.g. implement a state object
  * New: Made `AggregateRoot<,>.Emit(...)` protected and virtual to allow
    overrides that e.g. add a standard set of metadata from the aggregate state.
  * New: Made `AggregateRoot<,>.ApplyEvent(...)` protected and virtual to

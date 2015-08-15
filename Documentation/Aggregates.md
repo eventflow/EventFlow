@@ -40,7 +40,8 @@ uncommitted events.
 ```csharp
 public void Ping()
 {
-  // Fancy domain logic here...
+  // Fancy domain logic here that validates aggregate state...
+
   Emit(new PingEvent())
 }
 ```
@@ -52,12 +53,15 @@ aggregate root.
 ## Applying events
 
 Currently EventFlow has three methods of applying events to the aggregate when
-emitted or loaded from the event store.
+emitted or loaded from the event store. Which you choose is up to you,
+implementing `IEmit<SomeEvent>` is the most convenient, but will expose
+public `Apply` methods.
 
 - Create a method called `Apply` that takes the event as argument. To get the
-  method signature right, implement the `IEmit<SomeEvent>` on your aggregate
+  method signature right, implement the `IEmit<SomeEvent>` on your aggregate.
+  This is the default fallback and you will get an exception if no other
+  strategies are configured
 - Register a specific handler for a event using the protected
  `Register<SomeEvent>(e => Handler(e))` from within the constructor
-- Override how _all_ events are applied to the aggregate by creating
-  an override of the `ApplyEvent(IAggregateEvent<TAggregate, TIdentity> e)`
-  method.
+- Register an event applier using `Register(IEventApplier eventApplier)`,
+  which could be a e.g state object
