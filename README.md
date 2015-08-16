@@ -10,12 +10,14 @@ Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
 
 ### Features
 
-* CQRS+ES framework
-* Async/await first
-* Highly configurable and extendable
-* Easy to use
-* No use of threads or background workers making it "web friendly"
-* Cancellation
+* **CQRS+ES framework**
+* **Async/await first:** Every part of EventFlow is written using async/await. In
+  some places EventFlow exposes sync methods like e.g. the `ICommandBus`, but these
+  merely _try_ to do the right thing using an async bridge.
+* **Highly configurable and extendable**
+* **Easy to use**
+* **No use of threads or background workers making it "web friendly"**
+* **Cancellation**
 
 ### Overview
 
