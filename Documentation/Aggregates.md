@@ -87,6 +87,8 @@ public `Apply` methods.
   This is the default fallback and you will get an exception if no other
   strategies are configured. Although you _can_ implement `IEmit<SomeEvent>`,
   its optional, the `Apply` methods can be `protected` or `private`
+- Create a state object by inheriting from `AggregateState<,,>` and registering
+  using the protected `Register(...)` in the aggregate root constructor
 - Register a specific handler for a event using the protected
   `Register<SomeEvent>(e => Handler(e))` from within the constructor
 - Register an event applier using `Register(IEventApplier eventApplier)`,

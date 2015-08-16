@@ -7,7 +7,10 @@
    e.g. domain events are serialized
  * New: Added a protected method `Register(IEventApplier)` to
    `AggregateRoot<,>` that enables developers to override how events are
-   applied. Use this to e.g. implement a state object
+   applied. Use this to e.g. implement state objects
+ * New: Create `AggregateState<,,>` that developers can use to create aggregate
+   state classes. Call `Register(...)` with the state object member as argument
+   to redirect events to it
  * New: Allow `AggregateRoot<,>` methods for applying events, i.e.,
   `Apply(...)`, are now allowed to be `private` and `protected`
  * New: Made `AggregateRoot<,>.Emit(...)` protected and virtual to allow

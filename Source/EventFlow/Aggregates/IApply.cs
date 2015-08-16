@@ -22,10 +22,9 @@
 
 namespace EventFlow.Aggregates
 {
-    public interface IEventApplier<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface IApply<in TAggregateEvent>
+        where TAggregateEvent : IAggregateEvent
     {
-        bool Apply(TAggregate aggregate, IAggregateEvent<TAggregate, TIdentity> aggregateEvent);
+        void Apply(TAggregateEvent e);
     }
 }

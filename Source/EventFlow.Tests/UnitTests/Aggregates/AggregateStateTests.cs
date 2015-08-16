@@ -20,12 +20,46 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using FluentAssertions;
+using NUnit.Framework;
+
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    public interface IEventApplier<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class AggregateStateTests : TestsFor<AggregateStateTests.TestAggregateState>
     {
-        bool Apply(TAggregate aggregate, IAggregateEvent<TAggregate, TIdentity> aggregateEvent);
+        [Test]
+        public void ApplyIsInvoked()
+        {
+            // Arrange
+            var pingId = PingId.New;
+
+            // Act
+            Sut.Apply(null, new PingEvent(pingId));
+
+            // Assert
+            Sut.PingIds.Should().Contain(pingId);
+        }
+
+        public class TestAggregateState : AggregateState<TestAggregate, TestId, TestAggregateState>,
+            IEmit<PingEvent>
+        {
+            public ISet<PingId> PingIds { get; private set; }
+
+            public TestAggregateState()
+            {
+                PingIds = new HashSet<PingId>();
+            }
+
+            public void Apply(PingEvent e)
+            {
+                PingIds.Add(e.PingId);
+            }
+        }
     }
 }

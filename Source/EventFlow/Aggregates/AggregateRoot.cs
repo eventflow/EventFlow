@@ -142,15 +142,13 @@ namespace EventFlow.Aggregates
             {
                 _eventHandlers[eventType](aggregateEvent);
             }
-            else if (_eventApplier != null)
-            {
-                _eventApplier.Apply((TAggregate)this, aggregateEvent);
-            }
+            else if (_eventAppliers.Any(ea => ea.Apply((TAggregate)this, aggregateEvent))) { }
             else
             {
                 var applyMethod = GetApplyMethod(eventType);
                 applyMethod(this as TAggregate, aggregateEvent);
             }
+
             Version++;
         }
 
@@ -168,15 +166,11 @@ namespace EventFlow.Aggregates
             _eventHandlers[eventType] = e => handler((TAggregateEvent)e);
         }
 
-        private IEventApplier<TAggregate, TIdentity> _eventApplier;
+        private readonly List<IEventApplier<TAggregate, TIdentity>> _eventAppliers = new List<IEventApplier<TAggregate, TIdentity>>();
 
         protected void Register(IEventApplier<TAggregate, TIdentity> eventApplier)
         {
-            if (_eventApplier != null)
-            {
-                throw new InvalidOperationException("You cannot apply an event applier as its already configured");
-            }
-            _eventApplier = eventApplier;
+            _eventAppliers.Add(eventApplier);
         }
 
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>>(); 
