@@ -2,8 +2,8 @@
 
 Initially before you can create a aggregate, you need to create its
 identity. You can create your own implementation by implementing
-the `IIdentity` interface or you can use a base class that EventFlow provides
-like this.
+the `IIdentity` interface or you can use a base class `Identity<>` that
+EventFlow provides, like this.
 
 ```csharp
 public class TestId : Identity<TestId>
@@ -14,7 +14,17 @@ public class TestId : Identity<TestId>
 }
 ```
 
-Note that its important to call the constructor argument for `value` as
+The `Identity<>` value object provides generic functionality to create and
+validate aggregate root IDs.
+
+- IDs follow the form `{class with "Id"}-{guid}` e.g.
+  `test-c93fdb8c-5c9a-4134-bbcd-87c0644ca34f`
+- IDs can be generated using the static `New` property
+- IDs can be validated using the static `bool IsValid(string)` method
+- ID validation errors (if any) can be gathered using the static
+  `IEnumerable<string> Validate(string)` method
+
+Note that its important to _name_ the constructor argument `value` as
 its significant if you serialize the ID.
 
 Next, to create a new aggregate, simply inherit from `AggregateRoot<,>` like
