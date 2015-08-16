@@ -60,12 +60,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
 
         private class MyState: IEventApplier<MyAggregate, MyId>
         {
-            public int Count { get; set; }
+            public int Count { get; private set; }
 
-            public void Apply(MyAggregate aggregate, IAggregateEvent<MyAggregate, MyId> aggregateEvent)
+            public bool Apply(MyAggregate aggregate, IAggregateEvent<MyAggregate, MyId> aggregateEvent)
             {
                 var myCountEvent = (MyCountEvent)aggregateEvent;
                 Count += myCountEvent.Count;
+                return true;
             }
         }
 

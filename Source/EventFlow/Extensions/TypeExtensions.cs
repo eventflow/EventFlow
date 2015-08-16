@@ -20,12 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System;
+
+namespace EventFlow.Extensions
 {
-    public interface IEventApplier<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public static class TypeExtensions
     {
-        bool Apply(TAggregate aggregate, IAggregateEvent<TAggregate, TIdentity> aggregateEvent);
+        public static string PrettyPrint(this Type type)
+        {
+            return type.Name;
+        }
     }
 }
