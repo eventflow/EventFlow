@@ -2,6 +2,9 @@
 
  * Breaking: Updated NuGet reference `Newtonsoft.Json` to v7.0.1
    (up from v6.0.8)
+ * Breaking: Remove the empty constructor from `SingleValueObject<>`
+ * New: Added `SingleValueObjectConverter` to help create clean JSON when
+   e.g. domain events are serialized
  * New: Added a protected method `Register(IEventApplier)` to
    `AggregateRoot<,>` that enables developers to override how events are
    applied. Use this to e.g. implement state objects

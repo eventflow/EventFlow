@@ -46,6 +46,8 @@ to the documentation.
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.
+* [**Value objects**](./Documentation/ValueObjects.md): Data containing classes
+  used to validate and hold domain data, e.g. a username or e-mail.
 * [**Customize**](./Documentation/Customize.md): Almost every single part of
   EventFlow can be swapped with a custom implementation through the embedded
   IoC container.

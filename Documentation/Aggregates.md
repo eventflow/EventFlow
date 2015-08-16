@@ -31,6 +31,26 @@ public class TestAggregate : AggregateRoot<TestAggregate, TestId>
 }
 ```
 
+## Events
+
+In an event source system like EventFlow, aggregate root data are stored on
+events.
+
+```csharp
+public class PingEvent : AggregateEvent<TestAggregate, TestId>
+{
+  public string Data { get; }
+  public PingEvent(string data)
+  {
+      Data = data;
+  }
+}
+```
+
+Please make sure to read the section on
+[value objects and events](./ValueObjects.md) for some important notes on
+creating events.
+
 ## Emitting events
 
 In order to emit an event from an aggregate, call the `protected`
@@ -38,11 +58,16 @@ In order to emit an event from an aggregate, call the `protected`
 uncommitted events.
 
 ```csharp
-public void Ping()
+public void Ping(string data)
 {
   // Fancy domain logic here that validates aggregate state...
 
-  Emit(new PingEvent())
+  if (string.IsNullOrEmpty(data))
+  {
+    throw DomainError.With("Ping data empty")
+  }
+
+  Emit(new PingEvent(data))
 }
 ```
 
