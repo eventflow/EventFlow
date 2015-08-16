@@ -6,7 +6,8 @@
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
-Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
+Have a look at our [Getting started guide](./Documentation/GettingStarted.md)
+and the [dos and don'ts](./Documentation/DoesAndDonts.md).
 
 ### Features
 
