@@ -17,8 +17,8 @@ public class TestId : Identity<TestId>
 The `Identity<>` value object provides generic functionality to create and
 validate aggregate root IDs.
 
-- IDs follow the form `{class with "Id"}-{guid}` e.g.
-  `test-c93fdb8c-5c9a-4134-bbcd-87c0644ca34f`
+- IDs follow the form `{class without "Id"}-{guid}` e.g.
+  `test-c93fdb8c-5c9a-4134-bbcd-87c0644ca34f` for the above `TestId`
 - IDs can be generated using the static `New` property
 - IDs can be validated using the static `bool IsValid(string)` method
 - ID validation errors (if any) can be gathered using the static
