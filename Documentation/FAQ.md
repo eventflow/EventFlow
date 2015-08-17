@@ -1,6 +1,18 @@
 # FAQ - frequently asked questions
 
-#### **Why doesn't EventFlow have a unit of work concept?**
+#### Why isn't there a "global sequence number" on domain events?
+
+While this is easy to support in some event stores like MSSQL, it doesn't
+really make sense from a domain perspective. Greg Young also has this to say
+on the subject:
+
+> Order is only assured per a handler within an aggregate root
+> boundary. There is no assurance of order between handlers or
+> between aggregates. Trying to provide those things leads to
+> the dark side.
+>> [Greg Young](https://groups.yahoo.com/neo/groups/domaindrivendesign/conversations/topics/18453)
+
+#### Why doesn't EventFlow have a unit of work concept?
 
 Short answer, you shouldn't need it. But Mike has a way better answer:
 
