@@ -1,4 +1,8 @@
-### New in 0.10 (not released yet)
+### New in 0.11 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.10.642 (released 2015-08-17)
 
  * Breaking: Updated NuGet reference `Newtonsoft.Json` to v7.0.1
    (up from v6.0.8)
