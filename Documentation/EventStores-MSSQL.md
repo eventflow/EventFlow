@@ -1,6 +1,6 @@
 # MSSQL event store
 To use the MSSQL event store provider you need to install the NuGet
-package `EventFlow.ReadStores.MsSql`.
+package `EventFlow.EventStores.MsSql`.
 
 ## Configuration
 
@@ -10,7 +10,7 @@ Configure the MSSQL connection and event store as shown here.
 IRootResolver rootResolver = EventFlowOptions.New
   .ConfigureMsSql(MsSqlConfiguration.New
     .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
-  .UseEventStore<MsSqlEventStore>()
+  .UseMssqlEventStore()
   ...
   .CreateResolver();
 ```
@@ -25,7 +25,7 @@ yourself.
 To make EventFlow create the required tabeles, execute the following code.
 
 ```csharp
-var msSqlDatabaseMigrator = rootResolver.Resolve<IMsSqlDatabaseMigrator >();
+var msSqlDatabaseMigrator = rootResolver.Resolve<IMsSqlDatabaseMigrator>();
 EventFlowEventStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
 ```
 
@@ -34,5 +34,5 @@ install or update, e.g., when the web site is installed.
 
 **Note:** If you utilize user permission in your application, then you
 need to grant the event writer access to the user defined table type
-´eventdatamodel_list_type´. EventFlow uses this type to pass entire
+`eventdatamodel_list_type`. EventFlow uses this type to pass entire
 batches of events to the database.

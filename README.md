@@ -10,12 +10,15 @@ Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
 
 ### Features
 
-* CQRS+ES framework
-* Async/await first
-* Highly configurable and extendable
-* Easy to use
-* No use of threads or background workers making it "web friendly"
-* Cancellation
+* **CQRS+ES framework**
+* **Async/await first:** Every part of EventFlow is written using async/await. In
+  some places EventFlow exposes sync methods like e.g. the `ICommandBus`, but these
+  merely _try_ to do the right thing using an async bridge
+* **Highly configurable and extendable**
+* **Easy to use**
+* **No use of threads or background workers making it "web friendly"**
+* **Cancellation:** All methods that does IO work or might delay execution,
+  takes a `CancellationToken` argument to allow you to cancel the operation
 
 ### Overview
 
@@ -30,14 +33,15 @@ to the documentation.
   Currently there is support for these storage types.
  * In-memory - only for test
  * Files - only for test
- * [Microsoft SQL Server](./Documentation/ReadStores-MSSQL.md)
+ * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
+ * EventStore - only for test (for now) [home page](https://geteventstore.com/)
 * **Read models:** Denormalized representation of aggregate events
   optimized for reading fast. Currently there is support for these
   read model storage types.
   * In-memory - only for test
   * Microsoft SQL Server
 * [**Queries**](./Documentation/Queries.md): Value objects that represent
-  a query without specifying how its executed, that is let to a query handler 
+  a query without specifying how its executed, that is let to a query handler
 * [**Event upgrade**](./Documentation/EventUpgrade.md): As events committed to
   the event store is never changed, EventFlow uses the concept of event upgraders
   to deprecate events and replace them with new during aggregate load.
@@ -45,6 +49,11 @@ to the documentation.
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.
+* [**Value objects**](./Documentation/ValueObjects.md): Data containing classes
+  used to validate and hold domain data, e.g. a username or e-mail.
+* [**Customize**](./Documentation/Customize.md): Almost every single part of
+  EventFlow can be swapped with a custom implementation through the embedded
+  IoC container.
 
 ## Full example
 Here's an example on how to use the in-memory event store (default)
@@ -74,6 +83,20 @@ using (var resolver = EventFlowOptions.New
   var testReadModel = await readModelStore.GetAsync(id);
 }
 ```
+
+Note: `.ConfigureAwait(false)` omitted in above example.
+
+## State of EventFlow
+
+EventFlow is still under development, especially the parts regarding
+how read models are re-populated.
+
+EventFlow  _is_ currently used in production environments and performs very well,
+but it need to mature before key APIs are stable.
+
+EventFlow is greatly opinionated, but its possible to create new implementations
+for almost every part of EventFlow by registering a different implementation of a
+a interface.
 
 ## Useful links
 
@@ -105,4 +128,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-

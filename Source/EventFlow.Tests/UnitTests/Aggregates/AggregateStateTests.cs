@@ -20,55 +20,46 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.ValueObjects
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    public abstract class SingleValueObject<T> : ValueObject, IComparable, ISingleValueObject
-        where T : IComparable, IComparable<T>
+    public class AggregateStateTests : TestsFor<AggregateStateTests.TestAggregateState>
     {
-        public T Value { get; private set; }
-
-        protected SingleValueObject(T value)
+        [Test]
+        public void ApplyIsInvoked()
         {
-            Value = value;
+            // Arrange
+            var pingId = PingId.New;
+
+            // Act
+            Sut.Apply(null, new PingEvent(pingId));
+
+            // Assert
+            Sut.PingIds.Should().Contain(pingId);
         }
 
-        public int CompareTo(object obj)
+        public class TestAggregateState : AggregateState<TestAggregate, TestId, TestAggregateState>,
+            IEmit<PingEvent>
         {
-            if (ReferenceEquals(null, obj))
+            public ISet<PingId> PingIds { get; private set; }
+
+            public TestAggregateState()
             {
-                throw new ArgumentNullException("obj");
+                PingIds = new HashSet<PingId>();
             }
 
-            var other = obj as SingleValueObject<T>;
-            if (other == null)
+            public void Apply(PingEvent e)
             {
-                throw new ArgumentException(string.Format(
-                    "Cannot compare '{0}' and '{1}'",
-                    GetType().Name,
-                    obj.GetType().Name));
+                PingIds.Add(e.PingId);
             }
-
-            return Value.CompareTo(other.Value);
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
-
-        public override string ToString()
-        {
-            return ReferenceEquals(Value, null)
-                ? string.Empty
-                : Value.ToString();
-        }
-
-        public object GetValue()
-        {
-            return Value;
         }
     }
 }

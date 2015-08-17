@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
@@ -58,7 +59,7 @@ namespace EventFlow.Aggregates
             Id = id;
         }
 
-        protected void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
+        protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null)
@@ -85,7 +86,9 @@ namespace EventFlow.Aggregates
             _uncommittedEvents.Add(uncommittedEvent);
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+            IEventStore eventStore,
+            CancellationToken cancellationToken)
         {
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
@@ -132,18 +135,20 @@ namespace EventFlow.Aggregates
             }
         }
 
-        private void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
+        protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
             var eventType = aggregateEvent.GetType();
             if (_eventHandlers.ContainsKey(eventType))
             {
                 _eventHandlers[eventType](aggregateEvent);
             }
+            else if (_eventAppliers.Any(ea => ea.Apply((TAggregate)this, aggregateEvent))) { }
             else
             {
                 var applyMethod = GetApplyMethod(eventType);
                 applyMethod(this as TAggregate, aggregateEvent);
             }
+
             Version++;
         }
 
@@ -161,8 +166,15 @@ namespace EventFlow.Aggregates
             _eventHandlers[eventType] = e => handler((TAggregateEvent)e);
         }
 
+        private readonly List<IEventApplier<TAggregate, TIdentity>> _eventAppliers = new List<IEventApplier<TAggregate, TIdentity>>();
+
+        protected void Register(IEventApplier<TAggregate, TIdentity> eventApplier)
+        {
+            _eventAppliers.Add(eventApplier);
+        }
+
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>>(); 
-        private Action<TAggregate, IAggregateEvent> GetApplyMethod(Type aggregateEventType)
+        protected Action<TAggregate, IAggregateEvent> GetApplyMethod(Type aggregateEventType)
         {
             var aggregateType = GetType();
             var typeDictionary = ApplyMethods.GetOrAdd(
@@ -173,7 +185,12 @@ namespace EventFlow.Aggregates
                 aggregateEventType,
                 t =>
                     {
-                        var m = aggregateType.GetMethod("Apply", new []{ t });
+                        var m = aggregateType.GetMethod(
+                            "Apply",
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                            null,
+                            new []{ t },
+                            null);
                         if (m == null)
                         {
                             throw WrongImplementationException.With(
