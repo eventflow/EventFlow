@@ -20,35 +20,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using RabbitMQ.Client;
+using EventFlow.Configuration.Registrations;
+using EventFlow.RabbitMQ.Integrations;
+using EventFlow.ReadStores;
 
-namespace EventFlow.RabbitMQ.Integrations
+namespace EventFlow.RabbitMQ.Extensions
 {
-    public class RabbitMqModelFactory : IRabbitMqModelFactory
+    public static class EventFlowOptionsRabbitMqExtensions
     {
-        private readonly IRabbitMqConnectionFactory _rabbitMqConnectionFactory;
-
-        public RabbitMqModelFactory(
-            IRabbitMqConnectionFactory rabbitMqConnectionFactory)
+        public static EventFlowOptions PublishToRabbitMq(
+            this EventFlowOptions eventFlowOptions,
+            IRabbitMqConfiguration configuration)
         {
-            _rabbitMqConnectionFactory = rabbitMqConnectionFactory;
-        }
+            eventFlowOptions.RegisterServices(sr =>
+                {
+                    sr.Register<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
+                    sr.Register<IRabbitMqMessageFactory, RabbitMqMessageFactory>();
+                    sr.Register<IRabbitMqPublisher, RabbitMqPublisher>();
+                    sr.Register<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>();
 
-        public async Task<TResult> WithModelAsync<TResult>(
-            Uri uri,
-            Label label,
-            Func<IModel, Task<TResult>> action,
-            CancellationToken cancellationToken)
-        {
-            using (var connection = await _rabbitMqConnectionFactory.CreateConnectionAsync(uri, cancellationToken).ConfigureAwait(false))
-            using (var model = connection.CreateModel())
-            {
-                return await action(model).ConfigureAwait(false);
-            }
+                    sr.Register(rc => configuration, Lifetime.Singleton);
+
+                    sr.Register<IReadStoreManager, RabbitMqDomainEventPublisher>();
+                });
+
+            return eventFlowOptions;
         }
     }
 }

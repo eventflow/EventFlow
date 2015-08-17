@@ -20,10 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.RabbitMQ.Integrations
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.RabbitMQ.Integrations;
+using EventFlow.ReadStores;
+
+namespace EventFlow.RabbitMQ
 {
-    public interface IRabbitMqModelFactory
+    public class RabbitMqDomainEventPublisher : IReadStoreManager
     {
-        
+        private readonly IRabbitMqPublisher _rabbitMqPublisher;
+
+        public RabbitMqDomainEventPublisher(
+            IRabbitMqPublisher rabbitMqPublisher)
+        {
+            _rabbitMqPublisher = rabbitMqPublisher;
+        }
+
+        public Task UpdateReadStoresAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            return _rabbitMqPublisher.PublishAsync(domainEvents, cancellationToken);
+        }
     }
 }

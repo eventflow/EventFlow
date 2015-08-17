@@ -28,13 +28,16 @@ namespace EventFlow.RabbitMQ.Integrations
     {
         public byte[] Message { get; private set; }
         public IReadOnlyDictionary<string, string> Headers { get; private set; }
+        public string RoutingKey { get; private set; }
 
         public RabbitMqMessage(
             byte[] message,
-            IReadOnlyDictionary<string, string> headers)
+            IReadOnlyDictionary<string, string> headers,
+            string routingKey)
         {
             Message = message;
             Headers = headers;
+            RoutingKey = routingKey;
         }
     }
 }

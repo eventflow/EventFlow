@@ -23,8 +23,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 
@@ -40,9 +38,7 @@ namespace EventFlow.RabbitMQ.Integrations
             _eventJsonSerializer = eventJsonSerializer;
         }
 
-        public Task<RabbitMqMessage> CreateMessageAsync(
-            IDomainEvent domainEvent,
-            CancellationToken cancellationToken)
+        public RabbitMqMessage CreateMessage(IDomainEvent domainEvent)
         {
             var headers = domainEvent.Metadata
                 .ToDictionary(kv => string.Format("eventflow-metadata-{0}", kv.Key), kv => kv.Value);
@@ -54,7 +50,12 @@ namespace EventFlow.RabbitMQ.Integrations
 
             var message = Encoding.UTF8.GetBytes(serializedEvent.SerializedData);
 
-            return Task.FromResult(new RabbitMqMessage(message, headers));
+            var routingKey = string.Format(
+                "eventflow.domainevent.{0}.{1}",
+                domainEvent.Metadata.EventName,
+                domainEvent.Metadata.EventVersion);
+
+            return new RabbitMqMessage(message, headers, routingKey);
         }
     }
 }

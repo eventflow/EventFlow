@@ -28,8 +28,6 @@ namespace EventFlow.RabbitMQ.Integrations
 {
     public interface IRabbitMqMessageFactory
     {
-        Task<RabbitMqMessage> CreateMessageAsync(
-            IDomainEvent domainEvent,
-            CancellationToken cancellationToken);
+        RabbitMqMessage CreateMessage(IDomainEvent domainEvent);
     }
 }

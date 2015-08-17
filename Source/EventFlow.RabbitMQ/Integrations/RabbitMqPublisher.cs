@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,9 +51,11 @@ namespace EventFlow.RabbitMQ.Integrations
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task PublishAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
+        public async Task PublishAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
         {
-            var message = await _messageFactory.CreateMessageAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+            var message = domainEvents
+                .Select(e => _messageFactory.CreateMessage(e))
+                .ToList();
 
             await _transientFaultHandler.TryAsync(
                 c => PublishAsync(message, c),
@@ -61,23 +64,25 @@ namespace EventFlow.RabbitMQ.Integrations
                 .ConfigureAwait(false);
         }
 
-        private async Task<int> PublishAsync(RabbitMqMessage message, CancellationToken cancellationToken)
+        private async Task<int> PublishAsync(IEnumerable<RabbitMqMessage> messages, CancellationToken cancellationToken)
         {
             // TODO: Cache connection/model
 
             using (var connection = await _connectionFactory.CreateConnectionAsync(_configuration.Uri, cancellationToken).ConfigureAwait(false))
             using (var model = connection.CreateModel())
             {
-                var basicProperties = model.CreateBasicProperties();
-                basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Value, kv => (object)kv.Value);
-                basicProperties.Persistent = true; // TODO: get from config
-                basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
+                foreach (var message in messages)
+                {
+                    var basicProperties = model.CreateBasicProperties();
+                    basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Value, kv => (object)kv.Value);
+                    basicProperties.Persistent = true; // TODO: get from config
+                    basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
 
-                model.BasicPublish("get from config", "get from config", false, basicProperties, message.Message);
+                    model.BasicPublish("get from config", "get from config", false, false, basicProperties, message.Message);
+                }
             }
 
             return 0;
         }
     }
 }
-
