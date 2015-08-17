@@ -20,16 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using EventFlow.Core;
+using RabbitMQ.Client.Exceptions;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IRabbitMqMessageFactory
+    public class RabbitMqRetryStrategy : IRabbitMqRetryStrategy
     {
-        Task<RabbitMqMessage> CreateMessageAsync(
-            IDomainEvent domainEvent,
-            CancellationToken cancellationToken);
+        private static readonly ISet<Type> TransientExceptions = new HashSet<Type>
+            {
+                typeof(EndOfStreamException),
+                typeof(BrokerUnreachableException),
+                typeof(OperationInterruptedException)
+            };
+
+        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
+        {
+            return currentRetryCount <= 3 && TransientExceptions.Contains(exception.GetType())
+                ? Retry.YesAfter(TimeSpan.FromMilliseconds(25))
+                : Retry.No;
+        }
     }
 }

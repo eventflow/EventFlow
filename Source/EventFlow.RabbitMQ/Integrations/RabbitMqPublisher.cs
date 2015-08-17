@@ -29,7 +29,7 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using RabbitMQ.Client;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqPublisher : IRabbitMqPublisher
     {

@@ -48,19 +48,19 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="IRabbitMqConfiguration.cs" />
-    <Compile Include="IRabbitMqConnectionFactory.cs" />
-    <Compile Include="IRabbitMqMessageFactory.cs" />
-    <Compile Include="IRabbitMqModelFactory.cs" />
-    <Compile Include="IRabbitMqPublisher.cs" />
-    <Compile Include="IRabbitMqRetryStrategy.cs" />
+    <Compile Include="Integrations\IRabbitMqConnectionFactory.cs" />
+    <Compile Include="Integrations\IRabbitMqMessageFactory.cs" />
+    <Compile Include="Integrations\IRabbitMqModelFactory.cs" />
+    <Compile Include="Integrations\IRabbitMqPublisher.cs" />
+    <Compile Include="Integrations\IRabbitMqRetryStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMqConfiguration.cs" />
-    <Compile Include="RabbitMqConnectionFactory.cs" />
-    <Compile Include="RabbitMqMessage.cs" />
-    <Compile Include="RabbitMqMessageFactory.cs" />
-    <Compile Include="RabbitMqModelFactory.cs" />
-    <Compile Include="RabbitMqPublisher.cs" />
-    <Compile Include="RabbitMqRetryStrategy.cs" />
+    <Compile Include="Integrations\RabbitMqConnectionFactory.cs" />
+    <Compile Include="Integrations\RabbitMqMessage.cs" />
+    <Compile Include="Integrations\RabbitMqMessageFactory.cs" />
+    <Compile Include="Integrations\RabbitMqModelFactory.cs" />
+    <Compile Include="Integrations\RabbitMqPublisher.cs" />
+    <Compile Include="Integrations\RabbitMqRetryStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

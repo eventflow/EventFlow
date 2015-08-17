@@ -20,9 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.RabbitMQ
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IRabbitMqPublisher
+    public interface IRabbitMqMessageFactory
     {
+        Task<RabbitMqMessage> CreateMessageAsync(
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken);
     }
 }

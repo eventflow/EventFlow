@@ -20,35 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using RabbitMQ.Client;
-
-namespace EventFlow.RabbitMQ
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitMqModelFactory : IRabbitMqModelFactory
+    public interface IRabbitMqModelFactory
     {
-        private readonly IRabbitMqConnectionFactory _rabbitMqConnectionFactory;
-
-        public RabbitMqModelFactory(
-            IRabbitMqConnectionFactory rabbitMqConnectionFactory)
-        {
-            _rabbitMqConnectionFactory = rabbitMqConnectionFactory;
-        }
-
-        public async Task<TResult> WithModelAsync<TResult>(
-            Uri uri,
-            Label label,
-            Func<IModel, Task<TResult>> action,
-            CancellationToken cancellationToken)
-        {
-            using (var connection = await _rabbitMqConnectionFactory.CreateConnectionAsync(uri, cancellationToken).ConfigureAwait(false))
-            using (var model = connection.CreateModel())
-            {
-                return await action(model).ConfigureAwait(false);
-            }
-        }
+        
     }
 }

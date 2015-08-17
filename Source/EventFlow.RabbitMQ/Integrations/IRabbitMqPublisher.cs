@@ -20,21 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-
-namespace EventFlow.RabbitMQ
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitMqMessage
+    public interface IRabbitMqPublisher
     {
-        public byte[] Message { get; private set; }
-        public IReadOnlyDictionary<string, string> Headers { get; private set; }
-
-        public RabbitMqMessage(
-            byte[] message,
-            IReadOnlyDictionary<string, string> headers)
-        {
-            Message = message;
-            Headers = headers;
-        }
     }
 }

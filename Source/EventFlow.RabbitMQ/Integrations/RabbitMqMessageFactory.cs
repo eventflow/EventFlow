@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqMessageFactory : IRabbitMqMessageFactory
     {

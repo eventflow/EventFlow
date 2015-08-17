@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using RabbitMQ.Client;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory
     {
