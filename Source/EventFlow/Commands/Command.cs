@@ -28,7 +28,7 @@ namespace EventFlow.Commands
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        public TIdentity Id { get; private set; }
+        public TIdentity Id { get; }
 
         protected Command(TIdentity id)
         {

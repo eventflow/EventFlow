@@ -39,14 +39,14 @@ namespace EventFlow.Aggregates
     {
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
-        public TIdentity Id { get; private set; }
+        public TIdentity Id { get; }
         public int Version { get; private set; }
-        public bool IsNew { get { return Version <= 0; } }
+        public bool IsNew => Version <= 0;
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
         protected AggregateRoot(TIdentity id)
         {
-            if (id == null) throw new ArgumentNullException("id");
+            if (id == null) throw new ArgumentNullException(nameof(id));
             if ((this as TAggregate) == null)
             {
                 throw WrongImplementationException.With(
@@ -64,7 +64,7 @@ namespace EventFlow.Aggregates
         {
             if (aggregateEvent == null)
             {
-                throw new ArgumentNullException("aggregateEvent");
+                throw new ArgumentNullException(nameof(aggregateEvent));
             }
 
             var now = DateTimeOffset.Now;
@@ -114,10 +114,7 @@ namespace EventFlow.Aggregates
         {
             if (Version > 0)
             {
-                throw new InvalidOperationException(string.Format(
-                    "Aggregate '{0}' with ID '{1}' already has events",
-                    GetType().Name,
-                    Id));
+                throw new InvalidOperationException($"Aggregate '{GetType().Name}' with ID '{Id}' already has events");
             }
 
             foreach (var aggregateEvent in aggregateEvents)
@@ -125,10 +122,7 @@ namespace EventFlow.Aggregates
                 var e = aggregateEvent as IAggregateEvent<TAggregate, TIdentity>;
                 if (e == null)
                 {
-                    throw new ArgumentException(string.Format(
-                        "Aggregate event of type '{0}' does not belong with aggregate '{1}',",
-                        aggregateEvent.GetType(),
-                        this));
+                    throw new ArgumentException($"Aggregate event of type '{aggregateEvent.GetType()}' does not belong with aggregate '{this}',");
                 }
 
                 ApplyEvent(e);
@@ -159,9 +153,7 @@ namespace EventFlow.Aggregates
             var eventType = typeof (TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))
             {
-                throw new ArgumentException(string.Format(
-                    "There's already a event handler registered for the aggregate event '{0}'",
-                    eventType.Name));
+                throw new ArgumentException($"There's already a event handler registered for the aggregate event '{eventType.Name}'");
             }
             _eventHandlers[eventType] = e => handler((TAggregateEvent)e);
         }
@@ -207,11 +199,7 @@ namespace EventFlow.Aggregates
 
         public override string ToString()
         {
-            return string.Format(
-                "{0} v{1}(-{2})",
-                GetType().Name,
-                Version,
-                _uncommittedEvents.Count);
+            return $"{GetType().Name} v{Version}(-{_uncommittedEvents.Count})";
         }
     }
 }

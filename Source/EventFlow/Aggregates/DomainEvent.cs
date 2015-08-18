@@ -29,14 +29,14 @@ namespace EventFlow.Aggregates
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        public Type AggregateType { get { return typeof (TAggregate); } }
-        public Type EventType { get { return typeof (TAggregateEvent); } }
+        public Type AggregateType => typeof (TAggregate);
+        public Type EventType => typeof (TAggregateEvent);
 
-        public int AggregateSequenceNumber { get; private set; }
-        public TAggregateEvent AggregateEvent { get; private set; }
-        public TIdentity AggregateIdentity { get; private set; }
-        public IMetadata Metadata { get; private set; }
-        public DateTimeOffset Timestamp { get; private set; }
+        public int AggregateSequenceNumber { get; }
+        public TAggregateEvent AggregateEvent { get; }
+        public TIdentity AggregateIdentity { get; }
+        public IMetadata Metadata { get; }
+        public DateTimeOffset Timestamp { get; }
 
         public DomainEvent(
             TAggregateEvent aggregateEvent,
@@ -45,11 +45,11 @@ namespace EventFlow.Aggregates
             TIdentity aggregateIdentity,
             int aggregateSequenceNumber)
         {
-            if (aggregateEvent == null) throw new ArgumentNullException("aggregateEvent");
-            if (metadata == null) throw new ArgumentNullException("metadata");
-            if (timestamp == default(DateTimeOffset)) throw new ArgumentNullException("timestamp");
-            if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException("aggregateIdentity");
-            if (aggregateSequenceNumber <= 0) throw new ArgumentOutOfRangeException("aggregateSequenceNumber");
+            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
+            if (timestamp == default(DateTimeOffset)) throw new ArgumentNullException(nameof(timestamp));
+            if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException(nameof(aggregateIdentity));
+            if (aggregateSequenceNumber <= 0) throw new ArgumentOutOfRangeException(nameof(aggregateSequenceNumber));
 
             AggregateEvent = aggregateEvent;
             Metadata = metadata;
@@ -70,12 +70,7 @@ namespace EventFlow.Aggregates
 
         public override string ToString()
         {
-            return string.Format(
-                "{0} v{1}/{2}:{3}",
-                AggregateType.Name,
-                AggregateSequenceNumber,
-                EventType.Name,
-                AggregateIdentity);
+            return $"{AggregateType.Name} v{AggregateSequenceNumber}/{EventType.Name}:{AggregateIdentity}";
         }
     }
 }
