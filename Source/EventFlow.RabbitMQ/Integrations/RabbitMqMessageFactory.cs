@@ -47,8 +47,9 @@ namespace EventFlow.RabbitMQ.Integrations
             // TODO: Add aggregate name to routing key
 
             var routingKey = string.Format(
-                "eventflow.domainevent.{0}.{1}",
-                domainEvent.Metadata.EventName,
+                "eventflow.domainevent.{0}.{1}.{2}",
+                domainEvent.Metadata[MetadataKeys.AggregateName].ToLowerInvariant(), // TODO: Transform from "MyAgg" to "my-agg"
+                domainEvent.Metadata.EventName.ToLowerInvariant(), // TODO: Transform from "MyEvnt" to "my-evnt"
                 domainEvent.Metadata.EventVersion);
 
             return new RabbitMqMessage(message, domainEvent.Metadata, routingKey);
