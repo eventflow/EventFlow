@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>EventFlow.RabbitMQ</id>
+    <title>EventFlow - RabbitMQ integration</title>
+    <version>0.0.0</version>
+    <authors>rasmus</authors>
+    <description>RabbitMQ integration for EventFlow</description>
+    <language>en-US</language>
+    <iconUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/icon-256.png</iconUrl>
+    <projectUrl>https://github.com/rasmus/EventFlow</projectUrl>
+    <licenseUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/LICENSE</licenseUrl>
+    <copyright>Copyright (c) 2015 Rasmus Mikkelsen</copyright>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <tags>CQRS ES event sourceing eventstore rabbitmq</tags>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    @dependencies@
+    @references@
+  </metadata>
+  <files>
+  	<file src="bin\EventFlow.RabbitMQ.dll" target="lib\net451" />
+  </files>
+</package>
