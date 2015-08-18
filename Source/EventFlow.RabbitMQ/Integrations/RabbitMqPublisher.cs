@@ -75,8 +75,11 @@ namespace EventFlow.RabbitMQ.Integrations
                 {
                     var basicProperties = model.CreateBasicProperties();
                     basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);
-                    basicProperties.Persistent = true; // TODO: get from config
+                    basicProperties.Persistent = _configuration.Persistent;
                     basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
+                    basicProperties.ContentEncoding = "utf-8";
+                    basicProperties.ContentType = "application/json";
+                    basicProperties.MessageId = message.Headers[MetadataKeys.AggregateId];
 
                     model.BasicPublish("eventflow", message.RoutingKey, false, false, basicProperties, message.Message);
                 }

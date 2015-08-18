@@ -27,5 +27,6 @@ namespace EventFlow.RabbitMQ
     public interface IRabbitMqConfiguration
     {
         Uri Uri { get; }
+        bool Persistent { get; }
     }
 }

@@ -27,6 +27,7 @@ namespace EventFlow.RabbitMQ
     public class RabbitMqConfiguration : IRabbitMqConfiguration
     {
         public Uri Uri { get; }
+        public bool Persistent { get { return true; } }
 
         public static IRabbitMqConfiguration With(Uri uri)
         {
