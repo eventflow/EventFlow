@@ -48,11 +48,13 @@ namespace EventFlow.EventStores
         {
             var eventDefinition = _eventDefinitionService.GetEventDefinition(aggregateEvent.GetType());
 
-            var metadata = new Metadata(metadatas.Concat(new[]
-                {
-                    new KeyValuePair<string, string>(MetadataKeys.EventName, eventDefinition.Name),
-                    new KeyValuePair<string, string>(MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)),
-                }));
+            var metadata = new Metadata(metadatas
+                .Where(kv => kv.Key != MetadataKeys.EventName && kv.Key != MetadataKeys.EventVersion) // TODO: Fix this
+                .Concat(new[]
+                    {
+                        new KeyValuePair<string, string>(MetadataKeys.EventName, eventDefinition.Name),
+                        new KeyValuePair<string, string>(MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)),
+                    }));
 
             var dataJson = _jsonSerializer.Serialize(aggregateEvent);
             var metaJson = _jsonSerializer.Serialize(metadata);

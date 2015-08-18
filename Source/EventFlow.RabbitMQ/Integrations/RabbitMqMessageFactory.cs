@@ -46,9 +46,11 @@ namespace EventFlow.RabbitMQ.Integrations
 
             var serializedEvent = _eventJsonSerializer.Serialize(
                 domainEvent.GetAggregateEvent(),
-                Enumerable.Empty<KeyValuePair<string, string>>());
+                domainEvent.Metadata);
 
             var message = Encoding.UTF8.GetBytes(serializedEvent.SerializedData);
+
+            // TODO: Add aggregate name to routing key
 
             var routingKey = string.Format(
                 "eventflow.domainevent.{0}.{1}",

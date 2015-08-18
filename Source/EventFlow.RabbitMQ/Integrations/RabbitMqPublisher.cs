@@ -74,11 +74,11 @@ namespace EventFlow.RabbitMQ.Integrations
                 foreach (var message in messages)
                 {
                     var basicProperties = model.CreateBasicProperties();
-                    basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Value, kv => (object)kv.Value);
+                    basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);
                     basicProperties.Persistent = true; // TODO: get from config
                     basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
 
-                    model.BasicPublish("get from config", "get from config", false, false, basicProperties, message.Message);
+                    model.BasicPublish("eventflow", message.RoutingKey, false, false, basicProperties, message.Message);
                 }
             }
 

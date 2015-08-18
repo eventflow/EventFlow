@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RabbitMQ", "RabbitMQ", "{79
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ", "Source\EventFlow.RabbitMQ\EventFlow.RabbitMQ.csproj", "{4B06F01F-ACE6-489D-A92A-012F533EFA3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ.Tests", "Source\EventFlow.RabbitMQ.Tests\EventFlow.RabbitMQ.Tests.csproj", "{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{4B06F01F-ACE6-489D-A92A-012F533EFA3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B06F01F-ACE6-489D-A92A-012F533EFA3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B06F01F-ACE6-489D-A92A-012F533EFA3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,5 +115,6 @@ Global
 		{E42A253D-2011-4799-B55D-1D0C61E171C2} = {F6D62A27-50EA-4846-8F36-F3D36F52DCA6}
 		{BC4F0E41-6659-4D6D-9D25-1558CBA1649B} = {F6D62A27-50EA-4846-8F36-F3D36F52DCA6}
 		{4B06F01F-ACE6-489D-A92A-012F533EFA3C} = {7951DC73-5DAF-4322-9AF0-099BF5C90837}
+		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A} = {7951DC73-5DAF-4322-9AF0-099BF5C90837}
 	EndGlobalSection
 EndGlobal

@@ -31,6 +31,7 @@ namespace EventFlow.Extensions
             Assembly fromAssembly)
         {
             return eventFlowOptions
+                .AddEvents(fromAssembly)
                 .AddCommandHandlers(fromAssembly)
                 .AddMetadataProviders(fromAssembly)
                 .AddSubscribers(fromAssembly)
