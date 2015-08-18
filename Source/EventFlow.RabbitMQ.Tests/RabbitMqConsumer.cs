@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using EventFlow.RabbitMQ.Integrations;
 using RabbitMQ.Client;
@@ -100,7 +101,8 @@ namespace EventFlow.RabbitMQ.Tests
 
         private static RabbitMqMessage CreateRabbitMqMessage(BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            var headers = new Dictionary<string, string>(); // TODO: Get real headers
+            var headers = basicDeliverEventArgs.BasicProperties.Headers
+                .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value));
             return new RabbitMqMessage(basicDeliverEventArgs.Body, headers, basicDeliverEventArgs.RoutingKey);
         }
 

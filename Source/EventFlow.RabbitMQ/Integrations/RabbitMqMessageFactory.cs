@@ -20,8 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
@@ -40,10 +38,6 @@ namespace EventFlow.RabbitMQ.Integrations
 
         public RabbitMqMessage CreateMessage(IDomainEvent domainEvent)
         {
-            var headers = domainEvent.Metadata
-                .ToDictionary(kv => string.Format("eventflow-metadata-{0}", kv.Key), kv => kv.Value);
-            headers.Add("eventflow-encoding", "utf8");
-
             var serializedEvent = _eventJsonSerializer.Serialize(
                 domainEvent.GetAggregateEvent(),
                 domainEvent.Metadata);
@@ -57,7 +51,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 domainEvent.Metadata.EventName,
                 domainEvent.Metadata.EventVersion);
 
-            return new RabbitMqMessage(message, headers, routingKey);
+            return new RabbitMqMessage(message, domainEvent.Metadata, routingKey);
         }
     }
 }

@@ -24,18 +24,30 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.RabbitMQ.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
     public class RabbitMqTests
     {
+        public class RabbitMqCommittedEvent : ICommittedDomainEvent
+        {
+            public string AggregateId { get; set; }
+            public string Data { get; set; }
+            public string Metadata { get; set; }
+            public int AggregateSequenceNumber { get; set; }
+        }
+
         [Test, Explicit("Needs RabbitMQ running localhost (https://github.com/rasmus/Vagrant.Boxes)")]
         public void Test()
         {
@@ -48,14 +60,17 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                     .CreateResolver(false);
 
                 var commandBus = resolver.Resolve<ICommandBus>();
+                var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
-                commandBus.Publish(new PingCommand(TestId.New, PingId.New), CancellationToken.None);
+                var pingId = PingId.New;
+                commandBus.Publish(new PingCommand(TestId.New, pingId), CancellationToken.None);
 
                 var rabbitMqMessage = consumer.GetMessages().Single();
                 var json = Encoding.UTF8.GetString(rabbitMqMessage.Message);
-                Console.WriteLine(json);
+                
+                var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>) eventJsonSerializer.Deserialize(json, new Metadata(rabbitMqMessage.Headers));
 
-                // TODO: Real testing
+                pingEvent.AggregateEvent.PingId.Should().Be(pingId);
             }
         }
     }

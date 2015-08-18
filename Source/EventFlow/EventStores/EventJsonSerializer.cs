@@ -66,23 +66,27 @@ namespace EventFlow.EventStores
                 metadata);
         }
 
-        public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
+        public IDomainEvent Deserialize(string json, IMetadata metadata)
         {
-            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
-
             var eventDefinition = _eventDefinitionService.GetEventDefinition(
                 metadata.EventName,
                 metadata.EventVersion);
 
-            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(committedDomainEvent.Data, eventDefinition.Type);
+            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
 
             var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,
                 metadata,
-                committedDomainEvent.AggregateId,
-                committedDomainEvent.AggregateSequenceNumber);
+                metadata.AggregateId,
+                metadata.AggregateSequenceNumber);
 
             return domainEvent;
+        }
+
+        public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
+        {
+            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
+            return Deserialize(committedDomainEvent.Data, metadata);
         }
 
         public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
