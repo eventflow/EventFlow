@@ -24,9 +24,7 @@ namespace EventFlow.EventStores
 {
     public interface ICommittedDomainEvent
     {
-        string AggregateId { get; set; }
         string Data { get; set; }
         string Metadata { get; set; }
-        int AggregateSequenceNumber { get; set; }
     }
 }
