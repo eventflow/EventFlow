@@ -1,6 +1,7 @@
 ### New in 0.11 (not released yet)
 
- * _Nothing yet_
+ * Breaking: `EventFlowOptions AddDefaults(...)` now also adds event
+   definitions
 
 ### New in 0.10.642 (released 2015-08-17)
 
