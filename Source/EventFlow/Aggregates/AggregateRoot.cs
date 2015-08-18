@@ -27,6 +27,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;

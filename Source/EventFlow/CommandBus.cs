@@ -59,7 +59,7 @@ namespace EventFlow
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task PublishAsync<TAggregate, TIdentity>(
+        public async Task<ICommandId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -97,7 +97,7 @@ namespace EventFlow
                     "Execution command '{0}' on aggregate '{1}' did NOT result in any domain events",
                     commandTypeName,
                     aggregateType);
-                return;
+                return command.CommandId;
             }
 
             _log.Verbose(() => string.Format(
@@ -107,22 +107,28 @@ namespace EventFlow
                 string.Join(", ", domainEvents.Select(d => d.EventType.Name))));
 
             await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                command.Id,
+                command.AggregateId,
                 domainEvents,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            return command.CommandId;
         }
 
-        public void Publish<TAggregate, TIdentity>(
+        public ICommandId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            ICommandId commandId = null;
+
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command, cancellationToken));
+                a.Run(PublishAsync(command, cancellationToken), id => commandId = id);
             }
+
+            return commandId;
         }
 
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
@@ -159,7 +165,7 @@ namespace EventFlow
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.Id, c).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
 
                         var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
                         await invokeTask.ConfigureAwait(false);

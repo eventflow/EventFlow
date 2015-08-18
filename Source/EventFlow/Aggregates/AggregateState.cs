@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using EventFlow.Core;
 using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates

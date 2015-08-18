@@ -26,7 +26,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using EventFlow.ValueObjects;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Core
 {
     public abstract class Identity<T> : SingleValueObject<string>, IIdentity
         where T : Identity<T>

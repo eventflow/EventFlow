@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
@@ -28,11 +29,15 @@ namespace EventFlow.Commands
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        public TIdentity Id { get; private set; }
+        public ICommandId CommandId { get; private set; }
+        public TIdentity AggregateId { get; private set; }
 
-        protected Command(TIdentity id)
+        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
+
+        protected Command(TIdentity aggregateId, ICommandId commandId)
         {
-            Id = id;
+            AggregateId = aggregateId;
+            CommandId = commandId;
         }
     }
 }

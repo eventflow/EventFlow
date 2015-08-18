@@ -20,29 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.Core;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.Commands
 {
-    public class PingCommand : Command<TestAggregate, TestId>
+    public interface ICommandId : IIdentity
     {
-        public PingId PingId { get; private set; }
-
-        public PingCommand(TestId aggregateId, PingId pingId) : base (aggregateId)
-        {
-            PingId = pingId;
-        }
-    }
-
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
-        }
     }
 }

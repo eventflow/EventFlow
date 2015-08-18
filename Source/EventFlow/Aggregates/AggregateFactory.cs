@@ -22,6 +22,7 @@
 
 using System;
 using System.Threading.Tasks;
+using EventFlow.Core;
 
 namespace EventFlow.Aggregates
 {

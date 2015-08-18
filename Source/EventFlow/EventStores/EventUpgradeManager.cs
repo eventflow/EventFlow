@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
