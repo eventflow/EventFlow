@@ -25,14 +25,22 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Logs;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory
     {
+        private readonly ILog _log;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly Dictionary<Uri, ConnectionFactory> _connectionFactories = new Dictionary<Uri, ConnectionFactory>();
+
+        public RabbitMqConnectionFactory(
+            ILog log)
+        {
+            _log = log;
+        }
 
         public async Task<IConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {
@@ -49,17 +57,18 @@ namespace EventFlow.RabbitMQ.Integrations
                 {
                     return connectionFactory;
                 }
+                _log.Verbose("Creating RabbitMQ connection factory to {0}", uri.Host);
 
                 connectionFactory = new ConnectionFactory
                     {
                         Uri = uri.ToString(),
-                        UseBackgroundThreadsForIO = true,
+                        UseBackgroundThreadsForIO = true, // TODO: As soon as RabbitMQ supports async/await, set to false
                         TopologyRecoveryEnabled = true,
                         AutomaticRecoveryEnabled = true,
                         ClientProperties = new Dictionary<string, object>
                             {
                                 { "eventflow-version", typeof(RabbitMqConnectionFactory).Assembly.GetName().Version.ToString() },
-                                { "machine-name", Environment.MachineName }
+                                { "machine-name", Environment.MachineName },
                             },
                     };
 

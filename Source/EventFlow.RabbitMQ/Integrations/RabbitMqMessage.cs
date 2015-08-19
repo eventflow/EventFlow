@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 
 namespace EventFlow.RabbitMQ.Integrations
@@ -37,10 +38,20 @@ namespace EventFlow.RabbitMQ.Integrations
             Exchange exchange,
             RoutingKey routingKey)
         {
+            if (string.IsNullOrEmpty(message)) throw new ArgumentNullException(nameof(message));
+            if (headers == null) throw new ArgumentNullException(nameof(headers));
+            if (exchange == null) throw new ArgumentNullException(nameof(exchange));
+            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
+
             Message = message;
             Headers = headers;
             Exchange = exchange;
             RoutingKey = routingKey;
+        }
+
+        public override string ToString()
+        {
+            return $"{{Exchange: {Exchange}, RoutingKey: {RoutingKey}, Headers: {Headers.Count}, Bytes: {Message.Length/2}}}";
         }
     }
 }

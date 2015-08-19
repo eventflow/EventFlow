@@ -29,23 +29,27 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqPublisher : IRabbitMqPublisher
     {
+        private readonly ILog _log;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
         private readonly IRabbitMqMessageFactory _messageFactory;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly ITransientFaultHandler<IRabbitMqRetryStrategy> _transientFaultHandler;
 
         public RabbitMqPublisher(
+            ILog log,
             IRabbitMqConnectionFactory connectionFactory,
             IRabbitMqMessageFactory messageFactory,
             IRabbitMqConfiguration configuration,
             ITransientFaultHandler<IRabbitMqRetryStrategy> transientFaultHandler)
         {
+            _log = log;
             _connectionFactory = connectionFactory;
             _messageFactory = messageFactory;
             _configuration = configuration;
@@ -65,9 +69,14 @@ namespace EventFlow.RabbitMQ.Integrations
                 .ConfigureAwait(false);
         }
 
-        private async Task<int> PublishAsync(IEnumerable<RabbitMqMessage> messages, CancellationToken cancellationToken)
+        private async Task<int> PublishAsync(IReadOnlyCollection<RabbitMqMessage> messages, CancellationToken cancellationToken)
         {
             // TODO: Cache connection/model
+
+            _log.Verbose(
+                "Publishing {0} domain domain events to RabbitMQ host '{1}'",
+                messages.Count,
+                _configuration.Uri.Host);
 
             using (var connection = await _connectionFactory.CreateConnectionAsync(_configuration.Uri, cancellationToken).ConfigureAwait(false))
             using (var model = connection.CreateModel())

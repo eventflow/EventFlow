@@ -23,16 +23,20 @@
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqMessageFactory : IRabbitMqMessageFactory
     {
+        private readonly ILog _log;
         private readonly IEventJsonSerializer _eventJsonSerializer;
 
         public RabbitMqMessageFactory(
+            ILog log,
             IEventJsonSerializer eventJsonSerializer)
         {
+            _log = log;
             _eventJsonSerializer = eventJsonSerializer;
         }
 
@@ -51,11 +55,15 @@ namespace EventFlow.RabbitMQ.Integrations
                 domainEvent.Metadata.EventVersion));
             var exchange = new Exchange("eventflow");
 
-            return new RabbitMqMessage(
+            var rabbitMqMessage = new RabbitMqMessage(
                 serializedEvent.SerializedData,
                 domainEvent.Metadata,
                 exchange,
                 routingKey);
+
+            _log.Verbose("Create RabbitMQ message {0}", rabbitMqMessage);
+
+            return rabbitMqMessage;
         }
     }
 }

@@ -26,6 +26,8 @@ namespace EventFlow.RabbitMQ
 {
     public class Exchange : SingleValueObject<string>
     {
+        public static Exchange Default => new Exchange(string.Empty);
+
         public Exchange(string value) : base(value)
         {
         }
