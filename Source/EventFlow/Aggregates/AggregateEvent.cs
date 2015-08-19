@@ -28,7 +28,7 @@ namespace EventFlow.Aggregates
     {
         public override string ToString()
         {
-            return string.Format("{0}/{1}", typeof(TAggregate).Name, GetType().Name);
+            return $"{typeof (TAggregate).Name}/{GetType().Name}";
         }
     }
 }

@@ -109,7 +109,7 @@ namespace EventFlow.Aggregates
             {
                 if (metadata.ContainsKey(kv.Key))
                 {
-                    throw new ArgumentException(string.Format("Key '{0}' is already present!", kv.Key));
+                    throw new ArgumentException($"Key '{kv.Key}' is already present!");
                 }
                 metadata[kv.Key] = kv.Value;
             }
@@ -118,7 +118,7 @@ namespace EventFlow.Aggregates
 
         public override string ToString()
         {
-            return string.Join(Environment.NewLine, this.Select(kv => string.Format("{0}: {1}", kv.Key, kv.Value)));
+            return string.Join(Environment.NewLine, this.Select(kv => $"{kv.Key}: {kv.Value}"));
         }
     }
 }

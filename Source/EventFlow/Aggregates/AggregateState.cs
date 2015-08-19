@@ -59,10 +59,8 @@ namespace EventFlow.Aggregates
             var me = this as TEventApplier;
             if (me == null)
             {
-                throw new InvalidOperationException(string.Format(
-                    "Event applier of type '{0}' has a wrong generic argument '{1}'",
-                    GetType().PrettyPrint(),
-                    typeof(TEventApplier).PrettyPrint()));
+                throw new InvalidOperationException(
+                    $"Event applier of type '{GetType().PrettyPrint()}' has a wrong generic argument '{typeof (TEventApplier).PrettyPrint()}'");
             }
         }
 
