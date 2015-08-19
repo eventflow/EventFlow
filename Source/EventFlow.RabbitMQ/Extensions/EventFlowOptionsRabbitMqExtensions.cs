@@ -37,7 +37,7 @@ namespace EventFlow.RabbitMQ.Extensions
                 {
                     sr.RegisterIfNotRegistered<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
                     sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>();
-                    sr.RegisterIfNotRegistered<IRabbitMqPublisher, RabbitMqPublisher>();
+                    sr.RegisterIfNotRegistered<IRabbitMqPublisher, RabbitMqPublisher>(Lifetime.Singleton);
                     sr.RegisterIfNotRegistered<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>();
 
                     sr.Register(rc => configuration, Lifetime.Singleton);

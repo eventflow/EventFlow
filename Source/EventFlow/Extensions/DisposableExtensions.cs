@@ -21,28 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Logs;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.Extensions
 {
-    public class RabbitMqConfiguration : IRabbitMqConfiguration
+    public static class DisposableExtensions
     {
-        public Uri Uri { get; }
-        public bool Persistent { get; }
-        public int ModelsPrConnection { get; }
-
-        public static IRabbitMqConfiguration With(
-            Uri uri,
-            bool persistent = true,
-            int modelsPrConnection = 5)
+        public static void DisposeSafe(
+            this IDisposable disposable, 
+            ILog log,
+            string message)
         {
-            return new RabbitMqConfiguration(uri, persistent, modelsPrConnection);
-        }
-
-        private RabbitMqConfiguration(Uri uri, bool persistent, int modelsPrConnection)
-        {
-            Uri = uri;
-            Persistent = persistent;
-            ModelsPrConnection = modelsPrConnection;
+            try
+            {
+                disposable.Dispose();
+            }
+            catch (Exception e)
+            {
+                log.Warning(e, message);
+            }
         }
     }
 }

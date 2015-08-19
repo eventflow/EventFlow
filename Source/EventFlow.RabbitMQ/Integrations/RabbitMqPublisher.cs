@@ -34,13 +34,15 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitMqPublisher : IRabbitMqPublisher
+    public class RabbitMqPublisher : IDisposable, IRabbitMqPublisher
     {
         private readonly ILog _log;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
         private readonly IRabbitMqMessageFactory _messageFactory;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly ITransientFaultHandler<IRabbitMqRetryStrategy> _transientFaultHandler;
+        private readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly Dictionary<Uri, RabbitConnection> _connections = new Dictionary<Uri, RabbitConnection>(); 
 
         public RabbitMqPublisher(
             ILog log,
@@ -62,42 +64,84 @@ namespace EventFlow.RabbitMQ.Integrations
                 .Select(e => _messageFactory.CreateMessage(e))
                 .ToList();
 
-            await _transientFaultHandler.TryAsync(
-                c => PublishAsync(message, c),
-                Label.Named("rabbitmq-publish"),
-                cancellationToken)
-                .ConfigureAwait(false);
+            var uri = _configuration.Uri;
+            RabbitConnection rabbitConnection = null;
+            try
+            {
+                rabbitConnection = await GetRabbitMqConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
+
+                await _transientFaultHandler.TryAsync(
+                    c => rabbitConnection.WithModelAsync(m => PublishAsync(m, message, c), c),
+                    Label.Named("rabbitmq-publish"),
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                if (rabbitConnection != null)
+                {
+                    using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
+                    {
+                        rabbitConnection.Dispose();
+                        _connections.Remove(uri);
+                    }
+                }
+                _log.Warning(e, "");
+                throw;
+            }
         }
 
-        private async Task<int> PublishAsync(IReadOnlyCollection<RabbitMqMessage> messages, CancellationToken cancellationToken)
+        private async Task<RabbitConnection> GetRabbitMqConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {
-            // TODO: Cache connection/model
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                RabbitConnection rabbitConnection;
+                if (_connections.TryGetValue(uri, out rabbitConnection))
+                {
+                    return rabbitConnection;
+                }
 
+                var connection = await _connectionFactory.CreateConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
+                rabbitConnection = new RabbitConnection(_log, _configuration.ModelsPrConnection, connection);
+                _connections.Add(uri, rabbitConnection);
+
+                return rabbitConnection;
+            }
+        }
+
+        private Task<int> PublishAsync(IModel model, IReadOnlyCollection<RabbitMqMessage> messages, CancellationToken cancellationToken)
+        {
             _log.Verbose(
                 "Publishing {0} domain domain events to RabbitMQ host '{1}'",
                 messages.Count,
                 _configuration.Uri.Host);
 
-            using (var connection = await _connectionFactory.CreateConnectionAsync(_configuration.Uri, cancellationToken).ConfigureAwait(false))
-            using (var model = connection.CreateModel())
+            foreach (var message in messages)
             {
-                foreach (var message in messages)
-                {
-                    var bytes = Encoding.UTF8.GetBytes(message.Message);
+                var bytes = Encoding.UTF8.GetBytes(message.Message);
 
-                    var basicProperties = model.CreateBasicProperties();
-                    basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);
-                    basicProperties.Persistent = _configuration.Persistent;
-                    basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
-                    basicProperties.ContentEncoding = "utf-8";
-                    basicProperties.ContentType = "application/json";
-                    basicProperties.MessageId = message.Headers[MetadataKeys.AggregateId];
+                var basicProperties = model.CreateBasicProperties();
+                basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);
+                basicProperties.Persistent = _configuration.Persistent;
+                basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
+                basicProperties.ContentEncoding = "utf-8";
+                basicProperties.ContentType = "application/json";
+                basicProperties.MessageId = message.Headers[MetadataKeys.AggregateId];
 
-                    model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, false, basicProperties, bytes);
-                }
+                // TODO: Evil or not evil? Do a Task.Run here?
+                model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, false, basicProperties, bytes);
             }
 
-            return 0;
+            return Task.FromResult(0);
+        }
+
+        public void Dispose()
+        {
+            foreach (var rabbitConnection in _connections.Values)
+            {
+                rabbitConnection.Dispose();
+            }
+            _connections.Clear();
         }
     }
 }
