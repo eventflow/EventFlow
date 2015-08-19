@@ -32,7 +32,7 @@ namespace EventFlow.RabbitMQ.Integrations
     public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory
     {
         private readonly AsyncLock _asyncLock = new AsyncLock();
-        private readonly Dictionary<Uri, ConnectionFactory> _connectionFactories = new Dictionary<Uri, ConnectionFactory>(); 
+        private readonly Dictionary<Uri, ConnectionFactory> _connectionFactories = new Dictionary<Uri, ConnectionFactory>();
 
         public async Task<IConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {

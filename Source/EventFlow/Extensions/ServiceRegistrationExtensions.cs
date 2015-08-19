@@ -20,32 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
-using EventFlow.Extensions;
-using EventFlow.RabbitMQ.Integrations;
-using EventFlow.ReadStores;
 
-namespace EventFlow.RabbitMQ.Extensions
+namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsRabbitMqExtensions
+    public static class ServiceRegistrationExtensions
     {
-        public static EventFlowOptions PublishToRabbitMq(
-            this EventFlowOptions eventFlowOptions,
-            IRabbitMqConfiguration configuration)
+        public static IServiceRegistration RegisterIfNotRegistered<TService, TImplementation>(
+            this IServiceRegistration serviceRegistration,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TImplementation : class, TService
+            where TService : class
         {
-            eventFlowOptions.RegisterServices(sr =>
-                {
-                    sr.RegisterIfNotRegistered<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
-                    sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>();
-                    sr.RegisterIfNotRegistered<IRabbitMqPublisher, RabbitMqPublisher>();
-                    sr.RegisterIfNotRegistered<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>();
+            if (!serviceRegistration.HasRegistrationFor<TService>())
+            {
+                serviceRegistration.Register<TService, TImplementation>(lifetime);
+            }
 
-                    sr.Register(rc => configuration, Lifetime.Singleton);
-
-                    sr.Register<IReadStoreManager, RabbitMqDomainEventPublisher>();
-                });
-
-            return eventFlowOptions;
+            return serviceRegistration;
         }
     }
 }

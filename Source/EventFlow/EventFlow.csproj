@@ -123,6 +123,7 @@
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
+    <Compile Include="Extensions\ServiceRegistrationExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Queries\IQuery.cs" />
