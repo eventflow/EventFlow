@@ -48,6 +48,8 @@ namespace EventFlow.RabbitMQ.Tests
             _connection = connectionFactory.CreateConnection();
             _model = _connection.CreateModel();
 
+            _model.ExchangeDeclare(exchange, ExchangeType.Topic, false);
+
             var queueName = string.Format("test-{0}", Guid.NewGuid());
             _model.QueueDeclare(
                 queueName,
@@ -103,7 +105,13 @@ namespace EventFlow.RabbitMQ.Tests
         {
             var headers = basicDeliverEventArgs.BasicProperties.Headers
                 .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value));
-            return new RabbitMqMessage(basicDeliverEventArgs.Body, headers, basicDeliverEventArgs.RoutingKey);
+            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body);
+
+            return new RabbitMqMessage(
+                message,
+                headers,
+                new Exchange(basicDeliverEventArgs.Exchange), 
+                new RoutingKey(basicDeliverEventArgs.RoutingKey));
         }
 
         public void Dispose()

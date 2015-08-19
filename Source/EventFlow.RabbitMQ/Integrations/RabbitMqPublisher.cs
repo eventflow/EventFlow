@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -73,6 +74,8 @@ namespace EventFlow.RabbitMQ.Integrations
             {
                 foreach (var message in messages)
                 {
+                    var bytes = Encoding.UTF8.GetBytes(message.Message);
+
                     var basicProperties = model.CreateBasicProperties();
                     basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);
                     basicProperties.Persistent = _configuration.Persistent;
@@ -81,7 +84,7 @@ namespace EventFlow.RabbitMQ.Integrations
                     basicProperties.ContentType = "application/json";
                     basicProperties.MessageId = message.Headers[MetadataKeys.AggregateId];
 
-                    model.BasicPublish("eventflow", message.RoutingKey, false, false, basicProperties, message.Message);
+                    model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, false, basicProperties, bytes);
                 }
             }
 

@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Text;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 
@@ -42,17 +41,20 @@ namespace EventFlow.RabbitMQ.Integrations
                 domainEvent.GetAggregateEvent(),
                 domainEvent.Metadata);
 
-            var message = Encoding.UTF8.GetBytes(serializedEvent.SerializedData);
-
             // TODO: Add aggregate name to routing key
 
-            var routingKey = string.Format(
+            var routingKey = new RoutingKey(string.Format(
                 "eventflow.domainevent.{0}.{1}.{2}",
                 domainEvent.Metadata[MetadataKeys.AggregateName].ToLowerInvariant(), // TODO: Transform from "MyAgg" to "my-agg"
                 domainEvent.Metadata.EventName.ToLowerInvariant(), // TODO: Transform from "MyEvnt" to "my-evnt"
-                domainEvent.Metadata.EventVersion);
+                domainEvent.Metadata.EventVersion));
+            var exchange = new Exchange("eventflow");
 
-            return new RabbitMqMessage(message, domainEvent.Metadata, routingKey);
+            return new RabbitMqMessage(
+                serializedEvent.SerializedData,
+                domainEvent.Metadata,
+                exchange,
+                routingKey);
         }
     }
 }

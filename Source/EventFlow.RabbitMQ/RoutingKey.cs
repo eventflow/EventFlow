@@ -20,27 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.RabbitMQ.Integrations
+namespace EventFlow.RabbitMQ
 {
-    public class RabbitMqMessage
+    public class RoutingKey : SingleValueObject<string>
     {
-        public string Message { get; }
-        public IReadOnlyDictionary<string, string> Headers { get; }
-        public Exchange Exchange { get; }
-        public RoutingKey RoutingKey { get; }
-
-        public RabbitMqMessage(
-            string message,
-            IReadOnlyDictionary<string, string> headers,
-            Exchange exchange,
-            RoutingKey routingKey)
+        public RoutingKey(string value) : base(value)
         {
-            Message = message;
-            Headers = headers;
-            Exchange = exchange;
-            RoutingKey = routingKey;
         }
     }
 }

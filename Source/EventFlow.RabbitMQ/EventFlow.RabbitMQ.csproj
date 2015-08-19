@@ -50,6 +50,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Exchange.cs" />
     <Compile Include="Extensions\EventFlowOptionsRabbitMqExtensions.cs" />
     <Compile Include="RabbitMqDomainEventPublisher.cs" />
     <Compile Include="IRabbitMqConfiguration.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Integrations\RabbitMqMessageFactory.cs" />
     <Compile Include="Integrations\RabbitMqPublisher.cs" />
     <Compile Include="Integrations\RabbitMqRetryStrategy.cs" />
+    <Compile Include="RoutingKey.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">

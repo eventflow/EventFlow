@@ -22,7 +22,6 @@
 
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
@@ -66,9 +65,10 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 commandBus.Publish(new PingCommand(TestId.New, pingId), CancellationToken.None);
 
                 var rabbitMqMessage = consumer.GetMessages().Single();
-                var json = Encoding.UTF8.GetString(rabbitMqMessage.Message);
                 
-                var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>) eventJsonSerializer.Deserialize(json, new Metadata(rabbitMqMessage.Headers));
+                var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>) eventJsonSerializer.Deserialize(
+                    rabbitMqMessage.Message,
+                    new Metadata(rabbitMqMessage.Headers));
 
                 pingEvent.AggregateEvent.PingId.Should().Be(pingId);
             }
