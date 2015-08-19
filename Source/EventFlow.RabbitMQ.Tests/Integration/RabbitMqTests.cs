@@ -65,6 +65,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 commandBus.Publish(new PingCommand(TestId.New, pingId), CancellationToken.None);
 
                 var rabbitMqMessage = consumer.GetMessages().Single();
+                rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
+                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.test.ping-event.1");
                 
                 var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>) eventJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,

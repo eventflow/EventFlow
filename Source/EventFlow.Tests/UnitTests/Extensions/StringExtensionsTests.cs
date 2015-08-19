@@ -20,42 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
 using EventFlow.Extensions;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.RabbitMQ.Integrations
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public class RabbitMqMessageFactory : IRabbitMqMessageFactory
+    public class StringExtensionsTests
     {
-        private readonly IEventJsonSerializer _eventJsonSerializer;
-
-        public RabbitMqMessageFactory(
-            IEventJsonSerializer eventJsonSerializer)
+        [TestCase("EventName", "event-name")]
+        [TestCase("event-name", "event-name")]
+        [TestCase("Event", "event")]
+        public void ToSlug(string input, string expected)
         {
-            _eventJsonSerializer = eventJsonSerializer;
-        }
-
-        public RabbitMqMessage CreateMessage(IDomainEvent domainEvent)
-        {
-            var serializedEvent = _eventJsonSerializer.Serialize(
-                domainEvent.GetAggregateEvent(),
-                domainEvent.Metadata);
-
-            // TODO: Add aggregate name to routing key
-
-            var routingKey = new RoutingKey(string.Format(
-                "eventflow.domainevent.{0}.{1}.{2}",
-                domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug(),
-                domainEvent.Metadata.EventName.ToSlug(),
-                domainEvent.Metadata.EventVersion));
-            var exchange = new Exchange("eventflow");
-
-            return new RabbitMqMessage(
-                serializedEvent.SerializedData,
-                domainEvent.Metadata,
-                exchange,
-                routingKey);
+            input.ToSlug().Should().Be(expected);
         }
     }
 }
