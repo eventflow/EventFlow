@@ -39,7 +39,7 @@ namespace EventFlow
 {
     public class EventFlowOptions
     {
-        public static EventFlowOptions New { get { return new EventFlowOptions(); } }
+        public static EventFlowOptions New => new EventFlowOptions();
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
@@ -66,10 +66,7 @@ namespace EventFlow
             {
                 if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
-                    throw new ArgumentException(string.Format(
-                        "Type {0} is not a {1}",
-                        aggregateEventType.Name,
-                        typeof(IAggregateEvent).Name));
+                    throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
             }
