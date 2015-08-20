@@ -84,7 +84,7 @@ namespace EventFlow.RabbitMQ.Integrations
                         _connections.Remove(uri);
                     }
                 }
-                _log.Warning(e, "");
+                _log.Error(e, "Failed to publish domain events to RabbitMQ");
                 throw;
             }
         }
