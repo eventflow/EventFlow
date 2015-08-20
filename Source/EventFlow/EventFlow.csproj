@@ -58,7 +58,10 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
+    <Compile Include="Aggregates\AggregateName.cs" />
+    <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
+    <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
