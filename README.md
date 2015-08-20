@@ -40,11 +40,14 @@ to the documentation.
   read model storage types.
   * In-memory - only for test
   * Microsoft SQL Server
-* [**Queries**](./Documentation/Queries.md): Value objects that represent
+* [**Queries:**](./Documentation/Queries.md): Value objects that represent
   a query without specifying how its executed, that is let to a query handler
-* [**Event upgrade**](./Documentation/EventUpgrade.md): As events committed to
-  the event store is never changed, EventFlow uses the concept of event upgraders
-  to deprecate events and replace them with new during aggregate load.
+* [**Event upgrade:**](./Documentation/EventUpgrade.md): As events committed to
+  the event store is never changed, EventFlow uses the concept of event
+  upgraders to deprecate events and replace them with new during aggregate load.
+* [**Event publishing:**] Sometimes you want other applications or services to
+  consume and act on domains. For this EventFlow supports event publishing.
+ * [RabbitMQ](./Documentation/RabbitMQ.md)
 * [**Metadata**](./Documentation/Metadata.md):
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
