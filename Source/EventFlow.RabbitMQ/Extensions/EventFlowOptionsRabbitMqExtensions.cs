@@ -23,7 +23,7 @@
 using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 using EventFlow.RabbitMQ.Integrations;
-using EventFlow.ReadStores;
+using EventFlow.Subscribers;
 
 namespace EventFlow.RabbitMQ.Extensions
 {
@@ -36,13 +36,13 @@ namespace EventFlow.RabbitMQ.Extensions
             eventFlowOptions.RegisterServices(sr =>
                 {
                     sr.RegisterIfNotRegistered<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
-                    sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>();
+                    sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>(Lifetime.Singleton);
                     sr.RegisterIfNotRegistered<IRabbitMqPublisher, RabbitMqPublisher>(Lifetime.Singleton);
-                    sr.RegisterIfNotRegistered<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>();
+                    sr.RegisterIfNotRegistered<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>(Lifetime.Singleton);
 
                     sr.Register(rc => configuration, Lifetime.Singleton);
 
-                    sr.Register<IReadStoreManager, RabbitMqDomainEventPublisher>();
+                    sr.Register<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
                 });
 
             return eventFlowOptions;

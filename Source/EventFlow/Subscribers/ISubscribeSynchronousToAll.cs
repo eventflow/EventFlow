@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -21,33 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.RabbitMQ.Integrations;
-using EventFlow.Subscribers;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.Subscribers
 {
-    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
+    public interface ISubscribeSynchronousToAll
     {
-        private readonly IRabbitMqPublisher _rabbitMqPublisher;
-        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
-
-        public RabbitMqDomainEventPublisher(
-            IRabbitMqPublisher rabbitMqPublisher,
-            IRabbitMqMessageFactory rabbitMqMessageFactory)
-        {
-            _rabbitMqPublisher = rabbitMqPublisher;
-            _rabbitMqMessageFactory = rabbitMqMessageFactory;
-        }
-
-        public Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
-        {
-            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
-
-            return _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
-        }
+        Task HandleAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }

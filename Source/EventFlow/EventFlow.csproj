@@ -190,6 +190,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadStores\ReadModelContext.cs" />
     <Compile Include="EventStores\UncommittedEvent.cs" />
+    <Compile Include="Subscribers\ISubscribeSynchronousToAll.cs" />
     <Compile Include="ValueObjects\ISingleValueObject.cs" />
     <Compile Include="ValueObjects\SingleValueObject.cs" />
     <Compile Include="ValueObjects\SingleValueObjectConverter.cs" />

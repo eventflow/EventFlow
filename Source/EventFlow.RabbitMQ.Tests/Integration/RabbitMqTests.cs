@@ -52,7 +52,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             _uri = new Uri("amqp://localhost");
         }
 
-        [Test]
+        [Test, Timeout(10000)]
         public void Scenario()
         {
             using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] { "#" }))
