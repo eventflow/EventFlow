@@ -45,7 +45,7 @@ to the documentation.
 * [**Event upgrade:**](./Documentation/EventUpgrade.md): As events committed to
   the event store is never changed, EventFlow uses the concept of event
   upgraders to deprecate events and replace them with new during aggregate load.
-* [**Event publishing:**] Sometimes you want other applications or services to
+* **Event publishing:** Sometimes you want other applications or services to
   consume and act on domains. For this EventFlow supports event publishing.
  * [RabbitMQ](./Documentation/RabbitMQ.md)
 * [**Metadata**](./Documentation/Metadata.md):
