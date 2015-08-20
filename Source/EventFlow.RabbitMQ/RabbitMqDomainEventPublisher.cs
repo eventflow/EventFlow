@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -32,18 +33,23 @@ namespace EventFlow.RabbitMQ
     public class RabbitMqDomainEventPublisher : IReadStoreManager
     {
         private readonly IRabbitMqPublisher _rabbitMqPublisher;
+        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
 
         public RabbitMqDomainEventPublisher(
-            IRabbitMqPublisher rabbitMqPublisher)
+            IRabbitMqPublisher rabbitMqPublisher,
+            IRabbitMqMessageFactory rabbitMqMessageFactory)
         {
             _rabbitMqPublisher = rabbitMqPublisher;
+            _rabbitMqMessageFactory = rabbitMqMessageFactory;
         }
 
         public Task UpdateReadStoresAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            return _rabbitMqPublisher.PublishAsync(domainEvents, cancellationToken);
+            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
+
+            return _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
         }
     }
 }

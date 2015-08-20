@@ -38,7 +38,6 @@ namespace EventFlow.RabbitMQ.Integrations
     {
         private readonly ILog _log;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
-        private readonly IRabbitMqMessageFactory _messageFactory;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly ITransientFaultHandler<IRabbitMqRetryStrategy> _transientFaultHandler;
         private readonly AsyncLock _asyncLock = new AsyncLock();
@@ -47,23 +46,22 @@ namespace EventFlow.RabbitMQ.Integrations
         public RabbitMqPublisher(
             ILog log,
             IRabbitMqConnectionFactory connectionFactory,
-            IRabbitMqMessageFactory messageFactory,
             IRabbitMqConfiguration configuration,
             ITransientFaultHandler<IRabbitMqRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _connectionFactory = connectionFactory;
-            _messageFactory = messageFactory;
             _configuration = configuration;
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task PublishAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        public Task PublishAsync(CancellationToken cancellationToken, params RabbitMqMessage[] rabbitMqMessages)
         {
-            var message = domainEvents
-                .Select(e => _messageFactory.CreateMessage(e))
-                .ToList();
+            return PublishAsync(rabbitMqMessages, cancellationToken);
+        }
 
+        public async Task PublishAsync(IReadOnlyCollection<RabbitMqMessage> rabbitMqMessages, CancellationToken cancellationToken)
+        {
             var uri = _configuration.Uri;
             RabbitConnection rabbitConnection = null;
             try
@@ -71,7 +69,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 rabbitConnection = await GetRabbitMqConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 await _transientFaultHandler.TryAsync(
-                    c => rabbitConnection.WithModelAsync(m => PublishAsync(m, message, c), c),
+                    c => rabbitConnection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages, c), c),
                     Label.Named("rabbitmq-publish"),
                     cancellationToken)
                     .ConfigureAwait(false);

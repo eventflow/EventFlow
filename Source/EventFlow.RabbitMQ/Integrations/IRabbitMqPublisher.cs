@@ -23,12 +23,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public interface IRabbitMqPublisher
     {
-        Task PublishAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
+        Task PublishAsync(CancellationToken cancellationToken, params RabbitMqMessage[] rabbitMqMessages);
+        Task PublishAsync(IReadOnlyCollection<RabbitMqMessage> rabbitMqMessages, CancellationToken cancellationToken);
     }
 }
