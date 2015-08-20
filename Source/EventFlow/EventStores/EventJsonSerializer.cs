@@ -68,25 +68,13 @@ namespace EventFlow.EventStores
 
         public IDomainEvent Deserialize(string json, IMetadata metadata)
         {
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(
-                metadata.EventName,
-                metadata.EventVersion);
-
-            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
-
-            var domainEvent = _domainEventFactory.Create(
-                aggregateEvent,
-                metadata,
-                metadata.AggregateId,
-                metadata.AggregateSequenceNumber);
-
-            return domainEvent;
+            return Deserialize(metadata.AggregateId, json, metadata);
         }
 
         public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
         {
             var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
-            return Deserialize(committedDomainEvent.Data, metadata);
+            return Deserialize(committedDomainEvent.AggregateId, committedDomainEvent.Data, metadata);
         }
 
         public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
@@ -96,6 +84,23 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
         {
             return (IDomainEvent<TAggregate, TIdentity>)Deserialize(committedDomainEvent);
+        }
+
+        private IDomainEvent Deserialize(string aggregateId, string json, IMetadata metadata)
+        {
+            var eventDefinition = _eventDefinitionService.GetEventDefinition(
+                metadata.EventName,
+                metadata.EventVersion);
+
+            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
+
+            var domainEvent = _domainEventFactory.Create(
+                aggregateEvent,
+                metadata,
+                aggregateId,
+                metadata.AggregateSequenceNumber);
+
+            return domainEvent;
         }
     }
 }
