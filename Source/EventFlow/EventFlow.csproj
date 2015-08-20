@@ -127,6 +127,7 @@
     <Compile Include="Extensions\ServiceRegistrationExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />

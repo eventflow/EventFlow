@@ -21,12 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using EventFlow.RabbitMQ.Extensions;
+using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
@@ -37,27 +41,23 @@ using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
+    [Explicit("Needs RabbitMQ running localhost (https://github.com/rasmus/Vagrant.Boxes)")]
     public class RabbitMqTests
     {
-        public class RabbitMqCommittedEvent : ICommittedDomainEvent
+        private readonly Uri _uri;
+        private readonly ConcurrentBag<Exception> _exceptions = new ConcurrentBag<Exception>(); 
+
+        public RabbitMqTests()
         {
-            public string AggregateId { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
-            public int AggregateSequenceNumber { get; set; }
+            _uri = new Uri("amqp://localhost");
         }
 
-        [Test, Explicit("Needs RabbitMQ running localhost (https://github.com/rasmus/Vagrant.Boxes)")]
-        public void Test()
+        [Test]
+        public void Scenario()
         {
-            var uri = new Uri("amqp://localhost");
-            using (var consumer = new RabbitMqConsumer(uri, "eventflow", new[] {"#"}))
+            using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] { "#" }))
+            using (var resolver = BuildResolver())
             {
-                var resolver = EventFlowOptions.New
-                    .PublishToRabbitMq(RabbitMqConfiguration.With(uri))
-                    .AddDefaults(EventFlowTestHelpers.Assembly)
-                    .CreateResolver(false);
-
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
@@ -67,13 +67,77 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var rabbitMqMessage = consumer.GetMessages().Single();
                 rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
                 rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.test.ping-event.1");
-                
-                var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>) eventJsonSerializer.Deserialize(
+
+                var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>)eventJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,
                     new Metadata(rabbitMqMessage.Headers));
 
                 pingEvent.AggregateEvent.PingId.Should().Be(pingId);
             }
+        }
+
+        [Test, Timeout(20000)]
+        public void PublisherPerformance()
+        {
+            var exchange = new Exchange("eventflow");
+            var routingKey = new RoutingKey("performance");
+            const int threadCount = 100;
+            const int messagesPrThread = 200;
+
+            using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] {"#"}))
+            using (var resolver = BuildResolver(o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
+            {
+                var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
+                var threads = Enumerable.Range(0, threadCount)
+                    .Select(_ =>
+                        {
+                            var thread = new Thread(o => SendMessages(rabbitMqPublisher, messagesPrThread, exchange, routingKey));
+                            thread.Start();
+                            return thread;
+                        })
+                    .ToList();
+
+                foreach (var thread in threads)
+                {
+                    thread.Join();
+                }
+
+                var rabbitMqMessages = consumer.GetMessages(threadCount * messagesPrThread);
+                rabbitMqMessages.Should().HaveCount(threadCount*messagesPrThread);
+                _exceptions.Should().BeEmpty();
+            }
+        }
+
+        private void SendMessages(IRabbitMqPublisher rabbitMqPublisher, int count, Exchange exchange, RoutingKey routingKey)
+        {
+            var guid = Guid.NewGuid();
+
+            try
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var rabbitMqMessage = new RabbitMqMessage(
+                        $"{guid}-{i}",
+                        new Metadata(),
+                        exchange,
+                        routingKey);
+                    rabbitMqPublisher.PublishAsync(CancellationToken.None, rabbitMqMessage).Wait();
+                }
+            }
+            catch (Exception e)
+            {
+                _exceptions.Add(e);
+            }
+        }
+
+        private IRootResolver BuildResolver(Func<EventFlowOptions, EventFlowOptions> configure = null)
+        {
+            configure = configure ?? (e => e);
+
+            return configure(EventFlowOptions.New
+                .PublishToRabbitMq(RabbitMqConfiguration.With(_uri))
+                .AddDefaults(EventFlowTestHelpers.Assembly))
+                .CreateResolver(false);
         }
     }
 }

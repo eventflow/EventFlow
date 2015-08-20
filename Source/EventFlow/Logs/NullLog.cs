@@ -24,20 +24,18 @@ using System;
 
 namespace EventFlow.Logs
 {
-    public class ConsoleLog : Log
+    public class NullLog : Log
     {
-        protected override bool IsVerboseEnabled => true;
-        protected override bool IsDebugEnabled => true;
-        protected override bool IsInformationEnabled => true;
+        protected override bool IsVerboseEnabled => false;
+        protected override bool IsInformationEnabled => false;
+        protected override bool IsDebugEnabled => false;
 
         protected override void Write(LogLevel logLevel, string format, params object[] args)
         {
-            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, string.Format(format, args));
         }
 
         protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
         {
-            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, string.Format(format, args), exception);
         }
     }
 }

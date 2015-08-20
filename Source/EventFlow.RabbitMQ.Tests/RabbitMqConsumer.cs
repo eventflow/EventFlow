@@ -75,8 +75,6 @@ namespace EventFlow.RabbitMQ.Tests
 
         private void OnReceived(object sender, BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            Console.WriteLine("Received message: {0}", basicDeliverEventArgs.RoutingKey);
-
             lock (_receivedMessages)
             {
                 _receivedMessages.Add(basicDeliverEventArgs);

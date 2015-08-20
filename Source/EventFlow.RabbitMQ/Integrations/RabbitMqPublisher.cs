@@ -26,7 +26,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -124,7 +123,6 @@ namespace EventFlow.RabbitMQ.Integrations
                 basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
                 basicProperties.ContentEncoding = "utf-8";
                 basicProperties.ContentType = "application/json";
-                basicProperties.MessageId = message.Headers[MetadataKeys.AggregateId];
 
                 // TODO: Evil or not evil? Do a Task.Run here?
                 model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, false, basicProperties, bytes);
