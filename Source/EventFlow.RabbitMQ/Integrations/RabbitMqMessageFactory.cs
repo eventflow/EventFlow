@@ -46,8 +46,6 @@ namespace EventFlow.RabbitMQ.Integrations
                 domainEvent.GetAggregateEvent(),
                 domainEvent.Metadata);
 
-            // TODO: Add aggregate name to routing key
-
             var routingKey = new RoutingKey(string.Format(
                 "eventflow.domainevent.{0}.{1}.{2}",
                 domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug(),
