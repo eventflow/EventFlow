@@ -20,24 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.Commands
+namespace EventFlow.Extensions
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public static class ServiceRegistrationExtensions
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public static IServiceRegistration RegisterIfNotRegistered<TService, TImplementation>(
+            this IServiceRegistration serviceRegistration,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TImplementation : class, TService
+            where TService : class
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            if (!serviceRegistration.HasRegistrationFor<TService>())
+            {
+                serviceRegistration.Register<TService, TImplementation>(lifetime);
+            }
+
+            return serviceRegistration;
         }
     }
 }

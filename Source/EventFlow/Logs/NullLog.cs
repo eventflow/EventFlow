@@ -20,24 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.Logs
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class NullLog : Log
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
+        protected override bool IsVerboseEnabled => false;
+        protected override bool IsInformationEnabled => false;
+        protected override bool IsDebugEnabled => false;
 
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        protected override void Write(LogLevel logLevel, string format, params object[] args)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+        }
+
+        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        {
         }
     }
 }

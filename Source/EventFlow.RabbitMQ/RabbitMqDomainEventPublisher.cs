@@ -20,24 +20,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.RabbitMQ.Integrations;
+using EventFlow.Subscribers;
 
-namespace EventFlow.Commands
+namespace EventFlow.RabbitMQ
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
+        private readonly IRabbitMqPublisher _rabbitMqPublisher;
+        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
 
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public RabbitMqDomainEventPublisher(
+            IRabbitMqPublisher rabbitMqPublisher,
+            IRabbitMqMessageFactory rabbitMqMessageFactory)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            _rabbitMqPublisher = rabbitMqPublisher;
+            _rabbitMqMessageFactory = rabbitMqMessageFactory;
+        }
+
+        public Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        {
+            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
+
+            return _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
         }
     }
 }

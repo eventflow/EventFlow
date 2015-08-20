@@ -20,24 +20,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.RabbitMQ
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class RabbitMqConfiguration : IRabbitMqConfiguration
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
+        public Uri Uri { get; }
+        public bool Persistent { get; }
+        public int ModelsPrConnection { get; }
 
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public static IRabbitMqConfiguration With(
+            Uri uri,
+            bool persistent = true,
+            int modelsPrConnection = 5)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            return new RabbitMqConfiguration(uri, persistent, modelsPrConnection);
+        }
+
+        private RabbitMqConfiguration(Uri uri, bool persistent, int modelsPrConnection)
+        {
+            Uri = uri;
+            Persistent = persistent;
+            ModelsPrConnection = modelsPrConnection;
         }
     }
 }

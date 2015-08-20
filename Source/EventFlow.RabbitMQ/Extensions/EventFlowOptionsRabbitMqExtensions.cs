@@ -20,24 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Extensions;
+using EventFlow.RabbitMQ.Integrations;
+using EventFlow.Subscribers;
 
-namespace EventFlow.Commands
+namespace EventFlow.RabbitMQ.Extensions
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public static class EventFlowOptionsRabbitMqExtensions
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public static EventFlowOptions PublishToRabbitMq(
+            this EventFlowOptions eventFlowOptions,
+            IRabbitMqConfiguration configuration)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            eventFlowOptions.RegisterServices(sr =>
+                {
+                    sr.RegisterIfNotRegistered<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
+                    sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>(Lifetime.Singleton);
+                    sr.RegisterIfNotRegistered<IRabbitMqPublisher, RabbitMqPublisher>(Lifetime.Singleton);
+                    sr.RegisterIfNotRegistered<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>(Lifetime.Singleton);
+
+                    sr.Register(rc => configuration, Lifetime.Singleton);
+
+                    sr.Register<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
+                });
+
+            return eventFlowOptions;
         }
     }
 }

@@ -20,24 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface IRabbitMqMessageFactory
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
-        {
-            AggregateId = aggregateId;
-            CommandId = commandId;
-        }
+        RabbitMqMessage CreateMessage(IDomainEvent domainEvent);
     }
 }

@@ -20,24 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System.Text.RegularExpressions;
 
-namespace EventFlow.Commands
+namespace EventFlow.Extensions
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public static class StringExtensions
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
+        private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
 
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public static string ToSlug(this string str)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            return RegexToSlug.Replace(str, "-$0").ToLowerInvariant();
         }
     }
 }

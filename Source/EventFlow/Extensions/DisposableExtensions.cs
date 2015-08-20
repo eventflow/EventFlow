@@ -20,24 +20,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
+using EventFlow.Logs;
 
-namespace EventFlow.Commands
+namespace EventFlow.Extensions
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public static class DisposableExtensions
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public static void DisposeSafe(
+            this IDisposable disposable, 
+            ILog log,
+            string message)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            try
+            {
+                disposable.Dispose();
+            }
+            catch (Exception e)
+            {
+                log.Warning(e, message);
+            }
         }
     }
 }

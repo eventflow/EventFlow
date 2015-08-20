@@ -20,24 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Commands
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface IRabbitMqPublisher
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
-        {
-            AggregateId = aggregateId;
-            CommandId = commandId;
-        }
+        Task PublishAsync(CancellationToken cancellationToken, params RabbitMqMessage[] rabbitMqMessages);
+        Task PublishAsync(IReadOnlyCollection<RabbitMqMessage> rabbitMqMessages, CancellationToken cancellationToken);
     }
 }

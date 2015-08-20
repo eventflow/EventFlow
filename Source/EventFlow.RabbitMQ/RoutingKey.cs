@@ -20,24 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Commands
+namespace EventFlow.RabbitMQ
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class RoutingKey : SingleValueObject<string>
     {
-        public ICommandId CommandId { get; }
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        public RoutingKey(string value) : base(value)
         {
-            AggregateId = aggregateId;
-            CommandId = commandId;
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
         }
     }
 }
