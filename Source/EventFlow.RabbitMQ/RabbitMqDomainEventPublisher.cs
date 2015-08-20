@@ -21,25 +21,33 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.RabbitMQ.Integrations;
+using EventFlow.Subscribers;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ
 {
-    public interface IEventJsonSerializer
+    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        private readonly IRabbitMqPublisher _rabbitMqPublisher;
+        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
+        public RabbitMqDomainEventPublisher(
+            IRabbitMqPublisher rabbitMqPublisher,
+            IRabbitMqMessageFactory rabbitMqMessageFactory)
+        {
+            _rabbitMqPublisher = rabbitMqPublisher;
+            _rabbitMqMessageFactory = rabbitMqMessageFactory;
+        }
 
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
+        public Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        {
+            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
 
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            return _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
+        }
     }
 }

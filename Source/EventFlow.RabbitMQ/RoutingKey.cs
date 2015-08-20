@@ -20,26 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ
 {
-    public interface IEventJsonSerializer
+    public class RoutingKey : SingleValueObject<string>
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
-
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        public RoutingKey(string value) : base(value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+        }
     }
 }

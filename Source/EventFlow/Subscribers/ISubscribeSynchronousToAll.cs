@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -21,25 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Subscribers
 {
-    public interface IEventJsonSerializer
+    public interface ISubscribeSynchronousToAll
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
-
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        Task HandleAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }

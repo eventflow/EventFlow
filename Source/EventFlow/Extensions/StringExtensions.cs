@@ -20,26 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System.Text.RegularExpressions;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Extensions
 {
-    public interface IEventJsonSerializer
+    public static class StringExtensions
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        public static string ToSlug(this string str)
+        {
+            return RegexToSlug.Replace(str, "-$0").ToLowerInvariant();
+        }
     }
 }

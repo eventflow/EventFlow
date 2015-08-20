@@ -79,6 +79,12 @@ namespace EventFlow.Aggregates
             set { this[MetadataKeys.AggregateSequenceNumber] = value.ToString(); }
         }
 
+        public string AggregateId
+        {
+            get { return this[MetadataKeys.AggregateId]; }
+            set { this[MetadataKeys.AggregateId] = value; }
+        }
+
         public Metadata() { }
 
         public Metadata(IDictionary<string, string> keyValuePairs)

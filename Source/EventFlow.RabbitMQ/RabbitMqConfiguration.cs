@@ -20,26 +20,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ
 {
-    public interface IEventJsonSerializer
+    public class RabbitMqConfiguration : IRabbitMqConfiguration
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        public Uri Uri { get; }
+        public bool Persistent { get; }
+        public int ModelsPrConnection { get; }
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
+        public static IRabbitMqConfiguration With(
+            Uri uri,
+            bool persistent = true,
+            int modelsPrConnection = 5)
+        {
+            return new RabbitMqConfiguration(uri, persistent, modelsPrConnection);
+        }
 
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        private RabbitMqConfiguration(Uri uri, bool persistent, int modelsPrConnection)
+        {
+            Uri = uri;
+            Persistent = persistent;
+            ModelsPrConnection = modelsPrConnection;
+        }
     }
 }

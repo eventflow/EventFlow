@@ -20,26 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Logs
 {
-    public interface IEventJsonSerializer
+    public class NullLog : Log
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        protected override bool IsVerboseEnabled => false;
+        protected override bool IsInformationEnabled => false;
+        protected override bool IsDebugEnabled => false;
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
+        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        {
+        }
 
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        {
+        }
     }
 }

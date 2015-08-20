@@ -20,26 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ
 {
-    public interface IEventJsonSerializer
+    public class Exchange : SingleValueObject<string>
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        public static Exchange Default => new Exchange(string.Empty);
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        public Exchange(string value) : base(value)
+        {
+        }
     }
 }

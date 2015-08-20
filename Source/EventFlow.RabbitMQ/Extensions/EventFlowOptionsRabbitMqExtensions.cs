@@ -20,26 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Extensions;
+using EventFlow.RabbitMQ.Integrations;
+using EventFlow.Subscribers;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ.Extensions
 {
-    public interface IEventJsonSerializer
+    public static class EventFlowOptionsRabbitMqExtensions
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        public static EventFlowOptions PublishToRabbitMq(
+            this EventFlowOptions eventFlowOptions,
+            IRabbitMqConfiguration configuration)
+        {
+            eventFlowOptions.RegisterServices(sr =>
+                {
+                    sr.RegisterIfNotRegistered<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
+                    sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>(Lifetime.Singleton);
+                    sr.RegisterIfNotRegistered<IRabbitMqPublisher, RabbitMqPublisher>(Lifetime.Singleton);
+                    sr.RegisterIfNotRegistered<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>(Lifetime.Singleton);
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
+                    sr.Register(rc => configuration, Lifetime.Singleton);
 
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
+                    sr.Register<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
+                });
 
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            return eventFlowOptions;
+        }
     }
 }

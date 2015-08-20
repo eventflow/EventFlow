@@ -20,26 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using EventFlow.Extensions;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public interface IEventJsonSerializer
+    public class StringExtensionsTests
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
-
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        [TestCase("EventName", "event-name")]
+        [TestCase("event-name", "event-name")]
+        [TestCase("Event", "event")]
+        public void ToSlug(string input, string expected)
+        {
+            input.ToSlug().Should().Be(expected);
+        }
     }
 }

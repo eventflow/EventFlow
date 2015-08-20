@@ -20,26 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Extensions
 {
-    public interface IEventJsonSerializer
+    public static class ServiceRegistrationExtensions
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        public static IServiceRegistration RegisterIfNotRegistered<TService, TImplementation>(
+            this IServiceRegistration serviceRegistration,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TImplementation : class, TService
+            where TService : class
+        {
+            if (!serviceRegistration.HasRegistrationFor<TService>())
+            {
+                serviceRegistration.Register<TService, TImplementation>(lifetime);
+            }
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            return serviceRegistration;
+        }
     }
 }

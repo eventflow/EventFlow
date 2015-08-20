@@ -20,26 +20,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using EventFlow.Aggregates;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IEventJsonSerializer
+    public class RabbitMqMessage
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        public string Message { get; }
+        public IReadOnlyDictionary<string, string> Headers { get; }
+        public Exchange Exchange { get; }
+        public RoutingKey RoutingKey { get; }
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
+        public RabbitMqMessage(
+            string message,
+            IReadOnlyDictionary<string, string> headers,
+            Exchange exchange,
+            RoutingKey routingKey)
+        {
+            if (string.IsNullOrEmpty(message)) throw new ArgumentNullException(nameof(message));
+            if (headers == null) throw new ArgumentNullException(nameof(headers));
+            if (exchange == null) throw new ArgumentNullException(nameof(exchange));
+            if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
 
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
+            Message = message;
+            Headers = headers;
+            Exchange = exchange;
+            RoutingKey = routingKey;
+        }
 
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        public override string ToString()
+        {
+            return $"{{Exchange: {Exchange}, RoutingKey: {RoutingKey}, Headers: {Headers.Count}, Bytes: {Message.Length/2}}}";
+        }
     }
 }

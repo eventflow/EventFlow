@@ -21,25 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IEventJsonSerializer
+    public interface IRabbitMqPublisher
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
-
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        Task PublishAsync(CancellationToken cancellationToken, params RabbitMqMessage[] rabbitMqMessages);
+        Task PublishAsync(IReadOnlyCollection<RabbitMqMessage> rabbitMqMessages, CancellationToken cancellationToken);
     }
 }

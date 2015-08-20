@@ -20,26 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using EventFlow.Aggregates;
+using System.IO;
+using EventFlow.Core;
+using RabbitMQ.Client.Exceptions;
 
-namespace EventFlow.EventStores
+namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IEventJsonSerializer
+    public class RabbitMqRetryStrategy : IRabbitMqRetryStrategy
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
+        private static readonly ISet<Type> TransientExceptions = new HashSet<Type>
+            {
+                typeof(EndOfStreamException),
+                typeof(BrokerUnreachableException),
+                typeof(OperationInterruptedException)
+            };
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
+        {
+            return currentRetryCount <= 3 && TransientExceptions.Contains(exception.GetType())
+                ? Retry.YesAfter(TimeSpan.FromMilliseconds(25))
+                : Retry.No;
+        }
     }
 }
