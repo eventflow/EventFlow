@@ -82,6 +82,22 @@ Target "CreatePackageEventFlowAutofac" (fun _ ->
             "Source/EventFlow.Autofac/EventFlow.Autofac.nuspec"
     )
 
+Target "CreatePackageEventFlowRabbitMQ" (fun _ ->
+    let binDir = "Source/EventFlow.RabbitMQ/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.RabbitMQ.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.RabbitMQ"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "RabbitMQ.Client",  GetPackageVersion "./packages/" "RabbitMQ.Client"]
+            Publish = false })
+            "Source/EventFlow.RabbitMQ/EventFlow.RabbitMQ.nuspec"
+    )
+
 Target "CreatePackageEventFlowMsSql" (fun _ ->
     let binDir = "Source\\EventFlow.MsSql\\bin\\" + buildMode + "\\"
     let result = ExecProcess (fun info ->
@@ -173,6 +189,7 @@ Target "Default" DoNothing
     ==> "UnitTest"
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
+    ==> "CreatePackageEventFlowRabbitMQ"
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"

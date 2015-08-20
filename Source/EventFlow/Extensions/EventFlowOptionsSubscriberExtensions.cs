@@ -56,7 +56,11 @@ namespace EventFlow.Extensions
         {
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>)));
+                .Where(t => t
+                    .GetInterfaces()
+                    .Any(i =>
+                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
+                        i == typeof(ISubscribeSynchronousToAll)));
             return eventFlowOptions
                 .AddSubscribers(subscribeSynchronousToTypes);
         }
@@ -70,13 +74,13 @@ namespace EventFlow.Extensions
                 var t = subscribeSynchronousToType;
                 var subscribeTos = t
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>))
+                    .Where(i =>
+                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>)) ||
+                        i == typeof(ISubscribeSynchronousToAll))
                     .ToList();
                 if (!subscribeTos.Any())
                 {
-                    throw new ArgumentException(string.Format(
-                        "Type '{0}' is not a ISubscribeSynchronousTo<TEvent>",
-                        t.Name));
+                    throw new ArgumentException($"Type '{t.Name}' is not a ISubscribeSynchronousTo<TEvent>");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>

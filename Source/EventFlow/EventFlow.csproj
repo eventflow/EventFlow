@@ -58,9 +58,12 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
+    <Compile Include="Aggregates\AggregateState.cs" />
+    <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
+    <Compile Include="Aggregates\IEventApplier.cs" />
     <Compile Include="Aggregates\IIdentity.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
@@ -111,6 +114,7 @@
     <Compile Include="Exceptions\WrongImplementationException.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\DisposableExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
@@ -120,6 +124,10 @@
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
+    <Compile Include="Extensions\ServiceRegistrationExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />
@@ -182,7 +190,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadStores\ReadModelContext.cs" />
     <Compile Include="EventStores\UncommittedEvent.cs" />
+    <Compile Include="Subscribers\ISubscribeSynchronousToAll.cs" />
+    <Compile Include="ValueObjects\ISingleValueObject.cs" />
     <Compile Include="ValueObjects\SingleValueObject.cs" />
+    <Compile Include="ValueObjects\SingleValueObjectConverter.cs" />
     <Compile Include="ValueObjects\ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>

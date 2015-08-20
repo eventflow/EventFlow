@@ -31,5 +31,6 @@ namespace EventFlow.Aggregates
         public const string TimestampEpoch = "timestamp_epoch";
         public const string AggregateSequenceNumber = "aggregate_sequence_number";
         public const string AggregateName = "aggregate_name";
+        public const string AggregateId = "aggregate_id";
     }
 }

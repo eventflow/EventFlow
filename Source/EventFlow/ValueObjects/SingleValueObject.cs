@@ -25,12 +25,10 @@ using System.Collections.Generic;
 
 namespace EventFlow.ValueObjects
 {
-    public abstract class SingleValueObject<T> : ValueObject, IComparable
+    public abstract class SingleValueObject<T> : ValueObject, IComparable, ISingleValueObject
         where T : IComparable, IComparable<T>
     {
-        public T Value { get; private set; }
-
-        protected SingleValueObject() { }
+        public T Value { get; }
 
         protected SingleValueObject(T value)
         {
@@ -41,16 +39,13 @@ namespace EventFlow.ValueObjects
         {
             if (ReferenceEquals(null, obj))
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             var other = obj as SingleValueObject<T>;
             if (other == null)
             {
-                throw new ArgumentException(string.Format(
-                    "Cannot compare '{0}' and '{1}'",
-                    GetType().Name,
-                    obj.GetType().Name));
+                throw new ArgumentException($"Cannot compare '{GetType().Name}' and '{obj.GetType().Name}'");
             }
 
             return Value.CompareTo(other.Value);
@@ -66,6 +61,11 @@ namespace EventFlow.ValueObjects
             return ReferenceEquals(Value, null)
                 ? string.Empty
                 : Value.ToString();
+        }
+
+        public object GetValue()
+        {
+            return Value;
         }
     }
 }

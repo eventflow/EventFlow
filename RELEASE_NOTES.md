@@ -1,8 +1,35 @@
-### New in 0.10 (not released yet)
+### New in 0.11 (not released yet)
 
- * Updated NuGet packages
-  - `Newtonsoft.Json` v7.0.1 (up from v6.0.8)
-  - `Dapper` v1.42 (up from v1.38, internal)
+ * Breaking: `EventFlowOptions AddDefaults(...)` now also adds event
+   definitions
+ * New: [RabbitMQ](http://www.rabbitmq.com/) is now supported through the new
+   NuGet package called `EventFlow.RabbitMQ` which enables domain events to be
+   published to the bus
+ * New: If you want to subscribe to all domain events, you can implement
+   and register a service that implements `ISubscribeSynchronousToAll`. Services
+   that implement this will automatically be added using the
+   `AddSubscribers(...)` or `AddDefaults(...)` extension to `EventFlowOptions`
+
+### New in 0.10.642 (released 2015-08-17)
+
+ * Breaking: Updated NuGet reference `Newtonsoft.Json` to v7.0.1
+   (up from v6.0.8)
+ * Breaking: Remove the empty constructor from `SingleValueObject<>`
+ * New: Added `SingleValueObjectConverter` to help create clean JSON when
+   e.g. domain events are serialized
+ * New: Added a protected method `Register(IEventApplier)` to
+   `AggregateRoot<,>` that enables developers to override how events are
+   applied. Use this to e.g. implement state objects
+ * New: Create `AggregateState<,,>` that developers can use to create aggregate
+   state objects. Call `Register(...)` with the state object as argument
+   to redirect events to it
+ * New: Allow `AggregateRoot<,>.Apply(...)`, i.e., methods for applying events,
+   to be `private` and `protected`
+ * New: Made `AggregateRoot<,>.Emit(...)` protected and virtual to allow
+   overrides that e.g. add a standard set of metadata from the aggregate state.
+ * New: Made `AggregateRoot<,>.ApplyEvent(...)` protected and virtual to
+   allow more custom implementations of applying events to the aggregate root.
+ * Fixed: Updated internal NuGet reference `Dapper` to v1.42 (up from v1.38)
 
 ### New in 0.9.580 (released 2015-07-20)
 
