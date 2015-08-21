@@ -1,12 +1,16 @@
 # EventFlow
 
+[![Join the chat at https://gitter.im/rasmus/EventFlow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
 [![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
 [![License](https://img.shields.io/github/license/rasmus/eventflow.svg)](./LICENSE)
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
-Have a look at our [Getting started guide](./Documentation/GettingStarted.md).
+Have a look at our [getting started guide](./Documentation/GettingStarted.md),
+the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
+[FAQ](./Documentation/FAQ.md).
 
 ### Features
 
