@@ -68,7 +68,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 rabbitConnection = await GetRabbitMqConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 await _transientFaultHandler.TryAsync(
-                    c => rabbitConnection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages, c), c),
+                    c => rabbitConnection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages), c),
                     Label.Named("rabbitmq-publish"),
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -109,7 +109,9 @@ namespace EventFlow.RabbitMQ.Integrations
             }
         }
 
-        private Task<int> PublishAsync(IModel model, IReadOnlyCollection<RabbitMqMessage> messages, CancellationToken cancellationToken)
+        private Task<int> PublishAsync(
+            IModel model,
+            IReadOnlyCollection<RabbitMqMessage> messages)
         {
             _log.Verbose(
                 "Publishing {0} domain domain events to RabbitMQ host '{1}'",

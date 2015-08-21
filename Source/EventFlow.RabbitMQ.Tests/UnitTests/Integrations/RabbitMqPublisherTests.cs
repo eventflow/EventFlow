@@ -41,6 +41,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
         private Mock<IRabbitMqConfiguration> _rabbitMqConfigurationMock;
         private Mock<ILog> _logMock;
         private Mock<IModel> _modelMock;
+        private Mock<IRabbitConnection> _rabbitConnectionMock;
 
         [SetUp]
         public void SetUp()
@@ -55,30 +56,43 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             var basicPropertiesMock = new Mock<IBasicProperties>();
             _modelMock = new Mock<IModel>();
-            var rabbitConnectionMock = new Mock<IRabbitConnection>();
+            _rabbitConnectionMock = new Mock<IRabbitConnection>();
 
             _rabbitMqConnectionFactoryMock
                 .Setup(f => f.CreateConnectionAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(rabbitConnectionMock.Object));
+                .Returns(Task.FromResult(_rabbitConnectionMock.Object));
             _rabbitMqConfigurationMock
                 .Setup(c => c.Uri)
                 .Returns(new Uri("amqp://localhost"));
-            rabbitConnectionMock
+            _modelMock
+                .Setup(m => m.CreateBasicProperties())
+                .Returns(basicPropertiesMock.Object);
+        }
+
+        private void ArrangeWorkingConnection()
+        {
+            _rabbitConnectionMock
                 .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
                 .Callback<Func<IModel, Task>, CancellationToken>((a, c) =>
                     {
                         a(_modelMock.Object).Wait(c);
                     })
                 .Returns(Task.FromResult(0));
-            _modelMock
-                .Setup(m => m.CreateBasicProperties())
-                .Returns(basicPropertiesMock.Object);
+        }
+
+        private void ArrangeBrokenConnection<TException>()
+            where TException : Exception, new()
+        {
+            _rabbitConnectionMock
+                .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
+                .Throws<TException>();
         }
 
         [Test]
         public async Task PublishIsCalled()
         {
             // Arrange
+            ArrangeWorkingConnection();
             var rabbitMqMessages = Fixture.CreateMany<RabbitMqMessage>().ToList();
 
             // Act
@@ -88,6 +102,22 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
             _modelMock.Verify(
                 m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
                 Times.Exactly(rabbitMqMessages.Count));
+            _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Never);
+        }
+
+        [Test]
+        public void ConnectionIsDisposedOnException()
+        {
+            // Arrange
+            ArrangeBrokenConnection<InvalidOperationException>();
+            var rabbitMqMessages = Fixture.CreateMany<RabbitMqMessage>().ToList();
+
+            // Act
+            Assert.Throws<InvalidOperationException>(
+                async () => await Sut.PublishAsync(rabbitMqMessages, CancellationToken.None));
+
+            // Assert
+            _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Once);
         }
     }
 }
