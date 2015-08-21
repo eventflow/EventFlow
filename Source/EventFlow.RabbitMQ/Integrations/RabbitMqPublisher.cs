@@ -73,6 +73,10 @@ namespace EventFlow.RabbitMQ.Integrations
                     cancellationToken)
                     .ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 if (rabbitConnection != null)
