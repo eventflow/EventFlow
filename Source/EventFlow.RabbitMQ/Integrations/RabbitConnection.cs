@@ -58,9 +58,14 @@ namespace EventFlow.RabbitMQ.Integrations
                         "This should NEVER happen! If it does, please report a bug.");
                 }
 
-                await action(model).ConfigureAwait(false);
-
-                _models.Add(model);
+                try
+                {
+                    await action(model).ConfigureAwait(false);
+                }
+                finally
+                {
+                    _models.Add(model);
+                }
             }
 
             return 0;
