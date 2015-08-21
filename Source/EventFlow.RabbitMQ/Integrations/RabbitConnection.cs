@@ -32,7 +32,7 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitConnection : IDisposable
+    public class RabbitConnection : IRabbitConnection
     {
         private readonly ILog _log;
         private readonly IConnection _connection;

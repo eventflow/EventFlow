@@ -33,19 +33,24 @@ namespace EventFlow.RabbitMQ.Integrations
     public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory
     {
         private readonly ILog _log;
+        private readonly IRabbitMqConfiguration _configuration;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly Dictionary<Uri, ConnectionFactory> _connectionFactories = new Dictionary<Uri, ConnectionFactory>();
 
         public RabbitMqConnectionFactory(
-            ILog log)
+            ILog log,
+            IRabbitMqConfiguration configuration)
         {
             _log = log;
+            _configuration = configuration;
         }
 
-        public async Task<IConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
+        public async Task<IRabbitConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {
             var connectionFactory = await CreateConnectionFactoryAsync(uri, cancellationToken).ConfigureAwait(false);
-            return connectionFactory.CreateConnection();
+            var connection = connectionFactory.CreateConnection();
+
+            return new RabbitConnection(_log, _configuration.ModelsPrConnection, connection);
         }
 
         private async Task<ConnectionFactory> CreateConnectionFactoryAsync(Uri uri, CancellationToken cancellationToken)
