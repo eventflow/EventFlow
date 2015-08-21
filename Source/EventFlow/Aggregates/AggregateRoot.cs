@@ -90,11 +90,13 @@ namespace EventFlow.Aggregates
 
         public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
+            IMetadata metadata,
             CancellationToken cancellationToken)
         {
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
                 _uncommittedEvents,
+                metadata,
                 cancellationToken)
                 .ConfigureAwait(false);
             _uncommittedEvents.Clear();

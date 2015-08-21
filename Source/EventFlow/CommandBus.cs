@@ -65,7 +65,7 @@ namespace EventFlow
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            if (command == null) throw new ArgumentNullException("command");
+            if (command == null) throw new ArgumentNullException(nameof(command));
 
             var commandTypeName = command.GetType().Name;
             var aggregateType = typeof (TAggregate);
@@ -73,11 +73,15 @@ namespace EventFlow
                 "Executing command '{0}' on aggregate '{1}'",
                 commandTypeName,
                 aggregateType);
+            var metadata = new Metadata
+                {
+                    { MetadataKeys.CommandId, command.CommandId.Value }
+                };
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
             {
-                domainEvents = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
+                domainEvents = await ExecuteCommandAsync(command, metadata, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -133,6 +137,7 @@ namespace EventFlow
 
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
+            IMetadata metadata,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -158,8 +163,8 @@ namespace EventFlow
                     aggregateType.Name,
                     string.Join(", ", commandHandlers.Select(h => h.GetType().Name))));
             }
-            var commandHandler = commandHandlers.Single();
 
+            var commandHandler = commandHandlers.Single();
             var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync");
 
             return _transientFaultHandler.TryAsync(
@@ -170,7 +175,7 @@ namespace EventFlow
                         var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
                         await invokeTask.ConfigureAwait(false);
 
-                        return await aggregate.CommitAsync(_eventStore, c).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, metadata, c).ConfigureAwait(false);
                     },
                 Label.Named(string.Format("command-execution-{0}", commandType.Name.ToLowerInvariant())), 
                 cancellationToken);

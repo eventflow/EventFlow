@@ -29,6 +29,8 @@ namespace EventFlow.Aggregates
 {
     public class Metadata : Dictionary<string, string>, IMetadata
     {
+        public static IMetadata Empty { get; } = new Metadata();
+
         public static IMetadata With(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
             return new Metadata(keyValuePairs);

@@ -30,10 +30,7 @@ namespace EventFlow.EventStores
 {
     public interface IEventStore
     {
-        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            CancellationToken cancellationToken)
+        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(TIdentity id, IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents, IMetadata metadata, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
