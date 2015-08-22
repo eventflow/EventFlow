@@ -25,6 +25,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using Autofac.Core;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -42,9 +43,19 @@ namespace EventFlow.Configuration.Registrations
             return _componentContext.Resolve<T>();
         }
 
+        public T Resolve<T>(params Parameter[] parameters)
+        {
+            return _componentContext.Resolve<T>(parameters);
+        }
+
         public object Resolve(Type serviceType)
         {
             return _componentContext.Resolve(serviceType);
+        }
+
+        public object Resolve(Type serviceType, params Parameter[] parameters)
+        {
+            return _componentContext.Resolve(serviceType, parameters);
         }
 
         public IEnumerable<object> ResolveAll(Type serviceType)

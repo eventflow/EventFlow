@@ -58,6 +58,11 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new AutofacRegistration(serviceType, implementationType, lifetime));
         }
 
+        public void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        {
+            _registrations.Add(new AutofacRegistration(serviceType, serviceType, lifetime));
+        }
+
         public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             _registrations.Add(new AutofacGeneticRegistration(serviceType, implementationType, lifetime));

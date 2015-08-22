@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ", "Sourc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ.Tests", "Source\EventFlow.RabbitMQ.Tests\EventFlow.RabbitMQ.Tests.csproj", "{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac.Tests", "Source\EventFlow.Autofac.Tests\EventFlow.Autofac.Tests.csproj", "{EDCD8854-6224-4329-87C2-9ADD7D153070}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
