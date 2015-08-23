@@ -20,13 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Reflection;
+using System.Collections.Concurrent;
+using Nest;
+
 namespace EventFlow.ReadStores.Elasticsearch
 {
     public class ReadModelDescriptionProvider : IReadModelDescriptionProvider
     {
+        private static readonly ConcurrentDictionary<Type, ReadModelDescription> _indexNames = new ConcurrentDictionary<Type, ReadModelDescription>(); 
+
         public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IElasticsearchReadModel
         {
-            return new ReadModelDescription(new IndexName("eventflow"));
+            return _indexNames.GetOrAdd(
+                typeof (TReadModel),
+                t =>
+                    {
+                        var elasticType = t.GetCustomAttribute<ElasticTypeAttribute>();
+                        return new ReadModelDescription(new IndexName(elasticType == null
+                            ? "eventflow"
+                            : elasticType.Name));
+                    });
         }
     }
 }
