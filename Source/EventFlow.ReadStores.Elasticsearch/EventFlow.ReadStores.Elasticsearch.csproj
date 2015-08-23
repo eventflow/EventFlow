@@ -80,6 +80,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="EventFlow.ReadStores.Elasticsearch.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
