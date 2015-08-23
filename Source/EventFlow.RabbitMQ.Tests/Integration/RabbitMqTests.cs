@@ -41,7 +41,6 @@ using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
-    [Explicit("Needs RabbitMQ running localhost (https://github.com/rasmus/Vagrant.Boxes)")]
     public class RabbitMqTests
     {
         private readonly Uri _uri;
@@ -49,7 +48,12 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
         public RabbitMqTests()
         {
-            _uri = new Uri("amqp://localhost");
+            var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
+            if (string.IsNullOrEmpty(url))
+            {
+                url = "amqp://localhost";
+            }
+            _uri = new Uri(url);
         }
 
         [Test, Timeout(10000)]
