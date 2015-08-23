@@ -20,19 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Test;
 using FluentAssertions;
 using NUnit.Framework;
-using EventFlow.Extensions;
 
 namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
 {
     [TestFixture]
-    public class AggregateFactoryTests
+    public class AutofacAggregateFactoryTests
     {
         [Test]
         public async void CreatesNewAggregateWithIdParameter()
@@ -41,7 +40,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
                 var id = TestId.New;
@@ -62,7 +61,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
                 var sut = resolver.Resolve<IAggregateFactory>();
@@ -82,7 +81,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
                 .CreateResolver())
             {
