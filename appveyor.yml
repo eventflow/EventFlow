@@ -8,6 +8,10 @@ skip_tags: true
 build_script:
   - cmd: build.cmd
 
+environment:
+  ELASTICSEARCH_URL:
+    secure: UdRrKQ1ooMr8pSDJX8nSIRLOb87mMqMnhfDpKdXoqklQJxf5e+WDDVH5YWbn4JAvDn/YIDqkLD47C+rzwpYLMw==
+
 test: off
 
 artifacts:

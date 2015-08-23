@@ -98,7 +98,7 @@ namespace EventFlow.ReadStores.Elasticsearch
 
                 readModelEnvelope.ReadModel.Id = readModelUpdate.ReadModelId;
 
-                await _elasticClient.IndexAsync<TReadModel>(
+                await _elasticClient.IndexAsync(
                     readModelEnvelope.ReadModel,
                     d => d
                         .Id(readModelUpdate.ReadModelId)

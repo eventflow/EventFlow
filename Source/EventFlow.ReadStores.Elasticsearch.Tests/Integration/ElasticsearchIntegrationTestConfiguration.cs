@@ -29,6 +29,7 @@ using EventFlow.ReadStores.Elasticsearch.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using Nest;
+using NUnit.Framework;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 {
@@ -44,7 +45,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
             var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
             if (string.IsNullOrEmpty(url))
             {
-                url = "http://localhost:9200";
+                Assert.Inconclusive("The environment variabel named 'ELASTICSEARCH_URL' isn't set. Set it to e.g. 'http://localhost:9200'");
             }
 
             _resolver = eventFlowOptions
