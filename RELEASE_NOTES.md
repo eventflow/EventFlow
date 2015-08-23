@@ -9,14 +9,16 @@
    and register a service that implements `ISubscribeSynchronousToAll`. Services
    that implement this will automatically be added using the
    `AddSubscribers(...)` or `AddDefaults(...)` extension to `EventFlowOptions`
- * New: Use `UseAutofacAggregateRootFactory(...)` to use an Autofac aggregate
-   root factory, enabling you to use services in your aggregate root
-   constructor
- * New: Use `UseResolverAggregateRootFactory()` to use the resolver to create
-   aggregate roots. Same as `UseAutofacAggregateRootFactory(...)` but for when
-   using the internal IoC container
- * New: Use `AddAggregateRoots(...)` to register aggregate root types
- * New: Added `IServiceRegistration RegisterType(...)` to register services by
+ * New: Use `EventFlowOptions.UseAutofacAggregateRootFactory(...)` to use an
+   Autofac aggregate root factory, enabling you to use services in your
+   aggregate root constructor
+ * New: Use `EventFlowOptions.UseResolverAggregateRootFactory()` to use the
+   resolver to create aggregate roots. Same as
+   `UseAutofacAggregateRootFactory(...)` but for when using the internal IoC
+   container
+ * New: Use `EventFlowOptions.AddAggregateRoots(...)` to register aggregate root
+   types
+ * New: Added `IServiceRegistration.RegisterType(...)` to register services by
    type
 
 ### New in 0.10.642 (released 2015-08-17)
