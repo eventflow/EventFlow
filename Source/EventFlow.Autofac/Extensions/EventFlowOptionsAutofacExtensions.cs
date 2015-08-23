@@ -24,11 +24,19 @@ using System;
 using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
+using EventFlow.Configuration.Registrations.Services;
 
 namespace EventFlow.Autofac.Extensions
 {
     public static class EventFlowOptionsAutofacExtensions
     {
+        public static EventFlowOptions UseAutofacContainerBuilder(
+            this EventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .UseAutofacContainerBuilder(new ContainerBuilder());
+        }
+
         public static EventFlowOptions UseAutofacContainerBuilder(
             this EventFlowOptions eventFlowOptions,
             ContainerBuilder containerBuilder)
@@ -41,8 +49,7 @@ namespace EventFlow.Autofac.Extensions
             this EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .RegisterServices(f => f.Register<IAggregateFactory, Aggregates.AggregateFactory>(
-                    Lifetime.Singleton));
+                .RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateFactory>(Lifetime.Singleton));
         }
 
         public static IContainer CreateContainer(

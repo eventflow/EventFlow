@@ -38,9 +38,8 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         public async void CreatesNewAggregateWithIdParameter()
         {
             // Arrange
-            var containerBuilder = new ContainerBuilder();
             using (var resolver = EventFlowOptions.New
-                .UseAutofacContainerBuilder(containerBuilder)
+                .UseAutofacContainerBuilder()
                 .UseAutofacAggregateFactory()
                 .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .CreateResolver())
@@ -49,7 +48,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id);
+                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdParameter.Id.Should().Be(id);
@@ -60,9 +59,8 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         public async void CreatesNewAggregateWithIdAndInterfaceParameters()
         {
             // Arrange
-            var containerBuilder = new ContainerBuilder();
             using (var resolver = EventFlowOptions.New
-                .UseAutofacContainerBuilder(containerBuilder)
+                .UseAutofacContainerBuilder()
                 .UseAutofacAggregateFactory()
                 .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .CreateResolver())
@@ -70,7 +68,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, TestId>(TestId.New);
+                var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, TestId>(TestId.New).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdAndInterfaceParameters.Resolver.Should().BeAssignableTo<IResolver>();
@@ -81,9 +79,8 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         public async void CreatesNewAggregateWithIdAndTypeParameters()
         {
             // Arrange
-            var containerBuilder = new ContainerBuilder();
             using (var resolver = EventFlowOptions.New
-                .UseAutofacContainerBuilder(containerBuilder)
+                .UseAutofacContainerBuilder()
                 .UseAutofacAggregateFactory()
                 .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
@@ -92,7 +89,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, TestId>(TestId.New);
+                var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, TestId>(TestId.New).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();

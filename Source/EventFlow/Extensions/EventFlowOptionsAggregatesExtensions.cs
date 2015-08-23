@@ -24,13 +24,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Aggregates;
 using Autofac;
+using EventFlow.Aggregates;
+using EventFlow.Configuration.Registrations.Services;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsAggregatesExtensions
     {
+        public static EventFlowOptions UseResolverForAggregateRoots(
+            this EventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateFactory>());
+        }
+
         public static EventFlowOptions AddAggregateRoots(
             this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly)

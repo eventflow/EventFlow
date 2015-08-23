@@ -60,10 +60,12 @@
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacServiceRegistration.cs">
       <Link>Registrations\AutofacServiceRegistration.cs</Link>
     </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\Services\AutofacAggregateFactory.cs">
+      <Link>Registrations\Services\AutofacAggregateFactory.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Extensions\EventFlowOptionsAutofacExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
