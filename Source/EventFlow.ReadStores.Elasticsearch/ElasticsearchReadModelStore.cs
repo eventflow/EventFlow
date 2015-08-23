@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Logs;
 using Nest;
@@ -67,26 +68,45 @@ namespace EventFlow.ReadStores.Elasticsearch
             return ReadModelEnvelope<TReadModel>.With(getResponse.Source, version);
         }
 
-        public override Task DeleteAsync(
-            string id,
-            CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
         public override Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+             return _elasticClient.DeleteIndexAsync(readModelDescription.IndexName.Value, d => d);
         }
 
-        public override Task UpdateAsync(
+        public override async Task UpdateAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+
+            foreach (var readModelUpdate in readModelUpdates)
+            {
+                var response = await _elasticClient.GetAsync<TReadModel>(
+                    readModelUpdate.ReadModelId,
+                    readModelDescription.IndexName.Value)
+                    .ConfigureAwait(false);
+
+                var readModelEnvelope = response.Found
+                    ? ReadModelEnvelope<TReadModel>.With(response.Source, long.Parse(response.Version))
+                    : ReadModelEnvelope<TReadModel>.Empty;
+
+                readModelEnvelope = await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);
+
+                readModelEnvelope.ReadModel.Id = readModelUpdate.ReadModelId;
+
+                await _elasticClient.IndexAsync<TReadModel>(
+                    readModelEnvelope.ReadModel,
+                    d => d
+                        .Id(readModelUpdate.ReadModelId)
+                        .Index(readModelDescription.IndexName.Value)
+                        .Version(readModelEnvelope.Version.GetValueOrDefault())
+                        .VersionType(VersionType.ExternalGte))
+                    .ConfigureAwait(false);
+            }
         }
     }
 }

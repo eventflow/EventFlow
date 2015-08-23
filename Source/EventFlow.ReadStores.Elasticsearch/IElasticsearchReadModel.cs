@@ -24,5 +24,6 @@ namespace EventFlow.ReadStores.Elasticsearch
 {
     public interface IElasticsearchReadModel : IReadModel
     {
+        string Id { get; set; }
     }
 }

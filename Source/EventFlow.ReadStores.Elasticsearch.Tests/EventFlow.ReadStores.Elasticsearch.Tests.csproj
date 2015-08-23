@@ -33,12 +33,24 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Elasticsearch.Net.1.7.0\lib\net45\Elasticsearch.Net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FluentAssertions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentAssertions.3.5.0\lib\net45\FluentAssertions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FluentAssertions.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentAssertions.3.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Nest, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NEST.1.7.0\lib\net45\Nest.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
@@ -55,6 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElasticsearchTestAggregateReadModel.cs" />
+    <Compile Include="Integration\ElasticsearchIntegrationTestConfiguration.cs" />
+    <Compile Include="Integration\ElasticsearchReadModelStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,14 +77,20 @@
       <Project>{404c6099-e82f-4433-8505-5479d76660cd}</Project>
       <Name>EventFlow.ReadStores.Elasticsearch</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
+      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
+      <Name>EventFlow.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

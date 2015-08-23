@@ -20,28 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-
-namespace EventFlow.ReadStores
+namespace EventFlow.ReadStores.Elasticsearch
 {
-    public interface IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public class ReadModelDescriptionProvider : IReadModelDescriptionProvider
     {
-        Task<ReadModelEnvelope<TReadModel>> GetAsync(
-            string id,
-            CancellationToken cancellationToken);
-
-        Task DeleteAllAsync(
-            CancellationToken cancellationToken);
-
-        Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
-            CancellationToken cancellationToken);
+        public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IElasticsearchReadModel
+        {
+            return new ReadModelDescription(new IndexName("eventflow"));
+        }
     }
 }

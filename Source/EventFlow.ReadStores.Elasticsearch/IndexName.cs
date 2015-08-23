@@ -30,7 +30,7 @@ namespace EventFlow.ReadStores.Elasticsearch
         public IndexName(string value)
             : base(value)
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("value");
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
         }
     }
 }
