@@ -27,6 +27,7 @@ using EventFlow.Configuration;
 using EventFlow.TestHelpers.Aggregates.Test;
 using FluentAssertions;
 using NUnit.Framework;
+using EventFlow.Extensions;
 
 namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
 {
@@ -41,11 +42,9 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder(containerBuilder)
                 .UseAutofacAggregateFactory()
-                .RegisterServices(f => f.RegisterType(typeof(TestAggregate)))
-                .RegisterServices(f => f.RegisterType(typeof(TestAggregateWithResolver)))
-                .RegisterServices(f => f.RegisterType(typeof(TestAggregateWithPinger)))
+                .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
-                .CreateResolver(false))
+                .CreateResolver())
             {
                 // Arrange
                 var id = TestId.New;
