@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015 Rasmus Mikkelsen, Jaco Coetzee
+// Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,50 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
     public class AggregateFactoryTests
     {
         [Test]
-        public async void AutofacAggregateFactoryResolvesConstructorParameters()
+        public async void CreatesNewAggregateWithIdParameter()
+        {
+            // Arrange
+            var containerBuilder = new ContainerBuilder();
+            using (var resolver = EventFlowOptions.New
+                .UseAutofacContainerBuilder(containerBuilder)
+                .UseAutofacAggregateFactory()
+                .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
+                .CreateResolver())
+            {
+                var id = TestId.New;
+                var sut = resolver.Resolve<IAggregateFactory>();
+
+                // Act
+                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id);
+
+                // Assert
+                aggregateWithIdParameter.Id.Should().Be(id);
+            }
+        }
+
+        [Test]
+        public async void CreatesNewAggregateWithIdAndInterfaceParameters()
+        {
+            // Arrange
+            var containerBuilder = new ContainerBuilder();
+            using (var resolver = EventFlowOptions.New
+                .UseAutofacContainerBuilder(containerBuilder)
+                .UseAutofacAggregateFactory()
+                .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
+                .CreateResolver())
+            {
+                var sut = resolver.Resolve<IAggregateFactory>();
+
+                // Act
+                var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, TestId>(TestId.New);
+
+                // Assert
+                aggregateWithIdAndInterfaceParameters.Resolver.Should().BeAssignableTo<IResolver>();
+            }
+        }
+
+        [Test]
+        public async void CreatesNewAggregateWithIdAndTypeParameters()
         {
             // Arrange
             var containerBuilder = new ContainerBuilder();
@@ -46,28 +89,19 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
                 .CreateResolver())
             {
-                // Arrange
-                var id = TestId.New;
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var a = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id);
-                var ar = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, TestId>(id);
-                var ap = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, TestId>(id);
+                var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, TestId>(TestId.New);
 
                 // Assert
-                a.Id.Should().Be(id);
-                ar.Resolver.Should().BeAssignableTo<IResolver>();
-                ap.Pinger.Should().BeOfType<Pinger>();
+                aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
             }
         }
 
+
         public class Pinger
         {
-            public void Ping()
-            {
-                // void
-            }
         }
 
         public class TestAggregate : AggregateRoot<TestAggregate, TestId>

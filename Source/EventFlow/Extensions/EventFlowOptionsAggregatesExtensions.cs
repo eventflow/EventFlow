@@ -46,10 +46,7 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
-            foreach (var t in aggregateRootTypes)
-            {
-                eventFlowOptions.RegisterServices(sr => sr.RegisterType(t));
-            }
+            eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
             return eventFlowOptions;
         }
 
@@ -57,10 +54,22 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
+            var invalidateTypes = aggregateRootTypes
+                .Where(t => !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .ToList();
+            if (invalidateTypes.Any())
+            {
+                var names = string.Join(", ", invalidateTypes.Select(t => t.Name));
+                throw new ArgumentException(string.Format(
+                    "Type(s) '{0}' do not implement IAggregateRoot<TIdentity>",
+                    names));
+            }
+
             foreach (var t in aggregateRootTypes)
             {
                 eventFlowOptions.RegisterServices(sr => sr.RegisterType(t));
             }
+
             return eventFlowOptions;
         }
     }
