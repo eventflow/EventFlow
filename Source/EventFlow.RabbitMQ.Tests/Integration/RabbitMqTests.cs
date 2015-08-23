@@ -44,7 +44,6 @@ namespace EventFlow.RabbitMQ.Tests.Integration
     public class RabbitMqTests
     {
         private Uri _uri;
-        private readonly ConcurrentBag<Exception> _exceptions = new ConcurrentBag<Exception>(); 
 
         [SetUp]
         public void SetUp()
@@ -87,6 +86,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         {
             var exchange = new Exchange("eventflow");
             var routingKey = new RoutingKey("performance");
+            var exceptions = new ConcurrentBag<Exception>();
             const int threadCount = 100;
             const int messagesPrThread = 200;
 
@@ -97,7 +97,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var threads = Enumerable.Range(0, threadCount)
                     .Select(_ =>
                         {
-                            var thread = new Thread(o => SendMessages(rabbitMqPublisher, messagesPrThread, exchange, routingKey));
+                            var thread = new Thread(o => SendMessages(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions));
                             thread.Start();
                             return thread;
                         })
@@ -110,11 +110,16 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
                 var rabbitMqMessages = consumer.GetMessages(threadCount * messagesPrThread);
                 rabbitMqMessages.Should().HaveCount(threadCount*messagesPrThread);
-                _exceptions.Should().BeEmpty();
+                exceptions.Should().BeEmpty();
             }
         }
 
-        private void SendMessages(IRabbitMqPublisher rabbitMqPublisher, int count, Exchange exchange, RoutingKey routingKey)
+        private static void SendMessages(
+            IRabbitMqPublisher rabbitMqPublisher,
+            int count,
+            Exchange exchange,
+            RoutingKey routingKey,
+            ConcurrentBag<Exception> exceptions)
         {
             var guid = Guid.NewGuid();
 
@@ -132,7 +137,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
             catch (Exception e)
             {
-                _exceptions.Add(e);
+                exceptions.Add(e);
             }
         }
 
