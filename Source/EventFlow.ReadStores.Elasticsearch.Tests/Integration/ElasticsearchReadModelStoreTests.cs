@@ -21,11 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 {
-    [Explicit("Requires Elasticsearch present at http://localhost:9200")]
     public class ElasticsearchReadModelStoreTests : ReadModelStoreSuite<ElasticsearchIntegrationTestConfiguration>
     {
     }

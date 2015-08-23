@@ -41,8 +41,14 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
+            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+            if (string.IsNullOrEmpty(url))
+            {
+                url = "http://localhost:9200";
+            }
+
             _resolver = eventFlowOptions
-                .ConfigureElasticsearch(new Uri("http://localhost:9200"))
+                .ConfigureElasticsearch(new Uri(url))
                 .UseElasticsearchReadModel<ElasticsearchTestAggregateReadModel>()
                 .CreateResolver();
             _elasticClient = _resolver.Resolve<IElasticClient>();
