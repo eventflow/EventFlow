@@ -52,6 +52,7 @@
     </Compile>
     <Compile Include="Exchange.cs" />
     <Compile Include="Extensions\EventFlowOptionsRabbitMqExtensions.cs" />
+    <Compile Include="Integrations\IRabbitConnection.cs" />
     <Compile Include="Integrations\RabbitConnection.cs" />
     <Compile Include="RabbitMqDomainEventPublisher.cs" />
     <Compile Include="IRabbitMqConfiguration.cs" />

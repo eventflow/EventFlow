@@ -32,7 +32,7 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitConnection : IDisposable
+    public class RabbitConnection : IRabbitConnection
     {
         private readonly ILog _log;
         private readonly IConnection _connection;
@@ -58,9 +58,14 @@ namespace EventFlow.RabbitMQ.Integrations
                         "This should NEVER happen! If it does, please report a bug.");
                 }
 
-                await action(model).ConfigureAwait(false);
-
-                _models.Add(model);
+                try
+                {
+                    await action(model).ConfigureAwait(false);
+                }
+                finally
+                {
+                    _models.Add(model);
+                }
             }
 
             return 0;
