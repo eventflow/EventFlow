@@ -20,19 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using Autofac;
 using System.Threading.Tasks;
-using EventFlow.Configuration.Registrations;
+using Autofac;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Autofac.Aggregates
+namespace EventFlow.Configuration.Registrations.Services
 {
-    public class AggregateFactory : IAggregateFactory
+    internal class AutofacAggregateRootFactory : IAggregateFactory
     {
-        private AutofacResolver _resolver;
+        private readonly AutofacResolver _resolver;
 
-        public AggregateFactory(IResolver resolver)
+        public AutofacAggregateRootFactory(IResolver resolver)
         {
             _resolver = (AutofacResolver)resolver;
         }
@@ -46,4 +44,3 @@ namespace EventFlow.Autofac.Aggregates
         }
     }
 }
-
