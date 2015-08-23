@@ -26,11 +26,11 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Configuration.Registrations.Services
 {
-    internal class AutofacAggregateFactory : IAggregateFactory
+    internal class AutofacAggregateRootFactory : IAggregateFactory
     {
         private readonly AutofacResolver _resolver;
 
-        public AutofacAggregateFactory(IResolver resolver)
+        public AutofacAggregateRootFactory(IResolver resolver)
         {
             _resolver = (AutofacResolver)resolver;
         }

@@ -45,11 +45,11 @@ namespace EventFlow.Autofac.Extensions
                 .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder));
         }
 
-        public static EventFlowOptions UseAutofacAggregateFactory(
+        public static EventFlowOptions UseAutofacAggregateRootFactory(
             this EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateFactory>(Lifetime.Singleton));
+                .RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>(Lifetime.Singleton));
         }
 
         public static IContainer CreateContainer(

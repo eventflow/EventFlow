@@ -49,7 +49,7 @@ namespace EventFlow.Tests.IntegrationTests
             using (var resolver = EventFlowOptions.New
                 .AddAggregateRoots(typeof(ServiceDependentAggregate))
                 .RegisterServices(sr => sr.RegisterType(typeof(Service)))
-                .UseResolverAggregateRootsFactory()
+                .UseResolverAggregateRootFactory()
                 .CreateResolver())
             {
                 // Arrange

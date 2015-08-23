@@ -60,8 +60,8 @@
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacServiceRegistration.cs">
       <Link>Registrations\AutofacServiceRegistration.cs</Link>
     </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\Services\AutofacAggregateFactory.cs">
-      <Link>Registrations\Services\AutofacAggregateFactory.cs</Link>
+    <Compile Include="..\EventFlow\Configuration\Registrations\Services\AutofacAggregateRootFactory.cs">
+      <Link>Registrations\Services\AutofacAggregateRootFactory.cs</Link>
     </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>

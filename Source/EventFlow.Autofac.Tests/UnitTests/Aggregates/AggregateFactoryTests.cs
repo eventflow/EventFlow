@@ -40,7 +40,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
-                .UseAutofacAggregateFactory()
+                .UseAutofacAggregateRootFactory()
                 .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
@@ -61,7 +61,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
-                .UseAutofacAggregateFactory()
+                .UseAutofacAggregateRootFactory()
                 .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
@@ -81,7 +81,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             // Arrange
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
-                .UseAutofacAggregateFactory()
+                .UseAutofacAggregateRootFactory()
                 .AddAggregateRoots(typeof(AggregateFactoryTests).Assembly)
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
                 .CreateResolver())

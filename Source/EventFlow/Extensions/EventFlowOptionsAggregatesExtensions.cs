@@ -32,10 +32,10 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsAggregatesExtensions
     {
-        public static EventFlowOptions UseResolverAggregateRootsFactory(
+        public static EventFlowOptions UseResolverAggregateRootFactory(
             this EventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateFactory>());
+            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>());
         }
 
         public static EventFlowOptions AddAggregateRoots(
