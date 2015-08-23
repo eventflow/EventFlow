@@ -43,16 +43,18 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 {
     public class RabbitMqTests
     {
-        private readonly Uri _uri;
+        private Uri _uri;
         private readonly ConcurrentBag<Exception> _exceptions = new ConcurrentBag<Exception>(); 
 
-        public RabbitMqTests()
+        [SetUp]
+        public void SetUp()
         {
             var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
             if (string.IsNullOrEmpty(url))
             {
-                url = "amqp://localhost";
+                Assert.Inconclusive("The environment variabel named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
             }
+
             _uri = new Uri(url);
         }
 
