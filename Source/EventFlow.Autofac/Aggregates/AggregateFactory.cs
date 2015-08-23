@@ -20,34 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using Autofac;
+using System.Threading.Tasks;
 using EventFlow.Configuration.Registrations;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Autofac.Aggregates
 {
-    public interface IServiceRegistration
+    public class AggregateFactory : IAggregateFactory
     {
-        void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TImplementation : class, TService
-            where TService : class;
+        private AutofacResolver _resolver;
 
-        void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TService : class;
+        public AggregateFactory(IResolver resolver)
+        {
+            _resolver = (AutofacResolver)resolver;
+        }
 
-        void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
-
-        void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique);
-
-        void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
-
-        void Decorate<TService>(Func<IResolverContext, TService, TService> factory);
-
-        bool HasRegistrationFor<TService>()
-            where TService : class;
-
-        IEnumerable<Type> GetRegisteredServices();
-            
-        IRootResolver CreateResolver(bool validateRegistrations);
+        public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            var aggregate = _resolver.Resolve<TAggregate>(new TypedParameter(typeof(TIdentity), id));
+            return Task.FromResult(aggregate);
+        }
     }
 }
+
