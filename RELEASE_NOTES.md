@@ -18,7 +18,7 @@
    container
  * New: Use `EventFlowOptions.AddAggregateRoots(...)` to register aggregate root
    types
- * New: Added `IServiceRegistration.RegisterType(...)` to register services by
+ * New: Use `IServiceRegistration.RegisterType(...)` to register services by
    type
 
 ### New in 0.10.642 (released 2015-08-17)
