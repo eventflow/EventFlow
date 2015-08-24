@@ -40,9 +40,9 @@ namespace EventFlow.ReadStores
         private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
 
-        protected ILog Log { get; private set; }
-        protected TReadModelStore ReadModelStore { get; private set; }
-        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
+        protected ILog Log { get; }
+        protected TReadModelStore ReadModelStore { get; }
+        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
 
         protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
         protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 

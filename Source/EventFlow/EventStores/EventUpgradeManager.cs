@@ -37,8 +37,8 @@ namespace EventFlow.EventStores
 
         private class EventUpgraderCacheItem
         {
-            public Type EventUpgraderType { get; private set; }
-            public Func<object, IDomainEvent, IEnumerable<IDomainEvent>> Upgrade { get; private set; }
+            public Type EventUpgraderType { get; }
+            public Func<object, IDomainEvent, IEnumerable<IDomainEvent>> Upgrade { get; }
 
             public EventUpgraderCacheItem(Type eventUpgraderType, Func<object, IDomainEvent, IEnumerable<IDomainEvent>> upgrade)
             {

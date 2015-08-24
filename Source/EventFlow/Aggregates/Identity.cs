@@ -43,7 +43,7 @@ namespace EventFlow.Aggregates
         {
             get
             {
-                var value = string.Format("{0}-{1}", Name, Guid.NewGuid()).ToLowerInvariant();
+                var value = $"{Name}-{Guid.NewGuid()}".ToLowerInvariant();
                 return With(value);
             }
         }
@@ -62,16 +62,16 @@ namespace EventFlow.Aggregates
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return string.Format("Aggregate ID of type '{0}' is null or empty", typeof(T).Name);
+                yield return $"Aggregate ID of type '{typeof (T).Name}' is null or empty";
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return string.Format("Aggregate ID '{0}' of type '{1}' contains leading and/or traling spaces", value, typeof(T).Name);
+                yield return$"Aggregate ID '{value}' of type '{typeof (T).Name}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
-                yield return string.Format("Aggregate ID '{0}' of type '{1}' does not start with '{2}'", value, typeof(T).Name, Name);
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))
-                yield return string.Format("Aggregate ID '{0}' of type '{1}' does not follow the syntax '[NAME]-[GUID]' in lower case", value, typeof(T).Name);
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)

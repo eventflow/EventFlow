@@ -39,8 +39,8 @@ namespace EventFlow.Exceptions
                 {HelpLinkType.MetadataProviders, "https://github.com/rasmus/EventFlow/blob/master/Documentation/MetadataProviders.md"},
             };
 
-        public override string HelpLink { get { return HelpLinks[HelpLinkType]; } }
-        public HelpLinkType HelpLinkType { get; private set; } 
+        public override string HelpLink => HelpLinks[HelpLinkType];
+        public HelpLinkType HelpLinkType { get; } 
 
         private WrongImplementationException(HelpLinkType helpLinkType, string message)
             : base(string.Format("{0}{1}Help link:{2}", message, Environment.NewLine, HelpLinks[helpLinkType]))
