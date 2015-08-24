@@ -39,11 +39,20 @@ namespace EventFlow
 {
     public class EventFlowOptions
     {
+        private class ConfigureEventStore : IConfigureEventStore
+        {
+            public EventFlowOptions Options { get; }
+            public ConfigureEventStore(EventFlowOptions options) { Options = options; }
+        }
+
+
         public static EventFlowOptions New => new EventFlowOptions();
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration()); 
+
+        public IConfigureEventStore EventStore => new ConfigureEventStore(this);
 
         private EventFlowOptions() { }
 
