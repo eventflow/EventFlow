@@ -1,6 +1,6 @@
 ### New in 0.11 (not released yet)
 
- * Breaking: `EventFlowOptions AddDefaults(...)` now also adds event
+ * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds event
    definitions
  * New: [RabbitMQ](http://www.rabbitmq.com/) is now supported through the new
    NuGet package called `EventFlow.RabbitMQ` which enables domain events to be
