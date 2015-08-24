@@ -80,11 +80,11 @@ namespace EventFlow.Configuration.Registrations
         }
     }
 
-    internal class AutofacGeneticRegistration : AutofacRegistration
+    internal class AutofacGenericRegistration : AutofacRegistration
     {
         private readonly Type _implementationType;
 
-        public AutofacGeneticRegistration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public AutofacGenericRegistration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             ServiceType = serviceType;
             Lifetime = lifetime;
