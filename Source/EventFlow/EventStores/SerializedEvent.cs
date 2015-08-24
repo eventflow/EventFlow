@@ -26,10 +26,10 @@ namespace EventFlow.EventStores
 {
     public class SerializedEvent
     {
-        public string SerializedMetadata { get; private set; }
-        public string SerializedData { get; private set; }
-        public int AggregateSequenceNumber { get; set; }
-        public IMetadata Metadata { get; private set; }
+        public string SerializedMetadata { get; }
+        public string SerializedData { get; }
+        public int AggregateSequenceNumber { get; }
+        public IMetadata Metadata { get; }
 
         public SerializedEvent(
             string serializedMetadata,

@@ -35,8 +35,8 @@ namespace EventFlow.EventStores
     {
         protected class AllCommittedEventsPage
         {
-            public GlobalPosition NextGlobalPosition { get; private set; }
-            public IReadOnlyCollection<ICommittedDomainEvent> CommittedDomainEvents { get; private set; }
+            public GlobalPosition NextGlobalPosition { get; }
+            public IReadOnlyCollection<ICommittedDomainEvent> CommittedDomainEvents { get; }
 
             public AllCommittedEventsPage(
                 GlobalPosition nextGlobalPosition,
@@ -47,11 +47,11 @@ namespace EventFlow.EventStores
             }
         }
 
-        protected ILog Log { get; private set; }
-        protected IAggregateFactory AggregateFactory { get; private set; }
-        protected IEventUpgradeManager EventUpgradeManager { get; private set; }
-        protected IEventJsonSerializer EventJsonSerializer { get; private set; }
-        protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; private set; }
+        protected ILog Log { get; }
+        protected IAggregateFactory AggregateFactory { get; }
+        protected IEventUpgradeManager EventUpgradeManager { get; }
+        protected IEventJsonSerializer EventJsonSerializer { get; }
+        protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; }
 
         protected EventStoreBase(
             ILog log,
@@ -121,7 +121,7 @@ namespace EventFlow.EventStores
             int pageSize,
             CancellationToken cancellationToken)
         {
-            if (pageSize <= 0) throw new ArgumentOutOfRangeException("pageSize");
+            if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
             var allCommittedEventsPage = await LoadAllCommittedDomainEvents(
                 globalPosition,

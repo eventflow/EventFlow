@@ -55,7 +55,7 @@ namespace EventFlow.Owin.MetadataProviders
             return _owinContext.Request.Headers
                 .Where(kv => !RequestHeadersToSkip.Contains(kv.Key))
                 .Select(kv => new KeyValuePair<string, string>(
-                    string.Format("request_header[{0}]", kv.Key),
+                    $"request_header[{kv.Key}]",
                     string.Join(Environment.NewLine, kv.Value)));
         }
     }

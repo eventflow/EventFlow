@@ -38,6 +38,7 @@ namespace EventFlow.MetadataProviders
             var aggregateEventType = aggregateEvent.GetType();
             var assembly = aggregateEventType.Assembly;
             var name = assembly.GetName();
+
             yield return new KeyValuePair<string, string>("event_type_assembly_version", name.Version.ToString());
             yield return new KeyValuePair<string, string>("event_type_assembly_name", name.Name);
             yield return new KeyValuePair<string, string>("event_type_fullname", aggregateEventType.FullName);
