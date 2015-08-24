@@ -60,6 +60,9 @@
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacServiceRegistration.cs">
       <Link>Registrations\AutofacServiceRegistration.cs</Link>
     </Compile>
+    <Compile Include="..\EventFlow\Configuration\Registrations\Services\AutofacAggregateRootFactory.cs">
+      <Link>Registrations\Services\AutofacAggregateRootFactory.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
@@ -76,6 +79,7 @@
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

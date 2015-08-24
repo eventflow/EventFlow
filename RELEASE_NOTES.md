@@ -1,4 +1,27 @@
-### New in 0.10 (not released yet)
+### New in 0.11 (not released yet)
+
+ * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds event
+   definitions
+ * New: [RabbitMQ](http://www.rabbitmq.com/) is now supported through the new
+   NuGet package called `EventFlow.RabbitMQ` which enables domain events to be
+   published to the bus
+ * New: If you want to subscribe to all domain events, you can implement
+   and register a service that implements `ISubscribeSynchronousToAll`. Services
+   that implement this will automatically be added using the
+   `AddSubscribers(...)` or `AddDefaults(...)` extension to `EventFlowOptions`
+ * New: Use `EventFlowOptions.UseAutofacAggregateRootFactory(...)` to use an
+   Autofac aggregate root factory, enabling you to use services in your
+   aggregate root constructor
+ * New: Use `EventFlowOptions.UseResolverAggregateRootFactory()` to use the
+   resolver to create aggregate roots. Same as
+   `UseAutofacAggregateRootFactory(...)` but for when using the internal IoC
+   container
+ * New: Use `EventFlowOptions.AddAggregateRoots(...)` to register aggregate root
+   types
+ * New: Use `IServiceRegistration.RegisterType(...)` to register services by
+   type
+
+### New in 0.10.642 (released 2015-08-17)
 
  * Breaking: Updated NuGet reference `Newtonsoft.Json` to v7.0.1
    (up from v6.0.8)

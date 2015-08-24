@@ -32,13 +32,16 @@ namespace EventFlow.Subscribers
     public class DomainEventPublisher : IDomainEventPublisher
     {
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
+        private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
-            IEnumerable<IReadStoreManager> readStoreManagers)
+            IEnumerable<IReadStoreManager> readStoreManagers,
+            IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
+            _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
 
@@ -56,6 +59,11 @@ namespace EventFlow.Subscribers
 
             // Update subscriptions AFTER read stores have been updated
             await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+
+            // Send to handlers that listen to all events
+            var handle = _subscribeSynchronousToAlls
+                .Select(s => s.HandleAsync(domainEvents, cancellationToken));
+            await Task.WhenAll(handle).ConfigureAwait(false);
         }
     }
 }

@@ -64,7 +64,7 @@ namespace EventFlow.ValueObjects
             return string.Format(
                 "{{{0}{1}}}",
                 Environment.NewLine,
-                string.Join(", ", GetProperties().Select(f => string.Format("   {0}: '{1}'{2}", f.Name, f.GetValue(this), Environment.NewLine))));
+                string.Join(", ", GetProperties().Select(f => $"   {f.Name}: '{f.GetValue(this)}'{Environment.NewLine}")));
         }
 
         protected virtual IEnumerable<object> GetEqualityComponents()

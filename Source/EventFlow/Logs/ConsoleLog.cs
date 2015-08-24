@@ -26,9 +26,9 @@ namespace EventFlow.Logs
 {
     public class ConsoleLog : Log
     {
-        protected override bool IsVerboseEnabled { get { return true; } }
-        protected override bool IsDebugEnabled { get { return true; } }
-        protected override bool IsInformationEnabled { get { return true; } }
+        protected override bool IsVerboseEnabled => true;
+        protected override bool IsDebugEnabled => true;
+        protected override bool IsInformationEnabled => true;
 
         protected override void Write(LogLevel logLevel, string format, params object[] args)
         {
