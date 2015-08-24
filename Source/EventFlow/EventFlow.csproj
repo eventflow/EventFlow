@@ -70,6 +70,7 @@
     <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
     <Compile Include="Configuration\EventFlowConfiguration.cs" />
+    <Compile Include="Configuration\IConfigureEventStore.cs" />
     <Compile Include="Configuration\IEventFlowConfiguration.cs" />
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\WrongImplementationException.cs" />
+    <Compile Include="Extensions\ConfigureEventStoreExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />

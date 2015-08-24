@@ -53,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
 
                 var resolver = eventFlowOptions
                     .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
-                    .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
+                    .EventStore.UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                     .CreateResolver();
 
                 _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
