@@ -66,7 +66,7 @@ namespace EventFlow.Configuration.Registrations
 
         public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            _registrations.Add(new AutofacGeneticRegistration(serviceType, implementationType, lifetime));
+            _registrations.Add(new AutofacGenericRegistration(serviceType, implementationType, lifetime));
         }
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
