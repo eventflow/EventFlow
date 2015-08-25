@@ -22,7 +22,7 @@
 
 using System;
 using Elasticsearch.Net.ConnectionPool;
-using EventFlow.Configuration.Registrations;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using Nest;
 
