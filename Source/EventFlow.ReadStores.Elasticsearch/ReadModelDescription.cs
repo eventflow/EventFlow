@@ -27,7 +27,7 @@ namespace EventFlow.ReadStores.Elasticsearch
 {
     public class ReadModelDescription : ValueObject
     {
-        public IndexName IndexName { get; private set; }
+        public IndexName IndexName { get; }
 
         public ReadModelDescription(
             IndexName indexName)
