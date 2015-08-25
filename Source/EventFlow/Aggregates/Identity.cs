@@ -85,4 +85,62 @@ namespace EventFlow.Aggregates
             }
         }
     }
+
+    public abstract class Identity<TIdentity, TValidator> : SingleValueObject<string>, IIdentity
+        where TIdentity : Identity<TIdentity, TValidator>
+        where TValidator : IIdentityValidator, new()
+    {
+        // NOTE order of declared members changed by CodeMaid - see static constructor
+        // SUGGESTION move all static initializer into a static constructor
+        // OR dont use CodeMaid cleanups on EventFlow.....
+        // QUESTION how does resharper cleanup code/sort code items
+        private static readonly string Name;
+        private static readonly Regex NameReplace;
+        private static readonly TValidator Validator;
+
+        static Identity()
+        {
+            // NOTE prevents code organizing tools (CodeMaid) from changing the 
+            // order of members resulting in unexplained/unexpected failures
+            // REASON `Name` depends on `NameReplace`
+            NameReplace = new Regex("Id$", RegexOptions.Compiled);
+            Name = NameReplace.Replace(typeof(TIdentity).Name, string.Empty).ToLowerInvariant();
+            Validator = new TValidator();
+        }
+
+        protected Identity(string value)
+            : base(value)
+        {
+            var validationErrors = Validator.Validate(value);
+            if (validationErrors.Any())
+            {
+                throw new ArgumentException(string.Format(
+                    "Aggregate ID is invalid: {0}",
+                    string.Join(", ", validationErrors)));
+            }
+        }
+
+        public static bool IsValid(string value)
+        {
+            var identity = With(value);
+            return Validator.IsValid(value);
+        }
+
+        public static TIdentity New(string value)
+        {
+            var qualifiedValue = string.Format("{0}-{1}", Name, value).ToLowerInvariant();
+            return With(qualifiedValue);
+        }
+
+        public static IEnumerable<string> Validate(string value)
+        {
+            var identity = With(value);
+            return Validator.Validate(value);
+        }
+
+        public static TIdentity With(string value)
+        {
+            return (TIdentity)Activator.CreateInstance(typeof(TIdentity), value);
+        }
+    }
 }
