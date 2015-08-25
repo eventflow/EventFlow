@@ -30,11 +30,11 @@ namespace EventFlow.Queries
     public class ReadModelByIdQuery<TReadModel> : IQuery<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
-        public string Id { get; private set; }
+        public string Id { get; }
 
         public ReadModelByIdQuery(string id)
         {
-            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
             Id = id;
         }

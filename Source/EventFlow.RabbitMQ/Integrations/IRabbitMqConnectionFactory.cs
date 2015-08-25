@@ -23,12 +23,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public interface IRabbitMqConnectionFactory
     {
-        Task<IConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken);
+        Task<IRabbitConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken);
     }
 }

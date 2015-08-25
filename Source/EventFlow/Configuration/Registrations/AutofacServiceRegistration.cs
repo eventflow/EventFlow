@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
+using EventFlow.Aggregates;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -58,9 +59,14 @@ namespace EventFlow.Configuration.Registrations
             _registrations.Add(new AutofacRegistration(serviceType, implementationType, lifetime));
         }
 
+        public void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        {
+            _registrations.Add(new AutofacRegistration(serviceType, serviceType, lifetime));
+        }
+
         public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            _registrations.Add(new AutofacGeneticRegistration(serviceType, implementationType, lifetime));
+            _registrations.Add(new AutofacGenericRegistration(serviceType, implementationType, lifetime));
         }
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
@@ -124,6 +130,7 @@ namespace EventFlow.Configuration.Registrations
                 .SelectMany(x => x.Services)
                 .OfType<TypedService>()
                 .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
+                .Where(x => !x.ServiceType.IsClosedTypeOf(typeof(IAggregateRoot<>)))
                 .ToList();
             var exceptions = new List<Exception>();
             foreach (var typedService in services)

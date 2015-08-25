@@ -77,6 +77,7 @@
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Lifetime.cs" />
+    <Compile Include="Configuration\Registrations\Services\AutofacAggregateRootFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
     <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
     <Compile Include="Configuration\Registrations\AutofacDecorator.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsAggregatesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />

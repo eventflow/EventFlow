@@ -32,6 +32,7 @@ using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory.Queries;
 using EventFlow.Subscribers;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -86,9 +87,11 @@ namespace EventFlow.Tests.IntegrationTests
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
-                .AddEvents(typeof (TestAggregate).Assembly)
-                .AddCommandHandlers(typeof(TestAggregate).Assembly)
+                .AddEvents(EventFlowTestHelpers.Assembly)
+                .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .RegisterServices(f => f.Register<IPingReadModelLocator, PingReadModelLocator>())
+                .UseResolverAggregateRootFactory()
+                .AddAggregateRoots(EventFlowTestHelpers.Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()

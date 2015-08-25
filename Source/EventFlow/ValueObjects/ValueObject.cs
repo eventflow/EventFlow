@@ -45,7 +45,7 @@ namespace EventFlow.ValueObjects
         {
             unchecked
             {
-                return GetEqualityComponents().Aggregate(17, (current, obj) => current * 23 + (obj != null ? obj.GetHashCode() : 0));
+                return GetEqualityComponents().Aggregate(17, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
             }
         }
 
