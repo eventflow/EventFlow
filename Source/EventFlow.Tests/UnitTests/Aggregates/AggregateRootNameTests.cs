@@ -20,46 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using System;
 using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates.Test;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.TestHelpers.Aggregates.Test
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    [AggregateName("Test")]
-    public class TestAggregate : AggregateRoot<TestAggregate, TestId>,
-        IEmit<DomainErrorAfterFirstEvent>
+    public class AggregateRootNameTests
     {
-        private readonly List<PingId> _pingsReceived = new List<PingId>();
-
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public IReadOnlyCollection<PingId> PingsReceived { get { return _pingsReceived; } }
-
-        public TestAggregate(TestId id) : base(id)
+        public class MyFancyAggregate : AggregateRoot<MyFancyAggregate, TestId>
         {
-            Register<PingEvent>(e => _pingsReceived.Add(e.PingId));
+            public MyFancyAggregate(TestId id) : base(id) { }
         }
 
-        public void DomainErrorAfterFirst()
+        [AggregateName("BetterNamedAggregate")]
+        public class MyOtherFancyAggregate : AggregateRoot<MyOtherFancyAggregate, TestId>
         {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
+            public MyOtherFancyAggregate(TestId id) : base(id) { }
         }
 
-        public void Ping(PingId pingId)
+        public class FancyDomainStuff : AggregateRoot<FancyDomainStuff, TestId>
         {
-            Emit(new PingEvent(pingId));
+            public FancyDomainStuff(TestId id) : base(id) { }
         }
 
-        public void Apply(DomainErrorAfterFirstEvent e)
+        [TestCase(typeof(MyFancyAggregate), "MyFancyAggregate")]
+        [TestCase(typeof(MyOtherFancyAggregate), "BetterNamedAggregate")]
+        [TestCase(typeof(FancyDomainStuff), "FancyDomainStuff")]
+        public void AggregateName(Type aggregateType, string expectedName)
         {
-            DomainErrorAfterFirstReceived = true;
+            // Arrange
+            var aggregate = (IAggregateRoot) Activator.CreateInstance(aggregateType, TestId.New);
+
+            // Assert
+            aggregate.Name.Value.Should().Be(expectedName);
         }
     }
 }

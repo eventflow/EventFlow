@@ -1,6 +1,12 @@
 ### New in 0.12 (not released yet)
- 
- * _Nothing yet_
+
+ * Breaking: Aggregate root no longer have `Aggregate` removed from their
+   when name, i.e., the metadata property with key `aggregate_name` (or
+   `MetadataKeys.AggregateName`). If you are dependent on the previous naming,
+   use the new `AggregateName` attribute and apply it to your aggregates
+ * New: Aggregate names can now be configured using the attribute
+   `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
+   property  
 
 ### New in 0.11.751 (released 2015-08-24)
 

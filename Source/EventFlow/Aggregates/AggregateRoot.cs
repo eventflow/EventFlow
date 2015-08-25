@@ -37,8 +37,12 @@ namespace EventFlow.Aggregates
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
+        private static readonly IAggregateName AggregateName = new AggregateName(
+                typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
+                typeof (TAggregate).Name);
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
+        public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
         public int Version { get; private set; }
         public bool IsNew => Version <= 0;
@@ -73,7 +77,7 @@ namespace EventFlow.Aggregates
                     {MetadataKeys.Timestamp, now.ToString("o")},
                     {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
                     {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()},
-                    {MetadataKeys.AggregateName, GetType().Name.Replace("Aggregate", string.Empty)},
+                    {MetadataKeys.AggregateName, Name.Value},
                     {MetadataKeys.AggregateId, Id.Value}
                 };
 
