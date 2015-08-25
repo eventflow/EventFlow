@@ -25,6 +25,6 @@ namespace EventFlow.Aggregates
     public interface IEmit<in TAggregateEvent>
         where TAggregateEvent : IAggregateEvent
     {
-        void Apply(TAggregateEvent e);
+        void Apply(TAggregateEvent aggregateEvent);
     }
 }

@@ -27,7 +27,7 @@ namespace EventFlow.EventStores.MsSql
 {
     public static class EventFlowEventStoresMsSql
     {
-        public static Assembly Assembly { get { return typeof (EventFlowEventStoresMsSql).Assembly; } }
+        public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
 
         public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
         {

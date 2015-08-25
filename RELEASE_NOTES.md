@@ -1,6 +1,10 @@
-### New in 0.11 (not released yet)
+### New in 0.12 (not released yet)
+ 
+ * _Nothing yet_
 
- * Breaking: `EventFlowOptions AddDefaults(...)` now also adds event
+### New in 0.11.751 (released 2015-08-24)
+
+ * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds event
    definitions
  * New: [RabbitMQ](http://www.rabbitmq.com/) is now supported through the new
    NuGet package called `EventFlow.RabbitMQ` which enables domain events to be
@@ -18,7 +22,7 @@
    container
  * New: Use `EventFlowOptions.AddAggregateRoots(...)` to register aggregate root
    types
- * New: Added `IServiceRegistration.RegisterType(...)` to register services by
+ * New: Use `IServiceRegistration.RegisterType(...)` to register services by
    type
 
 ### New in 0.10.642 (released 2015-08-17)

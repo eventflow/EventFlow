@@ -23,6 +23,7 @@
 using System;
 using Autofac;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Configuration.Registrations.Services;
 
