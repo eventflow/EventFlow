@@ -122,10 +122,7 @@ namespace EventFlow.EventStores
                         var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
                         if (aggregateRootInterface == null)
                         {
-                            throw new ArgumentException(string.Format(
-                                "Type '{0}' is not a '{1}'",
-                                t.Name,
-                                typeof(IAggregateRoot<>).Name));
+                            throw new ArgumentException($"Type '{t.Name}' is not a '{typeof (IAggregateRoot<>).Name}'", nameof(aggregateType));
                         }
 
                         var arguments = aggregateRootInterface.GetGenericArguments();
