@@ -85,6 +85,7 @@
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacRegistration.cs" />
     <Compile Include="Core\AsyncLock.cs" />
+    <Compile Include="Core\GuidFactories.cs" />
     <Compile Include="Core\IRetryStrategy.cs" />
     <Compile Include="Core\ITransientFaultHandler.cs" />
     <Compile Include="Core\Label.cs" />
