@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.Subscribers;
@@ -34,7 +33,7 @@ namespace EventFlow.RabbitMQ.Extensions
             this EventFlowOptions eventFlowOptions,
             IRabbitMqConfiguration configuration)
         {
-            eventFlowOptions.RegisterServices(sr =>
+            return eventFlowOptions.RegisterServices(sr =>
                 {
                     sr.RegisterIfNotRegistered<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
                     sr.RegisterIfNotRegistered<IRabbitMqMessageFactory, RabbitMqMessageFactory>(Lifetime.Singleton);
@@ -45,8 +44,6 @@ namespace EventFlow.RabbitMQ.Extensions
 
                     sr.Register<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
                 });
-
-            return eventFlowOptions;
         }
     }
 }
