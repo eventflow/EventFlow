@@ -24,6 +24,7 @@ using System;
 
 namespace EventFlow.Aggregates
 {
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class AggregateNameAttribute : Attribute
     {
         public string Name { get; }
