@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -89,6 +90,12 @@ namespace EventFlow.ReadStores
                     ));
                 return;
             }
+
+            Log.Verbose(() => string.Format(
+                "Updating read model '{0}' in store '{1}' with these events: {2}",
+                typeof(TReadModel).PrettyPrint(),
+                typeof(TReadModelStore).PrettyPrint(),
+                string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
 
             var readModelContext = new ReadModelContext();
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
