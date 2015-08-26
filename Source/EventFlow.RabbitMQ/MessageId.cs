@@ -20,10 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System;
+using EventFlow.Core;
+using EventFlow.ValueObjects;
+
+namespace EventFlow.RabbitMQ
 {
-    public interface IIdentity
+    public class MessageId : SingleValueObject<string>, IIdentity
     {
-        string Value { get; }
+        public MessageId(string value) : base(value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+        }
     }
 }

@@ -57,7 +57,8 @@ namespace EventFlow.RabbitMQ.Integrations
                 serializedEvent.SerializedData,
                 domainEvent.Metadata,
                 exchange,
-                routingKey);
+                routingKey,
+                new MessageId(domainEvent.Metadata[MetadataKeys.EventId]));
 
             _log.Verbose("Create RabbitMQ message {0}", rabbitMqMessage);
 

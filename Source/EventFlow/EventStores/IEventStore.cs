@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {

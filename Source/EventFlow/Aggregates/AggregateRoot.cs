@@ -27,6 +27,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
@@ -71,14 +72,19 @@ namespace EventFlow.Aggregates
                 throw new ArgumentNullException(nameof(aggregateEvent));
             }
 
+            var aggregateSequenceNumber = Version + 1;
+            var eventId = GuidFactories.Deterministic.Create(
+                GuidFactories.Deterministic.Namespaces.Events,
+                $"{Id.Value}-v{0}").ToString("D");
             var now = DateTimeOffset.Now;
             var extraMetadata = new Dictionary<string, string>
                 {
                     {MetadataKeys.Timestamp, now.ToString("o")},
                     {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
-                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()},
+                    {MetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString()},
                     {MetadataKeys.AggregateName, Name.Value},
-                    {MetadataKeys.AggregateId, Id.Value}
+                    {MetadataKeys.AggregateId, Id.Value},
+                    {MetadataKeys.EventId, eventId}
                 };
 
             metadata = metadata == null

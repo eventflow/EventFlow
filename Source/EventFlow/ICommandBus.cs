@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Core;
 
 namespace EventFlow
 {

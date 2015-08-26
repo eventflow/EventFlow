@@ -22,6 +22,7 @@
 
 using System;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;

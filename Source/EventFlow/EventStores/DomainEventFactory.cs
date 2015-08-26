@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
