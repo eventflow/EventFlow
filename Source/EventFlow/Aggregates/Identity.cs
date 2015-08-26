@@ -43,7 +43,7 @@ namespace EventFlow.Aggregates
         {
             get
             {
-                var value = string.Format("{0}-{1}", Name, Guid.NewGuid()).ToLowerInvariant();
+                var value = $"{Name}-{Guid.NewGuid()}".ToLowerInvariant();
                 return With(value);
             }
         }
@@ -62,16 +62,16 @@ namespace EventFlow.Aggregates
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return string.Format("Aggregate ID of type '{0}' is null or empty", typeof(T).Name);
+                yield return $"Aggregate ID of type '{typeof (T).Name}' is null or empty";
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return string.Format("Aggregate ID '{0}' of type '{1}' contains leading and/or traling spaces", value, typeof(T).Name);
+                yield return$"Aggregate ID '{value}' of type '{typeof (T).Name}' contains leading and/or trailing spaces";
             if (!value.StartsWith(Name))
-                yield return string.Format("Aggregate ID '{0}' of type '{1}' does not start with '{2}'", value, typeof(T).Name, Name);
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))
-                yield return string.Format("Aggregate ID '{0}' of type '{1}' does not follow the syntax '[NAME]-[GUID]' in lower case", value, typeof(T).Name);
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)
@@ -86,32 +86,29 @@ namespace EventFlow.Aggregates
         }
     }
 
-    public abstract class Identity<TIdentity, TValidator> : SingleValueObject<string>, IIdentity
-        where TIdentity : Identity<TIdentity, TValidator>
+    // NOTE work in progress
+    public abstract class Identity<TIdentity, TComposer, TValidator> : SingleValueObject<string>, IIdentity
+        where TIdentity : Identity<TIdentity, TComposer, TValidator>
+        where TComposer : IIdentityComposer,  new()
         where TValidator : IIdentityValidator, new()
     {
-        // NOTE order of declared members changed by CodeMaid - see static constructor
-        // SUGGESTION move all static initializer into a static constructor
-        // OR dont use CodeMaid cleanups on EventFlow.....
-        // QUESTION how does resharper cleanup code/sort code items
         private static readonly string Name;
         private static readonly Regex NameReplace;
         private static readonly TValidator Validator;
+        private static readonly TComposer Composer;
 
         static Identity()
         {
-            // NOTE prevents code organizing tools (CodeMaid) from changing the 
-            // order of members resulting in unexplained/unexpected failures
-            // REASON `Name` depends on `NameReplace`
             NameReplace = new Regex("Id$", RegexOptions.Compiled);
             Name = NameReplace.Replace(typeof(TIdentity).Name, string.Empty).ToLowerInvariant();
             Validator = new TValidator();
+            Composer = new TComposer();
         }
 
         protected Identity(string value)
             : base(value)
         {
-            var validationErrors = Validator.Validate(value);
+            var validationErrors = Validator.Validate(Name, value);
             if (validationErrors.Any())
             {
                 throw new ArgumentException(string.Format(
@@ -123,19 +120,19 @@ namespace EventFlow.Aggregates
         public static bool IsValid(string value)
         {
             var identity = With(value);
-            return Validator.IsValid(value);
+            return Validator.IsValid(Name, value);
         }
 
-        public static TIdentity New(string value)
+        public static TIdentity New(string value = null)
         {
-            var qualifiedValue = string.Format("{0}-{1}", Name, value).ToLowerInvariant();
+            var qualifiedValue = string.Format("{0}-{1}", Name, Composer.Create(value)).ToLowerInvariant();
             return With(qualifiedValue);
         }
 
         public static IEnumerable<string> Validate(string value)
         {
             var identity = With(value);
-            return Validator.Validate(value);
+            return Validator.Validate(Name, value);
         }
 
         public static TIdentity With(string value)
