@@ -33,7 +33,7 @@ namespace EventFlow.Aggregates
     {
         // ReSharper disable StaticMemberInGenericType
         private static readonly Regex NameReplace = new Regex("Id$", RegexOptions.Compiled);
-        private static readonly string Name = NameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
+        private static readonly string Name = NameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant();
         private static readonly Regex ValueValidation = new Regex(
             @"^[a-z0-9]+\-[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$",
             RegexOptions.Compiled);
@@ -62,16 +62,16 @@ namespace EventFlow.Aggregates
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return $"Aggregate ID of type '{typeof (T).Name}' is null or empty";
+                yield return $"Aggregate ID of type '{typeof(T).Name}' is null or empty";
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return$"Aggregate ID '{value}' of type '{typeof (T).Name}' contains leading and/or traling spaces";
+                yield return $"Aggregate ID '{value}' of type '{typeof(T).Name}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not start with '{Name}'";
+                yield return $"Aggregate ID '{value}' of type '{typeof(T).Name}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not follow the syntax '[NAME]-[GUID]' in lower case";
+                yield return $"Aggregate ID '{value}' of type '{typeof(T).Name}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)
@@ -85,4 +85,65 @@ namespace EventFlow.Aggregates
             }
         }
     }
+
+    // NOTE work in progress
+    // QUESTION should composer and validator be combined ? maybe called IIdentityProvider + TProvider
+    public abstract class Identity<TIdentity, TComposer, TValidator> : SingleValueObject<string>, IIdentity
+        where TIdentity : Identity<TIdentity, TComposer, TValidator>
+        where TComposer : IIdentityComposer, new()
+        where TValidator : IIdentityValidator, new()
+    {
+        private static readonly string Name;
+        private static readonly Regex NameReplace;
+        private static readonly TValidator Validator;
+        private static readonly TComposer Composer;
+
+        static Identity()
+        {
+            NameReplace = new Regex("Id$", RegexOptions.Compiled);
+            Name = NameReplace.Replace(typeof(TIdentity).Name, string.Empty).ToLowerInvariant();
+            Validator = new TValidator();
+            Composer = new TComposer();
+        }
+
+        protected Identity(string value)
+            : base(value)
+        {
+            var validationErrors = Validator.Validate(Name, value);
+            if (validationErrors.Any())
+            {
+                throw new ArgumentException(string.Format(
+                    "Aggregate ID is invalid: {0}",
+                    string.Join(", ", validationErrors)));
+            }
+        }
+
+        public static bool IsValid(string value)
+        {
+            var identity = With(value);
+            return Validator.IsValid(Name, value);
+        }
+
+        public static TIdentity New(string value = null)
+        {
+            var qualifiedValue = string.Format("{0}-{1}", Name, Composer.Create(value)).ToLowerInvariant();
+            return With(qualifiedValue);
+        }
+
+        public static IEnumerable<string> Validate(string value)
+        {
+            var identity = With(value);
+            return Validator.Validate(Name, value);
+        }
+
+        public static TIdentity With(string value)
+        {
+            return (TIdentity)Activator.CreateInstance(typeof(TIdentity), value);
+        }
+    }
+
+    //public abstract class Identity<T> : Identity<T, DefaultIdentityComposer, DefaultIdentityComposer>
+    //{
+    //    //..
+    //}
 }
