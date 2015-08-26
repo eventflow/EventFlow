@@ -6,7 +6,15 @@
    use the new `AggregateName` attribute and apply it to your aggregates
  * New: Aggregate names can now be configured using the attribute
    `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
-   property  
+   property
+ * New: Added `Identity<>.NewDeterministic(Guid, string)` enabling creation of
+   [deterministic GUIDs](http://code.logos.com/blog/2011/04/generating_a_deterministic_guid.html)
+ * New: Added new metadata key `event_id` (`MetadataKeys.EventId`) containing a
+   deterministic GUID for the event. Events with the same aggregate sequence
+   number and from aggregates with the same identity, will have the same event
+   identity
+ * Fixed: `Identity<>.With(string)` now throws an `ArgumentException` instead of
+   a `TargetInvocationException`
 
 ### New in 0.11.751 (released 2015-08-24)
 
