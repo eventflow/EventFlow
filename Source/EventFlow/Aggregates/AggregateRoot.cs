@@ -91,7 +91,7 @@ namespace EventFlow.Aggregates
                 eventMetadata.AddRange(metadata);
             }
 
-            var uncommittedEvent = new UncommittedEvent(aggregateEvent, metadata);
+            var uncommittedEvent = new UncommittedEvent(aggregateEvent, eventMetadata);
 
             ApplyEvent(aggregateEvent);
             _uncommittedEvents.Add(uncommittedEvent);
