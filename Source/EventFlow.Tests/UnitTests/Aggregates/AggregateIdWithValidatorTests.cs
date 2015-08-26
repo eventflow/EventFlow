@@ -29,7 +29,7 @@ using System.Linq;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    internal class AggregateIdWithValidatorTests
+    public class AggregateIdWithValidatorTests
     {
         [Test]
         public void CreatedIsSame()
