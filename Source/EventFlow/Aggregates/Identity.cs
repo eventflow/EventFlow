@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EventFlow.Core;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Aggregates
@@ -39,18 +40,23 @@ namespace EventFlow.Aggregates
             RegexOptions.Compiled);
         // ReSharper enable StaticMemberInGenericType
 
-        public static T New
+        public static T New => BuildWith(Guid.NewGuid());
+
+        public static T NewDeterministic(Guid namespaceId, string name)
         {
-            get
-            {
-                var value = $"{Name}-{Guid.NewGuid()}".ToLowerInvariant();
-                return With(value);
-            }
+            var guid = GuidFactories.Deterministic.Create(namespaceId, name);
+            return BuildWith(guid);
         }
 
         public static T With(string value)
         {
             return (T)Activator.CreateInstance(typeof(T), value);
+        }
+
+        private static T BuildWith(Guid guid)
+        {
+            var value = $"{Name}-{guid}".ToLowerInvariant();
+            return With(value);
         }
 
         public static bool IsValid(string value)
