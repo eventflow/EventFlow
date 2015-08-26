@@ -17,6 +17,8 @@
    identity
  * Fixed: `Identity<>.With(string)` now throws an `ArgumentException` instead of
    a `TargetInvocationException`
+ * Fixed: Aggregate roots now build the cache of `Apply` methods once, instead
+   of when the method is requested the first time
 
 ### New in 0.11.751 (released 2015-08-24)
 
