@@ -27,7 +27,7 @@ namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqMessage
     {
-        public string MessageId { get; }
+        public MessageId MessageId { get; }
         public string Message { get; }
         public IReadOnlyDictionary<string, string> Headers { get; }
         public Exchange Exchange { get; }
@@ -38,12 +38,13 @@ namespace EventFlow.RabbitMQ.Integrations
             IReadOnlyDictionary<string, string> headers,
             Exchange exchange,
             RoutingKey routingKey,
-            string messageId)
+            MessageId messageId)
         {
             if (string.IsNullOrEmpty(message)) throw new ArgumentNullException(nameof(message));
             if (headers == null) throw new ArgumentNullException(nameof(headers));
             if (exchange == null) throw new ArgumentNullException(nameof(exchange));
             if (routingKey == null) throw new ArgumentNullException(nameof(routingKey));
+            if (messageId == null) throw new ArgumentNullException(nameof(messageId));
 
             Message = message;
             Headers = headers;
