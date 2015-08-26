@@ -21,20 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Exceptions
 {
-    public interface IMetadata : IReadOnlyDictionary<string, string>
+    public class MetadataKeyNotFoundException : ArgumentOutOfRangeException
     {
-        string EventName { get; }
-        int EventVersion { get; }
-        DateTimeOffset Timestamp { get; }
-        long TimestampEpoch { get; }
-        int AggregateSequenceNumber { get; }
-        string AggregateId { get; }
-
-        IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs);
-        IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        public MetadataKeyNotFoundException(string key) : base($"Could not find metadata key '{key}'") { }
     }
 }

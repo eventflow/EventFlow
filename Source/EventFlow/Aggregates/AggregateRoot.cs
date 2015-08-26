@@ -96,21 +96,21 @@ namespace EventFlow.Aggregates
                 GuidFactories.Deterministic.Namespaces.Events,
                 $"{Id.Value}-v{0}").ToString("D");
             var now = DateTimeOffset.Now;
-            var extraMetadata = new Dictionary<string, string>
+            var eventMetadata = new Metadata
                 {
-                    {MetadataKeys.Timestamp, now.ToString("o")},
-                    {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
-                    {MetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString()},
-                    {MetadataKeys.AggregateName, Name.Value},
-                    {MetadataKeys.AggregateId, Id.Value},
-                    {MetadataKeys.EventId, eventId}
+                    Timestamp = now,
+                    AggregateSequenceNumber = aggregateSequenceNumber,
+                    AggregateName = Name.Value,
+                    AggregateId = Id.Value,
+                    EventId = eventId
                 };
+            eventMetadata.Add(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
+            if (metadata != null)
+            {
+                eventMetadata.AddRange(metadata);
+            }
 
-            metadata = metadata == null
-                ? new Metadata(extraMetadata)
-                : metadata.CloneWith(extraMetadata);
-
-            var uncommittedEvent = new UncommittedEvent(aggregateEvent, metadata);
+            var uncommittedEvent = new UncommittedEvent(aggregateEvent, eventMetadata);
 
             ApplyEvent(aggregateEvent);
             _uncommittedEvents.Add(uncommittedEvent);
