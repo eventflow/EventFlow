@@ -85,6 +85,7 @@ namespace EventFlow.Aggregates
                     AggregateId = Id.Value,
                     EventId = eventId
                 };
+            eventMetadata.Add(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
             if (metadata != null)
             {
                 eventMetadata.AddRange(metadata);
