@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -45,8 +46,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void CreatedIsDifferent()
         {
             // Act
-            var id1 = TestId.New;
-            var id2 = TestId.New;
+            var id1 = TestId.New();
+            var id2 = TestId.New();
 
             // Assert
             id1.Value.Should().NotBe(id2.Value);
@@ -75,6 +76,14 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             // Assert
             id1.Equals(id2).Should().BeFalse();
             (id1 == id2).Should().BeFalse();
+        }
+
+        internal class TestId : Identity<TestId, DefaultIdentityComposer, DefaultIdentityComposer>
+        {
+            public TestId(string value)
+                : base(value)
+            {
+            }
         }
     }
 }
