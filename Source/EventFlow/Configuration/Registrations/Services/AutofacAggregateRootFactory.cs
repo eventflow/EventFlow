@@ -23,6 +23,7 @@
 using System.Threading.Tasks;
 using Autofac;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Configuration.Registrations.Services
 {

@@ -63,11 +63,11 @@
     <Compile Include="Aggregates\AggregateState.cs" />
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
-    <Compile Include="Aggregates\Identity.cs" />
+    <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
     <Compile Include="Aggregates\IEventApplier.cs" />
-    <Compile Include="Aggregates\IIdentity.cs" />
+    <Compile Include="Core\IIdentity.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="Commands\CommandHandler.cs" />

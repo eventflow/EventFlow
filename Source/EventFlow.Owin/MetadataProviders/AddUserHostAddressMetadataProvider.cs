@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using Microsoft.Owin;
 

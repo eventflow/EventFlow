@@ -23,22 +23,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
-using EventFlow.Core;
 using EventFlow.ValueObjects;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Core
 {
     public abstract class Identity<T> : SingleValueObject<string>, IIdentity
         where T : Identity<T>
     {
         // ReSharper disable StaticMemberInGenericType
-        private static readonly Regex NameReplace = new Regex("Id$", RegexOptions.Compiled);
-        private static readonly string Name = NameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
-        private static readonly Regex ValueValidation = new Regex(
-            @"^[a-z0-9]+\-[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$",
-            RegexOptions.Compiled);
+        private static readonly string Name;
+        private static readonly Regex ValueValidation;
         // ReSharper enable StaticMemberInGenericType
+
+        static Identity()
+        {
+            var nameReplace = new Regex("Id$");
+            Name = nameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
+            ValueValidation = new Regex(
+                @"^[a-z0-9]+\-[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$",
+                RegexOptions.Compiled);
+        }
 
         public static T New => BuildWith(Guid.NewGuid());
 
@@ -50,7 +56,18 @@ namespace EventFlow.Aggregates
 
         public static T With(string value)
         {
-            return (T)Activator.CreateInstance(typeof(T), value);
+            try
+            {
+                return (T)Activator.CreateInstance(typeof(T), value);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                {
+                    throw e.InnerException;
+                }
+                throw;
+            }
         }
 
         private static T BuildWith(Guid guid)
@@ -73,7 +90,7 @@ namespace EventFlow.Aggregates
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return$"Aggregate ID '{value}' of type '{typeof (T).Name}' contains leading and/or traling spaces";
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
                 yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))

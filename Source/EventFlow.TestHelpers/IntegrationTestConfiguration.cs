@@ -23,6 +23,7 @@
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
 namespace EventFlow.TestHelpers
