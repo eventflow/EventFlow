@@ -39,7 +39,7 @@ namespace EventFlow.MsSql.Tests.Helpers
             {
                 sqlConnection.Open();
                 Console.WriteLine("MssqlHelper: Creating database '{0}'", testDatabaseName);
-                var sql = string.Format("CREATE DATABASE [{0}]", testDatabaseName);
+                var sql = $"CREATE DATABASE [{testDatabaseName}]";
                 using (var sqlCommand = new SqlCommand(sql, sqlConnection))
                 {
                     sqlCommand.ExecuteNonQuery();
@@ -59,7 +59,7 @@ namespace EventFlow.MsSql.Tests.Helpers
 
             var connectionstringParts = new List<string>
                 {
-                    string.Format("Database={0}", databaseName),
+                    $"Database={databaseName}",
                 };
 
             var environmentServer = Environment.GetEnvironmentVariable("MSSQL_SERVER");
@@ -68,13 +68,13 @@ namespace EventFlow.MsSql.Tests.Helpers
 
             connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
                 ? @"Server=localhost\SQLEXPRESS"
-                : string.Format("Server={0}", environmentServer));
+                : $"Server={environmentServer}");
             connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
                 ? @"Integrated Security=True"
-                : string.Format("User Id={0}", envrionmentUsername));
+                : $"User Id={envrionmentUsername}");
             if (!string.IsNullOrEmpty(environmentPassword))
             {
-                connectionstringParts.Add(string.Format("Password={0}", environmentPassword));
+                connectionstringParts.Add($"Password={environmentPassword}");
             }
 
             return string.Join(";", connectionstringParts);

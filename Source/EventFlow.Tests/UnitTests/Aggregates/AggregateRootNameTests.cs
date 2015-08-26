@@ -21,31 +21,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Text.RegularExpressions;
+using EventFlow.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Test;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.Extensions
+namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    public static class StringExtensions
+    public class AggregateRootNameTests
     {
-        private static readonly Regex DatabaseReplace = new Regex(@"(?<key>Initial Catalog|Database)=[a-zA-Z0-9\-_]+", RegexOptions.Compiled);
-        private static readonly Regex DatabaseExtract = new Regex(@"(Initial Catalog|Database)=(?<database>[a-zA-Z0-9\-_]+)", RegexOptions.Compiled);
-
-        public static string GetDatabaseInConnectionstring(this string connectionString)
+        public class MyFancyAggregate : AggregateRoot<MyFancyAggregate, TestId>
         {
-            var match = DatabaseExtract.Match(connectionString);
-            if (!match.Success)
-            {
-                throw new ArgumentException(string.Format(
-                    "Could not get database from connection string '{0}'",
-                    connectionString));
-            }
-
-            return match.Groups["database"].Value;
+            public MyFancyAggregate(TestId id) : base(id) { }
         }
 
-        public static string ReplaceDatabaseInConnectionstring(this string connectionString, string database)
+        [AggregateName("BetterNamedAggregate")]
+        public class MyOtherFancyAggregate : AggregateRoot<MyOtherFancyAggregate, TestId>
         {
-            return DatabaseReplace.Replace(connectionString, $"${{key}}={database}");
+            public MyOtherFancyAggregate(TestId id) : base(id) { }
+        }
+
+        public class FancyDomainStuff : AggregateRoot<FancyDomainStuff, TestId>
+        {
+            public FancyDomainStuff(TestId id) : base(id) { }
+        }
+
+        [TestCase(typeof(MyFancyAggregate), "MyFancyAggregate")]
+        [TestCase(typeof(MyOtherFancyAggregate), "BetterNamedAggregate")]
+        [TestCase(typeof(FancyDomainStuff), "FancyDomainStuff")]
+        public void AggregateName(Type aggregateType, string expectedName)
+        {
+            // Arrange
+            var aggregate = (IAggregateRoot) Activator.CreateInstance(aggregateType, TestId.New);
+
+            // Assert
+            aggregate.Name.Value.Should().Be(expectedName);
         }
     }
 }

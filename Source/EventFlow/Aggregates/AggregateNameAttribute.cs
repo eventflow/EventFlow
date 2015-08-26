@@ -20,28 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.EventStores;
+using System;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateRoot
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    public class AggregateNameAttribute : Attribute
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        public string Name { get; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken);
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-    }
+        public AggregateNameAttribute(string name)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+            Name = name;
+        }
     }
 }
