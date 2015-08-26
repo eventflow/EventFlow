@@ -46,7 +46,7 @@ namespace EventFlow.Core
         {
             if (configureStrategy == null)
             {
-                throw new ArgumentNullException(nameof(configureStrategy));
+                throw new ArgumentNullException("configureStrategy");
             }
 
             configureStrategy(_retryStrategy);

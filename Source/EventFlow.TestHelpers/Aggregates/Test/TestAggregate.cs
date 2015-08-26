@@ -28,7 +28,6 @@ using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Test
 {
-    [AggregateName("Test")]
     public class TestAggregate : AggregateRoot<TestAggregate, TestId>,
         IEmit<DomainErrorAfterFirstEvent>
     {

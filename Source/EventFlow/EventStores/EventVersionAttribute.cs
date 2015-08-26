@@ -26,13 +26,13 @@ namespace EventFlow.EventStores
 {
     public class EventVersionAttribute : Attribute
     {
-        public string Name { get; }
-        public int Version { get; }
+        public string Name { get; private set; }
+        public int Version { get; private set; }
 
         public EventVersionAttribute(string name, int version)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-            if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version), "Event version must be positive");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (version <= 0) throw new ArgumentOutOfRangeException("version", "Event version must be positive");
 
             Name = name;
             Version = version;

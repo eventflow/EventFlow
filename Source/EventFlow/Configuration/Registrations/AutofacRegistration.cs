@@ -39,7 +39,10 @@ namespace EventFlow.Configuration.Registrations
         {
             if (!serviceType.IsAssignableFrom(implementationType))
             {
-                throw new ArgumentException($"Type '{implementationType.Name}' is not assignable to '{serviceType.Name}'");
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not assignable to '{1}'",
+                    implementationType.Name,
+                    serviceType.Name));
             }
 
             ServiceType = serviceType;
@@ -77,11 +80,11 @@ namespace EventFlow.Configuration.Registrations
         }
     }
 
-    internal class AutofacGenericRegistration : AutofacRegistration
+    internal class AutofacGeneticRegistration : AutofacRegistration
     {
         private readonly Type _implementationType;
 
-        public AutofacGenericRegistration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public AutofacGeneticRegistration(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             ServiceType = serviceType;
             Lifetime = lifetime;

@@ -26,6 +26,6 @@ namespace EventFlow.TestHelpers
 {
     public static class EventFlowTestHelpers
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowTestHelpers).Assembly;
+        public static Assembly Assembly { get { return typeof (EventFlowTestHelpers).Assembly; } }
     }
 }

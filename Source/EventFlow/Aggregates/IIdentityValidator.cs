@@ -20,20 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Collections.Generic;
 
 namespace EventFlow.Aggregates
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class AggregateNameAttribute : Attribute
+    public interface IIdentityValidator
     {
-        public string Name { get; }
-
-        public AggregateNameAttribute(string name)
-        {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-
-            Name = name;
-        }
+        bool IsValid(string context, string value);
+        IEnumerable<string> Validate(string context, string value);
     }
 }

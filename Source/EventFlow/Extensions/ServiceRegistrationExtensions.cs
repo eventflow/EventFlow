@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 
 namespace EventFlow.Extensions
 {

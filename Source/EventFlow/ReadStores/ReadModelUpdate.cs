@@ -27,8 +27,8 @@ namespace EventFlow.ReadStores
 {
     public class ReadModelUpdate
     {
-        public string ReadModelId { get; }
-        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+        public string ReadModelId { get; private set; }
+        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; private set; }
 
         public ReadModelUpdate(string readModelId, IReadOnlyCollection<IDomainEvent> domainEvents)
         {

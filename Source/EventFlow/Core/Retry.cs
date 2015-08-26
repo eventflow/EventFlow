@@ -26,19 +26,17 @@ namespace EventFlow.Core
 {
     public class Retry
     {
-        public static Retry Yes => new Retry(true, TimeSpan.Zero);
+        public static Retry Yes { get { return new Retry(true, TimeSpan.Zero); } }
         public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
-        public static Retry No => new Retry(false, TimeSpan.Zero);
+        public static Retry No { get { return new Retry(false, TimeSpan.Zero); } }
 
-        public bool ShouldBeRetried { get; }
-        public TimeSpan RetryAfter { get; }
+        public bool ShouldBeRetried { get; set; }
+        public TimeSpan RetryAfter { get; set; }
 
         private Retry(bool shouldBeRetried, TimeSpan retryAfter)
         {
-            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration())
-                throw new ArgumentOutOfRangeException(nameof(retryAfter));
-            if (!shouldBeRetried && retryAfter != TimeSpan.Zero)
-                throw new ArgumentException("Invalid combination. Should not be retried and retry after set");
+            if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration()) throw new ArgumentOutOfRangeException("retryAfter");
+            if (!shouldBeRetried && retryAfter != TimeSpan.Zero) throw new ArgumentException("Invalid combination");
 
             ShouldBeRetried = shouldBeRetried;
             RetryAfter = retryAfter;

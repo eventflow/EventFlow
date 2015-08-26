@@ -70,8 +70,12 @@ namespace EventFlow.Core
                             try
                             {
                                 Increment();
-                                await task.ConfigureAwait(true);
-                                callback?.Invoke(task);
+                                await task;
+
+                                if (null != callback)
+                                {
+                                    callback(task);
+                                }
                             }
                             catch (Exception e)
                             {
@@ -152,7 +156,10 @@ namespace EventFlow.Core
         /// Creates a new AsyncBridge. This should always be used in
         /// conjunction with the using statement, to ensure it is disposed
         /// </summary>
-        public static AsyncBridge Wait => new AsyncBridge();
+        public static AsyncBridge Wait
+        {
+            get { return new AsyncBridge(); }
+        }
 
         /// <summary>
         /// Runs a task with the "Fire and Forget" pattern using Task.Run,
@@ -170,11 +177,14 @@ namespace EventFlow.Core
                         {
                             try
                             {
-                                await task().ConfigureAwait(true);
+                                await task();
                             }
                             catch (Exception e)
                             {
-                                handle?.Invoke(e);
+                                if (null != handle)
+                                {
+                                    handle(e);
+                                }
                             }
                         }))();
                 });

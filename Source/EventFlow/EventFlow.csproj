@@ -58,16 +58,16 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
-    <Compile Include="Aggregates\AggregateName.cs" />
-    <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
-    <Compile Include="Aggregates\IAggregateName.cs" />
+    <Compile Include="Aggregates\GuidIdentity.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
     <Compile Include="Aggregates\IEventApplier.cs" />
     <Compile Include="Aggregates\IIdentity.cs" />
+    <Compile Include="Aggregates\IIdentityComposer.cs" />
+    <Compile Include="Aggregates\IIdentityValidator.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="Commands\CommandHandler.cs" />

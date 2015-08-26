@@ -29,7 +29,6 @@ using System.Web.Http.ExceptionHandling;
 using Autofac;
 using Autofac.Integration.WebApi;
 using EventFlow.Autofac.Extensions;
-using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;

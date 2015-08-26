@@ -27,7 +27,7 @@ namespace EventFlow.TestHelpers.Aggregates.Test.ValueObjects
 {
     public class PingId : SingleValueObject<string>
     {
-        public static PingId New => new PingId(Guid.NewGuid().ToString());
+        public static PingId New { get { return new PingId(Guid.NewGuid().ToString()); } }
         public static PingId With(string value) { return new PingId(value); }
 
         public PingId(string value) : base (value)

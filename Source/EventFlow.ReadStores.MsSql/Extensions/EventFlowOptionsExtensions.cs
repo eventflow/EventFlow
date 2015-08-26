@@ -20,7 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 
 namespace EventFlow.ReadStores.MsSql.Extensions
@@ -32,7 +32,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
             where TReadModel : class, IMssqlReadModel, new()
             where TReadModelLocator : IReadModelLocator
         {
-            return eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(f =>
                     {
                         if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
@@ -43,23 +43,27 @@ namespace EventFlow.ReadStores.MsSql.Extensions
                         f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
                     })
                 .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+
+            return eventFlowOptions;
         }
 
         public static EventFlowOptions UseMssqlReadModel<TReadModel>(
             this EventFlowOptions eventFlowOptions)
             where TReadModel : class, IMssqlReadModel, new()
         {
-            return eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(f =>
+                {
+                    if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
                     {
-                        if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
-                        {
-                            f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
-                        }
-                        f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
-                    })
+                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
+                    }
+                    f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                    f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
+                })
                 .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel>();
+
+            return eventFlowOptions;
         }
     }
 }

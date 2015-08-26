@@ -89,7 +89,10 @@ namespace EventFlow.EventStores
 
             if (domainEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{domainEventType.Name}' is not a '{typeof (IDomainEvent<,>).Name}'");
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not a '{1}'",
+                    domainEventType.Name,
+                    typeof(IDomainEvent<,>).Name));
             }
 
             var genericArguments = domainEventInterfaceType.GetGenericArguments();
@@ -104,7 +107,10 @@ namespace EventFlow.EventStores
 
             if (aggregateEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{aggregateEventType.Name}' is not a '{typeof (IAggregateEvent<,>).Name}'");
+                throw new ArgumentException(string.Format(
+                    "Type '{0}' is not a '{1}'",
+                    aggregateEventType.Name,
+                    typeof(IAggregateEvent<,>).Name));
             }
 
             var genericArguments = aggregateEventInterfaceType.GetGenericArguments();

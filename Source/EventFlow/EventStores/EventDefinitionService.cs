@@ -71,7 +71,10 @@ namespace EventFlow.EventStores
             var key = GetKey(eventName, version);
             if (!_eventDefinitionsByName.ContainsKey(key))
             {
-                throw new ArgumentException($"No event definition for '{eventName}' with version {version}");
+                throw new ArgumentException(string.Format(
+                    "No event definition for '{0}' with version {1}",
+                    eventName,
+                    version));
             }
 
             return _eventDefinitionsByName[key];
@@ -81,7 +84,7 @@ namespace EventFlow.EventStores
         {
             if (eventType == null)
             {
-                throw new ArgumentNullException(nameof(eventType));
+                throw new ArgumentNullException("eventType");
             }
             if (_eventDefinitionsByType.ContainsKey(eventType))
             {
@@ -89,15 +92,18 @@ namespace EventFlow.EventStores
             }
             if (!typeof(IAggregateEvent).IsAssignableFrom(eventType))
             {
-                throw new ArgumentException($"Event '{eventType.Name}' is not a DomainEvent");
+                throw new ArgumentException(string.Format(
+                    "Event '{0}' is not a DomainEvent", eventType.Name));
             }
 
             var eventDefinition = CreateEventDefinitions(eventType).FirstOrDefault(ed => ed != null);
             if (eventDefinition == null)
             {
                 throw new ArgumentException(
-                    $"Could not create a event definition for event type '{eventType.Name}'",
-                    nameof(eventType));
+                    string.Format(
+                        "Could not create a event definition for event type '{0}'",
+                        eventType.Name),
+                    "eventType");
             }
 
             _log.Verbose("Added event definition '{0}'", eventDefinition);
@@ -118,7 +124,9 @@ namespace EventFlow.EventStores
             var match = EventNameRegex.Match(eventType.Name);
             if (!match.Success)
             {
-                throw new ArgumentException($"Event name '{eventType.Name}' is not a valid event name");
+                throw new ArgumentException(string.Format(
+                    "Event name '{0}' is not a valid event name",
+                    eventType.Name));
             }
 
             var version = 1;
@@ -148,7 +156,7 @@ namespace EventFlow.EventStores
 
         private static string GetKey(string eventName, int version)
         {
-            return $"{eventName} - v{version}";
+            return string.Format("{0} - v{1}", eventName, version);
         }
     }
 }

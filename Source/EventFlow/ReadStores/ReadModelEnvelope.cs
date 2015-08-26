@@ -25,7 +25,12 @@ namespace EventFlow.ReadStores
     public class ReadModelEnvelope<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
-        public static ReadModelEnvelope<TReadModel> Empty { get; } = new ReadModelEnvelope<TReadModel>(null, null);
+        private static readonly ReadModelEnvelope<TReadModel> EmptyInstance = new ReadModelEnvelope<TReadModel>(null, null);
+
+        public static ReadModelEnvelope<TReadModel> Empty
+        {
+            get { return EmptyInstance; }
+        } 
 
         public static ReadModelEnvelope<TReadModel> With(TReadModel readModel)
         {
@@ -37,8 +42,8 @@ namespace EventFlow.ReadStores
             return new ReadModelEnvelope<TReadModel>(readModel, version);
         }
 
-        public TReadModel ReadModel { get; }
-        public long? Version { get; }
+        public TReadModel ReadModel { get; private set; }
+        public long? Version { get; private set; }
 
         private ReadModelEnvelope(
             TReadModel readModel,

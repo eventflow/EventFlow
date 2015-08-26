@@ -45,7 +45,7 @@ namespace EventFlow.MsSql.Tests.Extensions
 
         public static string ReplaceDatabaseInConnectionstring(this string connectionString, string database)
         {
-            return DatabaseReplace.Replace(connectionString, $"${{key}}={database}");
+            return DatabaseReplace.Replace(connectionString, string.Format("${{key}}={0}", database));
         }
     }
 }

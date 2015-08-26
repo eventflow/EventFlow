@@ -24,7 +24,7 @@ namespace EventFlow.MsSql
 {
     public class MsSqlConfiguration : IMsSqlConfiguration
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
+        public static MsSqlConfiguration New { get { return new MsSqlConfiguration(); } }
 
         public string ConnectionString { get; private set; }
 

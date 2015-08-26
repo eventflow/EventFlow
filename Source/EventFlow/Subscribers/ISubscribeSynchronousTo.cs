@@ -31,6 +31,6 @@ namespace EventFlow.Subscribers
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
+        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> e, CancellationToken cancellationToken);
     }
 }

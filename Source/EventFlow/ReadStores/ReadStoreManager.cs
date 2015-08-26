@@ -40,9 +40,9 @@ namespace EventFlow.ReadStores
         private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
 
-        protected ILog Log { get; }
-        protected TReadModelStore ReadModelStore { get; }
-        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
+        protected ILog Log { get; private set; }
+        protected TReadModelStore ReadModelStore { get; private set; }
+        protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; private set; }
 
         protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
         protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
@@ -55,8 +55,9 @@ namespace EventFlow.ReadStores
                 .ToList();
             if (!iAmReadModelForInterfaceTypes.Any())
             {
-                throw new ArgumentException(
-                    $"Read model type '{ReadModelType.Name}' does not implement any 'IAmReadModelFor<>'");
+                throw new ArgumentException(string.Format(
+                    "Read model type '{0}' does not implement any 'IAmReadModelFor<>'",
+                    ReadModelType.Name));
             }
 
             AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));

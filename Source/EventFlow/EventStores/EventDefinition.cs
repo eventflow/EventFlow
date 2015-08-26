@@ -26,9 +26,9 @@ namespace EventFlow.EventStores
 {
     public class EventDefinition
     {
-        public int Version { get; }
-        public Type Type { get; }
-        public string Name { get; }
+        public int Version { get; private set; }
+        public Type Type { get; private set; }
+        public string Name { get; private set; }
 
         public EventDefinition(
             int version,
@@ -43,7 +43,7 @@ namespace EventFlow.EventStores
         public override string ToString()
         {
             var assemblyName = Type.Assembly.GetName();
-            return $"{Name} v{Version} ({assemblyName.Name} - {Type.Name})";
+            return string.Format("{0} v{1} ({2} - {3})", Name, Version, assemblyName.Name, Type.Name);
         }
     }
 }

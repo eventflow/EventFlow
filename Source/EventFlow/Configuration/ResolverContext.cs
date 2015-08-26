@@ -24,7 +24,7 @@ namespace EventFlow.Configuration
 {
     public class ResolverContext : IResolverContext
     {
-        public IResolver Resolver { get; }
+        public IResolver Resolver { get; private set; }
 
         public ResolverContext(
             IResolver resolver)

@@ -65,7 +65,7 @@ namespace EventFlow
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (command == null) throw new ArgumentNullException("command");
 
             var commandTypeName = command.GetType().Name;
             var aggregateType = typeof (TAggregate);
@@ -166,7 +166,7 @@ namespace EventFlow
 
                         return await aggregate.CommitAsync(_eventStore, c).ConfigureAwait(false);
                     },
-                Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
+                Label.Named(string.Format("command-execution-{0}", commandType.Name.ToLowerInvariant())), 
                 cancellationToken);
         }
     }

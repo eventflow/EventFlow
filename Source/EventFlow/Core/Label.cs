@@ -36,14 +36,15 @@ namespace EventFlow.Core
             return Named(string.Join("-", parts));
         }
 
-        public string Name { get; }
+        public string Name { get; private set; }
 
         private Label(string name)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-            if (!NameValidator.IsMatch(name)) throw new ArgumentException(
-                $"Label '{name}' is not a valid label, it must pass this regex '{NameValidator}'",
-                nameof(name));
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (!NameValidator.IsMatch(name)) throw new ArgumentException(string.Format(
+                "Label '{0}' is not a valid label, it must pass this regex '{1}'",
+                name,
+                NameValidator));
 
             Name = name;
         }

@@ -26,7 +26,7 @@ namespace EventFlow.Configuration.Registrations
 {
     internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
-        public IContainer Container { get; }
+        public IContainer Container { get; private set; }
 
         public AutofacRootResolver(IContainer container)
             : base(container)

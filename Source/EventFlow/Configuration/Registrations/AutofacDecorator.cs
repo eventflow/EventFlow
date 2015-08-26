@@ -34,19 +34,20 @@ namespace EventFlow.Configuration.Registrations
         {
             if (level < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(level));
+                throw new ArgumentOutOfRangeException("level");
             }
 
             return level == 0
                 ? ServiceType.FullName
-                : $"{ServiceType.FullName} (level {level})";
+                : string.Format("{0} (level {1})", ServiceType.FullName, level);
         }
     }
 
     internal class AutofacDecorator<TService> : AutofacDecorator
     {
         private readonly Func<IResolverContext, TService, TService> _factory;
-        public override Type ServiceType { get; } = typeof(TService);
+        private readonly Type _serviceType = typeof(TService);
+        public override Type ServiceType { get { return _serviceType; } }
 
         public AutofacDecorator(Func<IResolverContext, TService, TService> factory)
         {
