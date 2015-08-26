@@ -58,7 +58,10 @@
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
+    <Compile Include="Aggregates\AggregateName.cs" />
+    <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
+    <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Commands\CommandId.cs" />
     <Compile Include="Core\Identity.cs" />
@@ -76,6 +79,7 @@
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Lifetime.cs" />
+    <Compile Include="Configuration\Registrations\Services\AutofacAggregateRootFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
     <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
     <Compile Include="Configuration\Registrations\AutofacDecorator.cs" />
@@ -86,6 +90,7 @@
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacRegistration.cs" />
     <Compile Include="Core\AsyncLock.cs" />
+    <Compile Include="Core\GuidFactories.cs" />
     <Compile Include="Core\IRetryStrategy.cs" />
     <Compile Include="Core\ITransientFaultHandler.cs" />
     <Compile Include="Core\Label.cs" />
@@ -117,6 +122,7 @@
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsAggregatesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />

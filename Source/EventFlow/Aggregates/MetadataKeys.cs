@@ -24,6 +24,7 @@ namespace EventFlow.Aggregates
 {
     public sealed class MetadataKeys
     {
+        public const string EventId = "event_id";
         public const string BatchId = "batch_id";
         public const string EventName = "event_name";
         public const string EventVersion = "event_version";

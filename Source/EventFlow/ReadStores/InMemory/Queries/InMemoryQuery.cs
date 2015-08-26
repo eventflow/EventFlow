@@ -29,7 +29,7 @@ namespace EventFlow.ReadStores.InMemory.Queries
     public class InMemoryQuery<TReadModel> : IQuery<IReadOnlyCollection<TReadModel>>
         where TReadModel : IReadModel, new()
     {
-        public Predicate<TReadModel> Query { get; private set; }
+        public Predicate<TReadModel> Query { get; }
 
         public InMemoryQuery(Predicate<TReadModel> query)
         {

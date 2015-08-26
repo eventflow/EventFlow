@@ -38,8 +38,8 @@ namespace EventFlow.EventStores
 
         private class EventUpgraderCacheItem
         {
-            public Type EventUpgraderType { get; private set; }
-            public Func<object, IDomainEvent, IEnumerable<IDomainEvent>> Upgrade { get; private set; }
+            public Type EventUpgraderType { get; }
+            public Func<object, IDomainEvent, IEnumerable<IDomainEvent>> Upgrade { get; }
 
             public EventUpgraderCacheItem(Type eventUpgraderType, Func<object, IDomainEvent, IEnumerable<IDomainEvent>> upgrade)
             {
@@ -123,10 +123,7 @@ namespace EventFlow.EventStores
                         var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
                         if (aggregateRootInterface == null)
                         {
-                            throw new ArgumentException(string.Format(
-                                "Type '{0}' is not a '{1}'",
-                                t.Name,
-                                typeof(IAggregateRoot<>).Name));
+                            throw new ArgumentException($"Type '{t.Name}' is not a '{typeof (IAggregateRoot<>).Name}'", nameof(aggregateType));
                         }
 
                         var arguments = aggregateRootInterface.GetGenericArguments();

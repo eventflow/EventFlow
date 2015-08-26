@@ -123,7 +123,7 @@ namespace EventFlow.EventStores
             int pageSize,
             CancellationToken cancellationToken)
         {
-            if (pageSize <= 0) throw new ArgumentOutOfRangeException("pageSize");
+            if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
             var allCommittedEventsPage = await LoadAllCommittedDomainEvents(
                 globalPosition,

@@ -38,8 +38,12 @@ namespace EventFlow.Aggregates
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
+        private static readonly IAggregateName AggregateName = new AggregateName(
+                typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
+                typeof (TAggregate).Name);
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
 
+        public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
         public int Version { get; private set; }
         public bool IsNew => Version <= 0;
@@ -68,14 +72,19 @@ namespace EventFlow.Aggregates
                 throw new ArgumentNullException(nameof(aggregateEvent));
             }
 
+            var aggregateSequenceNumber = Version + 1;
+            var eventId = GuidFactories.Deterministic.Create(
+                GuidFactories.Deterministic.Namespaces.Events,
+                $"{Id.Value}-v{0}").ToString("D");
             var now = DateTimeOffset.Now;
             var extraMetadata = new Dictionary<string, string>
                 {
                     {MetadataKeys.Timestamp, now.ToString("o")},
                     {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
-                    {MetadataKeys.AggregateSequenceNumber, (Version + 1).ToString()},
-                    {MetadataKeys.AggregateName, GetType().Name.Replace("Aggregate", string.Empty)},
-                    {MetadataKeys.AggregateId, Id.Value}
+                    {MetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString()},
+                    {MetadataKeys.AggregateName, Name.Value},
+                    {MetadataKeys.AggregateId, Id.Value},
+                    {MetadataKeys.EventId, eventId}
                 };
 
             metadata = metadata == null

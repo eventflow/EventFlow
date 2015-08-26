@@ -109,7 +109,8 @@ namespace EventFlow.RabbitMQ.Tests
                 message,
                 headers,
                 new Exchange(basicDeliverEventArgs.Exchange), 
-                new RoutingKey(basicDeliverEventArgs.RoutingKey));
+                new RoutingKey(basicDeliverEventArgs.RoutingKey),
+                new MessageId(basicDeliverEventArgs.BasicProperties.MessageId));
         }
 
         public void Dispose()

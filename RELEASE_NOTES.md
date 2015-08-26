@@ -1,6 +1,26 @@
-### New in 0.11 (not released yet)
+### New in 0.12 (not released yet)
 
- * Breaking: `EventFlowOptions AddDefaults(...)` now also adds event
+ * Breaking: Aggregate root no longer have `Aggregate` removed from their
+   when name, i.e., the metadata property with key `aggregate_name` (or
+   `MetadataKeys.AggregateName`). If you are dependent on the previous naming,
+   use the new `AggregateName` attribute and apply it to your aggregates
+ * Breaking: Moved `Identity<>` and `IIdentity` from the `EventFlow.Aggregates`
+   namespace to `EventFlow.Core` as the identities are specific for aggregates
+ * New: Aggregate names can now be configured using the attribute
+   `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
+   property
+ * New: Added `Identity<>.NewDeterministic(Guid, string)` enabling creation of
+   [deterministic GUIDs](http://code.logos.com/blog/2011/04/generating_a_deterministic_guid.html)
+ * New: Added new metadata key `event_id` (`MetadataKeys.EventId`) containing a
+   deterministic GUID for the event. Events with the same aggregate sequence
+   number and from aggregates with the same identity, will have the same event
+   identity
+ * Fixed: `Identity<>.With(string)` now throws an `ArgumentException` instead of
+   a `TargetInvocationException`
+
+### New in 0.11.751 (released 2015-08-24)
+
+ * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds event
    definitions
  * Breaking: `ICommand.Id` is renamed to `ICommand.AggregateId` to make "room"
    for the new `ICommand.CommandId` property. If commands are serialized, then
@@ -14,6 +34,17 @@
    and register a service that implements `ISubscribeSynchronousToAll`. Services
    that implement this will automatically be added using the
    `AddSubscribers(...)` or `AddDefaults(...)` extension to `EventFlowOptions`
+ * New: Use `EventFlowOptions.UseAutofacAggregateRootFactory(...)` to use an
+   Autofac aggregate root factory, enabling you to use services in your
+   aggregate root constructor
+ * New: Use `EventFlowOptions.UseResolverAggregateRootFactory()` to use the
+   resolver to create aggregate roots. Same as
+   `UseAutofacAggregateRootFactory(...)` but for when using the internal IoC
+   container
+ * New: Use `EventFlowOptions.AddAggregateRoots(...)` to register aggregate root
+   types
+ * New: Use `IServiceRegistration.RegisterType(...)` to register services by
+   type
 
 ### New in 0.10.642 (released 2015-08-17)
 

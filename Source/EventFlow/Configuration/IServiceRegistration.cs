@@ -37,6 +37,8 @@ namespace EventFlow.Configuration
 
         void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
 
+        void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique);
+
         void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
 
         void Decorate<TService>(Func<IResolverContext, TService, TService> factory);

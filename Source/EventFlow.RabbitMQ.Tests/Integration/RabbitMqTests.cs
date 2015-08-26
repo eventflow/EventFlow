@@ -41,15 +41,20 @@ using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
-    [Explicit("Needs RabbitMQ running localhost (https://github.com/rasmus/Vagrant.Boxes)")]
     public class RabbitMqTests
     {
-        private readonly Uri _uri;
-        private readonly ConcurrentBag<Exception> _exceptions = new ConcurrentBag<Exception>(); 
+        private Uri _uri;
 
-        public RabbitMqTests()
+        [SetUp]
+        public void SetUp()
         {
-            _uri = new Uri("amqp://localhost");
+            var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
+            if (string.IsNullOrEmpty(url))
+            {
+                Assert.Inconclusive("The environment variabel named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
+            }
+
+            _uri = new Uri(url);
         }
 
         [Test, Timeout(10000)]
@@ -81,6 +86,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         {
             var exchange = new Exchange("eventflow");
             var routingKey = new RoutingKey("performance");
+            var exceptions = new ConcurrentBag<Exception>();
             const int threadCount = 100;
             const int messagesPrThread = 200;
 
@@ -91,7 +97,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var threads = Enumerable.Range(0, threadCount)
                     .Select(_ =>
                         {
-                            var thread = new Thread(o => SendMessages(rabbitMqPublisher, messagesPrThread, exchange, routingKey));
+                            var thread = new Thread(o => SendMessages(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions));
                             thread.Start();
                             return thread;
                         })
@@ -104,11 +110,16 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
                 var rabbitMqMessages = consumer.GetMessages(threadCount * messagesPrThread);
                 rabbitMqMessages.Should().HaveCount(threadCount*messagesPrThread);
-                _exceptions.Should().BeEmpty();
+                exceptions.Should().BeEmpty();
             }
         }
 
-        private void SendMessages(IRabbitMqPublisher rabbitMqPublisher, int count, Exchange exchange, RoutingKey routingKey)
+        private static void SendMessages(
+            IRabbitMqPublisher rabbitMqPublisher,
+            int count,
+            Exchange exchange,
+            RoutingKey routingKey,
+            ConcurrentBag<Exception> exceptions)
         {
             var guid = Guid.NewGuid();
 
@@ -120,13 +131,14 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                         $"{guid}-{i}",
                         new Metadata(),
                         exchange,
-                        routingKey);
+                        routingKey,
+                        new MessageId(Guid.NewGuid().ToString("D")));
                     rabbitMqPublisher.PublishAsync(CancellationToken.None, rabbitMqMessage).Wait();
                 }
             }
             catch (Exception e)
             {
-                _exceptions.Add(e);
+                exceptions.Add(e);
             }
         }
 

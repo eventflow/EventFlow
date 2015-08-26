@@ -21,8 +21,8 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 * **Highly configurable and extendable**
 * **Easy to use**
 * **No use of threads or background workers making it "web friendly"**
-* **Cancellation:** All methods that does IO work or might delay execution,
-  takes a `CancellationToken` argument to allow you to cancel the operation
+* **Cancellation:** All methods that does IO work or might delay execution (due to
+  retries), takes a `CancellationToken` argument to allow you to cancel the operation
 
 ### Overview
 
@@ -135,3 +135,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
