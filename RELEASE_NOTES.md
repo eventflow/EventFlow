@@ -4,6 +4,8 @@
    when name, i.e., the metadata property with key `aggregate_name` (or
    `MetadataKeys.AggregateName`). If you are dependent on the previous naming,
    use the new `AggregateName` attribute and apply it to your aggregates
+ * Breaking: Moved `Identity<>` and `IIdentity` from the `EventFlow.Aggregates`
+   namespace to `EventFlow.Core` as the identities are specific for aggregates
  * New: Aggregate names can now be configured using the attribute
    `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
    property
