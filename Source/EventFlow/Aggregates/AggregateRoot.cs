@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Exceptions;
 using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
@@ -73,11 +72,8 @@ namespace EventFlow.Aggregates
             if (id == null) throw new ArgumentNullException(nameof(id));
             if ((this as TAggregate) == null)
             {
-                throw WrongImplementationException.With(
-                    HelpLinkType.Aggregates,
-                    "Aggregate '{0}' specifies '{1}' as generic argument, it should be its own type",
-                    GetType().Name,
-                    typeof(TAggregate).Name);
+                throw new InvalidOperationException(
+                    $"Aggregate '{GetType().Name}' specifies '{typeof (TAggregate).Name}' as generic argument, it should be its own type");
             }
 
             Id = id;
