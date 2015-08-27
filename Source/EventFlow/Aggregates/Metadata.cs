@@ -23,7 +23,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
+using Newtonsoft.Json;
 
 namespace EventFlow.Aggregates
 {
@@ -46,45 +48,65 @@ namespace EventFlow.Aggregates
             return new Metadata(keyValuePairs);
         }
 
+        [JsonIgnore]
         public string EventName
         {
-            get { return this[MetadataKeys.EventName]; }
-            set { this[MetadataKeys.EventName] = value; }
+            get { return GetMetadataValue(MetadataKeys.EventName); }
+            set { Add(MetadataKeys.EventName, value); }
         }
 
+        [JsonIgnore]
         public int EventVersion
         {
-            get { return int.Parse(this[MetadataKeys.EventVersion]); }
-            set { this[MetadataKeys.EventVersion] = value.ToString(); }
+            get { return GetMetadataValue(MetadataKeys.EventVersion, int.Parse); }
+            set { Add(MetadataKeys.EventVersion, value.ToString()); }
         }
 
+        [JsonIgnore]
         public DateTimeOffset Timestamp
         {
-            get { return DateTimeOffset.Parse(this[MetadataKeys.Timestamp]); }
-            set { this[MetadataKeys.Timestamp] = value.ToString("O"); }
+            get { return GetMetadataValue(MetadataKeys.Timestamp, DateTimeOffset.Parse); }
+            set { Add(MetadataKeys.Timestamp, value.ToString("O")); }
         }
 
+        [JsonIgnore]
         public long TimestampEpoch
         {
             get
             {
                 string timestampEpoch;
                 return TryGetValue(MetadataKeys.TimestampEpoch, out timestampEpoch)
-                    ? long.Parse(this[MetadataKeys.TimestampEpoch])
+                    ? long.Parse(timestampEpoch)
                     : Timestamp.ToUnixTime();
             }
         }
 
+        [JsonIgnore]
         public int AggregateSequenceNumber
         {
-            get { return int.Parse(this[MetadataKeys.AggregateSequenceNumber]); }
-            set { this[MetadataKeys.AggregateSequenceNumber] = value.ToString(); }
+            get { return GetMetadataValue(MetadataKeys.AggregateSequenceNumber, int.Parse); }
+            set { Add(MetadataKeys.AggregateSequenceNumber, value.ToString()); }
         }
 
+        [JsonIgnore]
         public string AggregateId
         {
-            get { return this[MetadataKeys.AggregateId]; }
-            set { this[MetadataKeys.AggregateId] = value; }
+            get { return GetMetadataValue(MetadataKeys.AggregateId); }
+            set { Add(MetadataKeys.AggregateId, value); }
+        }
+
+        [JsonIgnore]
+        public string EventId
+        {
+            get { return GetMetadataValue(MetadataKeys.EventId); }
+            set { Add(MetadataKeys.EventId, value); }
+        }
+
+        [JsonIgnore]
+        public string AggregateName
+        {
+            get { return GetMetadataValue(MetadataKeys.AggregateName); }
+            set { Add(MetadataKeys.AggregateName, value); }
         }
 
         public Metadata() { }
@@ -104,6 +126,11 @@ namespace EventFlow.Aggregates
         {
         }
 
+        public IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs)
+        {
+            return CloneWith((IEnumerable<KeyValuePair<string, string>>) keyValuePairs);
+        }
+
         public IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
             var metadata = new Metadata(this);
@@ -118,9 +145,46 @@ namespace EventFlow.Aggregates
             return metadata;
         }
 
+        public void AddRange(params KeyValuePair<string, string>[] keyValuePairs)
+        {
+            AddRange((IEnumerable<KeyValuePair<string, string>>) keyValuePairs);
+        }
+
+        public void AddRange(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        {
+            foreach (var keyValuePair in keyValuePairs)
+            {
+                Add(keyValuePair.Key, keyValuePair.Value);
+            }
+        }
+
         public override string ToString()
         {
             return string.Join(Environment.NewLine, this.Select(kv => $"{kv.Key}: {kv.Value}"));
+        }
+
+        public string GetMetadataValue(string key)
+        {
+            return GetMetadataValue(key, s => s);
+        }
+
+        public T GetMetadataValue<T>(string key, Func<string, T> converter)
+        {
+            string value;
+
+            if (!TryGetValue(key, out value))
+            {
+                throw new MetadataKeyNotFoundException(key);
+            }
+
+            try
+            {
+                return converter(value);
+            }
+            catch (Exception e)
+            {
+                throw new MetadataParseException(key, value, e);
+            }
         }
     }
 }

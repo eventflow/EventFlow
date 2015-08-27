@@ -21,28 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using JetBrains.Annotations;
 
 namespace EventFlow.Exceptions
 {
-    public class DomainError : Exception
+    public class MetadataParseException : Exception
     {
-        protected DomainError(string message)
-            : base(message) { }
-
-        protected DomainError(string message, Exception innerException)
-            : base(message, innerException) { }
-
-        [StringFormatMethod("format")]
-        public static DomainError With(string format, params object[] args)
+        public MetadataParseException(string key, string value, Exception innerException)
+            : base($"Failed to parse metadata key '{key}' with value '{value}' due to '{innerException.Message}'", innerException)
         {
-            return new DomainError(string.Format(format, args));
-        }
-
-        [StringFormatMethod("format")]
-        public static DomainError With(Exception innerException, string format, params object[] args)
-        {
-            return new DomainError(string.Format(format, args), innerException);
         }
     }
 }

@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Exceptions;
 using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
@@ -38,6 +36,7 @@ namespace EventFlow.Aggregates
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
+        private static readonly Dictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
         private static readonly IAggregateName AggregateName = new AggregateName(
                 typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                 typeof (TAggregate).Name);
@@ -49,16 +48,32 @@ namespace EventFlow.Aggregates
         public bool IsNew => Version <= 0;
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
+        static AggregateRoot()
+        {
+            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
+
+            ApplyMethods = typeof(TAggregate)
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(mi =>
+                    {
+                        if (mi.Name != "Apply") return false;
+                        var parameters = mi.GetParameters();
+                        return
+                            parameters.Length == 1 &&
+                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
+                    })
+                .ToDictionary(
+                    mi => mi.GetParameters()[0].ParameterType,
+                    mi => (Action<TAggregate, IAggregateEvent>)((a, e) => mi.Invoke(a, new object[] { e })));
+        }
+
         protected AggregateRoot(TIdentity id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
             if ((this as TAggregate) == null)
             {
-                throw WrongImplementationException.With(
-                    HelpLinkType.Aggregates,
-                    "Aggregate '{0}' specifies '{1}' as generic argument, it should be its own type",
-                    GetType().Name,
-                    typeof(TAggregate).Name);
+                throw new InvalidOperationException(
+                    $"Aggregate '{GetType().Name}' specifies '{typeof (TAggregate).Name}' as generic argument, it should be its own type");
             }
 
             Id = id;
@@ -77,21 +92,21 @@ namespace EventFlow.Aggregates
                 GuidFactories.Deterministic.Namespaces.Events,
                 $"{Id.Value}-v{0}").ToString("D");
             var now = DateTimeOffset.Now;
-            var extraMetadata = new Dictionary<string, string>
+            var eventMetadata = new Metadata
                 {
-                    {MetadataKeys.Timestamp, now.ToString("o")},
-                    {MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString()},
-                    {MetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString()},
-                    {MetadataKeys.AggregateName, Name.Value},
-                    {MetadataKeys.AggregateId, Id.Value},
-                    {MetadataKeys.EventId, eventId}
+                    Timestamp = now,
+                    AggregateSequenceNumber = aggregateSequenceNumber,
+                    AggregateName = Name.Value,
+                    AggregateId = Id.Value,
+                    EventId = eventId
                 };
+            eventMetadata.Add(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
+            if (metadata != null)
+            {
+                eventMetadata.AddRange(metadata);
+            }
 
-            metadata = metadata == null
-                ? new Metadata(extraMetadata)
-                : metadata.CloneWith(extraMetadata);
-
-            var uncommittedEvent = new UncommittedEvent(aggregateEvent, metadata);
+            var uncommittedEvent = new UncommittedEvent(aggregateEvent, eventMetadata);
 
             ApplyEvent(aggregateEvent);
             _uncommittedEvents.Add(uncommittedEvent);
@@ -152,7 +167,13 @@ namespace EventFlow.Aggregates
             else if (_eventAppliers.Any(ea => ea.Apply((TAggregate)this, aggregateEvent))) { }
             else
             {
-                var applyMethod = GetApplyMethod(eventType);
+                Action<TAggregate, IAggregateEvent> applyMethod;
+                if (!ApplyMethods.TryGetValue(eventType, out applyMethod))
+                {
+                    throw new NotImplementedException(
+                        $"Aggregate '{Name}' does have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
+                }
+
                 applyMethod(this as TAggregate, aggregateEvent);
             }
 
@@ -176,38 +197,6 @@ namespace EventFlow.Aggregates
         protected void Register(IEventApplier<TAggregate, TIdentity> eventApplier)
         {
             _eventAppliers.Add(eventApplier);
-        }
-
-        private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>> ApplyMethods = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>>(); 
-        protected Action<TAggregate, IAggregateEvent> GetApplyMethod(Type aggregateEventType)
-        {
-            var aggregateType = GetType();
-            var typeDictionary = ApplyMethods.GetOrAdd(
-                aggregateType,
-                t => new ConcurrentDictionary<Type, Action<TAggregate, IAggregateEvent>>());
-
-            var applyMethod = typeDictionary.GetOrAdd(
-                aggregateEventType,
-                t =>
-                    {
-                        var m = aggregateType.GetMethod(
-                            "Apply",
-                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-                            null,
-                            new []{ t },
-                            null);
-                        if (m == null)
-                        {
-                            throw WrongImplementationException.With(
-                                HelpLinkType.Aggregates,
-                                "Aggregate type '{0}' doesn't implement an 'Apply' method for the event '{1}'. Implement IEmit<{1}>",
-                                GetType().Name,
-                                t.Name);
-                        }
-                        return (a, e) => m.Invoke(a, new object[] {e});
-                    });
-
-            return applyMethod;
         }
 
         public override string ToString()

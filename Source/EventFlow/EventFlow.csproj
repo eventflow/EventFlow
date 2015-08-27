@@ -116,9 +116,10 @@
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
+    <Compile Include="Exceptions\MetadataKeyNotFoundException.cs" />
+    <Compile Include="Exceptions\MetadataParseException.cs" />
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
-    <Compile Include="Exceptions\WrongImplementationException.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />
