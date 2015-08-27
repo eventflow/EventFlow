@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Commands;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using Newtonsoft.Json;
@@ -46,6 +47,12 @@ namespace EventFlow.Aggregates
         public static IMetadata With(IDictionary<string, string> keyValuePairs)
         {
             return new Metadata(keyValuePairs);
+        }
+
+        public ICommandId CommandId
+        {
+            get { return GetMetadataValue(MetadataKeys.EventName, Commands.CommandId.With); }
+            set { Add(MetadataKeys.EventName, value.Value); }
         }
 
         [JsonIgnore]

@@ -75,7 +75,7 @@ namespace EventFlow
                 aggregateType);
             var metadata = new Metadata
                 {
-                    { MetadataKeys.CommandId, command.CommandId.Value }
+                    CommandId = command.CommandId,
                 };
 
             IReadOnlyCollection<IDomainEvent> domainEvents;

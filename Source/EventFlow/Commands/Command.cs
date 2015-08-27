@@ -32,7 +32,8 @@ namespace EventFlow.Commands
         public ICommandId CommandId { get; }
         public TIdentity AggregateId { get; }
 
-        protected Command(TIdentity aggregateId) : this(aggregateId, Commands.CommandId.New ) { }
+        protected Command(TIdentity aggregateId)
+            : this(aggregateId, Commands.CommandId.New ) { }
 
         protected Command(TIdentity aggregateId, ICommandId commandId)
         {
