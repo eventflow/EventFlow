@@ -128,6 +128,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
                 basicProperties.ContentEncoding = "utf-8";
                 basicProperties.ContentType = "application/json";
+                basicProperties.MessageId = message.MessageId.Value;
 
                 // TODO: Evil or not evil? Do a Task.Run here?
                 model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, false, basicProperties, bytes);
