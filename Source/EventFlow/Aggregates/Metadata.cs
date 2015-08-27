@@ -49,21 +49,21 @@ namespace EventFlow.Aggregates
         [JsonIgnore]
         public string EventName
         {
-            get { return Get(MetadataKeys.EventName); }
+            get { return GetMetadataValue(MetadataKeys.EventName); }
             set { Add(MetadataKeys.EventName, value); }
         }
 
         [JsonIgnore]
         public int EventVersion
         {
-            get { return Get(MetadataKeys.EventVersion, int.Parse); }
+            get { return GetMetadataValue(MetadataKeys.EventVersion, int.Parse); }
             set { Add(MetadataKeys.EventVersion, value.ToString()); }
         }
 
         [JsonIgnore]
         public DateTimeOffset Timestamp
         {
-            get { return Get(MetadataKeys.Timestamp, DateTimeOffset.Parse); }
+            get { return GetMetadataValue(MetadataKeys.Timestamp, DateTimeOffset.Parse); }
             set { Add(MetadataKeys.Timestamp, value.ToString("O")); }
         }
 
@@ -82,28 +82,28 @@ namespace EventFlow.Aggregates
         [JsonIgnore]
         public int AggregateSequenceNumber
         {
-            get { return Get(MetadataKeys.AggregateSequenceNumber, int.Parse); }
+            get { return GetMetadataValue(MetadataKeys.AggregateSequenceNumber, int.Parse); }
             set { Add(MetadataKeys.AggregateSequenceNumber, value.ToString()); }
         }
 
         [JsonIgnore]
         public string AggregateId
         {
-            get { return Get(MetadataKeys.AggregateId); }
+            get { return GetMetadataValue(MetadataKeys.AggregateId); }
             set { Add(MetadataKeys.AggregateId, value); }
         }
 
         [JsonIgnore]
         public string EventId
         {
-            get { return Get(MetadataKeys.EventId); }
+            get { return GetMetadataValue(MetadataKeys.EventId); }
             set { Add(MetadataKeys.EventId, value); }
         }
 
         [JsonIgnore]
         public string AggregateName
         {
-            get { return Get(MetadataKeys.AggregateName); }
+            get { return GetMetadataValue(MetadataKeys.AggregateName); }
             set { Add(MetadataKeys.AggregateName, value); }
         }
 
@@ -161,12 +161,12 @@ namespace EventFlow.Aggregates
             return string.Join(Environment.NewLine, this.Select(kv => $"{kv.Key}: {kv.Value}"));
         }
 
-        private string Get(string key)
+        public string GetMetadataValue(string key)
         {
-            return Get(key, s => s);
+            return GetMetadataValue(key, s => s);
         }
 
-        private T Get<T>(string key, Func<string, T> converter)
+        public T GetMetadataValue<T>(string key, Func<string, T> converter)
         {
             string value;
 

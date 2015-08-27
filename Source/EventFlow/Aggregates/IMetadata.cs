@@ -36,5 +36,7 @@ namespace EventFlow.Aggregates
 
         IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs);
         IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        string GetMetadataValue(string key);
+        T GetMetadataValue<T>(string key, Func<string, T> converter);
     }
 }
