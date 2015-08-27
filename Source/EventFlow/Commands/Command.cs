@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -37,6 +38,9 @@ namespace EventFlow.Commands
 
         protected Command(TIdentity aggregateId, ICommandId commandId)
         {
+            if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
+            if (commandId == null) throw new ArgumentNullException(nameof(aggregateId));
+
             AggregateId = aggregateId;
             CommandId = commandId;
         }

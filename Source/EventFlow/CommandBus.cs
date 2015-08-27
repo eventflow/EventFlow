@@ -32,6 +32,7 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Subscribers;
 
@@ -67,11 +68,12 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            var commandTypeName = command.GetType().Name;
+            var commandTypeName = command.GetType().PrettyPrint();
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
-                "Executing command '{0}' on aggregate '{1}'",
+                "Executing command '{0}' with ID '{1}' on aggregate '{2}'",
                 commandTypeName,
+                command.CommandId,
                 aggregateType);
             var metadata = new Metadata
                 {
@@ -87,10 +89,11 @@ namespace EventFlow
             {
                 _log.Debug(
                     exception,
-                    "Excution of command '{0}' on aggregate '{1}' failed due to exception '{2}' with message: {3}",
+                    "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
                     commandTypeName,
+                    command.CommandId,
                     aggregateType,
-                    exception.GetType().Name,
+                    exception.GetType().PrettyPrint(),
                     exception.Message);
                 throw;
             }
@@ -98,17 +101,19 @@ namespace EventFlow
             if (!domainEvents.Any())
             {
                 _log.Verbose(
-                    "Execution command '{0}' on aggregate '{1}' did NOT result in any domain events",
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     commandTypeName,
+                    command.CommandId,
                     aggregateType);
                 return command.CommandId;
             }
 
             _log.Verbose(() => string.Format(
-                "Execution command '{0}' on aggregate '{1}' resulted in these events: {2}",
+                "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
                 commandTypeName,
+                command.CommandId,
                 aggregateType,
-                string.Join(", ", domainEvents.Select(d => d.EventType.Name))));
+                string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
             await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
                 command.AggregateId,
@@ -165,7 +170,7 @@ namespace EventFlow
             }
 
             var commandHandler = commandHandlers.Single();
-            var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync");
+            var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync", new []{ aggregateType, commandType, typeof(CancellationToken) });
 
             return _transientFaultHandler.TryAsync(
                 async c =>
