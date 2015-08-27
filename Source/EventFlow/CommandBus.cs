@@ -157,16 +157,16 @@ namespace EventFlow
             {
                 throw new NoCommandHandlersException(string.Format(
                     "No command handlers registered for the command '{0}' on aggregate '{1}'",
-                    commandType.Name,
-                    aggregateType.Name));
+                    commandType.PrettyPrint(),
+                    aggregateType.PrettyPrint()));
             }
             if (commandHandlers.Count > 1)
             {
                 throw new InvalidOperationException(string.Format(
                     "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
-                    commandType.Name,
-                    aggregateType.Name,
-                    string.Join(", ", commandHandlers.Select(h => h.GetType().Name))));
+                    commandType.PrettyPrint(),
+                    aggregateType.PrettyPrint(),
+                    string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
             }
 
             var commandHandler = commandHandlers.Single();
