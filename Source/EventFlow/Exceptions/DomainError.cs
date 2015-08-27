@@ -27,10 +27,10 @@ namespace EventFlow.Exceptions
 {
     public class DomainError : Exception
     {
-        private DomainError(string message)
+        protected DomainError(string message)
             : base(message) { }
 
-        private DomainError(string message, Exception innerException)
+        protected DomainError(string message, Exception innerException)
             : base(message, innerException) { }
 
         [StringFormatMethod("format")]
