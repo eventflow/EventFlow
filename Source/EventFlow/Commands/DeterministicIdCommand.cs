@@ -22,14 +22,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.Commands
 {
-    public abstract class DeterministicIdCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+    public abstract class DeterministicIdCommand<TAggregate, TIdentity> : ValueObject, ICommand<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
@@ -50,19 +52,17 @@ namespace EventFlow.Commands
 
         private ISourceId CalculateSourceId()
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                foreach (var equalityComponent in GetEqualityComponents())
-                {
-                    memoryStream.Write(equalityComponent, 0, equalityComponent.Length);
-                }
-
-                return CommandId.NewDeterministic(
-                    GuidFactories.Deterministic.Namespaces.Commands,
-                    memoryStream.ToArray());
-            }
+            var bytes = GetEqualityComponents()
+                .SelectMany(e => BitConverter.GetBytes(e.GetHashCode()))
+                .ToArray();
+            return CommandId.NewDeterministic(
+                GuidFactories.Deterministic.Namespaces.Commands,
+                bytes);
         }
 
-        protected abstract IEnumerable<byte[]> GetEqualityComponents();
+        protected override IEnumerable<PropertyInfo> GetProperties()
+        {
+            return base.GetProperties().Where(pi => pi.Name != nameof(SourceId));
+        }
     }
 }

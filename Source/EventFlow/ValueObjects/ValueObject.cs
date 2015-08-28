@@ -72,7 +72,7 @@ namespace EventFlow.ValueObjects
             return GetProperties().Select(x => x.GetValue(this));
         }
 
-        private IEnumerable<PropertyInfo> GetProperties()
+        protected virtual IEnumerable<PropertyInfo> GetProperties()
         {
             return TypeProperties.GetOrAdd(
                 GetType(),
