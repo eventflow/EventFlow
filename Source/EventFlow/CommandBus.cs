@@ -60,7 +60,7 @@ namespace EventFlow
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task<ICommandId> PublishAsync<TAggregate, TIdentity>(
+        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -73,7 +73,7 @@ namespace EventFlow
             _log.Verbose(
                 "Executing command '{0}' with ID '{1}' on aggregate '{2}'",
                 commandTypeName,
-                command.CommandId,
+                command.SourceId,
                 aggregateType);
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
@@ -87,7 +87,7 @@ namespace EventFlow
                     exception,
                     "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
                     commandTypeName,
-                    command.CommandId,
+                    command.SourceId,
                     aggregateType,
                     exception.GetType().PrettyPrint(),
                     exception.Message);
@@ -99,15 +99,15 @@ namespace EventFlow
                 _log.Verbose(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     commandTypeName,
-                    command.CommandId,
+                    command.SourceId,
                     aggregateType);
-                return command.CommandId;
+                return command.SourceId;
             }
 
             _log.Verbose(() => string.Format(
                 "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
                 commandTypeName,
-                command.CommandId,
+                command.SourceId,
                 aggregateType,
                 string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
@@ -117,23 +117,23 @@ namespace EventFlow
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            return command.CommandId;
+            return command.SourceId;
         }
 
-        public ICommandId Publish<TAggregate, TIdentity>(
+        public ISourceId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            ICommandId commandId = null;
+            ISourceId sourceId = null;
 
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command, cancellationToken), id => commandId = id);
+                a.Run(PublishAsync(command, cancellationToken), id => sourceId = id);
             }
 
-            return commandId;
+            return sourceId;
         }
 
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
@@ -175,7 +175,7 @@ namespace EventFlow
                         var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
                         await invokeTask.ConfigureAwait(false);
 
-                        return await aggregate.CommitAsync(_eventStore, command.CommandId, c).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);

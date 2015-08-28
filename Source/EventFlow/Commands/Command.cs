@@ -30,19 +30,19 @@ namespace EventFlow.Commands
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        public ICommandId CommandId { get; }
+        public ISourceId SourceId { get; }
         public TIdentity AggregateId { get; }
 
         protected Command(TIdentity aggregateId)
-            : this(aggregateId, Commands.CommandId.New ) { }
+            : this(aggregateId, CommandId.New ) { }
 
-        protected Command(TIdentity aggregateId, ICommandId commandId)
+        protected Command(TIdentity aggregateId, ISourceId sourceId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
-            if (commandId == null) throw new ArgumentNullException(nameof(aggregateId));
+            if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
 
             AggregateId = aggregateId;
-            CommandId = commandId;
+            SourceId = sourceId;
         }
     }
 }
