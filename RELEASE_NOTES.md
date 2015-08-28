@@ -6,6 +6,11 @@
    use the new `AggregateName` attribute and apply it to your aggregates
  * Breaking: Moved `Identity<>` and `IIdentity` from the `EventFlow.Aggregates`
    namespace to `EventFlow.Core` as the identities are specific for aggregates
+ * Breaking: `ICommand.Id` is renamed to `ICommand.AggregateId` to make "room"
+   for the new `ICommand.SourceId` property. If commands are serialized, then
+   it _might_ be important verify that the serialization still works. EventFlow
+   _does not_ serialize commands, so no mitigation is provided. If the
+   `Command<,>` is used, make sure to use the correct protected constructor
  * New: Aggregate names can now be configured using the attribute
    `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
    property
@@ -24,11 +29,6 @@
 
  * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds event
    definitions
- * Breaking: `ICommand.Id` is renamed to `ICommand.AggregateId` to make "room"
-   for the new `ICommand.CommandId` property. If commands are serialized, then
-   it _might_ be important verify that the serialization still works. EventFlow
-   _does not_ serialize commands, so no mitigation is provided. If the
-   `Command<,>` is used, make sure to use the correct protected constructor
  * New: [RabbitMQ](http://www.rabbitmq.com/) is now supported through the new
    NuGet package called `EventFlow.RabbitMQ` which enables domain events to be
    published to the bus
