@@ -37,7 +37,7 @@ namespace EventFlow.Aggregates
 
         Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
-            IMetadata metadata,
+            ISourceId sourceId,
             CancellationToken cancellationToken);
 
         void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);

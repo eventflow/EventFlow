@@ -33,6 +33,6 @@ namespace EventFlow.Aggregates
         public const string AggregateSequenceNumber = "aggregate_sequence_number";
         public const string AggregateName = "aggregate_name";
         public const string AggregateId = "aggregate_id";
-        public const string CommandId = "command_id";
+        public const string SourceId = "source_id";
     }
 }

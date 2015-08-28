@@ -70,7 +70,7 @@ namespace EventFlow.EventStores
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            IMetadata metadata,
+            ISourceId sourceId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -88,11 +88,11 @@ namespace EventFlow.EventStores
                 id);
 
             var batchId = Guid.NewGuid().ToString();
-            var storeMetadata = metadata
-                .Concat(new []
-                    {
-                        new KeyValuePair<string, string>(MetadataKeys.BatchId, batchId), 
-                    });
+            var storeMetadata = new []
+                {
+                    new KeyValuePair<string, string>(MetadataKeys.BatchId, batchId),
+                    new KeyValuePair<string, string>(MetadataKeys.SourceId, sourceId.Value),
+                };
 
             var serializedEvents = uncommittedDomainEvents
                 .Select(e =>

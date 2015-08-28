@@ -22,13 +22,14 @@
 
 using System;
 using System.Collections.Generic;
-using EventFlow.Commands;
+using EventFlow.Core;
 
 namespace EventFlow.Aggregates
 {
     public interface IMetadata : IReadOnlyDictionary<string, string>
     {
-        ICommandId CommandId { get; }
+        IEventId EventId { get; }
+        ISourceId SourceId { get; }
         string EventName { get; }
         int EventVersion { get; }
         DateTimeOffset Timestamp { get; }

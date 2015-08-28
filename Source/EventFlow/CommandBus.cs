@@ -75,15 +75,11 @@ namespace EventFlow
                 commandTypeName,
                 command.CommandId,
                 aggregateType);
-            var metadata = new Metadata
-                {
-                    CommandId = command.CommandId,
-                };
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
             {
-                domainEvents = await ExecuteCommandAsync(command, metadata, cancellationToken).ConfigureAwait(false);
+                domainEvents = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -142,7 +138,6 @@ namespace EventFlow
 
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
-            IMetadata metadata,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -180,7 +175,7 @@ namespace EventFlow
                         var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
                         await invokeTask.ConfigureAwait(false);
 
-                        return await aggregate.CommitAsync(_eventStore, metadata, c).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, command.CommandId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);

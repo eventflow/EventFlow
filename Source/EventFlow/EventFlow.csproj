@@ -61,8 +61,10 @@
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
+    <Compile Include="Aggregates\EventId.cs" />
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
+    <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Commands\CommandId.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
@@ -92,11 +94,13 @@
     <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="Core\GuidFactories.cs" />
     <Compile Include="Core\IRetryStrategy.cs" />
+    <Compile Include="Core\ISourceId.cs" />
     <Compile Include="Core\ITransientFaultHandler.cs" />
     <Compile Include="Core\Label.cs" />
     <Compile Include="Core\ReflectionHelper.cs" />
     <Compile Include="Core\RetryStrategies\IOptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
+    <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />

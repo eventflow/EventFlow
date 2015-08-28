@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -20,11 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Commands
+namespace EventFlow.Core
 {
-    public interface ICommandId : ISourceId
+    public class SourceId : SingleValueObject<string>, ISourceId
     {
+        public static ISourceId None { get; } = new SourceId(string.Empty);
+
+        public SourceId(string value) : base(value)
+        {
+        }
     }
 }

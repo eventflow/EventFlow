@@ -22,9 +22,12 @@
 
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Aggregates
 {
-    public interface ICommandId : ISourceId
+    public class EventId : Identity<EventId>, IEventId
     {
+        public EventId(string value) : base(value)
+        {
+        }
     }
 }
