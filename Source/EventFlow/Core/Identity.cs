@@ -54,6 +54,12 @@ namespace EventFlow.Core
             return BuildWith(guid);
         }
 
+        public static T NewDeterministic(Guid namespaceId, byte[] nameBytes)
+        {
+            var guid = GuidFactories.Deterministic.Create(namespaceId, nameBytes);
+            return BuildWith(guid);
+        }
+
         public static T With(string value)
         {
             try

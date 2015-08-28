@@ -66,6 +66,7 @@
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Commands\CommandId.cs" />
+    <Compile Include="Commands\DeterministicIdCommand.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
