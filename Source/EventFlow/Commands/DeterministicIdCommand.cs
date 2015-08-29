@@ -62,7 +62,9 @@ namespace EventFlow.Commands
 
         protected override IEnumerable<PropertyInfo> GetProperties()
         {
-            return base.GetProperties().Where(pi => pi.Name != nameof(SourceId));
+            return base.GetProperties()
+                .Where(pi => pi.Name != nameof(SourceId))
+                .OrderBy(pi => pi.Name);
         }
     }
 }

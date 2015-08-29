@@ -49,7 +49,9 @@ namespace EventFlow.Tests.UnitTests.Commands
             }
         }
 
-        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 42, "command-e466c887-98a6-5a2d-bf75-61a616b7817f")]
+        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 1, "command-9cb313f1-1887-5abf-931f-71b54ac11d18")]
+        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 2, "command-7cd1f748-cb72-5f1b-9336-90388fdfda8a")]
+        [TestCase("test-6a2a04bd-bbc8-44ac-80ac-b0ca56897bc0", 2, "command-3f985e40-79af-5fe7-8d0e-c87d5bc334f6")]
         public void Arguments(string aggregateId, int magicNumber, string expectedSouceId)
         {
             // Arrange
