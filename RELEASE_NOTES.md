@@ -11,6 +11,10 @@
    it _might_ be important verify that the serialization still works. EventFlow
    _does not_ serialize commands, so no mitigation is provided. If the
    `Command<,>` is used, make sure to use the correct protected constructor
+ * Breaking: `IEventStore.StoreAsync(...)` now requires an additional
+   `ISourceId` argument. To create a random one, use `SourceId.New`, but it
+   should be e.g. the command ID that resulted in the events. Note, this method
+   isn't typically used by developers
  * New: Added `ICommand.SourceId`, which contains the ID of the source. The
    default (if your commands inherit from `Command<,>`) will be a new
    `CommandId` each time the a `Command<,>` instance is created. You can pass

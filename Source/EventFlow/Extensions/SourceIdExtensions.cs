@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -20,18 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.ValueObjects;
+using EventFlow.Core;
 
-namespace EventFlow.Core
+namespace EventFlow.Extensions
 {
-    public class SourceId : SingleValueObject<string>, ISourceId
+    public static class SourceIdExtensions
     {
-        public static ISourceId New => new SourceId(Guid.NewGuid().ToString("D"));
-
-        public SourceId(string value) : base(value)
+        public static bool IsNone(this ISourceId sourceId)
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+            return string.IsNullOrEmpty(sourceId?.Value);
         }
     }
 }

@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -75,7 +76,10 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            if (!uncommittedDomainEvents.Any())
+            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (sourceId.IsNone()) throw new ArgumentNullException(nameof(sourceId));
+
+            if (uncommittedDomainEvents == null || !uncommittedDomainEvents.Any())
             {
                 return new IDomainEvent<TAggregate, TIdentity>[] {};
             }
