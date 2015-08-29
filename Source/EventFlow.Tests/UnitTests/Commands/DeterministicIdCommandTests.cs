@@ -20,8 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using EventFlow.Commands;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Test;
 using FluentAssertions;
 using NUnit.Framework;
@@ -42,16 +44,16 @@ namespace EventFlow.Tests.UnitTests.Commands
                 MagicNumber = magicNumber;
             }
 
-            protected override IEnumerable<object> GetEqualityComponents()
+            protected override IEnumerable<byte[]> GetSourceIdComponents()
             {
-                yield return MagicNumber;
-                yield return AggregateId;
+                yield return BitConverter.GetBytes(MagicNumber);
+                yield return AggregateId.GetBytes();
             }
         }
 
-        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 1, "command-9cb313f1-1887-5abf-931f-71b54ac11d18")]
-        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 2, "command-7cd1f748-cb72-5f1b-9336-90388fdfda8a")]
-        [TestCase("test-6a2a04bd-bbc8-44ac-80ac-b0ca56897bc0", 2, "command-3f985e40-79af-5fe7-8d0e-c87d5bc334f6")]
+        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 1, "command-ed8fe9cc-0b14-5e3a-b2fd-8b6b29cdffbb")]
+        [TestCase("test-4b1e7b48-18f1-4215-91d9-903cffdab3d8", 2, "command-9e71d2cd-18c2-517c-b58f-6e4faf3b9b04")]
+        [TestCase("test-6a2a04bd-bbc8-44ac-80ac-b0ca56897bc0", 2, "command-db2711e2-6947-5fe4-87c6-13ca92438881")]
         public void Arguments(string aggregateId, int magicNumber, string expectedSouceId)
         {
             // Arrange

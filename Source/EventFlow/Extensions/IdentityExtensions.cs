@@ -20,42 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using EventFlow.Aggregates;
+using System.Text;
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Extensions
 {
-    public abstract class DeterministicIdCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public static class IdentityExtensions
     {
-        private readonly Lazy<ISourceId> _lazySourceId;
-
-        public ISourceId SourceId => _lazySourceId.Value;
-        public TIdentity AggregateId { get; }
-
-        protected DeterministicIdCommand(
-            TIdentity aggregateId)
+        public static byte[] GetBytes(this IIdentity identity)
         {
-            if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
-
-            _lazySourceId = new Lazy<ISourceId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
-
-            AggregateId = aggregateId;
+            return Encoding.UTF8.GetBytes(identity.Value);
         }
-
-        private ISourceId CalculateSourceId()
-        {
-            var bytes = GetSourceIdComponents().SelectMany(b => b).ToArray();
-            return CommandId.NewDeterministic(
-                GuidFactories.Deterministic.Namespaces.Commands,
-                bytes);
-        }
-
-        protected abstract IEnumerable<byte[]> GetSourceIdComponents();
     }
 }
