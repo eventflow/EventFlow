@@ -28,6 +28,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
@@ -71,6 +72,7 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.EventType.Should().Be(typeof (PingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
+            pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
         }
 
         [Test]

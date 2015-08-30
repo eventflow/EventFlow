@@ -35,6 +35,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Extensions;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -73,7 +74,7 @@ namespace EventFlow.Tests.UnitTests
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
             // Act
-            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new DomainErrorAfterFirstCommand(TestId.New), CancellationToken.None).ConfigureAwait(false));
+            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new DomainErrorAfterFirstCommand(TestId.New)).ConfigureAwait(false));
 
             // Assert
             _eventStoreMock.Verify(
@@ -89,7 +90,7 @@ namespace EventFlow.Tests.UnitTests
             var commandHandler = ArrangeCommandHandlerExists<TestAggregate, TestId, PingCommand>();
 
             // Act
-            await Sut.PublishAsync(new PingCommand(TestId.New, PingId.New), CancellationToken.None).ConfigureAwait(false);
+            await Sut.PublishAsync(new PingCommand(TestId.New, PingId.New)).ConfigureAwait(false);
 
             // Assert
             commandHandler.Verify(h => h.ExecuteAsync(It.IsAny<TestAggregate>(), It.IsAny<PingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
