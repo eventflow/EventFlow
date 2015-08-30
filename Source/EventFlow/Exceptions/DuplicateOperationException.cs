@@ -31,7 +31,8 @@ namespace EventFlow.Exceptions
         public IIdentity AggregateId { get; }
 
         public DuplicateOperationException(
-            ISourceId sourceId, IIdentity aggregateId)
+            ISourceId sourceId, IIdentity aggregateId, string message)
+            : base(message)
         {
             SourceId = sourceId;
             AggregateId = aggregateId;
