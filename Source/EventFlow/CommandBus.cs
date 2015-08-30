@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -40,6 +41,8 @@ namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
+        private static readonly ConcurrentDictionary<Type, CommandExecutionDetails> CommandExecutionDetailsMap = new ConcurrentDictionary<Type, CommandExecutionDetails>();
+
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
@@ -142,43 +145,69 @@ namespace EventFlow
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
-            var identityType = typeof (TIdentity);
             var commandType = command.GetType();
-            var commandHandlerType = typeof (ICommandHandler<,,>).MakeGenericType(aggregateType, identityType, commandType);
+            var commandExecutionDetails = GetCommandExecutionDetails(commandType);
 
-            var commandHandlers = _resolver.ResolveAll(commandHandlerType).ToList();
+            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType).ToList();
             if (!commandHandlers.Any())
             {
                 throw new NoCommandHandlersException(string.Format(
                     "No command handlers registered for the command '{0}' on aggregate '{1}'",
                     commandType.PrettyPrint(),
-                    aggregateType.PrettyPrint()));
+                    commandExecutionDetails.AggregateType.PrettyPrint()));
             }
             if (commandHandlers.Count > 1)
             {
                 throw new InvalidOperationException(string.Format(
                     "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
                     commandType.PrettyPrint(),
-                    aggregateType.PrettyPrint(),
+                    commandExecutionDetails.AggregateType.PrettyPrint(),
                     string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
             }
 
-            var commandHandler = commandHandlers.Single();
-            var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync", new []{ aggregateType, commandType, typeof(CancellationToken) });
+            var commandHandler = (ICommandHandler) commandHandlers.Single();
 
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
                         var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
-
-                        var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
-                        await invokeTask.ConfigureAwait(false);
-
+                        await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
                         return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);
+        }
+
+        private class CommandExecutionDetails
+        {
+            public Type AggregateType { get; set; }
+            public Type CommandHandlerType { get; set; }
+            public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
+        }
+
+        private static CommandExecutionDetails GetCommandExecutionDetails(Type commandType)
+        {
+            return CommandExecutionDetailsMap.GetOrAdd(
+                commandType,
+                t =>
+                    {
+                        var commandInterfaceType = t
+                            .GetInterfaces()
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,>));
+                        var commandTypes = commandInterfaceType.GetGenericArguments();
+
+                        var commandHandlerType = typeof(ICommandHandler<,,>)
+                            .MakeGenericType(commandTypes[0], commandTypes[1], commandType);
+
+                        var invoker = commandHandlerType.GetMethod("ExecuteAsync");
+
+                        return new CommandExecutionDetails
+                            {
+                                AggregateType = commandTypes[0],
+                                CommandHandlerType = commandHandlerType,
+                                Invoker = ((h, a, command, c) => (Task)invoker.Invoke(h, new object[] { a, command, c }))
+                            };
+                    });
         }
     }
 }
