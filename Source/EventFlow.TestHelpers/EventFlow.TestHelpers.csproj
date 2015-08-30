@@ -80,6 +80,7 @@
     <Compile Include="Aggregates\Test\TestId.cs" />
     <Compile Include="Aggregates\Test\ValueObjects\PingId.cs" />
     <Compile Include="EventFlowTestHelpers.cs" />
+    <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="IntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
