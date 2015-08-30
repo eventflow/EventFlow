@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
@@ -53,10 +54,18 @@ namespace EventFlow.ReadStores.Elasticsearch
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            var readModelEnvelopes = await Task.WhenAll(readModelDescription.IndexNames.Select(i => GetFromIndexAsync(id, i))).ConfigureAwait(false);
+            var readModelEnvelope = readModelEnvelopes.SingleOrDefault(e => !e.IsEmpty);
+            return readModelEnvelope ?? ReadModelEnvelope<TReadModel>.Empty;
+        }
 
+        private async Task<ReadModelEnvelope<TReadModel>> GetFromIndexAsync(
+            string id,
+            IndexName indexName)
+        {
             var getResponse = await _elasticClient.GetAsync<TReadModel>(
                 id,
-                readModelDescription.IndexName.Value)
+                indexName.Value)
                 .ConfigureAwait(false);
 
             if (!getResponse.IsValid || !getResponse.Found)
@@ -72,22 +81,31 @@ namespace EventFlow.ReadStores.Elasticsearch
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-             return _elasticClient.DeleteIndexAsync(readModelDescription.IndexName.Value, d => d);
+            return Task.WhenAll(readModelDescription.IndexNames.Select(i => _elasticClient.DeleteIndexAsync(i.Value, d => d)));
         }
 
-        public override async Task UpdateAsync(
+        public override Task UpdateAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            return Task.WhenAll(readModelDescription.IndexNames.Select(i => UpdateIndexAsync(readModelUpdates, readModelContext, updateReadModel, i, cancellationToken)));
+        }
 
+        private async Task UpdateIndexAsync(
+            IEnumerable<ReadModelUpdate> readModelUpdates,
+            IReadModelContext readModelContext,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            IndexName indexName,
+            CancellationToken cancellationToken)
+        {
             foreach (var readModelUpdate in readModelUpdates)
             {
                 var response = await _elasticClient.GetAsync<TReadModel>(
                     readModelUpdate.ReadModelId,
-                    readModelDescription.IndexName.Value)
+                    indexName.Value)
                     .ConfigureAwait(false);
 
                 var readModelEnvelope = response.Found
@@ -102,7 +120,7 @@ namespace EventFlow.ReadStores.Elasticsearch
                     readModelEnvelope.ReadModel,
                     d => d
                         .Id(readModelUpdate.ReadModelId)
-                        .Index(readModelDescription.IndexName.Value)
+                        .Index(indexName.Value)
                         .Version(readModelEnvelope.Version.GetValueOrDefault())
                         .VersionType(VersionType.ExternalGte))
                     .ConfigureAwait(false);

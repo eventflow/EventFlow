@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -64,7 +65,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchTestAggregateReadModel>();
             var response = await _elasticClient.GetAsync<ElasticsearchTestAggregateReadModel>(
                 id.Value,
-                readModelDescription.IndexName.Value)
+                readModelDescription.IndexNames.Single().Value)
                 .ConfigureAwait(false);
             return response.Source;
         }
@@ -84,7 +85,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
             try
             {
                 var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchTestAggregateReadModel>();
-                _elasticClient.DeleteIndex(readModelDescription.IndexName.Value);
+                _elasticClient.DeleteIndex(readModelDescription.IndexNames.Single().Value);
             }
             catch (Exception e)
             {
