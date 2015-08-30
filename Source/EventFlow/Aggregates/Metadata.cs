@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using Newtonsoft.Json;
@@ -31,6 +32,8 @@ namespace EventFlow.Aggregates
 {
     public class Metadata : Dictionary<string, string>, IMetadata
     {
+        public static IMetadata Empty { get; } = new Metadata();
+
         public static IMetadata With(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
             return new Metadata(keyValuePairs);
@@ -44,6 +47,12 @@ namespace EventFlow.Aggregates
         public static IMetadata With(IDictionary<string, string> keyValuePairs)
         {
             return new Metadata(keyValuePairs);
+        }
+
+        public ISourceId SourceId
+        {
+            get { return GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v)); }
+            set { Add(MetadataKeys.SourceId, value.Value); }
         }
 
         [JsonIgnore]
@@ -94,10 +103,10 @@ namespace EventFlow.Aggregates
         }
 
         [JsonIgnore]
-        public string EventId
+        public IEventId EventId
         {
-            get { return GetMetadataValue(MetadataKeys.EventId); }
-            set { Add(MetadataKeys.EventId, value); }
+            get { return GetMetadataValue(MetadataKeys.EventId, Aggregates.EventId.With); }
+            set { Add(MetadataKeys.EventId, value.Value); }
         }
 
         [JsonIgnore]

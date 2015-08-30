@@ -22,34 +22,21 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.TestHelpers.Extensions
 {
-    public class PingCommand : Command<TestAggregate, TestId>
+    public static class CommandBusExtensions
     {
-        public PingId PingId { get; }
-
-        public PingCommand(TestId aggregateId, PingId pingId)
-            : this(aggregateId, CommandId.New, pingId)
+        public static Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
+            this ICommandBus commandBus,
+            ICommand<TAggregate, TIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-        }
-
-        public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
-            : base (aggregateId, sourceId)
-        {
-            PingId = pingId;
-        }
-    }
-
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
+            return commandBus.PublishAsync(command, CancellationToken.None);
         }
     }
 }

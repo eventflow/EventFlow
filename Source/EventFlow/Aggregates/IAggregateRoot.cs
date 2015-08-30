@@ -35,8 +35,13 @@ namespace EventFlow.Aggregates
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
         bool IsNew { get; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+            IEventStore eventStore,
+            ISourceId sourceId,
+            CancellationToken cancellationToken);
+
         void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
+
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
     }
 

@@ -88,9 +88,9 @@ namespace EventFlow.Aggregates
             }
 
             var aggregateSequenceNumber = Version + 1;
-            var eventId = GuidFactories.Deterministic.Create(
+            var eventId = EventId.NewDeterministic(
                 GuidFactories.Deterministic.Namespaces.Events,
-                $"{Id.Value}-v{0}").ToString("D");
+                $"{Id.Value}-v{0}");
             var now = DateTimeOffset.Now;
             var eventMetadata = new Metadata
                 {
@@ -114,11 +114,13 @@ namespace EventFlow.Aggregates
 
         public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
+            ISourceId sourceId,
             CancellationToken cancellationToken)
         {
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
                 _uncommittedEvents,
+                sourceId,
                 cancellationToken)
                 .ConfigureAwait(false);
             _uncommittedEvents.Clear();

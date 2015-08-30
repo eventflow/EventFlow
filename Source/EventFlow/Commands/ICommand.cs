@@ -29,6 +29,7 @@ namespace EventFlow.Commands
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        TIdentity Id { get; }
+        ISourceId SourceId { get; }
+        TIdentity AggregateId { get; }
     }
 }

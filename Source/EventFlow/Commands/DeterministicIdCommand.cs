@@ -20,36 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
+using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.Commands
 {
-    public class PingCommand : Command<TestAggregate, TestId>
+    public abstract class DeterministicIdCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
-        public PingId PingId { get; }
+        private readonly Lazy<ISourceId> _lazySourceId;
 
-        public PingCommand(TestId aggregateId, PingId pingId)
-            : this(aggregateId, CommandId.New, pingId)
+        public ISourceId SourceId => _lazySourceId.Value;
+        public TIdentity AggregateId { get; }
+
+        protected DeterministicIdCommand(
+            TIdentity aggregateId)
         {
+            if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
+
+            _lazySourceId = new Lazy<ISourceId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
+
+            AggregateId = aggregateId;
         }
 
-        public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
-            : base (aggregateId, sourceId)
+        private ISourceId CalculateSourceId()
         {
-            PingId = pingId;
+            var bytes = GetSourceIdComponents().SelectMany(b => b).ToArray();
+            return CommandId.NewDeterministic(
+                GuidFactories.Deterministic.Namespaces.Commands,
+                bytes);
         }
-    }
 
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
-        }
+        protected abstract IEnumerable<byte[]> GetSourceIdComponents();
     }
 }

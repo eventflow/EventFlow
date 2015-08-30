@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -20,36 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using System;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.Core
 {
-    public class PingCommand : Command<TestAggregate, TestId>
+    public class SourceId : SingleValueObject<string>, ISourceId
     {
-        public PingId PingId { get; }
+        public static ISourceId New => new SourceId(Guid.NewGuid().ToString("D"));
 
-        public PingCommand(TestId aggregateId, PingId pingId)
-            : this(aggregateId, CommandId.New, pingId)
+        public SourceId(string value) : base(value)
         {
-        }
-
-        public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
-            : base (aggregateId, sourceId)
-        {
-            PingId = pingId;
-        }
-    }
-
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
         }
     }
 }
