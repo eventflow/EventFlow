@@ -2,6 +2,8 @@
 To use the MSSQL event store provider you need to install the NuGet
 package `EventFlow.EventStores.MsSql`.
 
+Be sure to read the topics on [performance tips](./PerformanceTips.md).
+
 ## Configuration
 
 Configure the MSSQL connection and event store as shown here.
