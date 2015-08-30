@@ -82,7 +82,7 @@ namespace EventFlow.Aggregates
 
         public bool HasSourceId(ISourceId sourceId)
         {
-            return _previousSourceIds.Any(s => s.Value == sourceId.Value);
+            return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
 
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
