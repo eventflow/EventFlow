@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -70,11 +71,15 @@ namespace EventFlow.EventStores
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
+            ISourceId sourceId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            if (!uncommittedDomainEvents.Any())
+            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (sourceId.IsNone()) throw new ArgumentNullException(nameof(sourceId));
+
+            if (uncommittedDomainEvents == null || !uncommittedDomainEvents.Any())
             {
                 return new IDomainEvent<TAggregate, TIdentity>[] {};
             }
@@ -87,19 +92,20 @@ namespace EventFlow.EventStores
                 id);
 
             var batchId = Guid.NewGuid().ToString();
-            var storeMetadata = new[]
+            var storeMetadata = new []
                 {
-                    new KeyValuePair<string, string>(MetadataKeys.BatchId, batchId), 
+                    new KeyValuePair<string, string>(MetadataKeys.BatchId, batchId),
+                    new KeyValuePair<string, string>(MetadataKeys.SourceId, sourceId.Value),
                 };
 
             var serializedEvents = uncommittedDomainEvents
                 .Select(e =>
                     {
-                        var metadata = MetadataProviders
+                        var md = MetadataProviders
                             .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.AggregateEvent, e.Metadata))
                             .Concat(e.Metadata)
                             .Concat(storeMetadata);
-                        return EventJsonSerializer.Serialize(e.AggregateEvent, metadata);
+                        return EventJsonSerializer.Serialize(e.AggregateEvent, md);
                     })
                 .ToList();
 

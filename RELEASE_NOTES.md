@@ -1,6 +1,43 @@
 ### New in 0.12 (not released yet)
- 
- * _Nothing yet_
+
+ * Breaking: Aggregate root no longer have `Aggregate` removed from their
+   when name, i.e., the metadata property with key `aggregate_name` (or
+   `MetadataKeys.AggregateName`). If you are dependent on the previous naming,
+   use the new `AggregateName` attribute and apply it to your aggregates
+ * Breaking: Moved `Identity<>` and `IIdentity` from the `EventFlow.Aggregates`
+   namespace to `EventFlow.Core` as the identities are not specific for aggregates
+ * Breaking: `ICommand.Id` is renamed to `ICommand.AggregateId` to make "room"
+   for the new `ICommand.SourceId` property. If commands are serialized, then
+   it _might_ be important verify that the serialization still works. EventFlow
+   _does not_ serialize commands, so no mitigation is provided. If the
+   `Command<,>` is used, make sure to use the correct protected constructor
+ * Breaking: `IEventStore.StoreAsync(...)` now requires an additional
+   `ISourceId` argument. To create a random one, use `SourceId.New`, but it
+   should be e.g. the command ID that resulted in the events. Note, this method
+   isn't typically used by developers
+ * New: Added `ICommand.SourceId`, which contains the ID of the source. The
+   default (if your commands inherit from `Command<,>`) will be a new
+   `CommandId` each time the a `Command<,>` instance is created. You can pass
+   specific value, merely use the newly added constructor taking the ID.
+   Alternatively you commands could inherit from the new
+   `DeterministicIdCommand`, enabling commands with the same state to have the
+   same `SourceId`
+ * New: Aggregate names can now be configured using the attribute
+   `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
+   property
+ * New: Added `Identity<>.NewDeterministic(Guid, string)` enabling creation of
+   [deterministic GUIDs](http://code.logos.com/blog/2011/04/generating_a_deterministic_guid.html)
+ * New: Added new metadata key `source_id` (`MetadataKeys.SourceId`) containing
+   the source ID, typically the ID of the command from which the event
+   originated
+ * New: Added new metadata key `event_id` (`MetadataKeys.EventId`) containing a
+   deterministic ID for the event. Events with the same aggregate sequence
+   number and from aggregates with the same identity, will have the same event
+   identity
+ * Fixed: `Identity<>.With(string)` now throws an `ArgumentException` instead of
+   a `TargetInvocationException` when passed an invalid identity
+ * Fixed: Aggregate roots now build the cache of `Apply` methods once, instead
+   of when the method is requested the first time
 
 ### New in 0.11.751 (released 2015-08-24)
 

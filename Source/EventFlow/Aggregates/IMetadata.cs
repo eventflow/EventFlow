@@ -22,11 +22,14 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.Core;
 
 namespace EventFlow.Aggregates
 {
     public interface IMetadata : IReadOnlyDictionary<string, string>
     {
+        IEventId EventId { get; }
+        ISourceId SourceId { get; }
         string EventName { get; }
         int EventVersion { get; }
         DateTimeOffset Timestamp { get; }
@@ -34,6 +37,9 @@ namespace EventFlow.Aggregates
         int AggregateSequenceNumber { get; }
         string AggregateId { get; }
 
+        IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs);
         IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        string GetMetadataValue(string key);
+        T GetMetadataValue<T>(string key, Func<string, T> converter);
     }
 }

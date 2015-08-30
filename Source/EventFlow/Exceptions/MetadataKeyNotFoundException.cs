@@ -20,10 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System;
+
+namespace EventFlow.Exceptions
 {
-    public interface IIdentity
+    public class MetadataKeyNotFoundException : ArgumentOutOfRangeException
     {
-        string Value { get; }
+        public MetadataKeyNotFoundException(string key) : base($"Could not find metadata key '{key}'") { }
     }
 }

@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
