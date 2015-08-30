@@ -5,7 +5,7 @@
    `MetadataKeys.AggregateName`). If you are dependent on the previous naming,
    use the new `AggregateName` attribute and apply it to your aggregates
  * Breaking: Moved `Identity<>` and `IIdentity` from the `EventFlow.Aggregates`
-   namespace to `EventFlow.Core` as the identities are specific for aggregates
+   namespace to `EventFlow.Core` as the identities are not specific for aggregates
  * Breaking: `ICommand.Id` is renamed to `ICommand.AggregateId` to make "room"
    for the new `ICommand.SourceId` property. If commands are serialized, then
    it _might_ be important verify that the serialization still works. EventFlow
