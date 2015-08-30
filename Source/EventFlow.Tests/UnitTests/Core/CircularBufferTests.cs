@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
 using EventFlow.Core;
 using FluentAssertions;
 using NUnit.Framework;
@@ -28,50 +29,26 @@ namespace EventFlow.Tests.UnitTests.Core
 {
     public class CircularBufferTests
     {
-        [Test]
-        public void CanAddItemEqualToCapasity()
+        [TestCase(1)] // Below capasity
+        [TestCase(1, 2)] // At capasity
+        [TestCase(1, 2, 3)] // Once above capasity
+        [TestCase(1, 2, 3, 4)] // Loop twice over capasity
+        [TestCase(1, 2, 3, 4, 5)] // One more than of capasity½
+        public void Put(params int[] numbers)
         {
             // Arrange
-            var sut = new CircularBuffer<int>(2);
+            const int capasity = 2;
+            var sut = new CircularBuffer<int>(capasity);
 
             // Act
-            sut.Put(1);
-            sut.Put(2);
+            foreach (var number in numbers)
+            {
+                sut.Put(number);
+            }
 
             // Assert
-            sut.Should().Contain(new [] { 1, 2 });
-        }
-
-        [Test]
-        public void CanAddItemEqualToMoreThanCapasity()
-        {
-            // Arrange
-            var sut = new CircularBuffer<int>(2);
-
-            // Act
-            sut.Put(1);
-            sut.Put(2);
-            sut.Put(3);
-
-            // Assert
-            sut.Should().Contain(new[] { 2, 3 });
-        }
-
-        [Test]
-        public void CanAddItemEqualToMoreThanCapasityAndLoop()
-        {
-            // Arrange
-            var sut = new CircularBuffer<int>(2);
-
-            // Act
-            sut.Put(1);
-            sut.Put(2);
-            sut.Put(3);
-            sut.Put(4);
-            sut.Put(5);
-
-            // Assert
-            sut.Should().Contain(new[] { 4, 5 });
+            var shouldContain = numbers.Reverse().Take(capasity).ToList();
+            sut.Should().Contain(shouldContain);
         }
     }
 }
