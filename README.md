@@ -58,6 +58,9 @@ to the documentation.
   several providers ready to use used.
 * [**Value objects**](./Documentation/ValueObjects.md): Data containing classes
   used to validate and hold domain data, e.g. a username or e-mail.
+* [**Performance tips:**](./Documentation/PerformanceTips.md) As EventFlow is
+  general purpose, there are some areas that you can do optimizations based
+  on how you use EventFlow
 * [**Customize**](./Documentation/Customize.md): Almost every single part of
   EventFlow can be swapped with a custom implementation through the embedded
   IoC container.
@@ -135,4 +138,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
