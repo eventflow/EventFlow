@@ -27,7 +27,11 @@ using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand>
+    public interface ICommandHandler
+    {
+    }
+
+    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TCommand : ICommand<TAggregate, TIdentity>
