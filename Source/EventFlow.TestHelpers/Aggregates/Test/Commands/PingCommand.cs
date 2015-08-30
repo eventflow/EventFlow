@@ -23,15 +23,22 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
+using EventFlow.Core;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
     public class PingCommand : Command<TestAggregate, TestId>
     {
-        public PingId PingId { get; private set; }
+        public PingId PingId { get; }
 
-        public PingCommand(TestId id, PingId pingId) : base (id)
+        public PingCommand(TestId aggregateId, PingId pingId)
+            : this(aggregateId, CommandId.New, pingId)
+        {
+        }
+
+        public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
+            : base (aggregateId, sourceId)
         {
             PingId = pingId;
         }

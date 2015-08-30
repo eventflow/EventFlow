@@ -20,20 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System.Text;
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Extensions
 {
-    public interface ICommand
+    public static class IdentityExtensions
     {
-    }
-
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        public static byte[] GetBytes(this IIdentity identity)
+        {
+            return Encoding.UTF8.GetBytes(identity.Value);
+        }
     }
 }

@@ -20,20 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.TestHelpers.Extensions
 {
-    public interface ICommand
+    public static class CommandBusExtensions
     {
-    }
-
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        public static Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
+            this ICommandBus commandBus,
+            ICommand<TAggregate, TIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return commandBus.PublishAsync(command, CancellationToken.None);
+        }
     }
 }

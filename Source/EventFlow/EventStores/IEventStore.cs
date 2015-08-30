@@ -33,6 +33,7 @@ namespace EventFlow.EventStores
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
+            ISourceId sourceId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;

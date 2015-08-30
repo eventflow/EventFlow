@@ -33,6 +33,7 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Subscribers;
 
@@ -62,7 +63,7 @@ namespace EventFlow
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task PublishAsync<TAggregate, TIdentity>(
+        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -70,11 +71,12 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            var commandTypeName = command.GetType().Name;
+            var commandTypeName = command.GetType().PrettyPrint();
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
-                "Executing command '{0}' on aggregate '{1}'",
+                "Executing command '{0}' with ID '{1}' on aggregate '{2}'",
                 commandTypeName,
+                command.SourceId,
                 aggregateType);
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
@@ -86,10 +88,11 @@ namespace EventFlow
             {
                 _log.Debug(
                     exception,
-                    "Excution of command '{0}' on aggregate '{1}' failed due to exception '{2}' with message: {3}",
+                    "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
                     commandTypeName,
+                    command.SourceId,
                     aggregateType,
-                    exception.GetType().Name,
+                    exception.GetType().PrettyPrint(),
                     exception.Message);
                 throw;
             }
@@ -97,35 +100,43 @@ namespace EventFlow
             if (!domainEvents.Any())
             {
                 _log.Verbose(
-                    "Execution command '{0}' on aggregate '{1}' did NOT result in any domain events",
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     commandTypeName,
+                    command.SourceId,
                     aggregateType);
-                return;
+                return command.SourceId;
             }
 
             _log.Verbose(() => string.Format(
-                "Execution command '{0}' on aggregate '{1}' resulted in these events: {2}",
+                "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
                 commandTypeName,
+                command.SourceId,
                 aggregateType,
-                string.Join(", ", domainEvents.Select(d => d.EventType.Name))));
+                string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
             await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                command.Id,
+                command.AggregateId,
                 domainEvents,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            return command.SourceId;
         }
 
-        public void Publish<TAggregate, TIdentity>(
+        public ISourceId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            ISourceId sourceId = null;
+
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command, cancellationToken));
+                a.Run(PublishAsync(command, cancellationToken), id => sourceId = id);
             }
+
+            return sourceId;
         }
 
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
@@ -142,25 +153,26 @@ namespace EventFlow
             {
                 throw new NoCommandHandlersException(string.Format(
                     "No command handlers registered for the command '{0}' on aggregate '{1}'",
-                    commandType.Name,
-                    commandExecutionDetails.AggregateType.Name));
+                    commandType.PrettyPrint(),
+                    commandExecutionDetails.AggregateType.PrettyPrint()));
             }
             if (commandHandlers.Count > 1)
             {
                 throw new InvalidOperationException(string.Format(
                     "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
-                    commandType.Name,
-                    commandExecutionDetails.AggregateType.Name,
-                    string.Join(", ", commandHandlers.Select(h => h.GetType().Name))));
+                    commandType.PrettyPrint(),
+                    commandExecutionDetails.AggregateType.PrettyPrint(),
+                    string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
             }
+
             var commandHandler = (ICommandHandler) commandHandlers.Single();
 
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.Id, c).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
                         await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
-                        return await aggregate.CommitAsync(_eventStore, c).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);

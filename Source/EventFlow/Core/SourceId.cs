@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -20,20 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Commands
+namespace EventFlow.Core
 {
-    public interface ICommand
+    public class SourceId : SingleValueObject<string>, ISourceId
     {
-    }
+        public static ISourceId New => new SourceId(Guid.NewGuid().ToString("D"));
 
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        public SourceId(string value) : base(value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+        }
     }
 }

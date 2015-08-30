@@ -28,7 +28,7 @@ namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
     public class DoesNothingCommand : Command<TestAggregate, TestId>
     {
-        public DoesNothingCommand(TestId id) : base(id)
+        public DoesNothingCommand(TestId aggregateId) : base(aggregateId)
         {
         }
     }
