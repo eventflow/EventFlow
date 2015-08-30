@@ -43,6 +43,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac.Tests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autofac", "Autofac", "{980EEDAA-1FEF-4D7C-8811-5EF1D9729773}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{CE9B8F1D-867B-4794-BF98-CDAD9D7C2BDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Examples.Library", "Source\EventFlow.Examples.Library\EventFlow.Examples.Library.csproj", "{CB55BD0D-A530-48E2-BC5A-F7828B58DB50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +113,10 @@ Global
 		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB55BD0D-A530-48E2-BC5A-F7828B58DB50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB55BD0D-A530-48E2-BC5A-F7828B58DB50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB55BD0D-A530-48E2-BC5A-F7828B58DB50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB55BD0D-A530-48E2-BC5A-F7828B58DB50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,5 +134,6 @@ Global
 		{4B06F01F-ACE6-489D-A92A-012F533EFA3C} = {7951DC73-5DAF-4322-9AF0-099BF5C90837}
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A} = {7951DC73-5DAF-4322-9AF0-099BF5C90837}
 		{EDCD8854-6224-4329-87C2-9ADD7D153070} = {980EEDAA-1FEF-4D7C-8811-5EF1D9729773}
+		{CB55BD0D-A530-48E2-BC5A-F7828B58DB50} = {CE9B8F1D-867B-4794-BF98-CDAD9D7C2BDB}
 	EndGlobalSection
 EndGlobal
