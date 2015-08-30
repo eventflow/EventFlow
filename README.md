@@ -42,6 +42,7 @@ to the documentation.
 * **Read models:** Denormalized representation of aggregate events
   optimized for reading fast. Currently there is support for these
   read model storage types.
+  * [Elasticsearch:](./Documentation/ReadStores-Elasticsearch.md)
   * In-memory - only for test
   * Microsoft SQL Server
 * [**Queries:**](./Documentation/Queries.md): Value objects that represent
@@ -135,4 +136,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-

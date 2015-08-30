@@ -15,6 +15,8 @@
    `ISourceId` argument. To create a random one, use `SourceId.New`, but it
    should be e.g. the command ID that resulted in the events. Note, this method
    isn't typically used by developers
+ * New: Added support for [Elasticsearch](https://www.elastic.co/) as a read
+   models store. Read the guide on how to get started
  * New: Added `ICommand.SourceId`, which contains the ID of the source. The
    default (if your commands inherit from `Command<,>`) will be a new
    `CommandId` each time the a `Command<,>` instance is created. You can pass
