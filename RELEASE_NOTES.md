@@ -20,7 +20,7 @@
    `CommandId` each time the a `Command<,>` instance is created. You can pass
    specific value, merely use the newly added constructor taking the ID.
    Alternatively you commands could inherit from the new
-   `DeterministicIdCommand`, enabling commands with the same state to have the
+   `DistinctCommand`, enabling commands with the same state to have the
    same `SourceId`
  * New: Aggregate names can now be configured using the attribute
    `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
