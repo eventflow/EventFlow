@@ -12,6 +12,7 @@ Implementation notes
 * Make sure to read the comments about how this code should be improved at
   the bottom
 
+
 ## Create an aggregate
 
 Initially you need to create the object representing the _identity_
@@ -21,16 +22,14 @@ started.
 ```csharp
 public class UserId : Identity<UserId>
 {
-  public UserId(string value) : base(value)
-  {
-  }
+  public UserId(string value) : base(value) { }
 }
 ```
 
 Next, let us start by creating a aggregate to represent our users.
 
 ```csharp
-public class UserAggregate : AggregateRoot<UserAggregate>
+public class UserAggregate : AggregateRoot<UserAggregate, UserId>
 {
   public UserAggregate(UserId id)
     : base(id)
@@ -39,10 +38,11 @@ public class UserAggregate : AggregateRoot<UserAggregate>
 }
 ```
 
+
 ## Create event
 
 ```csharp
-public class UserCreatedEvent : AggregateEvent<UserAggregate>
+public class UserCreatedEvent : AggregateEvent<UserAggregate, UserId>
 {
   public string Username { get; private set; }
   public string Password { get; private set; }
@@ -62,6 +62,7 @@ Important notes regarding events
 * Once have aggregates in your production environment that have
   emitted a event, you should never change it. You can deprecate
   it, but you should never change the data stored in the event store
+
 
 ## Update aggregate
 
@@ -113,6 +114,7 @@ public class UserAggregate : AggregateRoot<UserAggregate, UserId>,
 }
 ```
 
+
 ## Create command
 
 Even though it is possible, we are not allowed to call the newly
@@ -120,7 +122,7 @@ created `Create` method on our `UserAggregate`. The call must be
 made from a command handler, and thus we first create the command.
 
 ```csharp
-public class UserCreateCommand : Command<UserAggregate>
+public class UserCreateCommand : Command<UserAggregate, UserId>
 {
   public string Username { get; private set; }
   public string Password { get; private set; }
@@ -137,13 +139,18 @@ public class UserCreateCommand : Command<UserAggregate>
 }
 ```
 
+Note that you can read the article regarding [commands](./Commands.md) for
+more details, e.g. on ensuring idempotency in a distributed application.  
+
+
 ## Create command handler
 
 Next we create the command handler that invokes the aggregate with the command
 arguments.
 
 ```csharp
-public class UserCreateCommand : ICommand<UserAggregate, UserCreateCommand>
+public class UserCreateCommand :
+  ICommand<UserAggregate, UserId, UserCreateCommand>
 {
   public Task ExecuteAsync(
     UserAggregate aggregate,
@@ -179,5 +186,5 @@ await _commandBus.PublishAsync(command, cancellationToken);
 
 There are several areas the code can be improved.
 
-- Use value objects for e.g. username and password that validate the value,
-  i.e., ensure that the username isn't the empty string
+- Use [value objects](ValueObjects.md) for e.g. username and password that
+  validate the value, i.e., ensure that the username isn't the empty string
