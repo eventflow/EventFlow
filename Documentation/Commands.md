@@ -101,7 +101,7 @@ If a duplicate command is detected, a `DuplicateOperationException` is thrown.
 The application could then ignore the exception or report the problem to the
 end user.
 
-### Easier ISourceId calculaion
+### Easier ISourceId calculation
 
 Ensuring the correct calculation of the command `ISourceId` can be somewhat
 cumbersome, which is why EventFlow provides another base command you can use,
