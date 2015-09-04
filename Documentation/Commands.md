@@ -101,6 +101,11 @@ If a duplicate command is detected, a `DuplicateOperationException` is thrown.
 The application could then ignore the exception or report the problem to the
 end user.
 
+The default `ISourceId` history size of the aggregate root, is ten. But it can
+be configured using the `SetSourceIdHistory(...)` that must be called from
+within the aggregate root constructor.
+
+
 ### Easier ISourceId calculation
 
 Ensuring the correct calculation of the command `ISourceId` can be somewhat
