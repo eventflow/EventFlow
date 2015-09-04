@@ -12,7 +12,7 @@ public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
   public Password NewPassword { get; private set; }
   public Password OldPassword { get; private set; }
 
-  public UserCreateCommand(
+  public UserUpdatePasswordCommand(
     UserId id,
     Password newPassword,
     Password oldPassword)
@@ -26,7 +26,30 @@ public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
 
 Note that the `Password` class is merely a value object created to hold the
 password and do basic validation. Read the article regarding
-[value objects](./ValueObjects.md) for more information.
+[value objects](./ValueObjects.md) for more information. Also, you don't
+have to use the default EventFlow `Command<,>` implementation, you can create
+your own, it merely have to implement the `ICommand<,>` interface.
+
+A command by itself doesn't do anything and will throw an exception if
+published. To make a command work, you need to implement one (and only one)
+command handler which is responsible for invoking the aggregate.
+
+```csharp
+public class UserUpdatePasswordCommandHandler :
+  CommandHandler<UserAggregate, UserId, UserUpdatePasswordCommand>
+{
+  public override Task ExecuteAsync(
+    UserAggregate aggregate,
+    UserUpdatePasswordCommand command,
+    CancellationToken cancellationToken)
+  {
+    aggregate.UpdatePassword(
+      command.OldPassword,
+      command.NewPassword);
+    return Task.FromResult(0);
+  }
+}
+```
 
 ## Ensure idempotency
 
@@ -50,10 +73,7 @@ command.
 
 To use the functionality, merely ensure that commands that represent the
 same operation has the same `ISourceId` which implements `IIdentity` like
-here.
-
-Note the use of the other `protected` constructor of `Command<,>` that
-takes a `ISourceId` in addition to the aggregate root identity.
+the example blow.
 
 ```csharp
 public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
@@ -74,11 +94,21 @@ public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
 }
 ```
 
+Note the use of the other `protected` constructor of `Command<,>` that
+takes a `ISourceId` in addition to the aggregate root identity.
+
+If a duplicate command is detected, a `DuplicateOperationException` is thrown.
+The application could then ignore the exception or report the problem to the
+end user.
+
+### Easier ISourceId calculaion
+
 Ensuring the correct calculation of the command `ISourceId` can be somewhat
 cumbersome, which is why EventFlow provides another base command you can use,
 the `DistinctCommand<,>`. By using the `DistinctCommand<,>` you merely have
 to implement the `GetSourceIdComponents()` and providing the
-`IEnumerable<byte[]>` that makes the command unique.
+`IEnumerable<byte[]>` that makes the command unique. The bytes is used to
+create a deterministic GUID to be used as an `ISourceId`.
 
 ```csharp
 public class UserUpdatePasswordCommand :
@@ -87,7 +117,7 @@ public class UserUpdatePasswordCommand :
   public Password NewPassword { get; private set; }
   public Password OldPassword { get; private set; }
 
-  public UserCreateCommand(
+  public UserUpdatePasswordCommand(
     UserId id,
     Password newPassword,
     Password oldPassword)

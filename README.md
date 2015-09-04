@@ -32,7 +32,8 @@ to the documentation.
 * [**Aggregates:**](./Documentation/Aggregates.md) Domains object
   that guarantees the consistency of changes being made within
   each aggregate
-* **Command bus:** Entry point for all command execution.
+* [**Command bus and commands:**](./Documentation/Commands.md)
+  Entry point for all command/operation execution.
 * **Event store:** Storage of the event stream for aggregates.
   Currently there is support for these storage types.
  * In-memory - only for test
