@@ -25,7 +25,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
-using EventFlow.EventSourcing;
 
 namespace EventFlow.TestHelpers.Extensions
 {
@@ -34,7 +33,7 @@ namespace EventFlow.TestHelpers.Extensions
         public static Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             this ICommandBus commandBus,
             ICommand<TAggregate, TIdentity> command)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             return commandBus.PublishAsync(command, CancellationToken.None);

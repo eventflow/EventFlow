@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;

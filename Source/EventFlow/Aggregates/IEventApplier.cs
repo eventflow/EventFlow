@@ -22,6 +22,7 @@
 
 using EventFlow.Core;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.Aggregates
 {

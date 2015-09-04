@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 
 namespace EventFlow.MetadataProviders

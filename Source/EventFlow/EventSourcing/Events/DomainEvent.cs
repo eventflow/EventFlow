@@ -21,10 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventSourcing;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventSourcing.Events
 {
     public class DomainEvent<TAggregate, TIdentity, TAggregateEvent> : IDomainEvent<TAggregate, TIdentity, TAggregateEvent>
         where TAggregate : IEventSourced<TIdentity>

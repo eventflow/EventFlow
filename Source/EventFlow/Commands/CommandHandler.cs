@@ -24,12 +24,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventSourcing;
 
 namespace EventFlow.Commands
 {
     public abstract class CommandHandler<TAggregate, TIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TCommand>
-        where TAggregate : IEventSourced<TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TCommand : ICommand<TAggregate, TIdentity>
     {

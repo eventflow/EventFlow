@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Aggregates;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores

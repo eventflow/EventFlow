@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Logs;
 using EventFlow.MsSql;
 using EventFlow.Queries;

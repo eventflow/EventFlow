@@ -28,12 +28,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourced<TAggregate, TIdentity>, IEventSourced<TIdentity>
+    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourced<TAggregate, TIdentity>, IAggregateRoot<TIdentity>
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {

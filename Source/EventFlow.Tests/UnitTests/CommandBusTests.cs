@@ -28,7 +28,7 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
-using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -122,7 +122,7 @@ namespace EventFlow.Tests.UnitTests
 
         private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TCommand>(
             ICommandHandler<TAggregate, TIdentity, TCommand> commandHandler)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TCommand : ICommand<TAggregate, TIdentity>
         {
@@ -132,7 +132,7 @@ namespace EventFlow.Tests.UnitTests
         }
 
         private Mock<ICommandHandler<TAggregate, TIdentity, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TCommand>()
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TCommand : ICommand<TAggregate, TIdentity>
         {

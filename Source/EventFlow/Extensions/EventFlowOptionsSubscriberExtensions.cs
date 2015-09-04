@@ -27,6 +27,7 @@ using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Subscribers;
 
 namespace EventFlow.Extensions

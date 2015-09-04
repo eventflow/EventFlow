@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores.InMemory

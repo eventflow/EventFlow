@@ -22,6 +22,7 @@
 
 using EventFlow.Aggregates;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {

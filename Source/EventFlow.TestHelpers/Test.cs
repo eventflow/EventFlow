@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.Core;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using Moq;
 using NUnit.Framework;

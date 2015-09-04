@@ -23,12 +23,11 @@
 using System;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventSourcing;
 
 namespace EventFlow.Commands
 {
     public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IEventSourced<TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
         public ISourceId SourceId { get; }

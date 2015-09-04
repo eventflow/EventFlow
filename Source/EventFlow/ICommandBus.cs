@@ -34,13 +34,13 @@ namespace EventFlow
         Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
         ISourceId Publish<TAggregate, TIdentity>(
 		    ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
     }
 }

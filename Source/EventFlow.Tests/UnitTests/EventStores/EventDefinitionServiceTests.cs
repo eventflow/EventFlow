@@ -24,6 +24,7 @@ using System;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;

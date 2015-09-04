@@ -32,6 +32,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
@@ -67,7 +68,7 @@ namespace EventFlow
         public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -127,7 +128,7 @@ namespace EventFlow
         public ISourceId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             ISourceId sourceId = null;
@@ -143,7 +144,7 @@ namespace EventFlow
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             var commandType = command.GetType();
