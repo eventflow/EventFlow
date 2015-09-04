@@ -41,7 +41,7 @@ namespace EventFlow.Aggregates
                 typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                 typeof (TAggregate).Name);
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
-        private readonly CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(5); 
+        private readonly CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10); // TODO: Count should be configurable
 
         public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
