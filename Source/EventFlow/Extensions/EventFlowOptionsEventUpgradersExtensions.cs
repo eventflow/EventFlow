@@ -27,6 +27,7 @@ using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 using EventFlow.EventStores;
 
 namespace EventFlow.Extensions
@@ -35,7 +36,7 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
             this EventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
             where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
         {
@@ -46,7 +47,7 @@ namespace EventFlow.Extensions
         public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
             this EventFlowOptions eventFlowOptions,
             Func<IResolverContext, IEventUpgrader<TAggregate, TIdentity>> factory)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             eventFlowOptions.RegisterServices(f => f.Register(factory));

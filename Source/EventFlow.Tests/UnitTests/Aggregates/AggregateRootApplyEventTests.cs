@@ -22,6 +22,8 @@
 
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -63,15 +65,15 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         {
             public int Count { get; private set; }
 
-            public bool Apply(MyAggregate aggregate, IAggregateEvent<MyAggregate, MyId> aggregateEvent)
+            public bool Apply(MyAggregate aggregate, IEvent<MyAggregate, MyId> @event)
             {
-                var myCountEvent = (MyCountEvent)aggregateEvent;
+                var myCountEvent = (MyCountEvent)@event;
                 Count += myCountEvent.Count;
                 return true;
             }
         }
 
-        public class MyCountEvent : IAggregateEvent<MyAggregate, MyId>
+        public class MyCountEvent : IEvent<MyAggregate, MyId>
         {
             public int Count { get; private set; }
 

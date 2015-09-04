@@ -27,6 +27,7 @@ using System.Reflection;
 using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations.Services;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Extensions
 {
@@ -44,7 +45,7 @@ namespace EventFlow.Extensions
         {
             var aggregateRootTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsClosedTypeOf(typeof(IAggregateRoot<>)));
+                .Where(t => !t.IsAbstract && t.IsClosedTypeOf(typeof(IEventSourced<>)));
             eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
             return eventFlowOptions;
         }
@@ -62,7 +63,7 @@ namespace EventFlow.Extensions
             IEnumerable<Type> aggregateRootTypes)
         {
             var invalidateTypes = aggregateRootTypes
-                .Where(t => !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => !t.IsClosedTypeOf(typeof(IEventSourced<>)))
                 .ToList();
             if (invalidateTypes.Any())
             {

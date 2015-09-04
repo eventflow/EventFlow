@@ -23,6 +23,8 @@
 using System;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -34,10 +36,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
     public class EventDefinitionServiceTests : TestsFor<EventDefinitionService>
     {
         [EventVersion("Fancy", 42)]
-        public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
-        public class TestEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
-        public class TestEventV2 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
-        public class OldTestEventV5 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        public class TestEventWithLongName : Event<IEventSourced<IIdentity>, IIdentity> { }
+        public class TestEvent : Event<IEventSourced<IIdentity>, IIdentity> { }
+        public class TestEventV2 : Event<IEventSourced<IIdentity>, IIdentity> { }
+        public class OldTestEventV5 : Event<IEventSourced<IIdentity>, IIdentity> { }
 
         [TestCase(typeof(TestEvent), 1, "TestEvent")]
         [TestCase(typeof(TestEventV2), 2, "TestEvent")]

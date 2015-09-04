@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using Microsoft.Owin;
 
@@ -48,9 +50,9 @@ namespace EventFlow.Owin.MetadataProviders
 
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
             TIdentity id,
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             return _owinContext.Request.Headers

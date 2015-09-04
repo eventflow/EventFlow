@@ -23,6 +23,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.RabbitMQ.Integrations
 {

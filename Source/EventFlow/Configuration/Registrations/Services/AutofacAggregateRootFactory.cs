@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Configuration.Registrations.Services
 {
@@ -37,7 +38,7 @@ namespace EventFlow.Configuration.Registrations.Services
         }
 
         public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             var aggregate = _resolver.Resolve<TAggregate>(new TypedParameter(typeof(TIdentity), id));

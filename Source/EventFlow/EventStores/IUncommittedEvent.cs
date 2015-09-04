@@ -21,12 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.EventStores
 {
     public interface IUncommittedEvent
     {
-        IAggregateEvent AggregateEvent { get; }
+        IEvent Event { get; }
         IMetadata Metadata { get; }
     }
 }

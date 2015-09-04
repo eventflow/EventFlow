@@ -22,15 +22,12 @@
 
 using EventFlow.Core;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventSourcing.Events
 {
-    public interface IAggregateEvent
+    public class EventId : Identity<EventId>, IEventId
     {
-    }
-
-    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
+        public EventId(string value) : base(value)
+        {
+        }
     }
 }

@@ -28,6 +28,8 @@ using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -108,7 +110,7 @@ namespace EventFlow.EventStores
 
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
             IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             return Upgrade(domainEvents.Cast<IDomainEvent>()).Cast<IDomainEvent<TAggregate, TIdentity>>().ToList();
@@ -120,10 +122,10 @@ namespace EventFlow.EventStores
                 aggregateType,
                 t =>
                     {
-                        var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                        var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventSourced<>));
                         if (aggregateRootInterface == null)
                         {
-                            throw new ArgumentException($"Type '{t.Name}' is not a '{typeof (IAggregateRoot<>).Name}'", nameof(aggregateType));
+                            throw new ArgumentException($"Type '{t.Name}' is not a '{typeof (IEventSourced<>).Name}'", nameof(aggregateType));
                         }
 
                         var arguments = aggregateRootInterface.GetGenericArguments();

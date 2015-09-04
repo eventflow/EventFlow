@@ -21,14 +21,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventSourcing.Events
 {
     public class DomainEvent<TAggregate, TIdentity, TAggregateEvent> : IDomainEvent<TAggregate, TIdentity, TAggregateEvent>
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TAggregateEvent : IEvent<TAggregate, TIdentity>
     {
         public Type AggregateType => typeof (TAggregate);
         public Type EventType => typeof (TAggregateEvent);
@@ -64,7 +65,7 @@ namespace EventFlow.Aggregates
             return AggregateIdentity;
         }
 
-        public IAggregateEvent GetAggregateEvent()
+        public IEvent GetAggregateEvent()
         {
             return AggregateEvent;
         }

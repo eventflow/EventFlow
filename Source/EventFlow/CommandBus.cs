@@ -31,6 +31,8 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
@@ -190,7 +192,7 @@ namespace EventFlow
         {
             public Type AggregateType { get; set; }
             public Type CommandHandlerType { get; set; }
-            public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
+            public Func<ICommandHandler, IEventSourced, ICommand, CancellationToken, Task> Invoker { get; set; } 
         }
 
         private static CommandExecutionDetails GetCommandExecutionDetails(Type commandType)

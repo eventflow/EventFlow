@@ -25,20 +25,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
     public abstract class AggregateState<TAggregate, TIdentity, TEventApplier> : IEventApplier<TAggregate, TIdentity>
         where TEventApplier : class, IEventApplier<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
     {
-        private static readonly Dictionary<Type, Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>> ApplyMethods; 
+        private static readonly Dictionary<Type, Action<TEventApplier, IEvent<TAggregate, TIdentity>>> ApplyMethods; 
 
         static AggregateState()
         {
-            var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
+            var aggregateEventType = typeof (IEvent<TAggregate, TIdentity>);
 
             ApplyMethods = typeof (TEventApplier)
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -52,7 +54,7 @@ namespace EventFlow.Aggregates
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,
-                    mi => (Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>) ((ea, e) => mi.Invoke(ea, new []{ e } )));
+                    mi => (Action<TEventApplier, IEvent<TAggregate, TIdentity>>) ((ea, e) => mi.Invoke(ea, new []{ e } )));
         }
 
         protected AggregateState()
@@ -67,17 +69,17 @@ namespace EventFlow.Aggregates
 
         public bool Apply(
             TAggregate aggregate,
-            IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
+            IEvent<TAggregate, TIdentity> @event)
         {
-            var aggregateEventType = aggregateEvent.GetType();
-            Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>> applier;
+            var aggregateEventType = @event.GetType();
+            Action<TEventApplier, IEvent<TAggregate, TIdentity>> applier;
 
             if (!ApplyMethods.TryGetValue(aggregateEventType, out applier))
             {
                 return false;
             }
 
-            applier((TEventApplier) (object) this, aggregateEvent);
+            applier((TEventApplier) (object) this, @event);
             return true;
         }
     }

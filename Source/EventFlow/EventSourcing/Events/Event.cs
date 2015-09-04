@@ -20,21 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventSourcing;
-using EventFlow.EventSourcing.Events;
 
-namespace EventFlow.EventStores
+namespace EventFlow.EventSourcing.Events
 {
-    public interface IEventUpgradeManager
+    public abstract class Event<TAggregate, TIdentity> : IEvent<TAggregate, TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
+        where TIdentity : IIdentity
     {
-        IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents);
-            
-        IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
-            where TAggregate : IEventSourced<TIdentity>
-            where TIdentity : IIdentity;
+        public override string ToString()
+        {
+            return $"{typeof (TAggregate).Name}/{GetType().Name}";
+        }
     }
 }

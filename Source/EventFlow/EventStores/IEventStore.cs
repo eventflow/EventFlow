@@ -25,6 +25,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.EventStores
 {
@@ -35,7 +37,7 @@ namespace EventFlow.EventStores
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             ISourceId sourceId,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         Task<AllEventsPage> LoadAllEventsAsync(
@@ -51,31 +53,31 @@ namespace EventFlow.EventStores
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         TAggregate LoadAggregate<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         Task DeleteAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }
