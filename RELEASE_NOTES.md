@@ -22,6 +22,8 @@
    Alternatively you commands could inherit from the new
    `DistinctCommand`, enabling commands with the same state to have the
    same `SourceId`
+ * New: Duplicate commands can be detected using the new `ISourceId`. Read the
+   EventFlow article regarding commands for more details
  * New: Aggregate names can now be configured using the attribute
    `AggregateName`. The name can be accessed using the new `IAggregateRoot.Name`
    property
