@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.EventStores
 {
@@ -32,7 +33,7 @@ namespace EventFlow.EventStores
             
         IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
             IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }

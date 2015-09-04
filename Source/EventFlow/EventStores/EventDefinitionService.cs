@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -87,7 +88,7 @@ namespace EventFlow.EventStores
             {
                 return _eventDefinitionsByType[eventType];
             }
-            if (!typeof(IAggregateEvent).IsAssignableFrom(eventType))
+            if (!typeof(IEvent).IsAssignableFrom(eventType))
             {
                 throw new ArgumentException($"Event '{eventType.Name}' is not a DomainEvent");
             }

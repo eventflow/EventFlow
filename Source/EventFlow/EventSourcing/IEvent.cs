@@ -22,15 +22,15 @@
 
 using EventFlow.Core;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventSourcing
 {
-    public abstract class AggregateEvent<TAggregate, TIdentity> : IAggregateEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
+    public interface IEvent
+    {
+    }
+
+    public interface IEvent<TAggregate, TIdentity> : IEvent
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
     {
-        public override string ToString()
-        {
-            return $"{typeof (TAggregate).Name}/{GetType().Name}";
-        }
     }
 }

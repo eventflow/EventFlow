@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Commands
 {
@@ -32,7 +33,7 @@ namespace EventFlow.Commands
     }
 
     public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
         where TCommand : ICommand<TAggregate, TIdentity>
     {

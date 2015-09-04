@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow
 {
@@ -33,13 +34,13 @@ namespace EventFlow
         Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         ISourceId Publish<TAggregate, TIdentity>(
 		    ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }

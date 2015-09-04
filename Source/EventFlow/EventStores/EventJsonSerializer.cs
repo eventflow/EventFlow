@@ -25,6 +25,7 @@ using System.Globalization;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.EventStores
 {
@@ -44,9 +45,9 @@ namespace EventFlow.EventStores
             _domainEventFactory = domainEventFactory;
         }
 
-        public SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas)
+        public SerializedEvent Serialize(IEvent @event, IEnumerable<KeyValuePair<string, string>> metadatas)
         {
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(aggregateEvent.GetType());
+            var eventDefinition = _eventDefinitionService.GetEventDefinition(@event.GetType());
 
             var metadata = new Metadata(metadatas
                 .Where(kv => kv.Key != MetadataKeys.EventName && kv.Key != MetadataKeys.EventVersion) // TODO: Fix this
@@ -56,7 +57,7 @@ namespace EventFlow.EventStores
                         new KeyValuePair<string, string>(MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)),
                     }));
 
-            var dataJson = _jsonSerializer.Serialize(aggregateEvent);
+            var dataJson = _jsonSerializer.Serialize(@event);
             var metaJson = _jsonSerializer.Serialize(metadata);
 
             return new SerializedEvent(
@@ -80,7 +81,7 @@ namespace EventFlow.EventStores
         public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
             TIdentity id,
             ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             return (IDomainEvent<TAggregate, TIdentity>)Deserialize(committedDomainEvent);
@@ -92,7 +93,7 @@ namespace EventFlow.EventStores
                 metadata.EventName,
                 metadata.EventVersion);
 
-            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
+            var aggregateEvent = (IEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
 
             var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,

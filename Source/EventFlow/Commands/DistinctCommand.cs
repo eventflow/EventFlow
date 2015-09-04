@@ -26,11 +26,12 @@ using System.Linq;
 using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Commands
 {
     public abstract class DistinctCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
     {
         private readonly Lazy<ISourceId> _lazySourceId;

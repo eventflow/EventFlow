@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.EventSourcing;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
@@ -115,10 +116,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
             }
         }
 
-        public class TestEventV1 : AggregateEvent<TestAggregate, TestId> { }
-        public class TestEventV2 : AggregateEvent<TestAggregate, TestId> { }
-        public class TestEventV3 : AggregateEvent<TestAggregate, TestId> { }
-        public class DamagedEvent : AggregateEvent<TestAggregate, TestId> { }
+        public class TestEventV1 : Event<TestAggregate, TestId> { }
+        public class TestEventV2 : Event<TestAggregate, TestId> { }
+        public class TestEventV3 : Event<TestAggregate, TestId> { }
+        public class DamagedEvent : Event<TestAggregate, TestId> { }
 
         public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<TestAggregate, TestId>
         {

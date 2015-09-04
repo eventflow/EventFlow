@@ -24,13 +24,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Subscribers
 {
     public interface ISubscribeSynchronousTo<TAggregate, in TIdentity, in TEvent>
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
-        where TEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TEvent : IEvent<TAggregate, TIdentity>
     {
         Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
     }

@@ -22,6 +22,7 @@
 
 using System;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Aggregates
 {
@@ -34,20 +35,20 @@ namespace EventFlow.Aggregates
         DateTimeOffset Timestamp { get; }
 
         IIdentity GetIdentity();
-        IAggregateEvent GetAggregateEvent();
+        IEvent GetAggregateEvent();
     }
 
     public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
     {
         TIdentity AggregateIdentity { get; }
     }
 
     public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TAggregateEvent : IEvent<TAggregate, TIdentity>
     {
         TAggregateEvent AggregateEvent { get; }
     }

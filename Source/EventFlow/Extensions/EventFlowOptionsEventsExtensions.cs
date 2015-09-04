@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Extensions
 {
@@ -36,7 +37,7 @@ namespace EventFlow.Extensions
         {
             var aggregateEventTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t));
+                .Where(t => !t.IsAbstract && typeof(IEvent).IsAssignableFrom(t));
             eventFlowOptions.AddEvents(aggregateEventTypes);
             return eventFlowOptions;
         }

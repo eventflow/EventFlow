@@ -33,11 +33,11 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourced<TAggregate, TIdentity>, IAggregateRoot<TIdentity>
+    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourced<TAggregate, TIdentity>, IEventSourced<TIdentity>
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
-        private static readonly Dictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
+        private static readonly Dictionary<Type, Action<TAggregate, IEvent>> ApplyMethods;
         private static readonly IAggregateName AggregateName = new AggregateName(
                 typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                 typeof (TAggregate).Name);
@@ -48,11 +48,11 @@ namespace EventFlow.Aggregates
         public TIdentity Id { get; }
         public int Version { get; private set; }
         public bool IsNew => Version <= 0;
-        public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
+        public IEnumerable<IEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.Event); } }
 
         static AggregateRoot()
         {
-            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
+            var aggregateEventType = typeof(IEvent<TAggregate, TIdentity>);
 
             ApplyMethods = typeof(TAggregate)
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -66,7 +66,7 @@ namespace EventFlow.Aggregates
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,
-                    mi => (Action<TAggregate, IAggregateEvent>)((a, e) => mi.Invoke(a, new object[] { e })));
+                    mi => (Action<TAggregate, IEvent>)((a, e) => mi.Invoke(a, new object[] { e })));
         }
 
         protected AggregateRoot(TIdentity id)
@@ -92,7 +92,7 @@ namespace EventFlow.Aggregates
         }
 
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
-            where TEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TEvent : IEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null)
             {
@@ -154,7 +154,7 @@ namespace EventFlow.Aggregates
             Version = domainEvents.Max(e => e.AggregateSequenceNumber);
         }
 
-        public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
+        public void ApplyEvents(IEnumerable<IEvent> aggregateEvents)
         {
             if (Version > 0)
             {
@@ -163,7 +163,7 @@ namespace EventFlow.Aggregates
 
             foreach (var aggregateEvent in aggregateEvents)
             {
-                var e = aggregateEvent as IAggregateEvent<TAggregate, TIdentity>;
+                var e = aggregateEvent as IEvent<TAggregate, TIdentity>;
                 if (e == null)
                 {
                     throw new ArgumentException($"Aggregate event of type '{aggregateEvent.GetType()}' does not belong with aggregate '{this}',");
@@ -173,24 +173,24 @@ namespace EventFlow.Aggregates
             }
         }
 
-        protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
+        protected virtual void ApplyEvent(IEvent<TAggregate, TIdentity> @event)
         {
-            var eventType = aggregateEvent.GetType();
+            var eventType = @event.GetType();
             if (_eventHandlers.ContainsKey(eventType))
             {
-                _eventHandlers[eventType](aggregateEvent);
+                _eventHandlers[eventType](@event);
             }
-            else if (_eventAppliers.Any(ea => ea.Apply((TAggregate)this, aggregateEvent))) { }
+            else if (_eventAppliers.Any(ea => ea.Apply((TAggregate)this, @event))) { }
             else
             {
-                Action<TAggregate, IAggregateEvent> applyMethod;
+                Action<TAggregate, IEvent> applyMethod;
                 if (!ApplyMethods.TryGetValue(eventType, out applyMethod))
                 {
                     throw new NotImplementedException(
                         $"Aggregate '{Name}' does have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
                 }
 
-                applyMethod(this as TAggregate, aggregateEvent);
+                applyMethod(this as TAggregate, @event);
             }
 
             Version++;
@@ -198,7 +198,7 @@ namespace EventFlow.Aggregates
 
         private readonly Dictionary<Type, Action<object>> _eventHandlers = new Dictionary<Type, Action<object>>();
         protected void Register<TAggregateEvent>(Action<TAggregateEvent> handler)
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TAggregateEvent : IEvent<TAggregate, TIdentity>
         {
             var eventType = typeof (TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))

@@ -31,6 +31,7 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EventSourcing;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
@@ -66,7 +67,7 @@ namespace EventFlow
         public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
@@ -126,7 +127,7 @@ namespace EventFlow
         public ISourceId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             ISourceId sourceId = null;
@@ -142,7 +143,7 @@ namespace EventFlow
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             var commandType = command.GetType();
@@ -190,7 +191,7 @@ namespace EventFlow
         {
             public Type AggregateType { get; set; }
             public Type CommandHandlerType { get; set; }
-            public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
+            public Func<ICommandHandler, IEventSourced, ICommand, CancellationToken, Task> Invoker { get; set; } 
         }
 
         private static CommandExecutionDetails GetCommandExecutionDetails(Type commandType)

@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -73,7 +74,7 @@ namespace EventFlow.EventStores
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
             ISourceId sourceId,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
@@ -102,10 +103,10 @@ namespace EventFlow.EventStores
                 .Select(e =>
                     {
                         var md = MetadataProviders
-                            .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.AggregateEvent, e.Metadata))
+                            .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.Event, e.Metadata))
                             .Concat(e.Metadata)
                             .Concat(storeMetadata);
-                        return EventJsonSerializer.Serialize(e.AggregateEvent, md);
+                        return EventJsonSerializer.Serialize(e.Event, md);
                     })
                 .ToList();
 
@@ -160,19 +161,19 @@ namespace EventFlow.EventStores
             TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         protected abstract Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             var committedDomainEvents = await LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
@@ -193,7 +194,7 @@ namespace EventFlow.EventStores
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity
+            where TAggregate : IEventSourced<TIdentity> where TIdentity : IIdentity
         {
             IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents = null;
             using (var a = AsyncHelper.Wait)
@@ -206,7 +207,7 @@ namespace EventFlow.EventStores
         public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             var aggregateType = typeof(TAggregate);
@@ -232,7 +233,7 @@ namespace EventFlow.EventStores
         public virtual TAggregate LoadAggregate<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             var aggregate = default(TAggregate);
@@ -246,7 +247,7 @@ namespace EventFlow.EventStores
         public abstract Task DeleteAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }

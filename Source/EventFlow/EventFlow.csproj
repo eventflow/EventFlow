@@ -56,7 +56,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="Aggregates\AggregateEvent.cs" />
+    <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
@@ -111,6 +111,7 @@
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
+    <Compile Include="Aggregates\IAggregateRoot.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
@@ -188,8 +189,8 @@
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />
     <Compile Include="EventStores\EventJsonSerializer.cs" />
-    <Compile Include="Aggregates\IAggregateEvent.cs" />
-    <Compile Include="Aggregates\IAggregateRoot.cs" />
+    <Compile Include="EventSourcing\IEvent.cs" />
+    <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="ReadStores\IAmReadModelFor.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="ICommandBus.cs" />

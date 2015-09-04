@@ -22,29 +22,30 @@
 
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.EventStores
 {
     public interface IDomainEventFactory
     {
         IDomainEvent Create(
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata,
             string aggregateIdentity,
             int aggregateSequenceNumber);
 
         IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata,
             TIdentity id,
             int aggregateSequenceNumber)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
 
         IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
             IDomainEvent domainEvent,
-            IAggregateEvent aggregateEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
+            IEvent @event)
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }

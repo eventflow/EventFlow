@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.TestHelpers;
@@ -51,8 +52,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 .Setup(m => m.Upgrade(It.IsAny<IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>>>()))
                 .Returns<IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>>>(c => c);
             _eventJsonSerializerMock
-                .Setup(m => m.Serialize(It.IsAny<IAggregateEvent>(), It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
-                .Returns<IAggregateEvent, IEnumerable<KeyValuePair<string, string>>>(
+                .Setup(m => m.Serialize(It.IsAny<IEvent>(), It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
+                .Returns<IEvent, IEnumerable<KeyValuePair<string, string>>>(
                     (a, m) => new SerializedEvent(
                         string.Empty,
                         string.Empty,

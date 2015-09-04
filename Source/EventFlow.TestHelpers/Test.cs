@@ -26,6 +26,7 @@ using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 using EventFlow.EventStores;
 using Moq;
 using NUnit.Framework;
@@ -70,7 +71,7 @@ namespace EventFlow.TestHelpers
         protected IDomainEvent<TestAggregate, TestId> ToDomainEvent<TAggregateEvent>(
             TAggregateEvent aggregateEvent,
             int aggregateSequenceNumber = 0)
-            where TAggregateEvent : IAggregateEvent
+            where TAggregateEvent : IEvent
         {
             var metadata = new Metadata
                 {

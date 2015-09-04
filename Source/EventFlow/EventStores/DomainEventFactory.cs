@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.EventStores
 {
@@ -34,18 +35,18 @@ namespace EventFlow.EventStores
         private static readonly ConcurrentDictionary<Type, Type> DomainEventToIdentityTypeMap = new ConcurrentDictionary<Type, Type>();
 
         public IDomainEvent Create(
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata,
             string aggregateIdentity,
             int aggregateSequenceNumber)
         {
-            var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(aggregateEvent.GetType(), GetDomainEventType);
+            var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(@event.GetType(), GetDomainEventType);
             var identityType = DomainEventToIdentityTypeMap.GetOrAdd(domainEventType, GetIdentityType);
             var identity = Activator.CreateInstance(identityType, aggregateIdentity);
 
             var domainEvent = (IDomainEvent)Activator.CreateInstance(
                 domainEventType,
-                aggregateEvent,
+                @event,
                 metadata,
                 metadata.Timestamp,
                 identity,
@@ -55,15 +56,15 @@ namespace EventFlow.EventStores
         }
 
         public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata,
             TIdentity id,
             int aggregateSequenceNumber)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             return (IDomainEvent<TAggregate, TIdentity>)Create(
-                aggregateEvent,
+                @event,
                 metadata,
                 id.Value,
                 aggregateSequenceNumber);
@@ -71,12 +72,12 @@ namespace EventFlow.EventStores
 
         public IDomainEvent<TAggregate, TIdentity> Upgrade<TAggregate, TIdentity>(
             IDomainEvent domainEvent,
-            IAggregateEvent aggregateEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
+            IEvent @event)
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             return Create<TAggregate, TIdentity>(
-                aggregateEvent,
+                @event,
                 domainEvent.Metadata,
                 (TIdentity) domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber);
@@ -101,11 +102,11 @@ namespace EventFlow.EventStores
         {
             var aggregateEventInterfaceType = aggregateEventType
                 .GetInterfaces()
-                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>));
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEvent<,>));
 
             if (aggregateEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{aggregateEventType.Name}' is not a '{typeof (IAggregateEvent<,>).Name}'");
+                throw new ArgumentException($"Type '{aggregateEventType.Name}' is not a '{typeof (IEvent<,>).Name}'");
             }
 
             var genericArguments = aggregateEventInterfaceType.GetGenericArguments();

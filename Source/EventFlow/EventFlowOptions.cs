@@ -28,6 +28,7 @@ using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EventSourcing;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
@@ -64,9 +65,9 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof(IEvent).IsAssignableFrom(aggregateEventType))
                 {
-                    throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
+                    throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IEvent).Name}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
             }

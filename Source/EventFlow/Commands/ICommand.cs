@@ -22,6 +22,7 @@
 
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Commands
 {
@@ -30,7 +31,7 @@ namespace EventFlow.Commands
     }
 
     public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
     {
         ISourceId SourceId { get; }

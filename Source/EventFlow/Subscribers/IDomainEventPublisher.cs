@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Subscribers
 {
@@ -34,7 +35,7 @@ namespace EventFlow.Subscribers
             TIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }

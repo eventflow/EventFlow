@@ -21,11 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {
-    public class PingEvent : AggregateEvent<TestAggregate, TestId>
+    public class PingEvent : Event<TestAggregate, TestId>
     {
         public PingId PingId { get; private set; }
 

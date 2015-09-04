@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -20,36 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateRoot
+    public interface IAggregateRoot : IEventSourced
     {
         IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
-
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
-
-        bool HasSourceId(ISourceId sourceId);
-
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
     }
 }
