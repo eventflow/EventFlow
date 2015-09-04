@@ -33,7 +33,7 @@ namespace EventFlow.Tests.UnitTests.Core
         [TestCase(1, 2)] // At capasity
         [TestCase(1, 2, 3)] // Once above capasity
         [TestCase(1, 2, 3, 4)] // Loop twice over capasity
-        [TestCase(1, 2, 3, 4, 5)] // One more than of capasity½
+        [TestCase(1, 2, 3, 4, 5)] // One more than of capasity
         public void Put(params int[] numbers)
         {
             // Arrange
