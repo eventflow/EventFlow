@@ -41,6 +41,7 @@ namespace EventFlow.Aggregates
                 typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                 typeof (TAggregate).Name);
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
+        private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
 
         public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
@@ -77,6 +78,16 @@ namespace EventFlow.Aggregates
             }
 
             Id = id;
+        }
+
+        protected void SetSourceIdHistory(int count)
+        {
+            _previousSourceIds = new CircularBuffer<ISourceId>(count);
+        }
+
+        public bool HasSourceId(ISourceId sourceId)
+        {
+            return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
 
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
@@ -135,6 +146,10 @@ namespace EventFlow.Aggregates
             }
 
             ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
+            {
+                _previousSourceIds.Put(domainEvent.Metadata.SourceId);
+            }
             Version = domainEvents.Max(e => e.AggregateSequenceNumber);
         }
 

@@ -67,6 +67,7 @@
     <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Commands\CommandId.cs" />
     <Compile Include="Commands\DistinctCommand.cs" />
+    <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
     <Compile Include="Aggregates\IAggregateFactory.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
+    <Compile Include="Exceptions\DuplicateOperationException.cs" />
     <Compile Include="Exceptions\MetadataKeyNotFoundException.cs" />
     <Compile Include="Exceptions\MetadataParseException.cs" />
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />

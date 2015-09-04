@@ -74,7 +74,8 @@ namespace EventFlow.TestHelpers
         {
             var metadata = new Metadata
                 {
-                    Timestamp = A<DateTimeOffset>()
+                    Timestamp = A<DateTimeOffset>(),
+                    SourceId = A<SourceId>(),
                 };
 
             if (aggregateSequenceNumber == 0)
