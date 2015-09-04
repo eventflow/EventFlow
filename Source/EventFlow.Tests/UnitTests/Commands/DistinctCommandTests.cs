@@ -31,13 +31,13 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [Timeout(10000)]
-    public class DeterministicIdCommandTests
+    public class DistinctCommandTests
     {
-        public class MyDeterministicIdCommand : DeterministicIdCommand<TestAggregate, TestId>
+        public class MyDistinctCommand : DistinctCommand<TestAggregate, TestId>
         {
             public int MagicNumber { get; }
 
-            public MyDeterministicIdCommand(
+            public MyDistinctCommand(
                 TestId aggregateId,
                 int magicNumber) : base(aggregateId)
             {
@@ -58,7 +58,7 @@ namespace EventFlow.Tests.UnitTests.Commands
         {
             // Arrange
             var testId = TestId.With(aggregateId);
-            var command = new MyDeterministicIdCommand(testId, magicNumber);
+            var command = new MyDistinctCommand(testId, magicNumber);
 
             // Act
             var sourceId = command.SourceId;

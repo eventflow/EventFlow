@@ -171,6 +171,14 @@ namespace EventFlow
                 async c =>
                     {
                         var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
+                        if (aggregate.HasSourceId(command.SourceId))
+                        {
+                            throw new DuplicateOperationException(
+                                command.SourceId,
+                                aggregate.Id,
+                                $"Aggregate '{aggregate.GetType().PrettyPrint()}' has already had operation '{command.SourceId}' performed. New source is '{command.GetType().PrettyPrint()}'");
+                        }
+
                         await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
                         return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
                     },

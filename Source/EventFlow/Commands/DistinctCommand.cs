@@ -29,7 +29,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class DeterministicIdCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+    public abstract class DistinctCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
@@ -38,7 +38,7 @@ namespace EventFlow.Commands
         public ISourceId SourceId => _lazySourceId.Value;
         public TIdentity AggregateId { get; }
 
-        protected DeterministicIdCommand(
+        protected DistinctCommand(
             TIdentity aggregateId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
