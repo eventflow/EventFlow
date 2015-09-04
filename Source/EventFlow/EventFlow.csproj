@@ -110,6 +110,7 @@
     <Compile Include="Core\IJsonSerializer.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
+    <Compile Include="EventSourcing\EventSourced.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
