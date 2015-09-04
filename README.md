@@ -105,9 +105,29 @@ EventFlow is greatly opinionated, but its possible to create new implementations
 for almost every part of EventFlow by registering a different implementation of a
 a interface.
 
-## Useful links
+## Useful articles related to EventFlow and DDD
 
-* [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
+Many of the technical design decisions in EventFlow is based on articles. This
+section lists some of them. If you have a link with a relevant article, please
+share it by creating an issue with the link.
+
+* **General CQRS+ES**
+ - [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
+   published by Microsoft
+ - [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
+   by Greg Young
+ - [Busting some CQRS myths](https://lostechies.com/jimmybogard/2012/08/22/busting-some-cqrs-myths/)
+   by Jimmy Bogard
+ - [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
+   by Gabriel Schenker
+* **Eventual consistency**
+ - [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency/)
+   by Mike Mogosanu
+* **Why _not_ to implement "unit of work" in DDD**
+ - [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx/)
+   by Mike Mogosanu
+ - [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+   by Mike Mogosanu
 
 ## License
 
@@ -135,4 +155,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
