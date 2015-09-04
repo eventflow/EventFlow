@@ -1,4 +1,8 @@
-### New in 0.12 (not released yet)
+### New in 0.13 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.12.891 (released 2015-09-04)
 
  * Breaking: Aggregate root no longer have `Aggregate` removed from their
    when name, i.e., the metadata property with key `aggregate_name` (or
