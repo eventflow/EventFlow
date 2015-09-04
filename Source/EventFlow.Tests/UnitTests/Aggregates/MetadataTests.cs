@@ -25,11 +25,12 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
-    public class MetadataTests : TestsFor<Metadata>
+    public class MetadataTests : Test
     {
         [Test]
         public void TimestampIsSerializedCorrectly()
@@ -38,10 +39,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var timestamp = A<DateTimeOffset>();
 
             // Act
-            Sut.Timestamp = timestamp;
+            var sut = new Metadata
+                {
+                    Timestamp = timestamp
+                };
 
             // Assert
-            Sut.Timestamp.Should().Be(timestamp);
+            sut.Timestamp.Should().Be(timestamp);
         }
 
         [Test]
@@ -51,10 +55,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var eventName = A<string>();
 
             // Act
-            Sut.EventName = eventName;
+            var sut = new Metadata
+                {
+                    EventName = eventName
+                };
 
             // Assert
-            Sut.EventName.Should().Be(eventName);
+            sut.EventName.Should().Be(eventName);
         }
 
         [Test]
@@ -64,10 +71,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var eventVersion = A<int>();
 
             // Act
-            Sut.EventVersion = eventVersion;
+            var sut = new Metadata
+                {
+                    EventVersion = eventVersion
+                };
 
             // Assert
-            Sut.EventVersion.Should().Be(eventVersion);
+            sut.EventVersion.Should().Be(eventVersion);
         }
 
         [Test]
@@ -77,10 +87,13 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var aggregateSequenceNumber = A<int>();
 
             // Act
-            Sut.AggregateSequenceNumber = aggregateSequenceNumber;
+            var sut = new Metadata
+                {
+                    AggregateSequenceNumber = aggregateSequenceNumber
+                };
 
             // Assert
-            Sut.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);
+            sut.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);
         }
 
         [Test]
@@ -93,17 +106,56 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var value2 = A<string>();
 
             // Act
-            Sut[key1] = value1;
-            var metadata = Sut.CloneWith(new[]
-                {
-                    new KeyValuePair<string, string>(key2, value2), 
-                });
+            var metadata1 = new Metadata { [key1] = value1 };
+            var metadata2 = metadata1.CloneWith(new KeyValuePair<string, string>(key2, value2));
 
             // Assert
-            metadata.ContainsKey(key1).Should().BeTrue();
-            metadata.ContainsKey(key2).Should().BeTrue();
-            metadata[key1].Should().Be(value1);
-            metadata[key2].Should().Be(value2);
+            metadata1.ContainsKey(key2).Should().BeFalse();
+
+            metadata2.ContainsKey(key1).Should().BeTrue();
+            metadata2.ContainsKey(key2).Should().BeTrue();
+            metadata2[key1].Should().Be(value1);
+            metadata2[key2].Should().Be(value2);
+        }
+
+        [Test]
+        public void SerializeDeserializeWithValues()
+        {
+            // Arrange
+            var aggregateName = A<string>();
+            var aggregateSequenceNumber = A<int>();
+            var timestamp = A<DateTimeOffset>();
+            var sut = new Metadata
+                {
+                    { MetadataKeys.AggregateName, aggregateName },
+                    { MetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString() },
+                    { MetadataKeys.Timestamp, timestamp.ToString("O") }
+                };
+
+            // Act
+            var json = JsonConvert.SerializeObject(sut);
+            var metadata = JsonConvert.DeserializeObject<Metadata>(json);
+
+            // Assert
+            metadata.Count.Should().Be(3);
+            metadata.AggregateName.Should().Be(aggregateName);
+            metadata.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);
+            metadata.Timestamp.Should().Be(timestamp);
+        }
+
+        [Test]
+        public void SerializeDeserializeEmpty()
+        {
+            // Arrange
+            var sut = new Metadata();
+
+            // Act
+            var json = JsonConvert.SerializeObject(sut);
+            var metadata = JsonConvert.DeserializeObject<Metadata>(json);
+
+            // Assert
+            json.Should().Be("{}");
+            metadata.Count.Should().Be(0);
         }
     }
 }

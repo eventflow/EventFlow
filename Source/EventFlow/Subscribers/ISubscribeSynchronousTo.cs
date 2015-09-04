@@ -23,6 +23,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Subscribers
 {
@@ -31,6 +32,6 @@ namespace EventFlow.Subscribers
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> e, CancellationToken cancellationToken);
+        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
     }
 }

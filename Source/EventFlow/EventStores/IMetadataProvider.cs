@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {

@@ -20,7 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration.Registrations;
+using EventFlow.Configuration;
 using EventFlow.MsSql.RetryStrategies;
 
 namespace EventFlow.MsSql.Extensions
@@ -29,15 +29,13 @@ namespace EventFlow.MsSql.Extensions
     {
         public static EventFlowOptions ConfigureMsSql(this EventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
         {
-            eventFlowOptions.RegisterServices(f =>
+            return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IMsSqlConnection, MsSqlConnection>();
                     f.Register<ISqlErrorRetryStrategy, SqlErrorRetryStrategy>();
                     f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
                     f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
                 });
-
-            return eventFlowOptions;
         }
     }
 }

@@ -20,10 +20,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Aggregates
+using System.Linq;
+using EventFlow.Core;
+using FluentAssertions;
+using NUnit.Framework;
+
+namespace EventFlow.Tests.UnitTests.Core
 {
-    public interface IIdentity
+    public class CircularBufferTests
     {
-        string Value { get; }
+        [TestCase(1)] // Below capasity
+        [TestCase(1, 2)] // At capasity
+        [TestCase(1, 2, 3)] // Once above capasity
+        [TestCase(1, 2, 3, 4)] // Loop twice over capasity
+        [TestCase(1, 2, 3, 4, 5)] // One more than of capasity
+        public void Put(params int[] numbers)
+        {
+            // Arrange
+            const int capasity = 2;
+            var sut = new CircularBuffer<int>(capasity);
+
+            // Act
+            foreach (var number in numbers)
+            {
+                sut.Put(number);
+            }
+
+            // Assert
+            var shouldContain = numbers.Reverse().Take(capasity).ToList();
+            sut.Should().Contain(shouldContain);
+        }
     }
 }

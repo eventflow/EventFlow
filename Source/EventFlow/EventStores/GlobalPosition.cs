@@ -26,9 +26,9 @@ namespace EventFlow.EventStores
 {
     public class GlobalPosition : SingleValueObject<string>
     {
-        public static GlobalPosition Start { get { return new GlobalPosition(string.Empty); } }
+        public static GlobalPosition Start => new GlobalPosition(string.Empty);
 
-        public bool IsStart { get { return string.IsNullOrEmpty(Value); } }
+        public bool IsStart => string.IsNullOrEmpty(Value);
 
         public GlobalPosition(string value)
             : base(value ?? string.Empty)

@@ -24,18 +24,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Core;
 
 namespace EventFlow
 {
     public interface ICommandBus
     {
-        Task PublishAsync<TAggregate, TIdentity>(
+        Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        void Publish<TAggregate, TIdentity>(
+        ISourceId Publish<TAggregate, TIdentity>(
 		    ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores;
 
 namespace EventFlow.Extensions

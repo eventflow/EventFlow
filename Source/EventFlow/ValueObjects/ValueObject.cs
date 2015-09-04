@@ -45,7 +45,7 @@ namespace EventFlow.ValueObjects
         {
             unchecked
             {
-                return GetEqualityComponents().Aggregate(17, (current, obj) => current * 23 + (obj != null ? obj.GetHashCode() : 0));
+                return GetEqualityComponents().Aggregate(17, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
             }
         }
 
@@ -72,11 +72,14 @@ namespace EventFlow.ValueObjects
             return GetProperties().Select(x => x.GetValue(this));
         }
 
-        private IEnumerable<PropertyInfo> GetProperties()
+        protected virtual IEnumerable<PropertyInfo> GetProperties()
         {
             return TypeProperties.GetOrAdd(
                 GetType(),
-                t => t.GetProperties(BindingFlags.Instance | BindingFlags.Public).OrderBy(p => p.Name).ToList());
+                t => t
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .OrderBy(p => p.Name)
+                    .ToList());
         }
     }
 }

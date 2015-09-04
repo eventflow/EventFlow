@@ -21,13 +21,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public interface ICommand<in TAggregate, out TIdentity>
+    public interface ICommand
+    {
+    }
+
+    public interface ICommand<in TAggregate, out TIdentity> : ICommand
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        TIdentity Id { get; }
+        ISourceId SourceId { get; }
+        TIdentity AggregateId { get; }
     }
 }

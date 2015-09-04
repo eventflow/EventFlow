@@ -27,8 +27,8 @@ namespace EventFlow.EventStores
 {
     public class AllEventsPage
     {
-        public GlobalPosition NextGlobalPosition { get; private set; }
-        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; private set; }
+        public GlobalPosition NextGlobalPosition { get; }
+        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
 
         public AllEventsPage(
             GlobalPosition nextGlobalPosition,
