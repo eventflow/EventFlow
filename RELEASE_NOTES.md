@@ -1,6 +1,7 @@
 ### New in 0.13 (not released yet)
 
- * _Nothing yet_
+ * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract classes 
+   from being registered when passing `IEnumerable<Type>`.   
 
 ### New in 0.12.891 (released 2015-09-04)
 
