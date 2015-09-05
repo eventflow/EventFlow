@@ -131,7 +131,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                         $"{guid}-{i}",
                         new Metadata(),
                         exchange,
-                        routingKey);
+                        routingKey,
+                        new MessageId(Guid.NewGuid().ToString("D")));
                     rabbitMqPublisher.PublishAsync(CancellationToken.None, rabbitMqMessage).Wait();
                 }
             }

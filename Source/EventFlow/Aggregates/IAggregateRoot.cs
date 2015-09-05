@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.EventStores;
 
 namespace EventFlow.Aggregates
@@ -34,8 +35,15 @@ namespace EventFlow.Aggregates
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
         bool IsNew { get; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+            IEventStore eventStore,
+            ISourceId sourceId,
+            CancellationToken cancellationToken);
+
+        bool HasSourceId(ISourceId sourceId);
+
         void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
+
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
     }
 

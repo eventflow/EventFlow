@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,6 +33,7 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Subscribers;
 
@@ -39,6 +41,8 @@ namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
+        private static readonly ConcurrentDictionary<Type, CommandExecutionDetails> CommandExecutionDetailsMap = new ConcurrentDictionary<Type, CommandExecutionDetails>();
+
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
@@ -59,7 +63,7 @@ namespace EventFlow
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task PublishAsync<TAggregate, TIdentity>(
+        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -67,11 +71,12 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            var commandTypeName = command.GetType().Name;
+            var commandTypeName = command.GetType().PrettyPrint();
             var aggregateType = typeof (TAggregate);
             _log.Verbose(
-                "Executing command '{0}' on aggregate '{1}'",
+                "Executing command '{0}' with ID '{1}' on aggregate '{2}'",
                 commandTypeName,
+                command.SourceId,
                 aggregateType);
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
@@ -83,10 +88,11 @@ namespace EventFlow
             {
                 _log.Debug(
                     exception,
-                    "Excution of command '{0}' on aggregate '{1}' failed due to exception '{2}' with message: {3}",
+                    "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
                     commandTypeName,
+                    command.SourceId,
                     aggregateType,
-                    exception.GetType().Name,
+                    exception.GetType().PrettyPrint(),
                     exception.Message);
                 throw;
             }
@@ -94,35 +100,43 @@ namespace EventFlow
             if (!domainEvents.Any())
             {
                 _log.Verbose(
-                    "Execution command '{0}' on aggregate '{1}' did NOT result in any domain events",
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     commandTypeName,
+                    command.SourceId,
                     aggregateType);
-                return;
+                return command.SourceId;
             }
 
             _log.Verbose(() => string.Format(
-                "Execution command '{0}' on aggregate '{1}' resulted in these events: {2}",
+                "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
                 commandTypeName,
+                command.SourceId,
                 aggregateType,
-                string.Join(", ", domainEvents.Select(d => d.EventType.Name))));
+                string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
             await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                command.Id,
+                command.AggregateId,
                 domainEvents,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            return command.SourceId;
         }
 
-        public void Publish<TAggregate, TIdentity>(
+        public ISourceId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            ISourceId sourceId = null;
+
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(PublishAsync(command, cancellationToken));
+                a.Run(PublishAsync(command, cancellationToken), id => sourceId = id);
             }
+
+            return sourceId;
         }
 
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
@@ -131,43 +145,77 @@ namespace EventFlow
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
-            var identityType = typeof (TIdentity);
             var commandType = command.GetType();
-            var commandHandlerType = typeof (ICommandHandler<,,>).MakeGenericType(aggregateType, identityType, commandType);
+            var commandExecutionDetails = GetCommandExecutionDetails(commandType);
 
-            var commandHandlers = _resolver.ResolveAll(commandHandlerType).ToList();
+            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType).ToList();
             if (!commandHandlers.Any())
             {
                 throw new NoCommandHandlersException(string.Format(
                     "No command handlers registered for the command '{0}' on aggregate '{1}'",
-                    commandType.Name,
-                    aggregateType.Name));
+                    commandType.PrettyPrint(),
+                    commandExecutionDetails.AggregateType.PrettyPrint()));
             }
             if (commandHandlers.Count > 1)
             {
                 throw new InvalidOperationException(string.Format(
                     "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
-                    commandType.Name,
-                    aggregateType.Name,
-                    string.Join(", ", commandHandlers.Select(h => h.GetType().Name))));
+                    commandType.PrettyPrint(),
+                    commandExecutionDetails.AggregateType.PrettyPrint(),
+                    string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
             }
-            var commandHandler = commandHandlers.Single();
 
-            var commandInvoker = commandHandlerType.GetMethod("ExecuteAsync");
+            var commandHandler = (ICommandHandler) commandHandlers.Single();
 
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.Id, c).ConfigureAwait(false);
+                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
+                        if (aggregate.HasSourceId(command.SourceId))
+                        {
+                            throw new DuplicateOperationException(
+                                command.SourceId,
+                                aggregate.Id,
+                                $"Aggregate '{aggregate.GetType().PrettyPrint()}' has already had operation '{command.SourceId}' performed. New source is '{command.GetType().PrettyPrint()}'");
+                        }
 
-                        var invokeTask = (Task) commandInvoker.Invoke(commandHandler, new object[] {aggregate, command, c});
-                        await invokeTask.ConfigureAwait(false);
-
-                        return await aggregate.CommitAsync(_eventStore, c).ConfigureAwait(false);
+                        await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
+                        return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);
+        }
+
+        private class CommandExecutionDetails
+        {
+            public Type AggregateType { get; set; }
+            public Type CommandHandlerType { get; set; }
+            public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
+        }
+
+        private static CommandExecutionDetails GetCommandExecutionDetails(Type commandType)
+        {
+            return CommandExecutionDetailsMap.GetOrAdd(
+                commandType,
+                t =>
+                    {
+                        var commandInterfaceType = t
+                            .GetInterfaces()
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,>));
+                        var commandTypes = commandInterfaceType.GetGenericArguments();
+
+                        var commandHandlerType = typeof(ICommandHandler<,,>)
+                            .MakeGenericType(commandTypes[0], commandTypes[1], commandType);
+
+                        var invoker = commandHandlerType.GetMethod("ExecuteAsync");
+
+                        return new CommandExecutionDetails
+                            {
+                                AggregateType = commandTypes[0],
+                                CommandHandlerType = commandHandlerType,
+                                Invoker = ((h, a, command, c) => (Task)invoker.Invoke(h, new object[] { a, command, c }))
+                            };
+                    });
         }
     }
 }
