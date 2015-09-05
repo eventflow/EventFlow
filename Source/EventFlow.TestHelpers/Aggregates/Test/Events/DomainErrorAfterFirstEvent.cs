@@ -21,12 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.EventSourcing;
-using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Events
 {
-    public class DomainErrorAfterFirstEvent : Event<TestAggregate, TestId>
+    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate, TestId>
     {
     }
 }

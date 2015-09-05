@@ -20,18 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.Core;
+using EventFlow.EventSourcing.Events;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Events
+namespace EventFlow.Aggregates
 {
-    public class PingEvent : AggregateEvent<TestAggregate, TestId>
+    public interface IAggregateEvent : IEvent
     {
-        public PingId PingId { get; private set; }
+    }
 
-        public PingEvent(PingId pingId)
-        {
-            PingId = pingId;
-        }
+    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent, IEvent<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+    {
     }
 }

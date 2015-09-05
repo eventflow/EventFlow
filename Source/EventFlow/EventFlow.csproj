@@ -56,6 +56,8 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Aggregates\AggregateEvent.cs" />
+    <Compile Include="Aggregates\IAggregateEvent.cs" />
     <Compile Include="EventSourcing\Events\Event.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateName.cs" />
