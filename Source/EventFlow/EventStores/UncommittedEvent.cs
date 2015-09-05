@@ -21,17 +21,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.EventStores
 {
     public class UncommittedEvent : IUncommittedEvent
     {
-        public IAggregateEvent AggregateEvent { get; }
+        public IEvent Event { get; }
         public IMetadata Metadata { get; }
 
-        public UncommittedEvent(IAggregateEvent aggregateEvent, IMetadata metadata)
+        public UncommittedEvent(IEvent @event, IMetadata metadata)
         {
-            AggregateEvent = aggregateEvent;
+            Event = @event;
             Metadata = metadata;
         }
     }

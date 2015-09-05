@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Core;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.Aggregates
 {

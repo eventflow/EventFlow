@@ -27,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
@@ -112,7 +114,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         public async Task UnwantedEventsAreFiltered()
         {
             // Arrange
-            var events = new IAggregateEvent[]
+            var events = new IEvent[]
                 {
                     A<PingEvent>(),
                     A<DomainErrorAfterFirstEvent>(),
@@ -148,7 +150,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             return new AllEventsPage(new GlobalPosition(nextPosition.ToString()), events);
         }
 
-        private void ArrangeEventStore(IEnumerable<IAggregateEvent> aggregateEvents)
+        private void ArrangeEventStore(IEnumerable<IEvent> aggregateEvents)
         {
             ArrangeEventStore(aggregateEvents.Select(e => ToDomainEvent(e)));
         }

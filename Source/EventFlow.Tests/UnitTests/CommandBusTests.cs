@@ -28,6 +28,7 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;

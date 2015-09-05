@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Core;
+using EventFlow.EventSourcing.Events;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using Newtonsoft.Json;
@@ -105,7 +106,7 @@ namespace EventFlow.Aggregates
         [JsonIgnore]
         public IEventId EventId
         {
-            get { return GetMetadataValue(MetadataKeys.EventId, Aggregates.EventId.With); }
+            get { return GetMetadataValue(MetadataKeys.EventId, EventSourcing.Events.EventId.With); }
             set { Add(MetadataKeys.EventId, value.Value); }
         }
 

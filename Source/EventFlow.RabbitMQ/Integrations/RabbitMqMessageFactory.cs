@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;

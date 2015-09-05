@@ -21,14 +21,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateEvent
+    public interface IAggregateEvent : IEvent
     {
     }
 
-    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent
+    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent, IEvent<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {

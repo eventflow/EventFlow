@@ -22,13 +22,14 @@
 
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Aggregates
 {
     public interface IAggregateFactory
     {
         Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity;
     }
 }

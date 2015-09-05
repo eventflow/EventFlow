@@ -27,6 +27,7 @@ using System.Reflection;
 using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations.Services;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Extensions
 {
@@ -44,8 +45,7 @@ namespace EventFlow.Extensions
         {
             var aggregateRootTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract)
-                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)));
+                .Where(t => !t.IsAbstract && t.IsClosedTypeOf(typeof(IEventSourced<>)));
             eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
             return eventFlowOptions;
         }
@@ -63,13 +63,14 @@ namespace EventFlow.Extensions
             IEnumerable<Type> aggregateRootTypes)
         {
             var invalidTypes = aggregateRootTypes
-                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IEventSourced<>)))
                 .ToList();
             if (invalidTypes.Any())
             {
                 var names = string.Join(", ", invalidTypes.Select(t => t.Name));
-                throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
+                throw new ArgumentException($"Type(s) '{names}' do not implement IEventSourced<TIdentity>");
             }
+
 
             foreach (var t in aggregateRootTypes)
             {

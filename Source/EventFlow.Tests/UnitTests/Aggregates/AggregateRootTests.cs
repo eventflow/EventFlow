@@ -22,6 +22,7 @@
 
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing.Events;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Events;

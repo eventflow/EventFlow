@@ -24,13 +24,9 @@ using EventFlow.Core;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateEvent<TAggregate, TIdentity> : IAggregateEvent<TAggregate, TIdentity>
+    public class AggregateEvent<TAggregate, TIdentity> : IAggregateEvent<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        public override string ToString()
-        {
-            return $"{typeof (TAggregate).Name}/{GetType().Name}";
-        }
     }
 }

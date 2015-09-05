@@ -26,6 +26,7 @@ using System.Linq;
 using Autofac;
 using Autofac.Core;
 using EventFlow.Aggregates;
+using EventFlow.EventSourcing;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -130,7 +131,7 @@ namespace EventFlow.Configuration.Registrations
                 .SelectMany(x => x.Services)
                 .OfType<TypedService>()
                 .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                .Where(x => !x.ServiceType.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(x => !x.ServiceType.IsClosedTypeOf(typeof(IEventSourced<>)))
                 .ToList();
             var exceptions = new List<Exception>();
             foreach (var typedService in services)

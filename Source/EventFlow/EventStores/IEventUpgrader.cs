@@ -23,11 +23,13 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 
 namespace EventFlow.EventStores
 {
     public interface IEventUpgrader<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourced<TIdentity>
         where TIdentity : IIdentity
     {
         IEnumerable<IDomainEvent<TAggregate, TIdentity>> Upgrade(IDomainEvent<TAggregate, TIdentity> domainEvent);

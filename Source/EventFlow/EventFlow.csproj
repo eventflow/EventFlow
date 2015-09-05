@@ -57,14 +57,16 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
+    <Compile Include="Aggregates\IAggregateEvent.cs" />
+    <Compile Include="EventSourcing\Events\Event.cs" />
     <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
-    <Compile Include="Aggregates\EventId.cs" />
+    <Compile Include="EventSourcing\Events\EventId.cs" />
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
-    <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="EventSourcing\Events\IEventId.cs" />
     <Compile Include="Commands\CommandId.cs" />
     <Compile Include="Commands\DistinctCommand.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
@@ -110,6 +112,8 @@
     <Compile Include="Core\IJsonSerializer.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
+    <Compile Include="EventSourcing\EventSourced.cs" />
+    <Compile Include="Aggregates\IAggregateRoot.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
@@ -169,7 +173,7 @@
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
-    <Compile Include="Aggregates\DomainEvent.cs" />
+    <Compile Include="EventSourcing\Events\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />
     <Compile Include="EventStores\IMetadataProvider.cs" />
     <Compile Include="EventStores\InMemory\InMemoryEventStore.cs" />
@@ -187,15 +191,15 @@
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />
     <Compile Include="EventStores\EventJsonSerializer.cs" />
-    <Compile Include="Aggregates\IAggregateEvent.cs" />
-    <Compile Include="Aggregates\IAggregateRoot.cs" />
+    <Compile Include="EventSourcing\Events\IEvent.cs" />
+    <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="ReadStores\IAmReadModelFor.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="EventStores\ICommittedDomainEvent.cs" />
     <Compile Include="Subscribers\DomainEventPublisher.cs" />
     <Compile Include="Subscribers\IDispatchToEventSubscribers.cs" />
-    <Compile Include="Aggregates\IDomainEvent.cs" />
+    <Compile Include="EventSourcing\Events\IDomainEvent.cs" />
     <Compile Include="Aggregates\IEmit.cs" />
     <Compile Include="EventStores\IEventDefinitionService.cs" />
     <Compile Include="EventStores\IEventJsonSerializer.cs" />

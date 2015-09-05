@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 
 namespace EventFlow.MetadataProviders
@@ -35,9 +37,9 @@ namespace EventFlow.MetadataProviders
     {
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
             TIdentity id,
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
             yield return new KeyValuePair<string, string>("guid", Guid.NewGuid().ToString());

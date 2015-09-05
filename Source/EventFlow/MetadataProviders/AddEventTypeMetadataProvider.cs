@@ -23,6 +23,8 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventSourcing;
+using EventFlow.EventSourcing.Events;
 using EventFlow.EventStores;
 
 namespace EventFlow.MetadataProviders
@@ -31,12 +33,12 @@ namespace EventFlow.MetadataProviders
     {
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
             TIdentity id,
-            IAggregateEvent aggregateEvent,
+            IEvent @event,
             IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : IEventSourced<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateEventType = aggregateEvent.GetType();
+            var aggregateEventType = @event.GetType();
             var assembly = aggregateEventType.Assembly;
             var name = assembly.GetName();
 
