@@ -44,7 +44,8 @@ namespace EventFlow.Extensions
         {
             var aggregateRootTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsClosedTypeOf(typeof(IAggregateRoot<>)));
+                .Where(t => !t.IsAbstract)
+                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)));
             eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
             return eventFlowOptions;
         }
@@ -61,15 +62,13 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
-            var invalidateTypes = aggregateRootTypes
-                .Where(t => !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+            var invalidTypes = aggregateRootTypes
+                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
                 .ToList();
-            if (invalidateTypes.Any())
+            if (invalidTypes.Any())
             {
-                var names = string.Join(", ", invalidateTypes.Select(t => t.Name));
-                throw new ArgumentException(string.Format(
-                    "Type(s) '{0}' do not implement IAggregateRoot<TIdentity>",
-                    names));
+                var names = string.Join(", ", invalidTypes.Select(t => t.Name));
+                throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
             }
 
             foreach (var t in aggregateRootTypes)
