@@ -26,8 +26,6 @@ using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventSourcing;
-using EventFlow.EventSourcing.Events;
 using EventFlow.Subscribers;
 
 namespace EventFlow.Extensions
@@ -36,9 +34,9 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this EventFlowOptions eventFlowOptions)
-            where TAggregate : IEventSourced<TIdentity>
+            where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TEvent : IEvent<TAggregate, TIdentity>
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
             where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
         {
             return eventFlowOptions
