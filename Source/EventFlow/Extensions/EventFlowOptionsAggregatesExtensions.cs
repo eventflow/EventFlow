@@ -62,15 +62,13 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
-            var invalidateTypes = aggregateRootTypes
+            var invalidTypes = aggregateRootTypes
                 .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
                 .ToList();
-            if (invalidateTypes.Any())
+            if (invalidTypes.Any())
             {
-                var names = string.Join(", ", invalidateTypes.Select(t => t.Name));
-                throw new ArgumentException(string.Format(
-                    "Type(s) '{0}' do not implement IAggregateRoot<TIdentity>",
-                    names));
+                var names = string.Join(", ", invalidTypes.Select(t => t.Name));
+                throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
             }
 
             foreach (var t in aggregateRootTypes)
