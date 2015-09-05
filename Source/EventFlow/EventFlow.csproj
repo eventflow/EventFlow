@@ -168,6 +168,15 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
+    <Compile Include="Sagas\ISaga.cs" />
+    <Compile Include="Sagas\ISagaId.cs" />
+    <Compile Include="Sagas\ISagaLocator.cs" />
+    <Compile Include="Sagas\ISagaManager.cs" />
+    <Compile Include="Sagas\ISagaProcesses.cs" />
+    <Compile Include="Sagas\ISagaStartedBy.cs" />
+    <Compile Include="Sagas\Saga.cs" />
+    <Compile Include="Sagas\SagaId.cs" />
+    <Compile Include="Sagas\SagaManager.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />
