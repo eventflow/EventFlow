@@ -56,8 +56,7 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
-            eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
-            return eventFlowOptions;
+            return eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
         }
 
         public static EventFlowOptions AddAggregateRoots(
