@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Reflection;
 
 namespace EventFlow.Extensions
@@ -28,14 +29,16 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions AddDefaults(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
             return eventFlowOptions
-                .AddEvents(fromAssembly)
-                .AddCommandHandlers(fromAssembly)
-                .AddMetadataProviders(fromAssembly)
-                .AddSubscribers(fromAssembly)
-                .AddEventUpgraders(fromAssembly);
+                .AddEvents(fromAssembly, predicate)
+                .AddCommandHandlers(fromAssembly, predicate)
+                .AddMetadataProviders(fromAssembly, predicate)
+                .AddSubscribers(fromAssembly, predicate)
+                .AddEventUpgraders(fromAssembly, predicate)
+                .AddQueryHandlers(fromAssembly, predicate);
         }
     }
 }
