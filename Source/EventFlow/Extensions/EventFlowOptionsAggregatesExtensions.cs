@@ -40,29 +40,32 @@ namespace EventFlow.Extensions
 
         public static EventFlowOptions AddAggregateRoots(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var aggregateRootTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.IsAbstract)
-                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)));
-            eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
-            return eventFlowOptions;
+                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
         }
 
         public static EventFlowOptions AddAggregateRoots(
             this EventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
-            eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
-            return eventFlowOptions;
+            return eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
         }
 
         public static EventFlowOptions AddAggregateRoots(
             this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
-            var invalidTypes = aggregateRootTypes
+            var aggregateRootTypeList = aggregateRootTypes.ToList();
+
+            var invalidTypes = aggregateRootTypeList
                 .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
                 .ToList();
             if (invalidTypes.Any())
@@ -71,12 +74,13 @@ namespace EventFlow.Extensions
                 throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
             }
 
-            foreach (var t in aggregateRootTypes)
-            {
-                eventFlowOptions.RegisterServices(sr => sr.RegisterType(t));
-            }
-
-            return eventFlowOptions;
+            return eventFlowOptions.RegisterServices(sr =>
+                {
+                    foreach (var t in aggregateRootTypeList)
+                    {
+                        sr.RegisterType(t);
+                    }
+                });
         }
     }
 }

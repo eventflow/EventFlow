@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
@@ -43,9 +44,13 @@ namespace EventFlow
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration()); 
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
+        private Stopwatch _stopwatch;
 
-        private EventFlowOptions() { }
+        private EventFlowOptions()
+        {
+            _stopwatch = Stopwatch.StartNew();
+        }
 
         public EventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
@@ -120,6 +125,10 @@ namespace EventFlow
 
             var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
             eventDefinitionService.LoadEvents(_aggregateEventTypes);
+
+            _stopwatch.Stop();
+            var log = rootResolver.Resolve<ILog>();
+            log.Debug("EventFlow configuration done in {0:0.000} seconds", _stopwatch.Elapsed.TotalSeconds);
 
             return rootResolver;
         }
