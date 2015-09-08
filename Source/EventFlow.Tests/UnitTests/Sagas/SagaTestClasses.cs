@@ -51,21 +51,32 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 _commandBus = commandBus;
             }
 
-            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
+            public async Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
             {
-                return _commandBus.PublishAsync(new SagaTestBCommand(domainEvent.AggregateIdentity), cancellationToken);
+                await _commandBus.PublishAsync(new SagaTestBCommand(domainEvent.AggregateIdentity), cancellationToken).ConfigureAwait(false);
+                Emit(new SagaEventA());
             }
 
-            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
+            public async Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
             {
-                return _commandBus.PublishAsync(new SagaTestCCommand(domainEvent.AggregateIdentity), cancellationToken);
+                await _commandBus.PublishAsync(new SagaTestCCommand(domainEvent.AggregateIdentity), cancellationToken).ConfigureAwait(false);
+                Emit(new SagaEventB());
             }
 
             public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC> domainEvent, CancellationToken cancellationToken)
             {
+                Emit(new SagaEventC());
                 return Task.FromResult(0);
             }
+
+            protected void Apply(SagaEventA e) { }
+            protected void Apply(SagaEventB e) { }
+            protected void Apply(SagaEventC e) { }
         }
+
+        public class SagaEventA : AggregateEvent<TestSaga, TestSagaId> { }
+        public class SagaEventB : AggregateEvent<TestSaga, TestSagaId> { }
+        public class SagaEventC : AggregateEvent<TestSaga, TestSagaId> { }
 
         public class TestSagaLocator : ISagaLocator
         {

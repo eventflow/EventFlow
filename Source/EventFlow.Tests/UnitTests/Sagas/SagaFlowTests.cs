@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using FluentAssertions;
@@ -30,43 +31,70 @@ namespace EventFlow.Tests.UnitTests.Sagas
 {
     public class SagaFlowTests
     {
-        [Test]
-        public void Flow()
+        private IRootResolver _resolver;
+        private ICommandBus _commandBus;
+        private IEventStore _eventStore;
+
+        [SetUp]
+        public void SetUp()
         {
-            using (var resolver = EventFlowOptions.New
+            _resolver = EventFlowOptions.New
                 .UseResolverAggregateRootFactory()
                 .AddAggregateRoots(
-                    typeof(SagaTestClasses.SagaTestAggregate),
-                    typeof(SagaTestClasses.TestSaga))
-                .AddSagas(typeof(SagaTestClasses.TestSaga))
+                    typeof (SagaTestClasses.SagaTestAggregate),
+                    typeof (SagaTestClasses.TestSaga))
+                .AddSagas(typeof (SagaTestClasses.TestSaga))
                 .AddCommandHandlers(
-                    typeof(SagaTestClasses.SagaTestACommandHandler),
-                    typeof(SagaTestClasses.SagaTestBCommandHandler),
-                    typeof(SagaTestClasses.SagaTestCCommandHandler))
+                    typeof (SagaTestClasses.SagaTestACommandHandler),
+                    typeof (SagaTestClasses.SagaTestBCommandHandler),
+                    typeof (SagaTestClasses.SagaTestCCommandHandler))
                 .AddEvents(
-                    typeof(SagaTestClasses.SagaTestEventA),
-                    typeof(SagaTestClasses.SagaTestEventB),
-                    typeof(SagaTestClasses.SagaTestEventC))
+                    typeof (SagaTestClasses.SagaTestEventA),
+                    typeof (SagaTestClasses.SagaTestEventB),
+                    typeof (SagaTestClasses.SagaTestEventC),
+                    typeof(SagaTestClasses.SagaEventA),
+                    typeof(SagaTestClasses.SagaEventB),
+                    typeof(SagaTestClasses.SagaEventC))
                 .RegisterServices(sr =>
                     {
-                        sr.RegisterType(typeof(SagaTestClasses.TestSagaLocator));
+                        sr.RegisterType(typeof (SagaTestClasses.TestSagaLocator));
                     })
-                .CreateResolver(false))
-            {
-                // Arrange
-                var commandBus = resolver.Resolve<ICommandBus>();
-                var eventStore = resolver.Resolve<IEventStore>();
-                var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
+                .CreateResolver(false);
 
-                // Act
-                commandBus.Publish(new SagaTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
+            _commandBus = _resolver.Resolve<ICommandBus>();
+            _eventStore = _resolver.Resolve<IEventStore>();
+        }
 
-                // Assert
-                var testAggregate = eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
-                testAggregate.As.Should().Be(1);
-                testAggregate.Bs.Should().Be(1);
-                testAggregate.Cs.Should().Be(1);
-            }
+        [Test]
+        public void StartedByCorrectly()
+        {
+            // Arrange
+            var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
+
+            // Act
+            _commandBus.Publish(new SagaTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
+
+            // Assert
+            var testAggregate = _eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+            testAggregate.As.Should().Be(1);
+            testAggregate.Bs.Should().Be(1);
+            testAggregate.Cs.Should().Be(1);
+        }
+
+        [Test]
+        public void NotStarted()
+        {
+            // Arrange
+            var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
+
+            // Act
+            _commandBus.Publish(new SagaTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+
+            // Assert
+            var testAggregate = _eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+            testAggregate.As.Should().Be(0);
+            testAggregate.Bs.Should().Be(1);
+            testAggregate.Cs.Should().Be(0);
         }
     }
 }

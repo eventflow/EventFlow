@@ -25,7 +25,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISaga
+    public interface ISaga : IAggregateRoot
     {
     }
 

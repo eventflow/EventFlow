@@ -26,6 +26,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 
@@ -37,17 +39,20 @@ namespace EventFlow.Sagas
         private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
+        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public SagaManager(
             ILog log,
             IResolver resolver,
             IEventStore eventStore,
-            ISagaDefinitionService sagaDefinitionService)
+            ISagaDefinitionService sagaDefinitionService,
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _resolver = resolver;
             _eventStore = eventStore;
             _sagaDefinitionService = sagaDefinitionService;
+            _transientFaultHandler = transientFaultHandler;
         }
 
         public Task ProcessAsync(
@@ -67,8 +72,21 @@ namespace EventFlow.Sagas
             {
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
-                var saga = await details.Loader(_eventStore, sagaId, cancellationToken).ConfigureAwait(false);
-                await domainEvent.InvokeSagaAsync(saga, cancellationToken).ConfigureAwait(false);
+
+                await _transientFaultHandler.TryAsync(
+                    async c =>
+                        {
+                            var saga = await details.Loader(_eventStore, sagaId, c).ConfigureAwait(false);
+                            if (saga.IsNew && !details.IsStartedBy(domainEvent.EventType))
+                            {
+                                return 0;
+                            }
+                            await domainEvent.InvokeSagaAsync(saga, c).ConfigureAwait(false);
+                            return (await saga.CommitAsync(_eventStore, domainEvent.Metadata.EventId, c).ConfigureAwait(false)).Count;
+                        },
+                    Label.Named("saga-invocation"),
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
     }

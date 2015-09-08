@@ -24,7 +24,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
@@ -34,21 +33,26 @@ namespace EventFlow.Sagas
 {
     public class SagaTypeDetails
     {
+        private readonly ISet<Type> _startedBy;
         public Type SagaType { get; }
         public Type SagaLocatorType { get; }
         public Func<IEventStore, ISagaId, CancellationToken, Task<ISaga>> Loader { get; } 
 
         public SagaTypeDetails(
             Type sagaType,
-            Type sagaLocatorType)
+            Type sagaLocatorType,
+            IEnumerable<Type> startedBy)
         {
+            _startedBy = new HashSet<Type>(startedBy);
+
             SagaType = sagaType;
             SagaLocatorType = sagaLocatorType;
 
             var methodInfo = sagaType.BaseType.GetMethods().Single(mi => mi.Name == "LoadSagaAsync");
-
             Loader = (es, i, c) => ((Task<ISaga>) methodInfo.Invoke(null, new object[] { es, i, c }));
         }
+
+        public bool IsStartedBy(Type aggregateEventType) { return _startedBy.Contains(aggregateEventType); }
     }
 
     public class SagaDefinitionService : ISagaDefinitionService
@@ -77,6 +81,7 @@ namespace EventFlow.Sagas
                     .ToList();
                 var sagaStartedByTypes = sagaInterfaces
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISagaIsStartedBy<,,>))
+                    .Select(i => i.GetGenericArguments()[2])
                     .ToList();
                 var aggregateEventTypes = sagaHandlesTypes
                     .Select(i => i.GetGenericArguments()[2]);
@@ -84,7 +89,8 @@ namespace EventFlow.Sagas
 
                 var sagaTypeDetails = new SagaTypeDetails(
                     sagaType,
-                    sagaInterfaceType.GetGenericArguments()[1]);
+                    sagaInterfaceType.GetGenericArguments()[1],
+                    sagaStartedByTypes);
 
                 foreach (var aggregateEventType in aggregateEventTypes)
                 {
@@ -93,9 +99,12 @@ namespace EventFlow.Sagas
             }
         }
 
-        public IReadOnlyCollection<SagaTypeDetails> GetSagaTypeDetails(Type aggregateEventType)
+        public IEnumerable<SagaTypeDetails> GetSagaTypeDetails(Type aggregateEventType)
         {
-            return _sagaTypeDetailsByAggregateEvent[aggregateEventType];
+            List<SagaTypeDetails> sagaTypeDetails;
+            return _sagaTypeDetailsByAggregateEvent.TryGetValue(aggregateEventType, out sagaTypeDetails)
+                ? sagaTypeDetails
+                : Enumerable.Empty<SagaTypeDetails>();
         }
     }
 }

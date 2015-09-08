@@ -29,6 +29,6 @@ namespace EventFlow.Sagas
     {
         void LoadSagas(params Type[] sagaTypes);
         void LoadSagas(IEnumerable<Type> sagaTypes);
-        IReadOnlyCollection<SagaTypeDetails> GetSagaTypeDetails(Type aggregateEventType);
+        IEnumerable<SagaTypeDetails> GetSagaTypeDetails(Type aggregateEventType);
     }
 }
