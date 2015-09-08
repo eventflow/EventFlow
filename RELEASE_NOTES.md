@@ -1,7 +1,13 @@
 ### New in 0.13 (not released yet)
 
- * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract classes 
-   from being registered when passing `IEnumerable<Type>`.   
+ * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds query handlers
+ * New: Added an optional `Predicate<Type>` to the following option extension
+   methods that scan an `Assembly`: `AddAggregateRoots(...)`,
+   `AddCommandHandlers(...)`, `AddDefaults(...)`, `AddEventUpgraders(...)`,
+   `AddEvents(...)`, `AddMetadataProviders(...)`, `AddQueryHandlers(...)` and
+   `AddSubscribers(...)`
+ * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract classes
+   from being registered when passing `IEnumerable<Type>`.
 
 ### New in 0.12.891 (released 2015-09-04)
 
