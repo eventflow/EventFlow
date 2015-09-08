@@ -21,41 +21,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using EventFlow.Sagas;
+using System.Collections.Generic;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Sagas
 {
-    public interface IDomainEvent
+    public interface ISagaDefinitionService
     {
-        Type AggregateType { get; }
-        Type EventType { get; }
-        int AggregateSequenceNumber { get; }
-        IMetadata Metadata { get; }
-        DateTimeOffset Timestamp { get; }
-
-        IIdentity GetIdentity();
-        IAggregateEvent GetAggregateEvent();
-
-        // TODO: Find some way around this
-        Task InvokeSagaAsync(ISaga saga, CancellationToken cancellationToken);
-    }
-
-    public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        TIdentity AggregateIdentity { get; }
-    }
-
-    public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-    {
-        TAggregateEvent AggregateEvent { get; }
+        void LoadSagas(params Type[] sagaTypes);
+        void LoadSagas(IEnumerable<Type> sagaTypes);
+        IReadOnlyCollection<SagaTypeDetails> GetSagaTypeDetails(Type aggregateEventType);
     }
 }

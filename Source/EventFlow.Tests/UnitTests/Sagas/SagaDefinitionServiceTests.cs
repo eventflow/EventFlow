@@ -21,41 +21,30 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using System.Linq;
 using EventFlow.Sagas;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Tests.UnitTests.Sagas
 {
-    public interface IDomainEvent
+    public class SagaDefinitionServiceTests : TestsFor<SagaDefinitionService>
     {
-        Type AggregateType { get; }
-        Type EventType { get; }
-        int AggregateSequenceNumber { get; }
-        IMetadata Metadata { get; }
-        DateTimeOffset Timestamp { get; }
+        [TestCase(typeof(SagaTestClasses.SagaTestEventA))]
+        [TestCase(typeof(SagaTestClasses.SagaTestEventB))]
+        [TestCase(typeof(SagaTestClasses.SagaTestEventC))]
+        public void GetSagaTypeDetails(Type aggregateEventType)
+        {
+            // Arrange
+            Sut.LoadSagas(typeof(SagaTestClasses.TestSaga));
 
-        IIdentity GetIdentity();
-        IAggregateEvent GetAggregateEvent();
+            // Act
+            var sagaTypeDetails = Sut.GetSagaTypeDetails(aggregateEventType);
 
-        // TODO: Find some way around this
-        Task InvokeSagaAsync(ISaga saga, CancellationToken cancellationToken);
-    }
-
-    public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        TIdentity AggregateIdentity { get; }
-    }
-
-    public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-    {
-        TAggregateEvent AggregateEvent { get; }
+            // Assert
+            sagaTypeDetails.Should().HaveCount(1);
+            sagaTypeDetails.Single().SagaType.Should().Be(typeof (SagaTestClasses.TestSaga));
+        }
     }
 }

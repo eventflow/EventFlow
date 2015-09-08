@@ -138,6 +138,7 @@
     <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsSagasExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
@@ -169,12 +170,14 @@
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
     <Compile Include="Sagas\ISaga.cs" />
+    <Compile Include="Sagas\ISagaDefinitionService.cs" />
     <Compile Include="Sagas\ISagaId.cs" />
     <Compile Include="Sagas\ISagaLocator.cs" />
     <Compile Include="Sagas\ISagaManager.cs" />
-    <Compile Include="Sagas\ISagaProcesses.cs" />
-    <Compile Include="Sagas\ISagaStartedBy.cs" />
+    <Compile Include="Sagas\ISagaHandles.cs" />
+    <Compile Include="Sagas\ISagaIsStartedBy.cs" />
     <Compile Include="Sagas\Saga.cs" />
+    <Compile Include="Sagas\SagaDefinitionService.cs" />
     <Compile Include="Sagas\SagaId.cs" />
     <Compile Include="Sagas\SagaManager.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />

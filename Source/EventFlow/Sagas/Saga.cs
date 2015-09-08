@@ -20,15 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.EventStores;
 
 namespace EventFlow.Sagas
 {
-    public abstract class Saga<TSaga, TIdentity> : AggregateRoot<TSaga, TIdentity>, ISaga<TIdentity>
-        where TSaga : Saga<TSaga, TIdentity>
-        where TIdentity : IIdentity
+    public abstract class Saga<TSaga, TIdentity, TLocator> : AggregateRoot<TSaga, TIdentity>, ISaga<TIdentity, TLocator>
+        where TSaga : Saga<TSaga, TIdentity, TLocator>
+        where TIdentity : ISagaId
+        where TLocator : ISagaLocator
     {
+        public static async Task<ISaga> LoadSagaAsync(IEventStore eventStore, TIdentity identity, CancellationToken cancellationToken)
+        {
+            return await eventStore.LoadAggregateAsync<TSaga, TIdentity>(identity, cancellationToken).ConfigureAwait(false);
+        }
+
         protected Saga(TIdentity id) : base(id)
         {
         }

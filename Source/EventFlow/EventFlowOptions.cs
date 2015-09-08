@@ -31,9 +31,11 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.Sagas;
 using EventFlow.Subscribers;
 
 namespace EventFlow
@@ -43,6 +45,7 @@ namespace EventFlow
         public static EventFlowOptions New => new EventFlowOptions();
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+        private readonly ConcurrentBag<Type> _sagaTypes = new ConcurrentBag<Type>(); 
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
         private Stopwatch _stopwatch;
@@ -74,6 +77,19 @@ namespace EventFlow
                     throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
+            }
+            return this;
+        }
+
+        public EventFlowOptions AddSagas(IEnumerable<Type> sagaTypes)
+        {
+            foreach (var sagaType in sagaTypes)
+            {
+                if (!typeof(ISaga).IsAssignableFrom(sagaType))
+                {
+                    throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
+                }
+                _sagaTypes.Add(sagaType);
             }
             return this;
         }
@@ -114,6 +130,8 @@ namespace EventFlow
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
+            RegisterIfMissing<ISagaDefinitionService, SagaDefinitionService>(services, Lifetime.Singleton);
+            RegisterIfMissing<ISagaManager, SagaManager>(services);
             RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
 
             if (!services.Contains(typeof (ITransientFaultHandler<>)))
@@ -125,6 +143,8 @@ namespace EventFlow
 
             var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
             eventDefinitionService.LoadEvents(_aggregateEventTypes);
+            var sagaDefinitionService = rootResolver.Resolve<ISagaDefinitionService>();
+            sagaDefinitionService.LoadSagas(_sagaTypes);
 
             _stopwatch.Stop();
             var log = rootResolver.Resolve<ILog>();

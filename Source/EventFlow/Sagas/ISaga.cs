@@ -25,8 +25,13 @@ using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISaga<out TIdentity> : IAggregateRoot<TIdentity>
+    public interface ISaga
+    {
+    }
+
+    public interface ISaga<out TIdentity, TLocator> : ISaga, IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TLocator : ISagaLocator
     {
     }
 }

@@ -20,16 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
 
-namespace EventFlow.Sagas
+namespace EventFlow.Extensions
 {
-    public interface ISagaStartedBy<TAggregate, TIdentity, in TAggregateEvent, TSagaLocator> : ISagaProcesses<TAggregate, TIdentity, TAggregateEvent, TSagaLocator>
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSagaLocator : ISagaLocator<TAggregate, TIdentity, TAggregateEvent>
+    public static class EventFlowOptionsSagasExtensions
     {
+        public static EventFlowOptions AddSagas(
+            this EventFlowOptions eventFlowOptions,
+            params Type[] sagaTypes)
+        {
+            return eventFlowOptions.AddSagas(sagaTypes);
+        }
     }
 }

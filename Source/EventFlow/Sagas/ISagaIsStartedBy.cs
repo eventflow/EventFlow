@@ -20,42 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventStores;
-using EventFlow.Sagas;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Sagas
 {
-    public interface IDomainEvent
-    {
-        Type AggregateType { get; }
-        Type EventType { get; }
-        int AggregateSequenceNumber { get; }
-        IMetadata Metadata { get; }
-        DateTimeOffset Timestamp { get; }
-
-        IIdentity GetIdentity();
-        IAggregateEvent GetAggregateEvent();
-
-        // TODO: Find some way around this
-        Task InvokeSagaAsync(ISaga saga, CancellationToken cancellationToken);
-    }
-
-    public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        TIdentity AggregateIdentity { get; }
-    }
-
-    public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface ISagaIsStartedBy<TAggregate, in TIdentity, in TAggregateEvent> : ISagaHandles<TAggregate, TIdentity, TAggregateEvent>
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
-        TAggregateEvent AggregateEvent { get; }
     }
 }

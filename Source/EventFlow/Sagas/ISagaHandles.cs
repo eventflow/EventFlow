@@ -27,12 +27,11 @@ using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaProcesses<TAggregate, TIdentity, in TAggregateEvent, TSagaLocator>
+    public interface ISagaHandles<TAggregate, in TIdentity, in TAggregateEvent>
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSagaLocator : ISagaLocator<TAggregate, TIdentity, TAggregateEvent>
     {
-        Task ProcessAsync(TAggregateEvent aggregateEvent, CancellationToken cancellationToken);
+        Task ProcessAsync(IDomainEvent<TAggregate, TIdentity, TAggregateEvent> domainEvent, CancellationToken cancellationToken);
     }
 }

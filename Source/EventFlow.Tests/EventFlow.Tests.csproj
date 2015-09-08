@@ -101,6 +101,9 @@
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\Sagas\SagaDefinitionServiceTests.cs" />
+    <Compile Include="UnitTests\Sagas\SagaFlowTests.cs" />
+    <Compile Include="UnitTests\Sagas\SagaTestClasses.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />

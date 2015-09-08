@@ -27,21 +27,25 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.ReadStores;
+using EventFlow.Sagas;
 
 namespace EventFlow.Subscribers
 {
     public class DomainEventPublisher : IDomainEventPublisher
     {
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
+        private readonly ISagaManager _sagaManager;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
+            ISagaManager sagaManager,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
+            _sagaManager = sagaManager;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -65,6 +69,9 @@ namespace EventFlow.Subscribers
             var handle = _subscribeSynchronousToAlls
                 .Select(s => s.HandleAsync(domainEvents, cancellationToken));
             await Task.WhenAll(handle).ConfigureAwait(false);
+
+            // Update sagas
+            await _sagaManager.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
     }
 }

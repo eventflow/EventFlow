@@ -23,15 +23,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaLocator<TAggregate, TIdentity, in TAggregateEvent>
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface ISagaLocator
     {
-        Task<ISagaId> LocateSagaAsync(TAggregateEvent aggregateEvent, CancellationToken cancellationToken);
+        Task<ISagaId> LocateSagaAsync(IDomainEvent domainEvent, CancellationToken cancellationToken);
     }
 }

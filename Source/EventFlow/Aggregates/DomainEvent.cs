@@ -21,7 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventStores;
+using EventFlow.Sagas;
 
 namespace EventFlow.Aggregates
 {
@@ -67,6 +71,16 @@ namespace EventFlow.Aggregates
         public IAggregateEvent GetAggregateEvent()
         {
             return AggregateEvent;
+        }
+
+        public Task InvokeSagaAsync(ISaga saga, CancellationToken cancellationToken)
+        {
+            var sagaHandes = saga as ISagaHandles<TAggregate, TIdentity, TAggregateEvent>;
+            if (sagaHandes == null)
+            {
+                throw new ArgumentException("");
+            }
+            return sagaHandes.ProcessAsync(this, cancellationToken);
         }
 
         public override string ToString()

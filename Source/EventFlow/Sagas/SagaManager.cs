@@ -21,9 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.EventStores;
 using EventFlow.Logs;
 
 namespace EventFlow.Sagas
@@ -31,18 +34,42 @@ namespace EventFlow.Sagas
     public class SagaManager : ISagaManager
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
+        private readonly IEventStore _eventStore;
+        private readonly ISagaDefinitionService _sagaDefinitionService;
 
         public SagaManager(
-            ILog log)
+            ILog log,
+            IResolver resolver,
+            IEventStore eventStore,
+            ISagaDefinitionService sagaDefinitionService)
         {
             _log = log;
+            _resolver = resolver;
+            _eventStore = eventStore;
+            _sagaDefinitionService = sagaDefinitionService;
         }
 
         public Task ProcessAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            return Task.WhenAll(domainEvents.Select(d => ProcessAsync(d, cancellationToken)));
+        }
+
+        private async Task ProcessAsync(
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken)
+        {
+            var sagaTypeDetails = _sagaDefinitionService.GetSagaTypeDetails(domainEvent.EventType);
+
+            foreach (var details in sagaTypeDetails)
+            {
+                var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
+                var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+                var saga = await details.Loader(_eventStore, sagaId, cancellationToken).ConfigureAwait(false);
+                await domainEvent.InvokeSagaAsync(saga, cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }
