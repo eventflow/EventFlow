@@ -41,7 +41,7 @@ namespace EventFlow.Aggregates
                 typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                 typeof (TAggregate).Name);
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
-        private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
+        private CircularBuffer<SourceId> _previousSourceIds = new CircularBuffer<SourceId>(10);
 
         public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
@@ -82,12 +82,12 @@ namespace EventFlow.Aggregates
 
         protected void SetSourceIdHistory(int count)
         {
-            _previousSourceIds = new CircularBuffer<ISourceId>(count);
+            _previousSourceIds = new CircularBuffer<SourceId>(count);
         }
 
-        public bool HasSourceId(ISourceId sourceId)
+        public bool HasSourceId(SourceId sourceId)
         {
-            return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
+            return !sourceId.IsNone && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
 
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
@@ -125,7 +125,7 @@ namespace EventFlow.Aggregates
 
         public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
-            ISourceId sourceId,
+            SourceId sourceId,
             CancellationToken cancellationToken)
         {
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(

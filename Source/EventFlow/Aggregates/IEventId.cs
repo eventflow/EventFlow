@@ -24,7 +24,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Aggregates
 {
-    public interface IEventId : ISourceId
+    public interface IEventId : IIdentity
     {
     }
 }

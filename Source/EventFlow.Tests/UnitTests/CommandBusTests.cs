@@ -73,7 +73,7 @@ namespace EventFlow.Tests.UnitTests
             // Arrange
             ArrangeCommandHandlerExists<TestAggregate, TestId, DomainErrorAfterFirstCommand>();
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<SourceId>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
             // Act
@@ -81,7 +81,7 @@ namespace EventFlow.Tests.UnitTests
 
             // Assert
             _eventStoreMock.Verify(
-                s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()),
+                s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<SourceId>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(5));
         }
 
@@ -115,7 +115,7 @@ namespace EventFlow.Tests.UnitTests
         private void ArrangeWorkingEventStore()
         {
             _eventStoreMock
-                .Setup(s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<SourceId>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>>>(Many<IDomainEvent<TestAggregate, TestId>>()));
         }
 

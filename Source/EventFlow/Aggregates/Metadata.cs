@@ -49,7 +49,7 @@ namespace EventFlow.Aggregates
             return new Metadata(keyValuePairs);
         }
 
-        public ISourceId SourceId
+        public SourceId SourceId
         {
             get { return GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v)); }
             set { Add(MetadataKeys.SourceId, value.Value); }

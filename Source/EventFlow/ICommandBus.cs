@@ -30,13 +30,13 @@ namespace EventFlow
 {
     public interface ICommandBus
     {
-        Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
+        Task<SourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        ISourceId Publish<TAggregate, TIdentity>(
+        SourceId Publish<TAggregate, TIdentity>(
 		    ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

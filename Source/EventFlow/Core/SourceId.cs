@@ -21,17 +21,60 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using EventFlow.ValueObjects;
+using Newtonsoft.Json;
 
 namespace EventFlow.Core
 {
-    public class SourceId : SingleValueObject<string>, ISourceId
+    [JsonConverter(typeof(SingleValueObjectConverter))]
+    public class SourceId : SingleValueObject<string>
     {
-        public static ISourceId New => new SourceId(Guid.NewGuid().ToString("D"));
+        private static readonly Dictionary<SourceIdType, Guid> DeterministicNamespaces = new Dictionary<SourceIdType, Guid>
+            {
+                { SourceIdType.Command, GuidFactories.Deterministic.Namespaces.Commands },
+                { SourceIdType.Event, GuidFactories.Deterministic.Namespaces.Events },
+                { SourceIdType.Source, GuidFactories.Deterministic.Namespaces.Source }
+            };
 
-        public SourceId(string value) : base(value)
+        public static SourceId New()
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+            return New(SourceIdType.Source);
+        }
+
+        public static SourceId New(SourceIdType sourceIdType)
+        {
+            return New(sourceIdType, Guid.NewGuid());
+        }
+
+        public static SourceId New(SourceIdType sourceIdType, Guid guid)
+        {
+            return new SourceId($"{sourceIdType}-{guid.ToString("D")}");
+        }
+
+        public static SourceId NewDeterministic(
+            SourceIdType sourceIdType,
+            byte[] bytes)
+        {
+            Guid namespaceId;
+            if (!DeterministicNamespaces.TryGetValue(sourceIdType, out namespaceId))
+            {
+                throw new ArgumentException(
+                    $"Source ID type {(int)sourceIdType} cannot be used for deterministic GUID creation",
+                    nameof(sourceIdType));
+            }
+
+            var guid = GuidFactories.Deterministic.Create(
+                namespaceId,
+                bytes);
+
+            return New(sourceIdType, guid);
+        }
+
+        public bool IsNone => string.IsNullOrEmpty(Value);
+
+        public SourceId(string value) : base(value ?? string.Empty)
+        {
         }
     }
 }
