@@ -29,7 +29,7 @@ namespace EventFlow.Aggregates
     public interface IMetadata : IReadOnlyDictionary<string, string>
     {
         IEventId EventId { get; }
-        ISourceId SourceId { get; }
+        SourceId SourceId { get; }
         string EventName { get; }
         int EventVersion { get; }
         DateTimeOffset Timestamp { get; }

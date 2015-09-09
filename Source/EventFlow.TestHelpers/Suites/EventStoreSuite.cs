@@ -60,7 +60,7 @@ namespace EventFlow.TestHelpers.Suites
             testAggregate.Ping(PingId.New);
 
             // Act
-            var domainEvents = await testAggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            var domainEvents = await testAggregate.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             domainEvents.Count.Should().Be(1);
@@ -72,7 +72,7 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.EventType.Should().Be(typeof (PingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
-            pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
+            pingEvent.Metadata.SourceId.IsNone.Should().BeFalse();
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = TestId.New;
             var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
             testAggregate.Ping(PingId.New);
-            await testAggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await testAggregate.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
 
             // Act
             var loadedTestAggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
@@ -107,8 +107,8 @@ namespace EventFlow.TestHelpers.Suites
             aggregate2.Ping(PingId.New);
 
             // Act
-            await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
-            await aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate1.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
             aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
             aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
 
@@ -129,8 +129,8 @@ namespace EventFlow.TestHelpers.Suites
             var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
             aggregate1.Ping(pingId1);
             aggregate2.Ping(pingId2);
-            await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
-            await aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate1.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
 
             // Act
             var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 200, CancellationToken.None).ConfigureAwait(false);
@@ -150,8 +150,8 @@ namespace EventFlow.TestHelpers.Suites
             aggregate1.Ping(PingId.New);
             aggregate2.Ping(PingId.New);
             aggregate2.Ping(PingId.New);
-            await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
-            await aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate1.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
 
             // Act
             await EventStore.DeleteAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
@@ -171,7 +171,7 @@ namespace EventFlow.TestHelpers.Suites
             var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
 
             // Act
-            await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]
@@ -181,7 +181,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = TestId.New;
             var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
             aggregate.Ping(PingId.New);
-            await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
 
             // Act
             var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 10, CancellationToken.None).ConfigureAwait(false);
@@ -200,7 +200,7 @@ namespace EventFlow.TestHelpers.Suites
             aggregate.Ping(pingIds[0]);
             aggregate.Ping(pingIds[1]);
             aggregate.Ping(pingIds[2]);
-            await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
 
             // Act
             var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 200, CancellationToken.None).ConfigureAwait(false);
@@ -222,8 +222,8 @@ namespace EventFlow.TestHelpers.Suites
             aggregate2.DomainErrorAfterFirst();
 
             // Act
-            await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
-            await ThrowsExceptionAsync<OptimisticConcurrencyException>(() => aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None)).ConfigureAwait(false);
+            await aggregate1.CommitAsync(EventStore, SourceId.New(), CancellationToken.None).ConfigureAwait(false);
+            await ThrowsExceptionAsync<OptimisticConcurrencyException>(() => aggregate2.CommitAsync(EventStore, SourceId.New(), CancellationToken.None)).ConfigureAwait(false);
         }
 
         private static async Task ThrowsExceptionAsync<TException>(Func<Task> action)

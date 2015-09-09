@@ -20,36 +20,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using FluentAssertions;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using Ploeh.AutoFixture;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.Tests.UnitTests.Commands
 {
-    public class PingCommand : Command<TestAggregate, TestId>
+    public class CommandTests : Test
     {
-        public PingId PingId { get; }
-
-        public PingCommand(TestId aggregateId, PingId pingId)
-            : this(aggregateId, SourceId.New(SourceIdType.Command), pingId)
+        public class CriticalCommand : Command<TestAggregate, TestId>
         {
+            public string CriticalData { get; }
+
+            public CriticalCommand(
+                TestId aggregateId,
+                SourceId sourceId,
+                string criticalData)
+                : base(aggregateId, sourceId)
+            {
+                CriticalData = criticalData;
+            }
         }
 
-        public PingCommand(TestId aggregateId, SourceId sourceId, PingId pingId)
-            : base (aggregateId, sourceId)
+        [Test]
+        public void Serialization()
         {
-            PingId = pingId;
-        }
-    }
+            // Arrange
+            var criticalCommand = Fixture.Create<CriticalCommand>();
 
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
+            // Act
+            var json = JsonConvert.SerializeObject(criticalCommand);
+            var deserializeCriticalCommand = JsonConvert.DeserializeObject<CriticalCommand>(json);
+
+            // Assert
+            deserializeCriticalCommand.AggregateId.Should().Be(criticalCommand.AggregateId);
+            deserializeCriticalCommand.CriticalData.Should().Be(criticalCommand.CriticalData);
+            deserializeCriticalCommand.SourceId.Should().Be(criticalCommand.SourceId);
         }
     }
 }

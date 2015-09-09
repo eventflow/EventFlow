@@ -71,13 +71,13 @@ namespace EventFlow.EventStores
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
-            ISourceId sourceId,
+            SourceId sourceId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
-            if (sourceId.IsNone()) throw new ArgumentNullException(nameof(sourceId));
+            if (sourceId.IsNone) throw new ArgumentNullException(nameof(sourceId));
 
             if (uncommittedDomainEvents == null || !uncommittedDomainEvents.Any())
             {

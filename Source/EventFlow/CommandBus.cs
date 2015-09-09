@@ -63,7 +63,7 @@ namespace EventFlow
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
+        public async Task<SourceId> PublishAsync<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -123,13 +123,13 @@ namespace EventFlow
             return command.SourceId;
         }
 
-        public ISourceId Publish<TAggregate, TIdentity>(
+        public SourceId Publish<TAggregate, TIdentity>(
             ICommand<TAggregate, TIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            ISourceId sourceId = null;
+            SourceId sourceId = null;
 
             using (var a = AsyncHelper.Wait)
             {

@@ -65,7 +65,6 @@
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
-    <Compile Include="Commands\CommandId.cs" />
     <Compile Include="Commands\DistinctCommand.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
@@ -77,7 +76,6 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
-    <Compile Include="Commands\ICommandId.cs" />
     <Compile Include="Configuration\EventFlowConfiguration.cs" />
     <Compile Include="Configuration\IEventFlowConfiguration.cs" />
     <Compile Include="Configuration\IResolverContext.cs" />
@@ -96,13 +94,13 @@
     <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="Core\GuidFactories.cs" />
     <Compile Include="Core\IRetryStrategy.cs" />
-    <Compile Include="Core\ISourceId.cs" />
     <Compile Include="Core\ITransientFaultHandler.cs" />
     <Compile Include="Core\Label.cs" />
     <Compile Include="Core\ReflectionHelper.cs" />
     <Compile Include="Core\RetryStrategies\IOptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />
+    <Compile Include="Core\SourceIdType.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
@@ -142,7 +140,6 @@
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
     <Compile Include="Extensions\ServiceRegistrationExtensions.cs" />
-    <Compile Include="Extensions\SourceIdExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Logs\NullLog.cs" />

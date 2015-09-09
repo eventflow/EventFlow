@@ -38,6 +38,7 @@ namespace EventFlow.Core
             {
                 public static readonly Guid Events = Guid.Parse("387F5B61-9E98-439A-BFF1-15AD0EA91EA0");
                 public static readonly Guid Commands = Guid.Parse("4286D89F-7F92-430B-8E00-E468FE3C3F59");
+                public static readonly Guid Source = Guid.Parse("904FAA7F-BD00-42E2-8306-67DD0BB61449");
             }
 
             // Modified from original
