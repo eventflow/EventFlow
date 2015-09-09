@@ -6,8 +6,12 @@
    `AddCommandHandlers(...)`, `AddDefaults(...)`, `AddEventUpgraders(...)`,
    `AddEvents(...)`, `AddMetadataProviders(...)`, `AddQueryHandlers(...)` and
    `AddSubscribers(...)`
- * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract classes
-   from being registered when passing `IEnumerable<Type>`.
+ * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract
+   classes from being registered when passing `IEnumerable<Type>`
+ * Fixed: Events published to RabbitMQ are now in the right order for chains
+   of subscribers, if `event A -> subscriber -> command -> aggregate -> event B`,
+   then the order of published events to RabbitMQ was `event B` and then
+   `event A`
 
 ### New in 0.12.891 (released 2015-09-04)
 
