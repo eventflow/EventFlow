@@ -67,6 +67,7 @@ namespace EventFlow.Sagas
             CancellationToken cancellationToken)
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaTypeDetails(domainEvent.EventType);
+            var commandBus = _resolver.Resolve<ICommandBus>();
 
             foreach (var details in sagaTypeDetails)
             {
@@ -82,7 +83,9 @@ namespace EventFlow.Sagas
                                 return 0;
                             }
                             await domainEvent.InvokeSagaAsync(saga, c).ConfigureAwait(false);
-                            return (await saga.CommitAsync(_eventStore, domainEvent.Metadata.EventId, c).ConfigureAwait(false)).Count;
+                            await saga.CommitAsync(_eventStore, domainEvent.Metadata.EventId, c).ConfigureAwait(false);
+                            await saga.PublishAsync(commandBus, c).ConfigureAwait(false);
+                            return 0;
                         },
                     Label.Named("saga-invocation"),
                     cancellationToken)

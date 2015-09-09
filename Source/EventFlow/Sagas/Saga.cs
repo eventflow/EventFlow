@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -32,6 +34,8 @@ namespace EventFlow.Sagas
         where TIdentity : ISagaId
         where TLocator : ISagaLocator
     {
+        private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
+
         public static async Task<ISaga> LoadSagaAsync(IEventStore eventStore, TIdentity identity, CancellationToken cancellationToken)
         {
             return await eventStore.LoadAggregateAsync<TSaga, TIdentity>(identity, cancellationToken).ConfigureAwait(false);
@@ -39,6 +43,20 @@ namespace EventFlow.Sagas
 
         protected Saga(TIdentity id) : base(id)
         {
+        }
+
+        protected void Publish(Func<ICommandBus, CancellationToken, Task> command)
+        {
+            _unpublishedCommands.Add(command);
+        }
+
+        public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        {
+            foreach (var unpublishedCommand in _unpublishedCommands)
+            {
+                await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+            }
+            _unpublishedCommands.Clear();
         }
     }
 }

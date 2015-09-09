@@ -44,23 +44,22 @@ namespace EventFlow.Tests.UnitTests.Sagas
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB>,
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC>
         {
-            private readonly ICommandBus _commandBus;
-
-            public TestSaga(TestSagaId id, ICommandBus commandBus) : base(id)
+            public TestSaga(TestSagaId id) : base(id)
             {
-                _commandBus = commandBus;
             }
 
-            public async Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
+            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
             {
-                await _commandBus.PublishAsync(new SagaTestBCommand(domainEvent.AggregateIdentity), cancellationToken).ConfigureAwait(false);
+                Publish((cb, c) => cb.PublishAsync(new SagaTestBCommand(domainEvent.AggregateIdentity), cancellationToken));
                 Emit(new SagaEventA());
+                return Task.FromResult(0);
             }
 
-            public async Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
+            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
             {
-                await _commandBus.PublishAsync(new SagaTestCCommand(domainEvent.AggregateIdentity), cancellationToken).ConfigureAwait(false);
+                Publish((cb, c) => cb.PublishAsync(new SagaTestCCommand(domainEvent.AggregateIdentity), cancellationToken));
                 Emit(new SagaEventB());
+                return Task.FromResult(0);
             }
 
             public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC> domainEvent, CancellationToken cancellationToken)

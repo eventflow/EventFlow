@@ -39,7 +39,6 @@ namespace EventFlow.Tests.UnitTests.Sagas
         public void SetUp()
         {
             _resolver = EventFlowOptions.New
-                .UseResolverAggregateRootFactory()
                 .AddAggregateRoots(
                     typeof (SagaTestClasses.SagaTestAggregate),
                     typeof (SagaTestClasses.TestSaga))
