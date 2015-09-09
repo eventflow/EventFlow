@@ -22,21 +22,33 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Jobs;
+using Hangfire;
 
-namespace EventFlow.Commands
+namespace EventFlow.Hangfire.Integration
 {
-    public interface ICommand
+    public class HangfireJobScheduler : IJobScheduler
     {
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
-    }
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        public HangfireJobScheduler(
+            IJsonSerializer jsonSerializer,
+            IBackgroundJobClient  backgroundJobClient)
+        {
+            _jsonSerializer = jsonSerializer;
+            _backgroundJobClient = backgroundJobClient;
+        }
+
+        public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
+        {
+            // TODO: Yes, ugly as hell
+            var jobType = job.GetType().Name;
+            var serializedJob = _jsonSerializer.Serialize(job);
+
+            _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(serializedJob, jobType));
+            return Task.FromResult(0);
+        }
     }
 }

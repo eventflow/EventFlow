@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -57,5 +58,9 @@ namespace EventFlow.Commands
         }
 
         protected abstract IEnumerable<byte[]> GetSourceIdComponents();
+        public Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

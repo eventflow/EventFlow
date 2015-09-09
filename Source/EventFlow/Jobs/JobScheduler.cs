@@ -22,21 +22,31 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Jobs
 {
-    public interface ICommand
+    public class JobScheduler : IJobScheduler
     {
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
-    }
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly IJobRunner _jobRunner;
 
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        public JobScheduler(
+            IJsonSerializer jsonSerializer,
+            IJobRunner jobRunner)
+        {
+            _jsonSerializer = jsonSerializer;
+            _jobRunner = jobRunner;
+        }
+
+        public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
+        {
+            // TODO: Yes, ugly as hell
+            var jobType = job.GetType().Name;
+            var serializedJob = _jsonSerializer.Serialize(job);
+
+            // Don't schedule, just execute...
+            return _jobRunner.ExecuteAsync(serializedJob, jobType, cancellationToken);
+        }
     }
 }

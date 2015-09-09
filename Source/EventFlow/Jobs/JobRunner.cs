@@ -22,21 +22,41 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Jobs
 {
-    public interface ICommand
+    public class JobRunner : IJobRunner
     {
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
-    }
+        private readonly IResolver _resolver;
+        private readonly IJsonSerializer _jsonSerializer;
 
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        public JobRunner(
+            IResolver resolver,
+            IJsonSerializer jsonSerializer)
+        {
+            _resolver = resolver;
+            _jsonSerializer = jsonSerializer;
+        }
+
+        public void Execute(string serializedJob, string jobType)
+        {
+            Execute(serializedJob, jobType, CancellationToken.None);
+        }
+
+        public void Execute(string serializedJob, string jobType, CancellationToken cancellationToken)
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(ExecuteAsync(serializedJob, jobType, cancellationToken));
+            }
+        }
+
+        public Task ExecuteAsync(string serializedJob, string jobType, CancellationToken cancellationToken)
+        {
+            var executeCommandJob = _jsonSerializer.Deserialize<ExecuteCommandJob>(serializedJob);
+            return executeCommandJob.ExecuteAsync(_resolver);
+        }
     }
 }

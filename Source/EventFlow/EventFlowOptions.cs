@@ -31,6 +31,7 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.Jobs;
 using EventFlow.Logs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
@@ -107,6 +108,8 @@ namespace EventFlow
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IQueryProcessor, QueryProcessor>(services, Lifetime.Singleton);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
+            RegisterIfMissing<IJobScheduler, JobScheduler>(services);
+            RegisterIfMissing<IJobRunner, JobRunner>(services);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);

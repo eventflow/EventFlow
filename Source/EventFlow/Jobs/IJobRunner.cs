@@ -22,21 +22,13 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Jobs
 {
-    public interface ICommand
+    public interface IJobRunner
     {
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
-    }
-
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
+        void Execute(string serializedJob, string jobType);
+        void Execute(string serializedJob, string jobType, CancellationToken cancellationToken);
+        Task ExecuteAsync(string serializedJob, string jobType, CancellationToken cancellationToken);
     }
 }

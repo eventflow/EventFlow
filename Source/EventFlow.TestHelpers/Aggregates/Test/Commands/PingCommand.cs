@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using Newtonsoft.Json;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
@@ -32,6 +33,7 @@ namespace EventFlow.TestHelpers.Aggregates.Test.Commands
     {
         public PingId PingId { get; }
 
+        [JsonConstructor]
         public PingCommand(TestId aggregateId, PingId pingId)
             : this(aggregateId, CommandId.New, pingId)
         {

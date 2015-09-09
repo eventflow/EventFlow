@@ -23,37 +23,45 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
-using Newtonsoft.Json;
 
-namespace EventFlow.Commands
+namespace EventFlow.Jobs
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public class ExecuteCommandJob : IJob
     {
-        [JsonIgnore]
-        public ISourceId SourceId { get; }
-
-        public TIdentity AggregateId { get; }
-
-        protected Command(TIdentity aggregateId)
-            : this(aggregateId, CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ISourceId sourceId)
+        public static ExecuteCommandJob Create(ICommand command, IJsonSerializer jsonSerializer)
         {
-            if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
-            if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
+            var serializedCommand = jsonSerializer.Serialize(command);
 
-            AggregateId = aggregateId;
-            SourceId = sourceId;
+            var commandType = command.GetType();
+
+            return new ExecuteCommandJob(
+                serializedCommand,
+                $"{commandType.Namespace}.{commandType.Name}, {commandType.Assembly.GetName().Name}");
         }
 
-        // TODO: Should NOT be here...
-        public Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public string SerializedCommand { get; }
+        public string CommandType { get; }
+
+        public ExecuteCommandJob(
+            string serializedCommand,
+            string commandType)
         {
-            return commandBus.PublishAsync(this, cancellationToken);
+            SerializedCommand = serializedCommand;
+            CommandType = commandType;
+        }
+
+        // TODO: Move to "job handler"
+        public Task ExecuteAsync(IResolver resolver)
+        {
+            var commandType = Type.GetType(CommandType, true);
+            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
+            var command = (ICommand) jsonSerializer.Deserialize(SerializedCommand, commandType);
+
+            var commandBus = resolver.Resolve<ICommandBus>();
+            return command.PublishAsync(commandBus, CancellationToken.None);
         }
     }
 }
