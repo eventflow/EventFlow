@@ -1,4 +1,19 @@
-### New in 0.12 (not released yet)
+### New in 0.13 (not released yet)
+
+ * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds query handlers
+ * New: Added an optional `Predicate<Type>` to the following option extension
+   methods that scan an `Assembly`: `AddAggregateRoots(...)`,
+   `AddCommandHandlers(...)`, `AddDefaults(...)`, `AddEventUpgraders(...)`,
+   `AddEvents(...)`, `AddMetadataProviders(...)`, `AddQueryHandlers(...)` and
+   `AddSubscribers(...)`
+ * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract
+   classes from being registered when passing `IEnumerable<Type>`
+ * Fixed: Events published to RabbitMQ are now in the right order for chains
+   of subscribers, if `event A -> subscriber -> command -> aggregate -> event B`,
+   then the order of published events to RabbitMQ was `event B` and then
+   `event A`
+
+### New in 0.12.891 (released 2015-09-04)
 
  * Breaking: Aggregate root no longer have `Aggregate` removed from their
    when name, i.e., the metadata property with key `aggregate_name` (or

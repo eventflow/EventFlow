@@ -47,23 +47,24 @@ namespace EventFlow.Extensions
             this EventFlowOptions eventFlowOptions,
             params Type[] subscribeSynchronousToTypes)
         {
-            return eventFlowOptions
-                .AddSubscribers((IEnumerable<Type>) subscribeSynchronousToTypes);
+            return eventFlowOptions.AddSubscribers((IEnumerable<Type>) subscribeSynchronousToTypes);
         }
 
         public static EventFlowOptions AddSubscribers(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
                 .Where(t => t
                     .GetInterfaces()
                     .Any(i =>
                         (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
-                        i == typeof(ISubscribeSynchronousToAll)));
-            return eventFlowOptions
-                .AddSubscribers(subscribeSynchronousToTypes);
+                        i == typeof(ISubscribeSynchronousToAll)))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddSubscribers(subscribeSynchronousToTypes);
         }
 
         public static EventFlowOptions AddSubscribers(
