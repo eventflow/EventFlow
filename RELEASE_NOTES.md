@@ -6,6 +6,10 @@
    `AddCommandHandlers(...)`, `AddDefaults(...)`, `AddEventUpgraders(...)`,
    `AddEvents(...)`, `AddMetadataProviders(...)`, `AddQueryHandlers(...)` and
    `AddSubscribers(...)`
+ * New: Created a new interface `ICommand<TAggregate,TIdentity,TSourceIdentity>`
+   to allow developers to control the type of `ICommand.SourceId`. Using the
+   `ICommand<TAggregate,TIdentity>` (not changed) will still yield the same
+   result as before, i.e., `ICommand.SourceId` being of type `ISourceId`
  * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract
    classes from being registered when passing `IEnumerable<Type>`
  * Fixed: Events published to RabbitMQ are now in the right order for chains
