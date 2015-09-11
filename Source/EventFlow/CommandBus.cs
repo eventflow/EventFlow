@@ -126,7 +126,7 @@ namespace EventFlow
 
         public ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
             ICommand<TAggregate, TIdentity, TSourceIdentity> command,
-			CancellationToken cancellationToken)
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TSourceIdentity : ISourceId

@@ -39,8 +39,8 @@ namespace EventFlow.Commands
     }
 
     public interface ICommand<in TAggregate, out TIdentity> : ICommand<TAggregate, TIdentity, ISourceId>
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
     {
     }
 }
