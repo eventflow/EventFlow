@@ -83,6 +83,7 @@
     <Compile Include="UnitTests\Aggregates\AggregateStateTests.cs" />
     <Compile Include="UnitTests\Commands\CommandTests.cs" />
     <Compile Include="UnitTests\Commands\DistinctCommandTests.cs" />
+    <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />

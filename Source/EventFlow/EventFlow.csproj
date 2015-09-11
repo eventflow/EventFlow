@@ -65,8 +65,12 @@
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="Commands\CommandDefinition.cs" />
+    <Compile Include="Commands\CommandDefinitionService.cs" />
     <Compile Include="Commands\CommandId.cs" />
+    <Compile Include="Commands\CommandVersionAttribute.cs" />
     <Compile Include="Commands\DistinctCommand.cs" />
+    <Compile Include="Commands\ICommandDefinitionService.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
