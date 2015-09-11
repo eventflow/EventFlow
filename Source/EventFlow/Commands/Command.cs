@@ -21,6 +21,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -41,6 +43,16 @@ namespace EventFlow.Commands
 
             AggregateId = aggregateId;
             SourceId = sourceId;
+        }
+
+        public Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        {
+            return commandBus.PublishAsync(this, cancellationToken);
+        }
+
+        public ISourceId GetSourceId()
+        {
+            return SourceId;
         }
     }
 

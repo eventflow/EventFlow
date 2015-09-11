@@ -30,6 +30,6 @@ namespace EventFlow.Commands
         void LoadCommands(IEnumerable<Type> commandTypes);
         CommandDefinition GetCommandDefinition(Type commandType);
         CommandDefinition GetCommandDefinition(string commandName, int version);
-
+        bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition);
     }
 }

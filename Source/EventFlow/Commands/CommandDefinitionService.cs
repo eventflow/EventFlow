@@ -48,6 +48,11 @@ namespace EventFlow.Commands
             return GetDefinition(commandName, version);
         }
 
+        public bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition)
+        {
+            return TryGetDefinition(name, version, out definition);
+        }
+
         protected override CommandDefinition CreateDefinition(int version, Type type, string name)
         {
             return new CommandDefinition(version, type, name);

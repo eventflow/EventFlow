@@ -35,7 +35,9 @@ using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
+using EventFlow.Owin.Middlewares;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
@@ -81,6 +83,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterApiControllers(typeof(Startup).Assembly).InstancePerRequest();
+            containerBuilder.RegisterType<CommandPublishApiMiddleware>().InstancePerRequest();
 
             var storePath = Path.Combine(
                 Path.GetTempPath(),
@@ -91,6 +94,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .AddOwinMetadataProviders()
+                .AddCommands(new [] {typeof(PingCommand)})
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
                 .CreateContainer(false);

@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -27,6 +29,8 @@ namespace EventFlow.Commands
 {
     public interface ICommand
     {
+        Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
+        ISourceId GetSourceId();
     }
 
     public interface ICommand<in TAggregate, out TIdentity, out TSourceIdentity> : ICommand

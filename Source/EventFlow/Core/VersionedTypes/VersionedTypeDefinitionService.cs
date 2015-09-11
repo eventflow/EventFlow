@@ -68,15 +68,21 @@ namespace EventFlow.Core.VersionedTypes
             }
         }
 
-        protected TDefinition GetDefinition(string name, int version)
+        protected bool TryGetDefinition(string name, int version, out TDefinition definition)
         {
             var key = GetKey(name, version);
-            if (!_definitionsByName.ContainsKey(key))
+            return _definitionsByName.TryGetValue(key, out definition);
+        }
+
+        protected TDefinition GetDefinition(string name, int version)
+        {
+            TDefinition definition;
+            if (!TryGetDefinition(name, version, out definition))
             {
                 throw new ArgumentException($"No versioned type definition for '{name}' with version {version}");
             }
 
-            return _definitionsByName[key];
+            return definition;
         }
 
         protected TDefinition GetDefinition(Type type)
