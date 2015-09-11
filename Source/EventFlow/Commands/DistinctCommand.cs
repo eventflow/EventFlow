@@ -29,13 +29,13 @@ using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class DistinctCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+    public abstract class DistinctCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity, CommandId>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        private readonly Lazy<ISourceId> _lazySourceId;
+        private readonly Lazy<CommandId> _lazySourceId;
 
-        public ISourceId SourceId => _lazySourceId.Value;
+        public CommandId SourceId => _lazySourceId.Value;
         public TIdentity AggregateId { get; }
 
         protected DistinctCommand(
@@ -43,12 +43,12 @@ namespace EventFlow.Commands
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
 
-            _lazySourceId = new Lazy<ISourceId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
+            _lazySourceId = new Lazy<CommandId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
 
             AggregateId = aggregateId;
         }
 
-        private ISourceId CalculateSourceId()
+        private CommandId CalculateSourceId()
         {
             var bytes = GetSourceIdComponents().SelectMany(b => b).ToArray();
             return CommandId.NewDeterministic(
