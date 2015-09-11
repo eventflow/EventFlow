@@ -44,6 +44,7 @@ namespace EventFlow.TestHelpers
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
             Fixture.Customize<TestId>(x => x.FromFactory(() => TestId.New));
+            Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
             Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
 
             DomainEventFactory = new DomainEventFactory();

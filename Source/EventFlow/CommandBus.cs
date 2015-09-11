@@ -63,11 +63,12 @@ namespace EventFlow
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
-            ICommand<TAggregate, TIdentity> command,
+        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
@@ -123,11 +124,12 @@ namespace EventFlow
             return command.SourceId;
         }
 
-        public ISourceId Publish<TAggregate, TIdentity>(
-            ICommand<TAggregate, TIdentity> command,
+        public ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
 			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
         {
             ISourceId sourceId = null;
 
@@ -139,11 +141,12 @@ namespace EventFlow
             return sourceId;
         }
 
-        private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity>(
-            ICommand<TAggregate, TIdentity> command,
+        private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
         {
             var commandType = command.GetType();
             var commandExecutionDetails = GetCommandExecutionDetails(commandType);
@@ -201,11 +204,11 @@ namespace EventFlow
                     {
                         var commandInterfaceType = t
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,>));
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
                         var commandTypes = commandInterfaceType.GetGenericArguments();
 
-                        var commandHandlerType = typeof(ICommandHandler<,,>)
-                            .MakeGenericType(commandTypes[0], commandTypes[1], commandType);
+                        var commandHandlerType = typeof(ICommandHandler<,,,>)
+                            .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
 
                         var invoker = commandHandlerType.GetMethod("ExecuteAsync");
 

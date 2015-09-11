@@ -38,7 +38,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var commandHandlerTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,>)))
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>)))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddCommandHandlers(commandHandlerTypes);
         }
@@ -59,7 +59,7 @@ namespace EventFlow.Extensions
                 var t = commandHandlerType;
                 var handlesCommandTypes = t
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,>))
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
                     .ToList();
                 if (!handlesCommandTypes.Any())
                 {

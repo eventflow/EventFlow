@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
@@ -32,16 +33,11 @@ namespace EventFlow.Tests.UnitTests.Commands
 {
     public class CommandTests : Test
     {
-        public class CriticalCommand : Command<TestAggregate, TestId>
+        public class CriticalCommand : Command<TestAggregate, TestId, EventId>
         {
             public string CriticalData { get; }
 
-            public CriticalCommand(TestId aggregateId, string criticalData) : base(aggregateId)
-            {
-                CriticalData = criticalData;
-            }
-
-            public CriticalCommand(TestId aggregateId, ISourceId sourceId, string criticalData) : base(aggregateId, sourceId)
+            public CriticalCommand(TestId aggregateId, EventId sourceId, string criticalData) : base(aggregateId, sourceId)
             {
                 CriticalData = criticalData;
             }
