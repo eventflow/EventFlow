@@ -35,8 +35,11 @@ namespace EventFlow.Tests.UnitTests.EventStores
     {
         [EventVersion("Fancy", 42)]
         public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+
         public class TestEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+
         public class TestEventV2 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+
         public class OldTestEventV5 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
 
         [TestCase(typeof(TestEvent), 1, "TestEvent")]

@@ -104,6 +104,7 @@
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
@@ -111,6 +112,8 @@
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeDefinitionService.cs" />
+    <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
@@ -184,7 +187,7 @@
     <Compile Include="MetadataProviders\AddGuidMetadataProvider.cs" />
     <Compile Include="ReadStores\IReadModel.cs" />
     <Compile Include="EventStores\SerializedEvent.cs" />
-    <Compile Include="EventStores\EventDefinition.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />
     <Compile Include="EventStores\EventJsonSerializer.cs" />
     <Compile Include="Aggregates\IAggregateEvent.cs" />
