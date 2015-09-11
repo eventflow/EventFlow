@@ -48,7 +48,7 @@ namespace EventFlow.EventStores
         {
             var eventDefinition = _eventDefinitionService.GetEventDefinition(aggregateEvent.GetType());
 
-            var metadata = new Metadata(metadatas
+            var metadata = new EventMetadata(metadatas
                 .Where(kv => kv.Key != MetadataKeys.EventName && kv.Key != MetadataKeys.EventVersion) // TODO: Fix this
                 .Concat(new[]
                     {
@@ -66,14 +66,14 @@ namespace EventFlow.EventStores
                 metadata);
         }
 
-        public IDomainEvent Deserialize(string json, IMetadata metadata)
+        public IDomainEvent Deserialize(string json, IEventMetadata eventMetadata)
         {
-            return Deserialize(metadata.AggregateId, json, metadata);
+            return Deserialize(eventMetadata.AggregateId, json, eventMetadata);
         }
 
         public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
         {
-            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
+            var metadata = (IEventMetadata)_jsonSerializer.Deserialize<EventMetadata>(committedDomainEvent.Metadata);
             return Deserialize(committedDomainEvent.AggregateId, committedDomainEvent.Data, metadata);
         }
 
@@ -86,19 +86,19 @@ namespace EventFlow.EventStores
             return (IDomainEvent<TAggregate, TIdentity>)Deserialize(committedDomainEvent);
         }
 
-        private IDomainEvent Deserialize(string aggregateId, string json, IMetadata metadata)
+        private IDomainEvent Deserialize(string aggregateId, string json, IEventMetadata eventMetadata)
         {
             var eventDefinition = _eventDefinitionService.GetEventDefinition(
-                metadata.EventName,
-                metadata.EventVersion);
+                eventMetadata.EventName,
+                eventMetadata.EventVersion);
 
             var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
 
             var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,
-                metadata,
+                eventMetadata,
                 aggregateId,
-                metadata.AggregateSequenceNumber);
+                eventMetadata.AggregateSequenceNumber);
 
             return domainEvent;
         }

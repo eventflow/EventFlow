@@ -20,27 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Core
 {
-    public interface IEventJsonSerializer
+    public interface IMetadata : IReadOnlyDictionary<string, string>
     {
-        SerializedEvent Serialize(
-            IAggregateEvent aggregateEvent,
-            IEnumerable<KeyValuePair<string, string>> metadatas);
-
-        IDomainEvent Deserialize(string json, IEventMetadata eventMetadata);
-
-        IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
-
-        IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
-            TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs);
+        IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        string GetMetadataValue(string key);
+        T GetMetadataValue<T>(string key, Func<string, T> converter);
     }
 }

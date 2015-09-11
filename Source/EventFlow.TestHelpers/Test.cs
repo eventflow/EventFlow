@@ -73,7 +73,7 @@ namespace EventFlow.TestHelpers
             int aggregateSequenceNumber = 0)
             where TAggregateEvent : IAggregateEvent
         {
-            var metadata = new Metadata
+            var metadata = new EventMetadata
                 {
                     Timestamp = A<DateTimeOffset>(),
                     SourceId = A<SourceId>(),

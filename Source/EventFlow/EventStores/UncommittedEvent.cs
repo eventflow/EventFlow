@@ -27,12 +27,12 @@ namespace EventFlow.EventStores
     public class UncommittedEvent : IUncommittedEvent
     {
         public IAggregateEvent AggregateEvent { get; }
-        public IMetadata Metadata { get; }
+        public IEventMetadata Metadata { get; }
 
-        public UncommittedEvent(IAggregateEvent aggregateEvent, IMetadata metadata)
+        public UncommittedEvent(IAggregateEvent aggregateEvent, IEventMetadata eventMetadata)
         {
             AggregateEvent = aggregateEvent;
-            Metadata = metadata;
+            Metadata = eventMetadata;
         }
     }
 }

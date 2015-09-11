@@ -35,7 +35,7 @@ namespace EventFlow.EventStores
 
         public IDomainEvent Create(
             IAggregateEvent aggregateEvent,
-            IMetadata metadata,
+            IEventMetadata eventMetadata,
             string aggregateIdentity,
             int aggregateSequenceNumber)
         {
@@ -46,8 +46,8 @@ namespace EventFlow.EventStores
             var domainEvent = (IDomainEvent)Activator.CreateInstance(
                 domainEventType,
                 aggregateEvent,
-                metadata,
-                metadata.Timestamp,
+                eventMetadata,
+                eventMetadata.Timestamp,
                 identity,
                 aggregateSequenceNumber);
 
@@ -56,7 +56,7 @@ namespace EventFlow.EventStores
 
         public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
-            IMetadata metadata,
+            IEventMetadata eventMetadata,
             TIdentity id,
             int aggregateSequenceNumber)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -64,7 +64,7 @@ namespace EventFlow.EventStores
         {
             return (IDomainEvent<TAggregate, TIdentity>)Create(
                 aggregateEvent,
-                metadata,
+                eventMetadata,
                 id.Value,
                 aggregateSequenceNumber);
         }

@@ -29,13 +29,13 @@ namespace EventFlow.EventStores
     {
         IDomainEvent Create(
             IAggregateEvent aggregateEvent,
-            IMetadata metadata,
+            IEventMetadata eventMetadata,
             string aggregateIdentity,
             int aggregateSequenceNumber);
 
         IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
             IAggregateEvent aggregateEvent,
-            IMetadata metadata,
+            IEventMetadata eventMetadata,
             TIdentity id,
             int aggregateSequenceNumber)
             where TAggregate : IAggregateRoot<TIdentity>

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -39,8 +40,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var timestamp = A<DateTimeOffset>();
 
             // Act
-            var sut = new Metadata
-                {
+            var sut = new EventMetadata
+            {
                     Timestamp = timestamp
                 };
 
@@ -55,8 +56,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var eventName = A<string>();
 
             // Act
-            var sut = new Metadata
-                {
+            var sut = new EventMetadata
+            {
                     EventName = eventName
                 };
 
@@ -71,8 +72,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var eventVersion = A<int>();
 
             // Act
-            var sut = new Metadata
-                {
+            var sut = new EventMetadata
+            {
                     EventVersion = eventVersion
                 };
 
@@ -87,7 +88,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var aggregateSequenceNumber = A<int>();
 
             // Act
-            var sut = new Metadata
+            var sut = new EventMetadata
                 {
                     AggregateSequenceNumber = aggregateSequenceNumber
                 };
@@ -125,7 +126,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var aggregateName = A<string>();
             var aggregateSequenceNumber = A<int>();
             var timestamp = A<DateTimeOffset>();
-            var sut = new Metadata
+            var sut = new EventMetadata
                 {
                     { MetadataKeys.AggregateName, aggregateName },
                     { MetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString() },
@@ -134,7 +135,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
 
             // Act
             var json = JsonConvert.SerializeObject(sut);
-            var metadata = JsonConvert.DeserializeObject<Metadata>(json);
+            var metadata = JsonConvert.DeserializeObject<EventMetadata>(json);
 
             // Assert
             metadata.Count.Should().Be(3);

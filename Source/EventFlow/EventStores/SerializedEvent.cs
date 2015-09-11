@@ -29,18 +29,18 @@ namespace EventFlow.EventStores
         public string SerializedMetadata { get; }
         public string SerializedData { get; }
         public int AggregateSequenceNumber { get; }
-        public IMetadata Metadata { get; }
+        public IEventMetadata Metadata { get; }
 
         public SerializedEvent(
             string serializedMetadata,
             string serializedData,
             int aggregateSequenceNumber,
-            IMetadata metadata)
+            IEventMetadata eventMetadata)
         {
             SerializedMetadata = serializedMetadata;
             SerializedData = serializedData;
             AggregateSequenceNumber = aggregateSequenceNumber;
-            Metadata = metadata;
+            Metadata = eventMetadata;
         }
     }
 }

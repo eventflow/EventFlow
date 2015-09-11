@@ -30,7 +30,7 @@ namespace EventFlow.Aggregates
         Type AggregateType { get; }
         Type EventType { get; }
         int AggregateSequenceNumber { get; }
-        IMetadata Metadata { get; }
+        IEventMetadata Metadata { get; }
         DateTimeOffset Timestamp { get; }
 
         IIdentity GetIdentity();

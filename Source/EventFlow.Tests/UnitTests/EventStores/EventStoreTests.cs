@@ -57,13 +57,13 @@ namespace EventFlow.Tests.UnitTests.EventStores
                         string.Empty,
                         string.Empty,
                         int.Parse(m.Single(kv => kv.Key == MetadataKeys.AggregateSequenceNumber).Value),
-                        new Metadata()));
+                        new EventMetadata()));
         }
 
         private List<IUncommittedEvent> ManyUncommittedEvents(int count = 3)
         {
             return Many<PingEvent>(count)
-                .Select((e, i) => (IUncommittedEvent)new UncommittedEvent(e, new Metadata(new Dictionary<string, string>
+                .Select((e, i) => (IUncommittedEvent)new UncommittedEvent(e, new EventMetadata(new Dictionary<string, string>
                     {
                         {MetadataKeys.AggregateSequenceNumber, (i + 1).ToString()}
                     })))
