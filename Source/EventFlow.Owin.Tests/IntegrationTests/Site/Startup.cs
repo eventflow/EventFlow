@@ -83,7 +83,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterApiControllers(typeof(Startup).Assembly).InstancePerRequest();
-            containerBuilder.RegisterType<CommandPublishApiMiddleware>().InstancePerRequest();
+            containerBuilder.RegisterType<CommandPublishMiddleware>().InstancePerRequest();
 
             var storePath = Path.Combine(
                 Path.GetTempPath(),

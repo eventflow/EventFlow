@@ -1,6 +1,10 @@
 ### New in 0.13 (not released yet)
 
  * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds query handlers
+ * New: Created the OWIN `CommandPublishMiddleware` middleware that can
+   handle publishing of commands by posting a JSON serialized command to
+   e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
+   version. Remember to add authentication
  * New: Added an optional `Predicate<Type>` to the following option extension
    methods that scan an `Assembly`: `AddAggregateRoots(...)`,
    `AddCommandHandlers(...)`, `AddDefaults(...)`, `AddEventUpgraders(...)`,

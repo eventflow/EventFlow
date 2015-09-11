@@ -34,7 +34,7 @@ using Microsoft.Owin;
 
 namespace EventFlow.Owin.Middlewares
 {
-    public class CommandPublishApiMiddleware : OwinMiddleware
+    public class CommandPublishMiddleware : OwinMiddleware
     {
         private static readonly Regex CommandPath = new Regex(
             @"/*commands/(?<name>[a-z]+)/(?<version>\d+)/{0,1}",
@@ -45,7 +45,7 @@ namespace EventFlow.Owin.Middlewares
         private readonly ICommandDefinitionService _commandDefinitionService;
         private readonly ICommandBus _commandBus;
 
-        public CommandPublishApiMiddleware(
+        public CommandPublishMiddleware(
             OwinMiddleware next,
             ILog log,
             IJsonSerializer jsonSerializer,

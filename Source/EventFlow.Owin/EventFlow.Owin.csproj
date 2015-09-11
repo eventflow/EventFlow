@@ -59,7 +59,7 @@
     <Compile Include="MetadataProviders\AddRequestHeadersMetadataProvider.cs" />
     <Compile Include="MetadataProviders\AddUriMetadataProvider.cs" />
     <Compile Include="MetadataProviders\AddUserHostAddressMetadataProvider.cs" />
-    <Compile Include="Middlewares\CommandPublishApiMiddleware.cs" />
+    <Compile Include="Middlewares\CommandPublishMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
