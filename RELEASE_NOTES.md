@@ -1,4 +1,8 @@
-### New in 0.13 (not released yet)
+### New in 0.14 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.13.962 (released 2015-09-13)
 
  * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds query handlers
  * New: Created the OWIN `CommandPublishMiddleware` middleware that can
