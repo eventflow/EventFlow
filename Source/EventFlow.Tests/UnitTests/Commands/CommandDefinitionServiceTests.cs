@@ -61,12 +61,12 @@ namespace EventFlow.Tests.UnitTests.Commands
         public void GetCommandDefinition_EventWithVersion(Type commandType, int expectedVersion, string expectedName)
         {
             // Act
-            var eventDefinition = Sut.GetCommandDefinition(commandType);
+            var commandDefinition = Sut.GetCommandDefinition(commandType);
 
             // Assert
-            eventDefinition.Name.Should().Be(expectedName);
-            eventDefinition.Version.Should().Be(expectedVersion);
-            eventDefinition.Type.Should().Be(commandType);
+            commandDefinition.Name.Should().Be(expectedName);
+            commandDefinition.Version.Should().Be(expectedVersion);
+            commandDefinition.Type.Should().Be(commandType);
         }
 
         [TestCase("TestCommand", 1, typeof(TestCommand))]
@@ -85,12 +85,12 @@ namespace EventFlow.Tests.UnitTests.Commands
                 });
 
             // Act
-            var eventDefinition = Sut.GetCommandDefinition(commandName, commandVersion);
+            var commandDefinition = Sut.GetCommandDefinition(commandName, commandVersion);
 
             // Assert
-            eventDefinition.Name.Should().Be(commandName);
-            eventDefinition.Version.Should().Be(commandVersion);
-            eventDefinition.Type.Should().Be(expectedCommandType);
+            commandDefinition.Name.Should().Be(commandName);
+            commandDefinition.Version.Should().Be(commandVersion);
+            commandDefinition.Type.Should().Be(expectedCommandType);
         }
     }
 }
