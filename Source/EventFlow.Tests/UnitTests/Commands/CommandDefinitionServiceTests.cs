@@ -92,5 +92,12 @@ namespace EventFlow.Tests.UnitTests.Commands
             commandDefinition.Version.Should().Be(commandVersion);
             commandDefinition.Type.Should().Be(expectedCommandType);
         }
+
+        [Test]
+        public void CanLoadNull()
+        {
+            // Act
+            Sut.LoadCommands(null);
+        }
     }
 }

@@ -80,5 +80,12 @@ namespace EventFlow.Tests.UnitTests.EventStores
             eventDefinition.Version.Should().Be(eventVersion);
             eventDefinition.Type.Should().Be(expectedEventType);
         }
+
+        [Test]
+        public void CanLoadNull()
+        {
+            // Act
+            Sut.LoadEvents(null);
+        }
     }
 }

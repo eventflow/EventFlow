@@ -50,7 +50,17 @@ namespace EventFlow.Core.VersionedTypes
 
         protected void Load(IEnumerable<Type> types)
         {
+            if (types == null)
+            {
+                return;
+            }
+
             var definitions = types.Select(GetDefinition).ToList();
+            if (!definitions.Any())
+            {
+                return;
+            }
+
             var assemblies = definitions
                 .Select(d => d.Type.Assembly.GetName().Name)
                 .Distinct()
