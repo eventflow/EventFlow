@@ -141,6 +141,7 @@
     <Compile Include="Extensions\DisposableExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsAggregatesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsCommandHandlerExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />

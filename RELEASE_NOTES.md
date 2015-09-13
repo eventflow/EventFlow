@@ -8,6 +8,8 @@
   to allow developers to control the type of `ICommand.SourceId`. Using the
   `ICommand<TAggregate,TIdentity>` (not changed) will still yield the same
   result as before, i.e., `ICommand.SourceId` being of type `ISourceId`
+* New: The `AddDefaults(...)` now also adds the command type definition to the
+  new `ICommandDefinitonService`
 
 ### New in 0.13.962 (released 2015-09-13)
 
