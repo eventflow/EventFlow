@@ -34,7 +34,7 @@ namespace EventFlow.Core.VersionedTypes
         where TDefinition : VersionedTypeDefinition
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Regex EventNameRegex = new Regex(
+        private static readonly Regex NameRegex = new Regex(
             @"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$",
             RegexOptions.Compiled);
 
@@ -96,33 +96,33 @@ namespace EventFlow.Core.VersionedTypes
                 return _definitionsByType[type];
             }
 
-            var eventDefinition = CreateDefinitions(type).FirstOrDefault(d => d != null);
-            if (eventDefinition == null)
+            var definition = CreateDefinitions(type).FirstOrDefault(d => d != null);
+            if (definition == null)
             {
                 throw new ArgumentException(
                     $"Could not create a versioned type definition for event type '{type.Name}'",
                     nameof(type));
             }
 
-            _log.Verbose("Added versioned type definition '{0}'", eventDefinition);
+            _log.Verbose("Added versioned type definition '{0}'", definition);
 
-            _definitionsByType.Add(type, eventDefinition);
+            _definitionsByType.Add(type, definition);
 
-            return eventDefinition;
+            return definition;
         }
 
-        private IEnumerable<TDefinition> CreateDefinitions(Type eventType)
+        private IEnumerable<TDefinition> CreateDefinitions(Type versionedType)
         {
-            yield return CreateDefinitionFromAttribute(eventType);
-            yield return CreateDefinitionFromName(eventType);
+            yield return CreateDefinitionFromAttribute(versionedType);
+            yield return CreateDefinitionFromName(versionedType);
         }
 
-        private TDefinition CreateDefinitionFromName(Type eventType)
+        private TDefinition CreateDefinitionFromName(Type versionedType)
         {
-            var match = EventNameRegex.Match(eventType.Name);
+            var match = NameRegex.Match(versionedType.Name);
             if (!match.Success)
             {
-                throw new ArgumentException($"Versioned type name '{eventType.Name}' is not a valid name");
+                throw new ArgumentException($"Versioned type name '{versionedType.Name}' is not a valid name");
             }
 
             var version = 1;
@@ -135,29 +135,29 @@ namespace EventFlow.Core.VersionedTypes
             var name = match.Groups["name"].Value;
             return CreateDefinition(
                 version,
-                eventType,
+                versionedType,
                 name);
         }
 
-        private TDefinition CreateDefinitionFromAttribute(Type eventType)
+        private TDefinition CreateDefinitionFromAttribute(Type versionedType)
         {
-            var eventVersion = eventType
+            var attribute = versionedType
                 .GetCustomAttributes()
                 .OfType<TAttribute>()
                 .SingleOrDefault();
-            return eventVersion == null
+            return attribute == null
                 ? null
                 : CreateDefinition(
-                    eventVersion.Version,
-                    eventType,
-                    eventVersion.Name);
+                    attribute.Version,
+                    versionedType,
+                    attribute.Name);
         }
 
         protected abstract TDefinition CreateDefinition(int version, Type type, string name);
 
-        private static string GetKey(string eventName, int version)
+        private static string GetKey(string versionedTypeName, int version)
         {
-            return $"{eventName} - v{version}";
+            return $"{versionedTypeName} - v{version}";
         }
     }
 }
