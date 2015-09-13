@@ -22,7 +22,6 @@
 
 using System.Collections.Generic;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;

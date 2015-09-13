@@ -32,21 +32,22 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions AddCommandHandlers(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var commandHandlerTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,>)));
-            return eventFlowOptions
-                .AddCommandHandlers(commandHandlerTypes);
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,>)))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddCommandHandlers(commandHandlerTypes);
         }
 
         public static EventFlowOptions AddCommandHandlers(
             this EventFlowOptions eventFlowOptions,
             params Type[] commandHandlerTypes)
         {
-            return eventFlowOptions
-                .AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
+            return eventFlowOptions.AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
         }
 
         public static EventFlowOptions AddCommandHandlers(

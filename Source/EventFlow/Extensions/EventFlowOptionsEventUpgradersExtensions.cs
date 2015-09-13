@@ -39,8 +39,7 @@ namespace EventFlow.Extensions
             where TIdentity : IIdentity
             where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
         {
-            eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
-            return eventFlowOptions;
+            return eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
         }
 
         public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
@@ -49,17 +48,19 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            eventFlowOptions.RegisterServices(f => f.Register(factory));
-            return eventFlowOptions;
+            return eventFlowOptions.RegisterServices(f => f.Register(factory));
         }
 
         public static EventFlowOptions AddEventUpgraders(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var eventUpgraderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>)));
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>)))
+                .Where(t => predicate(t));
             return eventFlowOptions
                 .AddEventUpgraders(eventUpgraderTypes);
         }

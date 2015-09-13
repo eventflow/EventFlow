@@ -20,34 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using EventFlow.Aggregates;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Tests
 {
-    public static class EventFlowOptionsEventsExtensions
+    public static class EventFlowTests
     {
-        public static EventFlowOptions AddEvents(
-            this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly,
-            Predicate<Type> predicate = null)
-        {
-            predicate = predicate ?? (t => true);
-            var aggregateEventTypes = fromAssembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t))
-                .Where(t => predicate(t));
-            return eventFlowOptions.AddEvents(aggregateEventTypes);
-        }
-
-        public static EventFlowOptions AddEvents(
-            this EventFlowOptions eventFlowOptions,
-            params Type[] aggregateEventTypes)
-        {
-            return eventFlowOptions.AddEvents((IEnumerable<Type>)aggregateEventTypes);
-        }
+        public static Assembly Assembly { get; } = typeof(EventFlowTests).Assembly;
     }
 }

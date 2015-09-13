@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores;
 
 namespace EventFlow.Extensions
@@ -51,13 +50,15 @@ namespace EventFlow.Extensions
 
         public static EventFlowOptions AddMetadataProviders(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var metadataProviderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t));
-            return eventFlowOptions
-                .AddMetadataProviders(metadataProviderTypes);
+                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
         }
 
         public static EventFlowOptions AddMetadataProviders(
