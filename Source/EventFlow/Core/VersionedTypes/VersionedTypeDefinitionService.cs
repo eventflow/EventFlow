@@ -61,15 +61,18 @@ namespace EventFlow.Core.VersionedTypes
                 return;
             }
 
-            var assemblies = definitions
-                .Select(d => d.Type.Assembly.GetName().Name)
-                .Distinct()
-                .OrderBy(n => n)
-                .ToList();
-            _log.Verbose(
-                "Added {0} versioned types from these assemblies: {1}",
-                definitions.Count,
-                string.Join(", ", assemblies));
+            _log.Verbose(() =>
+                {
+                    var assemblies = definitions
+                        .Select(d => d.Type.Assembly.GetName().Name)
+                        .Distinct()
+                        .OrderBy(n => n)
+                        .ToList();
+                    return string.Format(
+                        "Added {0} versioned types from these assemblies: {1}",
+                        definitions.Count,
+                        string.Join(", ", assemblies));
+                });
 
             foreach (var definition in definitions)
             {
