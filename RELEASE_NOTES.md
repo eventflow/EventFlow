@@ -1,23 +1,22 @@
 ### New in 0.14 (not released yet)
 
- * _Nothing yet_
+* New: Created the OWIN `CommandPublishMiddleware` middleware that can
+  handle publishing of commands by posting a JSON serialized command to
+  e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
+  version. Remember to add authentication
+* New: Created a new interface `ICommand<TAggregate,TIdentity,TSourceIdentity>`
+  to allow developers to control the type of `ICommand.SourceId`. Using the
+  `ICommand<TAggregate,TIdentity>` (not changed) will still yield the same
+  result as before, i.e., `ICommand.SourceId` being of type `ISourceId`
 
 ### New in 0.13.962 (released 2015-09-13)
 
  * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds query handlers
- * New: Created the OWIN `CommandPublishMiddleware` middleware that can
-   handle publishing of commands by posting a JSON serialized command to
-   e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
-   version. Remember to add authentication
  * New: Added an optional `Predicate<Type>` to the following option extension
    methods that scan an `Assembly`: `AddAggregateRoots(...)`,
    `AddCommandHandlers(...)`, `AddDefaults(...)`, `AddEventUpgraders(...)`,
    `AddEvents(...)`, `AddMetadataProviders(...)`, `AddQueryHandlers(...)` and
    `AddSubscribers(...)`
- * New: Created a new interface `ICommand<TAggregate,TIdentity,TSourceIdentity>`
-   to allow developers to control the type of `ICommand.SourceId`. Using the
-   `ICommand<TAggregate,TIdentity>` (not changed) will still yield the same
-   result as before, i.e., `ICommand.SourceId` being of type `ISourceId`
  * Fixed: `EventFlowOptions.AddAggregateRoots(...)` now prevents abstract
    classes from being registered when passing `IEnumerable<Type>`
  * Fixed: Events published to RabbitMQ are now in the right order for chains
