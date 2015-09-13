@@ -36,24 +36,24 @@ namespace EventFlow.Aggregates
         public int AggregateSequenceNumber { get; }
         public TAggregateEvent AggregateEvent { get; }
         public TIdentity AggregateIdentity { get; }
-        public IEventMetadata Metadata { get; }
+        public IMetadata Metadata { get; }
         public DateTimeOffset Timestamp { get; }
 
         public DomainEvent(
             TAggregateEvent aggregateEvent,
-            IEventMetadata eventMetadata,
+            IMetadata metadata,
             DateTimeOffset timestamp,
             TIdentity aggregateIdentity,
             int aggregateSequenceNumber)
         {
             if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
-            if (eventMetadata == null) throw new ArgumentNullException(nameof(eventMetadata));
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
             if (timestamp == default(DateTimeOffset)) throw new ArgumentNullException(nameof(timestamp));
             if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException(nameof(aggregateIdentity));
             if (aggregateSequenceNumber <= 0) throw new ArgumentOutOfRangeException(nameof(aggregateSequenceNumber));
 
             AggregateEvent = aggregateEvent;
-            Metadata = eventMetadata;
+            Metadata = metadata;
             Timestamp = timestamp;
             AggregateIdentity = aggregateIdentity;
             AggregateSequenceNumber = aggregateSequenceNumber;

@@ -62,11 +62,9 @@
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
     <Compile Include="Aggregates\EventId.cs" />
-    <Compile Include="Aggregates\EventMetadata.cs" />
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
-    <Compile Include="Aggregates\IEventMetadata.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
     <Compile Include="Commands\CommandDefinitionService.cs" />
     <Compile Include="Commands\CommandId.cs" />
@@ -185,7 +183,7 @@
     <Compile Include="EventStores\IMetadataProvider.cs" />
     <Compile Include="EventStores\InMemory\InMemoryEventStore.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
-    <Compile Include="Core\IEventMetadata.cs" />
+    <Compile Include="Aggregates\IMetadata.cs" />
     <Compile Include="Logs\ConsoleLog.cs" />
     <Compile Include="Logs\ILog.cs" />
     <Compile Include="Logs\Log.cs" />
@@ -215,7 +213,7 @@
     <Compile Include="Subscribers\ISubscribeSynchronousTo.cs" />
     <Compile Include="ReadStores\IReadModelContext.cs" />
     <Compile Include="EventStores\IUncommittedEvent.cs" />
-    <Compile Include="Core\Metadata.cs" />
+    <Compile Include="Aggregates\Metadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadStores\ReadModelContext.cs" />
     <Compile Include="EventStores\UncommittedEvent.cs" />

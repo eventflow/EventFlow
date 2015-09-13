@@ -90,7 +90,7 @@ namespace EventFlow.Aggregates
             return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
 
-        protected virtual void Emit<TEvent>(TEvent aggregateEvent, IEventMetadata metadata = null)
+        protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null)
@@ -103,8 +103,8 @@ namespace EventFlow.Aggregates
                 GuidFactories.Deterministic.Namespaces.Events,
                 $"{Id.Value}-v{0}");
             var now = DateTimeOffset.Now;
-            var eventMetadata = new EventMetadata
-            {
+            var eventMetadata = new Metadata
+                {
                     Timestamp = now,
                     AggregateSequenceNumber = aggregateSequenceNumber,
                     AggregateName = Name.Value,

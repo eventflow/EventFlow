@@ -32,7 +32,7 @@ namespace EventFlow.MetadataProviders
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
             TIdentity id,
             IAggregateEvent aggregateEvent,
-            IEventMetadata eventMetadata)
+            IMetadata metadata)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {

@@ -32,7 +32,7 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IEnumerable<KeyValuePair<string, string>> metadatas);
 
-        IDomainEvent Deserialize(string json, IEventMetadata eventMetadata);
+        IDomainEvent Deserialize(string json, IMetadata metadata);
 
         IDomainEvent Deserialize(
             ICommittedDomainEvent committedDomainEvent);

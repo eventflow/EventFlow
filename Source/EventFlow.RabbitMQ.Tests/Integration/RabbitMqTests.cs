@@ -26,7 +26,6 @@ using System.Linq;
 using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -76,7 +75,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
                 var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>)eventJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,
-                    new EventMetadata(rabbitMqMessage.Headers));
+                    new Metadata(rabbitMqMessage.Headers));
 
                 pingEvent.AggregateEvent.PingId.Should().Be(pingId);
             }

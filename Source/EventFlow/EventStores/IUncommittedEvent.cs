@@ -27,6 +27,6 @@ namespace EventFlow.EventStores
     public interface IUncommittedEvent
     {
         IAggregateEvent AggregateEvent { get; }
-        IEventMetadata Metadata { get; }
+        IMetadata Metadata { get; }
     }
 }

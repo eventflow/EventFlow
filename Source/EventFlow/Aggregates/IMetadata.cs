@@ -21,11 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using EventFlow.Core;
 
 namespace EventFlow.Aggregates
 {
-    public interface IEventMetadata : IMetadata
+    public interface IMetadata : IReadOnlyDictionary<string, string>
     {
         IEventId EventId { get; }
         ISourceId SourceId { get; }
@@ -35,5 +36,10 @@ namespace EventFlow.Aggregates
         long TimestampEpoch { get; }
         int AggregateSequenceNumber { get; }
         string AggregateId { get; }
+
+        IMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs);
+        IMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        string GetMetadataValue(string key);
+        T GetMetadataValue<T>(string key, Func<string, T> converter);
     }
 }
