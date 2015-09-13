@@ -42,21 +42,18 @@ namespace EventFlow.Owin.Middlewares
 
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly ICommandDefinitionService _commandDefinitionService;
-        private readonly ICommandBus _commandBus;
+        private readonly ISerializedCommandPublisher _serializedCommandPublisher;
 
         public CommandPublishMiddleware(
             OwinMiddleware next,
             ILog log,
             IJsonSerializer jsonSerializer,
-            ICommandDefinitionService commandDefinitionService,
-            ICommandBus commandBus)
+            ISerializedCommandPublisher serializedCommandPublisher)
             : base(next)
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
-            _commandDefinitionService = commandDefinitionService;
-            _commandBus = commandBus;
+            _serializedCommandPublisher = serializedCommandPublisher;
         }
 
         public override async Task Invoke(IOwinContext context)
@@ -89,42 +86,14 @@ namespace EventFlow.Owin.Middlewares
                 requestJson = await streamReader.ReadToEndAsync().ConfigureAwait(false);
             }
 
-            if (string.IsNullOrEmpty(requestJson))
-            {
-                _log.Debug($"There was no body for the publish request of command {name} v{version}");
-                await WriteErrorAsync("No request body",
-                    HttpStatusCode.BadRequest,
-                    context)
-                    .ConfigureAwait(false);
-                return;
-            }
-
-            CommandDefinition commandDefinition;
-            if (!_commandDefinitionService.TryGetCommandDefinition(name, version, out commandDefinition))
-            {
-                _log.Debug($"No command definition found for command '{name}' v{version}");
-                await WriteErrorAsync($"No command named '{name}' with version '{version}'",
-                    HttpStatusCode.NotFound,
-                    context)
-                    .ConfigureAwait(false);
-                return;
-            }
-
-            ICommand command;
             try
             {
-                command = (ICommand)_jsonSerializer.Deserialize(requestJson, commandDefinition.Type);
-            }
-            catch (Exception e)
-            {
-                _log.Error(e, $"Failed to deserilize command '{name}' v{version}: {e.Message}");
-                return;
-            }
-
-            try
-            {
-                var sourceId = await command.PublishAsync(_commandBus, CancellationToken.None).ConfigureAwait(false);
-                _log.Verbose($"Sucessfully published command '{name}' v{version} with source ID '{command.GetSourceId().Value}' from OWIN middleware");
+                var sourceId = await _serializedCommandPublisher.PublishSerilizedCommandAsync(
+                    name,
+                    version,
+                    requestJson,
+                    CancellationToken.None)
+                    .ConfigureAwait(false);
                 await WriteAsync(
                     new
                         {
@@ -133,6 +102,11 @@ namespace EventFlow.Owin.Middlewares
                     HttpStatusCode.OK,
                     context)
                     .ConfigureAwait(false);
+            }
+            catch (ArgumentException e)
+            {
+                _log.Debug(e, $"Failed to publish serilized command '{name}' v{version} due to: {e.Message}");
+                await WriteErrorAsync(e.Message, HttpStatusCode.BadRequest, context).ConfigureAwait(false);
             }
             catch (DomainError e)
             {

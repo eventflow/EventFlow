@@ -128,6 +128,7 @@ namespace EventFlow
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
             RegisterIfMissing<IReadModelDomainEventApplier, ReadModelDomainEventApplier>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
+            RegisterIfMissing<ISerializedCommandPublisher, SerializedCommandPublisher>(services);
             RegisterIfMissing<ICommandDefinitionService, CommandDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
