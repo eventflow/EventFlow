@@ -6,8 +6,9 @@
   version. Remember to add authentication
 * New: Created a new interface `ICommand<TAggregate,TIdentity,TSourceIdentity>`
   to allow developers to control the type of `ICommand.SourceId`. Using the
-  `ICommand<TAggregate,TIdentity>` (not changed) will still yield the same
-  result as before, i.e., `ICommand.SourceId` being of type `ISourceId`
+  `ICommand<TAggregate,TIdentity>` (or Command<TAggregate,TIdentity>)
+  will still yield the same result as before, i.e., `ICommand.SourceId` being
+  of type `ISourceId`
 * New: The `AddDefaults(...)` now also adds the command type definition to the
   new `ICommandDefinitonService`
 
