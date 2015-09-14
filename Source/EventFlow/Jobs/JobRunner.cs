@@ -30,33 +30,37 @@ namespace EventFlow.Jobs
     public class JobRunner : IJobRunner
     {
         private readonly IResolver _resolver;
+        private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
 
         public JobRunner(
             IResolver resolver,
+            IJobDefinitionService jobDefinitionService,
             IJsonSerializer jsonSerializer)
         {
             _resolver = resolver;
+            _jobDefinitionService = jobDefinitionService;
             _jsonSerializer = jsonSerializer;
         }
 
-        public void Execute(string serializedJob, string jobType)
+        public void Execute(string jobName, int version, string job)
         {
-            Execute(serializedJob, jobType, CancellationToken.None);
+            Execute(jobName, version, job, CancellationToken.None);
         }
 
-        public void Execute(string serializedJob, string jobType, CancellationToken cancellationToken)
+        public void Execute(string jobName, int version, string json, CancellationToken cancellationToken)
         {
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(ExecuteAsync(serializedJob, jobType, cancellationToken));
+                a.Run(ExecuteAsync(jobName, version, json, cancellationToken));
             }
         }
 
-        public Task ExecuteAsync(string serializedJob, string jobType, CancellationToken cancellationToken)
+        public Task ExecuteAsync(string jobName, int version, string json, CancellationToken cancellationToken)
         {
-            var executeCommandJob = _jsonSerializer.Deserialize<ExecuteCommandJob>(serializedJob);
-            return executeCommandJob.ExecuteAsync(_resolver);
+            var jobDefinition = _jobDefinitionService.GetJobDefinition(jobName, version);
+            var executeCommandJob = (IJob) _jsonSerializer.Deserialize(json, jobDefinition.Type);
+            return executeCommandJob.ExecuteAsync(_resolver, cancellationToken);
         }
     }
 }

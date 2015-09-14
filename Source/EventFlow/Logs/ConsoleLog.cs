@@ -32,12 +32,18 @@ namespace EventFlow.Logs
 
         protected override void Write(LogLevel logLevel, string format, params object[] args)
         {
-            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, string.Format(format, args));
+            var message = args.Length != 0
+                ? string.Format(format, args)
+                : format;
+            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message);
         }
 
         protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
         {
-            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, string.Format(format, args), exception);
+            var message = args.Length != 0
+                ? string.Format(format, args)
+                : format;
+            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message, exception);
         }
     }
 }

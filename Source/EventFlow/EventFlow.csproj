@@ -157,10 +157,14 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Jobs\ExecuteCommandJob.cs" />
     <Compile Include="Jobs\IJob.cs" />
+    <Compile Include="Jobs\IJobDefinitionService.cs" />
     <Compile Include="Jobs\IJobRunner.cs" />
     <Compile Include="Jobs\IJobScheduler.cs" />
+    <Compile Include="Jobs\JobDefinition.cs" />
+    <Compile Include="Jobs\JobDefinitionService.cs" />
     <Compile Include="Jobs\JobRunner.cs" />
     <Compile Include="Jobs\JobScheduler.cs" />
+    <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />

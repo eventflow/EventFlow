@@ -53,15 +53,14 @@ namespace EventFlow.Jobs
             CommandType = commandType;
         }
 
-        // TODO: Move to "job handler"
-        public Task ExecuteAsync(IResolver resolver)
+        public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
             var commandType = Type.GetType(CommandType, true);
             var jsonSerializer = resolver.Resolve<IJsonSerializer>();
-            var command = (ICommand) jsonSerializer.Deserialize(SerializedCommand, commandType);
+            var command = (ICommand)jsonSerializer.Deserialize(SerializedCommand, commandType);
 
             var commandBus = resolver.Resolve<ICommandBus>();
-            return command.PublishAsync(commandBus, CancellationToken.None);
+            return command.PublishAsync(commandBus, cancellationToken);
         }
     }
 }

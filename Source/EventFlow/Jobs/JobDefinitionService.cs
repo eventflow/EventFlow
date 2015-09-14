@@ -20,35 +20,43 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.Jobs;
-using Hangfire;
+using System;
+using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-namespace EventFlow.Hangfire.Integration
+namespace EventFlow.Jobs
 {
-    public class HangfireJobScheduler : IJobScheduler
+    public class JobDefinitionService : VersionedTypeDefinitionService<JobVersionAttribute, JobDefinition>, IJobDefinitionService
     {
-        private readonly IJsonSerializer _jsonSerializer;
-        private readonly IBackgroundJobClient _backgroundJobClient;
-
-        public HangfireJobScheduler(
-            IJsonSerializer jsonSerializer,
-            IBackgroundJobClient  backgroundJobClient)
+        public JobDefinitionService(ILog log)
+            : base(log)
         {
-            _jsonSerializer = jsonSerializer;
-            _backgroundJobClient = backgroundJobClient;
         }
 
-        public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
+        public void LoadJobs(IEnumerable<Type> jobTypes)
         {
-            // TODO: Yes, ugly as hell
-            var jobType = job.GetType().Name;
-            var serializedJob = _jsonSerializer.Serialize(job);
+            Load(jobTypes);
+        }
 
-            _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(jobType, 1, serializedJob));
-            return Task.FromResult(0);
+        public JobDefinition GetJobDefinition(Type jobType)
+        {
+            return GetDefinition(jobType);
+        }
+
+        public JobDefinition GetJobDefinition(string jobName, int version)
+        {
+            return GetDefinition(jobName, version);
+        }
+
+        public bool TryGetJobDefinition(string name, int version, out JobDefinition definition)
+        {
+            return TryGetDefinition(name, version, out definition);
+        }
+
+        protected override JobDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new JobDefinition(version, type, name);
         }
     }
 }

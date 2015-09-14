@@ -20,35 +20,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.Jobs;
-using Hangfire;
+using System;
+using System.Collections.Generic;
 
-namespace EventFlow.Hangfire.Integration
+namespace EventFlow.Jobs
 {
-    public class HangfireJobScheduler : IJobScheduler
+    public interface IJobDefinitionService
     {
-        private readonly IJsonSerializer _jsonSerializer;
-        private readonly IBackgroundJobClient _backgroundJobClient;
-
-        public HangfireJobScheduler(
-            IJsonSerializer jsonSerializer,
-            IBackgroundJobClient  backgroundJobClient)
-        {
-            _jsonSerializer = jsonSerializer;
-            _backgroundJobClient = backgroundJobClient;
-        }
-
-        public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
-        {
-            // TODO: Yes, ugly as hell
-            var jobType = job.GetType().Name;
-            var serializedJob = _jsonSerializer.Serialize(job);
-
-            _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(jobType, 1, serializedJob));
-            return Task.FromResult(0);
-        }
+        void LoadJobs(IEnumerable<Type> jobTypes);
+        JobDefinition GetJobDefinition(Type jobType);
+        JobDefinition GetJobDefinition(string jobName, int version);
+        bool TryGetJobDefinition(string name, int version, out JobDefinition definition);
     }
 }

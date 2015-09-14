@@ -23,30 +23,38 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Logs;
 
 namespace EventFlow.Jobs
 {
     public class JobScheduler : IJobScheduler
     {
+        private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IJobRunner _jobRunner;
+        private readonly IJobDefinitionService _jobDefinitionService;
 
         public JobScheduler(
+            ILog log,
             IJsonSerializer jsonSerializer,
-            IJobRunner jobRunner)
+            IJobRunner jobRunner,
+            IJobDefinitionService jobDefinitionService)
         {
+            _log = log;
             _jsonSerializer = jsonSerializer;
             _jobRunner = jobRunner;
+            _jobDefinitionService = jobDefinitionService;
         }
 
         public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
         {
-            // TODO: Yes, ugly as hell
-            var jobType = job.GetType().Name;
-            var serializedJob = _jsonSerializer.Serialize(job);
+            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
+            var json = _jsonSerializer.Serialize(job);
+
+            _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
 
             // Don't schedule, just execute...
-            return _jobRunner.ExecuteAsync(serializedJob, jobType, cancellationToken);
+            return _jobRunner.ExecuteAsync(jobDefinition.Name, jobDefinition.Version, json, cancellationToken);
         }
     }
 }

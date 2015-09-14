@@ -46,6 +46,7 @@ namespace EventFlow
         public static EventFlowOptions New => new EventFlowOptions();
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>(); 
         private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
@@ -95,6 +96,19 @@ namespace EventFlow
             return this;
         }
 
+        public EventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
+        {
+            foreach (var jobType in jobTypes)
+            {
+                if (!typeof(IJob).IsAssignableFrom(jobType))
+                {
+                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof(IJob).PrettyPrint()}");
+                }
+                _jobTypes.Add(jobType);
+            }
+            return this;
+        }
+
         public EventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
             register(_lazyRegistrationFactory.Value);
@@ -126,6 +140,7 @@ namespace EventFlow
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
             RegisterIfMissing<IJobScheduler, JobScheduler>(services);
             RegisterIfMissing<IJobRunner, JobRunner>(services);
+            RegisterIfMissing<IJobDefinitionService, JobDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
             RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
@@ -143,6 +158,9 @@ namespace EventFlow
             }
 
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
+
+            var jobDefinitionService = rootResolver.Resolve<IJobDefinitionService>();
+            jobDefinitionService.LoadJobs(_jobTypes);
 
             var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
             eventDefinitionService.LoadEvents(_aggregateEventTypes);
