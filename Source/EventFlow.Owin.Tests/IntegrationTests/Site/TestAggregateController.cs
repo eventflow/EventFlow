@@ -23,7 +23,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using EventFlow.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;

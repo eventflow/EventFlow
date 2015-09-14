@@ -29,14 +29,22 @@ namespace EventFlow.Commands
 {
     public interface ICommand
     {
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
+        Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
+        ISourceId GetSourceId();
     }
 
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand
+    public interface ICommand<in TAggregate, out TIdentity, out TSourceIdentity> : ICommand
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TSourceIdentity : ISourceId
+    {
+        TIdentity AggregateId { get; }
+        TSourceIdentity SourceId { get; }
+    }
+
+    public interface ICommand<in TAggregate, out TIdentity> : ICommand<TAggregate, TIdentity, ISourceId>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        ISourceId SourceId { get; }
-        TIdentity AggregateId { get; }
     }
 }

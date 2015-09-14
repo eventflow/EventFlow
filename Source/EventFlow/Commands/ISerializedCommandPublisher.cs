@@ -22,28 +22,12 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public interface ICommandHandler
+    public interface ISerializedCommandPublisher
     {
-    }
-
-    public interface ICommandHandler<in TAggregate, TIdentity, TSourceIdentity, in TCommand> : ICommandHandler
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
-    where TSourceIdentity : ISourceId
-    where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
-    {
-        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
-    }
-
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
-    {
+        Task<ISourceId> PublishSerilizedCommandAsync(string name, int version, string json, CancellationToken cancellationToken);
     }
 }

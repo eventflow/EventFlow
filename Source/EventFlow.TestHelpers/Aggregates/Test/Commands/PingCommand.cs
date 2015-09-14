@@ -29,11 +29,11 @@ using Newtonsoft.Json;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
+    [CommandVersion("Ping", 1)]
     public class PingCommand : Command<TestAggregate, TestId>
     {
         public PingId PingId { get; }
 
-        [JsonConstructor]
         public PingCommand(TestId aggregateId, PingId pingId)
             : this(aggregateId, CommandId.New, pingId)
         {
@@ -41,6 +41,13 @@ namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 
         public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
             : base (aggregateId, sourceId)
+        {
+            PingId = pingId;
+        }
+
+        [JsonConstructor]
+        public PingCommand(TestId aggregateId, SourceId sourceId, PingId pingId)
+            : base(aggregateId, sourceId)
         {
             PingId = pingId;
         }
