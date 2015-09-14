@@ -50,14 +50,14 @@ namespace EventFlow.Tests.UnitTests.Sagas
 
             public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
             {
-                Publish((cb, c) => cb.PublishAsync(new SagaTestBCommand(domainEvent.AggregateIdentity), cancellationToken));
+                Schedule(new SagaTestBCommand(domainEvent.AggregateIdentity));
                 Emit(new SagaEventA());
                 return Task.FromResult(0);
             }
 
             public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
             {
-                Publish((cb, c) => cb.PublishAsync(new SagaTestCCommand(domainEvent.AggregateIdentity), cancellationToken));
+                Schedule(new SagaTestCCommand(domainEvent.AggregateIdentity));
                 Emit(new SagaEventB());
                 return Task.FromResult(0);
             }

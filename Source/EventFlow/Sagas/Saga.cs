@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
+using EventFlow.Core;
 using EventFlow.EventStores;
 
 namespace EventFlow.Sagas
@@ -45,9 +47,13 @@ namespace EventFlow.Sagas
         {
         }
 
-        protected void Publish(Func<ICommandBus, CancellationToken, Task> command)
+        protected void Schedule<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
+            ICommand<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity> command)
+            where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
+            where TCommandAggregateIdentity : IIdentity
+            where TCommandSourceIdentity : ISourceId
         {
-            _unpublishedCommands.Add(command);
+            _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
         }
 
         public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
