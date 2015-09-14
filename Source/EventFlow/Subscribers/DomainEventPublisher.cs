@@ -62,13 +62,13 @@ namespace EventFlow.Subscribers
                 .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, CancellationToken.None));
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
 
-            // Update subscriptions AFTER read stores have been updated
-            await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-
             // Send to handlers that listen to all events
             var handle = _subscribeSynchronousToAlls
                 .Select(s => s.HandleAsync(domainEvents, cancellationToken));
             await Task.WhenAll(handle).ConfigureAwait(false);
+
+            // Update subscriptions AFTER read stores have been updated
+            await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
 
             // Update sagas
             await _sagaManager.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);

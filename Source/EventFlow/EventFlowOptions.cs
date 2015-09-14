@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
@@ -46,6 +47,7 @@ namespace EventFlow
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
         private readonly ConcurrentBag<Type> _sagaTypes = new ConcurrentBag<Type>(); 
+        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
         private Stopwatch _stopwatch;
@@ -94,6 +96,19 @@ namespace EventFlow
             return this;
         }
 
+        public EventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
+        {
+            foreach (var commandType in commandTypes)
+            {
+                if (!typeof(ICommand).IsAssignableFrom(commandType))
+                {
+                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof(ICommand).PrettyPrint()}");
+                }
+                _commandTypes.Add(commandType);
+            }
+            return this;
+        }
+
         public EventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
             register(_lazyRegistrationFactory.Value);
@@ -128,6 +143,8 @@ namespace EventFlow
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
             RegisterIfMissing<IReadModelDomainEventApplier, ReadModelDomainEventApplier>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
+            RegisterIfMissing<ISerializedCommandPublisher, SerializedCommandPublisher>(services);
+            RegisterIfMissing<ICommandDefinitionService, CommandDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<ISagaDefinitionService, SagaDefinitionService>(services, Lifetime.Singleton);
@@ -143,6 +160,10 @@ namespace EventFlow
 
             var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
             eventDefinitionService.LoadEvents(_aggregateEventTypes);
+
+            var commandsDefinitionService = rootResolver.Resolve<ICommandDefinitionService>();
+            commandsDefinitionService.LoadCommands(_commandTypes);
+
             var sagaDefinitionService = rootResolver.Resolve<ISagaDefinitionService>();
             sagaDefinitionService.LoadSagas(_sagaTypes);
 

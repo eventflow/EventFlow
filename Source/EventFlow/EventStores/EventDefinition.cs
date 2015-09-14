@@ -21,29 +21,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.EventStores
 {
-    public class EventDefinition
+    public class EventDefinition : VersionedTypeDefinition
     {
-        public int Version { get; }
-        public Type Type { get; }
-        public string Name { get; }
-
         public EventDefinition(
             int version,
             Type type,
             string name)
+            : base(version, type, name)
         {
-            Version = version;
-            Type = type;
-            Name = name;
-        }
-
-        public override string ToString()
-        {
-            var assemblyName = Type.Assembly.GetName();
-            return $"{Name} v{Version} ({assemblyName.Name} - {Type.Name})";
         }
     }
 }

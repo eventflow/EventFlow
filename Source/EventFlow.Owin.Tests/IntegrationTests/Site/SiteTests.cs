@@ -23,12 +23,15 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using Microsoft.Owin.Hosting;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
-    public class SiteTests
+    public class SiteTests : Test
     {
         private static readonly HttpClient HttpClient = new HttpClient();
         private IDisposable _site;
@@ -55,11 +58,36 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             await GetAsync("testaggregate/ping?id=test-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
         }
 
+        [Test]
+        public async Task PublishCommand()
+        {
+            // Arrange
+            var pingCommand = A<PingCommand>();
+
+            // Act
+            await PostAsync("commands/Ping/1", pingCommand).ConfigureAwait(false);
+        }
+
         private async Task<string> GetAsync(string url)
         {
             var uri = new Uri(_uri, url);
 
             using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
+            {
+                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);
+                httpResponseMessage.EnsureSuccessStatusCode();
+                Console.WriteLine("Received content from {0} : {1}", url, content);
+                return content;
+            }
+        }
+
+        private async Task<string> PostAsync(string url, object obj)
+        {
+            var uri = new Uri(_uri, url);
+            var json = JsonConvert.SerializeObject(obj);
+
+            using (var httpResponseMessage = await HttpClient.PostAsync(uri, new StringContent(json)).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);

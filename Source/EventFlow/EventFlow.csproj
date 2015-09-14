@@ -65,8 +65,14 @@
     <Compile Include="Aggregates\IAggregateName.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="Commands\CommandDefinition.cs" />
+    <Compile Include="Commands\CommandDefinitionService.cs" />
     <Compile Include="Commands\CommandId.cs" />
+    <Compile Include="Commands\CommandVersionAttribute.cs" />
     <Compile Include="Commands\DistinctCommand.cs" />
+    <Compile Include="Commands\ICommandDefinitionService.cs" />
+    <Compile Include="Commands\ISerializedCommandPublisher.cs" />
+    <Compile Include="Commands\SerializedCommandPublisher.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
@@ -104,6 +110,7 @@
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
@@ -111,6 +118,8 @@
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeDefinitionService.cs" />
+    <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventStores\Files\FilesEventStore.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
@@ -132,6 +141,7 @@
     <Compile Include="Extensions\DisposableExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsAggregatesExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsCommandExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsCommandHandlerExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsDefaultExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
@@ -196,7 +206,7 @@
     <Compile Include="MetadataProviders\AddGuidMetadataProvider.cs" />
     <Compile Include="ReadStores\IReadModel.cs" />
     <Compile Include="EventStores\SerializedEvent.cs" />
-    <Compile Include="EventStores\EventDefinition.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeDefinition.cs" />
     <Compile Include="EventStores\EventDefinitionService.cs" />
     <Compile Include="EventStores\EventJsonSerializer.cs" />
     <Compile Include="Aggregates\IAggregateEvent.cs" />

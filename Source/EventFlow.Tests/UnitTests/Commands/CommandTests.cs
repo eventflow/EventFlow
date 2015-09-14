@@ -20,30 +20,43 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
+using FluentAssertions;
+using Newtonsoft.Json;
+using NUnit.Framework;
 
-namespace EventFlow.Commands
+namespace EventFlow.Tests.UnitTests.Commands
 {
-    public interface ICommandHandler
+    public class CommandTests : Test
     {
-    }
+        public class CriticalCommand : Command<TestAggregate, TestId, EventId>
+        {
+            public string CriticalData { get; }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, TSourceIdentity, in TCommand> : ICommandHandler
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
-    where TSourceIdentity : ISourceId
-    where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
-    {
-        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
-    }
+            public CriticalCommand(TestId aggregateId, EventId sourceId, string criticalData) : base(aggregateId, sourceId)
+            {
+                CriticalData = criticalData;
+            }
+        }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
-    {
+        [Test]
+        public void SerializeDeserialize()
+        {
+            // Arrange
+            var criticalCommand = A<CriticalCommand>();
+
+            // Act
+            var json = JsonConvert.SerializeObject(criticalCommand);
+            var deserialized = JsonConvert.DeserializeObject<CriticalCommand>(json);
+
+            // Assert
+            deserialized.CriticalData.Should().Be(criticalCommand.CriticalData);
+            deserialized.SourceId.Should().Be(criticalCommand.SourceId);
+            deserialized.AggregateId.Should().Be(criticalCommand.AggregateId);
+        }
     }
 }
