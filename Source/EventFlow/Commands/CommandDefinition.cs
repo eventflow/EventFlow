@@ -20,30 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Commands
 {
-    public interface ICommandHandler
+    public class CommandDefinition : VersionedTypeDefinition
     {
-    }
-
-    public interface ICommandHandler<in TAggregate, TIdentity, TSourceIdentity, in TCommand> : ICommandHandler
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
-    where TSourceIdentity : ISourceId
-    where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
-    {
-        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
-    }
-
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
-    {
+        public CommandDefinition(
+            int version,
+            Type type,
+            string name)
+            : base(version, type, name)
+        {
+        }
     }
 }

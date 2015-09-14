@@ -71,7 +71,7 @@ namespace EventFlow.Tests.UnitTests
         public void RetryForOptimisticConcurrencyExceptionsAreDone()
         {
             // Arrange
-            ArrangeCommandHandlerExists<TestAggregate, TestId, DomainErrorAfterFirstCommand>();
+            ArrangeCommandHandlerExists<TestAggregate, TestId, ISourceId, DomainErrorAfterFirstCommand>();
             _eventStoreMock
                 .Setup(s => s.StoreAsync<TestAggregate, TestId>(It.IsAny<TestId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
@@ -103,7 +103,7 @@ namespace EventFlow.Tests.UnitTests
         {
             // Arrange
             ArrangeWorkingEventStore();
-            var commandHandler = ArrangeCommandHandlerExists<TestAggregate, TestId, PingCommand>();
+            var commandHandler = ArrangeCommandHandlerExists<TestAggregate, TestId, ISourceId, PingCommand>();
 
             // Act
             await Sut.PublishAsync(new PingCommand(TestId.New, PingId.New)).ConfigureAwait(false);
@@ -119,23 +119,25 @@ namespace EventFlow.Tests.UnitTests
                 .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>>>(Many<IDomainEvent<TestAggregate, TestId>>()));
         }
 
-        private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TCommand>(
-            ICommandHandler<TAggregate, TIdentity, TCommand> commandHandler)
+        private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>(
+            ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> commandHandler)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TCommand : ICommand<TAggregate, TIdentity>
+            where TSourceIdentity : ISourceId
+            where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
         {
             _resolverMock
-                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TCommand>)))
+                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>)))
                 .Returns(new[] { commandHandler });
         }
 
-        private Mock<ICommandHandler<TAggregate, TIdentity, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TCommand>()
+        private Mock<ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>()
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TCommand : ICommand<TAggregate, TIdentity>
+            where TSourceIdentity : ISourceId
+            where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
         {
-            var mock = new Mock<ICommandHandler<TAggregate, TIdentity, TCommand>>();
+            var mock = new Mock<ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>>();
             ArrangeCommandHandlerExists(mock.Object);
             return mock;
         }

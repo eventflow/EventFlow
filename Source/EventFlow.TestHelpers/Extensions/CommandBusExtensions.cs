@@ -30,11 +30,12 @@ namespace EventFlow.TestHelpers.Extensions
 {
     public static class CommandBusExtensions
     {
-        public static Task<ISourceId> PublishAsync<TAggregate, TIdentity>(
+        public static Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
             this ICommandBus commandBus,
-            ICommand<TAggregate, TIdentity> command)
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
         {
             return commandBus.PublishAsync(command, CancellationToken.None);
         }

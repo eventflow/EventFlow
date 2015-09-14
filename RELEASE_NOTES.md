@@ -1,6 +1,16 @@
 ### New in 0.14 (not released yet)
 
- * _Nothing yet_
+* New: Created the OWIN `CommandPublishMiddleware` middleware that can
+  handle publishing of commands by posting a JSON serialized command to
+  e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
+  version. Remember to add authentication
+* New: Created a new interface `ICommand<TAggregate,TIdentity,TSourceIdentity>`
+  to allow developers to control the type of `ICommand.SourceId`. Using the
+  `ICommand<TAggregate,TIdentity>` (or Command<TAggregate,TIdentity>)
+  will still yield the same result as before, i.e., `ICommand.SourceId` being
+  of type `ISourceId`
+* New: The `AddDefaults(...)` now also adds the command type definition to the
+  new `ICommandDefinitonService`
 
 ### New in 0.13.962 (released 2015-09-13)
 

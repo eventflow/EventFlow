@@ -27,11 +27,20 @@ using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class CommandHandler<TAggregate, TIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TCommand>
+    public abstract class CommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity>
+        where TSourceIdentity : ISourceId
+        where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
     {
         public abstract Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
+    }
+
+    public abstract class CommandHandler<TAggregate, TIdentity, TCommand> :
+        CommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
+    {
     }
 }

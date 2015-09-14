@@ -20,30 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
+using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
 namespace EventFlow.Commands
 {
-    public interface ICommandHandler
+    public class CommandDefinitionService : VersionedTypeDefinitionService<CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
     {
-    }
+        public CommandDefinitionService(ILog log) : base(log)
+        {
+        }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, TSourceIdentity, in TCommand> : ICommandHandler
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
-    where TSourceIdentity : ISourceId
-    where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
-    {
-        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
-    }
+        public void LoadCommands(IEnumerable<Type> commandTypes)
+        {
+            Load(commandTypes);
+        }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
-    {
+        public CommandDefinition GetCommandDefinition(Type commandType)
+        {
+            return GetDefinition(commandType);
+        }
+
+        public CommandDefinition GetCommandDefinition(string commandName, int version)
+        {
+            return GetDefinition(commandName, version);
+        }
+
+        public bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition)
+        {
+            return TryGetDefinition(name, version, out definition);
+        }
+
+        protected override CommandDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new CommandDefinition(version, type, name);
+        }
     }
 }
