@@ -23,13 +23,16 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
@@ -42,10 +45,15 @@ namespace EventFlow
         public static EventFlowOptions New => new EventFlowOptions();
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration()); 
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
+        private Stopwatch _stopwatch;
 
-        private EventFlowOptions() { }
+        private EventFlowOptions()
+        {
+            _stopwatch = Stopwatch.StartNew();
+        }
 
         public EventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
@@ -69,6 +77,19 @@ namespace EventFlow
                     throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
+            }
+            return this;
+        }
+
+        public EventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
+        {
+            foreach (var commandType in commandTypes)
+            {
+                if (!typeof(ICommand).IsAssignableFrom(commandType))
+                {
+                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof(ICommand).PrettyPrint()}");
+                }
+                _commandTypes.Add(commandType);
             }
             return this;
         }
@@ -107,6 +128,8 @@ namespace EventFlow
             RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
             RegisterIfMissing<IReadModelDomainEventApplier, ReadModelDomainEventApplier>(services);
             RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
+            RegisterIfMissing<ISerializedCommandPublisher, SerializedCommandPublisher>(services);
+            RegisterIfMissing<ICommandDefinitionService, CommandDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
             RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
             RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
@@ -120,6 +143,13 @@ namespace EventFlow
 
             var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
             eventDefinitionService.LoadEvents(_aggregateEventTypes);
+
+            var commandsDefinitionService = rootResolver.Resolve<ICommandDefinitionService>();
+            commandsDefinitionService.LoadCommands(_commandTypes);
+
+            _stopwatch.Stop();
+            var log = rootResolver.Resolve<ILog>();
+            log.Debug("EventFlow configuration done in {0:0.000} seconds", _stopwatch.Elapsed.TotalSeconds);
 
             return rootResolver;
         }

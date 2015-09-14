@@ -32,21 +32,22 @@ namespace EventFlow.Extensions
     {
         public static EventFlowOptions AddEvents(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var aggregateEventTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t));
-            eventFlowOptions.AddEvents(aggregateEventTypes);
-            return eventFlowOptions;
+                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddEvents(aggregateEventTypes);
         }
 
         public static EventFlowOptions AddEvents(
             this EventFlowOptions eventFlowOptions,
             params Type[] aggregateEventTypes)
         {
-            eventFlowOptions.AddEvents((IEnumerable<Type>)aggregateEventTypes);
-            return eventFlowOptions;
+            return eventFlowOptions.AddEvents((IEnumerable<Type>)aggregateEventTypes);
         }
     }
 }

@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Commands;
@@ -30,53 +29,24 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsCommandExtensions
     {
-        public static EventFlowOptions AddCommandHandlers(
+        public static EventFlowOptions AddCommands(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            params Type[] commandTypes)
         {
-            var commandHandlerTypes = fromAssembly
+            return eventFlowOptions.AddCommands(commandTypes);
+        }
+
+        public static EventFlowOptions AddCommands(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly,
+            Predicate<Type> predicate)
+        {
+            predicate = predicate ?? (t => true);
+            var commandTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,>)));
-            return eventFlowOptions
-                .AddCommandHandlers(commandHandlerTypes);
-        }
-
-        public static EventFlowOptions AddCommandHandlers(
-            this EventFlowOptions eventFlowOptions,
-            params Type[] commandHandlerTypes)
-        {
-            return eventFlowOptions
-                .AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
-        }
-
-        public static EventFlowOptions AddCommandHandlers(
-            this EventFlowOptions eventFlowOptions,
-            IEnumerable<Type> commandHandlerTypes)
-        {
-            foreach (var commandHandlerType in commandHandlerTypes)
-            {
-                var t = commandHandlerType;
-                var handlesCommandTypes = t
-                    .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,>))
-                    .ToList();
-                if (!handlesCommandTypes.Any())
-                {
-                    throw new ArgumentException(string.Format(
-                        "Type '{0}' does not implement ICommandHandler<TAggregate, TCommand>",
-                        commandHandlerType.Name));
-                }
-
-                eventFlowOptions.RegisterServices(sr =>
-                    {
-                        foreach (var handlesCommandType in handlesCommandTypes)
-                        {
-                            sr.Register(handlesCommandType, t);
-                        }
-                    });
-            }
-
-            return eventFlowOptions;
+                .Where(t => !t.IsAbstract && typeof(ICommand).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddCommands(commandTypes);
         }
     }
 }

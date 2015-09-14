@@ -35,25 +35,26 @@ namespace EventFlow.Extensions
             where TQueryHandler : class, IQueryHandler<TQuery, TResult>
             where TQuery : IQuery<TResult>
         {
-            return eventFlowOptions
-                .RegisterServices(sr => sr.Register<IQueryHandler<TQuery, TResult>, TQueryHandler>());
+            return eventFlowOptions.RegisterServices(sr => sr.Register<IQueryHandler<TQuery, TResult>, TQueryHandler>());
         }
 
         public static EventFlowOptions AddQueryHandlers(
             this EventFlowOptions eventFlowOptions,
             params Type[] queryHandlerTypes)
         {
-            return eventFlowOptions
-                .AddQueryHandlers((IEnumerable<Type>)queryHandlerTypes);
+            return eventFlowOptions.AddQueryHandlers((IEnumerable<Type>)queryHandlerTypes);
         }
 
         public static EventFlowOptions AddQueryHandlers(
             this EventFlowOptions eventFlowOptions,
-            Assembly fromAssembly)
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
+            predicate = predicate ?? (t => true);
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)));
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
+                .Where(t => predicate(t));
             return eventFlowOptions
                 .AddQueryHandlers(subscribeSynchronousToTypes);
         }

@@ -20,30 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
 
-namespace EventFlow.Commands
+namespace EventFlow.Core.VersionedTypes
 {
-    public interface ICommandHandler
+    public abstract class VersionedTypeDefinition
     {
-    }
+        public int Version { get; }
+        public Type Type { get; }
+        public string Name { get; }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, TSourceIdentity, in TCommand> : ICommandHandler
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
-    where TSourceIdentity : ISourceId
-    where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
-    {
-        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
-    }
+        protected VersionedTypeDefinition(
+            int version,
+            Type type,
+            string name)
+        {
+            Version = version;
+            Type = type;
+            Name = name;
+        }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
-    {
+        public override string ToString()
+        {
+            var assemblyName = Type.Assembly.GetName();
+            return $"{Name} v{Version} ({assemblyName.Name} - {Type.Name})";
+        }
     }
 }

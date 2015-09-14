@@ -21,37 +21,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
-using EventFlow.EventStores;
-using EventFlow.EventStores.Files;
+using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Commands
 {
-    public static class EventFlowOptionsEventStoresExtensions
+    public class CommandDefinitionService : VersionedTypeDefinitionService<CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
     {
-        public static EventFlowOptions UseEventStore(
-            this EventFlowOptions eventFlowOptions,
-            Func<IResolverContext, IEventStore> eventStoreResolver,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+        public CommandDefinitionService(ILog log) : base(log)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register(eventStoreResolver, lifetime));
         }
 
-        public static EventFlowOptions UseEventStore<TEventStore>(
-            this EventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventStore : class, IEventStore
+        public void LoadCommands(IEnumerable<Type> commandTypes)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventStore, TEventStore>(lifetime));
+            Load(commandTypes);
         }
 
-        public static EventFlowOptions UseFilesEventStore(
-            this EventFlowOptions eventFlowOptions,
-            IFilesEventStoreConfiguration filesEventStoreConfiguration)
+        public CommandDefinition GetCommandDefinition(Type commandType)
         {
-            return eventFlowOptions
-                .RegisterServices(f => f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton))
-                .RegisterServices(f => f.Register<IEventStore, FilesEventStore>());
+            return GetDefinition(commandType);
+        }
+
+        public CommandDefinition GetCommandDefinition(string commandName, int version)
+        {
+            return GetDefinition(commandName, version);
+        }
+
+        public bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition)
+        {
+            return TryGetDefinition(name, version, out definition);
+        }
+
+        protected override CommandDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new CommandDefinition(version, type, name);
         }
     }
 }

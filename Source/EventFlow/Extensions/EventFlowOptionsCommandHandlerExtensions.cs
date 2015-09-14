@@ -24,59 +24,59 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Configuration;
-using EventFlow.EventStores;
+using EventFlow.Commands;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsMetadataProvidersExtensions
+    public static class EventFlowOptionsCommandHandlerExtensions
     {
-        public static EventFlowOptions AddMetadataProvider<TMetadataProvider>(
-            this EventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TMetadataProvider : class, IMetadataProvider
-        {
-            return eventFlowOptions
-                .RegisterServices(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
-        }
-
-        public static EventFlowOptions AddMetadataProviders(
-            this EventFlowOptions eventFlowOptions,
-            params Type[] metadataProviderTypes)
-        {
-            return eventFlowOptions
-                .AddMetadataProviders((IEnumerable<Type>) metadataProviderTypes);
-        }
-
-        public static EventFlowOptions AddMetadataProviders(
+        public static EventFlowOptions AddCommandHandlers(
             this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
             predicate = predicate ?? (t => true);
-            var metadataProviderTypes = fromAssembly
+            var commandHandlerTypes = fromAssembly
                 .GetTypes()
-                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t))
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>)))
                 .Where(t => predicate(t));
-            return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
+            return eventFlowOptions.AddCommandHandlers(commandHandlerTypes);
         }
 
-        public static EventFlowOptions AddMetadataProviders(
+        public static EventFlowOptions AddCommandHandlers(
             this EventFlowOptions eventFlowOptions,
-            IEnumerable<Type> metadataProviderTypes)
+            params Type[] commandHandlerTypes)
         {
-            foreach (var metadataProviderType in metadataProviderTypes)
+            return eventFlowOptions.AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
+        }
+
+        public static EventFlowOptions AddCommandHandlers(
+            this EventFlowOptions eventFlowOptions,
+            IEnumerable<Type> commandHandlerTypes)
+        {
+            foreach (var commandHandlerType in commandHandlerTypes)
             {
-                var t = metadataProviderType;
-                if (!typeof (IMetadataProvider).IsAssignableFrom(t))
+                var t = commandHandlerType;
+                var handlesCommandTypes = t
+                    .GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
+                    .ToList();
+                if (!handlesCommandTypes.Any())
                 {
                     throw new ArgumentException(string.Format(
-                        "Type '{0}' is not an IMetadataProvider",
-                        metadataProviderType.Name));
+                        "Type '{0}' does not implement ICommandHandler<TAggregate, TCommand>",
+                        commandHandlerType.Name));
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t));
+                eventFlowOptions.RegisterServices(sr =>
+                    {
+                        foreach (var handlesCommandType in handlesCommandTypes)
+                        {
+                            sr.Register(handlesCommandType, t);
+                        }
+                    });
             }
+
             return eventFlowOptions;
         }
     }
