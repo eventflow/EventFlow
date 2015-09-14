@@ -30,12 +30,24 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.0.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.0.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Hangfire.Core, Version=1.4.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Hangfire.Core.1.4.6\lib\net45\Hangfire.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -52,12 +64,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Integration\HangfireJobFlow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Hangfire\EventFlow.Hangfire.csproj">
       <Project>{fb079985-722a-43c9-9f14-c7d2afbe8826}</Project>
       <Name>EventFlow.Hangfire</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
+      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
+      <Name>EventFlow.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
