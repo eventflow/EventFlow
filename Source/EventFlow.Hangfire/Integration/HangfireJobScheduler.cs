@@ -32,22 +32,24 @@ namespace EventFlow.Hangfire.Integration
     {
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IJobDefinitionService _jobDefinitionService;
 
         public HangfireJobScheduler(
             IJsonSerializer jsonSerializer,
-            IBackgroundJobClient  backgroundJobClient)
+            IBackgroundJobClient  backgroundJobClient,
+            IJobDefinitionService jobDefinitionService)
         {
             _jsonSerializer = jsonSerializer;
             _backgroundJobClient = backgroundJobClient;
+            _jobDefinitionService = jobDefinitionService;
         }
 
         public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
         {
-            // TODO: Yes, ugly as hell
-            var jobType = job.GetType().Name;
-            var serializedJob = _jsonSerializer.Serialize(job);
+            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
+            var json = _jsonSerializer.Serialize(job);
 
-            _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(jobType, 1, serializedJob));
+            _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(jobDefinition.Name, jobDefinition.Version, json));
             return Task.FromResult(0);
         }
     }
