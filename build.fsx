@@ -44,6 +44,7 @@ Target "UnitTest" (fun _ ->
                 DisableShadowCopy = true;
                 Framework = "net-4.0";
                 ToolPath = "./Tools/NUnit.Runners/tools";
+                TimeOut = TimeSpan.FromMinutes 30.0;
                 ToolName = "nunit-console-x86.exe";
                 OutputFile = filePathUnitTestReport})
     )
