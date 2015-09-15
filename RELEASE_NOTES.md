@@ -11,6 +11,7 @@
   of type `ISourceId`
 * New: The `AddDefaults(...)` now also adds the command type definition to the
   new `ICommandDefinitonService`
+* Fix: Updated test projects to support the [VS2105 project load optimizer](https://connect.microsoft.com/VisualStudio/feedback/details/800245/vs2013rc-adds-to-vs2012-c-project-section-itemgroup)
 
 ### New in 0.13.962 (released 2015-09-13)
 
