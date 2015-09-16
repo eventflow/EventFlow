@@ -40,6 +40,10 @@
       <HintPath>..\..\packages\FluentAssertions.3.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Helpz, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Helpz.0.1.8\lib\net451\Helpz.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Moq, Version=4.2.1507.118, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
@@ -70,8 +74,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Helpers\MsSqlHelper.cs" />
-    <Compile Include="Helpers\TestDatabase.cs" />
     <Compile Include="IntegrationTests\MsSqlEventStoreTests.cs" />
     <Compile Include="IntegrationTests\MsSqlIntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTests\MssqlReadModelStoreTests.cs" />
@@ -105,7 +107,9 @@
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\0001 - Create table ReadModel-TestAggregate.sql" />
   </ItemGroup>
