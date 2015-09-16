@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
@@ -31,35 +30,53 @@ namespace EventFlow.Jobs
 {
     public class ExecuteCommandJob : IJob
     {
-        public static ExecuteCommandJob Create(ICommand command, IJsonSerializer jsonSerializer)
+        public static ExecuteCommandJob Create(
+            ICommand command,
+            IResolver resolver)
         {
-            var serializedCommand = jsonSerializer.Serialize(command);
+            var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
+            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
 
-            var commandType = command.GetType();
-
-            return new ExecuteCommandJob(
-                serializedCommand,
-                $"{commandType.Namespace}.{commandType.Name}, {commandType.Assembly.GetName().Name}");
+            return Create(command, commandDefinitionService, jsonSerializer);
         }
 
-        public string SerializedCommand { get; }
-        public string CommandType { get; }
+        public static ExecuteCommandJob Create(
+            ICommand command,
+            ICommandDefinitionService commandDefinitionService,
+            IJsonSerializer jsonSerializer)
+        {
+            var data = jsonSerializer.Serialize(command);
+            var commandDefinition = commandDefinitionService.GetCommandDefinition(command.GetType());
+
+            return new ExecuteCommandJob(
+                data,
+                commandDefinition.Name,
+                commandDefinition.Version);
+        }
+
+        public string Data { get; }
+        public string Name { get; }
+        public int Version { get; }
 
         public ExecuteCommandJob(
-            string serializedCommand,
-            string commandType)
+            string data,
+            string name,
+            int version)
         {
-            SerializedCommand = serializedCommand;
-            CommandType = commandType;
+            Data = data;
+            Name = name;
+            Version = version;
         }
 
         public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
-            var commandType = Type.GetType(CommandType, true);
+            var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
             var jsonSerializer = resolver.Resolve<IJsonSerializer>();
-            var command = (ICommand)jsonSerializer.Deserialize(SerializedCommand, commandType);
-
             var commandBus = resolver.Resolve<ICommandBus>();
+
+            var commandDefinition = commandDefinitionService.GetCommandDefinition(Name, Version);
+            var command = (ICommand)jsonSerializer.Deserialize(Data, commandDefinition.Type);
+
             return command.PublishAsync(commandBus, cancellationToken);
         }
     }

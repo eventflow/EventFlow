@@ -73,10 +73,9 @@ namespace EventFlow.Hangfire.Tests.Integration
                     // Arrange
                     var testId = TestId.New;
                     var pingId = PingId.New;
-                    var jsonSerializer = resolver.Resolve<IJsonSerializer>();
                     var jobScheduler = resolver.Resolve<IJobScheduler>();
                     var eventStore = resolver.Resolve<IEventStore>();
-                    var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), jsonSerializer);
+                    var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), resolver);
 
                     // Act
                     await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);

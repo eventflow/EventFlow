@@ -22,7 +22,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
@@ -48,10 +47,9 @@ namespace EventFlow.Tests.UnitTests.Jobs
                 // Arrange
                 var testId = TestId.New;
                 var pingId = PingId.New;
-                var jsonSerializer = resolver.Resolve<IJsonSerializer>();
                 var jobScheduler = resolver.Resolve<IJobScheduler>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), jsonSerializer);
+                var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), resolver);
 
                 // Act
                 await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
