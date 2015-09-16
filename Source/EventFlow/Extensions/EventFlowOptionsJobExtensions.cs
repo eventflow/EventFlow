@@ -20,41 +20,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.Logs;
+using System;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Jobs;
 
-namespace EventFlow.Jobs
+namespace EventFlow.Extensions
 {
-    public class JobScheduler : IJobScheduler
+    public static class EventFlowOptionsJobExtensions
     {
-        private readonly ILog _log;
-        private readonly IJsonSerializer _jsonSerializer;
-        private readonly IJobRunner _jobRunner;
-        private readonly IJobDefinitionService _jobDefinitionService;
-
-        public JobScheduler(
-            ILog log,
-            IJsonSerializer jsonSerializer,
-            IJobRunner jobRunner,
-            IJobDefinitionService jobDefinitionService)
+        public static EventFlowOptions AddJobs(
+            this EventFlowOptions eventFlowOptions,
+            params Type[] jobTypes)
         {
-            _log = log;
-            _jsonSerializer = jsonSerializer;
-            _jobRunner = jobRunner;
-            _jobDefinitionService = jobDefinitionService;
+            return eventFlowOptions.AddJobs(jobTypes);
         }
 
-        public Task ScheduleAsync(IJob job, CancellationToken cancellationToken)
+        public static EventFlowOptions AddJobs(
+            this EventFlowOptions eventFlowOptions,
+            Assembly fromAssembly,
+            Predicate<Type> predicate)
         {
-            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
-            var json = _jsonSerializer.Serialize(job);
-
-            _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
-
-            // Don't schedule, just execute...
-            return _jobRunner.ExecuteAsync(jobDefinition.Name, jobDefinition.Version, json, cancellationToken);
+            predicate = predicate ?? (t => true);
+            var jobTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(IJob).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddJobs(jobTypes);
         }
     }
 }

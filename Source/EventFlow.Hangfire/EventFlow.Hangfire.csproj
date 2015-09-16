@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\EventFlowOptionsHangfireExtensions.cs" />
+    <Compile Include="Integration\EventFlowResolverActivator.cs" />
     <Compile Include="Integration\HangfireJobScheduler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

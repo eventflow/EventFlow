@@ -146,6 +146,7 @@
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsJobExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
@@ -163,7 +164,7 @@
     <Compile Include="Jobs\JobDefinition.cs" />
     <Compile Include="Jobs\JobDefinitionService.cs" />
     <Compile Include="Jobs\JobRunner.cs" />
-    <Compile Include="Jobs\JobScheduler.cs" />
+    <Compile Include="Jobs\InstantJobScheduler.cs" />
     <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Queries\IQuery.cs" />

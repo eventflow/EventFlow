@@ -24,50 +24,51 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Jobs;
-using Hangfire;
+using EventFlow.Extensions;
+using EventFlow.Logs;
 
-namespace EventFlow.Hangfire.Integration
+namespace EventFlow.Jobs
 {
-    public class HangfireJobScheduler : IJobScheduler
+    public class InstantJobScheduler : IJobScheduler
     {
+        private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IJobRunner _jobRunner;
         private readonly IJobDefinitionService _jobDefinitionService;
 
-        public HangfireJobScheduler(
+        public InstantJobScheduler(
+            ILog log,
             IJsonSerializer jsonSerializer,
-            IBackgroundJobClient  backgroundJobClient,
+            IJobRunner jobRunner,
             IJobDefinitionService jobDefinitionService)
         {
+            _log = log;
             _jsonSerializer = jsonSerializer;
-            _backgroundJobClient = backgroundJobClient;
+            _jobRunner = jobRunner;
             _jobDefinitionService = jobDefinitionService;
         }
 
         public Task ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
         {
-            return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(d.Name, d.Version, j)));
+            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
+            var json = _jsonSerializer.Serialize(job);
+
+            _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
+
+            // Don't schedule, just execute...
+            return _jobRunner.ExecuteAsync(jobDefinition.Name, jobDefinition.Version, json, cancellationToken);
         }
 
         public Task ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
         {
-            return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Schedule<IJobRunner>(r => r.Execute(d.Name, d.Version, j), runAt));
+            _log.Warning($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of at '{runAt}'");
+            return ScheduleNowAsync(job, cancellationToken);
         }
 
         public Task ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
         {
-            return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Schedule<IJobRunner>(r => r.Execute(d.Name, d.Version, j), delay));
-        }
-
-        private Task ScheduleAsync(IJob job, Func<IBackgroundJobClient, JobDefinition, string, string> schedule)
-        {
-            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
-            var json = _jsonSerializer.Serialize(job);
-
-            schedule(_backgroundJobClient, jobDefinition, json);
-
-            return Task.FromResult(0);
+            _log.Warning($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of in '{delay}'");
+            return ScheduleNowAsync(job, cancellationToken);
         }
     }
 }

@@ -23,17 +23,16 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Hangfire.Extensions;
 using EventFlow.Hangfire.Integration;
 using EventFlow.Jobs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
-using FluentAssertions;
 using Hangfire;
 using Helpz.MsSql;
 using NUnit.Framework;
@@ -42,21 +41,6 @@ namespace EventFlow.Hangfire.Tests.Integration
 {
     public class HangfireJobFlow : Test
     {
-        public class ResolverActivator : JobActivator
-        {
-            private readonly IResolver _resolver;
-
-            public ResolverActivator(IResolver resolver)
-            {
-                _resolver = resolver;
-            }
-
-            public override object ActivateJob(Type jobType)
-            {
-                return _resolver.Resolve(jobType);
-            }
-        }
-
         private IMsSqlDatabase _msSqlDatabase;
 
         [SetUp]
@@ -76,17 +60,13 @@ namespace EventFlow.Hangfire.Tests.Integration
         {
             using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IJobScheduler, HangfireJobScheduler>();
-                        sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
-                    })
-                .AddJobs(new[] { typeof(ExecuteCommandJob) })
+                .UseHandfireJobScheduler()
+                .AddJobs(typeof(ExecuteCommandJob))
                 .CreateResolver(false))
             {
                 GlobalConfiguration.Configuration
                     .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value)
-                    .UseActivator(new ResolverActivator(resolver));
+                    .UseActivator(new EventFlowResolverActivator(resolver));
 
                 using (new BackgroundJobServer())
                 {
@@ -99,7 +79,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                     var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), jsonSerializer);
 
                     // Act
-                    await jobScheduler.ScheduleAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
+                    await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
 
                     // Assert
                     var start = DateTimeOffset.Now;

@@ -138,7 +138,7 @@ namespace EventFlow
             RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IQueryProcessor, QueryProcessor>(services, Lifetime.Singleton);
             RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
-            RegisterIfMissing<IJobScheduler, JobScheduler>(services);
+            RegisterIfMissing<IJobScheduler, InstantJobScheduler>(services);
             RegisterIfMissing<IJobRunner, JobRunner>(services);
             RegisterIfMissing<IJobDefinitionService, JobDefinitionService>(services, Lifetime.Singleton);
             RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);

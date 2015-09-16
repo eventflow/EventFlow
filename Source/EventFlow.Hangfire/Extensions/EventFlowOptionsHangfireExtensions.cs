@@ -20,16 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Hangfire.Integration;
+using EventFlow.Jobs;
+using Hangfire;
 
-namespace EventFlow.Jobs
+namespace EventFlow.Hangfire.Extensions
 {
-    public interface IJobScheduler
+    public static class EventFlowOptionsHangfireExtensions
     {
-        Task ScheduleNowAsync(IJob job, CancellationToken cancellationToken);
-        Task ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken);
-        Task ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken);
+        public static EventFlowOptions UseHandfireJobScheduler(
+            this EventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.RegisterServices(sr =>
+                {
+                    sr.Register<IJobScheduler, HangfireJobScheduler>();
+                    sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
+                });
+        }
     }
 }

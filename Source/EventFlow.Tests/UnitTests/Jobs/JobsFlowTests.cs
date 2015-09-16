@@ -54,7 +54,7 @@ namespace EventFlow.Tests.UnitTests.Jobs
                 var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), jsonSerializer);
 
                 // Act
-                await jobScheduler.ScheduleAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
+                await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
 
                 // Assert
                 var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate, TestId>(testId, CancellationToken.None).ConfigureAwait(false);

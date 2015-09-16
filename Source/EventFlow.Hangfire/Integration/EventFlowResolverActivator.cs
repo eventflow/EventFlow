@@ -21,15 +21,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Configuration;
+using Hangfire;
 
-namespace EventFlow.Jobs
+namespace EventFlow.Hangfire.Integration
 {
-    public interface IJobScheduler
+    public class EventFlowResolverActivator : JobActivator
     {
-        Task ScheduleNowAsync(IJob job, CancellationToken cancellationToken);
-        Task ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken);
-        Task ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken);
+        private readonly IResolver _resolver;
+
+        public EventFlowResolverActivator(IResolver resolver)
+        {
+            _resolver = resolver;
+        }
+
+        public override object ActivateJob(Type jobType)
+        {
+            return _resolver.Resolve(jobType);
+        }
     }
 }
