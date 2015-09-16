@@ -35,6 +35,7 @@ using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using FluentAssertions;
 using Hangfire;
+using Helpz.MsSql;
 using NUnit.Framework;
 
 namespace EventFlow.Hangfire.Tests.Integration
@@ -56,17 +57,35 @@ namespace EventFlow.Hangfire.Tests.Integration
             }
         }
 
-        [Test, Explicit("Needs SQLEXPRESS")]
+        private IMsSqlDatabase _msSqlDatabase;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _msSqlDatabase = MsSqlHelpz.CreateDatabase("hangfire");
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _msSqlDatabase.Dispose();
+        }
+
+        [Test]
         public async Task Flow()
         {
             using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(sr => sr.Register<IJobScheduler, HangfireJobScheduler>())
+                .RegisterServices(sr =>
+                    {
+                        sr.Register<IJobScheduler, HangfireJobScheduler>();
+                        sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
+                    })
                 .AddJobs(new[] { typeof(ExecuteCommandJob) })
                 .CreateResolver(false))
             {
                 GlobalConfiguration.Configuration
-                    .UseSqlServerStorage(@"Server=.\SQLEXPRESS; Database=HangfireTest; Integrated Security=SSPI;")
+                    .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value)
                     .UseActivator(new ResolverActivator(resolver));
 
                 using (new BackgroundJobServer())
@@ -83,8 +102,17 @@ namespace EventFlow.Hangfire.Tests.Integration
                     await jobScheduler.ScheduleAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
 
                     // Assert
-                    var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate, TestId>(testId, CancellationToken.None).ConfigureAwait(false);
-                    testAggregate.IsNew.Should().BeFalse();
+                    var start = DateTimeOffset.Now;
+                    while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(20))
+                    {
+                        var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate, TestId>(testId, CancellationToken.None).ConfigureAwait(false);
+                        if (!testAggregate.IsNew)
+                        {
+                            Assert.Pass();
+                        }
+                        Thread.Sleep(TimeSpan.FromSeconds(0.2));
+                    }
+                    Assert.Fail();
                 }
             }
         }
