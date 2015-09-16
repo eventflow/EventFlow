@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.Core.VersionedTypes
@@ -69,8 +70,9 @@ namespace EventFlow.Core.VersionedTypes
                         .OrderBy(n => n)
                         .ToList();
                     return string.Format(
-                        "Added {0} versioned types from these assemblies: {1}",
+                        "Added {0} versioned types to '{1}' from these assemblies: {2}",
                         definitions.Count,
+                        GetType().PrettyPrint(),
                         string.Join(", ", assemblies));
                 });
 
@@ -92,7 +94,7 @@ namespace EventFlow.Core.VersionedTypes
             TDefinition definition;
             if (!TryGetDefinition(name, version, out definition))
             {
-                throw new ArgumentException($"No versioned type definition for '{name}' with version {version}");
+                throw new ArgumentException($"No versioned type definition for '{name}' with version {version} in '{GetType().PrettyPrint()}'");
             }
 
             return definition;
@@ -113,11 +115,11 @@ namespace EventFlow.Core.VersionedTypes
             if (definition == null)
             {
                 throw new ArgumentException(
-                    $"Could not create a versioned type definition for event type '{type.Name}'",
+                    $"Could not create a versioned type definition for type '{type.Name}' in '{GetType().PrettyPrint()}'",
                     nameof(type));
             }
 
-            _log.Verbose("Added versioned type definition '{0}'", definition);
+            _log.Verbose(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
 
             _definitionsByType.Add(type, definition);
 
