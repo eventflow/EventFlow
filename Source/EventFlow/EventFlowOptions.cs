@@ -46,7 +46,11 @@ namespace EventFlow
         public static EventFlowOptions New => new EventFlowOptions();
 
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
-        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>(); 
+        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>
+            {
+                // Built-in jobs
+                typeof(ExecuteCommandJob),
+            }; 
         private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());

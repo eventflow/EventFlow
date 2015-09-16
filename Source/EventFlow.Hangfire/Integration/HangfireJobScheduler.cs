@@ -31,13 +31,13 @@ namespace EventFlow.Hangfire.Integration
 {
     public class HangfireJobScheduler : IJobScheduler
     {
-        private readonly IJsonSerializer _jsonSerializer;
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IJobDefinitionService _jobDefinitionService;
+        private readonly IJsonSerializer _jsonSerializer;
 
         public HangfireJobScheduler(
             IJsonSerializer jsonSerializer,
-            IBackgroundJobClient  backgroundJobClient,
+            IBackgroundJobClient backgroundJobClient,
             IJobDefinitionService jobDefinitionService)
         {
             _jsonSerializer = jsonSerializer;

@@ -23,7 +23,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Hangfire.Extensions;
@@ -61,7 +60,6 @@ namespace EventFlow.Hangfire.Tests.Integration
             using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .UseHandfireJobScheduler()
-                .AddJobs(typeof(ExecuteCommandJob))
                 .CreateResolver(false))
             {
                 GlobalConfiguration.Configuration

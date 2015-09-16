@@ -29,9 +29,9 @@ namespace EventFlow.Jobs
 {
     public class JobRunner : IJobRunner
     {
-        private readonly IResolver _resolver;
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly IResolver _resolver;
 
         public JobRunner(
             IResolver resolver,

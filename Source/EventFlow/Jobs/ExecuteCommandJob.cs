@@ -30,6 +30,32 @@ namespace EventFlow.Jobs
 {
     public class ExecuteCommandJob : IJob
     {
+        public ExecuteCommandJob(
+            string data,
+            string name,
+            int version)
+        {
+            Data = data;
+            Name = name;
+            Version = version;
+        }
+
+        public string Data { get; }
+        public string Name { get; }
+        public int Version { get; }
+
+        public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+        {
+            var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
+            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
+            var commandBus = resolver.Resolve<ICommandBus>();
+
+            var commandDefinition = commandDefinitionService.GetCommandDefinition(Name, Version);
+            var command = (ICommand) jsonSerializer.Deserialize(Data, commandDefinition.Type);
+
+            return command.PublishAsync(commandBus, cancellationToken);
+        }
+
         public static ExecuteCommandJob Create(
             ICommand command,
             IResolver resolver)
@@ -52,32 +78,6 @@ namespace EventFlow.Jobs
                 data,
                 commandDefinition.Name,
                 commandDefinition.Version);
-        }
-
-        public string Data { get; }
-        public string Name { get; }
-        public int Version { get; }
-
-        public ExecuteCommandJob(
-            string data,
-            string name,
-            int version)
-        {
-            Data = data;
-            Name = name;
-            Version = version;
-        }
-
-        public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
-        {
-            var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
-            var commandBus = resolver.Resolve<ICommandBus>();
-
-            var commandDefinition = commandDefinitionService.GetCommandDefinition(Name, Version);
-            var command = (ICommand)jsonSerializer.Deserialize(Data, commandDefinition.Type);
-
-            return command.PublishAsync(commandBus, cancellationToken);
         }
     }
 }

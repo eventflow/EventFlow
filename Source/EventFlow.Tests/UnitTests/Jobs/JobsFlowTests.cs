@@ -41,7 +41,6 @@ namespace EventFlow.Tests.UnitTests.Jobs
         {
             using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .AddJobs(new [] {typeof(ExecuteCommandJob)})
                 .CreateResolver(false))
             {
                 // Arrange

@@ -31,10 +31,10 @@ namespace EventFlow.Jobs
 {
     public class InstantJobScheduler : IJobScheduler
     {
-        private readonly ILog _log;
-        private readonly IJsonSerializer _jsonSerializer;
-        private readonly IJobRunner _jobRunner;
         private readonly IJobDefinitionService _jobDefinitionService;
+        private readonly IJobRunner _jobRunner;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ILog _log;
 
         public InstantJobScheduler(
             ILog log,
