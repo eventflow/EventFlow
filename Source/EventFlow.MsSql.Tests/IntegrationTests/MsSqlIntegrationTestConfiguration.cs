@@ -23,35 +23,34 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.Tests.Helpers;
 using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using Helpz.MsSql;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
     public class MsSqlIntegrationTestConfiguration : IntegrationTestConfiguration
     {
-        protected ITestDatabase TestDatabase { get; private set; }
+        protected IMsSqlDatabase TestDatabase { get; private set; }
         protected IMsSqlConnection MsSqlConnection { get; private set; }
         protected IReadModelSqlGenerator ReadModelSqlGenerator { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
 
         public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
         {
-            TestDatabase = MsSqlHelper.CreateDatabase("eventflow");
+            TestDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
             var resolver = eventFlowOptions
-                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString))
+                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString.Value))
                 .UseEventStore<MsSqlEventStore>()
                 .UseMssqlReadModel<MsSqlTestAggregateReadModel>()
                 .CreateResolver();
