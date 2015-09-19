@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
+using EventFlow.Provided.Jobs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
@@ -48,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.Jobs
                 var pingId = PingId.New;
                 var jobScheduler = resolver.Resolve<IJobScheduler>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var executeCommandJob = ExecuteCommandJob.Create(new PingCommand(testId, pingId), resolver);
+                var executeCommandJob = PublishCommandJob.Create(new PingCommand(testId, pingId), resolver);
 
                 // Act
                 await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);

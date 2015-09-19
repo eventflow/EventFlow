@@ -25,12 +25,14 @@ using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Jobs;
 
-namespace EventFlow.Jobs
+namespace EventFlow.Provided.Jobs
 {
-    public class ExecuteCommandJob : IJob
+    [JobVersion("PublishCommand", 1)]
+    public class PublishCommandJob : IJob
     {
-        public ExecuteCommandJob(
+        public PublishCommandJob(
             string data,
             string name,
             int version)
@@ -56,7 +58,7 @@ namespace EventFlow.Jobs
             return command.PublishAsync(commandBus, cancellationToken);
         }
 
-        public static ExecuteCommandJob Create(
+        public static PublishCommandJob Create(
             ICommand command,
             IResolver resolver)
         {
@@ -66,7 +68,7 @@ namespace EventFlow.Jobs
             return Create(command, commandDefinitionService, jsonSerializer);
         }
 
-        public static ExecuteCommandJob Create(
+        public static PublishCommandJob Create(
             ICommand command,
             ICommandDefinitionService commandDefinitionService,
             IJsonSerializer jsonSerializer)
@@ -74,7 +76,7 @@ namespace EventFlow.Jobs
             var data = jsonSerializer.Serialize(command);
             var commandDefinition = commandDefinitionService.GetCommandDefinition(command.GetType());
 
-            return new ExecuteCommandJob(
+            return new PublishCommandJob(
                 data,
                 commandDefinition.Name,
                 commandDefinition.Version);

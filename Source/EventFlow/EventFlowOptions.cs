@@ -35,6 +35,7 @@ using EventFlow.EventStores.InMemory;
 using EventFlow.Jobs;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using EventFlow.Provided.Jobs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Subscribers;
@@ -49,7 +50,7 @@ namespace EventFlow
         private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>
             {
                 // Built-in jobs
-                typeof(ExecuteCommandJob),
+                typeof(PublishCommandJob),
             }; 
         private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
