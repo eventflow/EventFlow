@@ -99,6 +99,22 @@ Target "CreatePackageEventFlowRabbitMQ" (fun _ ->
             "Source/EventFlow.RabbitMQ/EventFlow.RabbitMQ.nuspec"
     )
 
+Target "CreatePackageEventFlowHangfire" (fun _ ->
+    let binDir = "Source/EventFlow.Hangfire/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.Hangfire.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Hangfire"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "Hangfire.Core",  GetPackageVersion "./packages/" "Hangfire.Core"]
+            Publish = false })
+            "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
+    )
+
 Target "CreatePackageEventFlowMsSql" (fun _ ->
     let binDir = "Source\\EventFlow.MsSql\\bin\\" + buildMode + "\\"
     let result = ExecProcess (fun info ->
@@ -191,6 +207,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowRabbitMQ"
+    ==> "CreatePackageEventFlowHangfire"
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
