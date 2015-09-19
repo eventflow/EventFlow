@@ -21,15 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Jobs;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Jobs
+namespace EventFlow.Hangfire.Integration
 {
-    public interface IJobScheduler
+    public class HangfireJobId : SingleValueObject<string>, IJobId
     {
-        Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken);
-        Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken);
-        Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken);
+        public HangfireJobId(string value) : base(value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+        }
     }
 }

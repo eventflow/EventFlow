@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Jobs;
+using EventFlow.Logs;
 using Hangfire;
 
 namespace EventFlow.Hangfire.Integration
@@ -34,40 +35,45 @@ namespace EventFlow.Hangfire.Integration
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly ILog _log;
 
         public HangfireJobScheduler(
+            ILog log,
             IJsonSerializer jsonSerializer,
             IBackgroundJobClient backgroundJobClient,
             IJobDefinitionService jobDefinitionService)
         {
+            _log = log;
             _jsonSerializer = jsonSerializer;
             _backgroundJobClient = backgroundJobClient;
             _jobDefinitionService = jobDefinitionService;
         }
 
-        public Task ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
+        public Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
         {
             return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(d.Name, d.Version, j)));
         }
 
-        public Task ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
+        public Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
         {
             return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Schedule<IJobRunner>(r => r.Execute(d.Name, d.Version, j), runAt));
         }
 
-        public Task ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
+        public Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
         {
             return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Schedule<IJobRunner>(r => r.Execute(d.Name, d.Version, j), delay));
         }
 
-        private Task ScheduleAsync(IJob job, Func<IBackgroundJobClient, JobDefinition, string, string> schedule)
+        private Task<IJobId> ScheduleAsync(IJob job, Func<IBackgroundJobClient, JobDefinition, string, string> schedule)
         {
             var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
             var json = _jsonSerializer.Serialize(job);
 
-            schedule(_backgroundJobClient, jobDefinition, json);
+            var id = schedule(_backgroundJobClient, jobDefinition, json);
+            
+            _log.Verbose($"Scheduled job '{id}' in Hangfire");
 
-            return Task.FromResult(0);
+            return Task.FromResult<IJobId>(new HangfireJobId(id));
         }
     }
 }

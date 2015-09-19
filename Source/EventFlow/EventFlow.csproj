@@ -157,6 +157,8 @@
     <Compile Include="Extensions\SourceIdExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Jobs\IJobId.cs" />
+    <Compile Include="Jobs\JobId.cs" />
     <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
     <Compile Include="Jobs\IJob.cs" />
     <Compile Include="Jobs\IJobDefinitionService.cs" />
