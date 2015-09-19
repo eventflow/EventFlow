@@ -1,5 +1,8 @@
 ### New in 0.14 (not released yet)
 
+* New: EventFlow now supports scheduled job execution via e.g. Hangfire. You
+  can create your own scheduler or install the new `EventFlow.Hangfire` NuGet
+  package. Read the jobs documentation for more details 
 * New: Created the OWIN `CommandPublishMiddleware` middleware that can
   handle publishing of commands by posting a JSON serialized command to
   e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
