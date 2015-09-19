@@ -20,13 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Jobs;
 using EventFlow.Logs;
 using Hangfire;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Hangfire.Integration
 {
@@ -70,7 +70,7 @@ namespace EventFlow.Hangfire.Integration
             var json = _jsonSerializer.Serialize(job);
 
             var id = schedule(_backgroundJobClient, jobDefinition, json);
-            
+
             _log.Verbose($"Scheduled job '{id}' in Hangfire");
 
             return Task.FromResult<IJobId>(new HangfireJobId(id));

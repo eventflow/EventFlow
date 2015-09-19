@@ -20,9 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Hangfire.Extensions;
@@ -36,6 +33,9 @@ using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using Hangfire;
 using Helpz.MsSql;
 using NUnit.Framework;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
