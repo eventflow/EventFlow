@@ -136,6 +136,7 @@
     <Compile Include="Exceptions\MetadataParseException.cs" />
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
+    <Compile Include="Exceptions\UnknownJobException.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />

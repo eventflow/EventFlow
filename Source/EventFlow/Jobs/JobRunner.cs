@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Exceptions;
 
 namespace EventFlow.Jobs
 {
@@ -58,7 +59,12 @@ namespace EventFlow.Jobs
 
         public Task ExecuteAsync(string jobName, int version, string json, CancellationToken cancellationToken)
         {
-            var jobDefinition = _jobDefinitionService.GetJobDefinition(jobName, version);
+            JobDefinition jobDefinition;
+            if (!_jobDefinitionService.TryGetJobDefinition(jobName, version, out jobDefinition))
+            {
+                throw UnknownJobException.With(jobName, version);
+            }
+
             var executeCommandJob = (IJob) _jsonSerializer.Deserialize(json, jobDefinition.Type);
             return executeCommandJob.ExecuteAsync(_resolver, cancellationToken);
         }
