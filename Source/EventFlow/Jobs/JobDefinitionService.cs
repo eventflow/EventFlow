@@ -21,29 +21,42 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-namespace EventFlow.Logs
+namespace EventFlow.Jobs
 {
-    public class ConsoleLog : Log
+    public class JobDefinitionService : VersionedTypeDefinitionService<JobVersionAttribute, JobDefinition>, IJobDefinitionService
     {
-        protected override bool IsVerboseEnabled => true;
-        protected override bool IsDebugEnabled => true;
-        protected override bool IsInformationEnabled => true;
-
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        public JobDefinitionService(ILog log)
+            : base(log)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message);
         }
 
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public void LoadJobs(IEnumerable<Type> jobTypes)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message, exception);
+            Load(jobTypes);
+        }
+
+        public JobDefinition GetJobDefinition(Type jobType)
+        {
+            return GetDefinition(jobType);
+        }
+
+        public JobDefinition GetJobDefinition(string jobName, int version)
+        {
+            return GetDefinition(jobName, version);
+        }
+
+        public bool TryGetJobDefinition(string name, int version, out JobDefinition definition)
+        {
+            return TryGetDefinition(name, version, out definition);
+        }
+
+        protected override JobDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new JobDefinition(version, type, name);
         }
     }
 }

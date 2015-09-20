@@ -21,29 +21,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Logs
+namespace EventFlow.Jobs
 {
-    public class ConsoleLog : Log
+    public interface IJobScheduler
     {
-        protected override bool IsVerboseEnabled => true;
-        protected override bool IsDebugEnabled => true;
-        protected override bool IsInformationEnabled => true;
-
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
-        {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message);
-        }
-
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
-        {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message, exception);
-        }
+        Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken);
+        Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken);
+        Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken);
     }
 }
