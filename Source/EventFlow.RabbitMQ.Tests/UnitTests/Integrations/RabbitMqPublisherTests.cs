@@ -72,7 +72,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
         private void ArrangeWorkingConnection()
         {
             _rabbitConnectionMock
-                .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.WithModelAsync<int>(It.IsAny<Func<IModel, Task<int>>>(), It.IsAny<CancellationToken>()))
                 .Callback<Func<IModel, Task>, CancellationToken>((a, c) =>
                     {
                         a(_modelMock.Object).Wait(c);
@@ -84,7 +84,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
             where TException : Exception, new()
         {
             _rabbitConnectionMock
-                .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task<int>>>(), It.IsAny<CancellationToken>()))
                 .Throws<TException>();
         }
 

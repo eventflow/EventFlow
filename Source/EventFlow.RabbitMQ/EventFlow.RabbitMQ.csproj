@@ -53,7 +53,10 @@
     <Compile Include="Exchange.cs" />
     <Compile Include="Extensions\EventFlowOptionsRabbitMqExtensions.cs" />
     <Compile Include="Integrations\IRabbitConnection.cs" />
+    <Compile Include="Integrations\IRabbitMqConsumer.cs" />
+    <Compile Include="Integrations\IRabbitMqMessageHandler.cs" />
     <Compile Include="Integrations\RabbitConnection.cs" />
+    <Compile Include="Integrations\RabbitMqConsumer.cs" />
     <Compile Include="MessageId.cs" />
     <Compile Include="RabbitMqDomainEventPublisher.cs" />
     <Compile Include="IRabbitMqConfiguration.cs" />

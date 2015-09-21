@@ -47,7 +47,7 @@ namespace EventFlow.RabbitMQ.Integrations
             _models = new ConcurrentBag<IModel>(Enumerable.Range(0, maxModels).Select(_ => connection.CreateModel()));
         }
 
-        public async Task<int> WithModelAsync(Func<IModel, Task> action, CancellationToken cancellationToken)
+        public async Task<T> WithModelAsync<T>(Func<IModel, Task<T>> action, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -60,15 +60,13 @@ namespace EventFlow.RabbitMQ.Integrations
 
                 try
                 {
-                    await action(model).ConfigureAwait(false);
+                    return await action(model).ConfigureAwait(false);
                 }
                 finally
                 {
                     _models.Add(model);
                 }
             }
-
-            return 0;
         }
 
         public void Dispose()

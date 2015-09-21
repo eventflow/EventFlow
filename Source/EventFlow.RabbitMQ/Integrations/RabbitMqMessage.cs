@@ -22,11 +22,28 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using RabbitMQ.Client.Events;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqMessage
     {
+        public static RabbitMqMessage Create(BasicDeliverEventArgs basicDeliverEventArgs)
+        {
+            var headers = basicDeliverEventArgs.BasicProperties.Headers
+                .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value));
+            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body);
+
+            return new RabbitMqMessage(
+                message,
+                headers,
+                new Exchange(basicDeliverEventArgs.Exchange),
+                new RoutingKey(basicDeliverEventArgs.RoutingKey),
+                new MessageId(basicDeliverEventArgs.BasicProperties.MessageId));
+        }
+
         public MessageId MessageId { get; }
         public string Message { get; }
         public IReadOnlyDictionary<string, string> Headers { get; }

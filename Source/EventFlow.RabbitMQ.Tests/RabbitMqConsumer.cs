@@ -93,24 +93,10 @@ namespace EventFlow.RabbitMQ.Tests
                     {
                         var basicDeliverEventArgses =_receivedMessages.GetRange(0, count);
                         _receivedMessages.RemoveRange(0, count);
-                        return basicDeliverEventArgses.Select(CreateRabbitMqMessage).ToList();
+                        return basicDeliverEventArgses.Select(RabbitMqMessage.Create).ToList();
                     }
                 }
             }
-        }
-
-        private static RabbitMqMessage CreateRabbitMqMessage(BasicDeliverEventArgs basicDeliverEventArgs)
-        {
-            var headers = basicDeliverEventArgs.BasicProperties.Headers
-                .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value));
-            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body);
-
-            return new RabbitMqMessage(
-                message,
-                headers,
-                new Exchange(basicDeliverEventArgs.Exchange), 
-                new RoutingKey(basicDeliverEventArgs.RoutingKey),
-                new MessageId(basicDeliverEventArgs.BasicProperties.MessageId));
         }
 
         public void Dispose()

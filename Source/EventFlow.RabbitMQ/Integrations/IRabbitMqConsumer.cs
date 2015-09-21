@@ -21,14 +21,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IRabbitConnection : IDisposable
+    public interface IRabbitMqConsumer : IDisposable
     {
-        Task<T> WithModelAsync<T>(Func<IModel, Task<T>> action, CancellationToken cancellationToken);
+        Task StartAsync();
+        Task StopAsync();
+    }
+
+    public interface IRabbitMqConsumer<THandler> : IRabbitMqConsumer
+        where THandler : IRabbitMqMessageHandler
+    {
     }
 }
