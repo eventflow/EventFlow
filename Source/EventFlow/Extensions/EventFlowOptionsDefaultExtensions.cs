@@ -27,8 +27,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsDefaultExtensions
     {
-        public static EventFlowOptions AddDefaults(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddDefaults(
+            this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {

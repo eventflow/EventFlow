@@ -28,8 +28,8 @@ namespace EventFlow.Hangfire.Extensions
 {
     public static class EventFlowOptionsHangfireExtensions
     {
-        public static EventFlowOptions UseHandfireJobScheduler(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseHandfireJobScheduler(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
