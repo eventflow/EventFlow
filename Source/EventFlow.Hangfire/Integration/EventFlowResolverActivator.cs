@@ -20,30 +20,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Configuration;
+using Hangfire;
 using System;
 
-namespace EventFlow.Logs
+namespace EventFlow.Hangfire.Integration
 {
-    public class ConsoleLog : Log
+    public class EventFlowResolverActivator : JobActivator
     {
-        protected override bool IsVerboseEnabled => true;
-        protected override bool IsDebugEnabled => true;
-        protected override bool IsInformationEnabled => true;
+        private readonly IResolver _resolver;
 
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        public EventFlowResolverActivator(IResolver resolver)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message);
+            _resolver = resolver;
         }
 
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public override object ActivateJob(Type jobType)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message, exception);
+            return _resolver.Resolve(jobType);
         }
     }
 }

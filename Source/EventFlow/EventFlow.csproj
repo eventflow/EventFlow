@@ -136,6 +136,7 @@
     <Compile Include="Exceptions\MetadataParseException.cs" />
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
+    <Compile Include="Exceptions\UnknownJobException.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsJobExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
@@ -155,6 +157,18 @@
     <Compile Include="Extensions\SourceIdExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Jobs\IJobId.cs" />
+    <Compile Include="Jobs\JobId.cs" />
+    <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
+    <Compile Include="Jobs\IJob.cs" />
+    <Compile Include="Jobs\IJobDefinitionService.cs" />
+    <Compile Include="Jobs\IJobRunner.cs" />
+    <Compile Include="Jobs\IJobScheduler.cs" />
+    <Compile Include="Jobs\JobDefinition.cs" />
+    <Compile Include="Jobs\JobDefinitionService.cs" />
+    <Compile Include="Jobs\JobRunner.cs" />
+    <Compile Include="Jobs\InstantJobScheduler.cs" />
+    <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />

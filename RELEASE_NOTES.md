@@ -1,5 +1,8 @@
 ### New in 0.14 (not released yet)
 
+* New: EventFlow now supports scheduled job execution via e.g. Hangfire. You
+  can create your own scheduler or install the new `EventFlow.Hangfire` NuGet
+  package. Read the jobs documentation for more details 
 * New: Added support for [Elasticsearch](https://www.elastic.co/) as a read
   models store. Read the guide on how to get started
 * New: Created the OWIN `CommandPublishMiddleware` middleware that can

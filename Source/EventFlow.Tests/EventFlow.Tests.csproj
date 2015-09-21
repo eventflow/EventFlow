@@ -88,6 +88,7 @@
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
+    <Compile Include="UnitTests\Jobs\JobsFlowTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelDomainEventApplierTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

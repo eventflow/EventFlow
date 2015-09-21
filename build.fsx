@@ -44,6 +44,7 @@ Target "UnitTest" (fun _ ->
                 DisableShadowCopy = true;
                 Framework = "net-4.0";
                 ToolPath = "./Tools/NUnit.Runners/tools";
+                TimeOut = TimeSpan.FromMinutes 30.0;
                 ToolName = "nunit-console-x86.exe";
                 OutputFile = filePathUnitTestReport})
     )
@@ -96,6 +97,22 @@ Target "CreatePackageEventFlowRabbitMQ" (fun _ ->
                 "RabbitMQ.Client",  GetPackageVersion "./packages/" "RabbitMQ.Client"]
             Publish = false })
             "Source/EventFlow.RabbitMQ/EventFlow.RabbitMQ.nuspec"
+    )
+
+Target "CreatePackageEventFlowHangfire" (fun _ ->
+    let binDir = "Source/EventFlow.Hangfire/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.Hangfire.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Hangfire"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "Hangfire.Core",  "1.4.6"] // Need to fix this
+            Publish = false })
+            "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
 
 Target "CreatePackageEventFlowMsSql" (fun _ ->
@@ -208,6 +225,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowRabbitMQ"
+    ==> "CreatePackageEventFlowHangfire"
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"

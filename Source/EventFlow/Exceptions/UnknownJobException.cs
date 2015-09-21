@@ -22,28 +22,27 @@
 
 using System;
 
-namespace EventFlow.Logs
+namespace EventFlow.Exceptions
 {
-    public class ConsoleLog : Log
+    public class UnknownJobException : Exception
     {
-        protected override bool IsVerboseEnabled => true;
-        protected override bool IsDebugEnabled => true;
-        protected override bool IsInformationEnabled => true;
-
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        public UnknownJobException(
+            string jobName,
+            int jobVersion,
+            string message)
+            : base(message)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message);
+            JobName = jobName;
+            JobVersion = jobVersion;
         }
 
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public string JobName { get; }
+        public int JobVersion { get; }
+
+        public static UnknownJobException With(string jobName, int jobVersion)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message, exception);
+            var message = $"Job '{jobName}' v{jobVersion} is unknown. It might be one of these reasons: current software is too old, or job has been deleted";
+            return new UnknownJobException(jobName, jobVersion, message);
         }
     }
 }
