@@ -26,7 +26,7 @@ using EventFlow.Provided.Jobs;
 
 namespace EventFlow.Provided
 {
-    public class ProvidedJobsModule : IConfigurationModule
+    public class ProvidedJobsConfigurationModule : IConfigurationModule
     {
         public void Register(IEventFlowOptions eventFlowOptions)
         {

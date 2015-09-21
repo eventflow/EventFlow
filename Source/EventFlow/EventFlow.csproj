@@ -174,7 +174,7 @@
     <Compile Include="Jobs\InstantJobScheduler.cs" />
     <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
-    <Compile Include="Provided\ProvidedJobsModule.cs" />
+    <Compile Include="Provided\ProvidedJobsConfigurationModule.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />

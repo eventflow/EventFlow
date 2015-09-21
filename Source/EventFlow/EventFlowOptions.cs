@@ -190,7 +190,7 @@ namespace EventFlow
             _lazyRegistrationFactory.Value.Register(r => moduleRegistration, Lifetime.Singleton);
 
             // Provided modules
-            moduleRegistration.Register<ProvidedJobsModule>();
+            moduleRegistration.Register<ProvidedJobsConfigurationModule>();
 
             // Create resolver
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
