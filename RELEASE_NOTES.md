@@ -1,8 +1,13 @@
 ### New in 0.14 (not released yet)
 
+* Breaking: All `EventFlowOptions` extensions are now `IEventFlowOptions`
+  instead and `EventFlowOptions` implements this interface. If you have made
+  your own extensions, you will need to use the newly created interface
+  instead. Changed in order to make testing of extensions and classes
+  dependent on the EventFlow options easier to test
 * New: EventFlow now supports scheduled job execution via e.g. Hangfire. You
   can create your own scheduler or install the new `EventFlow.Hangfire` NuGet
-  package. Read the jobs documentation for more details 
+  package. Read the jobs documentation for more details
 * New: Created the OWIN `CommandPublishMiddleware` middleware that can
   handle publishing of commands by posting a JSON serialized command to
   e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
