@@ -28,7 +28,7 @@ namespace EventFlow.Configuration
 {
     public class ModuleRegistration : IModuleRegistration
     {
-        private readonly Dictionary<Type, IEventFlowModule> _eventFlowModules = new Dictionary<Type, IEventFlowModule>();
+        private readonly Dictionary<Type, IConfigurationModule> _configurationModules = new Dictionary<Type, IConfigurationModule>();
         private readonly IEventFlowOptions _eventFlowOptions;
 
         public ModuleRegistration(
@@ -38,27 +38,27 @@ namespace EventFlow.Configuration
         }
 
         public void Register<TModule>()
-            where TModule : IEventFlowModule, new()
+            where TModule : IConfigurationModule, new()
         {
             var module = new TModule();
             Register(module);
         }
 
         public void Register<TModule>(TModule module)
-            where TModule : IEventFlowModule
+            where TModule : IConfigurationModule
         {
             var moduleType = typeof (TModule);
-            if (_eventFlowModules.ContainsKey(moduleType))
+            if (_configurationModules.ContainsKey(moduleType))
             {
                 throw new ArgumentException($"Module '{moduleType.PrettyPrint()}' has already been registered");
             }
 
             module.Register(_eventFlowOptions);
-            _eventFlowModules.Add(moduleType, module);
+            _configurationModules.Add(moduleType, module);
         }
 
         public TModule GetModule<TModule>()
-            where TModule : IEventFlowModule
+            where TModule : IConfigurationModule
         {
             TModule module;
             if (!TryGetModule(out module))
@@ -69,18 +69,18 @@ namespace EventFlow.Configuration
             return module;
         }
 
-        public bool TryGetModule<TModule>(out TModule eventFlowModule)
-            where TModule : IEventFlowModule
+        public bool TryGetModule<TModule>(out TModule configurationModule)
+            where TModule : IConfigurationModule
         {
             var moduleType = typeof (TModule);
-            IEventFlowModule module;
-            if (!_eventFlowModules.TryGetValue(moduleType, out module))
+            IConfigurationModule module;
+            if (!_configurationModules.TryGetValue(moduleType, out module))
             {
-                eventFlowModule = default(TModule);
+                configurationModule = default(TModule);
                 return false;
             }
 
-            eventFlowModule = (TModule) module;
+            configurationModule = (TModule) module;
             return true;
         }
     }

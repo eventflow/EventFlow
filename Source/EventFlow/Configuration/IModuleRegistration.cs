@@ -25,15 +25,15 @@ namespace EventFlow.Configuration
     public interface IModuleRegistration
     {
         void Register<TModule>()
-            where TModule : IEventFlowModule, new();
+            where TModule : IConfigurationModule, new();
 
         void Register<TModule>(TModule module)
-            where TModule : IEventFlowModule;
+            where TModule : IConfigurationModule;
 
         TModule GetModule<TModule>()
-            where TModule : IEventFlowModule;
+            where TModule : IConfigurationModule;
 
-        bool TryGetModule<TModule>(out TModule eventFlowModule)
-            where TModule : IEventFlowModule;
+        bool TryGetModule<TModule>(out TModule configurationModule)
+            where TModule : IConfigurationModule;
     }
 }

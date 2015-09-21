@@ -36,8 +36,8 @@ namespace EventFlow
         IEventFlowOptions RegisterServices(Action<IServiceRegistration> register);
         IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration);
         IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration);
-        IEventFlowOptions RegisterModule<TModule>() where TModule : IEventFlowModule, new();
-        IEventFlowOptions RegisterModule<TModule>(TModule eventFlowModule) where TModule : IEventFlowModule;
+        IEventFlowOptions RegisterModule<TModule>() where TModule : IConfigurationModule, new();
+        IEventFlowOptions RegisterModule<TModule>(TModule configurationModule) where TModule : IConfigurationModule;
 
         IRootResolver CreateResolver(bool validateRegistrations = true);
     }

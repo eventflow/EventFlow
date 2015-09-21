@@ -73,7 +73,7 @@
     <Compile Include="Commands\ICommandDefinitionService.cs" />
     <Compile Include="Commands\ISerializedCommandPublisher.cs" />
     <Compile Include="Commands\SerializedCommandPublisher.cs" />
-    <Compile Include="Configuration\IEventFlowModule.cs" />
+    <Compile Include="Configuration\IConfigurationModule.cs" />
     <Compile Include="Configuration\IModuleRegistration.cs" />
     <Compile Include="Configuration\ModuleRegistration.cs" />
     <Compile Include="Core\CircularBuffer.cs" />

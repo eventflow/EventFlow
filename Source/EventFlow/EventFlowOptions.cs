@@ -119,16 +119,16 @@ namespace EventFlow
         }
 
         public IEventFlowOptions RegisterModule<TModule>()
-            where TModule : IEventFlowModule, new()
+            where TModule : IConfigurationModule, new()
         {
             _lazyModuleRegistrationFactory.Value.Register<TModule>();
             return this;
         }
 
-        public IEventFlowOptions RegisterModule<TModule>(TModule eventFlowModule)
-            where TModule : IEventFlowModule
+        public IEventFlowOptions RegisterModule<TModule>(TModule configurationModule)
+            where TModule : IConfigurationModule
         {
-            _lazyModuleRegistrationFactory.Value.Register(eventFlowModule);
+            _lazyModuleRegistrationFactory.Value.Register(configurationModule);
             return this;
         }
 
