@@ -119,16 +119,16 @@ namespace EventFlow
         }
 
         public IEventFlowOptions RegisterModule<TModule>()
-            where TModule : IConfigurationModule, new()
+            where TModule : IModule, new()
         {
             _lazyModuleRegistrationFactory.Value.Register<TModule>();
             return this;
         }
 
-        public IEventFlowOptions RegisterModule<TModule>(TModule configurationModule)
-            where TModule : IConfigurationModule
+        public IEventFlowOptions RegisterModule<TModule>(TModule module)
+            where TModule : IModule
         {
-            _lazyModuleRegistrationFactory.Value.Register(configurationModule);
+            _lazyModuleRegistrationFactory.Value.Register(module);
             return this;
         }
 
@@ -190,7 +190,7 @@ namespace EventFlow
             _lazyRegistrationFactory.Value.Register(r => moduleRegistration, Lifetime.Singleton);
 
             // Provided modules
-            moduleRegistration.Register<ProvidedJobsConfigurationModule>();
+            moduleRegistration.Register<ProvidedJobsModule>();
 
             // Create resolver
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);

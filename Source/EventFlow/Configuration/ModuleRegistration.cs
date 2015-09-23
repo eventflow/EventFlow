@@ -28,7 +28,7 @@ namespace EventFlow.Configuration
 {
     public class ModuleRegistration : IModuleRegistration
     {
-        private readonly Dictionary<Type, IConfigurationModule> _configurationModules = new Dictionary<Type, IConfigurationModule>();
+        private readonly Dictionary<Type, IModule> _modules = new Dictionary<Type, IModule>();
         private readonly IEventFlowOptions _eventFlowOptions;
 
         public ModuleRegistration(
@@ -38,27 +38,27 @@ namespace EventFlow.Configuration
         }
 
         public void Register<TModule>()
-            where TModule : IConfigurationModule, new()
+            where TModule : IModule, new()
         {
             var module = new TModule();
             Register(module);
         }
 
         public void Register<TModule>(TModule module)
-            where TModule : IConfigurationModule
+            where TModule : IModule
         {
             var moduleType = typeof (TModule);
-            if (_configurationModules.ContainsKey(moduleType))
+            if (_modules.ContainsKey(moduleType))
             {
                 throw new ArgumentException($"Module '{moduleType.PrettyPrint()}' has already been registered");
             }
 
             module.Register(_eventFlowOptions);
-            _configurationModules.Add(moduleType, module);
+            _modules.Add(moduleType, module);
         }
 
         public TModule GetModule<TModule>()
-            where TModule : IConfigurationModule
+            where TModule : IModule
         {
             TModule module;
             if (!TryGetModule(out module))
@@ -69,18 +69,18 @@ namespace EventFlow.Configuration
             return module;
         }
 
-        public bool TryGetModule<TModule>(out TModule configurationModule)
-            where TModule : IConfigurationModule
+        public bool TryGetModule<TModule>(out TModule module)
+            where TModule : IModule
         {
             var moduleType = typeof (TModule);
-            IConfigurationModule module;
-            if (!_configurationModules.TryGetValue(moduleType, out module))
+            IModule iModule;
+            if (!_modules.TryGetValue(moduleType, out iModule))
             {
-                configurationModule = default(TModule);
+                module = default(TModule);
                 return false;
             }
 
-            configurationModule = (TModule) module;
+            module = (TModule)iModule;
             return true;
         }
     }

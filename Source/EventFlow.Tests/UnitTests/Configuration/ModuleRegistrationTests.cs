@@ -110,11 +110,11 @@ namespace EventFlow.Tests.UnitTests.Configuration
             fetchedModuleA.Should().Be(moduleA.Object);
         }
 
-        public interface IModuleA : IConfigurationModule
+        public interface IModuleA : IModule
         {
         }
 
-        public interface IModuleB : IConfigurationModule
+        public interface IModuleB : IModule
         {
         }
     }

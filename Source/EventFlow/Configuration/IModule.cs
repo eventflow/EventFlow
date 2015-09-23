@@ -22,7 +22,7 @@
 
 namespace EventFlow.Configuration
 {
-    public interface IConfigurationModule
+    public interface IModule
     {
         void Register(IEventFlowOptions eventFlowOptions);
     }
