@@ -99,10 +99,10 @@ like this.
 
 ```csharp
 var resolver = EventFlowOptions.new
-  .UseHandfireJobScheduler() // This line
+  .UseHangfireJobScheduler() // This line
   ...
   .CreateResolver();
 ```
 
-Note that the `UseHandfireJobScheduler()` does do any Hangfire configuration,
+Note that the `UseHangfireJobScheduler()` doesn't do any Hangfire configuration,
 but merely registers the proper scheduler in EventFlow.

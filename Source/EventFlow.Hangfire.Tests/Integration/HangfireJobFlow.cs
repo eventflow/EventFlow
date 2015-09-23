@@ -60,7 +60,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         {
             using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .UseHandfireJobScheduler()
+                .UseHangfireJobScheduler()
                 .CreateResolver(false))
             {
                 GlobalConfiguration.Configuration
