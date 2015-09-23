@@ -32,8 +32,8 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
-using EventFlow.Jobs;
 using EventFlow.Extensions;
+using EventFlow.Jobs;
 using EventFlow.Logs;
 using EventFlow.Provided;
 using EventFlow.Queries;
@@ -44,21 +44,23 @@ namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions
     {
-        public static EventFlowOptions New => new EventFlowOptions();
-
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
-        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>(); 
-        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
+        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
+        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>();
+        private Lazy<IModuleRegistration> _lazyModuleRegistrationFactory;
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
-        private Lazy<IModuleRegistration> _lazyModuleRegistrationFactory; 
-        private Stopwatch _stopwatch;
+        private readonly Stopwatch _stopwatch;
 
         private EventFlowOptions()
         {
             _stopwatch = Stopwatch.StartNew();
             _lazyModuleRegistrationFactory = new Lazy<IModuleRegistration>(() => new ModuleRegistration(this));
         }
+
+        public static EventFlowOptions New => new EventFlowOptions();
+
+        public IModuleRegistration ModuleRegistration => _lazyModuleRegistrationFactory.Value;
 
         public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
@@ -77,7 +79,7 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
                     throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
                 }
@@ -90,9 +92,9 @@ namespace EventFlow
         {
             foreach (var commandType in commandTypes)
             {
-                if (!typeof(ICommand).IsAssignableFrom(commandType))
+                if (!typeof (ICommand).IsAssignableFrom(commandType))
                 {
-                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof(ICommand).PrettyPrint()}");
+                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof (ICommand).PrettyPrint()}");
                 }
                 _commandTypes.Add(commandType);
             }
@@ -103,9 +105,9 @@ namespace EventFlow
         {
             foreach (var jobType in jobTypes)
             {
-                if (!typeof(IJob).IsAssignableFrom(jobType))
+                if (!typeof (IJob).IsAssignableFrom(jobType))
                 {
-                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof(IJob).PrettyPrint()}");
+                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof (IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
             }
@@ -182,7 +184,7 @@ namespace EventFlow
 
             if (!services.Contains(typeof (ITransientFaultHandler<>)))
             {
-                _lazyRegistrationFactory.Value.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+                _lazyRegistrationFactory.Value.RegisterGeneric(typeof (ITransientFaultHandler<>), typeof (TransientFaultHandler<>));
             }
 
             // Add registration services

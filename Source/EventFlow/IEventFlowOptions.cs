@@ -28,6 +28,8 @@ namespace EventFlow
 {
     public interface IEventFlowOptions
     {
+        IModuleRegistration ModuleRegistration { get; }
+
         IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry);
         IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
         IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
