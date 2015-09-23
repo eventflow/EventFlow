@@ -5,8 +5,8 @@
   your own extensions, you will need to use the newly created interface
   instead. Changed in order to make testing of extensions and classes
   dependent on the EventFlow options easier to test
-* New: You can now bundle your configuration of EventFlow into classes that
-  implement `IConfigurationModule` and register these by calling
+* New: You can now bundle your configuration of EventFlow into modules that
+  implement `IModule` and register these by calling
   `EventFlowOptions.RegisterModule(...)`
 * New: EventFlow now supports scheduled job execution via e.g. Hangfire. You
   can create your own scheduler or install the new `EventFlow.Hangfire` NuGet
