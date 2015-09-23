@@ -39,6 +39,7 @@ namespace EventFlow.Configuration.Registrations
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
         {
             _containerBuilder = containerBuilder ?? new ContainerBuilder();
+            _containerBuilder.RegisterType<AutofacStartable>().As<IStartable>();
         }
 
         public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)

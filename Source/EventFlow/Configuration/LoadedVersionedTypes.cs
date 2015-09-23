@@ -22,26 +22,24 @@
 
 using System;
 using System.Collections.Generic;
-using EventFlow.Configuration;
+using System.Linq;
 
-namespace EventFlow
+namespace EventFlow.Configuration
 {
-    public interface IEventFlowOptions
+    public class LoadedVersionedTypes : ILoadedVersionedTypes
     {
-        IModuleRegistration ModuleRegistration { get; }
+        public LoadedVersionedTypes(
+            IEnumerable<Type> jobTypes,
+            IEnumerable<Type> commandTypes,
+            IEnumerable<Type> eventTypes)
+        {
+            Jobs = jobTypes.ToList();
+            Commands = commandTypes.ToList();
+            Events = eventTypes.ToList();
+        }
 
-        IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry);
-        IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
-        IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
-        IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);
-        IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
-        IEventFlowOptions RegisterServices(Action<IServiceRegistration> register);
-        IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration);
-        IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration);
-        IEventFlowOptions RegisterModule<TModule>() where TModule : IModule, new();
-        IEventFlowOptions RegisterModule<TModule>(TModule module) where TModule : IModule;
-
-        IRootResolver CreateResolver(bool validateRegistrations = true);
-        IEventFlowOptions Initialize();
+        public IReadOnlyCollection<Type> Jobs { get; }
+        public IReadOnlyCollection<Type> Commands { get; }
+        public IReadOnlyCollection<Type> Events { get; }
     }
 }

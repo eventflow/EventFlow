@@ -21,12 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
@@ -44,17 +43,16 @@ namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions
     {
-        private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
-        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>();
+        private readonly List<Type> _aggregateEventTypes = new List<Type>();
+        private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>();
+        private readonly List<Type> _jobTypes = new List<Type>();
         private Lazy<IModuleRegistration> _lazyModuleRegistrationFactory;
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
-        private readonly Stopwatch _stopwatch;
+        private bool _isInitialized = false;
 
         private EventFlowOptions()
         {
-            _stopwatch = Stopwatch.StartNew();
             _lazyModuleRegistrationFactory = new Lazy<IModuleRegistration>(() => new ModuleRegistration(this));
         }
 
@@ -64,6 +62,8 @@ namespace EventFlow
 
         public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
+            AssertNotInitialized();
+
             _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
             _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
             return this;
@@ -71,12 +71,16 @@ namespace EventFlow
 
         public IEventFlowOptions Configure(Action<EventFlowConfiguration> configure)
         {
+            AssertNotInitialized();
+
             configure(_eventFlowConfiguration);
             return this;
         }
 
         public IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
+            AssertNotInitialized();
+
             foreach (var aggregateEventType in aggregateEventTypes)
             {
                 if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
@@ -90,6 +94,8 @@ namespace EventFlow
 
         public IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
         {
+            AssertNotInitialized();
+
             foreach (var commandType in commandTypes)
             {
                 if (!typeof (ICommand).IsAssignableFrom(commandType))
@@ -103,6 +109,8 @@ namespace EventFlow
 
         public IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
         {
+            AssertNotInitialized();
+
             foreach (var jobType in jobTypes)
             {
                 if (!typeof (IJob).IsAssignableFrom(jobType))
@@ -116,6 +124,8 @@ namespace EventFlow
 
         public IEventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
+            AssertNotInitialized();
+
             register(_lazyRegistrationFactory.Value);
             return this;
         }
@@ -123,6 +133,8 @@ namespace EventFlow
         public IEventFlowOptions RegisterModule<TModule>()
             where TModule : IModule, new()
         {
+            AssertNotInitialized();
+
             _lazyModuleRegistrationFactory.Value.Register<TModule>();
             return this;
         }
@@ -130,12 +142,16 @@ namespace EventFlow
         public IEventFlowOptions RegisterModule<TModule>(TModule module)
             where TModule : IModule
         {
+            AssertNotInitialized();
+
             _lazyModuleRegistrationFactory.Value.Register(module);
             return this;
         }
 
         public IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
         {
+            AssertNotInitialized();
+
             if (_lazyRegistrationFactory.IsValueCreated)
             {
                 throw new InvalidOperationException("Service registration is already in use");
@@ -147,6 +163,8 @@ namespace EventFlow
 
         public IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration)
         {
+            AssertNotInitialized();
+
             if (_lazyModuleRegistrationFactory.IsValueCreated)
             {
                 throw new InvalidOperationException($"Module registration is already in use");
@@ -155,9 +173,13 @@ namespace EventFlow
             return this;
         }
 
-        public IRootResolver CreateResolver(bool validateRegistrations = true)
+        public IEventFlowOptions Initialize()
         {
-            var services = new HashSet<Type>(_lazyRegistrationFactory.Value.GetRegisteredServices());
+            AssertNotInitialized();
+
+            var serviceRegistration = _lazyRegistrationFactory.Value;
+            var moduleRegistration = _lazyModuleRegistrationFactory.Value;
+            var services = new HashSet<Type>(serviceRegistration.GetRegisteredServices());
 
             // Add default implementations
             RegisterIfMissing<ILog, ConsoleLog>(services);
@@ -184,35 +206,39 @@ namespace EventFlow
 
             if (!services.Contains(typeof (ITransientFaultHandler<>)))
             {
-                _lazyRegistrationFactory.Value.RegisterGeneric(typeof (ITransientFaultHandler<>), typeof (TransientFaultHandler<>));
+                serviceRegistration.RegisterGeneric(typeof (ITransientFaultHandler<>), typeof (TransientFaultHandler<>));
             }
 
-            // Add registration services
-            var moduleRegistration = _lazyModuleRegistrationFactory.Value;
-            _lazyRegistrationFactory.Value.Register(r => moduleRegistration, Lifetime.Singleton);
-
-            // Provided modules
+            serviceRegistration.Register<IBootstrap, DefinitionServicesInitilizer>();
+            serviceRegistration.Register(r => moduleRegistration, Lifetime.Singleton);
             moduleRegistration.Register<ProvidedJobsModule>();
 
-            // Create resolver
-            var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
+            var loadedVersionedTypes = new LoadedVersionedTypes(
+                _jobTypes,
+                _commandTypes,
+                _aggregateEventTypes);
 
-            // Load added type definitions into services
-            var jobDefinitionService = rootResolver.Resolve<IJobDefinitionService>();
-            jobDefinitionService.LoadJobs(_jobTypes);
+            serviceRegistration.Register<ILoadedVersionedTypes>(r => loadedVersionedTypes, Lifetime.Singleton);
 
-            var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
-            eventDefinitionService.LoadEvents(_aggregateEventTypes);
+            return this;
+        }
 
-            var commandsDefinitionService = rootResolver.Resolve<ICommandDefinitionService>();
-            commandsDefinitionService.LoadCommands(_commandTypes);
+        public IRootResolver CreateResolver(bool validateRegistrations = true)
+        {
+            if (!_isInitialized)
+            {
+                Initialize();
+            }
 
-            // Log time spent
-            _stopwatch.Stop();
-            var log = rootResolver.Resolve<ILog>();
-            log.Debug("EventFlow configuration done in {0:0.000} seconds", _stopwatch.Elapsed.TotalSeconds);
+            return _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
+        }
 
-            return rootResolver;
+        private void AssertNotInitialized()
+        {
+            if (_isInitialized)
+            {
+                throw new InvalidOperationException("EventFlow options have already been initialized");
+            }
         }
 
         private void RegisterIfMissing<TService, TImplementation>(ICollection<Type> registeredServices, Lifetime lifetime = Lifetime.AlwaysUnique)
