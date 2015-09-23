@@ -20,15 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Extensions;
+using System;
+using System.Collections.Generic;
+using EventFlow.Configuration;
 
-namespace EventFlow.EventStores.MsSql.Extensions
+namespace EventFlow
 {
-    public static class EventFlowOptionsExtensions
+    public interface IEventFlowOptions
     {
-        public static IEventFlowOptions UseMssqlEventStore(this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.UseEventStore<MsSqlEventStore>();
-        }
+        IModuleRegistration ModuleRegistration { get; }
+
+        IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry);
+        IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
+        IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
+        IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);
+        IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
+        IEventFlowOptions RegisterServices(Action<IServiceRegistration> register);
+        IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration);
+        IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration);
+        IEventFlowOptions RegisterModule<TModule>() where TModule : IModule, new();
+        IEventFlowOptions RegisterModule<TModule>(TModule module) where TModule : IModule;
+
+        IRootResolver CreateResolver(bool validateRegistrations = true);
     }
 }

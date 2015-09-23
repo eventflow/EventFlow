@@ -142,7 +142,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        private IRootResolver BuildResolver(Func<EventFlowOptions, EventFlowOptions> configure = null)
+        private IRootResolver BuildResolver(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
             configure = configure ?? (e => e);
 

@@ -73,6 +73,9 @@
     <Compile Include="Commands\ICommandDefinitionService.cs" />
     <Compile Include="Commands\ISerializedCommandPublisher.cs" />
     <Compile Include="Commands\SerializedCommandPublisher.cs" />
+    <Compile Include="Configuration\IModule.cs" />
+    <Compile Include="Configuration\IModuleRegistration.cs" />
+    <Compile Include="Configuration\ModuleRegistration.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
@@ -157,6 +160,7 @@
     <Compile Include="Extensions\SourceIdExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="IEventFlowOptions.cs" />
     <Compile Include="Jobs\IJobId.cs" />
     <Compile Include="Jobs\JobId.cs" />
     <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
@@ -170,6 +174,7 @@
     <Compile Include="Jobs\InstantJobScheduler.cs" />
     <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
+    <Compile Include="Provided\ProvidedJobsConfigurationModule.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />

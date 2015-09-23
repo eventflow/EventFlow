@@ -20,15 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.Provided.Jobs;
 
-namespace EventFlow.EventStores.MsSql.Extensions
+namespace EventFlow.Provided
 {
-    public static class EventFlowOptionsExtensions
+    public class ProvidedJobsModule : IModule
     {
-        public static IEventFlowOptions UseMssqlEventStore(this IEventFlowOptions eventFlowOptions)
+        public void Register(IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<MsSqlEventStore>();
+            // Use explicite adding of types, no need to scan assembly
+            eventFlowOptions.AddJobs(
+                typeof (PublishCommandJob));
         }
     }
 }

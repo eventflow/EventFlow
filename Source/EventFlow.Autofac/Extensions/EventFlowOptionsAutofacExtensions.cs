@@ -31,30 +31,30 @@ namespace EventFlow.Autofac.Extensions
 {
     public static class EventFlowOptionsAutofacExtensions
     {
-        public static EventFlowOptions UseAutofacContainerBuilder(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseAutofacContainerBuilder(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .UseAutofacContainerBuilder(new ContainerBuilder());
         }
 
-        public static EventFlowOptions UseAutofacContainerBuilder(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseAutofacContainerBuilder(
+            this IEventFlowOptions eventFlowOptions,
             ContainerBuilder containerBuilder)
         {
             return eventFlowOptions
                 .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder));
         }
 
-        public static EventFlowOptions UseAutofacAggregateRootFactory(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseAutofacAggregateRootFactory(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>(Lifetime.Singleton));
         }
 
         public static IContainer CreateContainer(
-            this EventFlowOptions eventFlowOptions,
+            this IEventFlowOptions eventFlowOptions,
             bool validateRegistrations = true)
         {
             var rootResolver = eventFlowOptions.CreateResolver(validateRegistrations);

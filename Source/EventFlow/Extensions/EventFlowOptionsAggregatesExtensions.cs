@@ -32,14 +32,14 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsAggregatesExtensions
     {
-        public static EventFlowOptions UseResolverAggregateRootFactory(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseResolverAggregateRootFactory(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>());
         }
 
-        public static EventFlowOptions AddAggregateRoots(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddAggregateRoots(
+            this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -52,15 +52,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
         }
 
-        public static EventFlowOptions AddAggregateRoots(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddAggregateRoots(
+            this IEventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
             return eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
         }
 
-        public static EventFlowOptions AddAggregateRoots(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddAggregateRoots(
+            this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
             var aggregateRootTypeList = aggregateRootTypes.ToList();

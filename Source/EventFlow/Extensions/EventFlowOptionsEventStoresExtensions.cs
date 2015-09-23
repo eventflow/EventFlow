@@ -29,24 +29,24 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsEventStoresExtensions
     {
-        public static EventFlowOptions UseEventStore(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseEventStore(
+            this IEventFlowOptions eventFlowOptions,
             Func<IResolverContext, IEventStore> eventStoreResolver,
             Lifetime lifetime = Lifetime.AlwaysUnique)
         {
             return eventFlowOptions.RegisterServices(f => f.Register(eventStoreResolver, lifetime));
         }
 
-        public static EventFlowOptions UseEventStore<TEventStore>(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseEventStore<TEventStore>(
+            this IEventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TEventStore : class, IEventStore
         {
             return eventFlowOptions.RegisterServices(f => f.Register<IEventStore, TEventStore>(lifetime));
         }
 
-        public static EventFlowOptions UseFilesEventStore(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseFilesEventStore(
+            this IEventFlowOptions eventFlowOptions,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
             return eventFlowOptions

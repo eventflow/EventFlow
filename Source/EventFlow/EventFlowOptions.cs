@@ -32,54 +32,54 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
-using EventFlow.Jobs;
 using EventFlow.Extensions;
+using EventFlow.Jobs;
 using EventFlow.Logs;
-using EventFlow.Provided.Jobs;
+using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Subscribers;
 
 namespace EventFlow
 {
-    public class EventFlowOptions
+    public class EventFlowOptions : IEventFlowOptions
     {
-        public static EventFlowOptions New => new EventFlowOptions();
-
         private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
-        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>
-            {
-                // Built-in jobs
-                typeof(PublishCommandJob),
-            }; 
-        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>(); 
+        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
+        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>();
+        private Lazy<IModuleRegistration> _lazyModuleRegistrationFactory;
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
-        private Stopwatch _stopwatch;
+        private readonly Stopwatch _stopwatch;
 
         private EventFlowOptions()
         {
             _stopwatch = Stopwatch.StartNew();
+            _lazyModuleRegistrationFactory = new Lazy<IModuleRegistration>(() => new ModuleRegistration(this));
         }
 
-        public EventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
+        public static EventFlowOptions New => new EventFlowOptions();
+
+        public IModuleRegistration ModuleRegistration => _lazyModuleRegistrationFactory.Value;
+
+        public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
             _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
             _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
             return this;
         }
 
-        public EventFlowOptions Configure(Action<EventFlowConfiguration> configure)
+        public IEventFlowOptions Configure(Action<EventFlowConfiguration> configure)
         {
             configure(_eventFlowConfiguration);
             return this;
         }
 
-        public EventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
+        public IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
                     throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
                 }
@@ -88,46 +88,70 @@ namespace EventFlow
             return this;
         }
 
-        public EventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
+        public IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
         {
             foreach (var commandType in commandTypes)
             {
-                if (!typeof(ICommand).IsAssignableFrom(commandType))
+                if (!typeof (ICommand).IsAssignableFrom(commandType))
                 {
-                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof(ICommand).PrettyPrint()}");
+                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof (ICommand).PrettyPrint()}");
                 }
                 _commandTypes.Add(commandType);
             }
             return this;
         }
 
-        public EventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
+        public IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
         {
             foreach (var jobType in jobTypes)
             {
-                if (!typeof(IJob).IsAssignableFrom(jobType))
+                if (!typeof (IJob).IsAssignableFrom(jobType))
                 {
-                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof(IJob).PrettyPrint()}");
+                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof (IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
             }
             return this;
         }
 
-        public EventFlowOptions RegisterServices(Action<IServiceRegistration> register)
+        public IEventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
             register(_lazyRegistrationFactory.Value);
             return this;
         }
 
-        public EventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
+        public IEventFlowOptions RegisterModule<TModule>()
+            where TModule : IModule, new()
+        {
+            _lazyModuleRegistrationFactory.Value.Register<TModule>();
+            return this;
+        }
+
+        public IEventFlowOptions RegisterModule<TModule>(TModule module)
+            where TModule : IModule
+        {
+            _lazyModuleRegistrationFactory.Value.Register(module);
+            return this;
+        }
+
+        public IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
         {
             if (_lazyRegistrationFactory.IsValueCreated)
             {
-                throw new InvalidOperationException("Registration factory is already in use");
+                throw new InvalidOperationException("Service registration is already in use");
             }
 
             _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => serviceRegistration);
+            return this;
+        }
+
+        public IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration)
+        {
+            if (_lazyModuleRegistrationFactory.IsValueCreated)
+            {
+                throw new InvalidOperationException($"Module registration is already in use");
+            }
+            _lazyModuleRegistrationFactory = new Lazy<IModuleRegistration>(() => moduleRegistration);
             return this;
         }
 
@@ -135,6 +159,7 @@ namespace EventFlow
         {
             var services = new HashSet<Type>(_lazyRegistrationFactory.Value.GetRegisteredServices());
 
+            // Add default implementations
             RegisterIfMissing<ILog, ConsoleLog>(services);
             RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
             RegisterIfMissing<ICommandBus, CommandBus>(services);
@@ -159,11 +184,20 @@ namespace EventFlow
 
             if (!services.Contains(typeof (ITransientFaultHandler<>)))
             {
-                _lazyRegistrationFactory.Value.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+                _lazyRegistrationFactory.Value.RegisterGeneric(typeof (ITransientFaultHandler<>), typeof (TransientFaultHandler<>));
             }
 
+            // Add registration services
+            var moduleRegistration = _lazyModuleRegistrationFactory.Value;
+            _lazyRegistrationFactory.Value.Register(r => moduleRegistration, Lifetime.Singleton);
+
+            // Provided modules
+            moduleRegistration.Register<ProvidedJobsModule>();
+
+            // Create resolver
             var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
 
+            // Load added type definitions into services
             var jobDefinitionService = rootResolver.Resolve<IJobDefinitionService>();
             jobDefinitionService.LoadJobs(_jobTypes);
 
@@ -173,6 +207,7 @@ namespace EventFlow
             var commandsDefinitionService = rootResolver.Resolve<ICommandDefinitionService>();
             commandsDefinitionService.LoadCommands(_commandTypes);
 
+            // Log time spent
             _stopwatch.Stop();
             var log = rootResolver.Resolve<ILog>();
             log.Debug("EventFlow configuration done in {0:0.000} seconds", _stopwatch.Elapsed.TotalSeconds);

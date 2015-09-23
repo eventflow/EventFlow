@@ -30,7 +30,7 @@ namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTestConfiguration
     {
-        public abstract IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions);
+        public abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
 
         public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id);
 
