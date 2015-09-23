@@ -27,7 +27,7 @@ namespace EventFlow.MsSql.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions ConfigureMsSql(this EventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
+        public static IEventFlowOptions ConfigureMsSql(this IEventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
         {
             return eventFlowOptions.RegisterServices(f =>
                 {

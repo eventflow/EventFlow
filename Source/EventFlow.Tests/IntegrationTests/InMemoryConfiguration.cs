@@ -38,7 +38,7 @@ namespace EventFlow.Tests.IntegrationTests
         private IReadModelPopulator _readModelPopulator;
         private IQueryProcessor _queryProcessor;
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var resolver = eventFlowOptions
                 .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()

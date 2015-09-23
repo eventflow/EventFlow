@@ -43,7 +43,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
         private IQueryProcessor _queryProcessor;
         private IReadModelPopulator _readModelPopulator;
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()

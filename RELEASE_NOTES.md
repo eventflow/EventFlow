@@ -1,4 +1,29 @@
-### New in 0.13 (not released yet)
+### New in 0.14 (not released yet)
+
+* Breaking: All `EventFlowOptions` extensions are now `IEventFlowOptions`
+  instead and `EventFlowOptions` implements this interface. If you have made
+  your own extensions, you will need to use the newly created interface
+  instead. Changed in order to make testing of extensions and classes
+  dependent on the EventFlow options easier to test
+* New: You can now bundle your configuration of EventFlow into modules that
+  implement `IModule` and register these by calling
+  `EventFlowOptions.RegisterModule(...)`
+* New: EventFlow now supports scheduled job execution via e.g. Hangfire. You
+  can create your own scheduler or install the new `EventFlow.Hangfire` NuGet
+  package. Read the jobs documentation for more details
+* New: Created the OWIN `CommandPublishMiddleware` middleware that can
+  handle publishing of commands by posting a JSON serialized command to
+  e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
+  version. Remember to add authentication
+* New: Created a new interface `ICommand<TAggregate,TIdentity,TSourceIdentity>`
+  to allow developers to control the type of `ICommand.SourceId`. Using the
+  `ICommand<TAggregate,TIdentity>` (or Command<TAggregate,TIdentity>)
+  will still yield the same result as before, i.e., `ICommand.SourceId` being
+  of type `ISourceId`
+* New: The `AddDefaults(...)` now also adds the command type definition to the
+  new `ICommandDefinitonService`
+
+### New in 0.13.962 (released 2015-09-13)
 
  * Breaking: `EventFlowOptions.AddDefaults(...)` now also adds query handlers
  * New: Added an optional `Predicate<Type>` to the following option extension

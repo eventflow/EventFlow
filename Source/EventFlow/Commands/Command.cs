@@ -21,28 +21,51 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class Command<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+    public abstract class Command<TAggregate, TIdentity, TSourceIdentity> : ICommand<TAggregate, TIdentity, TSourceIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TSourceIdentity : ISourceId
     {
-        public ISourceId SourceId { get; }
+        public TSourceIdentity SourceId { get; }
         public TIdentity AggregateId { get; }
 
-        protected Command(TIdentity aggregateId)
-            : this(aggregateId, CommandId.New ) { }
-
-        protected Command(TIdentity aggregateId, ISourceId sourceId)
+        protected Command(TIdentity aggregateId, TSourceIdentity sourceId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
             if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
 
             AggregateId = aggregateId;
             SourceId = sourceId;
+        }
+
+        public Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        {
+            return commandBus.PublishAsync(this, cancellationToken);
+        }
+
+        public ISourceId GetSourceId()
+        {
+            return SourceId;
+        }
+    }
+
+    public abstract class Command<TAggregate, TIdentity> : Command<TAggregate, TIdentity, ISourceId>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+    {
+        protected Command(TIdentity aggregateId)
+            : this(aggregateId, CommandId.New) { }
+
+        protected Command(TIdentity aggregateId, ISourceId sourceId)
+            : base(aggregateId, sourceId)
+        {
         }
     }
 }

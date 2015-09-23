@@ -21,21 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.EventStores
 {
-    public class EventVersionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class)]
+    public class EventVersionAttribute : VersionedTypeAttribute
     {
-        public string Name { get; }
-        public int Version { get; }
-
         public EventVersionAttribute(string name, int version)
+            : base(name, version)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-            if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version), "Event version must be positive");
-
-            Name = name;
-            Version = version;
         }
     }
 }

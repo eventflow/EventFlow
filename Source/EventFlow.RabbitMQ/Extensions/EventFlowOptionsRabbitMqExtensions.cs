@@ -29,8 +29,8 @@ namespace EventFlow.RabbitMQ.Extensions
 {
     public static class EventFlowOptionsRabbitMqExtensions
     {
-        public static EventFlowOptions PublishToRabbitMq(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions PublishToRabbitMq(
+            this IEventFlowOptions eventFlowOptions,
             IRabbitMqConfiguration configuration)
         {
             return eventFlowOptions.RegisterServices(sr =>

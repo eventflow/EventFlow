@@ -31,22 +31,22 @@ namespace EventFlow.EventStores.EventStore.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions UseEventStoreEventStore(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions.UseEventStore<EventStoreEventStore>();
         }
 
-        public static EventFlowOptions UseEventStoreEventStore(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions,
             IPEndPoint  ipEndPoint)
         {
             return eventFlowOptions
                 .UseEventStoreEventStore(ipEndPoint, ConnectionSettings.Default);
         }
 
-        public static EventFlowOptions UseEventStoreEventStore(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions,
             IPEndPoint ipEndPoint,
             ConnectionSettings connectionSettings)
         {
