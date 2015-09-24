@@ -34,12 +34,12 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         private class MagicClass : IMagicInterface { }
         private class MagicClassDecorator1 : IMagicInterface
         {
-            public IMagicInterface Inner { get; private set; }
+            public IMagicInterface Inner { get; }
             public MagicClassDecorator1(IMagicInterface magicInterface) { Inner = magicInterface; }
         }
         private class MagicClassDecorator2 : IMagicInterface
         {
-            public IMagicInterface Inner { get; private set; }
+            public IMagicInterface Inner { get; }
             public MagicClassDecorator2(IMagicInterface magicInterface) { Inner = magicInterface; }
         }
         // ReSharper enable ClassNeverInstantiated.Local

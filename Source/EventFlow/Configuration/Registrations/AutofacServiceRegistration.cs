@@ -32,6 +32,7 @@ namespace EventFlow.Configuration.Registrations
     internal class AutofacServiceRegistration : IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
+        private readonly ResolverDecorator _resolverDecorator = new ResolverDecorator();
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
@@ -39,22 +40,38 @@ namespace EventFlow.Configuration.Registrations
             _containerBuilder = containerBuilder ?? new ContainerBuilder();
             _containerBuilder.RegisterType<AutofacStartable>().As<IStartable>();
             _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
+            _containerBuilder.Register<IResolverDecorator>(_ => _resolverDecorator).SingleInstance();
         }
 
         public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
             where TImplementation : class, TService
             where TService : class
         {
-            var registration = _containerBuilder.RegisterType<TImplementation>().As<TService>();
+            var registration = _containerBuilder.RegisterType<TImplementation>().AsSelf();
             if (lifetime == Lifetime.Singleton)
             {
                 registration.SingleInstance();
             }
+
+            _containerBuilder
+                .Register<TService>(c => c.Resolve<TImplementation>())
+                .As<TService>()
+                .OnActivating(args =>
+                    {
+                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
         }
 
         public void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique) where TService : class
         {
-            var registration = _containerBuilder.Register(cc => factory(new ResolverContext(new AutofacResolver(cc))));
+            var registration = _containerBuilder
+                .Register(cc => factory(new ResolverContext(new AutofacResolver(cc))))
+                .OnActivating(args =>
+                    {
+                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
             if (lifetime == Lifetime.Singleton)
             {
                 registration.SingleInstance();
@@ -63,7 +80,14 @@ namespace EventFlow.Configuration.Registrations
 
         public void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            var registration = _containerBuilder.RegisterType(implementationType).As(serviceType);
+            var registration = _containerBuilder
+                .RegisterType(implementationType)
+                .As(serviceType)
+                .OnActivating(args =>
+                    {
+                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
             if (lifetime == Lifetime.Singleton)
             {
                 registration.SingleInstance();
@@ -72,7 +96,13 @@ namespace EventFlow.Configuration.Registrations
 
         public void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            var registration = _containerBuilder.RegisterType(serviceType);
+            var registration = _containerBuilder
+                .RegisterType(serviceType)
+                .OnActivating(args =>
+                    {
+                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
             if (lifetime == Lifetime.Singleton)
             {
                 registration.SingleInstance();
@@ -81,7 +111,8 @@ namespace EventFlow.Configuration.Registrations
 
         public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
         {
-            var registration = _containerBuilder.RegisterGeneric(implementationType).As(serviceType);
+            var registration = _containerBuilder
+                .RegisterGeneric(implementationType).As(serviceType);
             if (lifetime == Lifetime.Singleton)
             {
                 registration.SingleInstance();
@@ -90,6 +121,7 @@ namespace EventFlow.Configuration.Registrations
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
+            _resolverDecorator.AddDecorator(factory);
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations)
@@ -106,7 +138,12 @@ namespace EventFlow.Configuration.Registrations
 
         private static void ValidateRegistrations(IComponentContext container)
         {
-            var services = container.ComponentRegistry.Registrations.SelectMany(x => x.Services).OfType<TypedService>().Where(x => !x.ServiceType.Name.StartsWith("Autofac")).Where(x => !x.ServiceType.IsClosedTypeOf(typeof (IAggregateRoot<>))).ToList();
+            var services = container.ComponentRegistry.Registrations
+                .SelectMany(x => x.Services)
+                .OfType<TypedService>()
+                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
+                .Where(x => !x.ServiceType.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .ToList();
             var exceptions = new List<Exception>();
             foreach (var typedService in services)
             {
