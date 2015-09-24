@@ -21,8 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Configuration.Registrations;
 
 namespace EventFlow.Configuration
 {
@@ -43,11 +41,6 @@ namespace EventFlow.Configuration
 
         void Decorate<TService>(Func<IResolverContext, TService, TService> factory);
 
-        bool HasRegistrationFor<TService>()
-            where TService : class;
-
-        IEnumerable<Type> GetRegisteredServices();
-            
         IRootResolver CreateResolver(bool validateRegistrations);
     }
 }

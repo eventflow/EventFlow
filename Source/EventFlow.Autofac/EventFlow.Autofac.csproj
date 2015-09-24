@@ -45,9 +45,6 @@
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacDecorator.cs">
       <Link>Registrations\AutofacDecorator.cs</Link>
     </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacRegistration.cs">
-      <Link>Registrations\AutofacRegistration.cs</Link>
-    </Compile>
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacResolver.cs">
       <Link>Registrations\AutofacResolver.cs</Link>
     </Compile>

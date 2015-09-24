@@ -35,7 +35,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
-                        if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
+                        if (true)//!f.HasRegistrationFor<IReadModelSqlGenerator>())
                         {
                             f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                         }
@@ -52,7 +52,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
-                        if (!f.HasRegistrationFor<IReadModelSqlGenerator>())
+                        if (true)//!f.HasRegistrationFor<IReadModelSqlGenerator>())
                         {
                             f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton);
                         }
