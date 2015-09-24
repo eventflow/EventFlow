@@ -1,4 +1,8 @@
-### New in 0.15 (not released yet)
+### New in 0.16 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.15.1057 (released 2015-09-24)
 
 * Fixed: Added `UseHangfireJobScheduler()` and marked `UseHandfireJobScheduler()`
   obsolete, fixing method spelling mistake
