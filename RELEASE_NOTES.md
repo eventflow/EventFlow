@@ -1,6 +1,7 @@
 ### New in 0.16 (not released yet)
 
-* _Nothing yet_
+* Fixed: Added missing `ICommand<,>` interface to abstract `Command<,>` class in 
+  `EventFlow.Commands`.
 
 ### New in 0.15.1057 (released 2015-09-24)
 
