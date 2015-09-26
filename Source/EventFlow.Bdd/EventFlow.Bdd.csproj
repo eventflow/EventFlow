@@ -48,6 +48,7 @@
     <Compile Include="Contexts\IGiven.cs" />
     <Compile Include="Contexts\IThen.cs" />
     <Compile Include="Contexts\IWhen.cs" />
+    <Compile Include="Factories\ITestEventFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Contexts\Then.cs" />
     <Compile Include="Contexts\When.cs" />

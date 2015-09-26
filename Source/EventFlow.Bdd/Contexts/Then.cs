@@ -30,12 +30,12 @@ namespace EventFlow.Bdd.Contexts
     {
         public IThen DomainError(Predicate<DomainError> validateDomainError)
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         public IThen Event<T>() where T : IAggregateEvent
         {
-            throw new NotImplementedException();
+            return this;
         }
     }
 }

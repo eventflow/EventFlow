@@ -21,20 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd.Factories
 {
-    public interface IGiven
+    public interface ITestEventFactory
     {
-        IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
-
-        IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity, TAggregateEvent aggregateEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
+        T CreateAggregateEvent<T>()
+            where T : IAggregateEvent;
     }
 }

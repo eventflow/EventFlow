@@ -20,12 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Bdd.Factories;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
@@ -34,60 +34,70 @@ namespace EventFlow.Bdd.Contexts
     public class Given : IGiven
     {
         private readonly IEventStore _eventStore;
+        private readonly IResolver _resolver;
 
         public Given(
-            IEventStore eventStore)
+            IEventStore eventStore,
+            IResolver resolver)
         {
             _eventStore = eventStore;
+            _resolver = resolver;
         }
 
-        public IGiven Event<T>(IIdentity identity) where T : IAggregateEvent
+        public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            throw new NotImplementedException();
+            var testEventFactory = _resolver.Resolve<ITestEventFactory>();
+            var aggregateEvent = testEventFactory.CreateAggregateEvent<TAggregateEvent>();
+            return Event<TAggregate, TIdentity, TAggregateEvent>(identity, aggregateEvent);
         }
 
-        public IGiven Event<T>(IIdentity identity, T aggregateEvent) where T : IAggregateEvent
+        public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(
+            TIdentity identity,
+            TAggregateEvent aggregateEvent)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            InjectEvents(identity, aggregateEvent);
+            InjectEvents<TAggregate, TIdentity>(identity, new IAggregateEvent[] {aggregateEvent});
             return this;
         }
 
-        protected IReadOnlyCollection<IDomainEvent> InjectEvents(IIdentity identity, params IAggregateEvent[] aggregateEvents)
+        protected IReadOnlyCollection<IDomainEvent> InjectEvents<TAggregate, TIdentity>(
+            TIdentity identity,
+            IEnumerable<IAggregateEvent> aggregateEvents)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             IReadOnlyCollection<IDomainEvent> domainEvents = null;
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(InjectEventsAsync(identity, aggregateEvents), r => domainEvents = r);
+                a.Run(InjectEventsAsync<TAggregate, TIdentity>(identity, aggregateEvents, CancellationToken.None), r => domainEvents = r);
             }
             return domainEvents;
         }
 
-        protected async Task<IReadOnlyCollection<IDomainEvent>> InjectEventsAsync(
-            IIdentity identity,
-            params IAggregateEvent[] aggregateEvents)
+        protected async Task<IReadOnlyCollection<IDomainEvent>> InjectEventsAsync<TAggregate, TIdentity>(
+            TIdentity identity,
+            IEnumerable<IAggregateEvent> aggregateEvents,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            var domainEvents = new List<IDomainEvent>();
+            var aggregateRoot = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(
+                identity,
+                cancellationToken)
+                .ConfigureAwait(false);
 
-            foreach (var a in aggregateEvents.Select((e, i) => new {Index = i, AggregateEvent = e}))
-            {
-                var metadata = new Metadata
-                    {
-                        SourceId = SourceId.New,
-                        Timestamp = DateTimeOffset.Now,
-                        AggregateSequenceNumber = a.Index // TODO: Find a better way
-                    };
+            aggregateRoot.InjectUncommittedEvents(aggregateEvents);
 
-                var domainEvent = await a.AggregateEvent.StoreAsync(
-                    _eventStore,
-                    identity,
-                    metadata,
-                    CancellationToken.None)
-                    .ConfigureAwait(false);
-
-                domainEvents.Add(domainEvent);
-            }
-
-            return domainEvents;
+            return await aggregateRoot.CommitAsync(
+                _eventStore,
+                SourceId.New,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

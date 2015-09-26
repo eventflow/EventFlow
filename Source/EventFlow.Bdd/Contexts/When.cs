@@ -20,15 +20,44 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
     public class When : IWhen
     {
-        public IWhen Command<T>() where T : ICommand
+        private readonly ICommandBus _commandBus;
+
+        public When(
+            ICommandBus commandBus)
         {
-            throw new System.NotImplementedException();
+            _commandBus = commandBus;
+        }
+
+        public IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(CommandAsync(command));
+            }
+            return this;
+        }
+
+        protected Task CommandAsync<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
+        {
+            return _commandBus.PublishAsync(command, CancellationToken.None);
         }
     }
 }

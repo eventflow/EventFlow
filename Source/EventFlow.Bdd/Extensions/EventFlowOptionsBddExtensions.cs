@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Bdd.Contexts;
+
 namespace EventFlow.Bdd.Extensions
 {
     public static class EventFlowOptionsBddExtensions
@@ -27,7 +29,13 @@ namespace EventFlow.Bdd.Extensions
         public static IEventFlowOptions TestWithBdd(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions;
+            return eventFlowOptions.RegisterServices(sr =>
+            {
+                sr.Register<IScenario, Scenario>();
+                sr.Register<IGiven, Given>();
+                sr.Register<IWhen, When>();
+                sr.Register<IThen, Then>();
+            });
         }
     }
 }

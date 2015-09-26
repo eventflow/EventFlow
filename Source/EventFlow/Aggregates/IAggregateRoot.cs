@@ -42,6 +42,8 @@ namespace EventFlow.Aggregates
 
         bool HasSourceId(ISourceId sourceId);
 
+        void InjectUncommittedEvents(IEnumerable<IAggregateEvent> aggregateEvents);
+
         void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
 
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);

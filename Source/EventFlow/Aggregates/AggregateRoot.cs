@@ -90,6 +90,14 @@ namespace EventFlow.Aggregates
             return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
 
+        public void InjectUncommittedEvents(IEnumerable<IAggregateEvent> aggregateEvents)
+        {
+            foreach (var aggregateEvent in aggregateEvents)
+            {
+                Emit((IAggregateEvent<TAggregate, TIdentity>) aggregateEvent);
+            }
+        }
+
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {

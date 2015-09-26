@@ -20,33 +20,56 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Runtime.InteropServices;
+using EventFlow.Aggregates;
 using EventFlow.Bdd.Extensions;
+using EventFlow.Bdd.Factories;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.Bdd.Tests
 {
-    public class BddTests
+    public class BddTests : Test
     {
-        [Test, Ignore("Doesn't work yet")]
+        public class TestEventFactory : ITestEventFactory
+        {
+            private readonly IFixture _fixture;
+
+            public TestEventFactory(
+                IFixture fixture)
+            {
+                _fixture = fixture;
+            }
+
+            public T CreateAggregateEvent<T>() where T : IAggregateEvent
+            {
+                return _fixture.Create<T>();
+            }
+        }
+
+        [Test]
         public void BddFlow()
         {
             var testId = TestId.New;
+            var testEventFactory = (ITestEventFactory) new TestEventFactory(Fixture);
 
             EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
+                .RegisterServices(sr => sr.Register(_ => testEventFactory))
                 .TestWithBdd()
                 .CreateResolver()
-                .Bdd()
+                .Scenario()
                 .Given(c => c
-                    .Event<PingEvent>(testId)
-                    .Event<DomainErrorAfterFirstEvent>(testId))
+                    .Event<TestAggregate, TestId, PingEvent>(testId)
+                    .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId))
                 .When(c => c
-                    .Command<DomainErrorAfterFirstCommand>())
+                    .Command(new PingCommand(testId, PingId.New)))
                 .Then(c => c
                     .DomainError(e => true));
         }

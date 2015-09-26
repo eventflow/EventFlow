@@ -20,13 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
     public interface IWhen
     {
-        IWhen Command<T>()
-            where T : ICommand;
+        IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId;
     }
 }

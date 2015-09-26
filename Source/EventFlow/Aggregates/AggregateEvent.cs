@@ -47,7 +47,7 @@ namespace EventFlow.Aggregates
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 (TIdentity) identity,
                 new[] { uncommittedEvent },
-                metadata.SourceId,
+                SourceId.New,
                 cancellationToken)
                 .ConfigureAwait(false);
             return domainEvents.Single();
