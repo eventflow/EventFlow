@@ -44,7 +44,7 @@ namespace EventFlow.Configuration.Registrations
             List<Func<object,IResolverContext,object>> decorators;
             return !_decorators.TryGetValue(typeof(TService), out decorators)
                 ? service
-                : ((IEnumerable<Func<object, IResolverContext, object>>) decorators).Reverse().Aggregate(service, (current, decorator) => (TService) decorator(current, resolverContext));
+                : decorators.Aggregate(service, (current, decorator) => (TService) decorator(current, resolverContext));
         }
     }
 }

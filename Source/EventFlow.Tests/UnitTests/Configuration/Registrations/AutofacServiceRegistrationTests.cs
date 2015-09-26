@@ -55,6 +55,15 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         [Test]
         public void DecoratorWorks()
         {
+            // The order should be like this (like unwrapping a present with the order of
+            // wrapping paper applied)
+            // 
+            // Call      MagicClassDecorator2
+            // Call      MagicClassDecorator1
+            // Call      MagicClass
+            // Return to MagicClassDecorator1
+            // Return to MagicClassDecorator2
+
             // Arrange
             _sut.Register<IMagicInterface, MagicClass>();
             _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator1(inner));
@@ -65,11 +74,11 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             var magic = resolver.Resolve<IMagicInterface>();
 
             // Assert
-            magic.Should().BeAssignableTo<MagicClassDecorator1>();
-            var magicClassDecorator1 = (MagicClassDecorator1) magic;
-            magicClassDecorator1.Inner.Should().BeAssignableTo<MagicClassDecorator2>();
-            var magicClassDecorator2 = (MagicClassDecorator2)magicClassDecorator1.Inner;
-            magicClassDecorator2.Inner.Should().BeAssignableTo<MagicClass>();
+            magic.Should().BeAssignableTo<MagicClassDecorator2>();
+            var magicClassDecorator2 = (MagicClassDecorator2) magic;
+            magicClassDecorator2.Inner.Should().BeAssignableTo<MagicClassDecorator1>();
+            var magicClassDecorator1 = (MagicClassDecorator1)magicClassDecorator2.Inner;
+            magicClassDecorator1.Inner.Should().BeAssignableTo<MagicClass>();
         }
     }
 }
