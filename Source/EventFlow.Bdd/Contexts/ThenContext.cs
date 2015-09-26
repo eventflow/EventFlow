@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.Bdd.Steps;
 using EventFlow.Configuration;
@@ -43,7 +44,17 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            _scenarioContext.Script.AddThen(new ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_resolver));
+            return Event<TAggregate, TIdentity, TAggregateEvent>(identity, e => true);
+        }
+
+        public IThen Event<TAggregate, TIdentity, TAggregateEvent>(
+            TIdentity identity,
+            Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> predicate)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        {
+            _scenarioContext.Script.AddThen(new ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_scenarioContext, _resolver, identity, predicate));
             return this;
         }
 

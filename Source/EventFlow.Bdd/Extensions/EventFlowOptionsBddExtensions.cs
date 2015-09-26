@@ -21,6 +21,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Bdd.Contexts;
+using EventFlow.Configuration;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Bdd.Extensions
 {
@@ -36,6 +38,8 @@ namespace EventFlow.Bdd.Extensions
                 sr.Register<IGivenContext, GivenContext>();
                 sr.Register<IWhenContext, WhenContext>();
                 sr.Register<IThenContext, ThenContext>();
+                sr.Register<IEventStream, EventStream>(Lifetime.Singleton);
+                sr.Register<ISubscribeSynchronousToAll>(r => r.Resolver.Resolve<IEventStream>());
             });
         }
     }

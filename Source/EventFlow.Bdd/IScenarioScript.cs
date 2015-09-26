@@ -23,11 +23,14 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Bdd.Contexts;
 
 namespace EventFlow.Bdd
 {
     public interface IScenarioScript : IDisposable
     {
+        ScenarioState State { get; }
+
         void AddGiven(IScenarioStep scenarioStep);
         void AddWhen(IScenarioStep scenarioStep);
         void AddThen(IScenarioStep scenarioStep);

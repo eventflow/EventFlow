@@ -20,38 +20,92 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Bdd.Contexts;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
 namespace EventFlow.Bdd.Steps
 {
-    public class ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent> : IScenarioStep
+    public class ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent> : IScenarioStep, IObserver<IDomainEvent>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
+        private readonly IScenarioContext _scenarioContext;
         private readonly IResolver _resolver;
+        private readonly TIdentity _identity;
+        private readonly Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> _predicate;
+        private readonly IDisposable _eventStreamSubscription;
+        private readonly EventDefinition _eventDescription;
+        private bool _gotEvent = false;
 
         public string Title { get; }
         public string Description { get; }
 
-        public ValidateEventHappendScenarioStep(IResolver resolver)
+        public ValidateEventHappendScenarioStep(
+            IScenarioContext scenarioContext,
+            IResolver resolver,
+            TIdentity identity,
+            Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> predicate)
         {
+            _scenarioContext = scenarioContext;
             _resolver = resolver;
+            _identity = identity;
+            _predicate = predicate;
+            _eventStreamSubscription = _resolver.Resolve<IEventStream>().Subscribe(this);
+            _eventDescription = _resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
 
-            var eventDescription = _resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
-
-            Title = $"{eventDescription.Name} happend";
+            Title = $"{_eventDescription.Name} happend";
             Description = Title;
         }
 
         public Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            if (!_gotEvent)
+            {
+                throw new Exception($"Did not get '{_eventDescription.Name}' v{_eventDescription.Version}");
+            }
+
             return Task.FromResult(0);
+        }
+
+        public void OnNext(IDomainEvent value)
+        {
+            if (_scenarioContext.Script.State != ScenarioState.When)
+            {
+                return;
+            }
+
+            if (value.GetIdentity().Value != _identity.Value)
+            {
+                return;
+            }
+
+            var domainEvent = value as IDomainEvent<TAggregate, TIdentity, TAggregateEvent>;
+            if (domainEvent == null)
+            {
+                return;
+            }
+
+            _gotEvent = true;
+        }
+
+        public void OnError(Exception error)
+        {
+        }
+
+        public void OnCompleted()
+        {
+        }
+
+        public void Dispose()
+        {
+            _eventStreamSubscription.Dispose();
         }
     }
 }

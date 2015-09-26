@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -22,28 +22,11 @@
 
 using System;
 using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public interface IThen
+    public interface IEventStream : IObservable<IDomainEvent>, ISubscribeSynchronousToAll
     {
-        IThen Event<TAggregate, TIdentity, TAggregateEvent>(
-            TIdentity identity)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
-
-        IThen Event<TAggregate, TIdentity, TAggregateEvent>(
-            TIdentity identity,
-            Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> predicate)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
-    }
-
-    public interface IThenContext : IThen, IDisposable
-    {
-        void Setup(IScenarioContext scenarioContext);
     }
 }

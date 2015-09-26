@@ -70,5 +70,9 @@ namespace EventFlow.Bdd.Steps
                 cancellationToken)
                 .ConfigureAwait(false);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

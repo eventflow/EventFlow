@@ -45,7 +45,7 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TSourceIdentity : ISourceId
         {
-            _scenarioContext.Script.AddGiven(new CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity>(_resolver, command));
+            _scenarioContext.Script.AddWhen(new CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity>(_resolver, command));
             return this;
         }
 

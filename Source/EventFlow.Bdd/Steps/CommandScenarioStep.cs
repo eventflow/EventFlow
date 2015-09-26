@@ -58,5 +58,9 @@ namespace EventFlow.Bdd.Steps
             var commandBus = _resolver.Resolve<ICommandBus>();
             return commandBus.PublishAsync(_command, cancellationToken);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

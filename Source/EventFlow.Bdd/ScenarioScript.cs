@@ -21,16 +21,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Bdd.Contexts;
 
 namespace EventFlow.Bdd
 {
     public class ScenarioScript : IScenarioScript
     {
         private readonly List<IScenarioStep> _givenSteps = new List<IScenarioStep>();
-        private readonly List<IScenarioStep> _whenSteps = new List<IScenarioStep>();
         private readonly List<IScenarioStep> _thenSteps = new List<IScenarioStep>();
+        private readonly List<IScenarioStep> _whenSteps = new List<IScenarioStep>();
+
+        public ScenarioState State { get; private set; }
 
         public void AddGiven(IScenarioStep scenarioStep)
         {
@@ -50,13 +54,27 @@ namespace EventFlow.Bdd
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             // Given
+            State = ScenarioState.Given;
             await ExecuteAsync(_givenSteps, cancellationToken).ConfigureAwait(false);
 
             // When
+            State = ScenarioState.When;
             await ExecuteAsync(_whenSteps, cancellationToken).ConfigureAwait(false);
 
             // ThenContext
+            State = ScenarioState.Then;
             await ExecuteAsync(_thenSteps, cancellationToken).ConfigureAwait(false);
+
+            // End
+            State = ScenarioState.Unknown;
+        }
+
+        public void Dispose()
+        {
+            foreach (var scenarioStep in _givenSteps.Concat(_whenSteps).Concat(_thenSteps))
+            {
+                scenarioStep.Dispose();
+            }
         }
 
         private static async Task ExecuteAsync(IEnumerable<IScenarioStep> scenarioSteps, CancellationToken cancellationToken)
@@ -65,10 +83,6 @@ namespace EventFlow.Bdd
             {
                 await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

@@ -43,7 +43,10 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Contexts\EventStream.cs" />
+    <Compile Include="Contexts\IEventStream.cs" />
     <Compile Include="Contexts\Scenario.cs" />
+    <Compile Include="Contexts\ScenarioState.cs" />
     <Compile Include="Extensions\EventFlowOptionsBddExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
     <Compile Include="Contexts\GivenContext.cs" />
