@@ -71,7 +71,7 @@ namespace EventFlow.Bdd.Tests
                 .When(c => c
                     .Command(new PingCommand(testId, PingId.New)))
                 .Then(c => c
-                    .DomainError(e => true));
+                    .Event<TestAggregate, TestId, PingEvent>(testId));
         }
     }
 }

@@ -22,20 +22,18 @@
 
 using System;
 using EventFlow.Aggregates;
-using EventFlow.Exceptions;
+using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
     public class Then : IThen
     {
-        public IThen DomainError(Predicate<DomainError> validateDomainError)
+        public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            return this;
-        }
-
-        public IThen Event<T>() where T : IAggregateEvent
-        {
-            return this;
+            throw new NotImplementedException();
         }
     }
 }
