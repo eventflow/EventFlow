@@ -20,17 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Bdd.Contexts;
-using EventFlow.Configuration;
+using System;
 
-namespace EventFlow.Bdd.Extensions
+namespace EventFlow.Bdd.Contexts
 {
-    public static class ResolverExtensions
+    public interface IBddContext
     {
-        public static IBddContext Bdd(
-            this IResolver resolver)
-        {
-            return null;
-        }
+        IBddContext Given(Action<IGivenContext> action);
+        IBddContext When(Action<IWhenContext> action);
+        IBddContext Then(Action<IThenContext> action);
     }
 }

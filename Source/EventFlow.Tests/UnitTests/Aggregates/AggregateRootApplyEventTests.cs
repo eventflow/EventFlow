@@ -43,9 +43,9 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         }
 
 
-        private class MyAggregate : AggregateRoot<MyAggregate, MyId>
+        public class MyAggregate : AggregateRoot<MyAggregate, MyId>
         {
-            public MyState State { get; private set; }
+            public MyState State { get; }
 
             public MyAggregate(MyId id) : base(id)
             {
@@ -59,7 +59,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             }
         }
 
-        private class MyState: IEventApplier<MyAggregate, MyId>
+        public class MyState: IEventApplier<MyAggregate, MyId>
         {
             public int Count { get; private set; }
 
@@ -71,9 +71,9 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             }
         }
 
-        public class MyCountEvent : IAggregateEvent<MyAggregate, MyId>
+        public class MyCountEvent : AggregateEvent<MyAggregate, MyId>
         {
-            public int Count { get; private set; }
+            public int Count { get; }
 
             public MyCountEvent(int count)
             {
@@ -81,7 +81,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             }
         }
 
-        private class MyId : Identity<MyId>
+        public class MyId : Identity<MyId>
         {
             public MyId(string value) : base(value) { }
         }

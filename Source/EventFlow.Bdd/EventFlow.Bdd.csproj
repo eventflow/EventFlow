@@ -40,13 +40,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contexts\BddContext.cs" />
     <Compile Include="Extensions\EventFlowOptionsBddExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
-    <Compile Include="IBddContext.cs" />
-    <Compile Include="IGivenContext.cs" />
-    <Compile Include="IThenContext.cs" />
-    <Compile Include="IWhenContext.cs" />
+    <Compile Include="Contexts\GivenContext.cs" />
+    <Compile Include="Contexts\IBddContext.cs" />
+    <Compile Include="Contexts\IGivenContext.cs" />
+    <Compile Include="Contexts\IThenContext.cs" />
+    <Compile Include="Contexts\IWhenContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Contexts\ThenContext.cs" />
+    <Compile Include="Contexts\WhenContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

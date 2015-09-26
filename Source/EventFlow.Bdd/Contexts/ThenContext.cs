@@ -21,13 +21,21 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Aggregates;
+using EventFlow.Exceptions;
 
-namespace EventFlow.Bdd
+namespace EventFlow.Bdd.Contexts
 {
-    public interface IBddContext
+    public class ThenContext : IThenContext
     {
-        IBddContext Given(Action<IGivenContext> action);
-        IBddContext When(Action<IWhenContext> action);
-        IBddContext Then(Action<IThenContext> action);
+        public IThenContext DomainError(Predicate<DomainError> validateDomainError)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IThenContext Event<T>() where T : IAggregateEvent
+        {
+            throw new NotImplementedException();
+        }
     }
 }

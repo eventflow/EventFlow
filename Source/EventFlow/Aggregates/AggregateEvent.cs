@@ -20,7 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventStores;
 
 namespace EventFlow.Aggregates
 {
@@ -31,6 +35,22 @@ namespace EventFlow.Aggregates
         public override string ToString()
         {
             return $"{typeof (TAggregate).Name}/{GetType().Name}";
+        }
+
+        public async Task<IDomainEvent> StoreAsync(
+            IEventStore eventStore,
+            IIdentity identity,
+            IMetadata metadata,
+            CancellationToken cancellationToken)
+        {
+            var uncommittedEvent = new UncommittedEvent(this, metadata);
+            var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
+                (TIdentity) identity,
+                new[] { uncommittedEvent },
+                metadata.SourceId,
+                cancellationToken)
+                .ConfigureAwait(false);
+            return domainEvents.Single();
         }
     }
 }

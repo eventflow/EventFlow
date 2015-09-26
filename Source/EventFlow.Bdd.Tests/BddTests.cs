@@ -23,6 +23,7 @@
 using EventFlow.Bdd.Extensions;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using NUnit.Framework;
@@ -34,14 +35,16 @@ namespace EventFlow.Bdd.Tests
         [Test, Ignore("Doesn't work yet")]
         public void BddFlow()
         {
+            var testId = TestId.New;
+
             EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .TestWithBdd()
                 .CreateResolver()
                 .Bdd()
                 .Given(c => c
-                    .Event<PingEvent>()
-                    .Event<DomainErrorAfterFirstEvent>())
+                    .Event<PingEvent>(testId)
+                    .Event<DomainErrorAfterFirstEvent>(testId))
                 .When(c => c
                     .Command<DomainErrorAfterFirstCommand>())
                 .Then(c => c

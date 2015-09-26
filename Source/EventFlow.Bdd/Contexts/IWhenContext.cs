@@ -22,7 +22,7 @@
 
 using EventFlow.Commands;
 
-namespace EventFlow.Bdd
+namespace EventFlow.Bdd.Contexts
 {
     public interface IWhenContext
     {
