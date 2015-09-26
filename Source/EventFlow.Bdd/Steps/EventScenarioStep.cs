@@ -49,8 +49,8 @@ namespace EventFlow.Bdd.Steps
 
             var eventDescription = resolver.Resolve<IEventDefinitionService>().GetEventDefinition(aggregateEvent.GetType());
 
-            Title = eventDescription.Name;
-            Description = eventDescription.Name;
+            Title = $"{eventDescription.Name} is emitted";
+            Description = Title;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)

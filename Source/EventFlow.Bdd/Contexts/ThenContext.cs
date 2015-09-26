@@ -21,19 +21,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Bdd.Steps;
+using EventFlow.Configuration;
 using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
     public class ThenContext : IThenContext
     {
+        private readonly IResolver _resolver;
         private IScenarioContext _scenarioContext;
+
+        public ThenContext(
+            IResolver resolver)
+        {
+            _resolver = resolver;
+        }
 
         public IThen Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
+            _scenarioContext.Script.AddThen(new ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_resolver));
             return this;
         }
 

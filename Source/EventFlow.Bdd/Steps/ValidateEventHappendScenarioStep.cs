@@ -23,40 +23,35 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.EventStores;
 
 namespace EventFlow.Bdd.Steps
 {
-    public class CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity> : IScenarioStep
+    public class ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent> : IScenarioStep
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
+        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
         private readonly IResolver _resolver;
-        private readonly ICommand<TAggregate, TIdentity, TSourceIdentity> _command;
 
         public string Title { get; }
         public string Description { get; }
 
-        public CommandScenarioStep(
-            IResolver resolver,
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+        public ValidateEventHappendScenarioStep(IResolver resolver)
         {
             _resolver = resolver;
-            _command = command;
 
-            var commandDefinition = _resolver.Resolve<ICommandDefinitionService>().GetCommandDefinition(command.GetType());
+            var eventDescription = _resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
 
-            Title = $"{commandDefinition.Name} is published";
+            Title = $"{eventDescription.Name} happend";
             Description = Title;
         }
 
         public Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var commandBus = _resolver.Resolve<ICommandBus>();
-            return commandBus.PublishAsync(_command, cancellationToken);
+            return Task.FromResult(0);
         }
     }
 }

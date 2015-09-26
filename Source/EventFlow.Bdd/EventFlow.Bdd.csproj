@@ -60,6 +60,7 @@
     <Compile Include="ScenarioScript.cs" />
     <Compile Include="Steps\CommandScenarioStep.cs" />
     <Compile Include="Steps\EventScenarioStep.cs" />
+    <Compile Include="Steps\ValidateEventHappendScenarioStep.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
