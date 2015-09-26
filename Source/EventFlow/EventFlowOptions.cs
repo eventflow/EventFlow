@@ -140,11 +140,9 @@ namespace EventFlow
                 throw new InvalidOperationException("Service registration is already in use");
             }
 
-            _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() =>
-                {
-                    RegisterDefaults(serviceRegistration);
-                    return serviceRegistration;
-                });
+            RegisterDefaults(serviceRegistration);
+            _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => serviceRegistration);
+
             return this;
         }
 
