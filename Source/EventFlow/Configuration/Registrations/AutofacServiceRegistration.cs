@@ -26,13 +26,14 @@ using System.Linq;
 using Autofac;
 using Autofac.Core;
 using EventFlow.Aggregates;
+using EventFlow.Configuration.Decorators;
 
 namespace EventFlow.Configuration.Registrations
 {
     internal class AutofacServiceRegistration : IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
-        private readonly ResolverDecorator _resolverDecorator = new ResolverDecorator();
+        private readonly DecoratorService _decoratorService = new DecoratorService();
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
@@ -40,7 +41,7 @@ namespace EventFlow.Configuration.Registrations
             _containerBuilder = containerBuilder ?? new ContainerBuilder();
             _containerBuilder.RegisterType<AutofacStartable>().As<IStartable>();
             _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
-            _containerBuilder.Register<IResolverDecorator>(_ => _resolverDecorator).SingleInstance();
+            _containerBuilder.Register<IDecoratorService>(_ => _decoratorService).SingleInstance();
         }
 
         public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
@@ -58,7 +59,7 @@ namespace EventFlow.Configuration.Registrations
                 .As<TService>()
                 .OnActivating(args =>
                     {
-                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
         }
@@ -69,7 +70,7 @@ namespace EventFlow.Configuration.Registrations
                 .Register(cc => factory(new ResolverContext(new AutofacResolver(cc))))
                 .OnActivating(args =>
                     {
-                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
             if (lifetime == Lifetime.Singleton)
@@ -85,7 +86,7 @@ namespace EventFlow.Configuration.Registrations
                 .As(serviceType)
                 .OnActivating(args =>
                     {
-                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
             if (lifetime == Lifetime.Singleton)
@@ -100,7 +101,7 @@ namespace EventFlow.Configuration.Registrations
                 .RegisterType(serviceType)
                 .OnActivating(args =>
                     {
-                        var instance = _resolverDecorator.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
             if (lifetime == Lifetime.Singleton)
@@ -121,7 +122,7 @@ namespace EventFlow.Configuration.Registrations
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
-            _resolverDecorator.AddDecorator(factory);
+            _decoratorService.AddDecorator(factory);
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations)

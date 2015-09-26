@@ -81,8 +81,8 @@
     <Compile Include="Configuration\LoadedVersionedTypes.cs" />
     <Compile Include="Configuration\ModuleRegistration.cs" />
     <Compile Include="Configuration\Registrations\AutofacStartable.cs" />
-    <Compile Include="Configuration\Registrations\IResolverDecorator.cs" />
-    <Compile Include="Configuration\Registrations\ResolverDecorator.cs" />
+    <Compile Include="Configuration\Decorators\IDecoratorService.cs" />
+    <Compile Include="Configuration\Decorators\DecoratorService.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />

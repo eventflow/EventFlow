@@ -25,26 +25,26 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Configuration.Decorators
 {
-    public class ResolverDecorator : IResolverDecorator
+    public class DecoratorService : IDecoratorService
     {
         private readonly ConcurrentDictionary<Type, List<Func<object, IResolverContext, object>>> _decorators = new ConcurrentDictionary<Type, List<Func<object, IResolverContext, object>>>();
+
+        public TService Decorate<TService>(TService service, IResolverContext resolverContext)
+        {
+            List<Func<object, IResolverContext, object>> decorators;
+            return !_decorators.TryGetValue(typeof (TService), out decorators)
+                ? service
+                : decorators.Aggregate(service, (current, decorator) => (TService) decorator(current, resolverContext));
+        }
 
         public void AddDecorator<TService>(Func<IResolverContext, TService, TService> factory)
         {
             var decorators = _decorators.GetOrAdd(
                 typeof (TService),
                 new List<Func<object, IResolverContext, object>>());
-            decorators.Add((s, c) => factory(c, (TService)s));
-        }
-
-        public TService Decorate<TService>(TService service, IResolverContext resolverContext)
-        {
-            List<Func<object,IResolverContext,object>> decorators;
-            return !_decorators.TryGetValue(typeof(TService), out decorators)
-                ? service
-                : decorators.Aggregate(service, (current, decorator) => (TService) decorator(current, resolverContext));
+            decorators.Add((s, c) => factory(c, (TService) s));
         }
     }
 }
