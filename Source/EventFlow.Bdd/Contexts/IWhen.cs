@@ -20,42 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Commands;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class BddContext : IBddContext
+    public interface IWhen
     {
-        private readonly IGivenContext _givenContext;
-        private readonly IThenContext _thenContext;
-        private readonly IWhenContext _whenContext;
-
-        public BddContext(
-            IGivenContext givenContext,
-            IWhenContext whenContext,
-            IThenContext thenContext)
-        {
-            _givenContext = givenContext;
-            _whenContext = whenContext;
-            _thenContext = thenContext;
-        }
-
-        public IBddContext Given(Action<IGivenContext> action)
-        {
-            action(_givenContext);
-            return this;
-        }
-
-        public IBddContext When(Action<IWhenContext> action)
-        {
-            action(_whenContext);
-            return this;
-        }
-
-        public IBddContext Then(Action<IThenContext> action)
-        {
-            action(_thenContext);
-            return this;
-        }
+        IWhen Command<T>()
+            where T : ICommand;
     }
 }

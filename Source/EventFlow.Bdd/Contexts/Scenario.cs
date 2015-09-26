@@ -21,16 +21,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public interface IThenContext
+    public class Scenario : IScenario
     {
-        IThenContext DomainError(Predicate<DomainError> validateDomainError);
+        private readonly IGiven _given;
+        private readonly IThen _then;
+        private readonly IWhen _when;
 
-        IThenContext Event<T>()
-            where T : IAggregateEvent;
+        public Scenario(
+            IGiven given,
+            IWhen @when,
+            IThen then)
+        {
+            _given = given;
+            _when = when;
+            _then = then;
+        }
+
+        public IScenario Given(Action<IGiven> action)
+        {
+            action(_given);
+            return this;
+        }
+
+        public IScenario When(Action<IWhen> action)
+        {
+            action(_when);
+            return this;
+        }
+
+        public IScenario Then(Action<IThen> action)
+        {
+            action(_then);
+            return this;
+        }
     }
 }

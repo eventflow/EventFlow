@@ -20,15 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Commands;
+using System;
+using EventFlow.Aggregates;
+using EventFlow.Exceptions;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class WhenContext : IWhenContext
+    public interface IThen
     {
-        public IWhenContext Command<T>() where T : ICommand
-        {
-            throw new System.NotImplementedException();
-        }
+        IThen DomainError(Predicate<DomainError> validateDomainError);
+
+        IThen Event<T>()
+            where T : IAggregateEvent;
     }
 }

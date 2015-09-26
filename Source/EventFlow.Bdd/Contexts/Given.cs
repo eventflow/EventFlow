@@ -31,22 +31,22 @@ using EventFlow.EventStores;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class GivenContext : IGivenContext
+    public class Given : IGiven
     {
         private readonly IEventStore _eventStore;
 
-        public GivenContext(
+        public Given(
             IEventStore eventStore)
         {
             _eventStore = eventStore;
         }
 
-        public IGivenContext Event<T>(IIdentity identity) where T : IAggregateEvent
+        public IGiven Event<T>(IIdentity identity) where T : IAggregateEvent
         {
             throw new NotImplementedException();
         }
 
-        public IGivenContext Event<T>(IIdentity identity, T aggregateEvent) where T : IAggregateEvent
+        public IGiven Event<T>(IIdentity identity, T aggregateEvent) where T : IAggregateEvent
         {
             InjectEvents(identity, aggregateEvent);
             return this;

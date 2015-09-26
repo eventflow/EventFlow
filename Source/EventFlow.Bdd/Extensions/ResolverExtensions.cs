@@ -27,7 +27,7 @@ namespace EventFlow.Bdd.Extensions
 {
     public static class ResolverExtensions
     {
-        public static IBddContext Bdd(
+        public static IScenario Bdd(
             this IResolver resolver)
         {
             return null;

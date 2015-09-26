@@ -20,14 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Commands;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public interface IBddContext
+    public class When : IWhen
     {
-        IBddContext Given(Action<IGivenContext> action);
-        IBddContext When(Action<IWhenContext> action);
-        IBddContext Then(Action<IThenContext> action);
+        public IWhen Command<T>() where T : ICommand
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
