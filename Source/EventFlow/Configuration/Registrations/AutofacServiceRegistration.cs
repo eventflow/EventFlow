@@ -44,7 +44,9 @@ namespace EventFlow.Configuration.Registrations
             _containerBuilder.Register<IDecoratorService>(_ => _decoratorService).SingleInstance();
         }
 
-        public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register<TService, TImplementation>(
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
             where TImplementation : class, TService
             where TService : class
         {
@@ -54,7 +56,7 @@ namespace EventFlow.Configuration.Registrations
                 registration.SingleInstance();
             }
 
-            _containerBuilder
+            var serviceRegistration = _containerBuilder
                 .Register<TService>(c => c.Resolve<TImplementation>())
                 .As<TService>()
                 .OnActivating(args =>
@@ -62,9 +64,17 @@ namespace EventFlow.Configuration.Registrations
                         var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
+            if (keepDefault)
+            {
+                serviceRegistration.PreserveExistingDefaults();
+            }
         }
 
-        public void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique) where TService : class
+        public void Register<TService>(
+            Func<IResolverContext, TService> factory,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
+            where TService : class
         {
             var registration = _containerBuilder
                 .Register(cc => factory(new ResolverContext(new AutofacResolver(cc))))
@@ -77,9 +87,17 @@ namespace EventFlow.Configuration.Registrations
             {
                 registration.SingleInstance();
             }
+            if (keepDefault)
+            {
+                registration.PreserveExistingDefaults();
+            }
         }
 
-        public void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register(
+            Type serviceType,
+            Type implementationType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
         {
             var registration = _containerBuilder
                 .RegisterType(implementationType)
@@ -93,9 +111,16 @@ namespace EventFlow.Configuration.Registrations
             {
                 registration.SingleInstance();
             }
+            if (keepDefault)
+            {
+                registration.PreserveExistingDefaults();
+            }
         }
 
-        public void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void RegisterType(
+            Type serviceType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
         {
             var registration = _containerBuilder
                 .RegisterType(serviceType)
@@ -108,9 +133,17 @@ namespace EventFlow.Configuration.Registrations
             {
                 registration.SingleInstance();
             }
+            if (keepDefault)
+            {
+                registration.PreserveExistingDefaults();
+            }
         }
 
-        public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void RegisterGeneric(
+            Type serviceType,
+            Type implementationType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
         {
             var registration = _containerBuilder
                 .RegisterGeneric(implementationType).As(serviceType);

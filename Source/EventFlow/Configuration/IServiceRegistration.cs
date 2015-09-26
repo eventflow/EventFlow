@@ -26,18 +26,34 @@ namespace EventFlow.Configuration
 {
     public interface IServiceRegistration
     {
-        void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+        void Register<TService, TImplementation>(
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
             where TImplementation : class, TService
             where TService : class;
 
-        void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        void Register<TService>(
+            Func<IResolverContext, TService> factory,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
             where TService : class;
 
-        void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
+        void Register(
+            Type serviceType,
+            Type implementationType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false);
 
-        void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique);
+        void RegisterType(
+            Type serviceType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false);
 
-        void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique);
+        void RegisterGeneric(
+            Type serviceType,
+            Type implementationType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false);
 
         void Decorate<TService>(Func<IResolverContext, TService, TService> factory);
 
