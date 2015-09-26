@@ -20,20 +20,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.Aggregates;
+using EventFlow.Bdd.Steps;
+using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class Then : IThen
+    public class WhenContext : IWhenContext
     {
-        public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
+        private readonly IResolver _resolver;
+        private IScenarioContext _scenarioContext;
+
+        public WhenContext(
+            IResolver resolver)
+        {
+            _resolver = resolver;
+        }
+
+        public IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TSourceIdentity : ISourceId
         {
-            throw new NotImplementedException();
+            _scenarioContext.Script.AddGiven(new CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity>(_resolver, command));
+            return this;
+        }
+
+        public void Setup(IScenarioContext scenarioContext)
+        {
+            _scenarioContext = scenarioContext;
         }
     }
 }

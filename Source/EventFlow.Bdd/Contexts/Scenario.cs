@@ -21,40 +21,55 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class Scenario : IScenario
+    public class Scenario : IScenario, IScenarioContext
     {
-        private readonly IGiven _given;
-        private readonly IThen _then;
-        private readonly IWhen _when;
+        private readonly IGivenContext _givenContext;
+        private readonly IWhenContext _whenContext;
+        private readonly IThenContext _thenContext;
 
         public Scenario(
-            IGiven given,
-            IWhen @when,
-            IThen then)
+            IGivenContext givenContext,
+            IWhenContext whenContext,
+            IThenContext thenContext,
+            IScenarioScript scenarioScript)
         {
-            _given = given;
-            _when = when;
-            _then = then;
+            _givenContext = givenContext;
+            _whenContext = whenContext;
+            _thenContext = thenContext;
+
+            _givenContext.Setup(this);
+            _whenContext.Setup(this);
+            _thenContext.Setup(this);
+
+            Script = scenarioScript;
         }
+
+        public IScenarioScript Script { get; }
 
         public IScenario Given(Action<IGiven> action)
         {
-            action(_given);
+            action(_givenContext);
             return this;
         }
 
         public IScenario When(Action<IWhen> action)
         {
-            action(_when);
+            action(_whenContext);
             return this;
         }
 
         public IScenario Then(Action<IThen> action)
         {
-            action(_then);
+            action(_thenContext);
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(Script.ExecuteAsync(CancellationToken.None));
+            }
             return this;
         }
     }

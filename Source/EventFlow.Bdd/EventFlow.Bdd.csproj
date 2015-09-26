@@ -46,15 +46,20 @@
     <Compile Include="Contexts\Scenario.cs" />
     <Compile Include="Extensions\EventFlowOptionsBddExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
-    <Compile Include="Contexts\Given.cs" />
+    <Compile Include="Contexts\GivenContext.cs" />
     <Compile Include="Contexts\IScenario.cs" />
     <Compile Include="Contexts\IGiven.cs" />
     <Compile Include="Contexts\IThen.cs" />
     <Compile Include="Contexts\IWhen.cs" />
     <Compile Include="Factories\ITestEventFactory.cs" />
+    <Compile Include="IScenarioScript.cs" />
+    <Compile Include="IScenarioStep.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Contexts\Then.cs" />
-    <Compile Include="Contexts\When.cs" />
+    <Compile Include="Contexts\ThenContext.cs" />
+    <Compile Include="Contexts\WhenContext.cs" />
+    <Compile Include="ScenarioScript.cs" />
+    <Compile Include="Steps\CommandScenarioStep.cs" />
+    <Compile Include="Steps\EventScenarioStep.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
@@ -62,6 +67,7 @@
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

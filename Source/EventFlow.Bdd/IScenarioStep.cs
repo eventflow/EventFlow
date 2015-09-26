@@ -22,42 +22,14 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Commands;
-using EventFlow.Core;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd
 {
-    public class When : IWhen
+    public interface IScenarioStep
     {
-        private readonly ICommandBus _commandBus;
+        string Title { get; }
+        string Description { get; }
 
-        public When(
-            ICommandBus commandBus)
-        {
-            _commandBus = commandBus;
-        }
-
-        public IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-        {
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(CommandAsync(command));
-            }
-            return this;
-        }
-
-        protected Task CommandAsync<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-        {
-            return _commandBus.PublishAsync(command, CancellationToken.None);
-        }
+        Task ExecuteAsync(CancellationToken cancellationToken);
     }
 }

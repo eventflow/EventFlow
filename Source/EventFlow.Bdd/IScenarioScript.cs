@@ -20,23 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Commands;
-using EventFlow.Core;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd
 {
-    public interface IWhen
+    public interface IScenarioScript
     {
-        IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
-    }
+        void AddGiven(IScenarioStep scenarioStep);
+        void AddWhen(IScenarioStep scenarioStep);
+        void AddThen(IScenarioStep scenarioStep);
 
-    public interface IWhenContext : IWhen
-    {
-        void Setup(IScenarioContext scenarioContext);
+        Task ExecuteAsync(CancellationToken cancellationToken);
     }
 }

@@ -27,9 +27,14 @@ namespace EventFlow.Bdd.Contexts
 {
     public interface IThen
     {
-        IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
+        IThen Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
+    }
+
+    public interface IThenContext : IThen
+    {
+        void Setup(IScenarioContext scenarioContext);
     }
 }

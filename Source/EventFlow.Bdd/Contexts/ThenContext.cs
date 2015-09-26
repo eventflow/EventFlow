@@ -21,22 +21,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Commands;
 using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public interface IWhen
+    public class ThenContext : IThenContext
     {
-        IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+        private IScenarioContext _scenarioContext;
+
+        public IThen Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
-    }
+            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        {
+            return this;
+        }
 
-    public interface IWhenContext : IWhen
-    {
-        void Setup(IScenarioContext scenarioContext);
+        public void Setup(IScenarioContext scenarioContext)
+        {
+            _scenarioContext = scenarioContext;
+        }
     }
 }

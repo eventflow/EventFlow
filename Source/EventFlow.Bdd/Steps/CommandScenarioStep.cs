@@ -20,23 +20,43 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd.Steps
 {
-    public interface IWhen
+    public class CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity> : IScenarioStep
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TSourceIdentity : ISourceId
     {
-        IWhen Command<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
-    }
+        private readonly IResolver _resolver;
+        private readonly ICommand<TAggregate, TIdentity, TSourceIdentity> _command;
 
-    public interface IWhenContext : IWhen
-    {
-        void Setup(IScenarioContext scenarioContext);
+        public string Title { get; }
+        public string Description { get; }
+
+        public CommandScenarioStep(
+            IResolver resolver,
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+        {
+            _resolver = resolver;
+            _command = command;
+
+            var commandDefinition = _resolver.Resolve<ICommandDefinitionService>().GetCommandDefinition(command.GetType());
+
+            Title = commandDefinition.Name;
+            Description = commandDefinition.Name;
+        }
+
+        public Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            var commandBus = _resolver.Resolve<ICommandBus>();
+            return commandBus.PublishAsync(_command, cancellationToken);
+        }
     }
 }

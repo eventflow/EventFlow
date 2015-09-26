@@ -24,6 +24,11 @@ using System;
 
 namespace EventFlow.Bdd.Contexts
 {
+    public interface IScenarioContext
+    {
+        IScenarioScript Script { get; }
+    }
+
     public interface IScenario
     {
         IScenario Given(Action<IGiven> action);

@@ -32,9 +32,10 @@ namespace EventFlow.Bdd.Extensions
             return eventFlowOptions.RegisterServices(sr =>
             {
                 sr.Register<IScenario, Scenario>();
-                sr.Register<IGiven, Given>();
-                sr.Register<IWhen, When>();
-                sr.Register<IThen, Then>();
+                sr.Register<IScenarioScript, ScenarioScript>();
+                sr.Register<IGivenContext, GivenContext>();
+                sr.Register<IWhenContext, WhenContext>();
+                sr.Register<IThenContext, ThenContext>();
             });
         }
     }

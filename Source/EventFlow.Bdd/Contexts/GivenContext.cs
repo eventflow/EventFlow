@@ -20,27 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Bdd.Factories;
+using EventFlow.Bdd.Steps;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class Given : IGiven
+    public class GivenContext : IGivenContext
     {
-        private readonly IEventStore _eventStore;
         private readonly IResolver _resolver;
+        private IScenarioContext _scenarioContext;
 
-        public Given(
-            IEventStore eventStore,
+        public GivenContext(
             IResolver resolver)
         {
-            _eventStore = eventStore;
             _resolver = resolver;
         }
 
@@ -61,43 +57,13 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            InjectEvents<TAggregate, TIdentity>(identity, new IAggregateEvent[] {aggregateEvent});
+            _scenarioContext.Script.AddGiven(new EventScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_resolver, identity, aggregateEvent));
             return this;
         }
 
-        protected IReadOnlyCollection<IDomainEvent> InjectEvents<TAggregate, TIdentity>(
-            TIdentity identity,
-            IEnumerable<IAggregateEvent> aggregateEvents)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        public void Setup(IScenarioContext scenarioContext)
         {
-            IReadOnlyCollection<IDomainEvent> domainEvents = null;
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(InjectEventsAsync<TAggregate, TIdentity>(identity, aggregateEvents, CancellationToken.None), r => domainEvents = r);
-            }
-            return domainEvents;
-        }
-
-        protected async Task<IReadOnlyCollection<IDomainEvent>> InjectEventsAsync<TAggregate, TIdentity>(
-            TIdentity identity,
-            IEnumerable<IAggregateEvent> aggregateEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            var aggregateRoot = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(
-                identity,
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            aggregateRoot.InjectUncommittedEvents(aggregateEvents);
-
-            return await aggregateRoot.CommitAsync(
-                _eventStore,
-                SourceId.New,
-                cancellationToken)
-                .ConfigureAwait(false);
+            _scenarioContext = scenarioContext;
         }
     }
 }

@@ -37,4 +37,9 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
     }
+
+    public interface IGivenContext : IGiven
+    {
+        void Setup(IScenarioContext scenarioContext);
+    }
 }
