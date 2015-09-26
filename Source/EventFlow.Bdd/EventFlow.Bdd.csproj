@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Contexts\Scenario.cs" />
     <Compile Include="Extensions\EventFlowOptionsBddExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
