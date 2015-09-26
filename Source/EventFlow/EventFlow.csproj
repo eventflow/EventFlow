@@ -102,7 +102,6 @@
     <Compile Include="Configuration\Registrations\Services\AutofacAggregateRootFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
     <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
-    <Compile Include="Configuration\Registrations\AutofacDecorator.cs" />
     <Compile Include="Configuration\Registrations\AutofacResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacRootResolver.cs" />
     <Compile Include="Configuration\Registrations\AutofacScopeResolver.cs" />

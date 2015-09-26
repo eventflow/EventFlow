@@ -42,9 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacDecorator.cs">
-      <Link>Registrations\AutofacDecorator.cs</Link>
-    </Compile>
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacResolver.cs">
       <Link>Registrations\AutofacResolver.cs</Link>
     </Compile>
