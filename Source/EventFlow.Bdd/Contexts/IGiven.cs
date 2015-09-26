@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -38,7 +39,7 @@ namespace EventFlow.Bdd.Contexts
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
     }
 
-    public interface IGivenContext : IGiven
+    public interface IGivenContext : IGiven, IDisposable
     {
         void Setup(IScenarioContext scenarioContext);
     }

@@ -66,5 +66,9 @@ namespace EventFlow.Bdd
                 await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             }
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

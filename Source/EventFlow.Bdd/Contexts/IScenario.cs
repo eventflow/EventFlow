@@ -29,7 +29,7 @@ namespace EventFlow.Bdd.Contexts
         IScenarioScript Script { get; }
     }
 
-    public interface IScenario
+    public interface IScenario : IDisposable
     {
         IScenario Given(Action<IGiven> action);
         IScenario When(Action<IWhen> action);

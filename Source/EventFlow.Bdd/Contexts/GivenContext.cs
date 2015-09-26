@@ -65,5 +65,9 @@ namespace EventFlow.Bdd.Contexts
         {
             _scenarioContext = scenarioContext;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

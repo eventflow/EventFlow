@@ -72,5 +72,9 @@ namespace EventFlow.Bdd.Contexts
             }
             return this;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

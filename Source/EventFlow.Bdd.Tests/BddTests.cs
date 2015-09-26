@@ -58,19 +58,21 @@ namespace EventFlow.Bdd.Tests
             var testId = TestId.New;
             var testEventFactory = (ITestEventFactory) new TestEventFactory(Fixture);
 
-            EventFlowOptions.New
+            using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .RegisterServices(sr => sr.Register(_ => testEventFactory))
                 .TestWithBdd()
-                .CreateResolver()
-                .Scenario()
+                .CreateResolver())
+            using (resolver.Scenario()
                 .Given(c => c
                     .Event<TestAggregate, TestId, PingEvent>(testId)
                     .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId))
                 .When(c => c
                     .Command(new PingCommand(testId, PingId.New)))
                 .Then(c => c
-                    .Event<TestAggregate, TestId, PingEvent>(testId));
+                    .Event<TestAggregate, TestId, PingEvent>(testId)))
+            {
+            }
         }
     }
 }
