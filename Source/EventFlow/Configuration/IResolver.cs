@@ -30,5 +30,9 @@ namespace EventFlow.Configuration
         T Resolve<T>();
         object Resolve(Type serviceType);
         IEnumerable<object> ResolveAll(Type serviceType);
+        IEnumerable<Type> GetRegisteredServices();
+
+        bool HasRegistrationFor<T>()
+            where T : class;
     }
 }

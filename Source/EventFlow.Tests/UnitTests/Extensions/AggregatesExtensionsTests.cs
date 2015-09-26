@@ -35,78 +35,80 @@ namespace EventFlow.Tests.UnitTests.Extensions
 {
     public class AggregatesExtensionsTests
     {
-        [Test, Ignore]
+        [Test]
         public void AbstractAggregateRootImplementationIsNotSelected()
         {
-            // arrange
+            // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New
                 .UseServiceRegistration(registry);
 
-            // act
+            // Act
             sut.AddAggregateRoots(EventFlowTests.Assembly);
 
-            // assert
-            //registry.HasRegistrationFor<AbstractTestAggregate>().Should().Be(false);
+            // Assert
+            var resolver = sut.CreateResolver(false);
+            resolver.HasRegistrationFor<AbstractTestAggregate>().Should().Be(false);
         }
 
-        [Test, Ignore]
+        [Test]
         public void ClosedIAggregateRootImplementationIsSelected()
         {
-            // arrange
+            // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New
                 .UseServiceRegistration(registry);
 
-            // act
+            // Act
             sut.AddAggregateRoots(EventFlowTestHelpers.Assembly);
 
-            // assert
-            //registry.HasRegistrationFor<TestAggregate>().Should().Be(true);
+            // Assert
+            var resolver = sut.CreateResolver(false);
+            resolver.HasRegistrationFor<TestAggregate>().Should().Be(true);
         }
 
         [Test]
         public void AbstractAggregateRootImplementationIsRejected()
         {
-            // arrange
+            // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New
                 .UseServiceRegistration(registry);
 
-            // act
+            // Act
             Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(AbstractTestAggregate) } );
 
-            // assert
+            // Assert
             act.ShouldThrow<ArgumentException>();
         }
 
         [Test]
         public void NonIAggregateRootImplementationIsRejected()
         {
-            // arrange
+            // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New
                 .UseServiceRegistration(registry);
 
-            // act
+            // Act
             Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(TestId) });
 
-            // assert
+            // Assert
             act.ShouldThrow<ArgumentException>();
         }
 
         [Test]
         public void ClosedIAggregateRootImplementationIsAccepted()
         {
-            // arrange
+            // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New
                 .UseServiceRegistration(registry);
 
-            // act
+            // Act
             Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(LocalTestAggregate) });
 
-            // assert
+            // Assert
             act.ShouldNotThrow<ArgumentException>();
         }
     }
