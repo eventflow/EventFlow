@@ -153,6 +153,14 @@ namespace EventFlow.Configuration.Registrations
             }
         }
 
+        public void RegisterIfNotRegistered<TService, TImplementation>(
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            Register<TService, TImplementation>(lifetime, true);
+        }
+
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
             _decoratorService.AddDecorator(factory);

@@ -55,6 +55,12 @@ namespace EventFlow.Configuration
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false);
 
+        [Obsolete("Use other Register(...) methods and supply 'keepDefault = true'")]
+        void RegisterIfNotRegistered<TService, TImplementation>(
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TImplementation : class, TService
+            where TService : class;
+
         void Decorate<TService>(Func<IResolverContext, TService, TService> factory);
 
         IRootResolver CreateResolver(bool validateRegistrations);

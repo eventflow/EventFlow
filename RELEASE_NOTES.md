@@ -1,6 +1,8 @@
 ### New in 0.16 (not released yet)
 
-* Fixed: Added missing `ICommand<,>` interface to abstract `Command<,>` class in 
+* Obsolete: Marked `IServiceRegistration.RegisterIfNotRegistered(...)`, use
+  the `keepDefault = true` on the other `Register(...)` methods instead
+* Fixed: Added missing `ICommand<,>` interface to abstract `Command<,>` class in
   `EventFlow.Commands`.
 
 ### New in 0.15.1057 (released 2015-09-24)
