@@ -2,6 +2,9 @@
 
 * Obsolete: Marked `IServiceRegistration.RegisterIfNotRegistered(...)`, use
   the `keepDefault = true` on the other `Register(...)` methods instead
+* Fixed: Correct order of service registration decorators. They are now
+  applied in the same order they are applied, e.g., the _last_ registered
+  service decorator will be the "outer" service
 * Fixed: Added missing `ICommand<,>` interface to abstract `Command<,>` class in
   `EventFlow.Commands`.
 
