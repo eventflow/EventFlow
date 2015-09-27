@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Bdd.Contexts;
 using EventFlow.Logs;
 using System.Collections.Generic;
@@ -27,11 +28,99 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Extensions;
 
 namespace EventFlow.Bdd
 {
     public class ScenarioScript : IScenarioScript
     {
+        private class StepResult
+        {
+            public string Name { get; }
+            public Exception Exception { get; }
+            public bool Success => Exception == null;
+
+            public StepResult(
+                string name,
+                Exception exception = null)
+            {
+                Name = name;
+                Exception = exception;
+            }
+
+            public override string ToString()
+            {
+                return Success
+                    ? Name
+                    : $"{Name} FAILED - {Exception.GetType().PrettyPrint()}: {Exception.Message}";
+            }
+        }
+
+        private class StateResult
+        {
+            public IReadOnlyCollection<StepResult> StepResults { get; }
+            public bool Success { get; }
+
+            public StateResult(
+                IReadOnlyCollection<StepResult> stepResults)
+            {
+                StepResults = stepResults;
+                Success = stepResults.All(r => r.Success);
+            }
+
+            public override string ToString()
+            {
+                return string.Join(Environment.NewLine, StepResults.Select(r => r.ToString()));
+            }
+        }
+
+        private class ScriptResult
+        {
+            public StateResult GivenResult { get; }
+            public StateResult WhenResult { get; }
+            public StateResult ThenResult { get; }
+            public bool Success { get; }
+
+            public ScriptResult(
+                StateResult givenResult,
+                StateResult whenResult,
+                StateResult thenResult)
+            {
+                GivenResult = givenResult;
+                WhenResult = whenResult;
+                ThenResult = thenResult;
+
+                Success =
+                    GivenResult != null &&
+                    GivenResult.Success &&
+                    WhenResult != null &&
+                    WhenResult.Success &&
+                    ThenResult != null &&
+                    ThenResult.Success;
+            }
+
+            public override string ToString()
+            {
+                var stringBuilder = new StringBuilder();
+                if (GivenResult != null)
+                {
+                    stringBuilder.AppendLine("GIVEN");
+                    stringBuilder.AppendLine(GivenResult.ToString());
+                }
+                if (WhenResult != null)
+                {
+                    stringBuilder.AppendLine("WHEN");
+                    stringBuilder.AppendLine(WhenResult.ToString());
+                }
+                if (ThenResult != null)
+                {
+                    stringBuilder.AppendLine("THEN");
+                    stringBuilder.AppendLine(ThenResult.ToString());
+                }
+                return stringBuilder.ToString();
+            }
+        }
+
         private readonly List<IScenarioStep> _givenSteps = new List<IScenarioStep>();
         private readonly ILog _log;
         private readonly List<IScenarioStep> _thenSteps = new List<IScenarioStep>();
@@ -64,20 +153,43 @@ namespace EventFlow.Bdd
         {
             _log.Information(GetDescription());
 
+            var scriptResult = await ExecuteStepsAsync(cancellationToken).ConfigureAwait(false);
+            var logLevel = scriptResult.Success ? LogLevel.Information : LogLevel.Error;
+            var result = scriptResult.ToString();
+            _log.Write(logLevel, result);
+            if (!scriptResult.Success)
+            {
+                throw new Exception(result);
+            }
+        }
+
+        private async Task<ScriptResult> ExecuteStepsAsync(CancellationToken cancellationToken)
+        {
+            StateResult givenResult;
+            StateResult whenResult = null;
+            StateResult thenResult = null;
+
             // Given
             State = ScenarioState.Given;
-            await ExecuteAsync(_givenSteps, cancellationToken).ConfigureAwait(false);
+            givenResult = await ExecuteAsync(_givenSteps, cancellationToken).ConfigureAwait(false);
 
             // When
-            State = ScenarioState.When;
-            await ExecuteAsync(_whenSteps, cancellationToken).ConfigureAwait(false);
+            if (givenResult.Success)
+            {
+                State = ScenarioState.When;
+                whenResult = await ExecuteAsync(_whenSteps, cancellationToken).ConfigureAwait(false);
+            }
 
-            // ThenContext
-            State = ScenarioState.Then;
-            await ExecuteAsync(_thenSteps, cancellationToken).ConfigureAwait(false);
+            // Then
+            if (givenResult.Success && whenResult != null && whenResult.Success)
+            {
+                State = ScenarioState.Then;
+                thenResult = await ExecuteAsync(_thenSteps, cancellationToken).ConfigureAwait(false);
+            }
 
             // End
             State = ScenarioState.Unknown;
+            return new ScriptResult(givenResult, whenResult, thenResult);
         }
 
         public void Dispose()
@@ -88,12 +200,25 @@ namespace EventFlow.Bdd
             }
         }
 
-        private static async Task ExecuteAsync(IEnumerable<IScenarioStep> scenarioSteps, CancellationToken cancellationToken)
+        private static async Task<StateResult> ExecuteAsync(IEnumerable<IScenarioStep> scenarioSteps, CancellationToken cancellationToken)
         {
+            var stepResults = new List<StepResult>();
+
             foreach (var scenarioStep in scenarioSteps)
             {
-                await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                    stepResults.Add(new StepResult(scenarioStep.Name));
+                }
+                catch (Exception e)
+                {
+                    stepResults.Add(new StepResult(scenarioStep.Name, e));
+                    break;
+                }
             }
+
+            return new StateResult(stepResults);
         }
 
         public string GetDescription()

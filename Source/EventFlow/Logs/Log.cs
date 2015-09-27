@@ -27,23 +27,13 @@ namespace EventFlow.Logs
 {
     public abstract class Log : ILog
     {
-        protected enum LogLevel
-        {
-            Verbose,
-            Debug,
-            Information,
-            Warning,
-            Error,
-            Fatal
-        }
-
         protected abstract bool IsVerboseEnabled { get; }
         protected abstract bool IsInformationEnabled { get; }
         protected abstract bool IsDebugEnabled { get; }
 
-        protected abstract void Write(LogLevel logLevel, string format, params object[] args);
+        public abstract void Write(LogLevel logLevel, string format, params object[] args);
 
-        protected abstract void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
+        public abstract void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
 
         public void Verbose(string format, params object[] args)
         {

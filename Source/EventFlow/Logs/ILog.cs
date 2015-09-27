@@ -29,6 +29,12 @@ namespace EventFlow.Logs
     public interface ILog
     {
         [StringFormatMethod("format")]
+        void Write(LogLevel logLevel, string format, params object[] args);
+
+        [StringFormatMethod("format")]
+        void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
+
+        [StringFormatMethod("format")]
         void Verbose(string format, params object[] args);
 
         [StringFormatMethod("format")]

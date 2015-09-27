@@ -168,6 +168,7 @@
     <Compile Include="IEventFlowOptions.cs" />
     <Compile Include="Jobs\IJobId.cs" />
     <Compile Include="Jobs\JobId.cs" />
+    <Compile Include="Logs\LogLevel.cs" />
     <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
     <Compile Include="Jobs\IJob.cs" />
     <Compile Include="Jobs\IJobDefinitionService.cs" />
