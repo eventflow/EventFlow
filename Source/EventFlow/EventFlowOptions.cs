@@ -21,12 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
@@ -44,23 +43,23 @@ namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions
     {
-        private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
-        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>();
+        private readonly List<Type> _aggregateEventTypes = new List<Type>();
+        private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>();
-        private Lazy<IModuleRegistration> _lazyModuleRegistrationFactory;
+        private readonly List<Type> _jobTypes = new List<Type>();
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
-        private readonly Stopwatch _stopwatch;
 
         private EventFlowOptions()
         {
-            _stopwatch = Stopwatch.StartNew();
-            _lazyModuleRegistrationFactory = new Lazy<IModuleRegistration>(() => new ModuleRegistration(this));
+            UseServiceRegistration(new AutofacServiceRegistration());
+
+            ModuleRegistration = new ModuleRegistration(this);
+            ModuleRegistration.Register<ProvidedJobsModule>();
         }
 
         public static EventFlowOptions New => new EventFlowOptions();
 
-        public IModuleRegistration ModuleRegistration => _lazyModuleRegistrationFactory.Value;
+        public IModuleRegistration ModuleRegistration { get; }
 
         public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
@@ -123,112 +122,69 @@ namespace EventFlow
         public IEventFlowOptions RegisterModule<TModule>()
             where TModule : IModule, new()
         {
-            _lazyModuleRegistrationFactory.Value.Register<TModule>();
+            ModuleRegistration.Register<TModule>();
             return this;
         }
 
         public IEventFlowOptions RegisterModule<TModule>(TModule module)
             where TModule : IModule
         {
-            _lazyModuleRegistrationFactory.Value.Register(module);
+            ModuleRegistration.Register(module);
             return this;
         }
 
         public IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
         {
-            if (_lazyRegistrationFactory.IsValueCreated)
+            if (_lazyRegistrationFactory != null && _lazyRegistrationFactory.IsValueCreated)
             {
                 throw new InvalidOperationException("Service registration is already in use");
             }
 
+            RegisterDefaults(serviceRegistration);
             _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => serviceRegistration);
+
             return this;
         }
 
-        public IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration)
+        private void RegisterDefaults(IServiceRegistration serviceRegistration)
         {
-            if (_lazyModuleRegistrationFactory.IsValueCreated)
-            {
-                throw new InvalidOperationException($"Module registration is already in use");
-            }
-            _lazyModuleRegistrationFactory = new Lazy<IModuleRegistration>(() => moduleRegistration);
-            return this;
+            // http://docs.autofac.org/en/latest/register/registration.html
+            // Maybe swap around and do after and and .PreserveExistingDefaults()
+
+            serviceRegistration.Register<ILog, ConsoleLog>();
+            serviceRegistration.Register<IEventStore, InMemoryEventStore>(Lifetime.Singleton);
+            serviceRegistration.Register<ICommandBus, CommandBus>();
+            serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
+            serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();
+            serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
+            serviceRegistration.Register<IQueryProcessor, QueryProcessor>(Lifetime.Singleton);
+            serviceRegistration.Register<IJsonSerializer, JsonSerializer>();
+            serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
+            serviceRegistration.Register<IJobRunner, JobRunner>();
+            serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
+            serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
+            serviceRegistration.Register<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton);
+            serviceRegistration.Register<IAggregateFactory, AggregateFactory>();
+            serviceRegistration.Register<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
+            serviceRegistration.Register<IDomainEventPublisher, DomainEventPublisher>();
+            serviceRegistration.Register<ISerializedCommandPublisher, SerializedCommandPublisher>();
+            serviceRegistration.Register<ICommandDefinitionService, CommandDefinitionService>(Lifetime.Singleton);
+            serviceRegistration.Register<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
+            serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
+            serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
+            serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            serviceRegistration.Register<IBootstrap, DefinitionServicesInitilizer>();
+            serviceRegistration.Register(_ => ModuleRegistration, Lifetime.Singleton);
+            serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
+                _jobTypes,
+                _commandTypes,
+                _aggregateEventTypes),
+                Lifetime.Singleton);
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations = true)
         {
-            var services = new HashSet<Type>(_lazyRegistrationFactory.Value.GetRegisteredServices());
-
-            // Add default implementations
-            RegisterIfMissing<ILog, ConsoleLog>(services);
-            RegisterIfMissing<IEventStore, InMemoryEventStore>(services, Lifetime.Singleton);
-            RegisterIfMissing<ICommandBus, CommandBus>(services);
-            RegisterIfMissing<IReadModelPopulator, ReadModelPopulator>(services);
-            RegisterIfMissing<IEventJsonSerializer, EventJsonSerializer>(services);
-            RegisterIfMissing<IEventDefinitionService, EventDefinitionService>(services, Lifetime.Singleton);
-            RegisterIfMissing<IQueryProcessor, QueryProcessor>(services, Lifetime.Singleton);
-            RegisterIfMissing<IJsonSerializer, JsonSerializer>(services);
-            RegisterIfMissing<IJobScheduler, InstantJobScheduler>(services);
-            RegisterIfMissing<IJobRunner, JobRunner>(services);
-            RegisterIfMissing<IJobDefinitionService, JobDefinitionService>(services, Lifetime.Singleton);
-            RegisterIfMissing<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>(services);
-            RegisterIfMissing<IEventUpgradeManager, EventUpgradeManager>(services, Lifetime.Singleton);
-            RegisterIfMissing<IAggregateFactory, AggregateFactory>(services);
-            RegisterIfMissing<IReadModelDomainEventApplier, ReadModelDomainEventApplier>(services);
-            RegisterIfMissing<IDomainEventPublisher, DomainEventPublisher>(services);
-            RegisterIfMissing<ISerializedCommandPublisher, SerializedCommandPublisher>(services);
-            RegisterIfMissing<ICommandDefinitionService, CommandDefinitionService>(services, Lifetime.Singleton);
-            RegisterIfMissing<IDispatchToEventSubscribers, DispatchToEventSubscribers>(services);
-            RegisterIfMissing<IDomainEventFactory, DomainEventFactory>(services, Lifetime.Singleton);
-            RegisterIfMissing<IEventFlowConfiguration>(services, f => f.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration));
-
-            if (!services.Contains(typeof (ITransientFaultHandler<>)))
-            {
-                _lazyRegistrationFactory.Value.RegisterGeneric(typeof (ITransientFaultHandler<>), typeof (TransientFaultHandler<>));
-            }
-
-            // Add registration services
-            var moduleRegistration = _lazyModuleRegistrationFactory.Value;
-            _lazyRegistrationFactory.Value.Register(r => moduleRegistration, Lifetime.Singleton);
-
-            // Provided modules
-            moduleRegistration.Register<ProvidedJobsModule>();
-
-            // Create resolver
-            var rootResolver = _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
-
-            // Load added type definitions into services
-            var jobDefinitionService = rootResolver.Resolve<IJobDefinitionService>();
-            jobDefinitionService.LoadJobs(_jobTypes);
-
-            var eventDefinitionService = rootResolver.Resolve<IEventDefinitionService>();
-            eventDefinitionService.LoadEvents(_aggregateEventTypes);
-
-            var commandsDefinitionService = rootResolver.Resolve<ICommandDefinitionService>();
-            commandsDefinitionService.LoadCommands(_commandTypes);
-
-            // Log time spent
-            _stopwatch.Stop();
-            var log = rootResolver.Resolve<ILog>();
-            log.Debug("EventFlow configuration done in {0:0.000} seconds", _stopwatch.Elapsed.TotalSeconds);
-
-            return rootResolver;
-        }
-
-        private void RegisterIfMissing<TService, TImplementation>(ICollection<Type> registeredServices, Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TService : class
-            where TImplementation : class, TService
-        {
-            RegisterIfMissing<TService>(registeredServices, f => f.Register<TService, TImplementation>(lifetime));
-        }
-
-        private void RegisterIfMissing<TService>(ICollection<Type> registeredServices, Action<IServiceRegistration> register)
-        {
-            if (registeredServices.Contains(typeof (TService)))
-            {
-                return;
-            }
-            register(_lazyRegistrationFactory.Value);
+            return _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
         }
     }
 }

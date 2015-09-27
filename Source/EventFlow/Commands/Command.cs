@@ -56,7 +56,8 @@ namespace EventFlow.Commands
         }
     }
 
-    public abstract class Command<TAggregate, TIdentity> : Command<TAggregate, TIdentity, ISourceId>
+    public abstract class Command<TAggregate, TIdentity> : Command<TAggregate, TIdentity, ISourceId>,
+        ICommand<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {

@@ -1,4 +1,26 @@
-### New in 0.15 (not released yet)
+### New in 0.16 (not released yet)
+
+* Breaking: Removed `HasRegistrationFor<>` and `GetRegisteredServices()`
+  from `IServiceRegistration` and added them to `IResolver` instead. The
+  methods required that all service registrations went through EventFlow,
+  which in most cases they will not
+* Obsolete: Marked `IServiceRegistration.RegisterIfNotRegistered(...)`, use
+  the `keepDefault = true` on the other `Register(...)` methods instead
+* New: Major changes have been done to how EventFlow handles service
+  registration and bootstrapping in order for developers to skip calling
+  `CreateResolver()` (or `CreateContainer()` if using the `EventFlow.Autofac`
+  package) completely. EventFlow will register its bootstrap services in the
+  IoC container and configure itself whenever the container is created    
+* New: Introduced `IBootstrap` interface that you can register. It has a
+  single `BootAsync(...)` method that will be called as soon as the IoC
+  container is ready (similar to that of `IStartable` of Autofac)
+* Fixed: Correct order of service registration decorators. They are now
+  applied in the same order they are applied, e.g., the _last_ registered
+  service decorator will be the "outer" service
+* Fixed: Added missing `ICommand<,>` interface to abstract `Command<,>` class in
+  `EventFlow.Commands`.
+
+### New in 0.15.1057 (released 2015-09-24)
 
 * Fixed: Added `UseHangfireJobScheduler()` and marked `UseHandfireJobScheduler()`
   obsolete, fixing method spelling mistake

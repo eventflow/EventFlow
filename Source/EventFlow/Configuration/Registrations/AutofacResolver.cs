@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
+using EventFlow.Aggregates;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -62,6 +63,22 @@ namespace EventFlow.Configuration.Registrations
         {
             var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
             return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
+        }
+
+        public IEnumerable<Type> GetRegisteredServices()
+        {
+            return _componentContext.ComponentRegistry.Registrations
+                .SelectMany(x => x.Services)
+                .OfType<TypedService>()
+                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
+                .Select(x => x.ServiceType);
+        }
+
+        public bool HasRegistrationFor<T>()
+            where T : class
+        {
+            var serviceType = typeof (T);
+            return GetRegisteredServices().Any(t => serviceType == t);
         }
     }
 }

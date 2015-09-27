@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading.Tasks;
+using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
@@ -34,7 +36,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
     public class AutofacAggregateFactoryTests
     {
         [Test]
-        public async void CreatesNewAggregateWithIdParameter()
+        public async Task CreatesNewAggregateWithIdParameter()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
@@ -55,7 +57,31 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         }
 
         [Test]
-        public async void CreatesNewAggregateWithIdAndInterfaceParameters()
+        public async Task ExternalContainerBuild()
+        {
+            // Arrange
+            var containerBuilder = new ContainerBuilder();
+            EventFlowOptions.New
+                .UseAutofacContainerBuilder(containerBuilder)
+                .UseAutofacAggregateRootFactory()
+                .AddAggregateRoots(typeof (AutofacAggregateFactoryTests).Assembly);
+
+            using (var container = containerBuilder.Build())
+            using (var lifetimeScope = container.BeginLifetimeScope())
+            {
+                var id = TestId.New;
+                var sut = lifetimeScope.Resolve<IAggregateFactory>();
+
+                // Act
+                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id).ConfigureAwait(false);
+
+                // Assert
+                aggregateWithIdParameter.Id.Should().Be(id);
+            }
+        }
+
+        [Test]
+        public async Task CreatesNewAggregateWithIdAndInterfaceParameters()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
@@ -75,7 +101,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         }
 
         [Test]
-        public async void CreatesNewAggregateWithIdAndTypeParameters()
+        public async Task CreatesNewAggregateWithIdAndTypeParameters()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
