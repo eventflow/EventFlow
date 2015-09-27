@@ -25,14 +25,10 @@ using System.Collections.Generic;
 
 namespace EventFlow.Configuration
 {
-    public interface IResolver
+    public interface ILoadedVersionedTypes
     {
-        T Resolve<T>();
-        object Resolve(Type serviceType);
-        IEnumerable<object> ResolveAll(Type serviceType);
-        IEnumerable<Type> GetRegisteredServices();
-
-        bool HasRegistrationFor<T>()
-            where T : class;
+        IReadOnlyCollection<Type> Jobs { get; }
+        IReadOnlyCollection<Type> Commands { get; }
+        IReadOnlyCollection<Type> Events { get; }
     }
 }

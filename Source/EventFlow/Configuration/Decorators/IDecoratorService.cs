@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -21,18 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Decorators
 {
-    public interface IResolver
+    public interface IDecoratorService
     {
-        T Resolve<T>();
-        object Resolve(Type serviceType);
-        IEnumerable<object> ResolveAll(Type serviceType);
-        IEnumerable<Type> GetRegisteredServices();
-
-        bool HasRegistrationFor<T>()
-            where T : class;
+        TService Decorate<TService>(TService implementation, IResolverContext resolverContext);
+        object Decorate(Type serviceType, object implementation, IResolverContext resolverContext);
     }
 }

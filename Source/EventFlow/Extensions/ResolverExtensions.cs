@@ -21,47 +21,39 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Autofac;
+using EventFlow.Aggregates;
+using EventFlow.Configuration;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Extensions
 {
-    internal abstract class AutofacDecorator
+    public static class ResolverExtensions
     {
-        public abstract Type ServiceType { get; }
-        public abstract void Configure(ContainerBuilder containerBuilder, int level, bool hasMore);
-
-        protected string GetKey(int level)
+        public static void ValidateRegistrations(
+            this IResolver resolver)
         {
-            if (level < 0)
+            var exceptions = new List<Exception>();
+            foreach (var type in resolver.GetRegisteredServices().Where(t => !t.IsClosedTypeOf(typeof(IAggregateRoot<>))))
             {
-                throw new ArgumentOutOfRangeException(nameof(level));
+                try
+                {
+                    resolver.Resolve(type);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
             }
 
-            return level == 0
-                ? ServiceType.FullName
-                : $"{ServiceType.FullName} (level {level})";
-        }
-    }
-
-    internal class AutofacDecorator<TService> : AutofacDecorator
-    {
-        private readonly Func<IResolverContext, TService, TService> _factory;
-        public override Type ServiceType { get; } = typeof(TService);
-
-        public AutofacDecorator(Func<IResolverContext, TService, TService> factory)
-        {
-            _factory = factory;
-        }
-
-        public override void Configure(ContainerBuilder containerBuilder, int level, bool hasMore)
-        {
-            var registration = containerBuilder.RegisterDecorator<TService>(
-                (r, inner) => _factory(new ResolverContext(new AutofacResolver(r)), inner),
-                GetKey(level - 1));
-            if (hasMore)
+            if (!exceptions.Any())
             {
-                registration.Named<TService>(GetKey(level));
+                return;
             }
+
+            var message = string.Join(", ", exceptions.Select(e => e.Message));
+            throw new AggregateException(message, exceptions);
         }
     }
 }

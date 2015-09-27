@@ -34,12 +34,12 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         private class MagicClass : IMagicInterface { }
         private class MagicClassDecorator1 : IMagicInterface
         {
-            public IMagicInterface Inner { get; private set; }
+            public IMagicInterface Inner { get; }
             public MagicClassDecorator1(IMagicInterface magicInterface) { Inner = magicInterface; }
         }
         private class MagicClassDecorator2 : IMagicInterface
         {
-            public IMagicInterface Inner { get; private set; }
+            public IMagicInterface Inner { get; }
             public MagicClassDecorator2(IMagicInterface magicInterface) { Inner = magicInterface; }
         }
         // ReSharper enable ClassNeverInstantiated.Local
@@ -53,10 +53,88 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         }
 
         [Test]
-        public void DecoratorWorks()
+        public void ServiceViaFactory()
         {
-            // Arrange
+            // Act
+            _sut.Register<IMagicInterface>(r => new MagicClass());
+
+            // Assert
+            Assert_Service();
+        }
+
+        [Test]
+        public void ServiceViaGeneric()
+        {
+            // Act
             _sut.Register<IMagicInterface, MagicClass>();
+
+            // Assert
+            Assert_Service();
+        }
+
+        [Test]
+        public void ServiceViaType()
+        {
+            // Act
+            _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
+
+            // Assert
+            Assert_Service();
+        }
+
+        public void Assert_Service()
+        {
+            // Act
+            var resolver = _sut.CreateResolver(true);
+            var magicInterface = resolver.Resolve<IMagicInterface>();
+
+            // Assert
+            magicInterface.Should().NotBeNull();
+            magicInterface.Should().BeAssignableTo<MagicClass>();
+        }
+
+        [Test]
+        public void DecoratorViaFactory()
+        {
+            // Act
+            _sut.Register<IMagicInterface>(r => new MagicClass());
+
+            // Assert
+            Assert_Decorator();
+        }
+
+        [Test]
+        public void DecoratorViaGeneric()
+        {
+            // Act
+            _sut.Register<IMagicInterface, MagicClass>();
+
+            // Assert
+            Assert_Decorator();
+        }
+
+        [Test]
+        public void DecoratorViaType()
+        {
+            // Act
+            _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
+
+            // Assert
+            Assert_Decorator();
+        }
+
+        public void Assert_Decorator()
+        {
+            // The order should be like this (like unwrapping a present with the order of
+            // wrapping paper applied)
+            // 
+            // Call      MagicClassDecorator2
+            // Call      MagicClassDecorator1
+            // Call      MagicClass
+            // Return to MagicClassDecorator1
+            // Return to MagicClassDecorator2
+
+            // Arrange
             _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator1(inner));
             _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator2(inner));
 
@@ -65,11 +143,11 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             var magic = resolver.Resolve<IMagicInterface>();
 
             // Assert
-            magic.Should().BeAssignableTo<MagicClassDecorator1>();
-            var magicClassDecorator1 = (MagicClassDecorator1) magic;
-            magicClassDecorator1.Inner.Should().BeAssignableTo<MagicClassDecorator2>();
-            var magicClassDecorator2 = (MagicClassDecorator2)magicClassDecorator1.Inner;
-            magicClassDecorator2.Inner.Should().BeAssignableTo<MagicClass>();
+            magic.Should().BeAssignableTo<MagicClassDecorator2>();
+            var magicClassDecorator2 = (MagicClassDecorator2) magic;
+            magicClassDecorator2.Inner.Should().BeAssignableTo<MagicClassDecorator1>();
+            var magicClassDecorator1 = (MagicClassDecorator1)magicClassDecorator2.Inner;
+            magicClassDecorator1.Inner.Should().BeAssignableTo<MagicClass>();
         }
     }
 }

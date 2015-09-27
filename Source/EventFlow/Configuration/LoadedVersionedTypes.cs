@@ -22,17 +22,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EventFlow.Configuration
 {
-    public interface IResolver
+    public class LoadedVersionedTypes : ILoadedVersionedTypes
     {
-        T Resolve<T>();
-        object Resolve(Type serviceType);
-        IEnumerable<object> ResolveAll(Type serviceType);
-        IEnumerable<Type> GetRegisteredServices();
+        public LoadedVersionedTypes(
+            IEnumerable<Type> jobTypes,
+            IEnumerable<Type> commandTypes,
+            IEnumerable<Type> eventTypes)
+        {
+            Jobs = jobTypes.ToList();
+            Commands = commandTypes.ToList();
+            Events = eventTypes.ToList();
+        }
 
-        bool HasRegistrationFor<T>()
-            where T : class;
+        public IReadOnlyCollection<Type> Jobs { get; }
+        public IReadOnlyCollection<Type> Commands { get; }
+        public IReadOnlyCollection<Type> Events { get; }
     }
 }
