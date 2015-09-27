@@ -33,17 +33,14 @@ namespace EventFlow.Configuration.Bootstraps
         private readonly ICommandDefinitionService _commandDefinitionService;
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IJobDefinitionService _jobDefinitionService;
-        private readonly IModuleRegistration _moduleRegistration;
         private readonly ILoadedVersionedTypes _loadedVersionedTypes;
 
         public DefinitionServicesInitilizer(
-            IModuleRegistration moduleRegistration,
             ILoadedVersionedTypes loadedVersionedTypes,
             IEventDefinitionService eventDefinitionService,
             ICommandDefinitionService commandDefinitionService,
             IJobDefinitionService jobDefinitionService)
         {
-            _moduleRegistration = moduleRegistration;
             _loadedVersionedTypes = loadedVersionedTypes;
             _eventDefinitionService = eventDefinitionService;
             _commandDefinitionService = commandDefinitionService;
