@@ -24,6 +24,6 @@ namespace EventFlow.Configuration.Decorators
 {
     public interface IDecoratorService
     {
-        TService Decorate<TService>(TService service, IResolverContext resolverContext);
+        TService Decorate<TService>(TService implementation, IResolverContext resolverContext);
     }
 }

@@ -53,7 +53,36 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         }
 
         [Test]
-        public void DecoratorWorks()
+        public void DecoratorViaFactory()
+        {
+            // Arrange
+            _sut.Register<IMagicInterface>(r => new MagicClass());
+
+            // Act + Assert
+            Register_And_Assert_Decorator();
+        }
+
+        [Test]
+        public void DecoratorViaGeneric()
+        {
+            // Arrange
+            _sut.Register<IMagicInterface, MagicClass>();
+
+            // Act + Assert
+            Register_And_Assert_Decorator();
+        }
+
+        [Test]
+        public void DecoratorViaType()
+        {
+            // Arrange
+            _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
+
+            // Act + Assert
+            Register_And_Assert_Decorator();
+        }
+
+        public void Register_And_Assert_Decorator()
         {
             // The order should be like this (like unwrapping a present with the order of
             // wrapping paper applied)
@@ -65,7 +94,6 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             // Return to MagicClassDecorator2
 
             // Arrange
-            _sut.Register<IMagicInterface, MagicClass>();
             _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator1(inner));
             _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator2(inner));
 

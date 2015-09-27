@@ -104,7 +104,7 @@ namespace EventFlow.Configuration.Registrations
                 .As(serviceType)
                 .OnActivating(args =>
                     {
-                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        var instance = _decoratorService.Decorate(serviceType, args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
             if (lifetime == Lifetime.Singleton)

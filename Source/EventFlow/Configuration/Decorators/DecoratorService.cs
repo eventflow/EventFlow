@@ -30,13 +30,29 @@ namespace EventFlow.Configuration.Decorators
     public class DecoratorService : IDecoratorService
     {
         private readonly ConcurrentDictionary<Type, List<Func<object, IResolverContext, object>>> _decorators = new ConcurrentDictionary<Type, List<Func<object, IResolverContext, object>>>();
+        private readonly ConcurrentDictionary<Type, Func<object, IResolverContext, object>> _genericDecoratorCall = new ConcurrentDictionary<Type, Func<object, IResolverContext, object>>(); 
 
-        public TService Decorate<TService>(TService service, IResolverContext resolverContext)
+        public object Decorate(Type serviceType, object implementation, IResolverContext resolverContext)
+        {
+            var decorate = _genericDecoratorCall.GetOrAdd(
+                serviceType,
+                t =>
+                {
+                    var genericMethodInfo = GetType()
+                        .GetMethods()
+                        .Single(mi => mi.IsGenericMethodDefinition && mi.Name == "Decorate");
+                    var methodInfo = genericMethodInfo.MakeGenericMethod(t);
+                    return ((o,r) => methodInfo.Invoke(this, new[] {o, r}));
+                });
+            return decorate(implementation, resolverContext);
+        }
+
+        public TService Decorate<TService>(TService implementation, IResolverContext resolverContext)
         {
             List<Func<object, IResolverContext, object>> decorators;
             return !_decorators.TryGetValue(typeof (TService), out decorators)
-                ? service
-                : decorators.Aggregate(service, (current, decorator) => (TService) decorator(current, resolverContext));
+                ? implementation
+                : decorators.Aggregate(implementation, (current, decorator) => (TService) decorator(current, resolverContext));
         }
 
         public void AddDecorator<TService>(Func<IResolverContext, TService, TService> factory)
