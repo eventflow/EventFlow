@@ -37,7 +37,6 @@ namespace EventFlow
         IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
         IEventFlowOptions RegisterServices(Action<IServiceRegistration> register);
         IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration);
-        IEventFlowOptions UseModuleRegistration(IModuleRegistration moduleRegistration);
         IEventFlowOptions RegisterModule<TModule>() where TModule : IModule, new();
         IEventFlowOptions RegisterModule<TModule>(TModule module) where TModule : IModule;
 
