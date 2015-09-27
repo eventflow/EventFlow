@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 
 namespace EventFlow.Extensions
@@ -33,7 +35,7 @@ namespace EventFlow.Extensions
             this IResolver resolver)
         {
             var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices())
+            foreach (var type in resolver.GetRegisteredServices().Where(t => !t.IsClosedTypeOf(typeof(IAggregateRoot<>))))
             {
                 try
                 {
