@@ -21,12 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Autofac;
-using Autofac.Core;
-using EventFlow.Aggregates;
 using EventFlow.Configuration.Decorators;
+using EventFlow.Extensions;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -169,42 +166,14 @@ namespace EventFlow.Configuration.Registrations
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             var container = _containerBuilder.Build();
+            var autofacRootResolver = new AutofacRootResolver(container);
 
             if (validateRegistrations)
             {
-                ValidateRegistrations(container);
+                autofacRootResolver.ValidateRegistrations();
             }
 
             return new AutofacRootResolver(container);
-        }
-
-        private static void ValidateRegistrations(IComponentContext container)
-        {
-            var services = container.ComponentRegistry.Registrations
-                .SelectMany(x => x.Services)
-                .OfType<TypedService>()
-                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                .Where(x => !x.ServiceType.IsClosedTypeOf(typeof(IAggregateRoot<>)))
-                .ToList();
-            var exceptions = new List<Exception>();
-            foreach (var typedService in services)
-            {
-                try
-                {
-                    container.Resolve(typedService.ServiceType);
-                }
-                catch (DependencyResolutionException ex)
-                {
-                    exceptions.Add(ex);
-                }
-            }
-            if (!exceptions.Any())
-            {
-                return;
-            }
-
-            var message = string.Join(", ", exceptions.Select(e => e.Message));
-            throw new AggregateException(message, exceptions);
         }
     }
 }

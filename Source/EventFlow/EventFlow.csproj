@@ -161,6 +161,7 @@
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
+    <Compile Include="Extensions\ResolverExtensions.cs" />
     <Compile Include="Extensions\SourceIdExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />

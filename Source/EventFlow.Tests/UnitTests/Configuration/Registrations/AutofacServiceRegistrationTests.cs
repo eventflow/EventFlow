@@ -53,36 +53,77 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         }
 
         [Test]
-        public void DecoratorViaFactory()
+        public void ServiceViaFactory()
         {
-            // Arrange
+            // Act
             _sut.Register<IMagicInterface>(r => new MagicClass());
 
-            // Act + Assert
-            Register_And_Assert_Decorator();
+            // Assert
+            Assert_Service();
+        }
+
+        [Test]
+        public void ServiceViaGeneric()
+        {
+            // Act
+            _sut.Register<IMagicInterface, MagicClass>();
+
+            // Assert
+            Assert_Service();
+        }
+
+        [Test]
+        public void ServiceViaType()
+        {
+            // Act
+            _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
+
+            // Assert
+            Assert_Service();
+        }
+
+        public void Assert_Service()
+        {
+            // Act
+            var resolver = _sut.CreateResolver(true);
+            var magicInterface = resolver.Resolve<IMagicInterface>();
+
+            // Assert
+            magicInterface.Should().NotBeNull();
+            magicInterface.Should().BeAssignableTo<MagicClass>();
+        }
+
+        [Test]
+        public void DecoratorViaFactory()
+        {
+            // Act
+            _sut.Register<IMagicInterface>(r => new MagicClass());
+
+            // Assert
+            Assert_Decorator();
         }
 
         [Test]
         public void DecoratorViaGeneric()
         {
-            // Arrange
+            // Act
             _sut.Register<IMagicInterface, MagicClass>();
 
-            // Act + Assert
-            Register_And_Assert_Decorator();
+            // Assert
+            Assert_Decorator();
         }
 
         [Test]
         public void DecoratorViaType()
         {
-            // Arrange
+            // Act
             _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
 
-            // Act + Assert
-            Register_And_Assert_Decorator();
+            // Assert
+            Assert_Decorator();
         }
 
-        public void Register_And_Assert_Decorator()
+        public void Assert_Decorator()
         {
             // The order should be like this (like unwrapping a present with the order of
             // wrapping paper applied)
