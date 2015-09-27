@@ -37,12 +37,11 @@ namespace EventFlow.Bdd.Steps
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
         private readonly IScenarioContext _scenarioContext;
-        private readonly IResolver _resolver;
         private readonly TIdentity _identity;
         private readonly Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> _predicate;
         private readonly IDisposable _eventStreamSubscription;
         private readonly EventDefinition _eventDescription;
-        private bool _gotEvent = false;
+        private bool _gotEvent;
 
         public string Title { get; }
         public string Description { get; }
@@ -54,11 +53,10 @@ namespace EventFlow.Bdd.Steps
             Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> predicate)
         {
             _scenarioContext = scenarioContext;
-            _resolver = resolver;
             _identity = identity;
             _predicate = predicate;
-            _eventStreamSubscription = _resolver.Resolve<IEventStream>().Subscribe(this);
-            _eventDescription = _resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
+            _eventStreamSubscription = resolver.Resolve<IEventStream>().Subscribe(this);
+            _eventDescription = resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
 
             Title = $"{_eventDescription.Name} happend";
             Description = Title;
@@ -88,6 +86,11 @@ namespace EventFlow.Bdd.Steps
 
             var domainEvent = value as IDomainEvent<TAggregate, TIdentity, TAggregateEvent>;
             if (domainEvent == null)
+            {
+                return;
+            }
+
+            if (!_predicate(domainEvent))
             {
                 return;
             }
