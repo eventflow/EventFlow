@@ -49,7 +49,7 @@ namespace EventFlow.Configuration.Registrations
 
         private Task StartAsync(CancellationToken cancellationToken)
         {
-            return Task.WhenAll(_bootstraps.Select(b => b.InitializeAsync(cancellationToken)));
+            return Task.WhenAll(_bootstraps.Select(b => b.BootAsync(cancellationToken)));
         }
 
         private static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)

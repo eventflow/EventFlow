@@ -27,6 +27,6 @@ namespace EventFlow.Configuration
 {
     public interface IBootstrap
     {
-        Task InitializeAsync(CancellationToken cancellationToken);
+        Task BootAsync(CancellationToken cancellationToken);
     }
 }

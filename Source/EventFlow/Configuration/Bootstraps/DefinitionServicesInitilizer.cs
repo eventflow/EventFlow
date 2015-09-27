@@ -47,7 +47,7 @@ namespace EventFlow.Configuration.Bootstraps
             _jobDefinitionService = jobDefinitionService;
         }
 
-        public Task InitializeAsync(CancellationToken cancellationToken)
+        public Task BootAsync(CancellationToken cancellationToken)
         {
             _commandDefinitionService.LoadCommands(_loadedVersionedTypes.Commands);
             _eventDefinitionService.LoadEvents(_loadedVersionedTypes.Events);

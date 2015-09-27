@@ -2,6 +2,9 @@
 
 * Obsolete: Marked `IServiceRegistration.RegisterIfNotRegistered(...)`, use
   the `keepDefault = true` on the other `Register(...)` methods instead
+* New: Introduced `IBootstrap` interface that you can register. It has a
+  single `BootAsync(...)` method that will be called as soon as the IoC
+  container is ready (similar to that of `IStartable` of Autofac)
 * Fixed: Correct order of service registration decorators. They are now
   applied in the same order they are applied, e.g., the _last_ registered
   service decorator will be the "outer" service
