@@ -1,4 +1,8 @@
-### New in 0.16 (not released yet)
+### New in 0.17 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.16.1120 (released 2015-09-27)
 
 * Breaking: Removed `HasRegistrationFor<>` and `GetRegisteredServices()`
   from `IServiceRegistration` and added them to `IResolver` instead. The
