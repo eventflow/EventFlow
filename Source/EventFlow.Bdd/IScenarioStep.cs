@@ -28,8 +28,7 @@ namespace EventFlow.Bdd
 {
     public interface IScenarioStep : IDisposable
     {
-        string Title { get; }
-        string Description { get; }
+        string Name { get; }
 
         Task ExecuteAsync(CancellationToken cancellationToken);
     }

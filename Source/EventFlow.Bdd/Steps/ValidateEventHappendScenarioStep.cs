@@ -43,8 +43,7 @@ namespace EventFlow.Bdd.Steps
         private readonly EventDefinition _eventDescription;
         private bool _gotEvent;
 
-        public string Title { get; }
-        public string Description { get; }
+        public string Name { get; }
 
         public ValidateEventHappendScenarioStep(
             IScenarioContext scenarioContext,
@@ -58,8 +57,7 @@ namespace EventFlow.Bdd.Steps
             _eventStreamSubscription = resolver.Resolve<IEventStream>().Subscribe(this);
             _eventDescription = resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
 
-            Title = $"{_eventDescription.Name} happend";
-            Description = Title;
+            Name = $"{_eventDescription.Name} v{_eventDescription.Version} happend";
         }
 
         public Task ExecuteAsync(CancellationToken cancellationToken)

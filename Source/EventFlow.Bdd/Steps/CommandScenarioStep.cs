@@ -37,8 +37,7 @@ namespace EventFlow.Bdd.Steps
         private readonly IResolver _resolver;
         private readonly ICommand<TAggregate, TIdentity, TSourceIdentity> _command;
 
-        public string Title { get; }
-        public string Description { get; }
+        public string Name { get; }
 
         public CommandScenarioStep(
             IResolver resolver,
@@ -49,8 +48,7 @@ namespace EventFlow.Bdd.Steps
 
             var commandDefinition = _resolver.Resolve<ICommandDefinitionService>().GetCommandDefinition(command.GetType());
 
-            Title = $"{commandDefinition.Name} is published";
-            Description = Title;
+            Name = $"{commandDefinition.Name} v{commandDefinition.Version} is published";
         }
 
         public Task ExecuteAsync(CancellationToken cancellationToken)

@@ -38,8 +38,7 @@ namespace EventFlow.Bdd.Steps
         private readonly TIdentity _identity;
         private readonly TAggregateEvent _aggregateEvent;
 
-        public string Title { get; }
-        public string Description { get; }
+        public string Name { get; }
 
         public EventScenarioStep(IResolver resolver, TIdentity identity, TAggregateEvent aggregateEvent)
         {
@@ -49,8 +48,7 @@ namespace EventFlow.Bdd.Steps
 
             var eventDescription = resolver.Resolve<IEventDefinitionService>().GetEventDefinition(aggregateEvent.GetType());
 
-            Title = $"{eventDescription.Name} is emitted";
-            Description = Title;
+            Name = $"{eventDescription.Name} v{eventDescription.Version} is emitted";
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)

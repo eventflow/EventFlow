@@ -20,19 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Bdd.Contexts;
+using EventFlow.Logs;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Bdd.Contexts;
 
 namespace EventFlow.Bdd
 {
     public class ScenarioScript : IScenarioScript
     {
         private readonly List<IScenarioStep> _givenSteps = new List<IScenarioStep>();
+        private readonly ILog _log;
         private readonly List<IScenarioStep> _thenSteps = new List<IScenarioStep>();
         private readonly List<IScenarioStep> _whenSteps = new List<IScenarioStep>();
+
+        public ScenarioScript(
+            ILog log)
+        {
+            _log = log;
+        }
 
         public ScenarioState State { get; private set; }
 
@@ -53,6 +62,8 @@ namespace EventFlow.Bdd
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            _log.Information(GetDescription());
+
             // Given
             State = ScenarioState.Given;
             await ExecuteAsync(_givenSteps, cancellationToken).ConfigureAwait(false);
@@ -83,6 +94,32 @@ namespace EventFlow.Bdd
             {
                 await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        public string GetDescription()
+        {
+            var stringBuilder = new StringBuilder()
+                .AppendLine("SCENARIO");
+
+            stringBuilder.AppendLine("GIVEN");
+            foreach (var scenarioStep in _givenSteps)
+            {
+                stringBuilder.AppendLine($"  {scenarioStep.Name}");
+            }
+
+            stringBuilder.AppendLine("WHEN");
+            foreach (var scenarioStep in _whenSteps)
+            {
+                stringBuilder.AppendLine($"  {scenarioStep.Name}");
+            }
+
+            stringBuilder.AppendLine("THEN");
+            foreach (var scenarioStep in _thenSteps)
+            {
+                stringBuilder.AppendLine($"  {scenarioStep.Name}");
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }
