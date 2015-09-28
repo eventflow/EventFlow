@@ -80,7 +80,6 @@
     <Compile Include="Configuration\IModuleRegistration.cs" />
     <Compile Include="Configuration\LoadedVersionedTypes.cs" />
     <Compile Include="Configuration\ModuleRegistration.cs" />
-    <Compile Include="Configuration\Registrations\AutofacStartable.cs" />
     <Compile Include="Configuration\Decorators\IDecoratorService.cs" />
     <Compile Include="Configuration\Decorators\DecoratorService.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
