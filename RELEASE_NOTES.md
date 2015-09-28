@@ -1,4 +1,10 @@
-### New in 0.16 (not released yet)
+### New in 0.17 (not released yet)
+
+* Fixed: Using NuGet package `EventFlow.Autofac` causes an exception with the
+  message `The type 'EventFlow.Configuration.Registrations.AutofacStartable'
+  is not assignable to service 'Autofac.IStartable` during EventFlow setup
+
+### New in 0.16.1120 (released 2015-09-27)
 
 * Breaking: Removed `HasRegistrationFor<>` and `GetRegisteredServices()`
   from `IServiceRegistration` and added them to `IResolver` instead. The
