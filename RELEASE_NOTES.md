@@ -1,4 +1,8 @@
-### New in 0.17 (not released yet)
+### New in 0.18 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.17.1134 (released 2015-09-28)
 
 * Fixed: Using NuGet package `EventFlow.Autofac` causes an exception with the
   message `The type 'EventFlow.Configuration.Registrations.AutofacStartable'
