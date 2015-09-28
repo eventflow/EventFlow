@@ -1,6 +1,8 @@
 ### New in 0.17 (not released yet)
 
-* _Nothing yet_
+* Fixed: Using NuGet package `EventFlow.Autofac` causes an exception with the
+  message `The type 'EventFlow.Configuration.Registrations.AutofacStartable'
+  is not assignable to service 'Autofac.IStartable` during EventFlow setup
 
 ### New in 0.16.1120 (released 2015-09-27)
 
