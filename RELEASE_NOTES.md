@@ -1,6 +1,8 @@
 ### New in 0.17 (not released yet)
 
-* _Nothing yet_
+* New: Added `DropEventFlowTestDatabases.sql` in `EventFlow.MsSql.Tests\Tools\Scripts`.
+  Use the script to drop all test databases created during tests with the naming pattern 
+  `TEST__`.
 
 ### New in 0.16.1120 (released 2015-09-27)
 
