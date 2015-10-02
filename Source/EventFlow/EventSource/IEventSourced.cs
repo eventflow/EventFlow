@@ -20,34 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.EventSource;
-using EventFlow.EventStores;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventSource
 {
-    public interface IAggregateRoot : IEventSourced
+    public interface IEventSourced
     {
-        IAggregateName Name { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
-
-        bool HasSourceId(ISourceId sourceId);
-
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
+        bool IsNew { get; }
+        int Version { get; }
     }
 
-    public interface IAggregateRoot<out TIdentity> : IEventSourced<TIdentity>, IAggregateRoot
+    public interface IEventSourced<out TIdentity>
         where TIdentity : IIdentity
     {
+        TIdentity Id { get; }
     }
 }
