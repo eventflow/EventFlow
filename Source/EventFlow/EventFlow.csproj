@@ -141,6 +141,7 @@
     <Compile Include="EventStores\IEventStorage.cs" />
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
+    <Compile Include="EventStores\ISerializedEvent.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\DuplicateOperationException.cs" />
     <Compile Include="Exceptions\MetadataKeyNotFoundException.cs" />

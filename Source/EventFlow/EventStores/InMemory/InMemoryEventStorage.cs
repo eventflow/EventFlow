@@ -92,7 +92,7 @@ namespace EventFlow.EventStores.InMemory
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            IReadOnlyCollection<ISerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
