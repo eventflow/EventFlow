@@ -22,33 +22,50 @@
 
 using System;
 using EventFlow.Core;
+using EventFlow.EventSource;
 
 namespace EventFlow.Aggregates
 {
     public interface IDomainEvent
     {
+        [Obsolete("Use the property 'EntityType' instead")]
         Type AggregateType { get; }
-        Type EventType { get; }
+
+        [Obsolete("Use the property 'SequenceNumber' instead")]
         int AggregateSequenceNumber { get; }
+
+        Type EntityType { get; }
+        Type EventType { get; }
         IMetadata Metadata { get; }
         DateTimeOffset Timestamp { get; }
+        int SequenceNumber { get; }
 
         IIdentity GetIdentity();
+
+        [Obsolete("Use the method 'GetSourceEvent()' instead")]
         IAggregateEvent GetAggregateEvent();
+
+        ISourceEvent GetSourceEvent();
     }
 
     public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
-        where TAggregate : IAggregateRoot<TIdentity>
+        where TAggregate : IEventSourcedEntity<TIdentity>
         where TIdentity : IIdentity
     {
+        TIdentity EntityId { get; }
+
+        [Obsolete("Use the property 'EntityId' instead")]
         TIdentity AggregateIdentity { get; }
     }
 
-    public interface IDomainEvent<TAggregate, out TIdentity, out TAggregateEvent> : IDomainEvent<TAggregate, TIdentity>
-        where TAggregate : IAggregateRoot<TIdentity>
+    public interface IDomainEvent<TAggregate, out TIdentity, out TSourceEvent> : IDomainEvent<TAggregate, TIdentity>
+        where TAggregate : IEventSourcedEntity<TIdentity>
         where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TSourceEvent : ISourceEvent<TAggregate, TIdentity>
     {
-        TAggregateEvent AggregateEvent { get; }
+        TSourceEvent SourceEvent { get; }
+
+        [Obsolete("Use the property 'SourceEvent' instead")]
+        TSourceEvent AggregateEvent { get; }
     }
 }

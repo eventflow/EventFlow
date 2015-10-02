@@ -144,12 +144,12 @@ namespace EventFlow.Aggregates
                 return;
             }
 
-            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            ApplyEvents(domainEvents.Select(e => (IAggregateEvent /* TODO: Fix this */) e.GetSourceEvent()));
             foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
             {
                 _previousSourceIds.Put(domainEvent.Metadata.SourceId);
             }
-            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
+            Version = domainEvents.Max(e => e.SequenceNumber);
         }
 
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)

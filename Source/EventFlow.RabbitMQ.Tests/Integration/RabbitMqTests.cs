@@ -77,7 +77,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                     rabbitMqMessage.Message,
                     new Metadata(rabbitMqMessage.Headers));
 
-                pingEvent.AggregateEvent.PingId.Should().Be(pingId);
+                pingEvent.SourceEvent.PingId.Should().Be(pingId);
             }
         }
 

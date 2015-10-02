@@ -22,41 +22,46 @@
 
 using System;
 using EventFlow.Core;
+using EventFlow.EventSource;
 
 namespace EventFlow.Aggregates
 {
-    public class DomainEvent<TAggregate, TIdentity, TAggregateEvent> : IDomainEvent<TAggregate, TIdentity, TAggregateEvent>
-        where TAggregate : IAggregateRoot<TIdentity>
+    public class DomainEvent<TEventSourcedEntity, TIdentity, TSourceEvent> : IDomainEvent<TEventSourcedEntity, TIdentity, TSourceEvent>
+        where TEventSourcedEntity : IEventSourcedEntity<TIdentity>
         where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TSourceEvent : ISourceEvent<TEventSourcedEntity, TIdentity>
     {
-        public Type AggregateType => typeof (TAggregate);
-        public Type EventType => typeof (TAggregateEvent);
+        public TIdentity AggregateIdentity => EntityId;
+        public Type AggregateType => EntityType;
+        public int AggregateSequenceNumber => SequenceNumber;
+        public TSourceEvent AggregateEvent => SourceEvent;
 
-        public int AggregateSequenceNumber { get; }
-        public TAggregateEvent AggregateEvent { get; }
-        public TIdentity AggregateIdentity { get; }
+        public Type EntityType => typeof (TEventSourcedEntity);
+        public Type EventType => typeof (TSourceEvent);
+        public TSourceEvent SourceEvent { get; }
+        public TIdentity EntityId { get; }
         public IMetadata Metadata { get; }
         public DateTimeOffset Timestamp { get; }
+        public int SequenceNumber { get; }
 
         public DomainEvent(
-            TAggregateEvent aggregateEvent,
+            TSourceEvent sourceEvent,
             IMetadata metadata,
             DateTimeOffset timestamp,
-            TIdentity aggregateIdentity,
-            int aggregateSequenceNumber)
+            TIdentity entityId,
+            int sequenceNumber)
         {
-            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
+            if (sourceEvent == null) throw new ArgumentNullException(nameof(sourceEvent));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
             if (timestamp == default(DateTimeOffset)) throw new ArgumentNullException(nameof(timestamp));
-            if (aggregateIdentity == null || string.IsNullOrEmpty(aggregateIdentity.Value)) throw new ArgumentNullException(nameof(aggregateIdentity));
-            if (aggregateSequenceNumber <= 0) throw new ArgumentOutOfRangeException(nameof(aggregateSequenceNumber));
+            if (entityId == null || string.IsNullOrEmpty(entityId.Value)) throw new ArgumentNullException(nameof(entityId));
+            if (sequenceNumber <= 0) throw new ArgumentOutOfRangeException(nameof(sequenceNumber));
 
-            AggregateEvent = aggregateEvent;
+            SourceEvent = sourceEvent;
             Metadata = metadata;
             Timestamp = timestamp;
-            AggregateIdentity = aggregateIdentity;
-            AggregateSequenceNumber = aggregateSequenceNumber;
+            EntityId = entityId;
+            SequenceNumber = sequenceNumber;
         }
 
         public IIdentity GetIdentity()
@@ -66,7 +71,12 @@ namespace EventFlow.Aggregates
 
         public IAggregateEvent GetAggregateEvent()
         {
-            return AggregateEvent;
+            return (IAggregateEvent) GetSourceEvent();
+        }
+
+        public ISourceEvent GetSourceEvent()
+        {
+            throw new NotImplementedException();
         }
 
         public override string ToString()

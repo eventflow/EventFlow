@@ -66,9 +66,9 @@ namespace EventFlow.TestHelpers.Suites
             domainEvents.Count.Should().Be(1);
             var pingEvent = domainEvents.Single() as IDomainEvent<TestAggregate, TestId, PingEvent>;
             pingEvent.Should().NotBeNull();
-            pingEvent.AggregateIdentity.Should().Be(id);
-            pingEvent.AggregateSequenceNumber.Should().Be(1);
-            pingEvent.AggregateType.Should().Be(typeof (TestAggregate));
+            pingEvent.EntityId.Should().Be(id);
+            pingEvent.SequenceNumber.Should().Be(1);
+            pingEvent.EntityType.Should().Be(typeof (TestAggregate));
             pingEvent.EventType.Should().Be(typeof (PingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
@@ -206,8 +206,8 @@ namespace EventFlow.TestHelpers.Suites
             var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 200, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[0]);
-            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[1]);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).SourceEvent.PingId == pingIds[0]);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).SourceEvent.PingId == pingIds[1]);
         }
 
         [Test]

@@ -43,7 +43,7 @@ namespace EventFlow.RabbitMQ.Integrations
         public RabbitMqMessage CreateMessage(IDomainEvent domainEvent)
         {
             var serializedEvent = _eventJsonSerializer.Serialize(
-                domainEvent.GetAggregateEvent(),
+                (IAggregateEvent /* TODO: fix this */) domainEvent.GetSourceEvent(),
                 domainEvent.Metadata);
 
             var routingKey = new RoutingKey(string.Format(

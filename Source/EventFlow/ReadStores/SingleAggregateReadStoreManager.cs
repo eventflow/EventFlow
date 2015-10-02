@@ -67,7 +67,7 @@ namespace EventFlow.ReadStores
 
             await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
 
-            var readModelVersion = domainEvents.Max(e => e.AggregateSequenceNumber);
+            var readModelVersion = domainEvents.Max(e => e.SequenceNumber);
 
             return ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion);
         }
