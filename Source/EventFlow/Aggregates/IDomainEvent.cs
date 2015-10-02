@@ -26,14 +26,8 @@ using EventFlow.EventSource;
 
 namespace EventFlow.Aggregates
 {
-    public interface IDomainEvent
+    public interface IEntityEvent
     {
-        [Obsolete("Use the property 'EntityType' instead")]
-        Type AggregateType { get; }
-
-        [Obsolete("Use the property 'SequenceNumber' instead")]
-        int AggregateSequenceNumber { get; }
-
         Type EntityType { get; }
         Type EventType { get; }
         IMetadata Metadata { get; }
@@ -42,29 +36,49 @@ namespace EventFlow.Aggregates
 
         IIdentity GetIdentity();
 
-        [Obsolete("Use the method 'GetSourceEvent()' instead")]
-        IAggregateEvent GetAggregateEvent();
-
         ISourceEvent GetSourceEvent();
     }
 
-    public interface IDomainEvent<TAggregate, out TIdentity> : IDomainEvent
-        where TAggregate : IEventSourcedEntity<TIdentity>
+    public interface IDomainEvent : IEntityEvent
+    {
+        [Obsolete("Use the property 'EntityType' instead")]
+        Type AggregateType { get; }
+
+        [Obsolete("Use the property 'SequenceNumber' instead")]
+        int AggregateSequenceNumber { get; }
+
+        [Obsolete("Use the method 'GetSourceEvent()' instead")]
+        IAggregateEvent GetAggregateEvent();
+    }
+
+    public interface IEntityEvent<TEventSourcedEntity, out TIdentity> : IEntityEvent
+        where TEventSourcedEntity : IEventSourcedEntity<TIdentity>
         where TIdentity : IIdentity
     {
         TIdentity EntityId { get; }
+    }
 
+    public interface IDomainEvent<TAggregate, out TIdentity> : IEntityEvent<TAggregate, TIdentity>, IDomainEvent
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+    {
         [Obsolete("Use the property 'EntityId' instead")]
         TIdentity AggregateIdentity { get; }
     }
 
-    public interface IDomainEvent<TAggregate, out TIdentity, out TSourceEvent> : IDomainEvent<TAggregate, TIdentity>
-        where TAggregate : IEventSourcedEntity<TIdentity>
+    public interface IEntityEvent<TEventSourcedEntity, out TIdentity, out TSourceEvent> : IEntityEvent<TEventSourcedEntity, TIdentity>
+        where TEventSourcedEntity : IEventSourcedEntity<TIdentity>
         where TIdentity : IIdentity
-        where TSourceEvent : ISourceEvent<TAggregate, TIdentity>
+        where TSourceEvent : ISourceEvent<TEventSourcedEntity, TIdentity>
     {
         TSourceEvent SourceEvent { get; }
+    }
 
+    public interface IDomainEvent<TAggregate, out TIdentity, out TSourceEvent> : IEntityEvent<TAggregate, TIdentity, TSourceEvent>, IDomainEvent<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TSourceEvent : IAggregateEvent<TAggregate, TIdentity>
+    {
         [Obsolete("Use the property 'SourceEvent' instead")]
         TSourceEvent AggregateEvent { get; }
     }
