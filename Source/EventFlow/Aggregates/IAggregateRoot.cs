@@ -29,7 +29,7 @@ using EventFlow.EventStores;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateRoot : IEventSourced
+    public interface IAggregateRoot : IEventSourcedEntity
     {
         IAggregateName Name { get; }
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
@@ -46,7 +46,7 @@ namespace EventFlow.Aggregates
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
     }
 
-    public interface IAggregateRoot<out TIdentity> : IEventSourced<TIdentity>, IAggregateRoot
+    public interface IAggregateRoot<out TIdentity> : IEventSourcedEntity<TIdentity>, IAggregateRoot
         where TIdentity : IIdentity
     {
     }

@@ -21,17 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
+using EventFlow.Entities;
 
 namespace EventFlow.EventSource
 {
-    public abstract class EventSourced<TIdentity> : IEventSourced<TIdentity>
+    public abstract class EventSourcedEntity<TIdentity> : Entity<TIdentity>, IEventSourcedEntity<TIdentity>
         where TIdentity : IIdentity
     {
-        protected EventSourced(TIdentity id)
+        protected EventSourcedEntity(TIdentity id)
+            : base(id)
         {
-            Id = id;
         }
-
-        public TIdentity Id { get; }
     }
 }

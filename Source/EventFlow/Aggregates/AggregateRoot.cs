@@ -33,7 +33,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourced<TIdentity>, IAggregateRoot<TIdentity>
+    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourcedEntity<TIdentity>, IAggregateRoot<TIdentity>
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {

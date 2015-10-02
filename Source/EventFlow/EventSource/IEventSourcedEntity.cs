@@ -21,18 +21,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
+using EventFlow.Entities;
 
 namespace EventFlow.EventSource
 {
-    public interface IEventSourced
+    public interface IEventSourcedEntity : IEntity
     {
         bool IsNew { get; }
         int Version { get; }
     }
 
-    public interface IEventSourced<out TIdentity>
+    public interface IEventSourcedEntity<out TIdentity> : IEntity<TIdentity>
         where TIdentity : IIdentity
     {
-        TIdentity Id { get; }
     }
 }
