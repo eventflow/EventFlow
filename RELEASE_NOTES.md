@@ -1,6 +1,7 @@
 ### New in 0.18 (not released yet)
 
-* _Nothing yet_
+* New: Added `IEntity`, `IEntity<>` and an optional `Entity<>` that developers
+  can use to implement DDD entities.
 
 ### New in 0.17.1134 (released 2015-09-28)
 
