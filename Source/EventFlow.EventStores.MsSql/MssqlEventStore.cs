@@ -58,7 +58,7 @@ namespace EventFlow.EventStores.MsSql
             _connection = connection;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -199,7 +199,7 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        public async Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        public async Task DeleteEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

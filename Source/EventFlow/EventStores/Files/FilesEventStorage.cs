@@ -88,7 +88,7 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -214,7 +214,7 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        public Task DeleteEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

@@ -118,7 +118,7 @@ namespace EventFlow.EventStores
         {
             if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-            var allCommittedEventsPage = await _eventStorage.LoadAllCommittedDomainEvents(
+            var allCommittedEventsPage = await _eventStorage.LoadAllCommittedEvents(
                 globalPosition,
                 pageSize,
                 cancellationToken)
@@ -220,7 +220,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return _eventStorage.DeleteAggregateAsync<TAggregate, TIdentity>(id, cancellationToken);
+            return _eventStorage.DeleteEventsAsync<TAggregate, TIdentity>(id, cancellationToken);
         }
     }
 }

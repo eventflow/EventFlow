@@ -68,7 +68,7 @@ namespace EventFlow.EventStores.InMemory
             _log = log;
         }
 
-        public Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -161,7 +161,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        public Task DeleteEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

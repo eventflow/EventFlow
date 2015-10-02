@@ -30,7 +30,7 @@ namespace EventFlow.EventStores
 {
     public interface IEventStorage
     {
-        Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken);
@@ -48,7 +48,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        Task DeleteEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

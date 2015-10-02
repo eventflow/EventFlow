@@ -57,7 +57,7 @@ namespace EventFlow.EventStores.EventStore
             _connection = connection;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -184,7 +184,7 @@ namespace EventFlow.EventStores.EventStore
             return Map(streamEvents);
         }
 
-        public Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        public Task DeleteEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
