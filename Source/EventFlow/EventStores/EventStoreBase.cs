@@ -34,12 +34,12 @@ namespace EventFlow.EventStores
 {
     public class EventStoreBase : IEventStore
     {
+        private readonly IAggregateFactory _aggregateFactory;
+        private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IEventStorage _eventStorage;
-        protected ILog Log { get; }
-        protected IAggregateFactory AggregateFactory { get; }
-        protected IEventUpgradeManager EventUpgradeManager { get; }
-        protected IEventJsonSerializer EventJsonSerializer { get; }
-        protected IReadOnlyCollection<IMetadataProvider> MetadataProviders { get; }
+        private readonly IEventUpgradeManager _eventUpgradeManager;
+        private readonly ILog _log;
+        private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
 
         public EventStoreBase(
             ILog log,
@@ -50,11 +50,11 @@ namespace EventFlow.EventStores
             IEventStorage eventStorage)
         {
             _eventStorage = eventStorage;
-            Log = log;
-            AggregateFactory = aggregateFactory;
-            EventJsonSerializer = eventJsonSerializer;
-            EventUpgradeManager = eventUpgradeManager;
-            MetadataProviders = metadataProviders.ToList();
+            _log = log;
+            _aggregateFactory = aggregateFactory;
+            _eventJsonSerializer = eventJsonSerializer;
+            _eventUpgradeManager = eventUpgradeManager;
+            _metadataProviders = metadataProviders.ToList();
         }
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
@@ -74,27 +74,27 @@ namespace EventFlow.EventStores
             }
 
             var aggregateType = typeof (TAggregate);
-            Log.Verbose(
+            _log.Verbose(
                 "Storing {0} events for aggregate '{1}' with ID '{2}'",
                 uncommittedDomainEvents.Count,
                 aggregateType.Name,
                 id);
 
             var batchId = Guid.NewGuid().ToString();
-            var storeMetadata = new []
+            var storeMetadata = new[]
                 {
                     new KeyValuePair<string, string>(MetadataKeys.BatchId, batchId),
-                    new KeyValuePair<string, string>(MetadataKeys.SourceId, sourceId.Value),
+                    new KeyValuePair<string, string>(MetadataKeys.SourceId, sourceId.Value)
                 };
 
             var serializedEvents = uncommittedDomainEvents
                 .Select(e =>
                     {
-                        var md = MetadataProviders
+                        var md = _metadataProviders
                             .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.AggregateEvent, e.Metadata))
                             .Concat(e.Metadata)
                             .Concat(storeMetadata);
-                        return EventJsonSerializer.Serialize(e.AggregateEvent, md);
+                        return _eventJsonSerializer.Serialize(e.AggregateEvent, md);
                     })
                 .ToList();
 
@@ -105,7 +105,7 @@ namespace EventFlow.EventStores
                 .ConfigureAwait(false);
 
             var domainEvents = committedDomainEvents
-                .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
             return domainEvents;
@@ -123,10 +123,10 @@ namespace EventFlow.EventStores
                 pageSize,
                 cancellationToken)
                 .ConfigureAwait(false);
-            var domainEvents = (IReadOnlyCollection<IDomainEvent>)allCommittedEventsPage.CommittedDomainEvents
-                .Select(e => EventJsonSerializer.Deserialize(e))
+            var domainEvents = (IReadOnlyCollection<IDomainEvent>) allCommittedEventsPage.CommittedDomainEvents
+                .Select(e => _eventJsonSerializer.Deserialize(e))
                 .ToList();
-            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
+            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
             return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
         }
 
@@ -147,8 +147,8 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
         {
             var committedDomainEvents = await _eventStorage.LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
-            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
-                .Select(e => EventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) committedDomainEvents
+                .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
             if (!domainEvents.Any())
@@ -156,7 +156,7 @@ namespace EventFlow.EventStores
                 return domainEvents;
             }
 
-            domainEvents = EventUpgradeManager.Upgrade(domainEvents);
+            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
 
             return domainEvents;
         }
@@ -180,18 +180,18 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateType = typeof(TAggregate);
+            var aggregateType = typeof (TAggregate);
 
-            Log.Verbose(
+            _log.Verbose(
                 "Loading aggregate '{0}' with ID '{1}'",
                 aggregateType.Name,
                 id);
-            
+
             var domainEvents = await LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
-            var aggregate = await AggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
+            var aggregate = await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
             aggregate.ApplyEvents(domainEvents);
 
-            Log.Verbose(
+            _log.Verbose(
                 "Done loading aggregate '{0}' with ID '{1}' after applying {2} events",
                 aggregateType.Name,
                 id,
