@@ -118,6 +118,8 @@
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\IEntity.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />
