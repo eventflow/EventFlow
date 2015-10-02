@@ -21,16 +21,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
+using EventFlow.EventSource;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateEvent<TAggregate, TIdentity> : IAggregateEvent<TAggregate, TIdentity>
+    public abstract class AggregateEvent<TAggregate, TIdentity> : SourceEvent<TAggregate, TIdentity>, IAggregateEvent<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        public override string ToString()
-        {
-            return $"{typeof (TAggregate).Name}/{GetType().Name}";
-        }
     }
 }

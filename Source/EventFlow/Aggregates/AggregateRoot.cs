@@ -27,12 +27,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventSource;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class AggregateRoot<TAggregate, TIdentity> : IAggregateRoot<TIdentity>
+    public abstract class AggregateRoot<TAggregate, TIdentity> : EventSourcedEntity<TIdentity>, IAggregateRoot<TIdentity>
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
@@ -44,7 +45,6 @@ namespace EventFlow.Aggregates
         private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
 
         public IAggregateName Name => AggregateName;
-        public TIdentity Id { get; }
         public int Version { get; private set; }
         public bool IsNew => Version <= 0;
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
@@ -69,6 +69,7 @@ namespace EventFlow.Aggregates
         }
 
         protected AggregateRoot(TIdentity id)
+            : base(id)
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
             if ((this as TAggregate) == null)
@@ -76,8 +77,6 @@ namespace EventFlow.Aggregates
                 throw new InvalidOperationException(
                     $"Aggregate '{GetType().Name}' specifies '{typeof (TAggregate).Name}' as generic argument, it should be its own type");
             }
-
-            Id = id;
         }
 
         protected void SetSourceIdHistory(int count)
@@ -145,12 +144,12 @@ namespace EventFlow.Aggregates
                 return;
             }
 
-            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            ApplyEvents(domainEvents.Select(e => (IAggregateEvent /* TODO: Fix this */) e.GetSourceEvent()));
             foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
             {
                 _previousSourceIds.Put(domainEvent.Metadata.SourceId);
             }
-            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
+            Version = domainEvents.Max(e => e.SequenceNumber);
         }
 
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)

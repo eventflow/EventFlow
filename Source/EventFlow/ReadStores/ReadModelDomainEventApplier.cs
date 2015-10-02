@@ -52,7 +52,7 @@ namespace EventFlow.ReadStores
                     domainEvent.EventType,
                     t =>
                         {
-                            var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
+                            var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.EventType, domainEvent.GetIdentity().GetType(), t);
                             var methodInfo = readModelType.GetMethod("Apply", new[] { typeof(IReadModelContext), domainEventType });
                             return methodInfo == null
                                 ? null

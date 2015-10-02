@@ -24,16 +24,15 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventSource;
 using EventFlow.EventStores;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateRoot
+    public interface IAggregateRoot : IEventSourcedEntity
     {
         IAggregateName Name { get; }
-        int Version { get; }
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
 
         Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
@@ -47,9 +46,8 @@ namespace EventFlow.Aggregates
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
     }
 
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
+    public interface IAggregateRoot<out TIdentity> : IEventSourcedEntity<TIdentity>, IAggregateRoot
         where TIdentity : IIdentity
     {
-        TIdentity Id { get; }
     }
 }

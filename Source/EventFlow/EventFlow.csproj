@@ -126,6 +126,10 @@
     <Compile Include="Core\IJsonSerializer.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
     <Compile Include="Core\Retry.cs" />
+    <Compile Include="EventSource\EventSourcedEntity.cs" />
+    <Compile Include="EventSource\IEventSourcedEntity.cs" />
+    <Compile Include="EventSource\ISourceEvent.cs" />
+    <Compile Include="EventSource\SourceEvent.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeDefinitionService.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />

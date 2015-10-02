@@ -79,7 +79,9 @@ namespace EventFlow.EventStores
                 aggregateEvent,
                 domainEvent.Metadata,
                 (TIdentity) domainEvent.GetIdentity(),
+#pragma warning disable 618
                 domainEvent.AggregateSequenceNumber);
+#pragma warning restore 618
         }
 
         private static Type GetIdentityType(Type domainEventType)

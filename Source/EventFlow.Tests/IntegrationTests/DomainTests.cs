@@ -63,7 +63,7 @@ namespace EventFlow.Tests.IntegrationTests
 
             public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
             {
-                Id = e.AggregateEvent.PingId;
+                Id = e.SourceEvent.PingId;
             }
         }
 
@@ -78,7 +78,7 @@ namespace EventFlow.Tests.IntegrationTests
                 {
                     yield break;
                 }
-                yield return pingEvent.AggregateEvent.PingId.Value;
+                yield return pingEvent.SourceEvent.PingId.Value;
             }
         }
 

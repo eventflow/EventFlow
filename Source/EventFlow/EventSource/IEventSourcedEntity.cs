@@ -21,16 +21,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
-using EventFlow.EventSource;
+using EventFlow.Entities;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventSource
 {
-    public interface IAggregateEvent : ISourceEvent
+    public interface IEventSourcedEntity : IEntity
     {
+        bool IsNew { get; }
+        int Version { get; }
     }
 
-    public interface IAggregateEvent<TAggregate, TIdentity> : ISourceEvent<TAggregate, TIdentity>, IAggregateEvent
-        where TAggregate : IAggregateRoot<TIdentity>
+    public interface IEventSourcedEntity<out TIdentity> : IEntity<TIdentity>
         where TIdentity : IIdentity
     {
     }

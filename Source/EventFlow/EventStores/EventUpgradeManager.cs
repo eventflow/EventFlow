@@ -75,7 +75,7 @@ namespace EventFlow.EventStores
             }
 
             var eventUpgraders = domainEventList
-                .Select(d => d.AggregateType)
+                .Select(d => d.EventType)
                 .Distinct()
                 .ToDictionary(
                     t => t,
@@ -98,12 +98,12 @@ namespace EventFlow.EventStores
             return domainEventList
                 .SelectMany(e =>
                     {
-                        var a = eventUpgraders[e.AggregateType];
+                        var a = eventUpgraders[e.EventType];
                         return a.EventUpgraders.Aggregate(
                             (IEnumerable<IDomainEvent>) new[] {e},
                             (de, up) => de.SelectMany(ee => a.Upgrade(up, ee)));
                     })
-                .OrderBy(d => d.AggregateSequenceNumber);
+                .OrderBy(d => d.SequenceNumber);
         }
 
         public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
