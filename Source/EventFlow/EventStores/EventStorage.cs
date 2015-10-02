@@ -20,30 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
-
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.EventStores
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public class EventStorage
     {
-        [Test]
-        public void CanResolve()
-        {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver(true);
-
-            // Act
-            IEventStorage eventStorage = null;
-            Assert.DoesNotThrow(() => eventStorage = resolver.Resolve<IEventStorage>());
-
-            // Assert
-            eventStorage.Should().NotBeNull();
-            eventStorage.Should().BeAssignableTo<InMemoryEventStorage>();
-        }
     }
 }

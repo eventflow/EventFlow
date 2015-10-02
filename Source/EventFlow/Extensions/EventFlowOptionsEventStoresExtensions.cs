@@ -40,9 +40,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseEventStore<TEventStore>(
             this IEventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventStore : class, IEventStore
+            where TEventStore : class, IEventStorage
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventStore, TEventStore>(lifetime));
+            return eventFlowOptions.RegisterServices(f => f.Register<IEventStorage, TEventStore>(lifetime));
         }
 
         public static IEventFlowOptions UseFilesEventStore(
@@ -51,7 +51,7 @@ namespace EventFlow.Extensions
         {
             return eventFlowOptions
                 .RegisterServices(f => f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton))
-                .RegisterServices(f => f.Register<IEventStore, FilesEventStore>());
+                .RegisterServices(f => f.Register<IEventStorage, FilesEventStorage>());
         }
     }
 }

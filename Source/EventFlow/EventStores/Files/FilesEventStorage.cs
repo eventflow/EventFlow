@@ -33,14 +33,15 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
 {
-    public class FilesEventStore : EventStoreBase
+    public class FilesEventStorage : IEventStorage
     {
+        private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventStoreConfiguration _configuration;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
         private long _globalSequenceNumber;
-        private readonly Dictionary<long, string> _log;
+        private readonly Dictionary<long, string> _eventLog;
 
         public class FileEventData : ICommittedDomainEvent
         {
@@ -57,16 +58,12 @@ namespace EventFlow.EventStores.Files
             public Dictionary<long, string> Log { get; set; }
         }
 
-        public FilesEventStore(
+        public FilesEventStorage(
             ILog log,
-            IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
-            IEnumerable<IMetadataProvider> metadataProviders,
-            IEventUpgradeManager eventUpgradeManager,
             IJsonSerializer jsonSerializer,
             IFilesEventStoreConfiguration configuration)
-            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
         {
+            _log = log;
             _jsonSerializer = jsonSerializer;
             _configuration = configuration;
             _logFilePath = Path.Combine(_configuration.StorePath, "Log.store");
@@ -76,22 +73,22 @@ namespace EventFlow.EventStores.Files
                 var json = File.ReadAllText(_logFilePath);
                 var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json);
                 _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
-                _log = eventStoreLog.Log ?? new Dictionary<long, string>();
+                _eventLog = eventStoreLog.Log ?? new Dictionary<long, string>();
 
-                if (_log.Count != _globalSequenceNumber)
+                if (_eventLog.Count != _globalSequenceNumber)
                 {
                     eventStoreLog = RecreateEventStoreLog(_configuration.StorePath);
                     _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
-                    _log = eventStoreLog.Log;
+                    _eventLog = eventStoreLog.Log;
                 }
             }
             else
             {
-                _log = new Dictionary<long, string>();
+                _eventLog = new Dictionary<long, string>();
             }
         }
 
-        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -101,8 +98,8 @@ namespace EventFlow.EventStores.Files
                 : int.Parse(globalPosition.Value);
 
             var paths = Enumerable.Range(startPostion, pageSize)
-                .TakeWhile(g => _log.ContainsKey(g))
-                .Select(g => _log[g])
+                .TakeWhile(g => _eventLog.ContainsKey(g))
+                .Select(g => _eventLog[g])
                 .ToList();
 
             var committedDomainEvents = new List<FileEventData>();
@@ -119,10 +116,12 @@ namespace EventFlow.EventStores.Files
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -139,7 +138,7 @@ namespace EventFlow.EventStores.Files
                 {
                     var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
-                    _log[_globalSequenceNumber] = eventPath;
+                    _eventLog[_globalSequenceNumber] = eventPath;
 
                     var fileEventData = new FileEventData
                         {
@@ -164,7 +163,7 @@ namespace EventFlow.EventStores.Files
 
                     using (var streamWriter = File.CreateText(eventPath))
                     {
-                        Log.Verbose("Writing file '{0}'", eventPath);
+                        _log.Verbose("Writing file '{0}'", eventPath);
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
                     }
 
@@ -173,7 +172,7 @@ namespace EventFlow.EventStores.Files
 
                 using (var streamWriter = File.CreateText(_logFilePath))
                 {
-                    Log.Verbose(
+                    _log.Verbose(
                         "Writing global sequence number '{0}' to '{1}'",
                         _globalSequenceNumber,
                         _logFilePath);
@@ -181,7 +180,7 @@ namespace EventFlow.EventStores.Files
                         new EventStoreLog
                         {
                             GlobalSequenceNumber = _globalSequenceNumber,
-                            Log = _log,
+                            Log = _eventLog,
                         },
                         true);
                     await streamWriter.WriteAsync(json).ConfigureAwait(false);
@@ -191,9 +190,11 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -213,12 +214,14 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        public Task DeleteAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             var aggregateType = typeof (TAggregate);
-            Log.Verbose(
+            _log.Verbose(
                 "Deleting aggregate '{0}' with ID '{1}'",
                 aggregateType.Name,
                 id);

@@ -22,7 +22,6 @@
 
 using System.Net;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventStore.ClientAPI;

@@ -35,8 +35,9 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventStore : EventStoreBase, IDisposable
+    public class InMemoryEventStorage : IEventStorage, IDisposable
     {
+        private readonly ILog _log;
         private readonly ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
@@ -61,17 +62,13 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public InMemoryEventStore(
-            ILog log,
-            IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
-            IEnumerable<IMetadataProvider> metadataProviders,
-            IEventUpgradeManager eventUpgradeManager)
-            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
+        public InMemoryEventStorage(
+            ILog log)
         {
+            _log = log;
         }
 
-        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -93,10 +90,12 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             if (!serializedEvents.Any())
             {
@@ -130,7 +129,7 @@ namespace EventFlow.EventStores.InMemory
                                     Metadata = e.SerializedMetadata,
                                     GlobalSequenceNumber = globalCount + i + 1,
                                 };
-                            Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
                             return committedDomainEvent;
                         })
                     .ToList();
@@ -147,9 +146,11 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -160,15 +161,17 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
+        public Task DeleteAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
             if (_eventStore.ContainsKey(id.Value))
             {
                 List<InMemoryCommittedDomainEvent> committedDomainEvents;
                 _eventStore.TryRemove(id.Value, out committedDomainEvents);
-                Log.Verbose(
+                _log.Verbose(
                     "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
                     typeof(TAggregate).Name,
                     id,

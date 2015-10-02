@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright (c) 2015 Rasmus Mikkelsen
 // https://github.com/rasmus/EventFlow
@@ -20,30 +20,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Collections.Generic;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.EventStores
 {
-    [TestFixture]
-    public class ConfigurationTests
+    public class AllCommittedEventsPage
     {
-        [Test]
-        public void CanResolve()
+        public GlobalPosition NextGlobalPosition { get; }
+        public IReadOnlyCollection<ICommittedDomainEvent> CommittedDomainEvents { get; }
+
+        public AllCommittedEventsPage(
+            GlobalPosition nextGlobalPosition,
+            IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents)
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver(true);
-
-            // Act
-            IEventStorage eventStorage = null;
-            Assert.DoesNotThrow(() => eventStorage = resolver.Resolve<IEventStorage>());
-
-            // Assert
-            eventStorage.Should().NotBeNull();
-            eventStorage.Should().BeAssignableTo<InMemoryEventStorage>();
+            NextGlobalPosition = nextGlobalPosition;
+            CommittedDomainEvents = committedDomainEvents;
         }
     }
 }
