@@ -28,11 +28,6 @@ namespace EventFlow.Bdd.Contexts
 {
     public interface IGiven
     {
-        IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
-
         IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity, TAggregateEvent aggregateEvent)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity

@@ -21,11 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Bdd.Factories;
 using EventFlow.Bdd.Steps;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.EventStores;
 
 namespace EventFlow.Bdd.Contexts
 {
@@ -38,16 +36,6 @@ namespace EventFlow.Bdd.Contexts
             IResolver resolver)
         {
             _resolver = resolver;
-        }
-
-        public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(TIdentity identity)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-        {
-            var testEventFactory = _resolver.Resolve<ITestEventFactory>();
-            var aggregateEvent = testEventFactory.CreateAggregateEvent<TAggregateEvent>();
-            return Event<TAggregate, TIdentity, TAggregateEvent>(identity, aggregateEvent);
         }
 
         public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(

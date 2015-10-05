@@ -54,7 +54,6 @@
     <Compile Include="Contexts\IGiven.cs" />
     <Compile Include="Contexts\IThen.cs" />
     <Compile Include="Contexts\IWhen.cs" />
-    <Compile Include="Factories\ITestEventFactory.cs" />
     <Compile Include="IScenarioScript.cs" />
     <Compile Include="IScenarioStep.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

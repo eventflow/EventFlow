@@ -20,9 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
 using EventFlow.Bdd.Extensions;
-using EventFlow.Bdd.Factories;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
@@ -30,43 +29,31 @@ using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.Bdd.Tests
 {
     public class BddTests : Test
     {
-        public class TestEventFactory : ITestEventFactory
+        private IRootResolver _resolver;
+
+        [SetUp]
+        public void SetUp()
         {
-            private readonly IFixture _fixture;
-
-            public TestEventFactory(
-                IFixture fixture)
-            {
-                _fixture = fixture;
-            }
-
-            public T CreateAggregateEvent<T>() where T : IAggregateEvent
-            {
-                return _fixture.Create<T>();
-            }
+            _resolver = EventFlowOptions.New
+                .AddDefaults(EventFlowTestHelpers.Assembly)
+                .TestWithBdd()
+                .CreateResolver();
         }
 
         [Test]
         public void BddFlow()
         {
             var testId = TestId.New;
-            var testEventFactory = (ITestEventFactory) new TestEventFactory(Fixture);
 
-            using (var resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(sr => sr.Register(_ => testEventFactory))
-                .TestWithBdd()
-                .CreateResolver())
-            using (resolver.Scenario()
+            using (_resolver.Scenario()
                 .Given(c => c
-                    .Event<TestAggregate, TestId, PingEvent>(testId)
-                    .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId))
+                    .Event<TestAggregate, TestId, PingEvent>(testId, A<PingEvent>())
+                    .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId, A<DomainErrorAfterFirstEvent>()))
                 .When(c => c
                     .Command(new PingCommand(testId, PingId.New)))
                 .Then(c => c
