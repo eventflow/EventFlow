@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Entities;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -90,12 +91,11 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<ISerializedEvent> serializedEvents,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
             if (!serializedEvents.Any())
             {
@@ -146,11 +146,10 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -161,22 +160,24 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public Task DeleteEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public Task DeleteEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
-            if (_eventStore.ContainsKey(id.Value))
+            if (!_eventStore.ContainsKey(id.Value))
             {
-                List<InMemoryCommittedDomainEvent> committedDomainEvents;
-                _eventStore.TryRemove(id.Value, out committedDomainEvents);
-                _log.Verbose(
-                    "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
-                    typeof(TAggregate).Name,
-                    id,
-                    committedDomainEvents.Count);
+                return Task.FromResult(0);
             }
+
+            List<InMemoryCommittedDomainEvent> committedDomainEvents;
+            _eventStore.TryRemove(id.Value, out committedDomainEvents);
+
+            _log.Verbose(
+                "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
+                entityName,
+                id,
+                committedDomainEvents.Count);
 
             return Task.FromResult(0);
         }

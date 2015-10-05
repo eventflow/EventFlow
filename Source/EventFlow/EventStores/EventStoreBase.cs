@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Entities;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -98,8 +99,9 @@ namespace EventFlow.EventStores
                     })
                 .ToList();
 
-            var committedDomainEvents = await _eventPersistence.CommitEventsAsync<TAggregate, TIdentity>(
+            var committedDomainEvents = await _eventPersistence.CommitEventsAsync(
                 id,
+                new EntityName(typeof(TAggregate).Name),
                 serializedEvents,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -146,7 +148,11 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
+            var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
+                id,
+                new EntityName(typeof(TAggregate).Name),
+                cancellationToken)
+                .ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) committedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
@@ -220,7 +226,10 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return _eventPersistence.DeleteEventsAsync<TAggregate, TIdentity>(id, cancellationToken);
+            return _eventPersistence.DeleteEventsAsync(
+                id,
+                new EntityName(typeof(TAggregate).Name),
+                cancellationToken);
         }
     }
 }

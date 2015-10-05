@@ -23,8 +23,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Entities;
 
 namespace EventFlow.EventStores
 {
@@ -35,23 +35,20 @@ namespace EventFlow.EventStores
             int pageSize,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<ISerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
+            CancellationToken cancellationToken);
 
-        Task DeleteEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        Task DeleteEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
+            CancellationToken cancellationToken);
     }
 }

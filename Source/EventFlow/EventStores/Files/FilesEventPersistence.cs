@@ -26,8 +26,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Entities;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 
@@ -116,19 +116,17 @@ namespace EventFlow.EventStores.Files
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<ISerializedEvent> serializedEvents,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var aggregateType = typeof(TAggregate);
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
 
-                var aggregatePath = GetAggregatePath(aggregateType, id);
+                var aggregatePath = GetAggregatePath(entityName, id);
                 if (!Directory.Exists(aggregatePath))
                 {
                     Directory.CreateDirectory(aggregatePath);
@@ -136,7 +134,7 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
-                    var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
+                    var eventPath = GetEventPath(entityName, id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
                     _eventLog[_globalSequenceNumber] = eventPath;
 
@@ -157,7 +155,7 @@ namespace EventFlow.EventStores.Files
                         throw new OptimisticConcurrencyException(string.Format(
                             "Event {0} already exists for aggregate '{1}' with ID '{2}'",
                             fileEventData.AggregateSequenceNumber,
-                            aggregateType.Name,
+                            entityName,
                             id));
                     }
 
@@ -190,19 +188,17 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var aggregateType = typeof(TAggregate);
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
                 for (var i = 1; ; i++)
                 {
-                    var eventPath = GetEventPath(aggregateType, id, i);
+                    var eventPath = GetEventPath(entityName, id, i);
                     if (!File.Exists(eventPath))
                     {
                         return committedDomainEvents;
@@ -214,18 +210,16 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public Task DeleteEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public Task DeleteEventsAsync(
+            IIdentity id,
+            IEntityName entityName,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
             _log.Verbose(
                 "Deleting aggregate '{0}' with ID '{1}'",
-                aggregateType.Name,
+                entityName,
                 id);
-            var path = GetAggregatePath(aggregateType, id);
+            var path = GetAggregatePath(entityName, id);
             Directory.Delete(path, true);
             return Task.FromResult(0);
         }
@@ -263,18 +257,18 @@ namespace EventFlow.EventStores.Files
             };
         }
 
-        private string GetAggregatePath(Type aggregateType, IIdentity id)
+        private string GetAggregatePath(IEntityName entityName, IIdentity id)
         {
             return Path.Combine(
                 _configuration.StorePath,
-                aggregateType.Name,
+                entityName.Value,
                 id.Value);
         }
 
-        private string GetEventPath(Type aggregateType, IIdentity id, int aggregateSequenceNumber)
+        private string GetEventPath(IEntityName entityName, IIdentity id, int aggregateSequenceNumber)
         {
             return Path.Combine(
-                GetAggregatePath(aggregateType, id),
+                GetAggregatePath(entityName, id),
                 string.Format("{0}.json", aggregateSequenceNumber));
         }
     }

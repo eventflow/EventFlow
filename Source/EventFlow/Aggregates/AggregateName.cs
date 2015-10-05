@@ -20,11 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.ValueObjects;
+using EventFlow.Entities;
 
 namespace EventFlow.Aggregates
 {
-    public class AggregateName : SingleValueObject<string>, IAggregateName
+    public class AggregateName : EntityName, IAggregateName
     {
         public AggregateName(string value) : base(value)
         {
