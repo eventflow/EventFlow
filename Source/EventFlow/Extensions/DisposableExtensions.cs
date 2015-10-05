@@ -28,10 +28,33 @@ namespace EventFlow.Extensions
     public static class DisposableExtensions
     {
         public static void DisposeSafe(
+            this IDisposable disposable)
+        {
+            if (disposable == null)
+            {
+                return;
+            }
+
+            try
+            {
+                disposable.Dispose();
+            }
+            catch (Exception e)
+            {
+                new ConsoleLog().Warning(e, $"Disposed failed for '{disposable.GetType().PrettyPrint()}': {e.Message}");
+            }
+        }
+
+        public static void DisposeSafe(
             this IDisposable disposable, 
             ILog log,
             string message)
         {
+            if (disposable == null)
+            {
+                return;
+            }
+
             try
             {
                 disposable.Dispose();

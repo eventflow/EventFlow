@@ -26,7 +26,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
 {
-    public class Scenario : IScenario, IScenarioContext
+    public class Scenario : IScenario, IScenarioContext, IScenarioRunner
     {
         private readonly IGivenContext _givenContext;
         private readonly IWhenContext _whenContext;
@@ -51,21 +51,32 @@ namespace EventFlow.Bdd.Contexts
 
         public IScenarioScript Script { get; }
 
-        public IScenario Given(Action<IGiven> action)
+        public IScenarioRunner Given(Action<IGiven> action)
         {
             action(_givenContext);
             return this;
         }
 
-        public IScenario When(Action<IWhen> action)
+        public IScenarioRunner When(Action<IWhen> action)
         {
             action(_whenContext);
             return this;
         }
 
-        public IScenario Then(Action<IThen> action)
+        public IScenarioRunner Then(Action<IThen> action)
         {
             action(_thenContext);
+            return this;
+        }
+
+        public IScenario Named(string name)
+        {
+            return this;
+        }
+
+        public IScenario Run(Action<IScenarioRunner> scenario)
+        {
+            scenario(this);
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(Script.ExecuteAsync(CancellationToken.None));

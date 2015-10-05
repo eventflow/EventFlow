@@ -30,6 +30,7 @@ namespace EventFlow.Bdd
     public interface IScenarioScript : IDisposable
     {
         ScenarioState State { get; }
+        string Name { get; set; }
 
         void AddGiven(IScenarioStep scenarioStep);
         void AddWhen(IScenarioStep scenarioStep);

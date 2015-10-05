@@ -28,9 +28,15 @@ namespace EventFlow.Bdd.Extensions
     public static class ResolverExtensions
     {
         public static IScenario Scenario(
-            this IResolver resolver)
+            this IResolver resolver,
+            string named = null)
         {
-            return resolver.Resolve<IScenario>();
+            var scenario = resolver.Resolve<IScenario>();
+            if (!string.IsNullOrEmpty(named))
+            {
+                scenario.Named(named);
+            }
+            return scenario;
         }
     }
 }

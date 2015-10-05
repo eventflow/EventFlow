@@ -21,24 +21,26 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd.Results
 {
-    public interface IScenarioContext
+    public class StateResult
     {
-        IScenarioScript Script { get; }
-    }
+        public IReadOnlyCollection<StepResult> StepResults { get; }
+        public bool Success { get; }
 
-    public interface IScenarioRunner
-    {
-        IScenarioRunner Given(Action<IGiven> action);
-        IScenarioRunner When(Action<IWhen> action);
-        IScenarioRunner Then(Action<IThen> action);
-    }
+        public StateResult(
+            IReadOnlyCollection<StepResult> stepResults)
+        {
+            StepResults = stepResults;
+            Success = stepResults.All(r => r.Success);
+        }
 
-    public interface IScenario : IDisposable
-    {
-        IScenario Named(string name);
-        IScenario Run(Action<IScenarioRunner> scenario);
+        public override string ToString()
+        {
+            return string.Join(Environment.NewLine, StepResults.Select(r => r.ToString()));
+        }
     }
 }

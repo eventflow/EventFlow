@@ -20,10 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Bdd.Extensions;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
@@ -32,34 +28,21 @@ using NUnit.Framework;
 
 namespace EventFlow.Bdd.Tests
 {
-    public class BddTests : Test
+    public class FluentBddTests : BddBase
     {
-        private IRootResolver _resolver;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .TestWithBdd()
-                .CreateResolver();
-        }
-
         [Test]
         public void BddFlow()
         {
             var testId = TestId.New;
 
-            using (_resolver.Scenario()
+            Scenario("Ping event").Run(s => s
                 .Given(c => c
                     .Event<TestAggregate, TestId, PingEvent>(testId, A<PingEvent>())
                     .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId, A<DomainErrorAfterFirstEvent>()))
                 .When(c => c
                     .Command(new PingCommand(testId, PingId.New)))
                 .Then(c => c
-                    .Event<TestAggregate, TestId, PingEvent>(testId)))
-            {
-            }
+                    .Event<TestAggregate, TestId, PingEvent>(testId)));
         }
     }
 }

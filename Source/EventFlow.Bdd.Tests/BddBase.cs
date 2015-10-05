@@ -20,25 +20,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Bdd.Contexts;
+using EventFlow.Bdd.Extensions;
+using EventFlow.Configuration;
+using EventFlow.Extensions;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd.Tests
 {
-    public interface IScenarioContext
+    public abstract class BddBase : Test
     {
-        IScenarioScript Script { get; }
-    }
+        protected IRootResolver Resolver { get; private set; }
+        private IScenario _scenario;
 
-    public interface IScenarioRunner
-    {
-        IScenarioRunner Given(Action<IGiven> action);
-        IScenarioRunner When(Action<IWhen> action);
-        IScenarioRunner Then(Action<IThen> action);
-    }
+        [SetUp]
+        public void SetUpBdd()
+        {
+            Resolver = EventFlowOptions.New
+                .AddDefaults(EventFlowTestHelpers.Assembly)
+                .TestWithBdd()
+                .CreateResolver();
+        }
 
-    public interface IScenario : IDisposable
-    {
-        IScenario Named(string name);
-        IScenario Run(Action<IScenarioRunner> scenario);
+        [TearDown]
+        public void TearDownBdd()
+        {
+            Resolver.DisposeSafe();
+            _scenario.DisposeSafe();
+        }
+
+        protected IScenario Scenario(string named)
+        {
+            _scenario = Resolver.Scenario(named);
+            return _scenario;
+        }
     }
 }

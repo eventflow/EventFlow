@@ -21,24 +21,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Extensions;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd.Results
 {
-    public interface IScenarioContext
+    public class StepResult
     {
-        IScenarioScript Script { get; }
-    }
+        public string Name { get; }
+        public Exception Exception { get; }
+        public bool Success => Exception == null;
 
-    public interface IScenarioRunner
-    {
-        IScenarioRunner Given(Action<IGiven> action);
-        IScenarioRunner When(Action<IWhen> action);
-        IScenarioRunner Then(Action<IThen> action);
-    }
+        public StepResult(
+            string name,
+            Exception exception = null)
+        {
+            Name = name;
+            Exception = exception;
+        }
 
-    public interface IScenario : IDisposable
-    {
-        IScenario Named(string name);
-        IScenario Run(Action<IScenarioRunner> scenario);
+        public override string ToString()
+        {
+            return Success
+                ? Name
+                : $"{Name} FAILED - {Exception.GetType().PrettyPrint()}: {Exception.Message}";
+        }
     }
 }
