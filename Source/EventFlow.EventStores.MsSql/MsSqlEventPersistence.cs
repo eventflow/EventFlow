@@ -34,7 +34,7 @@ using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql
 {
-    public class MsSqlEventStore : IEventStorage
+    public class MsSqlEventPersistence : IEventPersistence
     {
         public class EventDataModel : ICommittedDomainEvent
         {
@@ -50,7 +50,7 @@ namespace EventFlow.EventStores.MsSql
         private readonly ILog _log;
         private readonly IMsSqlConnection _connection;
 
-        public MsSqlEventStore(
+        public MsSqlEventPersistence(
             ILog log,
             IMsSqlConnection connection)
         {

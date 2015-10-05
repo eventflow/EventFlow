@@ -35,7 +35,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventStorage : IEventStorage, IDisposable
+    public class InMemoryEventPersistence : IEventPersistence, IDisposable
     {
         private readonly ILog _log;
         private readonly ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>>();
@@ -62,7 +62,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public InMemoryEventStorage(
+        public InMemoryEventPersistence(
             ILog log)
         {
             _log = log;

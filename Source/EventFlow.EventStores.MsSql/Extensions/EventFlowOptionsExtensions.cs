@@ -28,7 +28,7 @@ namespace EventFlow.EventStores.MsSql.Extensions
     {
         public static IEventFlowOptions UseMssqlEventStore(this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<MsSqlEventStore>();
+            return eventFlowOptions.UseEventStore<MsSqlEventPersistence>();
         }
     }
 }

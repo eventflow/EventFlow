@@ -153,7 +153,7 @@ namespace EventFlow
 
             serviceRegistration.Register<ILog, ConsoleLog>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
-            serviceRegistration.Register<IEventStorage, InMemoryEventStorage>(Lifetime.Singleton);
+            serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
             serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
             serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();

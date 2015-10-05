@@ -35,7 +35,7 @@ using EventStore.ClientAPI.Exceptions;
 
 namespace EventFlow.EventStores.EventStore
 {
-    public class EventStoreEventStore : IEventStorage
+    public class EventStoreEventPersistence : IEventPersistence
     {
         private readonly ILog _log;
         private readonly IEventStoreConnection _connection;
@@ -49,7 +49,7 @@ namespace EventFlow.EventStores.EventStore
             public int AggregateSequenceNumber { get; set; }
         }
 
-        public EventStoreEventStore(
+        public EventStoreEventPersistence(
             ILog log,
             IEventStoreConnection connection)
         {

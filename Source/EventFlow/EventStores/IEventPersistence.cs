@@ -28,7 +28,7 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventStorage
+    public interface IEventPersistence
     {
         Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,

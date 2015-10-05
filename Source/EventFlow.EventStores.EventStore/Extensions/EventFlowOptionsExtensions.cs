@@ -33,7 +33,7 @@ namespace EventFlow.EventStores.EventStore.Extensions
         public static IEventFlowOptions UseEventStoreEventStore(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<EventStoreEventStore>();
+            return eventFlowOptions.UseEventStore<EventStoreEventPersistence>();
         }
 
         public static IEventFlowOptions UseEventStoreEventStore(
@@ -58,7 +58,7 @@ namespace EventFlow.EventStores.EventStore.Extensions
 
             return eventFlowOptions
                 .RegisterServices(f => f.Register(r => eventStoreConnection, Lifetime.Singleton))
-                .UseEventStore<EventStoreEventStore>();
+                .UseEventStore<EventStoreEventPersistence>();
         }
     }
 }

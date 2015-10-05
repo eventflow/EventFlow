@@ -131,14 +131,14 @@
     <Compile Include="Core\VersionedTypes\VersionedTypeDefinitionService.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
-    <Compile Include="EventStores\Files\FilesEventStorage.cs" />
+    <Compile Include="EventStores\Files\FilesEventPersistence.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\DomainEventFactory.cs" />
     <Compile Include="EventStores\EventUpgradeManager.cs" />
     <Compile Include="EventStores\GlobalPosition.cs" />
     <Compile Include="EventStores\IDomainEventFactory.cs" />
-    <Compile Include="EventStores\IEventStorage.cs" />
+    <Compile Include="EventStores\IEventPersistence.cs" />
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
     <Compile Include="EventStores\ISerializedEvent.cs" />
@@ -210,7 +210,7 @@
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />
     <Compile Include="EventStores\IMetadataProvider.cs" />
-    <Compile Include="EventStores\InMemory\InMemoryEventStorage.cs" />
+    <Compile Include="EventStores\InMemory\InMemoryEventPersistence.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Aggregates\IMetadata.cs" />
     <Compile Include="Logs\ConsoleLog.cs" />

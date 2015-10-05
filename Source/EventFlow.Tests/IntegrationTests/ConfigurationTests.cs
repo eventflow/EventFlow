@@ -38,12 +38,12 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver(true);
 
             // Act
-            IEventStorage eventStorage = null;
-            Assert.DoesNotThrow(() => eventStorage = resolver.Resolve<IEventStorage>());
+            IEventPersistence eventPersistence = null;
+            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
 
             // Assert
-            eventStorage.Should().NotBeNull();
-            eventStorage.Should().BeAssignableTo<InMemoryEventStorage>();
+            eventPersistence.Should().NotBeNull();
+            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
         }
     }
 }

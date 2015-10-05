@@ -36,7 +36,7 @@ namespace EventFlow.EventStores
     {
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventJsonSerializer _eventJsonSerializer;
-        private readonly IEventStorage _eventStorage;
+        private readonly IEventPersistence _eventPersistence;
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
@@ -47,9 +47,9 @@ namespace EventFlow.EventStores
             IEventJsonSerializer eventJsonSerializer,
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
-            IEventStorage eventStorage)
+            IEventPersistence eventPersistence)
         {
-            _eventStorage = eventStorage;
+            _eventPersistence = eventPersistence;
             _log = log;
             _aggregateFactory = aggregateFactory;
             _eventJsonSerializer = eventJsonSerializer;
@@ -98,7 +98,7 @@ namespace EventFlow.EventStores
                     })
                 .ToList();
 
-            var committedDomainEvents = await _eventStorage.CommitEventsAsync<TAggregate, TIdentity>(
+            var committedDomainEvents = await _eventPersistence.CommitEventsAsync<TAggregate, TIdentity>(
                 id,
                 serializedEvents,
                 cancellationToken)
@@ -118,7 +118,7 @@ namespace EventFlow.EventStores
         {
             if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-            var allCommittedEventsPage = await _eventStorage.LoadAllCommittedEvents(
+            var allCommittedEventsPage = await _eventPersistence.LoadAllCommittedEvents(
                 globalPosition,
                 pageSize,
                 cancellationToken)
@@ -146,7 +146,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var committedDomainEvents = await _eventStorage.LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
+            var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) committedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
@@ -220,7 +220,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return _eventStorage.DeleteEventsAsync<TAggregate, TIdentity>(id, cancellationToken);
+            return _eventPersistence.DeleteEventsAsync<TAggregate, TIdentity>(id, cancellationToken);
         }
     }
 }

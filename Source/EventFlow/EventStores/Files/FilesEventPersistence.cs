@@ -33,7 +33,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
 {
-    public class FilesEventStorage : IEventStorage
+    public class FilesEventPersistence : IEventPersistence
     {
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
@@ -58,7 +58,7 @@ namespace EventFlow.EventStores.Files
             public Dictionary<long, string> Log { get; set; }
         }
 
-        public FilesEventStorage(
+        public FilesEventPersistence(
             ILog log,
             IJsonSerializer jsonSerializer,
             IFilesEventStoreConfiguration configuration)
