@@ -22,9 +22,10 @@
 
 using System;
 using System.Threading;
+using EventFlow.Bdd.Contexts;
 using EventFlow.Core;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd
 {
     public class Scenario : IScenario, IScenarioContext, IScenarioRunner
     {
@@ -71,6 +72,7 @@ namespace EventFlow.Bdd.Contexts
 
         public IScenario Named(string name)
         {
+            Script.Name = name;
             return this;
         }
 

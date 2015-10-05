@@ -45,12 +45,12 @@
     </Compile>
     <Compile Include="Contexts\EventStream.cs" />
     <Compile Include="Contexts\IEventStream.cs" />
-    <Compile Include="Contexts\Scenario.cs" />
+    <Compile Include="Scenario.cs" />
     <Compile Include="Contexts\ScenarioState.cs" />
     <Compile Include="Extensions\EventFlowOptionsBddExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
     <Compile Include="Contexts\GivenContext.cs" />
-    <Compile Include="Contexts\IScenario.cs" />
+    <Compile Include="IScenario.cs" />
     <Compile Include="Contexts\IGiven.cs" />
     <Compile Include="Contexts\IThen.cs" />
     <Compile Include="Contexts\IWhen.cs" />

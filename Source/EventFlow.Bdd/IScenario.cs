@@ -21,8 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Bdd.Contexts;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd
 {
     public interface IScenarioContext
     {

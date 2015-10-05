@@ -38,9 +38,14 @@ namespace EventFlow.Bdd.Results
             Success = stepResults.All(r => r.Success);
         }
 
+        public IEnumerable<string> Print()
+        {
+            return StepResults.Select(r => r.Print());
+        } 
+
         public override string ToString()
         {
-            return string.Join(Environment.NewLine, StepResults.Select(r => r.ToString()));
+            return string.Join(Environment.NewLine, Print());
         }
     }
 }

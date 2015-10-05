@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using EventFlow.Extensions;
 
 namespace EventFlow.Bdd.Results
@@ -39,11 +40,16 @@ namespace EventFlow.Bdd.Results
             Exception = exception;
         }
 
-        public override string ToString()
+        public string Print()
         {
             return Success
                 ? Name
                 : $"{Name} FAILED - {Exception.GetType().PrettyPrint()}: {Exception.Message}";
+        } 
+
+        public override string ToString()
+        {
+            return Print();
         }
     }
 }

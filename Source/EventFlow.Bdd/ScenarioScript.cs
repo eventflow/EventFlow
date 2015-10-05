@@ -105,7 +105,7 @@ namespace EventFlow.Bdd
 
             // End
             State = ScenarioState.Unknown;
-            return new ScriptResult(givenResult, whenResult, thenResult);
+            return new ScriptResult(Name, givenResult, whenResult, thenResult);
         }
 
         public void Dispose()

@@ -36,12 +36,12 @@ namespace EventFlow.Bdd.Tests
             var testId = TestId.New;
 
             Scenario("Ping event").Run(s => s
-                .Given(c => c
+                .Given(g => g
                     .Event<TestAggregate, TestId, PingEvent>(testId, A<PingEvent>())
                     .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId, A<DomainErrorAfterFirstEvent>()))
-                .When(c => c
+                .When(w => w
                     .Command(new PingCommand(testId, PingId.New)))
-                .Then(c => c
+                .Then(t => t
                     .Event<TestAggregate, TestId, PingEvent>(testId)));
         }
     }
