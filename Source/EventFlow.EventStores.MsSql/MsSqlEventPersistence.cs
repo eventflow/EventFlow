@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Entities;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
@@ -95,11 +94,7 @@ namespace EventFlow.EventStores.MsSql
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
@@ -119,9 +114,8 @@ namespace EventFlow.EventStores.MsSql
                 .ToList();
 
             _log.Verbose(
-                "Committing {0} events to MSSQL event store for aggregate {1} with ID '{2}'",
+                "Committing {0} events to MSSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
-                entityName,
                 id);
 
             const string sql = @"
@@ -150,8 +144,7 @@ namespace EventFlow.EventStores.MsSql
                 if (exception.Number == 2601)
                 {
                     _log.Verbose(
-                        "MSSQL event insert detected an optimistic concurrency exception for aggregate '{0}' with ID '{1}'",
-                        entityName,
+                        "MSSQL event insert detected an optimistic concurrency exception for entity with ID '{0}'",
                         id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
                 }
@@ -172,10 +165,7 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"
                 SELECT
@@ -197,10 +187,7 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        public async Task DeleteEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
@@ -211,8 +198,7 @@ namespace EventFlow.EventStores.MsSql
                 .ConfigureAwait(false);
 
             _log.Verbose(
-                "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
-                entityName,
+                "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);
         }

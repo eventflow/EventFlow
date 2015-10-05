@@ -26,8 +26,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Entities;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventStore.ClientAPI;
@@ -43,7 +43,6 @@ namespace EventFlow.EventStores.EventStore
         private class EventStoreEvent : ICommittedDomainEvent
         {
             public string AggregateId { get; set; }
-            public string AggregateName { get; set; }
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
@@ -104,7 +103,6 @@ namespace EventFlow.EventStores.EventStore
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
             IIdentity id,
-            IEntityName entityName,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
@@ -114,7 +112,6 @@ namespace EventFlow.EventStores.EventStore
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
                         Metadata = e.SerializedMetadata,
                         AggregateId = id.Value,
-                        AggregateName = entityName.Value,
                         Data = e.SerializedData
                     })
                 .ToList();
@@ -124,7 +121,7 @@ namespace EventFlow.EventStores.EventStore
                 .Select(e =>
                     {
                         var guid = Guid.Parse(e.Metadata["guid"]);
-                        var eventType = string.Format("{0}.{1}.{2}", entityName.Value, e.Metadata.EventName, e.Metadata.EventVersion);
+                        var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
                         return new EventData(guid, eventType, true, data, meta);
@@ -142,7 +139,7 @@ namespace EventFlow.EventStores.EventStore
                     var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
                     _log.Verbose(
                         "Wrote aggregate {0} with version {1} ({2},{3})",
-                        entityName,
+                        id,
                         writeResult.NextExpectedVersion - 1,
                         writeResult.LogPosition.CommitPosition,
                         writeResult.LogPosition.PreparePosition);
@@ -158,7 +155,6 @@ namespace EventFlow.EventStores.EventStore
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             IIdentity id,
-            IEntityName entityName,
             CancellationToken cancellationToken)
         {
             var streamEvents = new List<ResolvedEvent>();
@@ -181,10 +177,7 @@ namespace EventFlow.EventStores.EventStore
             return Map(streamEvents);
         }
 
-        public Task DeleteEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
         }
@@ -197,7 +190,6 @@ namespace EventFlow.EventStores.EventStore
                         AggregateSequenceNumber = e.Event.EventNumber + 1,
                         Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
                         AggregateId = e.OriginalStreamId,
-                        AggregateName = e.Event.EventType.Split('.')[0],
                         Data = Encoding.UTF8.GetString(e.Event.Data),
                     })
                 .ToList();

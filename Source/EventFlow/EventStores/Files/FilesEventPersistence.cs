@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Entities;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 
@@ -116,17 +115,13 @@ namespace EventFlow.EventStores.Files
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
 
-                var aggregatePath = GetAggregatePath(entityName, id);
+                var aggregatePath = GetAggregatePath(id);
                 if (!Directory.Exists(aggregatePath))
                 {
                     Directory.CreateDirectory(aggregatePath);
@@ -134,7 +129,7 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
-                    var eventPath = GetEventPath(entityName, id, serializedEvent.AggregateSequenceNumber);
+                    var eventPath = GetEventPath(id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
                     _eventLog[_globalSequenceNumber] = eventPath;
 
@@ -153,9 +148,8 @@ namespace EventFlow.EventStores.Files
                     {
                         // TODO: This needs to be on file creation
                         throw new OptimisticConcurrencyException(string.Format(
-                            "Event {0} already exists for aggregate '{1}' with ID '{2}'",
+                            "Event {0} already exists for entity with ID '{1}'",
                             fileEventData.AggregateSequenceNumber,
-                            entityName,
                             id));
                     }
 
@@ -188,17 +182,14 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
                 for (var i = 1; ; i++)
                 {
-                    var eventPath = GetEventPath(entityName, id, i);
+                    var eventPath = GetEventPath(id, i);
                     if (!File.Exists(eventPath))
                     {
                         return committedDomainEvents;
@@ -210,16 +201,10 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public Task DeleteEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            _log.Verbose(
-                "Deleting aggregate '{0}' with ID '{1}'",
-                entityName,
-                id);
-            var path = GetAggregatePath(entityName, id);
+            _log.Verbose("Deleting entity with ID '{0}'", id);
+            var path = GetAggregatePath(id);
             Directory.Delete(path, true);
             return Task.FromResult(0);
         }
@@ -257,19 +242,18 @@ namespace EventFlow.EventStores.Files
             };
         }
 
-        private string GetAggregatePath(IEntityName entityName, IIdentity id)
+        private string GetAggregatePath(IIdentity id)
         {
             return Path.Combine(
                 _configuration.StorePath,
-                entityName.Value,
                 id.Value);
         }
 
-        private string GetEventPath(IEntityName entityName, IIdentity id, int aggregateSequenceNumber)
+        private string GetEventPath(IIdentity id, int aggregateSequenceNumber)
         {
             return Path.Combine(
-                GetAggregatePath(entityName, id),
-                string.Format("{0}.json", aggregateSequenceNumber));
+                GetAggregatePath(id),
+                $"{aggregateSequenceNumber}.json");
         }
     }
 }

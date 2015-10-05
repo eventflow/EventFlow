@@ -101,7 +101,6 @@ namespace EventFlow.EventStores
 
             var committedDomainEvents = await _eventPersistence.CommitEventsAsync(
                 id,
-                new EntityName(typeof(TAggregate).Name),
                 serializedEvents,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -150,7 +149,6 @@ namespace EventFlow.EventStores
         {
             var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
                 id,
-                new EntityName(typeof(TAggregate).Name),
                 cancellationToken)
                 .ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) committedDomainEvents
@@ -228,7 +226,6 @@ namespace EventFlow.EventStores
         {
             return _eventPersistence.DeleteEventsAsync(
                 id,
-                new EntityName(typeof(TAggregate).Name),
                 cancellationToken);
         }
     }

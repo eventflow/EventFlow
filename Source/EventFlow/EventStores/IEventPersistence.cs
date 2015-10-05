@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Entities;
 
 namespace EventFlow.EventStores
 {
@@ -37,18 +36,13 @@ namespace EventFlow.EventStores
 
         Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
             IIdentity id,
-            IEntityName entityName,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             IIdentity id,
-            IEntityName entityName,
             CancellationToken cancellationToken);
 
-        Task DeleteEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken);
+        Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
     }
 }

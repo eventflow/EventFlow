@@ -119,9 +119,7 @@
     <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
     <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Entities\EntityName.cs" />
     <Compile Include="Entities\IEntity.cs" />
-    <Compile Include="Entities\IEntityName.cs" />
     <Compile Include="EventFlowOptions.cs" />
     <Compile Include="Configuration\IResolver.cs" />
     <Compile Include="Core\AsyncHelper.cs" />

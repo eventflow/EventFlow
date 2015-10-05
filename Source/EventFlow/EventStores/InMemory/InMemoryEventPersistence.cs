@@ -91,11 +91,7 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
@@ -146,10 +142,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -160,10 +153,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public Task DeleteEventsAsync(
-            IIdentity id,
-            IEntityName entityName,
-            CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             if (!_eventStore.ContainsKey(id.Value))
             {
@@ -174,8 +164,7 @@ namespace EventFlow.EventStores.InMemory
             _eventStore.TryRemove(id.Value, out committedDomainEvents);
 
             _log.Verbose(
-                "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
-                entityName,
+                "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 committedDomainEvents.Count);
 
