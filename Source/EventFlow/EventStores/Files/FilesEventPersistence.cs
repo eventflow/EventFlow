@@ -36,7 +36,7 @@ namespace EventFlow.EventStores.Files
     {
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly IFilesEventStoreConfiguration _configuration;
+        private readonly IFilesEventLocator _filesEventLocator;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
         private long _globalSequenceNumber;
@@ -60,12 +60,13 @@ namespace EventFlow.EventStores.Files
         public FilesEventPersistence(
             ILog log,
             IJsonSerializer jsonSerializer,
-            IFilesEventStoreConfiguration configuration)
+            IFilesEventStoreConfiguration configuration,
+            IFilesEventLocator filesEventLocator)
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
-            _configuration = configuration;
-            _logFilePath = Path.Combine(_configuration.StorePath, "Log.store");
+            _filesEventLocator = filesEventLocator;
+            _logFilePath = Path.Combine(configuration.StorePath, "Log.store");
 
             if (File.Exists(_logFilePath))
             {
@@ -76,7 +77,7 @@ namespace EventFlow.EventStores.Files
 
                 if (_eventLog.Count != _globalSequenceNumber)
                 {
-                    eventStoreLog = RecreateEventStoreLog(_configuration.StorePath);
+                    eventStoreLog = RecreateEventStoreLog(configuration.StorePath);
                     _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
                     _eventLog = eventStoreLog.Log;
                 }
@@ -121,7 +122,7 @@ namespace EventFlow.EventStores.Files
             {
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
 
-                var aggregatePath = GetAggregatePath(id);
+                var aggregatePath = _filesEventLocator.GetEntityPath(id);
                 if (!Directory.Exists(aggregatePath))
                 {
                     Directory.CreateDirectory(aggregatePath);
@@ -129,7 +130,7 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
-                    var eventPath = GetEventPath(id, serializedEvent.AggregateSequenceNumber);
+                    var eventPath = _filesEventLocator.GetEventPath(id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
                     _eventLog[_globalSequenceNumber] = eventPath;
 
@@ -189,7 +190,7 @@ namespace EventFlow.EventStores.Files
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
                 for (var i = 1; ; i++)
                 {
-                    var eventPath = GetEventPath(id, i);
+                    var eventPath = _filesEventLocator.GetEventPath(id, i);
                     if (!File.Exists(eventPath))
                     {
                         return committedDomainEvents;
@@ -204,7 +205,7 @@ namespace EventFlow.EventStores.Files
         public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             _log.Verbose("Deleting entity with ID '{0}'", id);
-            var path = GetAggregatePath(id);
+            var path = _filesEventLocator.GetEntityPath(id);
             Directory.Delete(path, true);
             return Task.FromResult(0);
         }
@@ -240,20 +241,6 @@ namespace EventFlow.EventStores.Files
                 GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
                 Log = directory,
             };
-        }
-
-        private string GetAggregatePath(IIdentity id)
-        {
-            return Path.Combine(
-                _configuration.StorePath,
-                id.Value);
-        }
-
-        private string GetEventPath(IIdentity id, int aggregateSequenceNumber)
-        {
-            return Path.Combine(
-                GetAggregatePath(id),
-                $"{aggregateSequenceNumber}.json");
         }
     }
 }

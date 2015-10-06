@@ -131,8 +131,10 @@
     <Compile Include="Core\VersionedTypes\VersionedTypeDefinitionService.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
+    <Compile Include="EventStores\Files\FilesEventLocator.cs" />
     <Compile Include="EventStores\Files\FilesEventPersistence.cs" />
     <Compile Include="EventStores\Files\FilesEventStoreConfiguration.cs" />
+    <Compile Include="EventStores\Files\IFilesEventLocator.cs" />
     <Compile Include="EventStores\Files\IFilesEventStoreConfiguration.cs" />
     <Compile Include="EventStores\DomainEventFactory.cs" />
     <Compile Include="EventStores\EventUpgradeManager.cs" />
