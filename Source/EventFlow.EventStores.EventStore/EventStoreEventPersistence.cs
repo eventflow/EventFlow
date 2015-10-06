@@ -138,7 +138,7 @@ namespace EventFlow.EventStores.EventStore
                     await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
                     var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
                     _log.Verbose(
-                        "Wrote aggregate {0} with version {1} ({2},{3})",
+                        "Wrote entity {0} with version {1} ({2},{3})",
                         id,
                         writeResult.NextExpectedVersion - 1,
                         writeResult.LogPosition.CommitPosition,

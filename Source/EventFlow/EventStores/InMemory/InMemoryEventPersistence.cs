@@ -29,7 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Entities;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
