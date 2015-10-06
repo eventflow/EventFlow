@@ -20,10 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
-using EventFlow.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -40,12 +38,12 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver(true);
 
             // Act
-            IEventStore eventStore = null;
-            Assert.DoesNotThrow(() => eventStore = resolver.Resolve<IEventStore>());
+            IEventPersistence eventPersistence = null;
+            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
 
             // Assert
-            eventStore.Should().NotBeNull();
-            eventStore.Should().BeAssignableTo<InMemoryEventStore>();
+            eventPersistence.Should().NotBeNull();
+            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
         }
     }
 }

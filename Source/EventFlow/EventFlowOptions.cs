@@ -152,7 +152,8 @@ namespace EventFlow
             // Maybe swap around and do after and and .PreserveExistingDefaults()
 
             serviceRegistration.Register<ILog, ConsoleLog>();
-            serviceRegistration.Register<IEventStore, InMemoryEventStore>(Lifetime.Singleton);
+            serviceRegistration.Register<IEventStore, EventStoreBase>();
+            serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
             serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
             serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();

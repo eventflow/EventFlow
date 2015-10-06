@@ -26,21 +26,21 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
 {
-    public class FilesEventStore : EventStoreBase
+    public class FilesEventPersistence : IEventPersistence
     {
+        private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly IFilesEventStoreConfiguration _configuration;
+        private readonly IFilesEventLocator _filesEventLocator;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
         private long _globalSequenceNumber;
-        private readonly Dictionary<long, string> _log;
+        private readonly Dictionary<long, string> _eventLog;
 
         public class FileEventData : ICommittedDomainEvent
         {
@@ -57,41 +57,38 @@ namespace EventFlow.EventStores.Files
             public Dictionary<long, string> Log { get; set; }
         }
 
-        public FilesEventStore(
+        public FilesEventPersistence(
             ILog log,
-            IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
-            IEnumerable<IMetadataProvider> metadataProviders,
-            IEventUpgradeManager eventUpgradeManager,
             IJsonSerializer jsonSerializer,
-            IFilesEventStoreConfiguration configuration)
-            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
+            IFilesEventStoreConfiguration configuration,
+            IFilesEventLocator filesEventLocator)
         {
+            _log = log;
             _jsonSerializer = jsonSerializer;
-            _configuration = configuration;
-            _logFilePath = Path.Combine(_configuration.StorePath, "Log.store");
+            _filesEventLocator = filesEventLocator;
+            _logFilePath = Path.Combine(configuration.StorePath, "Log.store");
 
             if (File.Exists(_logFilePath))
             {
                 var json = File.ReadAllText(_logFilePath);
                 var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json);
                 _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
-                _log = eventStoreLog.Log ?? new Dictionary<long, string>();
+                _eventLog = eventStoreLog.Log ?? new Dictionary<long, string>();
 
-                if (_log.Count != _globalSequenceNumber)
+                if (_eventLog.Count != _globalSequenceNumber)
                 {
-                    eventStoreLog = RecreateEventStoreLog(_configuration.StorePath);
+                    eventStoreLog = RecreateEventStoreLog(configuration.StorePath);
                     _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
-                    _log = eventStoreLog.Log;
+                    _eventLog = eventStoreLog.Log;
                 }
             }
             else
             {
-                _log = new Dictionary<long, string>();
+                _eventLog = new Dictionary<long, string>();
             }
         }
 
-        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -101,8 +98,8 @@ namespace EventFlow.EventStores.Files
                 : int.Parse(globalPosition.Value);
 
             var paths = Enumerable.Range(startPostion, pageSize)
-                .TakeWhile(g => _log.ContainsKey(g))
-                .Select(g => _log[g])
+                .TakeWhile(g => _eventLog.ContainsKey(g))
+                .Select(g => _eventLog[g])
                 .ToList();
 
             var committedDomainEvents = new List<FileEventData>();
@@ -119,17 +116,13 @@ namespace EventFlow.EventStores.Files
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var aggregateType = typeof(TAggregate);
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
 
-                var aggregatePath = GetAggregatePath(aggregateType, id);
+                var aggregatePath = _filesEventLocator.GetEntityPath(id);
                 if (!Directory.Exists(aggregatePath))
                 {
                     Directory.CreateDirectory(aggregatePath);
@@ -137,9 +130,9 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
-                    var eventPath = GetEventPath(aggregateType, id, serializedEvent.AggregateSequenceNumber);
+                    var eventPath = _filesEventLocator.GetEventPath(id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
-                    _log[_globalSequenceNumber] = eventPath;
+                    _eventLog[_globalSequenceNumber] = eventPath;
 
                     var fileEventData = new FileEventData
                         {
@@ -156,15 +149,14 @@ namespace EventFlow.EventStores.Files
                     {
                         // TODO: This needs to be on file creation
                         throw new OptimisticConcurrencyException(string.Format(
-                            "Event {0} already exists for aggregate '{1}' with ID '{2}'",
+                            "Event {0} already exists for entity with ID '{1}'",
                             fileEventData.AggregateSequenceNumber,
-                            aggregateType.Name,
                             id));
                     }
 
                     using (var streamWriter = File.CreateText(eventPath))
                     {
-                        Log.Verbose("Writing file '{0}'", eventPath);
+                        _log.Verbose("Writing file '{0}'", eventPath);
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
                     }
 
@@ -173,7 +165,7 @@ namespace EventFlow.EventStores.Files
 
                 using (var streamWriter = File.CreateText(_logFilePath))
                 {
-                    Log.Verbose(
+                    _log.Verbose(
                         "Writing global sequence number '{0}' to '{1}'",
                         _globalSequenceNumber,
                         _logFilePath);
@@ -181,7 +173,7 @@ namespace EventFlow.EventStores.Files
                         new EventStoreLog
                         {
                             GlobalSequenceNumber = _globalSequenceNumber,
-                            Log = _log,
+                            Log = _eventLog,
                         },
                         true);
                     await streamWriter.WriteAsync(json).ConfigureAwait(false);
@@ -191,17 +183,14 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var aggregateType = typeof(TAggregate);
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
                 for (var i = 1; ; i++)
                 {
-                    var eventPath = GetEventPath(aggregateType, id, i);
+                    var eventPath = _filesEventLocator.GetEventPath(id, i);
                     if (!File.Exists(eventPath))
                     {
                         return committedDomainEvents;
@@ -213,16 +202,10 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            var aggregateType = typeof (TAggregate);
-            Log.Verbose(
-                "Deleting aggregate '{0}' with ID '{1}'",
-                aggregateType.Name,
-                id);
-            var path = GetAggregatePath(aggregateType, id);
+            _log.Verbose("Deleting entity with ID '{0}'", id);
+            var path = _filesEventLocator.GetEntityPath(id);
             Directory.Delete(path, true);
             return Task.FromResult(0);
         }
@@ -258,21 +241,6 @@ namespace EventFlow.EventStores.Files
                 GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
                 Log = directory,
             };
-        }
-
-        private string GetAggregatePath(Type aggregateType, IIdentity id)
-        {
-            return Path.Combine(
-                _configuration.StorePath,
-                aggregateType.Name,
-                id.Value);
-        }
-
-        private string GetEventPath(Type aggregateType, IIdentity id, int aggregateSequenceNumber)
-        {
-            return Path.Combine(
-                GetAggregatePath(aggregateType, id),
-                string.Format("{0}.json", aggregateSequenceNumber));
         }
     }
 }
