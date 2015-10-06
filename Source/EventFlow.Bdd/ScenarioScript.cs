@@ -124,12 +124,12 @@ namespace EventFlow.Bdd
             {
                 try
                 {
-                    await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                    stepResults.Add(new StepResult(scenarioStep.Name));
+                    var stepResult = await scenarioStep.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                    stepResults.Add(stepResult);
                 }
                 catch (Exception e)
                 {
-                    stepResults.Add(new StepResult(scenarioStep.Name, e));
+                    stepResults.Add(StepResult.Failed(scenarioStep.Name, e));
                     break;
                 }
             }

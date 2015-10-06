@@ -28,24 +28,68 @@ namespace EventFlow.Bdd.Results
 {
     public class StepResult
     {
-        public string Name { get; }
-        public Exception Exception { get; }
-        public bool Success => Exception == null;
+        public static StepResult Success(string name)
+        {
+            return new StepResult(
+                name,
+                ExecutionResult.Success);
+        }
 
-        public StepResult(
+        public static StepResult Failed(string name, string message)
+        {
+            return new StepResult(
+                name,
+                ExecutionResult.Failed,
+                message);
+        }
+
+        public static StepResult Failed(string name)
+        {
+            return new StepResult(
+                name,
+                ExecutionResult.Failed);
+        }
+
+        public static StepResult Failed(string name, Exception exception)
+        {
+            return new StepResult(
+                name,
+                ExecutionResult.Failed,
+                exception: exception);
+        }
+
+        private StepResult(
             string name,
+            ExecutionResult executionResult,
+            string message = null,
             Exception exception = null)
         {
             Name = name;
+            ExecutionResult = executionResult;
+            Message = message;
             Exception = exception;
         }
 
+        public string Name { get; }
+        public Exception Exception { get; }
+        public ExecutionResult ExecutionResult { get; }
+        public string Message { get; }
+
         public string Print()
         {
-            return Success
-                ? Name
-                : $"{Name} FAILED - {Exception.GetType().PrettyPrint()}: {Exception.Message}";
-        } 
+            var messageParts = new List<string>
+                {
+                    Name,
+                    $"{ExecutionResult.ToString().ToUpperInvariant()}"
+                };
+
+            if (Exception != null)
+            {
+                messageParts.Add($"{Exception.GetType().PrettyPrint()}: {Exception.Message}");
+            }
+
+            return string.Join(" ", messageParts);
+        }
 
         public override string ToString()
         {

@@ -65,6 +65,8 @@ namespace EventFlow.Bdd.Contexts
 
         public IGiven That(string name, Func<IResolver, CancellationToken, Task> action)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+
             _scenarioContext.Script.AddGiven(new ThatScenarioStep(name, _resolver, action));
             return this;
         }

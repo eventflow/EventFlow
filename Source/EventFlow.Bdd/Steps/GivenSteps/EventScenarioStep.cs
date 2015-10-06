@@ -23,6 +23,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Bdd.Results;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -51,7 +52,7 @@ namespace EventFlow.Bdd.Steps.GivenSteps
             Name = $"{eventDescription.Name} v{eventDescription.Version} is emitted";
         }
 
-        public async Task ExecuteAsync(CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(CancellationToken cancellationToken)
         {
             var eventStore = _resolver.Resolve<IEventStore>();
 
@@ -67,6 +68,8 @@ namespace EventFlow.Bdd.Steps.GivenSteps
                 SourceId.New,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            return StepResult.Success(Name);
         }
 
         public void Dispose()

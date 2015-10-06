@@ -45,6 +45,7 @@
     </Compile>
     <Compile Include="Contexts\EventStream.cs" />
     <Compile Include="Contexts\IEventStream.cs" />
+    <Compile Include="Results\ExecutionResult.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="Contexts\ScenarioState.cs" />
     <Compile Include="Extensions\EventFlowOptionsBddExtensions.cs" />

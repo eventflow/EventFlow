@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Bdd.Contexts;
+using EventFlow.Bdd.Results;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -60,14 +61,11 @@ namespace EventFlow.Bdd.Steps.ThenSteps
             Name = $"{_eventDescription.Name} v{_eventDescription.Version} happend";
         }
 
-        public Task ExecuteAsync(CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(CancellationToken cancellationToken)
         {
-            if (!_gotEvent)
-            {
-                throw new Exception($"Did not get '{_eventDescription.Name}' v{_eventDescription.Version}");
-            }
-
-            return Task.FromResult(0);
+            return Task.FromResult(_gotEvent
+                ? StepResult.Success(Name)
+                : StepResult.Failed($"Did not get '{_eventDescription.Name}' v{_eventDescription.Version}"));
         }
 
         public void OnNext(IDomainEvent value)

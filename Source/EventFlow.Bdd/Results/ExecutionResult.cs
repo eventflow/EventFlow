@@ -20,32 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace EventFlow.Bdd.Results
 {
-    public class StateResult
+    public enum ExecutionResult
     {
-        public IReadOnlyCollection<StepResult> StepResults { get; }
-        public bool Success { get; }
-
-        public StateResult(
-            IReadOnlyCollection<StepResult> stepResults)
-        {
-            StepResults = stepResults;
-            Success = stepResults.All(r => r.ExecutionResult != ExecutionResult.Failed);
-        }
-
-        public IEnumerable<string> Print()
-        {
-            return StepResults.Select(r => r.Print());
-        } 
-
-        public override string ToString()
-        {
-            return string.Join(Environment.NewLine, Print());
-        }
+        Unknown = 0,
+        Success,
+        Failed
     }
 }

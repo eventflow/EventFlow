@@ -23,6 +23,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Bdd.Results;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
@@ -51,10 +52,11 @@ namespace EventFlow.Bdd.Steps.WhenSteps
             Name = $"{commandDefinition.Name} v{commandDefinition.Version} is published";
         }
 
-        public Task ExecuteAsync(CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(CancellationToken cancellationToken)
         {
             var commandBus = _resolver.Resolve<ICommandBus>();
-            return commandBus.PublishAsync(_command, cancellationToken);
+            await commandBus.PublishAsync(_command, cancellationToken);
+            return StepResult.Success(Name);
         }
 
         public void Dispose()

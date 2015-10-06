@@ -23,6 +23,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Bdd.Results;
 using EventFlow.Configuration;
 
 namespace EventFlow.Bdd.Steps.GivenSteps
@@ -42,9 +43,10 @@ namespace EventFlow.Bdd.Steps.GivenSteps
 
         public string Name { get; }
 
-        public Task ExecuteAsync(CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(CancellationToken cancellationToken)
         {
-            return _thatAction(_resolver, cancellationToken);
+            await _thatAction(_resolver, cancellationToken).ConfigureAwait(false);
+            return StepResult.Success(Name);
         }
 
         public void Dispose()

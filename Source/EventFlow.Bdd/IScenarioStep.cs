@@ -23,6 +23,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Bdd.Results;
 
 namespace EventFlow.Bdd
 {
@@ -30,6 +31,6 @@ namespace EventFlow.Bdd
     {
         string Name { get; }
 
-        Task ExecuteAsync(CancellationToken cancellationToken);
+        Task<StepResult> ExecuteAsync(CancellationToken cancellationToken);
     }
 }
