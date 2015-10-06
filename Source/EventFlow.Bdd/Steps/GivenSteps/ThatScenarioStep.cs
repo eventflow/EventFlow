@@ -23,55 +23,28 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Bdd.Steps.GivenSteps;
 using EventFlow.Configuration;
-using EventFlow.Core;
 
-namespace EventFlow.Bdd.Contexts
+namespace EventFlow.Bdd.Steps.GivenSteps
 {
-    public class GivenContext : IGivenContext
+    public class ThatScenarioStep : IScenarioStep
     {
         private readonly IResolver _resolver;
-        private IScenarioContext _scenarioContext;
+        private readonly Func<IResolver, CancellationToken, Task> _thatAction;
 
-        public GivenContext(
-            IResolver resolver)
+        public ThatScenarioStep(string name, IResolver resolver, Func<IResolver, CancellationToken, Task> thatAction)
         {
             _resolver = resolver;
+            _thatAction = thatAction;
+
+            Name = name;
         }
 
-        public IGiven Event<TAggregate, TIdentity, TAggregateEvent>(
-            TIdentity identity,
-            TAggregateEvent aggregateEvent)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-        {
-            _scenarioContext.Script.AddGiven(new EventScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_resolver, identity, aggregateEvent));
-            return this;
-        }
+        public string Name { get; }
 
-        public IGiven That(string name, Action<IResolver> action)
+        public Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            return That(
-                name,
-                (r, c) =>
-                {
-                    action(r);
-                    return Task.FromResult(0);
-                });
-        }
-
-        public IGiven That(string name, Func<IResolver, CancellationToken, Task> action)
-        {
-            _scenarioContext.Script.AddGiven(new ThatScenarioStep(name, _resolver, action));
-            return this;
-        }
-
-        public void Setup(IScenarioContext scenarioContext)
-        {
-            _scenarioContext = scenarioContext;
+            return _thatAction(_resolver, cancellationToken);
         }
 
         public void Dispose()

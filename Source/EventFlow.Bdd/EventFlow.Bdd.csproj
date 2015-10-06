@@ -63,6 +63,7 @@
     <Compile Include="Results\ScriptResult.cs" />
     <Compile Include="Results\StateResult.cs" />
     <Compile Include="Results\StepResult.cs" />
+    <Compile Include="Steps\GivenSteps\ThatScenarioStep.cs" />
     <Compile Include="Steps\WhenSteps\CommandScenarioStep.cs" />
     <Compile Include="Steps\GivenSteps\EventScenarioStep.cs" />
     <Compile Include="Steps\ThenSteps\ValidateEventHappendScenarioStep.cs" />

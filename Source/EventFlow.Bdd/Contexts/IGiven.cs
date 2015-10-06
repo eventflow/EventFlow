@@ -21,7 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 
 namespace EventFlow.Bdd.Contexts
@@ -32,6 +35,10 @@ namespace EventFlow.Bdd.Contexts
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>;
+
+        IGiven That(string name, Action<IResolver> action);
+
+        IGiven That(string name, Func<IResolver, CancellationToken, Task> action);
     }
 
     public interface IGivenContext : IGiven, IDisposable
