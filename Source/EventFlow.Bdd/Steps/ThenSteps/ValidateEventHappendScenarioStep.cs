@@ -29,7 +29,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
-namespace EventFlow.Bdd.Steps
+namespace EventFlow.Bdd.Steps.ThenSteps
 {
     public class ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent> : IScenarioStep, IObserver<IDomainEvent>
         where TAggregate : IAggregateRoot<TIdentity>

@@ -27,7 +27,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
-namespace EventFlow.Bdd.Steps
+namespace EventFlow.Bdd.Steps.GivenSteps
 {
     public class EventScenarioStep<TAggregate, TIdentity, TAggregateEvent> : IScenarioStep
         where TAggregate : IAggregateRoot<TIdentity>

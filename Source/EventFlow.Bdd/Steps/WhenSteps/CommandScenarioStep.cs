@@ -27,7 +27,7 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 
-namespace EventFlow.Bdd.Steps
+namespace EventFlow.Bdd.Steps.WhenSteps
 {
     public class CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity> : IScenarioStep
         where TAggregate : IAggregateRoot<TIdentity>

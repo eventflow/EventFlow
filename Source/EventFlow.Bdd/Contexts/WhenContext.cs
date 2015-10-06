@@ -22,6 +22,7 @@
 
 using EventFlow.Aggregates;
 using EventFlow.Bdd.Steps;
+using EventFlow.Bdd.Steps.WhenSteps;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
