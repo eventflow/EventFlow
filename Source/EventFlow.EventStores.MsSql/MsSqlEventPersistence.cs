@@ -34,7 +34,7 @@ using EventFlow.MsSql;
 
 namespace EventFlow.EventStores.MsSql
 {
-    public class MsSqlEventStore : EventStoreBase
+    public class MsSqlEventPersistence : IEventPersistence
     {
         public class EventDataModel : ICommittedDomainEvent
         {
@@ -47,21 +47,18 @@ namespace EventFlow.EventStores.MsSql
             public int AggregateSequenceNumber { get; set; }
         }
 
+        private readonly ILog _log;
         private readonly IMsSqlConnection _connection;
 
-        public MsSqlEventStore(
+        public MsSqlEventPersistence(
             ILog log,
-            IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
-            IEventUpgradeManager eventUpgradeManager,
-            IEnumerable<IMetadataProvider> metadataProviders,
             IMsSqlConnection connection)
-            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
         {
+            _log = log;
             _connection = connection;
         }
 
-        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -97,17 +94,13 @@ namespace EventFlow.EventStores.MsSql
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
                 return new ICommittedDomainEvent[] {};
             }
 
-            var aggregateType = typeof(TAggregate);
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
@@ -120,10 +113,9 @@ namespace EventFlow.EventStores.MsSql
                     })
                 .ToList();
 
-            Log.Verbose(
-                "Committing {0} events to MSSQL event store for aggregate {1} with ID '{2}'",
+            _log.Verbose(
+                "Committing {0} events to MSSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
-                aggregateType.Name,
                 id);
 
             const string sql = @"
@@ -151,9 +143,8 @@ namespace EventFlow.EventStores.MsSql
             {
                 if (exception.Number == 2601)
                 {
-                    Log.Verbose(
-                        "MSSQL event insert detected an optimistic concurrency exception for aggregate '{0}' with ID '{1}'",
-                        aggregateType.Name,
+                    _log.Verbose(
+                        "MSSQL event insert detected an optimistic concurrency exception for entity with ID '{0}'",
                         id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
                 }
@@ -174,9 +165,7 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"
                 SELECT
@@ -198,9 +187,7 @@ namespace EventFlow.EventStores.MsSql
             return eventDataModels;
         }
 
-        public override async Task DeleteAggregateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
@@ -210,9 +197,8 @@ namespace EventFlow.EventStores.MsSql
                 new {AggregateId = id.Value})
                 .ConfigureAwait(false);
 
-            Log.Verbose(
-                "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
-                typeof(TAggregate).Name,
+            _log.Verbose(
+                "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);
         }

@@ -20,27 +20,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public class SerializedEvent : ISerializedEvent
+    public interface IEventPersistence
     {
-        public string SerializedMetadata { get; }
-        public string SerializedData { get; }
-        public int AggregateSequenceNumber { get; }
-        public IMetadata Metadata { get; }
+        Task<AllCommittedEventsPage> LoadAllCommittedEvents(
+            GlobalPosition globalPosition,
+            int pageSize,
+            CancellationToken cancellationToken);
 
-        public SerializedEvent(
-            string serializedMetadata,
-            string serializedData,
-            int aggregateSequenceNumber,
-            IMetadata metadata)
-        {
-            SerializedMetadata = serializedMetadata;
-            SerializedData = serializedData;
-            AggregateSequenceNumber = aggregateSequenceNumber;
-            Metadata = metadata;
-        }
+        Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken);
+
+        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            CancellationToken cancellationToken);
+
+        Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
     }
 }
