@@ -20,19 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-
 namespace EventFlow.Bdd.Results
 {
     public class ScriptResult
     {
-        public string Name { get; }
-        public StateResult GivenResult { get; }
-        public StateResult WhenResult { get; }
-        public StateResult ThenResult { get; }
-        public bool Success { get; }
-
         public ScriptResult(
             string name,
             StateResult givenResult,
@@ -50,36 +41,10 @@ namespace EventFlow.Bdd.Results
                 (ThenResult == null || ThenResult.Success);
         }
 
-        public IEnumerable<string> Print()
-        {
-            var count = 1;
-
-            yield return $"SCENARIO {Name}";
-
-            foreach (var state in new []
-                {
-                    new {Result = GivenResult, Title = "GIVEN"},
-                    new {Result = WhenResult, Title = "WHEN"},
-                    new {Result = ThenResult, Title = "THEN"},
-                })
-            {
-                if (state.Result == null)
-                {
-                    continue;
-                }
-
-                yield return state.Title;
-                foreach (var s in state.Result.Print())
-                {
-                    yield return $" {count,2} {s}";
-                    count++;
-                }
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Join(Environment.NewLine, Print());
-        }
+        public string Name { get; }
+        public StateResult GivenResult { get; }
+        public StateResult WhenResult { get; }
+        public StateResult ThenResult { get; }
+        public bool Success { get; }
     }
 }

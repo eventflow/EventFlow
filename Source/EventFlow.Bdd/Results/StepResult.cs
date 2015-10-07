@@ -21,13 +21,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Extensions;
 
 namespace EventFlow.Bdd.Results
 {
     public class StepResult
     {
+        private StepResult(
+            string name,
+            ExecutionResult executionResult,
+            string message = null,
+            Exception exception = null)
+        {
+            Name = name;
+            ExecutionResult = executionResult;
+            Message = message;
+            Exception = exception;
+        }
+
+        public string Name { get; }
+        public Exception Exception { get; }
+        public ExecutionResult ExecutionResult { get; }
+        public string Message { get; }
+
         public static StepResult Success(string name)
         {
             return new StepResult(
@@ -56,44 +71,6 @@ namespace EventFlow.Bdd.Results
                 name,
                 ExecutionResult.Failed,
                 exception: exception);
-        }
-
-        private StepResult(
-            string name,
-            ExecutionResult executionResult,
-            string message = null,
-            Exception exception = null)
-        {
-            Name = name;
-            ExecutionResult = executionResult;
-            Message = message;
-            Exception = exception;
-        }
-
-        public string Name { get; }
-        public Exception Exception { get; }
-        public ExecutionResult ExecutionResult { get; }
-        public string Message { get; }
-
-        public string Print()
-        {
-            var messageParts = new List<string>
-                {
-                    Name,
-                    $"{ExecutionResult.ToString().ToUpperInvariant()}"
-                };
-
-            if (Exception != null)
-            {
-                messageParts.Add($"{Exception.GetType().PrettyPrint()}: {Exception.Message}");
-            }
-
-            return string.Join(" ", messageParts);
-        }
-
-        public override string ToString()
-        {
-            return Print();
         }
     }
 }

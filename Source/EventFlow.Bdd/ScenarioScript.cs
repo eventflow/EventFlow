@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Bdd.Results;
+using EventFlow.Bdd.Results.Formatters;
 
 namespace EventFlow.Bdd
 {
@@ -71,7 +72,7 @@ namespace EventFlow.Bdd
 
             var scriptResult = await ExecuteStepsAsync(cancellationToken).ConfigureAwait(false);
             var logLevel = scriptResult.Success ? LogLevel.Information : LogLevel.Error;
-            var result = scriptResult.ToString();
+            var result = new TextResultFormatter().Format(scriptResult);
             _log.Write(logLevel, result);
             if (!scriptResult.Success)
             {
