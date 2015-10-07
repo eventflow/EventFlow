@@ -158,7 +158,7 @@ several areas that you could help out with.
 
 ## Thanks
 
-![ReSharper](./Documentation/Images/logo_resharper.png)
+[![ReSharper](./Documentation/Images/logo_resharper.png)](https://www.jetbrains.com/resharper/)
 
 
 ## License
