@@ -53,6 +53,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLite", "SQLite", "{2A7145
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.EventStores.SQLite", "Source\EventFlow.EventStores.SQLite\EventFlow.EventStores.SQLite.csproj", "{CEE8E914-B31C-4AAA-B520-CF72560D90FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.EventStores.SQLite.Tests", "Source\EventFlow.EventStores.SQLite.Tests\EventFlow.EventStores.SQLite.Tests.csproj", "{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,10 @@ Global
 		{CEE8E914-B31C-4AAA-B520-CF72560D90FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEE8E914-B31C-4AAA-B520-CF72560D90FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEE8E914-B31C-4AAA-B520-CF72560D90FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,5 +157,6 @@ Global
 		{FB079985-722A-43C9-9F14-C7D2AFBE8826} = {4741A405-DA64-40CC-A726-A2C48CA49DA3}
 		{35180FC7-9135-4E79-8643-0FB825B40871} = {4741A405-DA64-40CC-A726-A2C48CA49DA3}
 		{CEE8E914-B31C-4AAA-B520-CF72560D90FA} = {2A71452E-15DD-4EBA-A7A1-8CC3D298097D}
+		{E81D3BA7-E9C9-4227-840E-7B84ED6302C6} = {2A71452E-15DD-4EBA-A7A1-8CC3D298097D}
 	EndGlobalSection
 EndGlobal
