@@ -156,6 +156,11 @@ several areas that you could help out with.
    point to specfic EventFlow functionality that might be done better, then
    please create an issue or ask in the Gitter chat
 
+## Thanks
+
+![ReSharper](./Documentation/Images/logo_resharper.png)
+
+
 ## License
 
 ```
