@@ -1,4 +1,8 @@
-### New in 0.18 (not released yet)
+### New in 0.19 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.18.1181 (released 2015-10-07)
 
 * POTENTIAL DATA LOSS for the **files event store**: The EventFlow
   internal functionality regarding event stores has been refactored resulting
