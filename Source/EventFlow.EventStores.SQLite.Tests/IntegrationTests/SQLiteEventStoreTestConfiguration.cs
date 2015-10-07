@@ -20,6 +20,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Data.SQLite;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -38,14 +41,38 @@ namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
     {
         private IQueryProcessor _queryProcessor;
         private IReadModelPopulator _readModelPopulator;
+        private string _databasePath;
 
         public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
+
+            SQLiteConnection.CreateFile(_databasePath);
+            GC.Collect();
+
             var resolver = eventFlowOptions
                 .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .UseSQLiteEventStore()
+                .RegisterServices(sr =>
+                    {
+                        sr.Register<IConnection, Connection>();
+                        sr.Register(r => new SQLiteConnection($"Data Source={_databasePath};Version=3;"));
+                    })
                 .CreateResolver();
+
+            var connection = resolver.Resolve<IConnection>();
+            const string sql = @"
+                CREATE TABLE [EventFlow](
+	                [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
+	                [BatchId] [uniqueidentifier] NOT NULL,
+	                [AggregateId] [nvarchar](255) NOT NULL,
+	                [AggregateName] [nvarchar](255) NOT NULL,
+	                [Data] [nvarchar](1024) NOT NULL,
+	                [Metadata] [nvarchar](1024) NOT NULL,
+	                [AggregateSequenceNumber] [int] NOT NULL
+                )";
+            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sql, null).Wait();
 
             _queryProcessor = resolver.Resolve<IQueryProcessor>();
             _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
@@ -70,6 +97,11 @@ namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
 
         public override void TearDown()
         {
+            if (!string.IsNullOrEmpty(_databasePath) &&
+                File.Exists(_databasePath))
+            {
+                File.Delete(_databasePath);
+            }
         }
     }
 }
