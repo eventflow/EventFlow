@@ -38,6 +38,6 @@ namespace EventFlow.Bdd.Contexts
 
     public interface IWhenContext : IWhen, IDisposable
     {
-        void Setup(IScenarioContext scenarioContext);
+        void Setup(IScenarioRunnerContext scenarioRunnerContext);
     }
 }

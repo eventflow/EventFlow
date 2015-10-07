@@ -43,6 +43,6 @@ namespace EventFlow.Bdd.Contexts
 
     public interface IGivenContext : IGiven, IDisposable
     {
-        void Setup(IScenarioContext scenarioContext);
+        void Setup(IScenarioRunnerContext scenarioRunnerContext);
     }
 }

@@ -22,67 +22,50 @@
 
 using System;
 using System.Threading;
-using EventFlow.Bdd.Contexts;
+using EventFlow.Bdd.Results;
+using EventFlow.Bdd.Results.Formatters;
 using EventFlow.Core;
+using EventFlow.Logs;
 
 namespace EventFlow.Bdd
 {
-    public class Scenario : IScenario, IScenarioContext, IScenarioRunner
+    public class Scenario : IScenario
     {
-        private readonly IGivenContext _givenContext;
-        private readonly IWhenContext _whenContext;
-        private readonly IThenContext _thenContext;
+        private string _name;
+        private readonly ILog _log;
+        private readonly Func<IScenarioRunnerContext> _scenarioScriptFactory;
 
         public Scenario(
-            IGivenContext givenContext,
-            IWhenContext whenContext,
-            IThenContext thenContext,
-            IScenarioScript scenarioScript)
+            ILog log,
+            Func<IScenarioRunnerContext> scenarioScriptFactory)
         {
-            _givenContext = givenContext;
-            _whenContext = whenContext;
-            _thenContext = thenContext;
-
-            _givenContext.Setup(this);
-            _whenContext.Setup(this);
-            _thenContext.Setup(this);
-
-            Script = scenarioScript;
-        }
-
-        public IScenarioScript Script { get; }
-
-        public IScenarioRunner Given(Action<IGiven> action)
-        {
-            action(_givenContext);
-            return this;
-        }
-
-        public IScenarioRunner When(Action<IWhen> action)
-        {
-            action(_whenContext);
-            return this;
-        }
-
-        public IScenarioRunner Then(Action<IThen> action)
-        {
-            action(_thenContext);
-            return this;
+            _log = log;
+            _scenarioScriptFactory = scenarioScriptFactory;
         }
 
         public IScenario Named(string name)
         {
-            Script.Name = name;
+            _name = name;
             return this;
         }
 
         public IScenario Run(Action<IScenarioRunner> scenario)
         {
-            scenario(this);
-            using (var a = AsyncHelper.Wait)
+            using (var scenarioRunner = _scenarioScriptFactory())
             {
-                a.Run(Script.ExecuteAsync(CancellationToken.None));
+                scenarioRunner.Name = _name;
+                scenario(scenarioRunner);
+
+                ScriptResult scriptResult = null;
+                using (var a = AsyncHelper.Wait)
+                {
+                    a.Run(scenarioRunner.ExecuteAsync(CancellationToken.None), r => scriptResult = r);
+                }
+
+                var result = new TextResultFormatter().Format(scriptResult);
+                _log.Information(result);
             }
+
             return this;
         }
 

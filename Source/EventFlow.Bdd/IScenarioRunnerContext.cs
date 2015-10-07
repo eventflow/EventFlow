@@ -24,10 +24,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Bdd.Contexts;
+using EventFlow.Bdd.Results;
 
 namespace EventFlow.Bdd
 {
-    public interface IScenarioScript : IDisposable
+    public interface IScenarioRunnerContext : IScenarioRunner, IDisposable
     {
         ScenarioState State { get; }
         string Name { get; set; }
@@ -36,6 +37,6 @@ namespace EventFlow.Bdd
         void AddWhen(IScenarioStep scenarioStep);
         void AddThen(IScenarioStep scenarioStep);
 
-        Task ExecuteAsync(CancellationToken cancellationToken);
+        Task<ScriptResult> ExecuteAsync(CancellationToken cancellationToken);
     }
 }

@@ -58,12 +58,12 @@
     <Compile Include="Contexts\IGiven.cs" />
     <Compile Include="Contexts\IThen.cs" />
     <Compile Include="Contexts\IWhen.cs" />
-    <Compile Include="IScenarioScript.cs" />
+    <Compile Include="IScenarioRunnerContext.cs" />
     <Compile Include="IScenarioStep.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Contexts\ThenContext.cs" />
     <Compile Include="Contexts\WhenContext.cs" />
-    <Compile Include="ScenarioScript.cs" />
+    <Compile Include="ScenarioRunner.cs" />
     <Compile Include="Results\ScriptResult.cs" />
     <Compile Include="Results\StateResult.cs" />
     <Compile Include="Results\StepResult.cs" />

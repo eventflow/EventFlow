@@ -33,7 +33,7 @@ namespace EventFlow.Bdd.Contexts
     public class GivenContext : IGivenContext
     {
         private readonly IResolver _resolver;
-        private IScenarioContext _scenarioContext;
+        private IScenarioRunnerContext _scenarioRunnerContext;
 
         public GivenContext(
             IResolver resolver)
@@ -48,7 +48,7 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            _scenarioContext.Script.AddGiven(new EventScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_resolver, identity, aggregateEvent));
+            _scenarioRunnerContext.AddGiven(new EventScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_resolver, identity, aggregateEvent));
             return this;
         }
 
@@ -67,13 +67,13 @@ namespace EventFlow.Bdd.Contexts
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-            _scenarioContext.Script.AddGiven(new ThatScenarioStep(name, _resolver, action));
+            _scenarioRunnerContext.AddGiven(new ThatScenarioStep(name, _resolver, action));
             return this;
         }
 
-        public void Setup(IScenarioContext scenarioContext)
+        public void Setup(IScenarioRunnerContext scenarioRunnerContext)
         {
-            _scenarioContext = scenarioContext;
+            _scenarioRunnerContext = scenarioRunnerContext;
         }
 
         public void Dispose()

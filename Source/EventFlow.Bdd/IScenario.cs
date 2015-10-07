@@ -25,11 +25,6 @@ using EventFlow.Bdd.Contexts;
 
 namespace EventFlow.Bdd
 {
-    public interface IScenarioContext
-    {
-        IScenarioScript Script { get; }
-    }
-
     public interface IScenarioRunner
     {
         IScenarioRunner Given(Action<IGiven> action);

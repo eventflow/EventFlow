@@ -22,34 +22,39 @@
 
 using System;
 using EventFlow.Bdd.Contexts;
-using EventFlow.Logs;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Bdd.Results;
-using EventFlow.Bdd.Results.Formatters;
 
 namespace EventFlow.Bdd
 {
-    public class ScenarioScript : IScenarioScript
+    public class ScenarioRunner : IScenarioRunnerContext
     {
         private readonly List<IScenarioStep> _givenSteps = new List<IScenarioStep>();
-        private readonly ILog _log;
+        private readonly IGivenContext _givenContext;
+        private readonly IWhenContext _whenContext;
+        private readonly IThenContext _thenContext;
         private readonly List<IScenarioStep> _thenSteps = new List<IScenarioStep>();
         private readonly List<IScenarioStep> _whenSteps = new List<IScenarioStep>();
 
-        public ScenarioScript(
-            ILog log)
+        public ScenarioRunner(
+            IGivenContext givenContext,
+            IWhenContext whenContext,
+            IThenContext thenContext)
         {
-            _log = log;
+            _givenContext = givenContext;
+            _whenContext = whenContext;
+            _thenContext = thenContext;
 
-            Name = string.Empty;
+            _givenContext.Setup(this);
+            _whenContext.Setup(this);
+            _thenContext.Setup(this);
         }
 
         public ScenarioState State { get; private set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public void AddGiven(IScenarioStep scenarioStep)
         {
@@ -66,21 +71,7 @@ namespace EventFlow.Bdd
             _thenSteps.Add(scenarioStep);
         }
 
-        public async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            _log.Information(GetDescription());
-
-            var scriptResult = await ExecuteStepsAsync(cancellationToken).ConfigureAwait(false);
-            var logLevel = scriptResult.Success ? LogLevel.Information : LogLevel.Error;
-            var result = new TextResultFormatter().Format(scriptResult);
-            _log.Write(logLevel, result);
-            if (!scriptResult.Success)
-            {
-                throw new Exception(result);
-            }
-        }
-
-        private async Task<ScriptResult> ExecuteStepsAsync(CancellationToken cancellationToken)
+        public async Task<ScriptResult> ExecuteAsync(CancellationToken cancellationToken)
         {
             StateResult givenResult;
             StateResult whenResult = null;
@@ -138,30 +129,22 @@ namespace EventFlow.Bdd
             return new StateResult(stepResults);
         }
 
-        public string GetDescription()
+        public IScenarioRunner Given(Action<IGiven> action)
         {
-            var stringBuilder = new StringBuilder()
-                .AppendLine($"SCENARIO {Name}");
+            action(_givenContext);
+            return this;
+        }
 
-            stringBuilder.AppendLine("GIVEN");
-            foreach (var scenarioStep in _givenSteps)
-            {
-                stringBuilder.AppendLine($"  {scenarioStep.Name}");
-            }
+        public IScenarioRunner When(Action<IWhen> action)
+        {
+            action(_whenContext);
+            return this;
+        }
 
-            stringBuilder.AppendLine("WHEN");
-            foreach (var scenarioStep in _whenSteps)
-            {
-                stringBuilder.AppendLine($"  {scenarioStep.Name}");
-            }
-
-            stringBuilder.AppendLine("THEN");
-            foreach (var scenarioStep in _thenSteps)
-            {
-                stringBuilder.AppendLine($"  {scenarioStep.Name}");
-            }
-
-            return stringBuilder.ToString();
+        public IScenarioRunner Then(Action<IThen> action)
+        {
+            action(_thenContext);
+            return this;
         }
     }
 }

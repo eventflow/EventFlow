@@ -44,6 +44,6 @@ namespace EventFlow.Bdd.Contexts
 
     public interface IThenContext : IThen, IDisposable
     {
-        void Setup(IScenarioContext scenarioContext);
+        void Setup(IScenarioRunnerContext scenarioRunnerContext);
     }
 }

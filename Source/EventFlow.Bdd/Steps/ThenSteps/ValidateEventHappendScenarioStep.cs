@@ -37,7 +37,7 @@ namespace EventFlow.Bdd.Steps.ThenSteps
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        private readonly IScenarioContext _scenarioContext;
+        private readonly IScenarioRunnerContext _scenarioRunnerContext;
         private readonly TIdentity _identity;
         private readonly Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> _predicate;
         private readonly IDisposable _eventStreamSubscription;
@@ -47,12 +47,12 @@ namespace EventFlow.Bdd.Steps.ThenSteps
         public string Name { get; }
 
         public ValidateEventHappendScenarioStep(
-            IScenarioContext scenarioContext,
+            IScenarioRunnerContext scenarioRunnerContext,
             IResolver resolver,
             TIdentity identity,
             Predicate<IDomainEvent<TAggregate, TIdentity, TAggregateEvent>> predicate)
         {
-            _scenarioContext = scenarioContext;
+            _scenarioRunnerContext = scenarioRunnerContext;
             _identity = identity;
             _predicate = predicate;
             _eventStreamSubscription = resolver.Resolve<IEventStream>().Subscribe(this);
@@ -70,7 +70,7 @@ namespace EventFlow.Bdd.Steps.ThenSteps
 
         public void OnNext(IDomainEvent value)
         {
-            if (_scenarioContext.Script.State != ScenarioState.When)
+            if (_scenarioRunnerContext.State != ScenarioState.When)
             {
                 return;
             }

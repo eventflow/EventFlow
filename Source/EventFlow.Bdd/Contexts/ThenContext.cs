@@ -22,7 +22,6 @@
 
 using System;
 using EventFlow.Aggregates;
-using EventFlow.Bdd.Steps;
 using EventFlow.Bdd.Steps.ThenSteps;
 using EventFlow.Configuration;
 using EventFlow.Core;
@@ -32,7 +31,7 @@ namespace EventFlow.Bdd.Contexts
     public class ThenContext : IThenContext
     {
         private readonly IResolver _resolver;
-        private IScenarioContext _scenarioContext;
+        private IScenarioRunnerContext _context;
 
         public ThenContext(
             IResolver resolver)
@@ -55,17 +54,17 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            _scenarioContext.Script.AddThen(new ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_scenarioContext, _resolver, identity, predicate));
+            _context.AddThen(new ValidateEventHappendScenarioStep<TAggregate, TIdentity, TAggregateEvent>(_context, _resolver, identity, predicate));
             return this;
-        }
-
-        public void Setup(IScenarioContext scenarioContext)
-        {
-            _scenarioContext = scenarioContext;
         }
 
         public void Dispose()
         {
+        }
+
+        public void Setup(IScenarioRunnerContext scenarioRunnerContext)
+        {
+            _context = scenarioRunnerContext;
         }
     }
 }

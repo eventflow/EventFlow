@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.Bdd.Steps;
 using EventFlow.Bdd.Steps.WhenSteps;
 using EventFlow.Commands;
 using EventFlow.Configuration;
@@ -32,7 +31,7 @@ namespace EventFlow.Bdd.Contexts
     public class WhenContext : IWhenContext
     {
         private readonly IResolver _resolver;
-        private IScenarioContext _scenarioContext;
+        private IScenarioRunnerContext _scenarioRunnerContext;
 
         public WhenContext(
             IResolver resolver)
@@ -46,17 +45,17 @@ namespace EventFlow.Bdd.Contexts
             where TIdentity : IIdentity
             where TSourceIdentity : ISourceId
         {
-            _scenarioContext.Script.AddWhen(new CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity>(_resolver, command));
+            _scenarioRunnerContext.AddWhen(new CommandScenarioStep<TAggregate, TIdentity, TSourceIdentity>(_resolver, command));
             return this;
-        }
-
-        public void Setup(IScenarioContext scenarioContext)
-        {
-            _scenarioContext = scenarioContext;
         }
 
         public void Dispose()
         {
+        }
+
+        public void Setup(IScenarioRunnerContext scenarioRunnerContext)
+        {
+            _scenarioRunnerContext = scenarioRunnerContext;
         }
     }
 }
