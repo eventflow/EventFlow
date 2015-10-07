@@ -50,7 +50,7 @@
     </Compile>
     <Compile Include="EventFlowEventStoresMsSql.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="MsSqlEventStore.cs" />
+    <Compile Include="MsSqlEventPersistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

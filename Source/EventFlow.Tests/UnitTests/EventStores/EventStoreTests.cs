@@ -34,7 +34,7 @@ using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
-    public class EventStoreTests : TestsFor<InMemoryEventStore>
+    public class EventStoreTests : TestsFor<InMemoryEventPersistence>
     {
         private Mock<IEventUpgradeManager> _eventUpgradeManagerMock;
         private Mock<IEventJsonSerializer> _eventJsonSerializerMock;

@@ -1,6 +1,33 @@
-### New in 0.17 (not released yet)
+### New in 0.19 (not released yet)
 
 * _Nothing yet_
+
+### New in 0.18.1181 (released 2015-10-07)
+
+* POTENTIAL DATA LOSS for the **files event store**: The EventFlow
+  internal functionality regarding event stores has been refactored resulting
+  in information regarding aggregate names being removed from the event
+  persistence layer. The files based event store no longer stores its events in
+  the path `[STORE PATH]\[AGGREGATE NAME]\[AGGREGATE ID]\[SEQUENCE].json`, but
+  in the path `[STORE PATH]\[AGGREGATE ID]\[SEQUENCE].json`. Thus if you are
+  using the files event store for tests, you should move the events into the
+  new file structure. Alternatively, implement the new `IFilesEventLocator` and
+  provide your own custom event file layout.
+* Breaking: Event stores have been split into two parts, the `IEventStore`
+  and the new `IEventPersistence`. `IEventStore` has the same interface before
+  but the implementation is now no longer responsible for persisting the events,
+  only converting and serializing the persisted events. `IEventPersistence`
+  handles the actual storing of events and thus if any custom event stores have
+  been implemented, they should implement to the new `IEventPersistence`
+  instead.
+* New: Added `IEntity`, `IEntity<>` and an optional `Entity<>` that developers
+  can use to implement DDD entities.
+
+### New in 0.17.1134 (released 2015-09-28)
+
+* Fixed: Using NuGet package `EventFlow.Autofac` causes an exception with the
+  message `The type 'EventFlow.Configuration.Registrations.AutofacStartable'
+  is not assignable to service 'Autofac.IStartable` during EventFlow setup
 
 ### New in 0.16.1120 (released 2015-09-27)
 

@@ -20,27 +20,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System.IO;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores
+namespace EventFlow.EventStores.Files
 {
-    public class SerializedEvent : ISerializedEvent
+    public class FilesEventLocator : IFilesEventLocator
     {
-        public string SerializedMetadata { get; }
-        public string SerializedData { get; }
-        public int AggregateSequenceNumber { get; }
-        public IMetadata Metadata { get; }
+        private readonly IFilesEventStoreConfiguration _configuration;
 
-        public SerializedEvent(
-            string serializedMetadata,
-            string serializedData,
-            int aggregateSequenceNumber,
-            IMetadata metadata)
+        public FilesEventLocator(
+            IFilesEventStoreConfiguration configuration)
         {
-            SerializedMetadata = serializedMetadata;
-            SerializedData = serializedData;
-            AggregateSequenceNumber = aggregateSequenceNumber;
-            Metadata = metadata;
+            _configuration = configuration;
+        }
+
+        public string GetEntityPath(IIdentity id)
+        {
+            return Path.Combine(
+                _configuration.StorePath,
+                id.Value);
+        }
+
+        public string GetEventPath(IIdentity id, int aggregateSequenceNumber)
+        {
+            return Path.Combine(
+                GetEntityPath(id),
+                $"{aggregateSequenceNumber}.json");
         }
     }
 }

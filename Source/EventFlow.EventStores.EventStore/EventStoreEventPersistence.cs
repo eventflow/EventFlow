@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventStore.ClientAPI;
@@ -34,32 +35,28 @@ using EventStore.ClientAPI.Exceptions;
 
 namespace EventFlow.EventStores.EventStore
 {
-    public class EventStoreEventStore : EventStoreBase
+    public class EventStoreEventPersistence : IEventPersistence
     {
+        private readonly ILog _log;
         private readonly IEventStoreConnection _connection;
 
         private class EventStoreEvent : ICommittedDomainEvent
         {
             public string AggregateId { get; set; }
-            public string AggregateName { get; set; }
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
         }
 
-        public EventStoreEventStore(
+        public EventStoreEventPersistence(
             ILog log,
-            IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
-            IEventUpgradeManager eventUpgradeManager,
-            IEventStoreConnection connection,
-            IEnumerable<IMetadataProvider> metadataProviders)
-            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
+            IEventStoreConnection connection)
         {
+            _log = log;
             _connection = connection;
         }
 
-        protected override async Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -104,19 +101,17 @@ namespace EventFlow.EventStores.EventStore
             return new Position(commitPosition, preparePosition);
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
-            var aggregateName = typeof (TAggregate).Name;
             var committedDomainEvents = serializedEvents
                 .Select(e => new EventStoreEvent
                     {
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
                         Metadata = e.SerializedMetadata,
                         AggregateId = id.Value,
-                        AggregateName = aggregateName,
                         Data = e.SerializedData
                     })
                 .ToList();
@@ -126,7 +121,7 @@ namespace EventFlow.EventStores.EventStore
                 .Select(e =>
                     {
                         var guid = Guid.Parse(e.Metadata["guid"]);
-                        var eventType = string.Format("{0}.{1}.{2}", aggregateName, e.Metadata.EventName, e.Metadata.EventVersion);
+                        var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
                         return new EventData(guid, eventType, true, data, meta);
@@ -142,9 +137,9 @@ namespace EventFlow.EventStores.EventStore
                 {
                     await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
                     var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
-                    Log.Verbose(
-                        "Wrote aggregate {0} with version {1} ({2},{3})",
-                        aggregateName,
+                    _log.Verbose(
+                        "Wrote entity {0} with version {1} ({2},{3})",
+                        id,
                         writeResult.NextExpectedVersion - 1,
                         writeResult.LogPosition.CommitPosition,
                         writeResult.LogPosition.PreparePosition);
@@ -158,8 +153,8 @@ namespace EventFlow.EventStores.EventStore
             return committedDomainEvents;
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
             CancellationToken cancellationToken)
         {
             var streamEvents = new List<ResolvedEvent>();
@@ -182,9 +177,7 @@ namespace EventFlow.EventStores.EventStore
             return Map(streamEvents);
         }
 
-        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
         }
@@ -197,7 +190,6 @@ namespace EventFlow.EventStores.EventStore
                         AggregateSequenceNumber = e.Event.EventNumber + 1,
                         Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
                         AggregateId = e.OriginalStreamId,
-                        AggregateName = e.Event.EventType.Split('.')[0],
                         Data = Encoding.UTF8.GetString(e.Event.Data),
                     })
                 .ToList();

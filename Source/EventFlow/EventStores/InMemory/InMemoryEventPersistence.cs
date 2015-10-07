@@ -35,8 +35,9 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventStore : EventStoreBase, IDisposable
+    public class InMemoryEventPersistence : IEventPersistence, IDisposable
     {
+        private readonly ILog _log;
         private readonly ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
@@ -61,17 +62,13 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public InMemoryEventStore(
-            ILog log,
-            IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
-            IEnumerable<IMetadataProvider> metadataProviders,
-            IEventUpgradeManager eventUpgradeManager)
-            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders)
+        public InMemoryEventPersistence(
+            ILog log)
         {
+            _log = log;
         }
 
-        protected override Task<AllCommittedEventsPage> LoadAllCommittedDomainEvents(
+        public Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -93,10 +90,7 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        protected async override Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
@@ -130,7 +124,7 @@ namespace EventFlow.EventStores.InMemory
                                     Metadata = e.SerializedMetadata,
                                     GlobalSequenceNumber = globalCount + i + 1,
                                 };
-                            Log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
                             return committedDomainEvent;
                         })
                     .ToList();
@@ -147,9 +141,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        protected override async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -160,20 +152,20 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public override Task DeleteAggregateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            if (_eventStore.ContainsKey(id.Value))
+            if (!_eventStore.ContainsKey(id.Value))
             {
-                List<InMemoryCommittedDomainEvent> committedDomainEvents;
-                _eventStore.TryRemove(id.Value, out committedDomainEvents);
-                Log.Verbose(
-                    "Deleted aggregate '{0}' with ID '{1}' by deleting all of its {2} events",
-                    typeof(TAggregate).Name,
-                    id,
-                    committedDomainEvents.Count);
+                return Task.FromResult(0);
             }
+
+            List<InMemoryCommittedDomainEvent> committedDomainEvents;
+            _eventStore.TryRemove(id.Value, out committedDomainEvents);
+
+            _log.Verbose(
+                "Deleted entity with ID '{0}' by deleting all of its {1} events",
+                id,
+                committedDomainEvents.Count);
 
             return Task.FromResult(0);
         }

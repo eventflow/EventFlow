@@ -20,27 +20,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Entities
 {
-    public class SerializedEvent : ISerializedEvent
+    public abstract class Entity<TIdentity> : IEntity<TIdentity>
+        where TIdentity : IIdentity
     {
-        public string SerializedMetadata { get; }
-        public string SerializedData { get; }
-        public int AggregateSequenceNumber { get; }
-        public IMetadata Metadata { get; }
-
-        public SerializedEvent(
-            string serializedMetadata,
-            string serializedData,
-            int aggregateSequenceNumber,
-            IMetadata metadata)
+        protected Entity(TIdentity id)
         {
-            SerializedMetadata = serializedMetadata;
-            SerializedData = serializedData;
-            AggregateSequenceNumber = aggregateSequenceNumber;
-            Metadata = metadata;
+            Id = id;
+        }
+
+        public TIdentity Id { get; }
+
+        public IIdentity GetIdentity()
+        {
+            return Id;
         }
     }
 }
