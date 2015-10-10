@@ -22,11 +22,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores.SQLite
@@ -128,18 +130,30 @@ namespace EventFlow.EventStores.SQLite
 
             List<long> ids = new List<long>();
 
-            // TODO: Handle optimistic concurrency
-
-            foreach (var eventDataModel in eventDataModels)
+            try
             {
-                var row = await _connection.QueryAsync<long>(
-                    Label.Named("sqlite-insert-single-event"),
-                    cancellationToken,
-                    sql,
-                    eventDataModel)
-                    .ConfigureAwait(false);
-                var globalId = (row).OrderByDescending(i => i).First(); // TODO: WHY?
-                ids.Add(globalId);
+                // TODO: Do in transaction
+
+                foreach (var eventDataModel in eventDataModels)
+                {
+                    var row = await _connection.QueryAsync<long>(
+                        Label.Named("sqlite-insert-single-event"),
+                        cancellationToken,
+                        sql,
+                        eventDataModel)
+                        .ConfigureAwait(false);
+                    var globalId = (row).OrderByDescending(i => i).First(); // TODO: WHY?
+                    ids.Add(globalId);
+                }
+            }
+            catch (SQLiteException e)
+            {
+                if (e.ErrorCode == 19)
+                {
+                    throw new OptimisticConcurrencyException(e.ToString(), e);
+                }
+
+                throw;
             }
 
             eventDataModels = eventDataModels

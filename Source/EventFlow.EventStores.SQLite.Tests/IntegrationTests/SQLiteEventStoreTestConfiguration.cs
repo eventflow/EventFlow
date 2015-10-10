@@ -61,7 +61,7 @@ namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
                 .CreateResolver();
 
             var connection = resolver.Resolve<IConnection>();
-            const string sql = @"
+            const string sqlCreateTable = @"
                 CREATE TABLE [EventFlow](
 	                [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
 	                [BatchId] [uniqueidentifier] NOT NULL,
@@ -71,7 +71,14 @@ namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
 	                [Metadata] [nvarchar](1024) NOT NULL,
 	                [AggregateSequenceNumber] [int] NOT NULL
                 )";
-            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sql, null).Wait();
+            const string sqlCreateIndex = @"
+                CREATE UNIQUE INDEX [IX_EventFlow_AggregateId_AggregateSequenceNumber] ON [EventFlow]
+                (
+	                [AggregateId] ASC,
+	                [AggregateSequenceNumber] ASC
+                )";
+            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlCreateTable, null).Wait();
+            connection.ExecuteAsync(Label.Named("create-index"), CancellationToken.None, sqlCreateIndex, null).Wait();
 
             _queryProcessor = resolver.Resolve<IQueryProcessor>();
             _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
