@@ -34,6 +34,7 @@ namespace EventFlow.Extensions
         {
             return eventFlowOptions
                 .AddEvents(fromAssembly, predicate)
+                .AddJobs(fromAssembly, predicate)
                 .AddCommands(fromAssembly, predicate)
                 .AddCommandHandlers(fromAssembly, predicate)
                 .AddMetadataProviders(fromAssembly, predicate)
