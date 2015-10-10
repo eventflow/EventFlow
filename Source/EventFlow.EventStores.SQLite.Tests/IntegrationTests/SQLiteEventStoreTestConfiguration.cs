@@ -47,8 +47,7 @@ namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
 
-            SQLiteConnection.CreateFile(_databasePath);
-            GC.Collect();
+            using (File.Create(_databasePath)){ }
 
             var resolver = eventFlowOptions
                 .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
