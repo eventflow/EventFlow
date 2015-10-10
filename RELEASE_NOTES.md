@@ -1,6 +1,7 @@
 ### New in 0.19 (not released yet)
 
-* _Nothing yet_
+* Breaking: `AddDefaults` now also adds the job type definition to the
+  `IJobsDefinitonService`
 
 ### New in 0.18.1181 (released 2015-10-07)
 
