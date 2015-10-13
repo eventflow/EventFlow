@@ -49,6 +49,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Hangfire", "Sourc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Hangfire.Tests", "Source\EventFlow.Hangfire.Tests\EventFlow.Hangfire.Tests.csproj", "{35180FC7-9135-4E79-8643-0FB825B40871}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{9087A944-3A64-465D-B82A-93B6ABFF1A5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Examples.Shipping", "Source\EventFlow.Examples.Shipping\EventFlow.Examples.Shipping.csproj", "{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Examples.Shipping.Tests", "Source\EventFlow.Examples.Shipping.Tests\EventFlow.Examples.Shipping.Tests.csproj", "{A6F9C84B-27F6-4179-9768-4AA2099405FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +129,14 @@ Global
 		{35180FC7-9135-4E79-8643-0FB825B40871}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35180FC7-9135-4E79-8643-0FB825B40871}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35180FC7-9135-4E79-8643-0FB825B40871}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6F9C84B-27F6-4179-9768-4AA2099405FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6F9C84B-27F6-4179-9768-4AA2099405FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6F9C84B-27F6-4179-9768-4AA2099405FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6F9C84B-27F6-4179-9768-4AA2099405FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,5 +156,7 @@ Global
 		{EDCD8854-6224-4329-87C2-9ADD7D153070} = {980EEDAA-1FEF-4D7C-8811-5EF1D9729773}
 		{FB079985-722A-43C9-9F14-C7D2AFBE8826} = {4741A405-DA64-40CC-A726-A2C48CA49DA3}
 		{35180FC7-9135-4E79-8643-0FB825B40871} = {4741A405-DA64-40CC-A726-A2C48CA49DA3}
+		{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39} = {9087A944-3A64-465D-B82A-93B6ABFF1A5B}
+		{A6F9C84B-27F6-4179-9768-4AA2099405FC} = {9087A944-3A64-465D-B82A-93B6ABFF1A5B}
 	EndGlobalSection
 EndGlobal
