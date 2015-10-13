@@ -20,17 +20,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.ValueObjects;
-using Newtonsoft.Json;
+using EventFlow.Aggregates;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.ReadStores;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.ReadModels
 {
-    [JsonConverter(typeof (SingleValueObjectConverter))]
-    public class CargoId : Identity<CargoId>
+    public class VoyageReadModel : IReadModel,
+        IAmReadModelFor<VoyageAggregate, VoyageId, VoyageCreatedEvent>
     {
-        public CargoId(string value) : base(value)
+        public VoyageId Id { get; private set; }
+        public Schedule Schedule { get; private set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<VoyageAggregate, VoyageId, VoyageCreatedEvent> e)
         {
+            Id = e.AggregateIdentity;
+            Schedule = e.AggregateEvent.Schedule;
         }
     }
 }

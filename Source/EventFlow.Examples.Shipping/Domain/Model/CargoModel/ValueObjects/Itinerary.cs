@@ -22,41 +22,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
 {
-    public class Leg : ValueObject
+    public class Itinerary : ValueObject
     {
-        public Leg(
-            LocationId loadLocation,
-            LocationId unloadLocation,
-            DateTimeOffset loadTime,
-            DateTimeOffset unloadTime)
+        public Itinerary(
+            IEnumerable<Leg> legs)
         {
-            if (loadLocation == null) throw new ArgumentNullException(nameof(loadLocation));
-            if (unloadLocation == null) throw new ArgumentNullException(nameof(unloadLocation));
-            if (loadTime == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(loadTime));
-            if (unloadTime == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(unloadTime));
+            var legsList = (legs ?? Enumerable.Empty<Leg>()).ToList();
 
-            LoadLocation = loadLocation;
-            UnloadLocation = unloadLocation;
-            LoadTime = loadTime;
-            UnloadTime = unloadTime;
+            if (!legsList.Any()) throw new ArgumentException(nameof(legs));
+
+            Legs = legsList;
         }
 
-        public LocationId LoadLocation { get; }
-        public LocationId UnloadLocation { get; }
-        public DateTimeOffset LoadTime { get; }
-        public DateTimeOffset UnloadTime { get; }
+        public IReadOnlyList<Leg> Legs { get; }
+
+        public LocationId DepartureLocation()
+        {
+            return Legs.First().LoadLocation;
+        }
+
+        public DateTimeOffset DepartureTime()
+        {
+            return Legs.First().UnloadTime;
+        }
+
+        public DateTimeOffset ArrivalTime()
+        {
+            return Legs.Last().UnloadTime;
+        }
+
+        public LocationId ArrivalLocation()
+        {
+            return Legs.Last().UnloadLocation;
+        }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            yield return LoadLocation;
-            yield return UnloadLocation;
-            yield return LoadTime;
-            yield return UnloadTime;
+            return Legs;
         }
     }
 }

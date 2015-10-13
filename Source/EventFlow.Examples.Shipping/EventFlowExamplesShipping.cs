@@ -21,11 +21,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Reflection;
+using EventFlow.Examples.Shipping.Application;
+using EventFlow.Examples.Shipping.ReadModels;
+using EventFlow.Examples.Shipping.Services.Routing;
+using EventFlow.Extensions;
 
 namespace EventFlow.Examples.Shipping
 {
     public static class EventFlowExamplesShipping
     {
         public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
+
+        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .AddDefaults(Assembly)
+                .RegisterServices(sr =>
+                    {
+                        sr.Register<IBookingApplicationService, BookingApplicationService>();
+                        sr.Register<IRoutingService, RoutingService>();
+                    })
+                // Configure in-memory read models
+                .UseInMemoryReadStoreFor<VoyageReadModel>();
+        }
     }
 }

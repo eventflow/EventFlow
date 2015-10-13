@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {

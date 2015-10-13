@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,20 +44,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\Model\CargoModel\Cargo.cs" />
     <Compile Include="Domain\Model\CargoModel\CargoAggregate.cs" />
     <Compile Include="Domain\Model\CargoModel\CargoId.cs" />
-    <Compile Include="Domain\Model\CargoModel\Itinerary.cs" />
-    <Compile Include="Domain\Model\CargoModel\Leg.cs" />
-    <Compile Include="Domain\Model\CargoModel\RouteSpecification.cs" />
-    <Compile Include="Domain\Model\CargoModel\TrackingId.cs" />
+    <Compile Include="Domain\Model\CargoModel\CargoState.cs" />
+    <Compile Include="Domain\Model\CargoModel\Commands\CargoSetItineraryCommand.cs" />
+    <Compile Include="Domain\Model\CargoModel\Commands\CargoBookCommand.cs" />
+    <Compile Include="Domain\Model\CargoModel\Events\CargoBookedEvent.cs" />
+    <Compile Include="Domain\Model\CargoModel\Events\CargoItinerarySetEvent.cs" />
+    <Compile Include="Domain\Model\CargoModel\ValueObjects\Itinerary.cs" />
+    <Compile Include="Domain\Model\CargoModel\ValueObjects\Leg.cs" />
+    <Compile Include="Domain\Model\CargoModel\ValueObjects\Route.cs" />
+    <Compile Include="Domain\Model\CargoModel\Specifications\RouteSpecification.cs" />
     <Compile Include="Domain\Model\LocationModel\Events\LocationCreatedEvent.cs" />
     <Compile Include="Domain\Model\LocationModel\Location.cs" />
     <Compile Include="Domain\Model\LocationModel\LocationAggregate.cs" />
     <Compile Include="Domain\Model\LocationModel\LocationId.cs" />
     <Compile Include="Domain\Model\LocationModel\LocationState.cs" />
-    <Compile Include="Domain\Model\VoyageModel\CarrierMovement.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Commands\VoyageCreateCommand.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Queries\GetAllSchedulesQuery.cs" />
+    <Compile Include="Domain\Model\VoyageModel\ValueObjects\CarrierMovement.cs" />
     <Compile Include="Domain\Model\VoyageModel\Events\VoyageCreatedEvent.cs" />
-    <Compile Include="Domain\Model\VoyageModel\Schedule.cs" />
+    <Compile Include="Domain\Model\VoyageModel\ValueObjects\Schedule.cs" />
     <Compile Include="Domain\Model\VoyageModel\Voyage.cs" />
     <Compile Include="Domain\Model\VoyageModel\VoyageAggregate.cs" />
     <Compile Include="Domain\Model\VoyageModel\ScheduleBuilder.cs" />
@@ -63,6 +75,11 @@
     <Compile Include="Extensions\CarrierMovementExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Application\BookingApplicationService.cs" />
+    <Compile Include="Application\IBookingApplicationService.cs" />
+    <Compile Include="QueryHandlers\GetAllSchedulesQueryHandler.cs" />
+    <Compile Include="ReadModels\VoyageReadModel.cs" />
+    <Compile Include="Services\Routing\IRoutingService.cs" />
     <Compile Include="Services\Routing\RoutingService.cs" />
     <Compile Include="Shared\Specifications\AndSpecification.cs" />
     <Compile Include="Shared\Specifications\ISpecification.cs" />
@@ -76,8 +93,9 @@
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Domain\Model\LocationModel\Commands\" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

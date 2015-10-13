@@ -30,5 +30,10 @@ namespace EventFlow.Examples.Shipping.Extensions
         {
             return me > before;
         }
+
+        public static bool IsBefore(this DateTimeOffset me, DateTimeOffset after)
+        {
+            return me < after;
+        }
     }
 }

@@ -20,17 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.ValueObjects;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries
 {
-    [JsonConverter(typeof (SingleValueObjectConverter))]
-    public class CargoId : Identity<CargoId>
+    public class GetAllSchedulesQuery : IQuery<IReadOnlyCollection<Schedule>>
     {
-        public CargoId(string value) : base(value)
-        {
-        }
     }
 }

@@ -20,39 +20,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Extensions;
 using EventFlow.Examples.Shipping.Shared.Specifications;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
 {
     public class RouteSpecification : Specification<Itinerary>
     {
+        public Route Route { get; }
+
         public RouteSpecification(
-            LocationId originLocationId,
-            LocationId destinationLocationId,
-            DateTimeOffset arrivalDeadline)
+            Route route)
         {
-            if (originLocationId == null) throw new ArgumentNullException(nameof(originLocationId));
-            if (destinationLocationId == null) throw new ArgumentNullException(nameof(destinationLocationId));
-            if (arrivalDeadline == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(arrivalDeadline));
-
-            OriginLocationId = originLocationId;
-            DestinationLocationId = destinationLocationId;
-            ArrivalDeadline = arrivalDeadline;
+            Route = route;
         }
-
-        public LocationId OriginLocationId { get; set; }
-        public LocationId DestinationLocationId { get; set; }
-        public DateTimeOffset ArrivalDeadline { get; set; }
 
         public override bool IsSatisfiedBy(Itinerary obj)
         {
             return
-                OriginLocationId == obj.DepartureLocation() &&
-                DestinationLocationId == obj.ArrivalLocation() &&
-                ArrivalDeadline.IsAfter(obj.ArrivalTime());
+                Route.OriginLocationId == obj.DepartureLocation() &&
+                Route.DestinationLocationId == obj.ArrivalLocation() &&
+                Route.DepartureTime.IsBefore(obj.DepartureTime()) &&
+                Route.ArrivalDeadline.IsAfter(obj.ArrivalTime());
         }
     }
 }

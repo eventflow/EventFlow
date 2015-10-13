@@ -20,46 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
-using EventFlow.ValueObjects;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Application
 {
-    public class Itinerary : ValueObject
+    public interface IBookingApplicationService
     {
-        public Itinerary(
-            IEnumerable<Leg> legs)
-        {
-            var legsList = (legs ?? Enumerable.Empty<Leg>()).ToList();
-
-            if (!legsList.Any()) throw new ArgumentException(nameof(legs));
-
-            Legs = legsList;
-        }
-
-        public IReadOnlyList<Leg> Legs { get; }
-
-        public LocationId DepartureLocation()
-        {
-            return Legs.First().LoadLocation;
-        }
-
-        public DateTimeOffset ArrivalTime()
-        {
-            return Legs.Last().UnloadTime;
-        }
-
-        public LocationId ArrivalLocation()
-        {
-            return Legs.Last().UnloadLocation;
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            return Legs;
-        }
+        Task<CargoId> BookCargoAsync(Route route, CancellationToken cancellationToken);
     }
 }

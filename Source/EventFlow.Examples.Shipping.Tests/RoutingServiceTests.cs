@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Services.Routing;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -33,9 +34,11 @@ namespace EventFlow.Examples.Shipping.Tests
         public void Itinerary()
         {
             var itinerary = Sut.CalculateItinerary(
-                1.October(2008).At(11, 00),
-                Locations.Tokyo,
-                Locations.Chicago,
+                new Route(
+                    Locations.Tokyo,
+                    Locations.Chicago,
+                    1.October(2008).At(11, 00),
+                    1.January(2014)), 
                 new[] {Voyages.HongkongToNewYork, Voyages.NewYorkToDallas});
         }
     }

@@ -20,16 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.ValueObjects;
-using Newtonsoft.Json;
+using EventFlow.Entities;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
 {
-    [JsonConverter(typeof (SingleValueObjectConverter))]
-    public class CargoId : Identity<CargoId>
+    public class Cargo : Entity<CargoId>
     {
-        public CargoId(string value) : base(value)
+        public Cargo(CargoId id) : base(id)
         {
         }
     }

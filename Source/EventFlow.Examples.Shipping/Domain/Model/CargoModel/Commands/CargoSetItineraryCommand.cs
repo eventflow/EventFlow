@@ -20,17 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.ValueObjects;
-using Newtonsoft.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Commands
 {
-    [JsonConverter(typeof (SingleValueObjectConverter))]
-    public class CargoId : Identity<CargoId>
+    public class CargoSetItineraryCommand : Command<CargoAggregate, CargoId>
     {
-        public CargoId(string value) : base(value)
+        public CargoSetItineraryCommand(
+            CargoId aggregateId,
+            Itinerary itinerary)
+            : base(aggregateId)
         {
+            Itinerary = itinerary;
+        }
+
+        public Itinerary Itinerary { get; }
+    }
+
+    public class CargoSetItineraryCommandHandler : CommandHandler<CargoAggregate, CargoId, CargoSetItineraryCommand>
+    {
+        public override Task ExecuteAsync(CargoAggregate aggregate, CargoSetItineraryCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.SetItinerary(command.Itinerary);
+            return Task.FromResult(0);
         }
     }
 }

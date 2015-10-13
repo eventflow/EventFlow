@@ -20,17 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.ValueObjects;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Examples.Shipping.ReadModels;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.QueryHandlers
 {
-    [JsonConverter(typeof (SingleValueObjectConverter))]
-    public class CargoId : Identity<CargoId>
+    public class GetAllSchedulesQueryHandler : IQueryHandler<GetAllSchedulesQuery, IReadOnlyCollection<Schedule>>
     {
-        public CargoId(string value) : base(value)
+        private readonly IInMemoryReadStore<VoyageReadModel> _readStore;
+
+        public GetAllSchedulesQueryHandler(
+            IInMemoryReadStore<VoyageReadModel> readStore)
         {
+            _readStore = readStore;
+        }
+
+        public async Task<IReadOnlyCollection<Schedule>> ExecuteQueryAsync(GetAllSchedulesQuery query, CancellationToken cancellationToken)
+        {
+            var voyageReadModels = await _readStore.FindAsync(rm => true, cancellationToken).ConfigureAwait(false);
+            return voyageReadModels.Select(rm => rm.Schedule).ToList();
         }
     }
 }

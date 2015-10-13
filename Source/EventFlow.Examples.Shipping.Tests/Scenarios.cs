@@ -28,11 +28,15 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Examples.Shipping.Application;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests
@@ -41,14 +45,16 @@ namespace EventFlow.Examples.Shipping.Tests
     {
         private IRootResolver _resolver;
         private IEventStore _eventStore;
+        private ICommandBus _commandBus;
 
         [SetUp]
         public void SetUp()
         {
             _resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowExamplesShipping.Assembly)
+                .ConfigureShippingDomain()
                 .CreateResolver();
             _eventStore = _resolver.Resolve<IEventStore>();
+            _commandBus = _resolver.Resolve<ICommandBus>();
         }
 
         [TearDown]
@@ -63,6 +69,14 @@ namespace EventFlow.Examples.Shipping.Tests
             await CreateLocationAggregatesAsync().ConfigureAwait(false);
             await CreateVoyageAggregatesAsync().ConfigureAwait(false);
 
+            var route = new Route(
+                Locations.Tokyo,
+                Locations.Chicago,
+                1.October(2008).At(11, 00),
+                1.January(2014));
+
+            var booking = _resolver.Resolve<IBookingApplicationService>();
+            await booking.BookCargoAsync(route, CancellationToken.None).ConfigureAwait(false);
         }
 
         public Task CreateVoyageAggregatesAsync()
@@ -72,7 +86,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
         public Task CreateVoyageAggregateAsync(Voyage voyage)
         {
-            return UpdateAsync<VoyageAggregate, VoyageId>(voyage.Id, a => a.Create(voyage.Schedule));
+            return _commandBus.PublishAsync(new VoyageCreateCommand(voyage.Id, voyage.Schedule), CancellationToken.None);
         }
 
         public Task CreateLocationAggregatesAsync()

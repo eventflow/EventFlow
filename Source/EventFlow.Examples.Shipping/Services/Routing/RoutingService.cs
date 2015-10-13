@@ -23,23 +23,40 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
-using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.Examples.Shipping.Extensions;
+using EventFlow.Queries;
 
 namespace EventFlow.Examples.Shipping.Services.Routing
 {
-    public class RoutingService
+    public class RoutingService : IRoutingService
     {
-        public Itinerary CalculateItinerary(DateTimeOffset departureTime, LocationId source, LocationId destination, IReadOnlyCollection<Schedule> schedules)
+        private readonly IQueryProcessor _queryProcessor;
+
+        public RoutingService(
+            IQueryProcessor queryProcessor)
         {
-            var path = CalculatePath(departureTime, source, destination, schedules);
+            _queryProcessor = queryProcessor;
+        }
+
+        public async Task<Itinerary> CalculateItineraryAsync(Route route, CancellationToken cancellationToken)
+        {
+            var schedules = await _queryProcessor.ProcessAsync(new GetAllSchedulesQuery(), cancellationToken).ConfigureAwait(false);
+            return CalculateItinerary(route, schedules);
+        }
+
+        public Itinerary CalculateItinerary(Route route, IReadOnlyCollection<Schedule> schedules)
+        {
+            var path = CalculatePath(route, schedules);
             var legs = path.CarrierMovements.Select(m => new Leg(m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime));
             return new Itinerary(legs);
         }
 
-        public Path CalculatePath(DateTimeOffset departureTime, LocationId source, LocationId destination, IReadOnlyCollection<Schedule> schedules)
+        private static Path CalculatePath(Route route, IEnumerable<Schedule> schedules)
         {
             var graph = new Graph();
             foreach (var carrierMovement in schedules.SelectMany(s => s.CarrierMovements))
@@ -49,7 +66,7 @@ namespace EventFlow.Examples.Shipping.Services.Routing
 
             var paths = new List<Path>
             {
-                new Path(0.0, departureTime, graph.Nodes[source.Value])
+                new Path(0.0, route.DepartureTime, graph.Nodes[route.OriginLocationId.Value])
             };
 
             while (true)
@@ -66,7 +83,7 @@ namespace EventFlow.Examples.Shipping.Services.Routing
 
                 foreach (var path in orderedPaths)
                 {
-                    if (path.CurrentNode.Name == destination.Value)
+                    if (path.CurrentNode.Name == route.DestinationLocationId.Value)
                     {
                         return path;
                     }

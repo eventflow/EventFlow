@@ -20,47 +20,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Events;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Commands;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
-using EventFlow.Exceptions;
+using EventFlow.Examples.Shipping.Services.Routing;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Application
 {
-    public class CargoAggregate : AggregateRoot<CargoAggregate, CargoId>
+    public class BookingApplicationService : IBookingApplicationService
     {
-        private readonly CargoState _state = new CargoState();
+        private readonly ICommandBus _commandBus;
+        private readonly IRoutingService _routingService;
 
-        public CargoAggregate(CargoId id) : base(id)
+        public BookingApplicationService(
+            ICommandBus commandBus,
+            IRoutingService routingService)
         {
-            Register(_state);
+            _commandBus = commandBus;
+            _routingService = routingService;
         }
 
-        public Route Route => _state.Route;
-        public Itinerary Itinerary => _state.Itinerary;
-
-        public void Book(Route route)
+        public async Task<CargoId> BookCargoAsync(Route route, CancellationToken cancellationToken)
         {
-            if (!IsNew) throw DomainError.With("Cargo already booked");
-            Emit(new CargoBookedEvent(route));
-        }
+            var cargoId = CargoId.New;
+            await _commandBus.PublishAsync(new CargoBookCommand(cargoId, route), cancellationToken).ConfigureAwait(false);
 
-        public void SetItinerary(Itinerary itinerary)
-        {
-            ValidateIsNotNew();
-            if (!Route.Specification().IsSatisfiedBy(itinerary))
-            {
-                throw DomainError.With("Itinerary isn't satisfied by the route specification");
-            }
-            Emit(new CargoItinerarySetEvent(itinerary));
-        }
+            var itinerary = await _routingService.CalculateItineraryAsync(route, cancellationToken).ConfigureAwait(false);
 
-        private void ValidateIsNotNew()
-        {
-            if (IsNew)
-            {
-                throw DomainError.With("Cargo hasn't been booked yet");
-            }
+            await _commandBus.PublishAsync(new CargoSetItineraryCommand(cargoId, itinerary), cancellationToken).ConfigureAwait(false);
+
+            return cargoId;
         }
     }
 }

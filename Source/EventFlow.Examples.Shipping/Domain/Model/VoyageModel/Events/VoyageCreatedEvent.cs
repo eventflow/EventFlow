@@ -22,6 +22,7 @@
 
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events
 {

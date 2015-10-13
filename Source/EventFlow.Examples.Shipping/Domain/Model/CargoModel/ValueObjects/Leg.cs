@@ -22,28 +22,41 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
 {
-    public class Schedule : ValueObject
+    public class Leg : ValueObject
     {
-        public Schedule(
-            IEnumerable<CarrierMovement> carrierMovements)
+        public Leg(
+            LocationId loadLocation,
+            LocationId unloadLocation,
+            DateTimeOffset loadTime,
+            DateTimeOffset unloadTime)
         {
-            var carrierMovementList = (carrierMovements ?? Enumerable.Empty<CarrierMovement>()).ToList();
+            if (loadLocation == null) throw new ArgumentNullException(nameof(loadLocation));
+            if (unloadLocation == null) throw new ArgumentNullException(nameof(unloadLocation));
+            if (loadTime == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(loadTime));
+            if (unloadTime == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(unloadTime));
 
-            if (!carrierMovementList.Any()) throw new ArgumentException(nameof(carrierMovements));
-
-            CarrierMovements = carrierMovementList;
+            LoadLocation = loadLocation;
+            UnloadLocation = unloadLocation;
+            LoadTime = loadTime;
+            UnloadTime = unloadTime;
         }
 
-        public IReadOnlyList<CarrierMovement> CarrierMovements { get; }
+        public LocationId LoadLocation { get; }
+        public LocationId UnloadLocation { get; }
+        public DateTimeOffset LoadTime { get; }
+        public DateTimeOffset UnloadTime { get; }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            return CarrierMovements;
+            yield return LoadLocation;
+            yield return UnloadLocation;
+            yield return LoadTime;
+            yield return UnloadTime;
         }
     }
 }
