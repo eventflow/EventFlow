@@ -21,10 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.Core.VersionedTypes
 {
-    public abstract class VersionedTypeDefinition
+    public abstract class VersionedTypeDefinition : ValueObject
     {
         public int Version { get; }
         public Type Type { get; }
@@ -44,6 +46,13 @@ namespace EventFlow.Core.VersionedTypes
         {
             var assemblyName = Type.Assembly.GetName();
             return $"{Name} v{Version} ({assemblyName.Name} - {Type.Name})";
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Version;
+            yield return Type;
+            yield return Name;
         }
     }
 }

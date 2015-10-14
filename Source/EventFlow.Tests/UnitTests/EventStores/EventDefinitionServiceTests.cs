@@ -82,6 +82,16 @@ namespace EventFlow.Tests.UnitTests.EventStores
         }
 
         [Test]
+        public void CanLoadSameEventMultipleTimes()
+        {
+            Assert.DoesNotThrow(() =>
+            {
+                Sut.LoadEvents(new[] { typeof(TestEvent), typeof(TestEvent) });
+                Sut.LoadEvents(new[] { typeof(TestEvent) });
+            });
+        }
+
+        [Test]
         public void CanLoadNull()
         {
             // Act
