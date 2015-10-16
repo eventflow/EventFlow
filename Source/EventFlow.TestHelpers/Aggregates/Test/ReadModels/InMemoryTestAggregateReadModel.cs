@@ -31,12 +31,12 @@ namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public int PingsReceived { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> domainEvent)
         {
             DomainErrorAfterFirstReceived = true;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
         {
             PingsReceived++;
         }

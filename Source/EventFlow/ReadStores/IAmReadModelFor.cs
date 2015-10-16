@@ -30,6 +30,6 @@ namespace EventFlow.ReadStores
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        void Apply(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> e);
+        void Apply(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent);
     }
 }
