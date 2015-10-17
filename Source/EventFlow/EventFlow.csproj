@@ -169,6 +169,7 @@
     <Compile Include="Extensions\IdentityExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
     <Compile Include="Extensions\SourceIdExtensions.cs" />
+    <Compile Include="Extensions\SpeficicationExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IEventFlowOptions.cs" />
@@ -186,6 +187,10 @@
     <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Provided\ProvidedJobsConfigurationModule.cs" />
+    <Compile Include="Provided\Specifications\AggregateIsNewSpecification.cs" />
+    <Compile Include="Provided\Specifications\AndSpeficication.cs" />
+    <Compile Include="Provided\Specifications\NotSpecification.cs" />
+    <Compile Include="Provided\Specifications\OrSpecification.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />
@@ -208,6 +213,8 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
+    <Compile Include="Specifications\ISpecification.cs" />
+    <Compile Include="Specifications\Specification.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />

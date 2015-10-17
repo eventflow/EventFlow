@@ -20,38 +20,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using System.Linq;
+using EventFlow.Specifications;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Provided.Specifications
 {
-    public interface IAggregateRoot
+    public class OrSpecification<T> : Specification<T>
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        private readonly ISpecification<T> _specification1;
+        private readonly ISpecification<T> _specification2;
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
+        public OrSpecification(
+            ISpecification<T> specification1,
+            ISpecification<T> specification2)
+        {
+            if (specification1 == null) throw new ArgumentNullException(nameof(specification1));
+            if (specification2 == null) throw new ArgumentNullException(nameof(specification2));
 
-        bool HasSourceId(ISourceId sourceId);
+            _specification1 = specification1;
+            _specification2 = specification2;
+        }
 
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
+        protected override IEnumerable<string> IsNotStatisfiedBecause(T obj)
+        {
+            var reasons1 = _specification1.WhyIsNotStatisfiedBy(obj).ToList();
+            var reasons2 = _specification2.WhyIsNotStatisfiedBy(obj).ToList();
 
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
+            if (!reasons1.Any() || !reasons2.Any())
+            {
+                return Enumerable.Empty<string>();
+            }
 
-        IIdentity GetIdentity();
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+            return reasons1.Concat(reasons2);
+        }
     }
 }
