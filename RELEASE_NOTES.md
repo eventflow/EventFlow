@@ -2,6 +2,10 @@
 
 * Breaking: `AddDefaults` now also adds the job type definition to the
   `IJobsDefinitonService`
+* Fixed: `IEventDefinitionService`, `ICommandDefinitonService` and
+  `IJobsDefinitonService` now longer throw an exception if an existing
+  event is loaded, i.e., multiple calls to `AddEvents(...)`, `AddCommand(...)`
+  and `AddJobs(...)` no longer throws an exception
 
 ### New in 0.18.1181 (released 2015-10-07)
 
