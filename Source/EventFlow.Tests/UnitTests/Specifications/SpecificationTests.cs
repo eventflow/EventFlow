@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Specifications;
 using FluentAssertions;
@@ -168,6 +169,26 @@ namespace EventFlow.Tests.UnitTests.Specifications
 
             // Assert
             isSatisfiedBy.Should().Be(expectedIsSatisfiedBy);
+        }
+
+        [Test]
+        public void ThrowDomainErrorIfNotStatisfied_Throws_IfNotSatisfied()
+        {
+            // Arrange
+            var isTrue = new IsTrueSpecification();
+
+            // Act
+            Assert.Throws<DomainError>(() => isTrue.ThrowDomainErrorIfNotStatisfied(false));
+        }
+
+        [Test]
+        public void ThrowDomainErrorIfNotStatisfied_DoesNotThrow_IfStatisfied()
+        {
+            // Arrange
+            var isTrue = new IsTrueSpecification();
+
+            // Act
+            Assert.DoesNotThrow(() => isTrue.ThrowDomainErrorIfNotStatisfied(true));
         }
 
         public class IsAboveSpecification : Specification<int>
