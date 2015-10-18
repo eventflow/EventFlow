@@ -2,6 +2,9 @@
 
 * Breaking: `AddDefaults` now also adds the job type definition to the
   `IJobsDefinitonService`
+* New: Implemented a basic specification pattern by providing
+  `ISpecification<T>`, an easy-to-use `Specificaion<T>` and a set of extension
+  methods. Look at the EventFlow specification tests to get started
 * Fixed: `IEventDefinitionService`, `ICommandDefinitonService` and
   `IJobsDefinitonService` now longer throw an exception if an existing
   event is loaded, i.e., multiple calls to `AddEvents(...)`, `AddCommand(...)`

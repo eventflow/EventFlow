@@ -21,37 +21,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using System.Linq;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Specifications
 {
-    public interface IAggregateRoot
+    public abstract class Specification<T> : ISpecification<T>
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        public bool IsSatisfiedBy(T obj)
+        {
+            return !IsNotStatisfiedBecause(obj).Any();
+        }
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
+        public IEnumerable<string> WhyIsNotStatisfiedBy(T obj)
+        {
+            return IsNotStatisfiedBecause(obj);
+        }
 
-        bool HasSourceId(ISourceId sourceId);
-
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-
-        IIdentity GetIdentity();
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+        protected abstract IEnumerable<string> IsNotStatisfiedBecause(T obj);
     }
 }
