@@ -57,7 +57,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
         }
 
         [Test]
-        public void NotSpeficication_ReturnsTrue_ForNotSatisfied()
+        public void NotSpecification_ReturnsTrue_ForNotSatisfied()
         {
             // Arrange
             var isTrue = new IsTrueSpecification();
