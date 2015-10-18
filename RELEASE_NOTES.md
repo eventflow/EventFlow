@@ -6,6 +6,8 @@
   `IJobsDefinitonService` now longer throw an exception if an existing
   event is loaded, i.e., multiple calls to `AddEvents(...)`, `AddCommand(...)`
   and `AddJobs(...)` no longer throws an exception
+* Fixed: `DomainError.With(...)` no longer executes `string.format` if only
+  one argument is parsed
 
 ### New in 0.18.1181 (released 2015-10-07)
 
