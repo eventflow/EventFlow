@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Exceptions;
 using EventFlow.Provided.Specifications;
@@ -28,7 +29,7 @@ using EventFlow.Specifications;
 
 namespace EventFlow.Extensions
 {
-    public static class SpeficicationExtensions
+    public static class SpecificationExtensions
     {
         public static void ThrowDomainErrorIfNotStatisfied<T>(
             this ISpecification<T> specification,
@@ -43,6 +44,19 @@ namespace EventFlow.Extensions
                     $"'{specification.GetType().PrettyPrint()}' is not satisfied becase of {string.Join(" and ", whyIsNotStatisfiedBy)}");
             }
         }
+
+        public static ISpecification<T> All<T>(
+            this IEnumerable<ISpecification<T>> specifications)
+        {
+            return new AllSpecifications<T>(specifications);
+        }
+
+        public static ISpecification<T> AtLeast<T>(
+            this IEnumerable<ISpecification<T>> specifications,
+            int requiredSpecifications)
+        {
+            return new AtLeastSpecification<T>(requiredSpecifications, specifications);
+        } 
 
         public static ISpecification<T> And<T>(
             this ISpecification<T> specification1,

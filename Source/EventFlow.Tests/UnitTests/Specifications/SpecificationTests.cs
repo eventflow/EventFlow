@@ -122,6 +122,73 @@ namespace EventFlow.Tests.UnitTests.Specifications
             isSatisfiedBy.Should().Be(expectedResult);
         }
 
+        [TestCase(1, 1, false)]
+        [TestCase(1, 2, true)]
+        [TestCase(1, 3, true)]
+        [TestCase(1, 4, true)]
+        [TestCase(1, 5, true)]
+        [TestCase(3, 1, false)]
+        [TestCase(3, 2, false)]
+        [TestCase(3, 3, false)]
+        [TestCase(3, 4, true)]
+        [TestCase(3, 5, true)]
+        public void AtLeast_Returns_Correctly(int requiredSpecifications, int obj, bool expectedIsSatisfiedBy)
+        {
+            // Arrange
+            var isAbove1 = new IsAboveSpecification(1);
+            var isAbove2 = new IsAboveSpecification(2);
+            var isAbove3 = new IsAboveSpecification(3);
+            var isAbove4 = new IsAboveSpecification(4);
+            var atLeast = new[]
+                {
+                    isAbove1,
+                    isAbove2,
+                    isAbove3,
+                    isAbove4
+                }
+                .AtLeast(requiredSpecifications);
+
+            // Act
+            var isSatisfiedBy = atLeast.IsSatisfiedBy(obj);
+
+            // Assert
+            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy, string.Join(", ", atLeast.WhyIsNotStatisfiedBy(obj)));
+        }
+
+        [TestCase(4, 3, false)]
+        [TestCase(4, 4, false)]
+        [TestCase(4, 5, true)]
+        public void IsAbove_Returns_Correct(int limit, int obj, bool expectedIsSatisfiedBy)
+        {
+            // Arrange
+            var isAbove = new IsAboveSpecification(limit);
+
+            // Act
+            var isSatisfiedBy = isAbove.IsSatisfiedBy(obj);
+
+            // Assert
+            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy);
+        }
+
+        public class IsAboveSpecification : Specification<int>
+        {
+            private readonly int _limit;
+
+            public IsAboveSpecification(
+                int limit)
+            {
+                _limit = limit;
+            }
+
+            protected override IEnumerable<string> IsNotStatisfiedBecause(int obj)
+            {
+                if (obj <= _limit)
+                {
+                    yield return $"{obj} is less or equal than {_limit}";
+                }
+            }
+        }
+
         public class IsTrueSpecification : Specification<bool>
         {
             protected override IEnumerable<string> IsNotStatisfiedBecause(bool obj)
