@@ -37,22 +37,27 @@ namespace EventFlow.Provided.Specifications
             int requiredSpecifications,
             IEnumerable<ISpecification<T>> specifications)
         {
-            _requiredSpecifications = requiredSpecifications;
             var specificationList = (specifications ?? Enumerable.Empty<ISpecification<T>>()).ToList();
 
-            if (requiredSpecifications <= 0) throw new ArgumentOutOfRangeException(nameof(requiredSpecifications));
-            if (!specificationList.Any()) throw new ArgumentException(
-                    "Please provide some specifications", nameof(specifications));
-            if (requiredSpecifications > specificationList.Count) throw new ArgumentOutOfRangeException(
-                    $"You required '{requiredSpecifications}' to be met, but only '{specificationList.Count}' was supplied");
+            if (requiredSpecifications <= 0)
+                throw new ArgumentOutOfRangeException(nameof(requiredSpecifications));
+            if (!specificationList.Any())
+                throw new ArgumentException("Please provide some specifications", nameof(specifications));
+            if (requiredSpecifications > specificationList.Count)
+                throw new ArgumentOutOfRangeException($"You required '{requiredSpecifications}' to be met, but only '{specificationList.Count}' was supplied");
 
+            _requiredSpecifications = requiredSpecifications;
             _specifications = specificationList;
         }
 
         protected override IEnumerable<string> IsNotStatisfiedBecause(T obj)
         {
             var notStatisfiedReasons = _specifications
-                .Select(s => new {Specification = s, WhyIsNotStatisfied = s.WhyIsNotStatisfiedBy(obj).ToList()})
+                .Select(s => new
+                    {
+                        Specification = s,
+                        WhyIsNotStatisfied = s.WhyIsNotStatisfiedBy(obj).ToList()
+                    })
                 .Where(a => a.WhyIsNotStatisfied.Any())
                 .Select(a => $"{a.Specification.GetType().PrettyPrint()}: {string.Join(", ", a.WhyIsNotStatisfied)}")
                 .ToList();

@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Specifications;
@@ -32,36 +31,10 @@ namespace EventFlow.Tests.UnitTests.Specifications
     public class SpecificationTests
     {
         [Test]
-        public void ShouldReturnTrueForSatisfiedValue()
-        {
-            // Arrange
-            var isTrue = new IsTrueSpecification();
-
-            // Act
-            var isSatisfiedBy = isTrue.IsSatisfiedBy(true);
-
-            // Act
-            isSatisfiedBy.Should().BeTrue();
-        }
-
-        [Test]
-        public void ShouldReturnFalseForNotSatisfiedValue()
-        {
-            // Arrange
-            var isTrue = new IsTrueSpecification();
-
-            // Act
-            var isSatisfiedBy = isTrue.IsSatisfiedBy(false);
-
-            // Act
-            isSatisfiedBy.Should().BeFalse();
-        }
-
-        [Test]
         public void NotSpecification_ReturnsTrue_ForNotSatisfied()
         {
             // Arrange
-            var isTrue = new IsTrueSpecification();
+            var isTrue = new TestSpecifications.IsTrueSpecification();
 
             // Act
             var isSatisfiedBy = isTrue.Not().IsSatisfiedBy(false);
@@ -74,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
         public void NotSpeficication_ReturnsFalse_ForSatisfied()
         {
             // Arrange
-            var isTrue = new IsTrueSpecification();
+            var isTrue = new TestSpecifications.IsTrueSpecification();
 
             // Act
             var isSatisfiedBy = isTrue.Not().IsSatisfiedBy(true);
@@ -90,8 +63,8 @@ namespace EventFlow.Tests.UnitTests.Specifications
         public void OrSpeficication_ReturnsTrue_Correctly(bool notLeft, bool notRight, bool expectedResult)
         {
             // Arrange
-            var leftIsTrue = (ISpecification<bool>) new IsTrueSpecification();
-            var rightIsTrue = (ISpecification<bool>)new IsTrueSpecification();
+            var leftIsTrue = (ISpecification<bool>) new TestSpecifications.IsTrueSpecification();
+            var rightIsTrue = (ISpecification<bool>)new TestSpecifications.IsTrueSpecification();
             if (notLeft) leftIsTrue = leftIsTrue.Not();
             if (notRight) rightIsTrue = rightIsTrue.Not();
             var orSpecification = leftIsTrue.Or(rightIsTrue);
@@ -110,8 +83,8 @@ namespace EventFlow.Tests.UnitTests.Specifications
         public void AndSpeficication_ReturnsTrue_Correctly(bool notLeft, bool notRight, bool expectedResult)
         {
             // Arrange
-            var leftIsTrue = (ISpecification<bool>)new IsTrueSpecification();
-            var rightIsTrue = (ISpecification<bool>)new IsTrueSpecification();
+            var leftIsTrue = (ISpecification<bool>)new TestSpecifications.IsTrueSpecification();
+            var rightIsTrue = (ISpecification<bool>)new TestSpecifications.IsTrueSpecification();
             if (notLeft) leftIsTrue = leftIsTrue.Not();
             if (notRight) rightIsTrue = rightIsTrue.Not();
             var andSpecification = leftIsTrue.And(rightIsTrue);
@@ -123,59 +96,11 @@ namespace EventFlow.Tests.UnitTests.Specifications
             isSatisfiedBy.Should().Be(expectedResult);
         }
 
-        [TestCase(1, 1, false)]
-        [TestCase(1, 2, true)]
-        [TestCase(1, 3, true)]
-        [TestCase(1, 4, true)]
-        [TestCase(1, 5, true)]
-        [TestCase(3, 1, false)]
-        [TestCase(3, 2, false)]
-        [TestCase(3, 3, false)]
-        [TestCase(3, 4, true)]
-        [TestCase(3, 5, true)]
-        public void AtLeast_Returns_Correctly(int requiredSpecifications, int obj, bool expectedIsSatisfiedBy)
-        {
-            // Arrange
-            var isAbove1 = new IsAboveSpecification(1);
-            var isAbove2 = new IsAboveSpecification(2);
-            var isAbove3 = new IsAboveSpecification(3);
-            var isAbove4 = new IsAboveSpecification(4);
-            var atLeast = new[]
-                {
-                    isAbove1,
-                    isAbove2,
-                    isAbove3,
-                    isAbove4
-                }
-                .AtLeast(requiredSpecifications);
-
-            // Act
-            var isSatisfiedBy = atLeast.IsSatisfiedBy(obj);
-
-            // Assert
-            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy, string.Join(", ", atLeast.WhyIsNotStatisfiedBy(obj)));
-        }
-
-        [TestCase(4, 3, false)]
-        [TestCase(4, 4, false)]
-        [TestCase(4, 5, true)]
-        public void IsAbove_Returns_Correct(int limit, int obj, bool expectedIsSatisfiedBy)
-        {
-            // Arrange
-            var isAbove = new IsAboveSpecification(limit);
-
-            // Act
-            var isSatisfiedBy = isAbove.IsSatisfiedBy(obj);
-
-            // Assert
-            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy);
-        }
-
         [Test]
         public void ThrowDomainErrorIfNotStatisfied_Throws_IfNotSatisfied()
         {
             // Arrange
-            var isTrue = new IsTrueSpecification();
+            var isTrue = new TestSpecifications.IsTrueSpecification();
 
             // Act
             Assert.Throws<DomainError>(() => isTrue.ThrowDomainErrorIfNotStatisfied(false));
@@ -185,40 +110,10 @@ namespace EventFlow.Tests.UnitTests.Specifications
         public void ThrowDomainErrorIfNotStatisfied_DoesNotThrow_IfStatisfied()
         {
             // Arrange
-            var isTrue = new IsTrueSpecification();
+            var isTrue = new TestSpecifications.IsTrueSpecification();
 
             // Act
             Assert.DoesNotThrow(() => isTrue.ThrowDomainErrorIfNotStatisfied(true));
-        }
-
-        public class IsAboveSpecification : Specification<int>
-        {
-            private readonly int _limit;
-
-            public IsAboveSpecification(
-                int limit)
-            {
-                _limit = limit;
-            }
-
-            protected override IEnumerable<string> IsNotStatisfiedBecause(int obj)
-            {
-                if (obj <= _limit)
-                {
-                    yield return $"{obj} is less or equal than {_limit}";
-                }
-            }
-        }
-
-        public class IsTrueSpecification : Specification<bool>
-        {
-            protected override IEnumerable<string> IsNotStatisfiedBecause(bool obj)
-            {
-                if (!obj)
-                {
-                    yield return "Its false!";
-                }
-            }
         }
     }
 }

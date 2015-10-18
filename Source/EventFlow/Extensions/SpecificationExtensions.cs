@@ -56,7 +56,7 @@ namespace EventFlow.Extensions
             int requiredSpecifications)
         {
             return new AtLeastSpecification<T>(requiredSpecifications, specifications);
-        } 
+        }
 
         public static ISpecification<T> And<T>(
             this ISpecification<T> specification1,

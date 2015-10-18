@@ -192,7 +192,7 @@
     <Compile Include="Provided\Specifications\NotSpecification.cs" />
     <Compile Include="Provided\Specifications\OrSpecification.cs" />
     <Compile Include="Provided\Specifications\AllSpecification.cs" />
-    <Compile Include="Provided\Specifications\SomeSpecification.cs" />
+    <Compile Include="Provided\Specifications\AtLeastSpecification.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />
