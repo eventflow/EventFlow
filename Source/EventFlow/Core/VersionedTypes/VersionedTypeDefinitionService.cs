@@ -86,7 +86,7 @@ namespace EventFlow.Core.VersionedTypes
                 else
                 {
                     _log.Information(
-                        "Alreadt loaded versioned type '{0}' v{1}, skipping it",
+                        "Already loaded versioned type '{0}' v{1}, skipping it",
                         definition.Name,
                         definition.Version);
                 }
