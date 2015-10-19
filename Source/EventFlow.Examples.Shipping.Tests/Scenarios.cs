@@ -33,6 +33,7 @@ using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
+using EventFlow.Examples.Shipping.Queries.InMemory;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
@@ -52,6 +53,7 @@ namespace EventFlow.Examples.Shipping.Tests
         {
             _resolver = EventFlowOptions.New
                 .ConfigureShippingDomain()
+                .ConfigureShippingQueriesInMemory()
                 .CreateResolver();
             _eventStore = _resolver.Resolve<IEventStore>();
             _commandBus = _resolver.Resolve<ICommandBus>();
