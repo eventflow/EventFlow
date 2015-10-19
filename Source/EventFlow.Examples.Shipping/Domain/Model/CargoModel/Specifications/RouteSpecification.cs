@@ -20,29 +20,48 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Extensions;
-using EventFlow.Examples.Shipping.Shared.Specifications;
+using EventFlow.Specifications;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
 {
     public class RouteSpecification : Specification<Itinerary>
     {
-        public Route Route { get; }
-
         public RouteSpecification(
             Route route)
         {
             Route = route;
         }
 
-        public override bool IsSatisfiedBy(Itinerary obj)
+        public Route Route { get; }
+
+        protected override IEnumerable<string> IsNotStatisfiedBecause(Itinerary obj)
         {
-            return
-                Route.OriginLocationId == obj.DepartureLocation() &&
-                Route.DestinationLocationId == obj.ArrivalLocation() &&
-                Route.DepartureTime.IsBefore(obj.DepartureTime()) &&
-                Route.ArrivalDeadline.IsAfter(obj.ArrivalTime());
+            var itineraryDepartureLocation = obj.DepartureLocation();
+            if (Route.OriginLocationId != obj.DepartureLocation())
+            {
+                yield return $"Route origin location '{Route.OriginLocationId}' does not match itinerary departure location '{itineraryDepartureLocation}'";
+            }
+
+            var itineraryDepartureTime = obj.DepartureTime();
+            if (Route.DepartureTime.IsAfter(itineraryDepartureTime))
+            {
+                yield return $"Route origin depature '{Route.DepartureTime}' is after itinerary depature '{itineraryDepartureTime}'";
+            }
+
+            var itineraryArrivalLocation = obj.ArrivalLocation();
+            if (Route.DestinationLocationId != obj.ArrivalLocation())
+            {
+                yield return $"Route destination location '{Route.DestinationLocationId}' does not match itinerary arrival location '{itineraryArrivalLocation}'";
+            }
+
+            var itineraryArrivalTime = obj.ArrivalTime();
+            if (Route.ArrivalDeadline.IsBefore(itineraryArrivalTime))
+            {
+                yield return $"Route arrival deadline '{Route.ArrivalDeadline}' is before itinerary arrival '{itineraryArrivalTime}'";
+            }
         }
     }
 }

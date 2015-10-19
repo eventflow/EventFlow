@@ -81,11 +81,6 @@
     <Compile Include="ReadModels\VoyageReadModel.cs" />
     <Compile Include="Services\Routing\IRoutingService.cs" />
     <Compile Include="Services\Routing\RoutingService.cs" />
-    <Compile Include="Shared\Specifications\AndSpecification.cs" />
-    <Compile Include="Shared\Specifications\ISpecification.cs" />
-    <Compile Include="Shared\Specifications\NotSpecification.cs" />
-    <Compile Include="Shared\Specifications\OrSpecification.cs" />
-    <Compile Include="Shared\Specifications\Specification.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
