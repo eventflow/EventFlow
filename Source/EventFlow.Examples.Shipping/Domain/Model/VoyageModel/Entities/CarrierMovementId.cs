@@ -20,28 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Exceptions;
+using EventFlow.Core;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
 {
-    public class VoyageAggregate : AggregateRoot<VoyageAggregate, VoyageId>
+    public class CarrierMovementId : Identity<CarrierMovementId>
     {
-        private readonly VoyageState _state = new VoyageState();
-
-        public VoyageAggregate(VoyageId id) : base(id)
+        public CarrierMovementId(string value) : base(value)
         {
-            Register(_state);
-        }
-
-        public Schedule Schedule => _state.Schedule;
-
-        public void Create(Schedule schedule)
-        {
-            if (!IsNew) throw DomainError.With("Voyage is already created");
-            Emit(new VoyageCreatedEvent(schedule));
         }
     }
 }

@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {
@@ -32,7 +32,8 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
         private readonly List<CarrierMovement> _carrierMovements = new List<CarrierMovement>();
         private LocationId _departureLocation;
 
-        public ScheduleBuilder(LocationId departureLocation)
+        public ScheduleBuilder(
+            LocationId departureLocation)
         {
             _departureLocation = departureLocation;
         }
@@ -42,14 +43,23 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
             DateTimeOffset departureTime,
             DateTimeOffset arrivalTime)
         {
-            _carrierMovements.Add(new CarrierMovement(_departureLocation, arrivalLocationId, departureTime, arrivalTime));
+            _carrierMovements.Add(new CarrierMovement(
+                CarrierMovementId.New,
+                _departureLocation,
+                arrivalLocationId,
+                departureTime,
+                arrivalTime));
+
             _departureLocation = arrivalLocationId;
+
             return this;
         }
 
         public Schedule Build()
         {
-            return new Schedule(_carrierMovements);
+            return new Schedule(
+                ScheduleId.New,
+                _carrierMovements);
         }
     }
 }

@@ -22,7 +22,7 @@
 
 using System;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 
 namespace EventFlow.Examples.Shipping.Extensions
 {

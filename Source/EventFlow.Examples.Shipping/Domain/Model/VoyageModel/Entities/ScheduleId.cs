@@ -20,30 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using EventFlow.ValueObjects;
+using EventFlow.Core;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
 {
-    public class Schedule : ValueObject
+    public class ScheduleId : Identity<ScheduleId>
     {
-        public Schedule(
-            IEnumerable<CarrierMovement> carrierMovements)
+        public ScheduleId(string value) : base(value)
         {
-            var carrierMovementList = (carrierMovements ?? Enumerable.Empty<CarrierMovement>()).ToList();
-
-            if (!carrierMovementList.Any()) throw new ArgumentException(nameof(carrierMovements));
-
-            CarrierMovements = carrierMovementList;
-        }
-
-        public IReadOnlyList<CarrierMovement> CarrierMovements { get; }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            return CarrierMovements;
         }
     }
 }

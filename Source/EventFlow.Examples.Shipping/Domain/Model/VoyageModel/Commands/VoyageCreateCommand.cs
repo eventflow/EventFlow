@@ -23,7 +23,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands
 {

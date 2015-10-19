@@ -21,20 +21,21 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using EventFlow.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.Examples.Shipping.Extensions;
-using EventFlow.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
 {
-    public class CarrierMovement : ValueObject
+    public class CarrierMovement : Entity<CarrierMovementId>
     {
         public CarrierMovement(
+            CarrierMovementId id,
             LocationId departureLocationId,
             LocationId arrivalLocationId,
             DateTimeOffset departureTime,
             DateTimeOffset arrivalTime)
+            : base(id)
         {
             if (departureLocationId == null) throw new ArgumentNullException(nameof(departureLocationId));
             if (arrivalLocationId == null) throw new ArgumentNullException(nameof(arrivalLocationId));
@@ -48,17 +49,9 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects
             ArrivalTime = arrivalTime;
         }
 
-        public LocationId DepartureLocationId { get; set; }
-        public LocationId ArrivalLocationId { get; set; }
-        public DateTimeOffset DepartureTime { get; set; }
-        public DateTimeOffset ArrivalTime { get; set; }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return DepartureLocationId;
-            yield return ArrivalLocationId;
-            yield return DepartureTime;
-            yield return ArrivalTime;
-        }
+        public LocationId DepartureLocationId { get; }
+        public LocationId ArrivalLocationId { get; }
+        public DateTimeOffset DepartureTime { get; }
+        public DateTimeOffset ArrivalTime { get; }
     }
 }

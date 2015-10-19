@@ -20,28 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Entities;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
 {
-    public class VoyageAggregate : AggregateRoot<VoyageAggregate, VoyageId>
+    public class Schedule : Entity<ScheduleId>
     {
-        private readonly VoyageState _state = new VoyageState();
-
-        public VoyageAggregate(VoyageId id) : base(id)
+        public Schedule(
+            ScheduleId id,
+            IEnumerable<CarrierMovement> carrierMovements)
+            : base(id)
         {
-            Register(_state);
+            var carrierMovementList = (carrierMovements ?? Enumerable.Empty<CarrierMovement>()).ToList();
+
+            if (!carrierMovementList.Any()) throw new ArgumentException(nameof(carrierMovements));
+
+            CarrierMovements = carrierMovementList;
         }
 
-        public Schedule Schedule => _state.Schedule;
-
-        public void Create(Schedule schedule)
-        {
-            if (!IsNew) throw DomainError.With("Voyage is already created");
-            Emit(new VoyageCreatedEvent(schedule));
-        }
+        public IReadOnlyList<CarrierMovement> CarrierMovements { get; }
     }
 }

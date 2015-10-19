@@ -21,7 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.Queries;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries

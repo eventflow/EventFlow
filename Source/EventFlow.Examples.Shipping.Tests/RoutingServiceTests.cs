@@ -39,7 +39,7 @@ namespace EventFlow.Examples.Shipping.Tests
                     Locations.Chicago,
                     1.October(2008).At(11, 00),
                     1.January(2014)), 
-                new[] {Voyages.HongkongToNewYork, Voyages.NewYorkToDallas});
+                new[] {Voyages.HongkongToNewYorkSchedule, Voyages.NewYorkToDallasSchedule});
         }
     }
 }
