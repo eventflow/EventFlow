@@ -20,38 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using System.Linq;
+using EventFlow.Specifications;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Provided.Specifications
 {
-    public interface IAggregateRoot
+    public class AllSpecifications<T> : Specification<T>
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        private readonly IReadOnlyList<ISpecification<T>> _specifications;
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
+        public AllSpecifications(
+            IEnumerable<ISpecification<T>> specifications)
+        {
+            var specificationList = (specifications ?? Enumerable.Empty<ISpecification<T>>()).ToList();
 
-        bool HasSourceId(ISourceId sourceId);
+            if (!specificationList.Any()) throw new ArgumentException("Please provide some specifications", nameof(specifications));
 
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
+            _specifications = specificationList;
+        }
 
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-
-        IIdentity GetIdentity();
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+        protected override IEnumerable<string> IsNotStatisfiedBecause(T obj)
+        {
+            return _specifications.SelectMany(s => s.WhyIsNotStatisfiedBy(obj));
+        }
     }
 }

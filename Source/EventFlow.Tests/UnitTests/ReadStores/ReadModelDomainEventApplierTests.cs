@@ -39,7 +39,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
             {
                 PingEventsReceived = true;
             }
@@ -50,7 +50,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
             {
                 PingEventsReceived = true;
             }
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool DomainErrorAfterFirstEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
+            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> domainEvent)
             {
                 DomainErrorAfterFirstEventsReceived = true;
             }

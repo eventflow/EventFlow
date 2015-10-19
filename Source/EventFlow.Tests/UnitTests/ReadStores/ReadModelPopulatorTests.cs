@@ -43,7 +43,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         public class TestReadModel : IReadModel,
             IAmReadModelFor<TestAggregate, TestId, PingEvent>
         {
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
             {
             }
         }

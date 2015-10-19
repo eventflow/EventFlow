@@ -20,38 +20,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using EventFlow.Extensions;
+using EventFlow.Specifications;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Provided.Specifications
 {
-    public interface IAggregateRoot
+    public class NotSpecification<T> : Specification<T>
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        private readonly ISpecification<T> _specification;
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
+        public NotSpecification(
+            ISpecification<T> specification)
+        {
+            if (specification == null) throw new ArgumentNullException(nameof(specification));
 
-        bool HasSourceId(ISourceId sourceId);
+            _specification = specification;
+        }
 
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-
-        IIdentity GetIdentity();
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+        protected override IEnumerable<string> IsNotStatisfiedBecause(T obj)
+        {
+            if (_specification.IsSatisfiedBy(obj))
+            {
+                yield return $"Specification '{_specification.GetType().PrettyPrint()}' should not be satisfied";
+            }
+        }
     }
 }

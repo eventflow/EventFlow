@@ -153,6 +153,11 @@ namespace EventFlow.Aggregates
             Version = domainEvents.Max(e => e.AggregateSequenceNumber);
         }
 
+        public IIdentity GetIdentity()
+        {
+            return Id;
+        }
+
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
             if (Version > 0)
