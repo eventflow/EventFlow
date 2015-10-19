@@ -35,7 +35,8 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory
         {
             return eventFlowOptions
                 .AddQueryHandlers(Assembly)
-                .UseInMemoryReadStoreFor<VoyageReadModel>();
+                .UseInMemoryReadStoreFor<VoyageReadModel>()
+                .UseInMemoryReadStoreFor<CargoReadModel>();
         }
     }
 }

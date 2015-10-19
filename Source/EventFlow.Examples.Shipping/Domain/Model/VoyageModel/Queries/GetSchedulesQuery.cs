@@ -26,7 +26,7 @@ using EventFlow.Queries;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries
 {
-    public class GetAllSchedulesQuery : IQuery<IReadOnlyCollection<Schedule>>
+    public class GetSchedulesQuery : IQuery<IReadOnlyCollection<Schedule>>
     {
     }
 }

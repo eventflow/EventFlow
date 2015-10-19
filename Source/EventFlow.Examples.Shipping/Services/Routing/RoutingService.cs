@@ -45,14 +45,14 @@ namespace EventFlow.Examples.Shipping.Services.Routing
 
         public async Task<Itinerary> CalculateItineraryAsync(Route route, CancellationToken cancellationToken)
         {
-            var schedules = await _queryProcessor.ProcessAsync(new GetAllSchedulesQuery(), cancellationToken).ConfigureAwait(false);
+            var schedules = await _queryProcessor.ProcessAsync(new GetSchedulesQuery(), cancellationToken).ConfigureAwait(false);
             return CalculateItinerary(route, schedules);
         }
 
         public Itinerary CalculateItinerary(Route route, IReadOnlyCollection<Schedule> schedules)
         {
             var path = CalculatePath(route, schedules);
-            var legs = path.CarrierMovements.Select(m => new Leg(m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime));
+            var legs = path.CarrierMovements.Select(m => new Leg(m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, m.Id));
             return new Itinerary(legs);
         }
 

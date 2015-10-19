@@ -20,27 +20,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
-using EventFlow.Examples.Shipping.Application;
-using EventFlow.Examples.Shipping.Services.Routing;
-using EventFlow.Extensions;
+using System.Collections.Generic;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries
 {
-    public static class EventFlowExamplesShipping
+    public class GetCargosDependentOnScheduleQuery : IQuery<IReadOnlyCollection<Cargo>>
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
-
-        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        public GetCargosDependentOnScheduleQuery(Schedule schedule)
         {
-            return eventFlowOptions
-                .AddDefaults(Assembly)
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IBookingApplicationService, BookingApplicationService>();
-                        sr.Register<IVoyageApplicationService, VoyageApplicationService>();
-                        sr.Register<IRoutingService, RoutingService>();
-                    });
+            Schedule = schedule;
         }
+
+        public Schedule Schedule { get; }
     }
 }

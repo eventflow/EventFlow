@@ -20,27 +20,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
-using EventFlow.Examples.Shipping.Application;
-using EventFlow.Examples.Shipping.Services.Routing;
-using EventFlow.Extensions;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Examples.Shipping.Domain.Jobs;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
+using EventFlow.Jobs;
+using EventFlow.Subscribers;
 
-namespace EventFlow.Examples.Shipping
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Subscribers
 {
-    public static class EventFlowExamplesShipping
+    public class ScheduleChangedSubscriber :
+        ISubscribeSynchronousTo<VoyageAggregate, VoyageId, VoyageDelayedEvent>
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
+        private readonly IJobScheduler _jobScheduler;
 
-        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        public ScheduleChangedSubscriber(
+            IJobScheduler jobScheduler)
         {
-            return eventFlowOptions
-                .AddDefaults(Assembly)
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IBookingApplicationService, BookingApplicationService>();
-                        sr.Register<IVoyageApplicationService, VoyageApplicationService>();
-                        sr.Register<IRoutingService, RoutingService>();
-                    });
+            _jobScheduler = jobScheduler;
+        }
+
+        public Task HandleAsync(IDomainEvent<VoyageAggregate, VoyageId, VoyageDelayedEvent> domainEvent, CancellationToken cancellationToken)
+        {
+            var job = new RefreshCargoItineraryForScheduleJob(
+                domainEvent.AggregateIdentity,
+                domainEvent.AggregateEvent.Schedule);
+            return _jobScheduler.ScheduleNowAsync(job, cancellationToken);
         }
     }
 }

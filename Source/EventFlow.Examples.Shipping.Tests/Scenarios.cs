@@ -73,12 +73,20 @@ namespace EventFlow.Examples.Shipping.Tests
 
             var route = new Route(
                 Locations.Tokyo,
-                Locations.Chicago,
+                Locations.Hongkong,
                 1.October(2008).At(11, 00),
                 1.January(2014));
 
             var booking = _resolver.Resolve<IBookingApplicationService>();
             await booking.BookCargoAsync(route, CancellationToken.None).ConfigureAwait(false);
+
+            var voyage = _resolver.Resolve<IVoyageApplicationService>();
+
+            await voyage.DelayScheduleAsync(
+                Voyages.DallasToHelsinkiId,
+                TimeSpan.FromDays(4),
+                CancellationToken.None)
+                .ConfigureAwait(false);
         }
 
         public Task CreateVoyageAggregatesAsync()

@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Application\IVoyageApplicationService.cs" />
+    <Compile Include="Application\VoyageApplicationService.cs" />
+    <Compile Include="Domain\Jobs\RefreshCargoItineraryForScheduleJob.cs" />
     <Compile Include="Domain\Model\CargoModel\Cargo.cs" />
     <Compile Include="Domain\Model\CargoModel\CargoAggregate.cs" />
     <Compile Include="Domain\Model\CargoModel\CargoId.cs" />
@@ -52,6 +55,8 @@
     <Compile Include="Domain\Model\CargoModel\Commands\CargoBookCommand.cs" />
     <Compile Include="Domain\Model\CargoModel\Events\CargoBookedEvent.cs" />
     <Compile Include="Domain\Model\CargoModel\Events\CargoItinerarySetEvent.cs" />
+    <Compile Include="Domain\Model\CargoModel\Queries\GetCargosDependentOnScheduleQuery.cs" />
+    <Compile Include="Domain\Model\CargoModel\Subscribers\ScheduleChangedSubscriber.cs" />
     <Compile Include="Domain\Model\CargoModel\ValueObjects\Itinerary.cs" />
     <Compile Include="Domain\Model\CargoModel\ValueObjects\Leg.cs" />
     <Compile Include="Domain\Model\CargoModel\ValueObjects\Route.cs" />
@@ -62,9 +67,11 @@
     <Compile Include="Domain\Model\LocationModel\LocationId.cs" />
     <Compile Include="Domain\Model\LocationModel\LocationState.cs" />
     <Compile Include="Domain\Model\VoyageModel\Commands\VoyageCreateCommand.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Commands\VoyageDelayCommand.cs" />
     <Compile Include="Domain\Model\VoyageModel\Entities\CarrierMovementId.cs" />
     <Compile Include="Domain\Model\VoyageModel\Entities\ScheduleId.cs" />
-    <Compile Include="Domain\Model\VoyageModel\Queries\GetAllSchedulesQuery.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Events\VoyageDelayedEvent.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Queries\GetSchedulesQuery.cs" />
     <Compile Include="Domain\Model\VoyageModel\Entities\CarrierMovement.cs" />
     <Compile Include="Domain\Model\VoyageModel\Events\VoyageCreatedEvent.cs" />
     <Compile Include="Domain\Model\VoyageModel\Entities\Schedule.cs" />

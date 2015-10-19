@@ -44,7 +44,9 @@
   <ItemGroup>
     <Compile Include="EventFlowExamplesShippingQueriesInMemory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryHandlers\GetAllSchedulesQueryHandler.cs" />
+    <Compile Include="QueryHandlers\GetCargosDependentOnScheduleQueryHandler.cs" />
+    <Compile Include="QueryHandlers\GetSchedulesQueryHandler.cs" />
+    <Compile Include="ReadModels\CargoReadModel.cs" />
     <Compile Include="ReadModels\VoyageReadModel.cs" />
   </ItemGroup>
   <ItemGroup>

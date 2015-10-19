@@ -21,38 +21,38 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using EventFlow.Entities;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Jobs;
+using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
+namespace EventFlow.Examples.Shipping.Domain.Jobs
 {
-    public class Schedule : Entity<ScheduleId>
+    [JobVersion("RefreshCargoItineraryForVoyage", 1)]
+    public class RefreshCargoItineraryForScheduleJob : IJob
     {
-        public Schedule(
-            ScheduleId id,
-            IEnumerable<CarrierMovement> carrierMovements)
-            : base(id)
+        public VoyageId VoyageId { get; }
+        public Schedule Schedule { get; }
+
+        public RefreshCargoItineraryForScheduleJob(
+            VoyageId voyageId,
+            Schedule schedule)
         {
-            var carrierMovementList = (carrierMovements ?? Enumerable.Empty<CarrierMovement>()).ToList();
-
-            if (!carrierMovementList.Any()) throw new ArgumentException(nameof(carrierMovements));
-
-            CarrierMovements = carrierMovementList;
+            VoyageId = voyageId;
+            Schedule = schedule;
         }
 
-        public IReadOnlyList<CarrierMovement> CarrierMovements { get; }
-
-        public Schedule Delay(TimeSpan delay)
+        public async Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
-            var carrierMovements = CarrierMovements
-                .Select(m => new CarrierMovement(
-                    m.Id,
-                    m.DepartureLocationId,
-                    m.ArrivalLocationId,
-                    m.DepartureTime + delay,
-                    m.ArrivalTime + delay));
-            return new Schedule(Id, carrierMovements);
+            var queryProcessor = resolver.Resolve<IQueryProcessor>();
+
+            var cargos = await queryProcessor.ProcessAsync(new GetCargosDependentOnScheduleQuery(Schedule), cancellationToken).ConfigureAwait(false);
+
+            // TODO: Do something with the cargo here... need to evaluate itinerary according to route specification
         }
     }
 }

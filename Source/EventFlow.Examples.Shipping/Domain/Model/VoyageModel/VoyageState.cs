@@ -27,11 +27,17 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {
     public class VoyageState : AggregateState<VoyageAggregate, VoyageId, VoyageState>,
-        IApply<VoyageCreatedEvent>
+        IApply<VoyageCreatedEvent>,
+        IApply<VoyageDelayedEvent>
     {
         public Schedule Schedule { get; private set; }
 
         public void Apply(VoyageCreatedEvent aggregateEvent)
+        {
+            Schedule = aggregateEvent.Schedule;
+        }
+
+        public void Apply(VoyageDelayedEvent aggregateEvent)
         {
             Schedule = aggregateEvent.Schedule;
         }

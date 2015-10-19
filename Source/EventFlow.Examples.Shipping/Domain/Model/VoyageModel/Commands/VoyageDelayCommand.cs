@@ -20,32 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
-using EventFlow.Examples.Shipping.Queries.InMemory.ReadModels;
-using EventFlow.Queries;
-using EventFlow.ReadStores.InMemory;
+using EventFlow.Commands;
 
-namespace EventFlow.Examples.Shipping.Queries.InMemory.QueryHandlers
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands
 {
-    public class GetAllSchedulesQueryHandler : IQueryHandler<GetAllSchedulesQuery, IReadOnlyCollection<Schedule>>
+    public class VoyageDelayCommand : Command<VoyageAggregate, VoyageId>
     {
-        private readonly IInMemoryReadStore<VoyageReadModel> _readStore;
-
-        public GetAllSchedulesQueryHandler(
-            IInMemoryReadStore<VoyageReadModel> readStore)
+        public VoyageDelayCommand(
+            VoyageId aggregateId,
+            TimeSpan delay)
+            : base(aggregateId)
         {
-            _readStore = readStore;
+            Delay = delay;
         }
 
-        public async Task<IReadOnlyCollection<Schedule>> ExecuteQueryAsync(GetAllSchedulesQuery query, CancellationToken cancellationToken)
+        public TimeSpan Delay { get; }
+    }
+
+    public class VoyageDelayCommandHandler : CommandHandler<VoyageAggregate, VoyageId, VoyageDelayCommand>
+    {
+        public override Task ExecuteAsync(VoyageAggregate aggregate, VoyageDelayCommand command, CancellationToken cancellationToken)
         {
-            var voyageReadModels = await _readStore.FindAsync(rm => true, cancellationToken).ConfigureAwait(false);
-            return voyageReadModels.Select(rm => rm.Schedule).ToList();
+            aggregate.Delay(command.Delay);
+            return Task.FromResult(0);
         }
     }
 }

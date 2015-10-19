@@ -21,13 +21,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
 {
     public class Cargo : Entity<CargoId>
     {
-        public Cargo(CargoId id) : base(id)
+        public Cargo(
+            CargoId id,
+            Itinerary itinerary)
+            : base(id)
         {
+            Itinerary = itinerary;
         }
+
+        public Itinerary Itinerary { get; }
     }
 }

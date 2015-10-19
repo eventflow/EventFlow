@@ -20,27 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
-using EventFlow.Examples.Shipping.Application;
-using EventFlow.Examples.Shipping.Services.Routing;
-using EventFlow.Extensions;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
 
-namespace EventFlow.Examples.Shipping
+namespace EventFlow.Examples.Shipping.Application
 {
-    public static class EventFlowExamplesShipping
+    public class VoyageApplicationService : IVoyageApplicationService
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
+        private readonly ICommandBus _commandBus;
 
-        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        public VoyageApplicationService(
+            ICommandBus commandBus)
         {
-            return eventFlowOptions
-                .AddDefaults(Assembly)
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IBookingApplicationService, BookingApplicationService>();
-                        sr.Register<IVoyageApplicationService, VoyageApplicationService>();
-                        sr.Register<IRoutingService, RoutingService>();
-                    });
+            _commandBus = commandBus;
+        }
+
+        public Task DelayScheduleAsync(VoyageId voyageId, TimeSpan delay, CancellationToken cancellationToken)
+        {
+            return _commandBus.PublishAsync(new VoyageDelayCommand(voyageId, delay), cancellationToken);
         }
     }
 }

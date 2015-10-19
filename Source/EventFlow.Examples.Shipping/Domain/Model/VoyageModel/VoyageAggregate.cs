@@ -20,10 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Exceptions;
+using EventFlow.Extensions;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {
@@ -40,8 +41,18 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 
         public void Create(Schedule schedule)
         {
-            if (!IsNew) throw DomainError.With("Voyage is already created");
+            Specs.AggregateIsNew.ThrowDomainErrorIfNotStatisfied(this);
+
             Emit(new VoyageCreatedEvent(schedule));
+        }
+
+        public void Delay(TimeSpan delay)
+        {
+            if (delay == TimeSpan.Zero) return;
+
+            var delayedSchedule = Schedule.Delay(delay);
+
+            Emit(new VoyageDelayedEvent(delayedSchedule));
         }
     }
 }

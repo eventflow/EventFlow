@@ -20,27 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
-using EventFlow.Examples.Shipping.Application;
-using EventFlow.Examples.Shipping.Services.Routing;
-using EventFlow.Extensions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
+using EventFlow.Examples.Shipping.Queries.InMemory.ReadModels;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping
+namespace EventFlow.Examples.Shipping.Queries.InMemory.QueryHandlers
 {
-    public static class EventFlowExamplesShipping
+    public class GetSchedulesQueryHandler : IQueryHandler<GetSchedulesQuery, IReadOnlyCollection<Schedule>>
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
+        private readonly IInMemoryReadStore<VoyageReadModel> _readStore;
 
-        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        public GetSchedulesQueryHandler(
+            IInMemoryReadStore<VoyageReadModel> readStore)
         {
-            return eventFlowOptions
-                .AddDefaults(Assembly)
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IBookingApplicationService, BookingApplicationService>();
-                        sr.Register<IVoyageApplicationService, VoyageApplicationService>();
-                        sr.Register<IRoutingService, RoutingService>();
-                    });
+            _readStore = readStore;
+        }
+
+        public async Task<IReadOnlyCollection<Schedule>> ExecuteQueryAsync(GetSchedulesQuery query, CancellationToken cancellationToken)
+        {
+            var voyageReadModels = await _readStore.FindAsync(rm => true, cancellationToken).ConfigureAwait(false);
+            return voyageReadModels.Select(rm => rm.Schedule).ToList();
         }
     }
 }
