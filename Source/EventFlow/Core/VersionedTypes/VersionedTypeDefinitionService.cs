@@ -79,7 +79,17 @@ namespace EventFlow.Core.VersionedTypes
             foreach (var definition in definitions)
             {
                 var key = GetKey(definition.Name, definition.Version);
-                _definitionsByName.Add(key, definition);
+                if (!_definitionsByName.ContainsKey(key))
+                {
+                    _definitionsByName.Add(key, definition);
+                }
+                else
+                {
+                    _log.Information(
+                        "Already loaded versioned type '{0}' v{1}, skipping it",
+                        definition.Name,
+                        definition.Version);
+                }
             }
         }
 

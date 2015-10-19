@@ -2,6 +2,15 @@
 
 * Breaking: `AddDefaults` now also adds the job type definition to the
   `IJobsDefinitonService`
+* New: Implemented a basic specification pattern by providing
+  `ISpecification<T>`, an easy-to-use `Specificaion<T>` and a set of extension
+  methods. Look at the EventFlow specification tests to get started
+* Fixed: `IEventDefinitionService`, `ICommandDefinitonService` and
+  `IJobsDefinitonService` now longer throw an exception if an existing
+  event is loaded, i.e., multiple calls to `AddEvents(...)`, `AddCommand(...)`
+  and `AddJobs(...)` no longer throws an exception
+* Fixed: `DomainError.With(...)` no longer executes `string.format` if only
+  one argument is parsed
 
 ### New in 0.18.1181 (released 2015-10-07)
 

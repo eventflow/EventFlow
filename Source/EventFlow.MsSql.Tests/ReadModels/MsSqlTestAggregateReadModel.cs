@@ -36,12 +36,12 @@ namespace EventFlow.MsSql.Tests.ReadModels
         public bool DomainErrorAfterFirstReceived { get; set; }
         public int PingsReceived { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
         {
             PingsReceived++;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> domainEvent)
         {
             DomainErrorAfterFirstReceived = true;
         }

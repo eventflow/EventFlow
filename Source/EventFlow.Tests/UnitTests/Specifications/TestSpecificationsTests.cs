@@ -20,39 +20,52 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using EventFlow.ValueObjects;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Core.VersionedTypes
+namespace EventFlow.Tests.UnitTests.Specifications
 {
-    public abstract class VersionedTypeDefinition : ValueObject
+    public class TestSpecificationsTests
     {
-        public int Version { get; }
-        public Type Type { get; }
-        public string Name { get; }
-
-        protected VersionedTypeDefinition(
-            int version,
-            Type type,
-            string name)
+        [Test]
+        public void IsTrueSpecification_ReturnsTrue_ForTrue()
         {
-            Version = version;
-            Type = type;
-            Name = name;
+            // Arrange
+            var isTrue = new TestSpecifications.IsTrueSpecification();
+
+            // Act
+            var isSatisfiedBy = isTrue.IsSatisfiedBy(true);
+
+            // Act
+            isSatisfiedBy.Should().BeTrue();
         }
 
-        public override string ToString()
+        [Test]
+        public void IsTrueSpecification_ReturnsFalse_ForFalse()
         {
-            var assemblyName = Type.Assembly.GetName();
-            return $"{Name} v{Version} ({assemblyName.Name} - {Type.Name})";
+            // Arrange
+            var isTrue = new TestSpecifications.IsTrueSpecification();
+
+            // Act
+            var isSatisfiedBy = isTrue.IsSatisfiedBy(false);
+
+            // Act
+            isSatisfiedBy.Should().BeFalse();
         }
 
-        protected override IEnumerable<object> GetEqualityComponents()
+        [TestCase(4, 3, false)]
+        [TestCase(4, 4, false)]
+        [TestCase(4, 5, true)]
+        public void IsAboveSpecification_Returns_Correct(int limit, int obj, bool expectedIsSatisfiedBy)
         {
-            yield return Version;
-            yield return Type;
-            yield return Name;
+            // Arrange
+            var isAbove = new TestSpecifications.IsAboveSpecification(limit);
+
+            // Act
+            var isSatisfiedBy = isAbove.IsSatisfiedBy(obj);
+
+            // Assert
+            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy);
         }
     }
 }

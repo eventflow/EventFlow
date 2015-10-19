@@ -21,37 +21,40 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using EventFlow.Specifications;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Tests.UnitTests.Specifications
 {
-    public interface IAggregateRoot
+    public static class TestSpecifications
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        public class IsAboveSpecification : Specification<int>
+        {
+            private readonly int _limit;
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
+            public IsAboveSpecification(
+                int limit)
+            {
+                _limit = limit;
+            }
 
-        bool HasSourceId(ISourceId sourceId);
+            protected override IEnumerable<string> IsNotStatisfiedBecause(int obj)
+            {
+                if (obj <= _limit)
+                {
+                    yield return $"{obj} is less or equal than {_limit}";
+                }
+            }
+        }
 
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-
-        IIdentity GetIdentity();
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+        public class IsTrueSpecification : Specification<bool>
+        {
+            protected override IEnumerable<string> IsNotStatisfiedBecause(bool obj)
+            {
+                if (!obj)
+                {
+                    yield return "Its false!";
+                }
+            }
+        }
     }
 }

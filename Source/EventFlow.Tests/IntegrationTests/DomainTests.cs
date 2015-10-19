@@ -61,9 +61,9 @@ namespace EventFlow.Tests.IntegrationTests
         {
             public PingId Id { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
             {
-                Id = e.AggregateEvent.PingId;
+                Id = domainEvent.AggregateEvent.PingId;
             }
         }
 
