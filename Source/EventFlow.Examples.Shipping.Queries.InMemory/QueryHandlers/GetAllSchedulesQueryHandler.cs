@@ -26,11 +26,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
-using EventFlow.Examples.Shipping.ReadModels;
+using EventFlow.Examples.Shipping.Queries.InMemory.ReadModels;
 using EventFlow.Queries;
 using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.QueryHandlers
+namespace EventFlow.Examples.Shipping.Queries.InMemory.QueryHandlers
 {
     public class GetAllSchedulesQueryHandler : IQueryHandler<GetAllSchedulesQuery, IReadOnlyCollection<Schedule>>
     {

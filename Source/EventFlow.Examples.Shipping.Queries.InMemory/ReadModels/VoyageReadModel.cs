@@ -26,7 +26,7 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.ReadStores;
 
-namespace EventFlow.Examples.Shipping.ReadModels
+namespace EventFlow.Examples.Shipping.Queries.InMemory.ReadModels
 {
     public class VoyageReadModel : IReadModel,
         IAmReadModelFor<VoyageAggregate, VoyageId, VoyageCreatedEvent>
