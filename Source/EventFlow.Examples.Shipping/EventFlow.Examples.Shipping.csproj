@@ -71,6 +71,7 @@
     <Compile Include="Domain\Model\VoyageModel\ScheduleBuilder.cs" />
     <Compile Include="Domain\Model\VoyageModel\VoyageId.cs" />
     <Compile Include="Domain\Model\VoyageModel\VoyageState.cs" />
+    <Compile Include="Domain\Specs.cs" />
     <Compile Include="EventFlowExamplesShipping.cs" />
     <Compile Include="Extensions\CarrierMovementExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />

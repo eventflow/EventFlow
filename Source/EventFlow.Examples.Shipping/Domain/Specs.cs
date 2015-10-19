@@ -20,37 +20,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Events;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
-using EventFlow.Extensions;
+using EventFlow.Provided.Specifications;
+using EventFlow.Specifications;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Examples.Shipping.Domain
 {
-    public class CargoAggregate : AggregateRoot<CargoAggregate, CargoId>
+    public static class Specs
     {
-        private readonly CargoState _state = new CargoState();
+        public static ISpecification<IAggregateRoot> AggregateIsNew { get; } = new AggregateIsNewSpecification();
+        public static ISpecification<IAggregateRoot> AggregateIsCreated { get; } = new AggregateIsCreatedSpecification();
 
-        public CargoAggregate(CargoId id) : base(id)
+        private class AggregateIsCreatedSpecification : Specification<IAggregateRoot>
         {
-            Register(_state);
-        }
-
-        public Route Route => _state.Route;
-        public Itinerary Itinerary => _state.Itinerary;
-
-        public void Book(Route route)
-        {
-            Specs.AggregateIsNew.ThrowDomainErrorIfNotStatisfied(this);
-            Emit(new CargoBookedEvent(route));
-        }
-
-        public void SetItinerary(Itinerary itinerary)
-        {
-            Specs.AggregateIsCreated.ThrowDomainErrorIfNotStatisfied(this);
-            Route.Specification().ThrowDomainErrorIfNotStatisfied(itinerary);
-
-            Emit(new CargoItinerarySetEvent(itinerary));
+            protected override IEnumerable<string> IsNotStatisfiedBecause(IAggregateRoot obj)
+            {
+                if (obj.IsNew)
+                {
+                    yield return $"Aggregate '{obj.Name}' with ID '{obj.GetIdentity()}' is new";
+                }
+            }
         }
     }
 }
