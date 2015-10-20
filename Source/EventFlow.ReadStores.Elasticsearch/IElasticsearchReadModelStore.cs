@@ -23,7 +23,7 @@
 namespace EventFlow.ReadStores.Elasticsearch
 {
     public interface IElasticsearchReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IElasticsearchReadModel, new()
+        where TReadModel : class, IReadModel, new()
     {
     }
 }

@@ -25,7 +25,7 @@ using EventFlow.TestHelpers.Aggregates.Test.Events;
 
 namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
 {
-    public interface ITestAggregateReadModel :
+    public interface ITestAggregateReadModel : IReadModel,
         IAmReadModelFor<TestAggregate, TestId, DomainErrorAfterFirstEvent>,
         IAmReadModelFor<TestAggregate, TestId, PingEvent>
     {

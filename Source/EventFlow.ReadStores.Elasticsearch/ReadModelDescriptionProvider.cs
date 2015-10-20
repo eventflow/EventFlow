@@ -31,7 +31,7 @@ namespace EventFlow.ReadStores.Elasticsearch
     {
         private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames = new ConcurrentDictionary<Type, ReadModelDescription>(); 
 
-        public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IElasticsearchReadModel
+        public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
         {
             return IndexNames.GetOrAdd(
                 typeof (TReadModel),

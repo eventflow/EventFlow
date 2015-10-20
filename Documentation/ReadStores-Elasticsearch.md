@@ -3,7 +3,6 @@
 Configuring EventFlow to use Elasticsearch as a store for read models is done
 in steps.
 
-1. Define a read model as let it implement `IElasticsearchReadModel`
 1. Configure Elasticsearch connection in EventFlow
 1. Configure your Elasticsearch read models in EventFlow
 
@@ -21,8 +20,6 @@ var resolver = EventFlowOptions.New
 EventFlow makes a few assumptions regarding how you use Elasticsearch to store
 read models.
 
-* One read model per index
-* Deletion of all read models of a specific type equals deletion of an index
 * The host application of EventFlow is responsible for creating correct
   Elasticsearch type mapping for any indexes by creating index templates
 

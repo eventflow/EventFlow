@@ -30,18 +30,20 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions ConfigureElasticsearch(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions ConfigureElasticsearch(
+            this IEventFlowOptions eventFlowOptions,
             IConnectionSettingsValues connectionSettings)
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
                     sr.Register<IElasticClient>(f => new ElasticClient(connectionSettings), Lifetime.Singleton);
-                    sr.RegisterIfNotRegistered<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton);
+                    sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
                 });
         }
 
-        public static EventFlowOptions ConfigureElasticsearch(this EventFlowOptions eventFlowOptions, params Uri[] uris)
+        public static IEventFlowOptions ConfigureElasticsearch(
+            this IEventFlowOptions eventFlowOptions,
+            params Uri[] uris)
         {
             var connectionSettings = new ConnectionSettings(new StaticConnectionPool(uris))
                 .ThrowOnElasticsearchServerExceptions()
@@ -51,9 +53,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
                 .ConfigureElasticsearch(connectionSettings);
         }
 
-        public static EventFlowOptions UseElasticsearchReadModel<TReadModel>(
-            this EventFlowOptions eventFlowOptions)
-            where TReadModel : class, IElasticsearchReadModel, new()
+        public static IEventFlowOptions UseElasticsearchReadModel<TReadModel>(
+            this IEventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
                 .RegisterServices(f =>

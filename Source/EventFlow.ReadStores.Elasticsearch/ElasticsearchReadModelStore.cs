@@ -34,7 +34,7 @@ namespace EventFlow.ReadStores.Elasticsearch
 {
     public class ElasticsearchReadModelStore<TReadModel> : ReadModelStore<TReadModel>,
         IElasticsearchReadModelStore<TReadModel>
-        where TReadModel : class, IElasticsearchReadModel, new()
+        where TReadModel : class, IReadModel, new()
     {
         private readonly IElasticClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
@@ -81,7 +81,11 @@ namespace EventFlow.ReadStores.Elasticsearch
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-            return Task.WhenAll(readModelDescription.IndexNames.Select(i => _elasticClient.DeleteIndexAsync(i.Value, d => d)));
+
+            return Task.WhenAll(readModelDescription.IndexNames.Select(i => _elasticClient.DeleteByQueryAsync<TReadModel>(d => d
+                .Index(i.Value)
+                .Type<TReadModel>()
+                .Query(q => q.MatchAll()))));
         }
 
         public override Task UpdateAsync(
@@ -113,8 +117,6 @@ namespace EventFlow.ReadStores.Elasticsearch
                     : ReadModelEnvelope<TReadModel>.Empty;
 
                 readModelEnvelope = await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);
-
-                readModelEnvelope.ReadModel.Id = readModelUpdate.ReadModelId;
 
                 await _elasticClient.IndexAsync(
                     readModelEnvelope.ReadModel,

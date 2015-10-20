@@ -41,7 +41,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
         private IElasticClient _elasticClient;
         private IReadModelDescriptionProvider _readModelDescriptionProvider;
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
             if (string.IsNullOrEmpty(url))

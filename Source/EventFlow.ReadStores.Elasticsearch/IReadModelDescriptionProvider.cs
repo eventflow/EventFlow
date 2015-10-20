@@ -25,6 +25,6 @@ namespace EventFlow.ReadStores.Elasticsearch
     public interface IReadModelDescriptionProvider
     {
         ReadModelDescription GetReadModelDescription<TReadModel>()
-            where TReadModel : IElasticsearchReadModel;
+            where TReadModel : IReadModel;
     }
 }
