@@ -40,6 +40,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
         private IRootResolver _resolver;
         private IElasticClient _elasticClient;
         private IReadModelDescriptionProvider _readModelDescriptionProvider;
+        private IElasticsearchReadModelStore<ElasticsearchTestAggregateReadModel> _readModelStore;
 
         public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
@@ -59,18 +60,15 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
             _elasticClient = _resolver.Resolve<IElasticClient>();
             _readModelPopulator = _resolver.Resolve<IReadModelPopulator>();
             _readModelDescriptionProvider = _resolver.Resolve<IReadModelDescriptionProvider>();
+            _readModelStore = _resolver.Resolve<IElasticsearchReadModelStore<ElasticsearchTestAggregateReadModel>>();
 
             return _resolver;
         }
 
         public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
         {
-            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchTestAggregateReadModel>();
-            var response = await _elasticClient.GetAsync<ElasticsearchTestAggregateReadModel>(
-                id.Value,
-                readModelDescription.IndexName.Value)
-                .ConfigureAwait(false);
-            return response.Source;
+            var readModelEnvelope = await _readModelStore.GetAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
+            return readModelEnvelope.ReadModel;
         }
 
         public override Task PurgeTestAggregateReadModelAsync()
