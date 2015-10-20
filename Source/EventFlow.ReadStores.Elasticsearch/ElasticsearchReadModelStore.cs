@@ -22,10 +22,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using EventFlow.Aggregates;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using Nest;
 
@@ -55,6 +57,8 @@ namespace EventFlow.ReadStores.Elasticsearch
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
+            _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from index '{readModelDescription.IndexName}'");
+
             var getResponse = await _elasticClient.GetAsync<TReadModel>(
                 id,
                 readModelDescription.IndexName.Value)
@@ -74,6 +78,8 @@ namespace EventFlow.ReadStores.Elasticsearch
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
+            _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' read models from index '{readModelDescription.IndexName}'");
+
             return _elasticClient.DeleteByQueryAsync<TReadModel>(d => d
                 .Index(readModelDescription.IndexName.Value)
                 .Type<TReadModel>()
@@ -87,6 +93,12 @@ namespace EventFlow.ReadStores.Elasticsearch
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+
+            _log.Verbose(() =>
+                {
+                    var readModelIds = readModelUpdates.Select(u => u.ReadModelId).Distinct().OrderBy(i => i).ToList();
+                    return $"Updating read models of type '{typeof(TReadModel).PrettyPrint()}' with IDs '{string.Join(", ", readModelIds)}' in index '{readModelDescription.IndexName}'";
+                });
 
             foreach (var readModelUpdate in readModelUpdates)
             {
