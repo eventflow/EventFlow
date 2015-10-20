@@ -17,8 +17,11 @@ var resolver = EventFlowOptions.New
   .CreateResolver();
 ```
 
-EventFlow makes a few assumptions regarding how you use Elasticsearch to store
-read models.
+Overloads of `ConfigureElasticsearch(...)` is available for alternative
+Elasticsearch configuration.
+
+EventFlow makes assumptions regarding how you use Elasticsearch to store read
+models.
 
 * The host application of EventFlow is responsible for creating correct
   Elasticsearch type mapping for any indexes by creating index templates

@@ -32,17 +32,6 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
     {
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
-            IConnectionSettingsValues connectionSettings)
-        {
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    sr.Register<IElasticClient>(f => new ElasticClient(connectionSettings), Lifetime.Singleton);
-                    sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
-                });
-        }
-
-        public static IEventFlowOptions ConfigureElasticsearch(
-            this IEventFlowOptions eventFlowOptions,
             params Uri[] uris)
         {
             var connectionSettings = new ConnectionSettings(new StaticConnectionPool(uris))
@@ -51,6 +40,25 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
 
             return eventFlowOptions
                 .ConfigureElasticsearch(connectionSettings);
+        }
+
+        public static IEventFlowOptions ConfigureElasticsearch(
+            this IEventFlowOptions eventFlowOptions,
+            IConnectionSettingsValues connectionSettings)
+        {
+            var elasticClient = new ElasticClient(connectionSettings);
+            return eventFlowOptions.ConfigureElasticsearch(() => elasticClient);
+        }
+
+        public static IEventFlowOptions ConfigureElasticsearch(
+            this IEventFlowOptions eventFlowOptions,
+            Func<IElasticClient> elasticClientFactory)
+        {
+            return eventFlowOptions.RegisterServices(sr =>
+                {
+                    sr.Register(f => elasticClientFactory());
+                    sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
+                });
         }
 
         public static IEventFlowOptions UseElasticsearchReadModel<TReadModel>(

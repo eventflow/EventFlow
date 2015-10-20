@@ -1,6 +1,7 @@
 ### New in 0.20 (not released yet)
 
-* _Nothing yet_
+* New: Read model support for Elasticsearch via the new NuGet package
+  `EventFlow.ReadStores.Elasticsearch`
 
 ### New in 0.19.1225 (released 2015-10-19)
 

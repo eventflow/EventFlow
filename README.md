@@ -41,7 +41,7 @@ to the documentation.
 * **Read models:** Denormalized representation of aggregate events
   optimized for reading fast. Currently there is support for these
   read model storage types.
-  * [Elasticsearch:](./Documentation/ReadStores-Elasticsearch.md)
+  * [Elasticsearch](./Documentation/ReadStores-Elasticsearch.md)
   * In-memory - only for test
   * Microsoft SQL Server
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
