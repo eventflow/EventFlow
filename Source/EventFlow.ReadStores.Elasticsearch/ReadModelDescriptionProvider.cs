@@ -21,27 +21,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Reflection;
 using System.Collections.Concurrent;
+using System.Reflection;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch
 {
     public class ReadModelDescriptionProvider : IReadModelDescriptionProvider
     {
-        private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames = new ConcurrentDictionary<Type, ReadModelDescription>(); 
+        private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames = new ConcurrentDictionary<Type, ReadModelDescription>();
 
         public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
         {
             return IndexNames.GetOrAdd(
                 typeof (TReadModel),
                 t =>
-                    {
-                        var elasticType = t.GetCustomAttribute<ElasticTypeAttribute>();
-                        return new ReadModelDescription(new IndexName(elasticType == null
-                            ? "eventflow"
-                            : elasticType.Name));
-                    });
+                {
+                    var elasticType = t.GetCustomAttribute<ElasticTypeAttribute>();
+                    return new ReadModelDescription(new IndexName(elasticType == null
+                        ? "eventflow"
+                        : elasticType.Name));
+                });
         }
     }
 }
