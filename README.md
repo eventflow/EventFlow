@@ -15,9 +15,7 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 ### Features
 
 * **CQRS+ES framework**
-* **Async/await first:** Every part of EventFlow is written using async/await. In
-  some places EventFlow exposes sync methods like e.g. the `ICommandBus`, but these
-  merely _try_ to do the right thing using an async bridge
+* **Async/await first:** Every part of EventFlow is written using async/await.
 * **Highly configurable and extendable**
 * **Easy to use**
 * **No use of threads or background workers making it "web friendly"**
@@ -156,6 +154,11 @@ several areas that you could help out with.
    across articles that might be relevant for EventFlow, or even better, can
    point to specfic EventFlow functionality that might be done better, then
    please create an issue or ask in the Gitter chat
+
+## Thanks
+
+[![ReSharper](./Documentation/Images/logo_resharper.png)](https://www.jetbrains.com/resharper/)
+
 
 ## License
 

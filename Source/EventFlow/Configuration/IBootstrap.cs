@@ -20,24 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Configuration
 {
-    public static class ServiceRegistrationExtensions
+    public interface IBootstrap
     {
-        public static IServiceRegistration RegisterIfNotRegistered<TService, TImplementation>(
-            this IServiceRegistration serviceRegistration,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TImplementation : class, TService
-            where TService : class
-        {
-            if (!serviceRegistration.HasRegistrationFor<TService>())
-            {
-                serviceRegistration.Register<TService, TImplementation>(lifetime);
-            }
-
-            return serviceRegistration;
-        }
+        Task BootAsync(CancellationToken cancellationToken);
     }
 }

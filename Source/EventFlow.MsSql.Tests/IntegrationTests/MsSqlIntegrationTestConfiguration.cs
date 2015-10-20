@@ -45,13 +45,13 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         protected IReadModelSqlGenerator ReadModelSqlGenerator { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             TestDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
             var resolver = eventFlowOptions
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString.Value))
-                .UseEventStore<MsSqlEventStore>()
+                .UseEventStore<MsSqlEventPersistence>()
                 .UseMssqlReadModel<MsSqlTestAggregateReadModel>()
                 .CreateResolver();
 

@@ -31,8 +31,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsMetadataProvidersExtensions
     {
-        public static EventFlowOptions AddMetadataProvider<TMetadataProvider>(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddMetadataProvider<TMetadataProvider>(
+            this IEventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TMetadataProvider : class, IMetadataProvider
         {
@@ -40,16 +40,16 @@ namespace EventFlow.Extensions
                 .RegisterServices(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
         }
 
-        public static EventFlowOptions AddMetadataProviders(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddMetadataProviders(
+            this IEventFlowOptions eventFlowOptions,
             params Type[] metadataProviderTypes)
         {
             return eventFlowOptions
                 .AddMetadataProviders((IEnumerable<Type>) metadataProviderTypes);
         }
 
-        public static EventFlowOptions AddMetadataProviders(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddMetadataProviders(
+            this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -61,8 +61,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
         }
 
-        public static EventFlowOptions AddMetadataProviders(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddMetadataProviders(
+            this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> metadataProviderTypes)
         {
             foreach (var metadataProviderType in metadataProviderTypes)

@@ -32,8 +32,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
-        public static EventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
@@ -43,15 +43,15 @@ namespace EventFlow.Extensions
                 .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
-        public static EventFlowOptions AddSubscribers(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddSubscribers(
+            this IEventFlowOptions eventFlowOptions,
             params Type[] subscribeSynchronousToTypes)
         {
             return eventFlowOptions.AddSubscribers((IEnumerable<Type>) subscribeSynchronousToTypes);
         }
 
-        public static EventFlowOptions AddSubscribers(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddSubscribers(
+            this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -67,8 +67,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddSubscribers(subscribeSynchronousToTypes);
         }
 
-        public static EventFlowOptions AddSubscribers(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddSubscribers(
+            this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> subscribeSynchronousToTypes)
         {
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)

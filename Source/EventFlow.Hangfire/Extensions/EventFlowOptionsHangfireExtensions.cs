@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Hangfire.Integration;
 using EventFlow.Jobs;
 using Hangfire;
@@ -28,8 +29,15 @@ namespace EventFlow.Hangfire.Extensions
 {
     public static class EventFlowOptionsHangfireExtensions
     {
-        public static EventFlowOptions UseHandfireJobScheduler(
-            this EventFlowOptions eventFlowOptions)
+        [Obsolete("Please use the correctly spelled 'UseHangfireJobScheduler()' instead")]
+        public static IEventFlowOptions UseHandfireJobScheduler(
+            this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.UseHangfireJobScheduler();
+        }
+
+        public static IEventFlowOptions UseHangfireJobScheduler(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {

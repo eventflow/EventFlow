@@ -23,7 +23,6 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores.EventStore.Extensions;
@@ -43,7 +42,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
         private IQueryProcessor _queryProcessor;
         private IReadModelPopulator _readModelPopulator;
 
-        public override IRootResolver CreateRootResolver(EventFlowOptions eventFlowOptions)
+        public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()

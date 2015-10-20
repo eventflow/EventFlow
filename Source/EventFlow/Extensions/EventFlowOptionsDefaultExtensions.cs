@@ -27,13 +27,14 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsDefaultExtensions
     {
-        public static EventFlowOptions AddDefaults(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddDefaults(
+            this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
             return eventFlowOptions
                 .AddEvents(fromAssembly, predicate)
+                .AddJobs(fromAssembly, predicate)
                 .AddCommands(fromAssembly, predicate)
                 .AddCommandHandlers(fromAssembly, predicate)
                 .AddMetadataProviders(fromAssembly, predicate)

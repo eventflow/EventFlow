@@ -24,7 +24,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
-    public class SerializedEvent
+    public class SerializedEvent : ISerializedEvent
     {
         public string SerializedMetadata { get; }
         public string SerializedData { get; }

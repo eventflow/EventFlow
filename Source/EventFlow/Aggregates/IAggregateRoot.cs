@@ -45,6 +45,8 @@ namespace EventFlow.Aggregates
         void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
 
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
+
+        IIdentity GetIdentity();
     }
 
     public interface IAggregateRoot<out TIdentity> : IAggregateRoot

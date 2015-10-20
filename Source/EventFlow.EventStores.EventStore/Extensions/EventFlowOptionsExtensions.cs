@@ -22,7 +22,6 @@
 
 using System.Net;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventStore.ClientAPI;
@@ -31,22 +30,22 @@ namespace EventFlow.EventStores.EventStore.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions UseEventStoreEventStore(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<EventStoreEventStore>();
+            return eventFlowOptions.UseEventStore<EventStoreEventPersistence>();
         }
 
-        public static EventFlowOptions UseEventStoreEventStore(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions,
             IPEndPoint  ipEndPoint)
         {
             return eventFlowOptions
                 .UseEventStoreEventStore(ipEndPoint, ConnectionSettings.Default);
         }
 
-        public static EventFlowOptions UseEventStoreEventStore(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions,
             IPEndPoint ipEndPoint,
             ConnectionSettings connectionSettings)
         {
@@ -59,7 +58,7 @@ namespace EventFlow.EventStores.EventStore.Extensions
 
             return eventFlowOptions
                 .RegisterServices(f => f.Register(r => eventStoreConnection, Lifetime.Singleton))
-                .UseEventStore<EventStoreEventStore>();
+                .UseEventStore<EventStoreEventPersistence>();
         }
     }
 }

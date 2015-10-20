@@ -23,134 +23,206 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
-using Autofac.Core;
-using EventFlow.Aggregates;
+using EventFlow.Configuration.Decorators;
+using EventFlow.Core;
+using EventFlow.Extensions;
 
 namespace EventFlow.Configuration.Registrations
 {
     internal class AutofacServiceRegistration : IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
-        private readonly List<AutofacRegistration> _registrations = new List<AutofacRegistration>();
-        private readonly Dictionary<Type, List<AutofacDecorator>> _decorators = new Dictionary<Type, List<AutofacDecorator>>();
+        private readonly DecoratorService _decoratorService = new DecoratorService();
 
         public AutofacServiceRegistration() : this(null) { }
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
         {
             _containerBuilder = containerBuilder ?? new ContainerBuilder();
+            _containerBuilder.RegisterType<AutofacStartable>().As<IStartable>();
+            _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
+            _containerBuilder.Register<IDecoratorService>(_ => _decoratorService).SingleInstance();
         }
 
-        public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register<TService, TImplementation>(
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
             where TImplementation : class, TService
             where TService : class
         {
-            _registrations.Add(new AutofacRegistration<TService, TImplementation>(lifetime));
+            var registration = _containerBuilder.RegisterType<TImplementation>().AsSelf();
+            if (lifetime == Lifetime.Singleton)
+            {
+                registration.SingleInstance();
+            }
+
+            var serviceRegistration = _containerBuilder
+                .Register<TService>(c => c.Resolve<TImplementation>())
+                .As<TService>()
+                .OnActivating(args =>
+                    {
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
+            if (keepDefault)
+            {
+                serviceRegistration.PreserveExistingDefaults();
+            }
         }
 
-        public void Register<TService>(Func<IResolverContext, TService> factory, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register<TService>(
+            Func<IResolverContext, TService> factory,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
             where TService : class
         {
-            _registrations.Add(new AutofacRegistration<TService>(factory, lifetime));
+            var registration = _containerBuilder
+                .Register(cc => factory(new ResolverContext(new AutofacResolver(cc))))
+                .OnActivating(args =>
+                    {
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
+            if (lifetime == Lifetime.Singleton)
+            {
+                registration.SingleInstance();
+            }
+            if (keepDefault)
+            {
+                registration.PreserveExistingDefaults();
+            }
         }
 
-        public void Register(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void Register(
+            Type serviceType,
+            Type implementationType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
         {
-            _registrations.Add(new AutofacRegistration(serviceType, implementationType, lifetime));
+            var registration = _containerBuilder
+                .RegisterType(implementationType)
+                .As(serviceType)
+                .OnActivating(args =>
+                    {
+                        var instance = _decoratorService.Decorate(serviceType, args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
+            if (lifetime == Lifetime.Singleton)
+            {
+                registration.SingleInstance();
+            }
+            if (keepDefault)
+            {
+                registration.PreserveExistingDefaults();
+            }
         }
 
-        public void RegisterType(Type serviceType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void RegisterType(
+            Type serviceType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
         {
-            _registrations.Add(new AutofacRegistration(serviceType, serviceType, lifetime));
+            var registration = _containerBuilder
+                .RegisterType(serviceType)
+                .OnActivating(args =>
+                    {
+                        var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
+                        args.ReplaceInstance(instance);
+                    });
+            if (lifetime == Lifetime.Singleton)
+            {
+                registration.SingleInstance();
+            }
+            if (keepDefault)
+            {
+                registration.PreserveExistingDefaults();
+            }
         }
 
-        public void RegisterGeneric(Type serviceType, Type implementationType, Lifetime lifetime = Lifetime.AlwaysUnique)
+        public void RegisterGeneric(
+            Type serviceType,
+            Type implementationType,
+            Lifetime lifetime = Lifetime.AlwaysUnique,
+            bool keepDefault = false)
         {
-            _registrations.Add(new AutofacGenericRegistration(serviceType, implementationType, lifetime));
+            var registration = _containerBuilder
+                .RegisterGeneric(implementationType).As(serviceType);
+            if (lifetime == Lifetime.Singleton)
+            {
+                registration.SingleInstance();
+            }
+        }
+
+        public void RegisterIfNotRegistered<TService, TImplementation>(
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            Register<TService, TImplementation>(lifetime, true);
         }
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
-            var serviceType = typeof (TService);
-            List<AutofacDecorator> decorators;
-
-            if (!_decorators.TryGetValue(serviceType, out decorators))
-            {
-                decorators = new List<AutofacDecorator>();
-                _decorators.Add(serviceType, decorators);
-            }
-
-            decorators.Add(new AutofacDecorator<TService>(factory));
-        }
-
-        public bool HasRegistrationFor<TService>()
-            where TService : class
-        {
-            var serviceType = typeof (TService);
-            return _registrations.Any(r => r.ServiceType == serviceType);
-        }
-
-        public IEnumerable<Type> GetRegisteredServices()
-        {
-            return _registrations.Select(r => r.ServiceType).Distinct();
+            _decoratorService.AddDecorator(factory);
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
-
-            foreach (var registration in _registrations)
-            {
-                registration.Configure(_containerBuilder, _decorators.ContainsKey(registration.ServiceType));
-            }
-
-            foreach (var kv in _decorators)
-            {
-                foreach (var a in kv.Value.Select((d, i) => new { i = kv.Value.Count - i, d }))
-                {
-                    a.d.Configure(_containerBuilder, a.i, kv.Value.Count != a.i);
-                }
-            }
-
             var container = _containerBuilder.Build();
+            var autofacRootResolver = new AutofacRootResolver(container);
 
             if (validateRegistrations)
             {
-                ValidateRegistrations(container);
+                autofacRootResolver.ValidateRegistrations();
             }
 
             return new AutofacRootResolver(container);
         }
 
-        private static void ValidateRegistrations(IComponentContext container)
+        public class AutofacStartable : IStartable
         {
-            var services = container
-                .ComponentRegistry
-                .Registrations
-                .SelectMany(x => x.Services)
-                .OfType<TypedService>()
-                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                .Where(x => !x.ServiceType.IsClosedTypeOf(typeof(IAggregateRoot<>)))
-                .ToList();
-            var exceptions = new List<Exception>();
-            foreach (var typedService in services)
+            private readonly IReadOnlyCollection<IBootstrap> _bootstraps;
+
+            public AutofacStartable(
+                IEnumerable<IBootstrap> bootstraps)
             {
-                try
-                {
-                    container.Resolve(typedService.ServiceType);
-                }
-                catch (DependencyResolutionException ex)
-                {
-                    exceptions.Add(ex);
-                }
-            }
-            if (!exceptions.Any())
-            {
-                return;
+                _bootstraps = OrderBootstraps(bootstraps);
             }
 
-            var message = string.Join(", ", exceptions.Select(e => e.Message));
-            throw new AggregateException(message, exceptions);
+            public void Start()
+            {
+                using (var a = AsyncHelper.Wait)
+                {
+                    a.Run(StartAsync(CancellationToken.None));
+                }
+            }
+
+            private Task StartAsync(CancellationToken cancellationToken)
+            {
+                return Task.WhenAll(_bootstraps.Select(b => b.BootAsync(cancellationToken)));
+            }
+
+            private static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
+            {
+                var list = bootstraps
+                    .Select(b => new
+                    {
+                        Bootstrap = b,
+                        AssemblyName = b.GetType().Assembly.GetName().Name,
+                    })
+                    .ToList();
+                var eventFlowBootstraps = list
+                    .Where(a => a.AssemblyName.StartsWith("EventFlow"))
+                    .OrderBy(a => a.AssemblyName)
+                    .Select(a => a.Bootstrap);
+                var otherBootstraps = list
+                    .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
+                    .OrderBy(a => a.AssemblyName)
+                    .Select(a => a.Bootstrap);
+                return eventFlowBootstraps.Concat(otherBootstraps).ToList();
+            }
         }
     }
 }

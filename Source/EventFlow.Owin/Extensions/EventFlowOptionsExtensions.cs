@@ -26,7 +26,8 @@ namespace EventFlow.Owin.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static EventFlowOptions AddOwinMetadataProviders(this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions AddOwinMetadataProviders(
+            this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .AddMetadataProviders(EventFlowOwin.Assembly);

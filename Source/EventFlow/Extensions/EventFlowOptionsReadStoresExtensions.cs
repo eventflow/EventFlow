@@ -31,8 +31,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsReadStoresExtensions
     {
-        public static EventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
+            this IEventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel, new()
         {
@@ -43,8 +43,8 @@ namespace EventFlow.Extensions
                 });
         }
 
-        public static EventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
+            this IEventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel, new()
             where TReadModelLocator : IReadModelLocator
@@ -56,8 +56,8 @@ namespace EventFlow.Extensions
                 });
         }
 
-        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
+            this IEventFlowOptions eventFlowOptions)
             where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
@@ -70,8 +70,8 @@ namespace EventFlow.Extensions
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel>();
         }
 
-        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
-            this EventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
+            this IEventFlowOptions eventFlowOptions)
             where TReadModel : class, IReadModel, new()
             where TReadModelLocator : IReadModelLocator
         {

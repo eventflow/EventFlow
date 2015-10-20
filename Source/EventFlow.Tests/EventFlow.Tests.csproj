@@ -84,11 +84,14 @@
     <Compile Include="UnitTests\Commands\CommandTests.cs" />
     <Compile Include="UnitTests\Commands\DistinctCommandTests.cs" />
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
+    <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
+    <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
     <Compile Include="UnitTests\Jobs\JobsFlowTests.cs" />
+    <Compile Include="UnitTests\Provided\Specifications\AtLeastSpecificationTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelDomainEventApplierTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -104,6 +107,9 @@
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
+    <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
+    <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
