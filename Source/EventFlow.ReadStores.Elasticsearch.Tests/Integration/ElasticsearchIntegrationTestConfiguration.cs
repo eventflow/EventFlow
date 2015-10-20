@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -42,6 +43,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 
         public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            // Disable SSL certificate validation
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
             var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
             if (string.IsNullOrEmpty(url))
             {
