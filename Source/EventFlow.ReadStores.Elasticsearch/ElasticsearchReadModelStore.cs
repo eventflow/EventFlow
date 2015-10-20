@@ -31,10 +31,11 @@ using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch
 {
-    public class ElasticsearchReadModelStore<TReadModel> : ReadModelStore<TReadModel>,
+    public class ElasticsearchReadModelStore<TReadModel> :
         IElasticsearchReadModelStore<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
+        private readonly ILog _log;
         private readonly IElasticClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
@@ -42,13 +43,13 @@ namespace EventFlow.ReadStores.Elasticsearch
             ILog log,
             IElasticClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider)
-            : base(log)
         {
+            _log = log;
             _elasticClient = elasticClient;
             _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
-        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(
+        public async Task<ReadModelEnvelope<TReadModel>> GetAsync(
             string id,
             CancellationToken cancellationToken)
         {
@@ -68,7 +69,7 @@ namespace EventFlow.ReadStores.Elasticsearch
             return ReadModelEnvelope<TReadModel>.With(getResponse.Source, version);
         }
 
-        public override Task DeleteAllAsync(
+        public Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
@@ -79,7 +80,7 @@ namespace EventFlow.ReadStores.Elasticsearch
                 .Query(q => q.MatchAll()));
         }
 
-        public override async Task UpdateAsync(
+        public async Task UpdateAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
