@@ -31,6 +31,19 @@ namespace EventFlow.TestHelpers.Suites
         where TConfiguration : IntegrationTestConfiguration, new()
     {
         [Test]
+        public async Task NonExistingReadModelReturnsNull()
+        {
+            // Arrange
+            var id = TestId.New;
+
+            // Act
+            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+
+            // Assert
+            readModel.Should().BeNull();
+        }
+
+        [Test]
         public async Task ReadModelReceivesEvent()
         {
             // Arrange

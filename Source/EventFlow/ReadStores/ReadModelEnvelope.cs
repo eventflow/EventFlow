@@ -39,6 +39,7 @@ namespace EventFlow.ReadStores
 
         public TReadModel ReadModel { get; }
         public long? Version { get; }
+        public bool IsEmpty => ReadModel == null;
 
         private ReadModelEnvelope(
             TReadModel readModel,

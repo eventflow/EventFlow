@@ -116,11 +116,6 @@ namespace EventFlow.ReadStores.MsSql
                 : ReadModelEnvelope<TReadModel>.With(readModel, readModel.LastAggregateSequenceNumber);
         }
 
-        public override Task DeleteAsync(string id, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
             var sql = _readModelSqlGenerator.CreatePurgeSql<TReadModel>();

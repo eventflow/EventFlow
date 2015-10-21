@@ -21,27 +21,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.ReadStores.Elasticsearch
 {
-    public interface IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public class IndexName : SingleValueObject<string>
     {
-        Task<ReadModelEnvelope<TReadModel>> GetAsync(
-            string id,
-            CancellationToken cancellationToken);
-
-        Task DeleteAllAsync(
-            CancellationToken cancellationToken);
-
-        Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
-            CancellationToken cancellationToken);
+        public IndexName(string value)
+            : base(value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+        }
     }
 }
