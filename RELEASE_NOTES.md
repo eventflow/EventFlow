@@ -1,5 +1,10 @@
 ### New in 0.20 (not released yet)
 
+* Breaking: `Entity<T>` now inherits from `ValueObject` but uses only the `Id`
+  field as equality component. Override `GetEqualityComponents()` if you have
+  a different notion of equality for a specific entity
+* Breaking: `Entity<T>` will now throw an `ArgumentNullException` if the `id`
+  passed to its constructor is `null`
 * Breaking: Fixed method spelling. Renamed
  `ISpecification<T>.WhyIsNotStatisfiedBy` to `WhyIsNotSatisfiedBy` and
  `Specification<T>.IsNotStatisfiedBecause` to `IsNotSatisfiedBecause`
