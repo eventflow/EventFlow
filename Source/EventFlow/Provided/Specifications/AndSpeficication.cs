@@ -43,9 +43,9 @@ namespace EventFlow.Provided.Specifications
             _specification2 = specification2;
         }
 
-        protected override IEnumerable<string> IsNotStatisfiedBecause(T obj)
+        protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)
         {
-            return _specification1.WhyIsNotStatisfiedBy(obj).Concat(_specification2.WhyIsNotStatisfiedBy(obj));
+            return _specification1.WhyIsNotSatisfiedBy(obj).Concat(_specification2.WhyIsNotSatisfiedBy(obj));
         }
     }
 }

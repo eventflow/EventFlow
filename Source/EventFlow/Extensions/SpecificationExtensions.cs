@@ -37,7 +37,7 @@ namespace EventFlow.Extensions
         {
             if (specification == null) throw new ArgumentNullException(nameof(specification));
 
-            var whyIsNotStatisfiedBy = specification.WhyIsNotStatisfiedBy(obj).ToList();
+            var whyIsNotStatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
             if (whyIsNotStatisfiedBy.Any())
             {
                 throw DomainError.With(

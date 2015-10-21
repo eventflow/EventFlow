@@ -1,5 +1,8 @@
 ### New in 0.20 (not released yet)
 
+* Breaking: Fixed method spelling. Renamed
+ `ISpecification<T>.WhyIsNotStatisfiedBy` to `WhyIsNotSatisfiedBy` and
+ `Specification<T>.IsNotStatisfiedBecause` to `IsNotSatisfiedBecause`
 * New: Read model support for Elasticsearch via the new NuGet package
   `EventFlow.ReadStores.Elasticsearch`
 

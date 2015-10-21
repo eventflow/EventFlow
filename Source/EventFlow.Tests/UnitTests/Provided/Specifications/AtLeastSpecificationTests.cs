@@ -52,7 +52,7 @@ namespace EventFlow.Tests.UnitTests.Provided.Specifications
             var isSatisfiedBy = atLeast.IsSatisfiedBy(obj);
 
             // Assert
-            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy, string.Join(", ", atLeast.WhyIsNotStatisfiedBy(obj)));
+            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy, string.Join(", ", atLeast.WhyIsNotSatisfiedBy(obj)));
         }
     }
 }
