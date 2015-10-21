@@ -29,14 +29,14 @@ namespace EventFlow.Specifications
     {
         public bool IsSatisfiedBy(T obj)
         {
-            return !IsNotStatisfiedBecause(obj).Any();
+            return !IsNotSatisfiedBecause(obj).Any();
         }
 
-        public IEnumerable<string> WhyIsNotStatisfiedBy(T obj)
+        public IEnumerable<string> WhyIsNotSatisfiedBy(T obj)
         {
-            return IsNotStatisfiedBecause(obj);
+            return IsNotSatisfiedBecause(obj);
         }
 
-        protected abstract IEnumerable<string> IsNotStatisfiedBecause(T obj);
+        protected abstract IEnumerable<string> IsNotSatisfiedBecause(T obj);
     }
 }

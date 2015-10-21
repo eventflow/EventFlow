@@ -28,7 +28,7 @@ namespace EventFlow.Provided.Specifications
 {
     public class AggregateIsNewSpecification : Specification<IAggregateRoot>
     {
-        protected override IEnumerable<string> IsNotStatisfiedBecause(IAggregateRoot obj)
+        protected override IEnumerable<string> IsNotSatisfiedBecause(IAggregateRoot obj)
         {
             if (!obj.IsNew)
             {

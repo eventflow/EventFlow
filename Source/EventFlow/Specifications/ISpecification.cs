@@ -28,6 +28,6 @@ namespace EventFlow.Specifications
     {
         bool IsSatisfiedBy(T obj);
 
-        IEnumerable<string> WhyIsNotStatisfiedBy(T obj);
+        IEnumerable<string> WhyIsNotSatisfiedBy(T obj);
     }
 }

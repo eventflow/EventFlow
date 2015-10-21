@@ -43,10 +43,10 @@ namespace EventFlow.Provided.Specifications
             _specification2 = specification2;
         }
 
-        protected override IEnumerable<string> IsNotStatisfiedBecause(T obj)
+        protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)
         {
-            var reasons1 = _specification1.WhyIsNotStatisfiedBy(obj).ToList();
-            var reasons2 = _specification2.WhyIsNotStatisfiedBy(obj).ToList();
+            var reasons1 = _specification1.WhyIsNotSatisfiedBy(obj).ToList();
+            var reasons2 = _specification2.WhyIsNotSatisfiedBy(obj).ToList();
 
             if (!reasons1.Any() || !reasons2.Any())
             {
