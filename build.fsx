@@ -181,6 +181,24 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             "Source/EventFlow.ReadStores.MsSql/EventFlow.ReadStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowReadStoresElasticsearch" (fun _ ->
+    let binDir = "Source/EventFlow.ReadStores.Elasticsearch/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.ReadStores.Elasticsearch.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.ReadStores.Elasticsearch"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "NEST",  GetPackageVersion "./packages/" "NEST"
+                "Elasticsearch.Net",  GetPackageVersion "./packages/" "Elasticsearch.Net"
+                "Elasticsearch.Net.JsonNET",  GetPackageVersion "./packages/" "Elasticsearch.Net.JsonNET"]
+            Publish = false })
+            "Source/EventFlow.ReadStores.Elasticsearch/EventFlow.ReadStores.Elasticsearch.nuspec"
+    )
+
 Target "CreatePackageEventFlowOwin" (fun _ ->
     let binDir = "Source/EventFlow.Owin/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.Owin.dll")
@@ -211,6 +229,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
+    ==> "CreatePackageEventFlowReadStoresElasticsearch"
     ==> "CreatePackageEventFlowEventStoresEventStore"
     ==> "CreatePackageEventFlowOwin"
     ==> "Default"

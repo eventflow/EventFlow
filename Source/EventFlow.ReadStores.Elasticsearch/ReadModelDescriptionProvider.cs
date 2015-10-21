@@ -21,27 +21,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using System.Collections.Concurrent;
+using System.Reflection;
+using Nest;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.ReadStores.Elasticsearch
 {
-    public interface IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public class ReadModelDescriptionProvider : IReadModelDescriptionProvider
     {
-        Task<ReadModelEnvelope<TReadModel>> GetAsync(
-            string id,
-            CancellationToken cancellationToken);
+        private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames = new ConcurrentDictionary<Type, ReadModelDescription>();
 
-        Task DeleteAllAsync(
-            CancellationToken cancellationToken);
-
-        Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
-            CancellationToken cancellationToken);
+        public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
+        {
+            return IndexNames.GetOrAdd(
+                typeof (TReadModel),
+                t =>
+                {
+                    var elasticType = t.GetCustomAttribute<ElasticTypeAttribute>();
+                    return new ReadModelDescription(new IndexName(elasticType == null
+                        ? "eventflow"
+                        : elasticType.Name));
+                });
+        }
     }
 }

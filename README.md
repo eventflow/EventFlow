@@ -4,7 +4,6 @@
 
 [![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
 [![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
-[![License](https://img.shields.io/github/license/rasmus/eventflow.svg)](./LICENSE)
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
@@ -41,6 +40,7 @@ to the documentation.
 * **Read models:** Denormalized representation of aggregate events
   optimized for reading fast. Currently there is support for these
   read model storage types.
+  * [Elasticsearch](./Documentation/ReadStores-Elasticsearch.md)
   * In-memory - only for test
   * Microsoft SQL Server
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
