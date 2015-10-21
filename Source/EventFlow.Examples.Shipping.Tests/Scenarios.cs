@@ -73,9 +73,9 @@ namespace EventFlow.Examples.Shipping.Tests
 
             var route = new Route(
                 Locations.Tokyo,
-                Locations.Hongkong,
+                Locations.Helsinki,
                 1.October(2008).At(11, 00),
-                1.January(2014));
+                6.November(2008).At(12, 00));
 
             var booking = _resolver.Resolve<IBookingApplicationService>();
             await booking.BookCargoAsync(route, CancellationToken.None).ConfigureAwait(false);
@@ -84,7 +84,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
             await voyage.DelayScheduleAsync(
                 Voyages.DallasToHelsinkiId,
-                TimeSpan.FromDays(4),
+                TimeSpan.FromDays(7),
                 CancellationToken.None)
                 .ConfigureAwait(false);
         }

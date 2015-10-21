@@ -29,7 +29,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {
     public class VoyageState : AggregateState<VoyageAggregate, VoyageId, VoyageState>,
         IApply<VoyageCreatedEvent>,
-        IApply<VoyageDelayedEvent>
+        IApply<VoyageScheduleUpdatedEvent>
     {
         public Schedule Schedule { get; private set; }
 
@@ -38,7 +38,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
             Schedule = aggregateEvent.Schedule;
         }
 
-        public void Apply(VoyageDelayedEvent aggregateEvent)
+        public void Apply(VoyageScheduleUpdatedEvent aggregateEvent)
         {
             Schedule = aggregateEvent.Schedule;
         }

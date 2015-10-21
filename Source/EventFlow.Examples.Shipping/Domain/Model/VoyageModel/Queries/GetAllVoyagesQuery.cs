@@ -20,33 +20,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Jobs;
-using EventFlow.Subscribers;
+using System.Collections.Generic;
+using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Subscribers
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries
 {
-    public class ScheduleChangedSubscriber :
-        ISubscribeSynchronousTo<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent>
+    public class GetAllVoyagesQuery : IQuery<IReadOnlyCollection<Voyage>>
     {
-        private readonly IJobScheduler _jobScheduler;
-
-        public ScheduleChangedSubscriber(
-            IJobScheduler jobScheduler)
-        {
-            _jobScheduler = jobScheduler;
-        }
-
-        public Task HandleAsync(IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent, CancellationToken cancellationToken)
-        {
-            var job = new VerifyCargosForVoyageJob(
-                domainEvent.AggregateIdentity);
-            return _jobScheduler.ScheduleNowAsync(job, cancellationToken);
-        }
     }
 }

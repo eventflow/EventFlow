@@ -21,42 +21,44 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Events;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.ReadStores;
 
-namespace EventFlow.Examples.Shipping.Queries.InMemory.ReadModels
+namespace EventFlow.Examples.Shipping.Queries.InMemory.Cargos
 {
     public class CargoReadModel : IReadModel,
         IAmReadModelFor<CargoAggregate, CargoId, CargoItinerarySetEvent>,
         IAmReadModelFor<CargoAggregate, CargoId, CargoBookedEvent>
     {
         public CargoId Id { get; private set; }
-        public HashSet<CarrierMovementId> DependentCarrierMovementIds { get; } = new HashSet<CarrierMovementId>();
+        public HashSet<VoyageId> DependentVoyageIds { get; } = new HashSet<VoyageId>();
         public Itinerary Itinerary { get; private set; }
+        public Route Route { get; private set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<CargoAggregate, CargoId, CargoBookedEvent> domainEvent)
         {
             Id = domainEvent.AggregateIdentity;
+            Route = domainEvent.AggregateEvent.Route;
         }
 
         public void Apply(IReadModelContext context, IDomainEvent<CargoAggregate, CargoId, CargoItinerarySetEvent> domainEvent)
         {
-            var carrierMovementIds = domainEvent.AggregateEvent.Itinerary.TransportLegs
-                .Select(l => l.CarrierMovementId)
-                .ToList();
-            carrierMovementIds.ForEach(id => DependentCarrierMovementIds.Add(id));
             Itinerary = domainEvent.AggregateEvent.Itinerary;
+            foreach (var transportLeg in domainEvent.AggregateEvent.Itinerary.TransportLegs)
+            {
+                DependentVoyageIds.Add(transportLeg.VoyageId);
+            }
         }
 
         public Cargo ToCargo()
         {
             return new Cargo(
                 Id,
+                Route,
                 Itinerary);
         }
     }

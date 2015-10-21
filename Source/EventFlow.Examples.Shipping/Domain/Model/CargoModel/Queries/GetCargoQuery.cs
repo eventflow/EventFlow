@@ -20,33 +20,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Jobs;
-using EventFlow.Subscribers;
+using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Subscribers
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries
 {
-    public class ScheduleChangedSubscriber :
-        ISubscribeSynchronousTo<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent>
+    public class GetCargosQuery : IQuery<IReadOnlyCollection<Cargo>>
     {
-        private readonly IJobScheduler _jobScheduler;
-
-        public ScheduleChangedSubscriber(
-            IJobScheduler jobScheduler)
+        public GetCargosQuery(
+            params CargoId[] cargoIds)
+            : this((IEnumerable<CargoId>) cargoIds)
         {
-            _jobScheduler = jobScheduler;
         }
 
-        public Task HandleAsync(IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent, CancellationToken cancellationToken)
+        public GetCargosQuery(IEnumerable<CargoId> cargoIds)
         {
-            var job = new VerifyCargosForVoyageJob(
-                domainEvent.AggregateIdentity);
-            return _jobScheduler.ScheduleNowAsync(job, cancellationToken);
+            CargoIds = cargoIds.ToList();
         }
+
+        public IReadOnlyCollection<CargoId> CargoIds { get; }
     }
 }

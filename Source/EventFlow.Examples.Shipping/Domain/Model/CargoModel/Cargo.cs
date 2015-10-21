@@ -29,12 +29,15 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
     {
         public Cargo(
             CargoId id,
+            Route route,
             Itinerary itinerary)
             : base(id)
         {
+            Route = route;
             Itinerary = itinerary;
         }
 
+        public Route Route { get; }
         public Itinerary Itinerary { get; }
     }
 }

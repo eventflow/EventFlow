@@ -21,7 +21,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Reflection;
-using EventFlow.Examples.Shipping.Queries.InMemory.ReadModels;
+using EventFlow.Examples.Shipping.Queries.InMemory.Cargos;
+using EventFlow.Examples.Shipping.Queries.InMemory.Voyage;
 using EventFlow.Extensions;
 
 namespace EventFlow.Examples.Shipping.Queries.InMemory

@@ -20,25 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
-using EventFlow.ReadStores;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.Queries.InMemory.ReadModels
+namespace EventFlow.Examples.Shipping.Queries.InMemory.Voyage.QueryHandlers
 {
-    public class VoyageReadModel : IReadModel,
-        IAmReadModelFor<VoyageAggregate, VoyageId, VoyageCreatedEvent>
+    public class GetVoyagesQueryHandler : IQueryHandler<GetVoyagesQuery, IReadOnlyCollection<Domain.Model.VoyageModel.Voyage>>
     {
-        public VoyageId Id { get; private set; }
-        public Schedule Schedule { get; private set; }
+        private readonly IInMemoryReadStore<VoyageReadModel> _readStore;
 
-        public void Apply(IReadModelContext context, IDomainEvent<VoyageAggregate, VoyageId, VoyageCreatedEvent> e)
+        public GetVoyagesQueryHandler(
+            IInMemoryReadStore<VoyageReadModel> readStore)
         {
-            Id = e.AggregateIdentity;
-            Schedule = e.AggregateEvent.Schedule;
+            _readStore = readStore;
+        }
+
+        public async Task<IReadOnlyCollection<Domain.Model.VoyageModel.Voyage>> ExecuteQueryAsync(GetVoyagesQuery query, CancellationToken cancellationToken)
+        {
+            var voyageIds = new HashSet<VoyageId>(query.VoyageIds);
+            var voyageReadModels = await _readStore.FindAsync(rm => voyageIds.Contains(rm.Id), cancellationToken).ConfigureAwait(false);
+            return voyageReadModels.Select(rm => rm.ToVoyage()).ToList();
         }
     }
 }

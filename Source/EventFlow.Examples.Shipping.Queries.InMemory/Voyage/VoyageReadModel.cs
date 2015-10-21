@@ -20,14 +20,37 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Aggregates;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
-using EventFlow.Queries;
+using EventFlow.ReadStores;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries
+namespace EventFlow.Examples.Shipping.Queries.InMemory.Voyage
 {
-    public class GetSchedulesQuery : IQuery<IReadOnlyCollection<Schedule>>
+    public class VoyageReadModel : IReadModel,
+        IAmReadModelFor<VoyageAggregate, VoyageId, VoyageCreatedEvent>,
+        IAmReadModelFor<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent>
     {
+        public VoyageId Id { get; private set; }
+        public Schedule Schedule { get; private set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<VoyageAggregate, VoyageId, VoyageCreatedEvent> e)
+        {
+            Id = e.AggregateIdentity;
+            Schedule = e.AggregateEvent.Schedule;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent)
+        {
+            Schedule = domainEvent.AggregateEvent.Schedule;
+        }
+
+        public Domain.Model.VoyageModel.Voyage ToVoyage()
+        {
+            return new Domain.Model.VoyageModel.Voyage(
+                Id,
+                Schedule);
+        }
     }
 }

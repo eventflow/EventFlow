@@ -22,6 +22,7 @@
 
 using System.Reflection;
 using EventFlow.Examples.Shipping.Application;
+using EventFlow.Examples.Shipping.Domain.Services;
 using EventFlow.Examples.Shipping.Services.Routing;
 using EventFlow.Extensions;
 
@@ -39,6 +40,7 @@ namespace EventFlow.Examples.Shipping
                     {
                         sr.Register<IBookingApplicationService, BookingApplicationService>();
                         sr.Register<IScheduleApplicationService, ScheduleApplicationService>();
+                        sr.Register<IUpdateItineraryService, UpdateItineraryService>();
                         sr.Register<IRoutingService, RoutingService>();
                     });
         }

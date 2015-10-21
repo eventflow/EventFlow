@@ -20,22 +20,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events
+namespace EventFlow.Examples.Shipping.Queries.InMemory.Cargos.QueryHandlers
 {
-    [EventVersion("VoyageDelayed", 1)]
-    public class VoyageDelayedEvent : AggregateEvent<VoyageAggregate, VoyageId>
+    public class GetCargosQueryHandler : IQueryHandler<GetCargosQuery, IReadOnlyCollection<Cargo>>
     {
-        public VoyageDelayedEvent(
-            Schedule schedule)
+        private readonly IInMemoryReadStore<CargoReadModel> _readStore;
+
+        public GetCargosQueryHandler(
+            IInMemoryReadStore<CargoReadModel> readStore)
         {
-            Schedule = schedule;
+            _readStore = readStore;
         }
 
-        public Schedule Schedule { get; }
+        public async Task<IReadOnlyCollection<Cargo>> ExecuteQueryAsync(GetCargosQuery query, CancellationToken cancellationToken)
+        {
+            var cargoIds = new HashSet<CargoId>(query.CargoIds);
+            var cargoReadModels = await _readStore.FindAsync(
+                rm => cargoIds.Contains(rm.Id),
+                cancellationToken)
+                .ConfigureAwait(false);
+            return cargoReadModels.Select(rm => rm.ToCargo()).ToList();
+        }
     }
 }

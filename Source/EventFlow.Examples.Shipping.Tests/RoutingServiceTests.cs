@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Services.Routing;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -33,13 +34,15 @@ namespace EventFlow.Examples.Shipping.Tests
         [Test]
         public void Itinerary()
         {
+            var hongkongToNewYork = new Voyage(Voyages.HongkongToNewYorkId, Voyages.HongkongToNewYorkSchedule);
+            var newYorkToDallas = new Voyage(Voyages.NewYorkToDallasId, Voyages.NewYorkToDallasSchedule);
             var itinerary = Sut.CalculateItinerary(
                 new Route(
                     Locations.Tokyo,
                     Locations.Chicago,
                     1.October(2008).At(11, 00),
                     1.January(2014)), 
-                new[] {Voyages.HongkongToNewYorkSchedule, Voyages.NewYorkToDallasSchedule});
+                new[] { hongkongToNewYork, newYorkToDallas });
         }
     }
 }

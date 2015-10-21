@@ -20,33 +20,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Jobs;
-using EventFlow.Subscribers;
+using EventFlow.EventStores;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Subscribers
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events
 {
-    public class ScheduleChangedSubscriber :
-        ISubscribeSynchronousTo<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent>
+    [EventVersion("VoyageDelayed", 1)]
+    public class VoyageScheduleUpdatedEvent : AggregateEvent<VoyageAggregate, VoyageId>
     {
-        private readonly IJobScheduler _jobScheduler;
-
-        public ScheduleChangedSubscriber(
-            IJobScheduler jobScheduler)
+        public VoyageScheduleUpdatedEvent(
+            Schedule schedule)
         {
-            _jobScheduler = jobScheduler;
+            Schedule = schedule;
         }
 
-        public Task HandleAsync(IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent, CancellationToken cancellationToken)
-        {
-            var job = new VerifyCargosForVoyageJob(
-                domainEvent.AggregateIdentity);
-            return _jobScheduler.ScheduleNowAsync(job, cancellationToken);
-        }
+        public Schedule Schedule { get; }
     }
 }

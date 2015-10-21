@@ -20,33 +20,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
-using EventFlow.Jobs;
-using EventFlow.Subscribers;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Subscribers
+namespace EventFlow.Examples.Shipping.Queries.InMemory.Voyage.QueryHandlers
 {
-    public class ScheduleChangedSubscriber :
-        ISubscribeSynchronousTo<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent>
+    public class GetAllVoyagesQueryHandler : IQueryHandler<GetAllVoyagesQuery, IReadOnlyCollection<Domain.Model.VoyageModel.Voyage>>
     {
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IInMemoryReadStore<VoyageReadModel> _readStore;
 
-        public ScheduleChangedSubscriber(
-            IJobScheduler jobScheduler)
+        public GetAllVoyagesQueryHandler(
+            IInMemoryReadStore<VoyageReadModel> readStore)
         {
-            _jobScheduler = jobScheduler;
+            _readStore = readStore;
         }
 
-        public Task HandleAsync(IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<Domain.Model.VoyageModel.Voyage>> ExecuteQueryAsync(GetAllVoyagesQuery query, CancellationToken cancellationToken)
         {
-            var job = new VerifyCargosForVoyageJob(
-                domainEvent.AggregateIdentity);
-            return _jobScheduler.ScheduleNowAsync(job, cancellationToken);
+            var voyageReadModels = await _readStore.FindAsync(rm => true, cancellationToken).ConfigureAwait(false);
+            return voyageReadModels.Select(rm => rm.ToVoyage()).ToList();
         }
     }
 }

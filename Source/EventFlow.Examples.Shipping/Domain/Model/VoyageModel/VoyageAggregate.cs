@@ -55,7 +55,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 
             var delayedSchedule = Schedule.Delay(delay);
 
-            Emit(new VoyageDelayedEvent(delayedSchedule));
+            Emit(new VoyageScheduleUpdatedEvent(delayedSchedule));
         }
     }
 }

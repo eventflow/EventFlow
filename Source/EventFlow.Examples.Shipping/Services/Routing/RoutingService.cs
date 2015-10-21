@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
@@ -47,14 +48,23 @@ namespace EventFlow.Examples.Shipping.Services.Routing
 
         public async Task<Itinerary> CalculateItineraryAsync(Route route, CancellationToken cancellationToken)
         {
-            var schedules = await _queryProcessor.ProcessAsync(new GetSchedulesQuery(), cancellationToken).ConfigureAwait(false);
+            var schedules = await _queryProcessor.ProcessAsync(new GetAllVoyagesQuery(), cancellationToken).ConfigureAwait(false);
             return CalculateItinerary(route, schedules);
         }
 
-        public Itinerary CalculateItinerary(Route route, IReadOnlyCollection<Schedule> schedules)
+        public Itinerary CalculateItinerary(Route route, IReadOnlyCollection<Voyage> voyages)
         {
-            var path = CalculatePath(route, schedules);
-            var legs = path.CarrierMovements.Select(m => new TransportLeg(TransportLegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, m.Id));
+            var voyageIds = (
+                from v in voyages
+                from c in v.Schedule.CarrierMovements
+                select new { VoyageId = v.Id, CarrierMovementId = c.Id }
+                )
+                .ToDictionary(a => a.CarrierMovementId, a => a.VoyageId);
+
+            var path = CalculatePath(route, voyages.Select(v => v.Schedule));
+
+            var legs = path.CarrierMovements.Select(m => new TransportLeg(TransportLegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, voyageIds[m.Id], m.Id));
+
             return new Itinerary(legs);
         }
 
@@ -71,10 +81,17 @@ namespace EventFlow.Examples.Shipping.Services.Routing
                 new Path(0.0, route.DepartureTime, graph.Nodes[route.OriginLocationId.Value])
             };
 
+            var possiblePaths = new List<Path>();
+
             while (true)
             {
                 if (!paths.Any())
                 {
+                    if (possiblePaths.Any())
+                    {
+                        return possiblePaths.OrderBy(p => p.Distance).First();
+                    }
+
                     throw new Exception("Could not find path");
                 }
 
@@ -87,17 +104,22 @@ namespace EventFlow.Examples.Shipping.Services.Routing
                 {
                     if (path.CurrentNode.Name == route.DestinationLocationId.Value)
                     {
-                        return path;
+                        possiblePaths.Add(path);
+                        continue;
                     }
 
-                    paths.AddRange(path.CurrentNode.Edges.Select(e => CreatePath(path, e.CarrierMovement, e.Target)).Where(p => p != null));
+                    paths.AddRange(path.CurrentNode.Edges.Select(e => CreatePath(route, path, e.CarrierMovement, e.Target)).Where(p => p != null));
                 }
             }
         }
 
-        private static Path CreatePath(Path currentPath, CarrierMovement carrierMovement, Node target)
+        private static Path CreatePath(Route route, Path currentPath, CarrierMovement carrierMovement, Node target)
         {
             if (currentPath.CurrentTime.IsAfter(carrierMovement.DepartureTime))
+            {
+                return null;
+            }
+            if (carrierMovement.ArrivalTime.IsAfter(route.ArrivalDeadline))
             {
                 return null;
             }

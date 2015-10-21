@@ -26,29 +26,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
-using EventFlow.Examples.Shipping.Queries.InMemory.ReadModels;
 using EventFlow.Queries;
 using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.Queries.InMemory.QueryHandlers
+namespace EventFlow.Examples.Shipping.Queries.InMemory.Cargos.QueryHandlers
 {
-    public class GetCargosDependentOnScheduleQueryHandler : IQueryHandler<GetCargosDependentOnScheduleQuery, IReadOnlyCollection<Cargo>>
+    public class GetCargosDependentOnVoyageQueryHandler : IQueryHandler<GetCargosDependentOnVoyageQuery, IReadOnlyCollection<Cargo>>
     {
         private readonly IInMemoryReadStore<CargoReadModel> _readStore;
 
-        public GetCargosDependentOnScheduleQueryHandler(
+        public GetCargosDependentOnVoyageQueryHandler(
             IInMemoryReadStore<CargoReadModel> readStore)
         {
             _readStore = readStore;
         }
 
-        public async Task<IReadOnlyCollection<Cargo>> ExecuteQueryAsync(GetCargosDependentOnScheduleQuery query, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<Cargo>> ExecuteQueryAsync(GetCargosDependentOnVoyageQuery query, CancellationToken cancellationToken)
         {
-            var carrierMovementIds = query.Schedule.CarrierMovements
-                .Select(m => m.Id)
-                .ToList();
-            var cargoReadModels = await _readStore
-                .FindAsync(rm => carrierMovementIds.Any(id => rm.DependentCarrierMovementIds.Contains(id)),
+            var cargoReadModels = await _readStore.FindAsync(
+                rm => rm.DependentVoyageIds.Contains(query.VoyageId),
                 cancellationToken)
                 .ConfigureAwait(false);
             return cargoReadModels.Select(rm => rm.ToCargo()).ToList();

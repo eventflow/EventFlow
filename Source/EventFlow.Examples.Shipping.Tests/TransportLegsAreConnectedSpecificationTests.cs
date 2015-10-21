@@ -20,16 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests
 {
-    public class TransportLegsAreConnectedSpecificationTests
+    public class TransportLegsAreConnectedSpecificationTests : Test
     {
         [Test]
         public void Valid()
@@ -38,8 +39,8 @@ namespace EventFlow.Examples.Shipping.Tests
             var sut = new TransportLegsAreConnectedSpecification();
             var transportLegs = new[]
                 {
-                    new TransportLeg(TransportLegId.New, Locations.NewYork, Locations.Dallas, 1.January(2000), 2.January(2000), CarrierMovementId.New),
-                    new TransportLeg(TransportLegId.New, Locations.Dallas, Locations.Chicago, 3.January(2000), 4.January(2000), CarrierMovementId.New),
+                    new TransportLeg(TransportLegId.New, Locations.NewYork, Locations.Dallas, 1.January(2000), 2.January(2000), A<VoyageId>(), CarrierMovementId.New),
+                    new TransportLeg(TransportLegId.New, Locations.Dallas, Locations.Chicago, 3.January(2000), 4.January(2000), A<VoyageId>(), CarrierMovementId.New),
                 };
 
             // Act
@@ -58,8 +59,8 @@ namespace EventFlow.Examples.Shipping.Tests
             var sut = new TransportLegsAreConnectedSpecification();
             var transportLegs = new[]
                 {
-                    new TransportLeg(TransportLegId.New, Locations.NewYork, Locations.Dallas, 1.January(2000), 3.January(2000), CarrierMovementId.New),
-                    new TransportLeg(TransportLegId.New, Locations.Dallas, Locations.Chicago, 2.January(2000), 4.January(2000), CarrierMovementId.New),
+                    new TransportLeg(TransportLegId.New, Locations.NewYork, Locations.Dallas, 1.January(2000), 3.January(2000), A<VoyageId>(), CarrierMovementId.New),
+                    new TransportLeg(TransportLegId.New, Locations.Dallas, Locations.Chicago, 2.January(2000), 4.January(2000), A<VoyageId>(), CarrierMovementId.New),
                 };
 
             // Act
@@ -78,8 +79,8 @@ namespace EventFlow.Examples.Shipping.Tests
             var sut = new TransportLegsAreConnectedSpecification();
             var transportLegs = new[]
                 {
-                    new TransportLeg(TransportLegId.New, Locations.NewYork, Locations.Dallas, 1.January(2000), 2.January(2000), CarrierMovementId.New),
-                    new TransportLeg(TransportLegId.New, Locations.Shanghai, Locations.Chicago, 3.January(2000), 4.January(2000), CarrierMovementId.New),
+                    new TransportLeg(TransportLegId.New, Locations.NewYork, Locations.Dallas, 1.January(2000), 2.January(2000), A<VoyageId>(), CarrierMovementId.New),
+                    new TransportLeg(TransportLegId.New, Locations.Shanghai, Locations.Chicago, 3.January(2000), 4.January(2000), A<VoyageId>(), CarrierMovementId.New),
                 };
 
             // Act

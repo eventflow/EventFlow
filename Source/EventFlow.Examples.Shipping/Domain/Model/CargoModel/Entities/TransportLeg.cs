@@ -23,6 +23,7 @@
 using System;
 using EventFlow.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
@@ -35,6 +36,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
             LocationId unloadLocation,
             DateTimeOffset loadTime,
             DateTimeOffset unloadTime,
+            VoyageId voyageId,
             CarrierMovementId carrierMovementId)
             : base(id)
         {
@@ -42,12 +44,14 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
             if (unloadLocation == null) throw new ArgumentNullException(nameof(unloadLocation));
             if (loadTime == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(loadTime));
             if (unloadTime == default(DateTimeOffset)) throw new ArgumentOutOfRangeException(nameof(unloadTime));
+            if (voyageId == null) throw new ArgumentNullException(nameof(voyageId));
             if (carrierMovementId == null) throw new ArgumentNullException(nameof(carrierMovementId));
 
             LoadLocation = loadLocation;
             UnloadLocation = unloadLocation;
             LoadTime = loadTime;
             UnloadTime = unloadTime;
+            VoyageId = voyageId;
             CarrierMovementId = carrierMovementId;
         }
 
@@ -55,6 +59,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
         public LocationId UnloadLocation { get; }
         public DateTimeOffset LoadTime { get; }
         public DateTimeOffset UnloadTime { get; }
-        public CarrierMovementId CarrierMovementId { get; }
+        public VoyageId VoyageId { get; }
+        public CarrierMovementId CarrierMovementId { get; } // TODO: Do we really want this?
     }
 }

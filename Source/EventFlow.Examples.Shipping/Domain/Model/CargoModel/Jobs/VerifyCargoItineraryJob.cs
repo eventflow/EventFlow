@@ -20,44 +20,48 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Commands;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
+using EventFlow.Examples.Shipping.Domain.Services;
+using EventFlow.Examples.Shipping.Services.Routing;
 using EventFlow.Jobs;
 using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping.Domain.Jobs
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs
 {
-    [JobVersion("RefreshCargoItineraryForVoyage", 1)]
-    public class RefreshCargoItineraryForScheduleJob : IJob
+    public class VerifyCargoItineraryJob : IJob
     {
-        public VoyageId VoyageId { get; }
-        public Schedule Schedule { get; }
-
-        public RefreshCargoItineraryForScheduleJob(
-            VoyageId voyageId,
-            Schedule schedule)
+        public VerifyCargoItineraryJob(
+            CargoId cargoId)
         {
-            VoyageId = voyageId;
-            Schedule = schedule;
+            CargoId = cargoId;
         }
+
+        public CargoId CargoId { get; }
 
         public async Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
-            // Consideration: Fetching all cargos that are affected by an updated
-            // schedule could potentially fetch several thousands. Each of these
-            // potential re-routes would then take a considerable amount of time
-            // and will thus be required to be executed in parallel
-
             var queryProcessor = resolver.Resolve<IQueryProcessor>();
+            var updateItineraryService = resolver.Resolve<IUpdateItineraryService>();
+            var commandBus = resolver.Resolve<ICommandBus>();
+            var routingService = resolver.Resolve<IRoutingService>();
 
-            var cargos = await queryProcessor.ProcessAsync(new GetCargosDependentOnScheduleQuery(Schedule), cancellationToken).ConfigureAwait(false);
+            var cargo = (await queryProcessor.ProcessAsync(new GetCargosQuery(CargoId), cancellationToken).ConfigureAwait(false)).Single();
+            var updatedItinerary = await updateItineraryService.UpdateItineraryAsync(cargo.Itinerary, cancellationToken).ConfigureAwait(false);
 
-            // TODO: Do something with the cargo here... need to evaluate itinerary according to Route specification
+            if (cargo.Route.Specification().IsSatisfiedBy(updatedItinerary))
+            {
+                await commandBus.PublishAsync(new CargoSetItineraryCommand(cargo.Id, updatedItinerary), cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            var newItinerary = await routingService.CalculateItineraryAsync(cargo.Route, cancellationToken).ConfigureAwait(false);
+            await commandBus.PublishAsync(new CargoSetItineraryCommand(cargo.Id, newItinerary), cancellationToken).ConfigureAwait(false);
         }
     }
 }

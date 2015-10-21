@@ -21,32 +21,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
-using EventFlow.Examples.Shipping.Queries.InMemory.ReadModels;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Queries;
-using EventFlow.ReadStores.InMemory;
 
-namespace EventFlow.Examples.Shipping.Queries.InMemory.QueryHandlers
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries
 {
-    public class GetSchedulesQueryHandler : IQueryHandler<GetSchedulesQuery, IReadOnlyCollection<Schedule>>
+    public class GetCargosDependentOnVoyageQuery : IQuery<IReadOnlyCollection<Cargo>>
     {
-        private readonly IInMemoryReadStore<VoyageReadModel> _readStore;
-
-        public GetSchedulesQueryHandler(
-            IInMemoryReadStore<VoyageReadModel> readStore)
+        public GetCargosDependentOnVoyageQuery(VoyageId voyageId)
         {
-            _readStore = readStore;
+            VoyageId = voyageId;
         }
 
-        public async Task<IReadOnlyCollection<Schedule>> ExecuteQueryAsync(GetSchedulesQuery query, CancellationToken cancellationToken)
-        {
-            var voyageReadModels = await _readStore.FindAsync(rm => true, cancellationToken).ConfigureAwait(false);
-            return voyageReadModels.Select(rm => rm.Schedule).ToList();
-        }
+        public VoyageId VoyageId { get; }
     }
 }
