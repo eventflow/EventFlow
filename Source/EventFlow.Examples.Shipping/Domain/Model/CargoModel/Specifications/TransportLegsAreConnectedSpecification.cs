@@ -30,7 +30,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
 {
     public class TransportLegsAreConnectedSpecification : Specification<IReadOnlyCollection<TransportLeg>>
     {
-        protected override IEnumerable<string> IsNotStatisfiedBecause(IReadOnlyCollection<TransportLeg> obj)
+        protected override IEnumerable<string> IsNotSatisfiedBecause(IReadOnlyCollection<TransportLeg> obj)
         {
             return obj
                 .Zip(obj.Skip(1), AreConnectedEvaluator)

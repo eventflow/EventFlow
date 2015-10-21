@@ -34,7 +34,7 @@ namespace EventFlow.Examples.Shipping.Domain
 
         private class AggregateIsCreatedSpecification : Specification<IAggregateRoot>
         {
-            protected override IEnumerable<string> IsNotStatisfiedBecause(IAggregateRoot obj)
+            protected override IEnumerable<string> IsNotSatisfiedBecause(IAggregateRoot obj)
             {
                 if (obj.IsNew)
                 {

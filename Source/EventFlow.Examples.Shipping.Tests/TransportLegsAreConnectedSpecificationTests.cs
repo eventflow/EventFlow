@@ -45,7 +45,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
             // Act
             var isSatisfiedBy = sut.IsSatisfiedBy(transportLegs);
-            var why = sut.WhyIsNotStatisfiedBy(transportLegs);
+            var why = sut.WhyIsNotSatisfiedBy(transportLegs);
 
             // Assert
             isSatisfiedBy.Should().BeTrue();
@@ -65,7 +65,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
             // Act
             var isSatisfiedBy = sut.IsSatisfiedBy(transportLegs);
-            var why = sut.WhyIsNotStatisfiedBy(transportLegs);
+            var why = sut.WhyIsNotSatisfiedBy(transportLegs);
 
             // Assert
             isSatisfiedBy.Should().BeFalse();
@@ -85,7 +85,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
             // Act
             var isSatisfiedBy = sut.IsSatisfiedBy(transportLegs);
-            var why = sut.WhyIsNotStatisfiedBy(transportLegs);
+            var why = sut.WhyIsNotSatisfiedBy(transportLegs);
 
             // Assert
             isSatisfiedBy.Should().BeFalse();

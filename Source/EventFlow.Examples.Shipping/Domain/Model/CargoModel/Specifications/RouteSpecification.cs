@@ -37,7 +37,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
 
         public Route Route { get; }
 
-        protected override IEnumerable<string> IsNotStatisfiedBecause(Itinerary obj)
+        protected override IEnumerable<string> IsNotSatisfiedBecause(Itinerary obj)
         {
             var itineraryDepartureLocation = obj.DepartureLocation();
             if (Route.OriginLocationId != obj.DepartureLocation())
