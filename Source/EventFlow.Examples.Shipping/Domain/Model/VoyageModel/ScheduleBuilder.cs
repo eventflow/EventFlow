@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {
@@ -57,9 +58,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 
         public Schedule Build()
         {
-            return new Schedule(
-                ScheduleId.New,
-                _carrierMovements);
+            return new Schedule(_carrierMovements);
         }
     }
 }

@@ -71,12 +71,11 @@
     <Compile Include="Domain\Model\VoyageModel\Commands\VoyageCreateCommand.cs" />
     <Compile Include="Domain\Model\VoyageModel\Commands\VoyageDelayCommand.cs" />
     <Compile Include="Domain\Model\VoyageModel\Entities\CarrierMovementId.cs" />
-    <Compile Include="Domain\Model\VoyageModel\Entities\ScheduleId.cs" />
     <Compile Include="Domain\Model\VoyageModel\Events\VoyageDelayedEvent.cs" />
     <Compile Include="Domain\Model\VoyageModel\Queries\GetSchedulesQuery.cs" />
     <Compile Include="Domain\Model\VoyageModel\Entities\CarrierMovement.cs" />
     <Compile Include="Domain\Model\VoyageModel\Events\VoyageCreatedEvent.cs" />
-    <Compile Include="Domain\Model\VoyageModel\Entities\Schedule.cs" />
+    <Compile Include="Domain\Model\VoyageModel\ValueObjects\Schedule.cs" />
     <Compile Include="Domain\Model\VoyageModel\Voyage.cs" />
     <Compile Include="Domain\Model\VoyageModel\VoyageAggregate.cs" />
     <Compile Include="Domain\Model\VoyageModel\ScheduleBuilder.cs" />

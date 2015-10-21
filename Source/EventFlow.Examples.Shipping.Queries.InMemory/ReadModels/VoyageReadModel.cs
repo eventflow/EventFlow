@@ -24,6 +24,7 @@ using EventFlow.Aggregates;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.ReadStores;
 
 namespace EventFlow.Examples.Shipping.Queries.InMemory.ReadModels

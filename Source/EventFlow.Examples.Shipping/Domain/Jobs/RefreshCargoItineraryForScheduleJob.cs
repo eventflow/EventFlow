@@ -26,6 +26,7 @@ using EventFlow.Configuration;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.Jobs;
 using EventFlow.Queries;
 

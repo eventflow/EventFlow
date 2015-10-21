@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using FluentAssertions;
 
 namespace EventFlow.Examples.Shipping.Tests

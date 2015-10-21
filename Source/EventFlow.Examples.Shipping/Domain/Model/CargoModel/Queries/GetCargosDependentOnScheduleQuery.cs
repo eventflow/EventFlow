@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.Queries;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries

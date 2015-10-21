@@ -24,6 +24,7 @@ using System;
 using EventFlow.Aggregates;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.Extensions;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel

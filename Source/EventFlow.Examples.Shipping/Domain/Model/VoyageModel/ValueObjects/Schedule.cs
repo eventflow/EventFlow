@@ -23,16 +23,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventFlow.Entities;
+using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
+namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects
 {
-    public class Schedule : Entity<ScheduleId>
+    public class Schedule : ValueObject
     {
         public Schedule(
-            ScheduleId id,
             IEnumerable<CarrierMovement> carrierMovements)
-            : base(id)
         {
             var carrierMovementList = (carrierMovements ?? Enumerable.Empty<CarrierMovement>()).ToList();
 
@@ -52,7 +51,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities
                     m.ArrivalLocationId,
                     m.DepartureTime + delay,
                     m.ArrivalTime + delay));
-            return new Schedule(Id, carrierMovements);
+            return new Schedule(carrierMovements);
         }
     }
 }
