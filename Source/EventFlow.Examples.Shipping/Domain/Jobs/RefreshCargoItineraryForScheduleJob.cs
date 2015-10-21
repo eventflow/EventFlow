@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -48,11 +47,16 @@ namespace EventFlow.Examples.Shipping.Domain.Jobs
 
         public async Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
+            // Consideration: Fetching all cargos that are affected by an updated
+            // schedule could potentially fetch several thousands. Each of these
+            // potential re-routes would then take a considerable amount of time
+            // and will thus be required to be executed in parallel
+
             var queryProcessor = resolver.Resolve<IQueryProcessor>();
 
             var cargos = await queryProcessor.ProcessAsync(new GetCargosDependentOnScheduleQuery(Schedule), cancellationToken).ConfigureAwait(false);
 
-            // TODO: Do something with the cargo here... need to evaluate itinerary according to route specification
+            // TODO: Do something with the cargo here... need to evaluate itinerary according to Route specification
         }
     }
 }

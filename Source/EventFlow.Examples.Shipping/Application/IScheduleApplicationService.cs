@@ -27,7 +27,7 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 
 namespace EventFlow.Examples.Shipping.Application
 {
-    public interface IVoyageApplicationService
+    public interface IScheduleApplicationService
     {
         Task DelayScheduleAsync(VoyageId voyageId, TimeSpan delay, CancellationToken cancellationToken);
     }

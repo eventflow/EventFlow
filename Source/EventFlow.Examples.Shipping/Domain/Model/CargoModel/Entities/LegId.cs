@@ -20,27 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Reflection;
-using EventFlow.Examples.Shipping.Application;
-using EventFlow.Examples.Shipping.Services.Routing;
-using EventFlow.Extensions;
+using EventFlow.Core;
+using EventFlow.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow.Examples.Shipping
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
 {
-    public static class EventFlowExamplesShipping
+    [JsonConverter(typeof(SingleValueObjectConverter))]
+    public class LegId : Identity<LegId>
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
-
-        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        public LegId(string value) : base(value)
         {
-            return eventFlowOptions
-                .AddDefaults(Assembly)
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IBookingApplicationService, BookingApplicationService>();
-                        sr.Register<IScheduleApplicationService, ScheduleApplicationService>();
-                        sr.Register<IRoutingService, RoutingService>();
-                    });
         }
     }
 }

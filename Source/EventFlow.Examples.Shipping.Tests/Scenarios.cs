@@ -80,7 +80,7 @@ namespace EventFlow.Examples.Shipping.Tests
             var booking = _resolver.Resolve<IBookingApplicationService>();
             await booking.BookCargoAsync(route, CancellationToken.None).ConfigureAwait(false);
 
-            var voyage = _resolver.Resolve<IVoyageApplicationService>();
+            var voyage = _resolver.Resolve<IScheduleApplicationService>();
 
             await voyage.DelayScheduleAsync(
                 Voyages.DallasToHelsinkiId,

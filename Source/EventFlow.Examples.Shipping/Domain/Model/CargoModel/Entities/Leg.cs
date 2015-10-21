@@ -21,21 +21,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using EventFlow.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
-using EventFlow.ValueObjects;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
 {
-    public class Leg : ValueObject
+    public class Leg : Entity<LegId>
     {
         public Leg(
+            LegId id,
             LocationId loadLocation,
             LocationId unloadLocation,
             DateTimeOffset loadTime,
             DateTimeOffset unloadTime,
             CarrierMovementId carrierMovementId)
+            : base(id)
         {
             if (loadLocation == null) throw new ArgumentNullException(nameof(loadLocation));
             if (unloadLocation == null) throw new ArgumentNullException(nameof(unloadLocation));
@@ -55,14 +56,5 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
         public DateTimeOffset LoadTime { get; }
         public DateTimeOffset UnloadTime { get; }
         public CarrierMovementId CarrierMovementId { get; }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return LoadLocation;
-            yield return UnloadLocation;
-            yield return LoadTime;
-            yield return UnloadTime;
-            yield return CarrierMovementId;
-        }
     }
 }

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.ValueObjects;
 

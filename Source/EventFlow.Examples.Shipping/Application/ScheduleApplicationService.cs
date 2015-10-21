@@ -28,11 +28,11 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
 
 namespace EventFlow.Examples.Shipping.Application
 {
-    public class VoyageApplicationService : IVoyageApplicationService
+    public class ScheduleApplicationService : IScheduleApplicationService
     {
         private readonly ICommandBus _commandBus;
 
-        public VoyageApplicationService(
+        public ScheduleApplicationService(
             ICommandBus commandBus)
         {
             _commandBus = commandBus;

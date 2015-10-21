@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Queries;
@@ -52,7 +53,7 @@ namespace EventFlow.Examples.Shipping.Services.Routing
         public Itinerary CalculateItinerary(Route route, IReadOnlyCollection<Schedule> schedules)
         {
             var path = CalculatePath(route, schedules);
-            var legs = path.CarrierMovements.Select(m => new Leg(m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, m.Id));
+            var legs = path.CarrierMovements.Select(m => new Leg(LegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, m.Id));
             return new Itinerary(legs);
         }
 

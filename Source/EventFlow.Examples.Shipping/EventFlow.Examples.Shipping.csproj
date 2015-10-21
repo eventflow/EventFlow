@@ -44,8 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Application\IVoyageApplicationService.cs" />
-    <Compile Include="Application\VoyageApplicationService.cs" />
+    <Compile Include="Application\IScheduleApplicationService.cs" />
+    <Compile Include="Application\ScheduleApplicationService.cs" />
     <Compile Include="Domain\Jobs\RefreshCargoItineraryForScheduleJob.cs" />
     <Compile Include="Domain\Model\CargoModel\Cargo.cs" />
     <Compile Include="Domain\Model\CargoModel\CargoAggregate.cs" />
@@ -53,12 +53,13 @@
     <Compile Include="Domain\Model\CargoModel\CargoState.cs" />
     <Compile Include="Domain\Model\CargoModel\Commands\CargoSetItineraryCommand.cs" />
     <Compile Include="Domain\Model\CargoModel\Commands\CargoBookCommand.cs" />
+    <Compile Include="Domain\Model\CargoModel\Entities\LegId.cs" />
     <Compile Include="Domain\Model\CargoModel\Events\CargoBookedEvent.cs" />
     <Compile Include="Domain\Model\CargoModel\Events\CargoItinerarySetEvent.cs" />
     <Compile Include="Domain\Model\CargoModel\Queries\GetCargosDependentOnScheduleQuery.cs" />
     <Compile Include="Domain\Model\CargoModel\Subscribers\ScheduleChangedSubscriber.cs" />
     <Compile Include="Domain\Model\CargoModel\ValueObjects\Itinerary.cs" />
-    <Compile Include="Domain\Model\CargoModel\ValueObjects\Leg.cs" />
+    <Compile Include="Domain\Model\CargoModel\Entities\Leg.cs" />
     <Compile Include="Domain\Model\CargoModel\ValueObjects\Route.cs" />
     <Compile Include="Domain\Model\CargoModel\Specifications\RouteSpecification.cs" />
     <Compile Include="Domain\Model\LocationModel\Events\LocationCreatedEvent.cs" />

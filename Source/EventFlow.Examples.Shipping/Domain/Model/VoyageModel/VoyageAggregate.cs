@@ -48,6 +48,8 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 
         public void Delay(TimeSpan delay)
         {
+            Specs.AggregateIsCreated.ThrowDomainErrorIfNotStatisfied(this);
+
             if (delay == TimeSpan.Zero) return;
 
             var delayedSchedule = Schedule.Delay(delay);
