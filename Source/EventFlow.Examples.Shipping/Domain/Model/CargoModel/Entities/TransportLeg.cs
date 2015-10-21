@@ -27,10 +27,10 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities
 {
-    public class Leg : Entity<LegId>
+    public class TransportLeg : Entity<TransportLegId>
     {
-        public Leg(
-            LegId id,
+        public TransportLeg(
+            TransportLegId id,
             LocationId loadLocation,
             LocationId unloadLocation,
             DateTimeOffset loadTime,

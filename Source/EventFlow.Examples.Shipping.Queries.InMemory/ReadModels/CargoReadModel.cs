@@ -46,7 +46,7 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory.ReadModels
 
         public void Apply(IReadModelContext context, IDomainEvent<CargoAggregate, CargoId, CargoItinerarySetEvent> domainEvent)
         {
-            var carrierMovementIds = domainEvent.AggregateEvent.Itinerary.Legs
+            var carrierMovementIds = domainEvent.AggregateEvent.Itinerary.TransportLegs
                 .Select(l => l.CarrierMovementId)
                 .ToList();
             carrierMovementIds.ForEach(id => DependentCarrierMovementIds.Add(id));

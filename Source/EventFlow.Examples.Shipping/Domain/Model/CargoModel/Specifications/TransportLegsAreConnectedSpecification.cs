@@ -20,55 +20,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities;
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications;
-using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
-using EventFlow.Extensions;
-using EventFlow.ValueObjects;
+using EventFlow.Examples.Shipping.Extensions;
+using EventFlow.Specifications;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
+namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
 {
-    public class Itinerary : ValueObject
+    public class TransportLegsAreConnectedSpecification : Specification<IReadOnlyCollection<TransportLeg>>
     {
-        public Itinerary(
-            IEnumerable<TransportLeg> transportLegs)
+        protected override IEnumerable<string> IsNotStatisfiedBecause(IReadOnlyCollection<TransportLeg> obj)
         {
-            var legsList = (transportLegs ?? Enumerable.Empty<TransportLeg>()).ToList();
-
-            if (!legsList.Any()) throw new ArgumentException(nameof(transportLegs));
-            (new TransportLegsAreConnectedSpecification()).ThrowDomainErrorIfNotStatisfied(legsList);
-
-            TransportLegs = legsList;
+            return obj
+                .Zip(obj.Skip(1), AreConnectedEvaluator)
+                .SelectMany(s => s.ToList());
         }
 
-        public IReadOnlyList<TransportLeg> TransportLegs { get; }
-
-        public LocationId DepartureLocation()
+        private static IEnumerable<string> AreConnectedEvaluator(TransportLeg previous, TransportLeg next)
         {
-            return TransportLegs.First().LoadLocation;
+            if (previous.UnloadLocation != next.LoadLocation)
+            {
+                yield return Error(previous, next, $"Unload '{previous.UnloadLocation}' != load {next.LoadLocation}");
+            }
+
+            if (previous.UnloadTime.IsAfter(next.LoadTime))
+            {
+                yield return Error(previous, next, $"Unload '{previous.UnloadTime}' is after load {next.LoadTime}");
+            }
         }
 
-        public DateTimeOffset DepartureTime()
+        private static string Error(TransportLeg previous, TransportLeg next, string validationError)
         {
-            return TransportLegs.First().UnloadTime;
-        }
-
-        public DateTimeOffset ArrivalTime()
-        {
-            return TransportLegs.Last().UnloadTime;
-        }
-
-        public LocationId ArrivalLocation()
-        {
-            return TransportLegs.Last().UnloadLocation;
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            return TransportLegs;
+            return $"{previous.Id} -> {next.Id}: {validationError}";
         }
     }
 }

@@ -68,6 +68,7 @@
     <Compile Include="RoutingServiceTests.cs" />
     <Compile Include="Scenarios.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransportLegsAreConnectedSpecificationTests.cs" />
     <Compile Include="Voyages.cs" />
   </ItemGroup>
   <ItemGroup>
