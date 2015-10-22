@@ -20,20 +20,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Specifications;
+using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using Nest;
 
-namespace EventFlow.Provided.Specifications
+namespace EventFlow.ReadStores.Elasticsearch.Tests
 {
-    public class AggregateIsNewSpecification : Specification<IAggregateRoot>
+    [ElasticType(IdProperty = "Id", Name = "test")]
+    public class ElasticsearchTestAggregateReadModel : ITestAggregateReadModel
     {
-        protected override IEnumerable<string> IsNotSatisfiedBecause(IAggregateRoot obj)
+        [ElasticProperty(
+            Name = "DomainErrorAfterFirstReceived",
+            Index = FieldIndexOption.NotAnalyzed)]
+        public bool DomainErrorAfterFirstReceived { get; set; }
+
+        [ElasticProperty(
+            Name = "PingsReceived",
+            Index = FieldIndexOption.NotAnalyzed)]
+        public int PingsReceived { get; set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
         {
-            if (!obj.IsNew)
-            {
-                yield return $"'{obj.Name}' with ID '{obj.GetIdentity()}' is not new";
-            }
+            DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+        {
+            PingsReceived++;
         }
     }
 }

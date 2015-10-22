@@ -20,20 +20,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Specifications;
+using System;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Provided.Specifications
+namespace EventFlow.ReadStores.Elasticsearch
 {
-    public class AggregateIsNewSpecification : Specification<IAggregateRoot>
+    public class IndexName : SingleValueObject<string>
     {
-        protected override IEnumerable<string> IsNotSatisfiedBecause(IAggregateRoot obj)
+        public IndexName(string value)
+            : base(value)
         {
-            if (!obj.IsNew)
-            {
-                yield return $"'{obj.Name}' with ID '{obj.GetIdentity()}' is not new";
-            }
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
         }
     }
 }

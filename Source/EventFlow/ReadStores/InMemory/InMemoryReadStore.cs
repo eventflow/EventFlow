@@ -69,19 +69,6 @@ namespace EventFlow.ReadStores.InMemory
             }
         }
 
-        public override async Task DeleteAsync(
-            string id,
-            CancellationToken cancellationToken)
-        {
-            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (_readModels.ContainsKey(id))
-                {
-                    _readModels.Remove(id);
-                }
-            }
-        }
-
         public async override Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {

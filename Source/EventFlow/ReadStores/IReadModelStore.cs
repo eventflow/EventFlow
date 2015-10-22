@@ -35,10 +35,6 @@ namespace EventFlow.ReadStores
             string id,
             CancellationToken cancellationToken);
 
-        Task DeleteAsync(
-            string id,
-            CancellationToken cancellationToken);
-
         Task DeleteAllAsync(
             CancellationToken cancellationToken);
 

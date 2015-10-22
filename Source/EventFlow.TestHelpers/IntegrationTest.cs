@@ -60,8 +60,8 @@ namespace EventFlow.TestHelpers
         [TearDown]
         public void TearDownIntegrationTest()
         {
-            Configuration.TearDown();
-            Resolver.Dispose();
+            Configuration?.TearDown();
+            Resolver?.Dispose();
         }
 
         protected async Task PublishPingCommandAsync(TestId testId, int count = 1)

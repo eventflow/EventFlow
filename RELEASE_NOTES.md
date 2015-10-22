@@ -1,4 +1,17 @@
-### New in 0.19 (not released yet)
+### New in 0.20 (not released yet)
+
+* Breaking: `Entity<T>` now inherits from `ValueObject` but uses only the `Id`
+  field as equality component. Override `GetEqualityComponents()` if you have
+  a different notion of equality for a specific entity
+* Breaking: `Entity<T>` will now throw an `ArgumentNullException` if the `id`
+  passed to its constructor is `null`
+* Breaking: Fixed method spelling. Renamed
+ `ISpecification<T>.WhyIsNotStatisfiedBy` to `WhyIsNotSatisfiedBy` and
+ `Specification<T>.IsNotStatisfiedBecause` to `IsNotSatisfiedBecause`
+* New: Read model support for Elasticsearch via the new NuGet package
+  `EventFlow.ReadStores.Elasticsearch`
+
+### New in 0.19.1225 (released 2015-10-19)
 
 * Breaking: `AddDefaults` now also adds the job type definition to the
   `IJobsDefinitonService`

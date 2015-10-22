@@ -37,7 +37,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
                 _limit = limit;
             }
 
-            protected override IEnumerable<string> IsNotStatisfiedBecause(int obj)
+            protected override IEnumerable<string> IsNotSatisfiedBecause(int obj)
             {
                 if (obj <= _limit)
                 {
@@ -48,7 +48,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
 
         public class IsTrueSpecification : Specification<bool>
         {
-            protected override IEnumerable<string> IsNotStatisfiedBecause(bool obj)
+            protected override IEnumerable<string> IsNotSatisfiedBecause(bool obj)
             {
                 if (!obj)
                 {
