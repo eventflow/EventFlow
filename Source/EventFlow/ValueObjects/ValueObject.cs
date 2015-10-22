@@ -61,10 +61,7 @@ namespace EventFlow.ValueObjects
 
         public override string ToString()
         {
-            return string.Format(
-                "{{{0}{1}}}",
-                Environment.NewLine,
-                string.Join(", ", GetProperties().Select(f => $"   {f.Name}: '{f.GetValue(this)}'{Environment.NewLine}")));
+            return $"{{{string.Join(", ", GetProperties().Select(f => $"{f.Name}: {f.GetValue(this)}"))}}}";
         }
 
         protected virtual IEnumerable<object> GetEqualityComponents()
