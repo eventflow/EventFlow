@@ -1,4 +1,8 @@
-### New in 0.20 (not released yet)
+### New in 0.21 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.20.1274 (released 2015-10-22)
 
 * Breaking: `Entity<T>` now inherits from `ValueObject` but uses only the `Id`
   field as equality component. Override `GetEqualityComponents()` if you have
