@@ -1,6 +1,7 @@
 ### New in 0.21 (not released yet)
 
-* _Nothing yet_
+* New: Added `IReadModelContext.Resolver` to allow read models to fetch
+  additional resources when events are applied
 
 ### New in 0.20.1274 (released 2015-10-22)
 
