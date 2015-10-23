@@ -72,13 +72,7 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            var commandTypeName = command.GetType().PrettyPrint();
-            var aggregateType = typeof (TAggregate);
-            _log.Verbose(
-                "Executing command '{0}' with ID '{1}' on aggregate '{2}'",
-                commandTypeName,
-                command.SourceId,
-                aggregateType);
+            _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
@@ -90,9 +84,9 @@ namespace EventFlow
                 _log.Debug(
                     exception,
                     "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
-                    commandTypeName,
+                    command.GetType().PrettyPrint(),
                     command.SourceId,
-                    aggregateType,
+                    typeof(TAggregate),
                     exception.GetType().PrettyPrint(),
                     exception.Message);
                 throw;
@@ -100,19 +94,19 @@ namespace EventFlow
 
             if (!domainEvents.Any())
             {
-                _log.Verbose(
+                _log.Verbose(() => string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
-                    commandTypeName,
+                    command.GetType().PrettyPrint(),
                     command.SourceId,
-                    aggregateType);
+                    typeof(TAggregate).PrettyPrint()));
                 return command.SourceId;
             }
 
             _log.Verbose(() => string.Format(
                 "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
-                commandTypeName,
+                command.GetType().PrettyPrint(),
                 command.SourceId,
-                aggregateType,
+                typeof(TAggregate),
                 string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
             await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
