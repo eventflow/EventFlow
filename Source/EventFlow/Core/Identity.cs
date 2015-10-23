@@ -60,6 +60,12 @@ namespace EventFlow.Core
             return BuildWith(guid);
         }
 
+        public static T NewComb()
+        {
+            var guid = GuidFactories.Comb.Create();
+            return BuildWith(guid);
+        }
+
         public static T With(string value)
         {
             try
