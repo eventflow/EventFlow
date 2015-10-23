@@ -2,6 +2,10 @@
 
 * New: Added `IReadModelContext.Resolver` to allow read models to fetch
   additional resources when events are applied
+* New: The `PrettyPrint()` type extension method, mostly used for verbose
+  logging, now prints even prettier type names, e.g.
+  `KeyValuePair<Boolean,Int64>` instead of merely `KeyValuePair'2`, making log
+  messages slightly more readable
 
 ### New in 0.20.1274 (released 2015-10-22)
 
