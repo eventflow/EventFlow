@@ -35,7 +35,9 @@ namespace EventFlow.Tests.UnitTests.Extensions
         [TestCase(typeof(IEnumerable<>), "IEnumerable<>")]
         [TestCase(typeof(KeyValuePair<,>), "KeyValuePair<,>")]
         [TestCase(typeof(IEnumerable<string>), "IEnumerable<String>")]
+        [TestCase(typeof(IEnumerable<IEnumerable<string>>), "IEnumerable<IEnumerable<String>>")]
         [TestCase(typeof(KeyValuePair<bool,long>), "KeyValuePair<Boolean,Int64>")]
+        [TestCase(typeof(KeyValuePair<KeyValuePair<bool, long>, KeyValuePair<bool, long>>), "KeyValuePair<KeyValuePair<Boolean,Int64>,KeyValuePair<Boolean,Int64>>")]
         public void PrettyPrint(Type type, string expectedPrettyPrint)
         {
             // Act
