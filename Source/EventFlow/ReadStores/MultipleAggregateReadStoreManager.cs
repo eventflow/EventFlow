@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -39,10 +40,11 @@ namespace EventFlow.ReadStores
 
         public MultipleAggregateReadStoreManager(
             ILog log,
+            IResolver resolver,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             TReadModelLocator readModelLocator)
-            : base(log, readModelStore, readModelDomainEventApplier)
+            : base(log, resolver, readModelStore, readModelDomainEventApplier)
         {
             _readModelLocator = readModelLocator;
         }
