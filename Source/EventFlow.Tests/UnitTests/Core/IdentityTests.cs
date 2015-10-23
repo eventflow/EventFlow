@@ -51,6 +51,16 @@ namespace EventFlow.Tests.UnitTests.Core
         }
 
         [Test]
+        public void ShouldBeLowerCase()
+        {
+            // Act
+            var testId = TestId.New;
+
+            // Assert
+            testId.Value.Should().Be(testId.Value.ToLowerInvariant());
+        }
+
+        [Test]
         public void NewIsValid()
         {
             // Arrange

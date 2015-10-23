@@ -78,7 +78,7 @@ namespace EventFlow.Core
 
         private static T BuildWith(Guid guid)
         {
-            var value = $"{Name}-{guid}".ToLowerInvariant();
+            var value = $"{Name}-{guid.ToString("D")}";
             return With(value);
         }
 
