@@ -21,32 +21,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
+using System.Collections.Generic;
+using EventFlow.Extensions;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public static class TypeExtensions
+    public class TypeExtensionsTests
     {
-        private static readonly ConcurrentDictionary<Type, string> PrettyPrintCache = new ConcurrentDictionary<Type, string>();
-
-        public static string PrettyPrint(this Type type)
+        [TestCase(typeof(string), "String")]
+        [TestCase(typeof(int), "Int32")]
+        [TestCase(typeof(IEnumerable<>), "IEnumerable<>")]
+        [TestCase(typeof(KeyValuePair<,>), "KeyValuePair<,>")]
+        [TestCase(typeof(IEnumerable<string>), "IEnumerable<String>")]
+        [TestCase(typeof(KeyValuePair<bool,long>), "KeyValuePair<Boolean,Int64>")]
+        public void PrettyPrint(Type type, string expectedPrettyPrint)
         {
-            return PrettyPrintCache.GetOrAdd(
-                type,
-                t =>
-                {
-                    var nameParts = t.Name.Split('`');
-                    if (nameParts.Length == 1)
-                    {
-                        return nameParts[0];
-                    }
+            // Act
+            var prettyPrint = type.PrettyPrint();
 
-                    var genericArguments = type.GetGenericArguments();
-                    return !type.IsConstructedGenericType
-                        ? $"{nameParts[0]}<{new string(',', genericArguments.Length - 1)}>"
-                        : $"{nameParts[0]}<{string.Join(",", genericArguments.Select(gt => gt.Name))}>";
-                });
+            // Assert
+            prettyPrint.Should().Be(expectedPrettyPrint);
         }
     }
 }
