@@ -32,7 +32,19 @@ namespace EventFlow.Extensions
 
         public static string PrettyPrint(this Type type)
         {
-            return PrettyPrintCache.GetOrAdd(type, t => PrettyPrintRecursive(t, 0));
+            return PrettyPrintCache.GetOrAdd(
+                type,
+                t =>
+                {
+                    try
+                    {
+                        return PrettyPrintRecursive(t, 0);
+                    }
+                    catch (Exception)
+                    {
+                        return t.Name;
+                    }
+                });
         }
 
         private static string PrettyPrintRecursive(Type type, int depth)
