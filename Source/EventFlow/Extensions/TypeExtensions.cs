@@ -49,7 +49,7 @@ namespace EventFlow.Extensions
 
         private static string PrettyPrintRecursive(Type type, int depth)
         {
-            if (depth > 5)
+            if (depth > 3)
             {
                 return type.Name;
             }
