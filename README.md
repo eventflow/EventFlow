@@ -113,6 +113,8 @@ Many of the technical design decisions in EventFlow is based on articles. This
 section lists some of them. If you have a link with a relevant article, please
 share it by creating an issue with the link.
 
+* **Domain-Driven Design**
+ - [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/) by Eric Evans
 * **General CQRS+ES**
  - [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
    published by Microsoft
