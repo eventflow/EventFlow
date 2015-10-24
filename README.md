@@ -3,17 +3,23 @@
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td>
-      [![EventFlow](./icon-256.png)](https://www.jetbrains.com/resharper/)
+      <img src="./icon-256.png" />
     </td>
     <td>
       <p>
-        [![Join the chat at https://gitter.im/rasmus/EventFlow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+          <img src="https://badges.gitter.im/Join%20Chat.svg" />
+        </a>
       </p>
       <p>
-        [![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
+        <a href="https://www.nuget.org/packages/EventFlow/">
+          <img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" />
+        </a>
       </p>
       <p>
-        [![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
+        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow">
+          <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
+        </a>
       </p>
     </td>
   </tr>
