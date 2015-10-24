@@ -1,6 +1,6 @@
 ### New in 0.21 (not released yet)
 
-* New: Added `Identity<>.NewComb()` that creates sequential unique IDs that can
+* New: Added `Identity<>.NewComb()` that creates sequential unique IDs which can
   be used to minimize database fragmentation
 * New: Added `IReadModelContext.Resolver` to allow read models to fetch
   additional resources when events are applied
