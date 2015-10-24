@@ -1,9 +1,23 @@
 # EventFlow
 
-[![Join the chat at https://gitter.im/rasmus/EventFlow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
-[![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>
+      [![EventFlow](./icon-256.png)](https://www.jetbrains.com/resharper/)
+    </td>
+    <td>
+      <p>
+        [![Join the chat at https://gitter.im/rasmus/EventFlow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+      </p>
+      <p>
+        [![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
+      </p>
+      <p>
+        [![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
+      </p>
+    </td>
+  </tr>
+</table>
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
