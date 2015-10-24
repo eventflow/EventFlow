@@ -21,6 +21,18 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 * **Cancellation:** All methods that does IO work or might delay execution (due to
   retries), takes a `CancellationToken` argument to allow you to cancel the operation
 
+### Examples
+
+* **[Simple](#simple example):** Shows the key concepts of EventFlow in a few
+  lines of code
+* **Shipping:** To get a more complete example of how EventFlow _could_ be used,
+  have a look at the shipping example found here in the code base. The example
+  is based on the shipping example from the book "Domain-Driven Design -
+  Tackling Complexity in the Heart of Software" by Eric Evans. Its
+  _in-progress_, but should provide inspiration on how to use EventFlow on a
+  larger scale. If you have ideas and/or comments, create a pull request or
+  an issue
+
 ### Overview
 
 Here is a list of the EventFlow concepts. Use the links to navigate
@@ -64,7 +76,7 @@ to the documentation.
   EventFlow can be swapped with a custom implementation through the embedded
   IoC container.
 
-## Full example
+## Simple example
 Here's an example on how to use the in-memory event store (default)
 and a in-memory read model store.
 
@@ -155,6 +167,13 @@ several areas that you could help out with.
    across articles that might be relevant for EventFlow, or even better, can
    point to specfic EventFlow functionality that might be done better, then
    please create an issue or ask in the Gitter chat
+* **Expand the shipping example:** If you have ideas on how to expand the
+  shipping example found in the code base, the please create a pull request
+  or create an issue
+  * Give a good understanding of how to use EventFlow
+  * Give a better understanding of how API changes in EventFlow affect
+    existing applications
+  * Provide a platform for DDD discussions
 
 ## Thanks
 
