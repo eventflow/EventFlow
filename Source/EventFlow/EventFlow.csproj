@@ -129,6 +129,7 @@
     <Compile Include="EventStores\AllCommittedEventsPage.cs" />
     <Compile Include="EventStores\AllEventsPage.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeDefinitionService.cs" />
+    <Compile Include="EventStores\CommittedDomainEvent.cs" />
     <Compile Include="EventStores\EventDefinition.cs" />
     <Compile Include="EventStores\EventVersionAttribute.cs" />
     <Compile Include="EventStores\Files\FilesEventLocator.cs" />
