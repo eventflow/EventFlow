@@ -24,6 +24,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.Core
@@ -92,7 +93,7 @@ namespace EventFlow.Core
                 {
                     _log.Verbose(
                         "Exception {0} with message '{1} 'is transient, retrying action '{2}' after {3:0.###} seconds for retry count {4}",
-                        currentException.GetType().Name,
+                        currentException.GetType().PrettyPrint(),
                         currentException.Message,
                         label,
                         retry.RetryAfter.TotalSeconds,
@@ -103,7 +104,7 @@ namespace EventFlow.Core
                 {
                     _log.Verbose(
                         "Exception {0} with message '{1}' is transient, retrying action '{2}' NOW for retry count {3}",
-                        currentException.GetType().Name,
+                        currentException.GetType().PrettyPrint(),
                         currentException.Message,
                         label,
                         currentRetryCount);

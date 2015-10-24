@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
+using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
@@ -30,7 +31,7 @@ namespace EventFlow.Aggregates
     {
         public override string ToString()
         {
-            return $"{typeof (TAggregate).Name}/{GetType().Name}";
+            return $"{typeof (TAggregate).PrettyPrint()}/{GetType().PrettyPrint()}";
         }
     }
 }

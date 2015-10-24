@@ -74,7 +74,7 @@ namespace EventFlow.Aggregates
             if ((this as TAggregate) == null)
             {
                 throw new InvalidOperationException(
-                    $"Aggregate '{GetType().Name}' specifies '{typeof (TAggregate).Name}' as generic argument, it should be its own type");
+                    $"Aggregate '{GetType().PrettyPrint()}' specifies '{typeof (TAggregate).PrettyPrint()}' as generic argument, it should be its own type");
             }
 
             Id = id;
@@ -162,7 +162,7 @@ namespace EventFlow.Aggregates
         {
             if (Version > 0)
             {
-                throw new InvalidOperationException($"Aggregate '{GetType().Name}' with ID '{Id}' already has events");
+                throw new InvalidOperationException($"Aggregate '{GetType().PrettyPrint()}' with ID '{Id}' already has events");
             }
 
             foreach (var aggregateEvent in aggregateEvents)
@@ -207,7 +207,7 @@ namespace EventFlow.Aggregates
             var eventType = typeof (TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))
             {
-                throw new ArgumentException($"There's already a event handler registered for the aggregate event '{eventType.Name}'");
+                throw new ArgumentException($"There's already a event handler registered for the aggregate event '{eventType.PrettyPrint()}'");
             }
             _eventHandlers[eventType] = e => handler((TAggregateEvent)e);
         }
@@ -221,7 +221,7 @@ namespace EventFlow.Aggregates
 
         public override string ToString()
         {
-            return $"{GetType().Name} v{Version}(-{_uncommittedEvents.Count})";
+            return $"{GetType().PrettyPrint()} v{Version}(-{_uncommittedEvents.Count})";
         }
     }
 }

@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
 
 namespace EventFlow.EventStores
 {
@@ -90,7 +91,7 @@ namespace EventFlow.EventStores
 
             if (domainEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{domainEventType.Name}' is not a '{typeof (IDomainEvent<,>).Name}'");
+                throw new ArgumentException($"Type '{domainEventType.PrettyPrint()}' is not a '{typeof (IDomainEvent<,>).PrettyPrint()}'");
             }
 
             var genericArguments = domainEventInterfaceType.GetGenericArguments();
@@ -105,7 +106,7 @@ namespace EventFlow.EventStores
 
             if (aggregateEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{aggregateEventType.Name}' is not a '{typeof (IAggregateEvent<,>).Name}'");
+                throw new ArgumentException($"Type '{aggregateEventType.PrettyPrint()}' is not a '{typeof (IAggregateEvent<,>).PrettyPrint()}'");
             }
 
             var genericArguments = aggregateEventInterfaceType.GetGenericArguments();

@@ -72,9 +72,7 @@ namespace EventFlow.Extensions
                     .ToList();
                 if (!queryHandlerInterfaces.Any())
                 {
-                    throw new ArgumentException(string.Format(
-                        "Type '{0}' is not a ISubscribeSynchronousTo<TEvent>",
-                        t.Name));
+                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>

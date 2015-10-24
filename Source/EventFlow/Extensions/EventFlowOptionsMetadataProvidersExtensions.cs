@@ -70,9 +70,7 @@ namespace EventFlow.Extensions
                 var t = metadataProviderType;
                 if (!typeof (IMetadataProvider).IsAssignableFrom(t))
                 {
-                    throw new ArgumentException(string.Format(
-                        "Type '{0}' is not an IMetadataProvider",
-                        metadataProviderType.Name));
+                    throw new ArgumentException($"Type '{metadataProviderType.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t));

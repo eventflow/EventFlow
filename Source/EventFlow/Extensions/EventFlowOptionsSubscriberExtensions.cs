@@ -82,7 +82,7 @@ namespace EventFlow.Extensions
                     .ToList();
                 if (!subscribeTos.Any())
                 {
-                    throw new ArgumentException($"Type '{t.Name}' is not a ISubscribeSynchronousTo<TEvent>");
+                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(ISubscribeSynchronousTo<,,>).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>

@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Extensions;
 
 namespace EventFlow.ReadStores.MsSql
 {
@@ -35,7 +36,7 @@ namespace EventFlow.ReadStores.MsSql
         {
             return string.Format(
                 "Read model '{0}' for '{1} v{2}'",
-                GetType().Name,
+                GetType().PrettyPrint(),
                 AggregateId,
                 LastAggregateSequenceNumber);
         }

@@ -22,6 +22,7 @@
 
 using System;
 using EventFlow.Core;
+using EventFlow.Extensions;
 
 namespace EventFlow.Aggregates
 {
@@ -71,7 +72,7 @@ namespace EventFlow.Aggregates
 
         public override string ToString()
         {
-            return $"{AggregateType.Name} v{AggregateSequenceNumber}/{EventType.Name}:{AggregateIdentity}";
+            return $"{AggregateType.PrettyPrint()} v{AggregateSequenceNumber}/{EventType.PrettyPrint()}:{AggregateIdentity}";
         }
     }
 }

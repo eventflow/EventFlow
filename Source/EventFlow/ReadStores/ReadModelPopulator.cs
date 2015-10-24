@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -58,9 +59,7 @@ namespace EventFlow.ReadStores
             var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TReadModel>>>().ToList();
             if (!readModelStores.Any())
             {
-                throw new ArgumentException(string.Format(
-                    "Could not find any read stores for read model '{0}'",
-                    typeof(TReadModel).Name));
+                throw new ArgumentException($"Could not find any read stores for read model '{typeof (TReadModel).PrettyPrint()}'");
             }
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
@@ -91,8 +90,8 @@ namespace EventFlow.ReadStores
 
             _log.Verbose(() => string.Format(
                 "Read model '{0}' is interested in these aggregate events: {1}",
-                readModelType.Name,
-                string.Join(", ", aggregateEventTypes.Select(e => e.Name).OrderBy(s => s))));
+                readModelType.PrettyPrint(),
+                string.Join(", ", aggregateEventTypes.Select(e => e.PrettyPrint()).OrderBy(s => s))));
 
             long totalEvents = 0;
             long relevantEvents = 0;
@@ -100,11 +99,11 @@ namespace EventFlow.ReadStores
 
             while (true)
             {
-                _log.Verbose(
+                _log.Verbose(() => string.Format(
                     "Loading events starting from {0} and the next {1} for populating '{2}'",
                     currentPosition,
                     _configuration.PopulateReadModelEventPageSize,
-                    readModelType.Name);
+                    readModelType.PrettyPrint()));
                 var allEventsPage = await _eventStore.LoadAllEventsAsync(
                     currentPosition,
                     _configuration.PopulateReadModelEventPageSize,
@@ -115,7 +114,7 @@ namespace EventFlow.ReadStores
 
                 if (!allEventsPage.DomainEvents.Any())
                 {
-                    _log.Verbose("No more events in event store, stopping population of read model '{0}'", readModelType.Name);
+                    _log.Verbose(() => $"No more events in event store, stopping population of read model '{readModelType.PrettyPrint()}'");
                     break;
                 }
 
@@ -137,7 +136,7 @@ namespace EventFlow.ReadStores
             stopwatch.Stop();
             _log.Information(
                 "Population of read model '{0}' took {1:0.###} seconds, in which {2} events was loaded and {3} was relevant",
-                readModelType.Name,
+                readModelType.PrettyPrint(),
                 stopwatch.Elapsed.TotalSeconds,
                 totalEvents,
                 relevantEvents);
@@ -162,9 +161,7 @@ namespace EventFlow.ReadStores
 
             if (!readStoreManagers.Any())
             {
-                throw new ArgumentException(string.Format(
-                    "Did not find any read store managers for read model type '{0}'",
-                    typeof(TReadModel).Name));
+                throw new ArgumentException($"Did not find any read store managers for read model type '{typeof (TReadModel).PrettyPrint()}'");
             }
 
             return readStoreManagers;
