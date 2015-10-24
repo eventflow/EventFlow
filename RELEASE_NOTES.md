@@ -1,5 +1,21 @@
-### New in 0.20 (not released yet)
+### New in 0.21 (not released yet)
 
+* New: Added `Identity<>.NewComb()` that creates sequential unique IDs that can
+  be used to minimize database fragmentation
+* New: Added `IReadModelContext.Resolver` to allow read models to fetch
+  additional resources when events are applied
+* New: The `PrettyPrint()` type extension method, mostly used for verbose
+  logging, now prints even prettier type names, e.g.
+  `KeyValuePair<Boolean,Int64>` instead of merely `KeyValuePair'2`, making log
+  messages slightly more readable
+
+### New in 0.20.1274 (released 2015-10-22)
+
+* Breaking: `Entity<T>` now inherits from `ValueObject` but uses only the `Id`
+  field as equality component. Override `GetEqualityComponents()` if you have
+  a different notion of equality for a specific entity
+* Breaking: `Entity<T>` will now throw an `ArgumentNullException` if the `id`
+  passed to its constructor is `null`
 * Breaking: Fixed method spelling. Renamed
  `ISpecification<T>.WhyIsNotStatisfiedBy` to `WhyIsNotSatisfiedBy` and
  `Specification<T>.IsNotStatisfiedBecause` to `IsNotSatisfiedBecause`

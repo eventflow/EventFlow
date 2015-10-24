@@ -60,6 +60,12 @@ namespace EventFlow.Core
             return BuildWith(guid);
         }
 
+        public static T NewComb()
+        {
+            var guid = GuidFactories.Comb.Create();
+            return BuildWith(guid);
+        }
+
         public static T With(string value)
         {
             try
@@ -78,7 +84,7 @@ namespace EventFlow.Core
 
         private static T BuildWith(Guid guid)
         {
-            var value = $"{Name}-{guid}".ToLowerInvariant();
+            var value = $"{Name}-{guid.ToString("D")}";
             return With(value);
         }
 

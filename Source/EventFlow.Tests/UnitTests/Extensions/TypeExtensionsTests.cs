@@ -20,12 +20,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
+using System.Collections.Generic;
+using EventFlow.Extensions;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public interface IReadModelContext
+    public class TypeExtensionsTests
     {
-        IResolver Resolver { get; }
+        [TestCase(typeof(string), "String")]
+        [TestCase(typeof(int), "Int32")]
+        [TestCase(typeof(IEnumerable<>), "IEnumerable<>")]
+        [TestCase(typeof(KeyValuePair<,>), "KeyValuePair<,>")]
+        [TestCase(typeof(IEnumerable<string>), "IEnumerable<String>")]
+        [TestCase(typeof(IEnumerable<IEnumerable<string>>), "IEnumerable<IEnumerable<String>>")]
+        [TestCase(typeof(KeyValuePair<bool,long>), "KeyValuePair<Boolean,Int64>")]
+        [TestCase(typeof(KeyValuePair<KeyValuePair<bool, long>, KeyValuePair<bool, long>>), "KeyValuePair<KeyValuePair<Boolean,Int64>,KeyValuePair<Boolean,Int64>>")]
+        public void PrettyPrint(Type type, string expectedPrettyPrint)
+        {
+            // Act
+            var prettyPrint = type.PrettyPrint();
+
+            // Assert
+            prettyPrint.Should().Be(expectedPrettyPrint);
+        }
     }
 }
