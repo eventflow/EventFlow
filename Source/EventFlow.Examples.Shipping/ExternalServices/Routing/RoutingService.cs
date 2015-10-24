@@ -34,7 +34,7 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
 using EventFlow.Examples.Shipping.Extensions;
 using EventFlow.Queries;
 
-namespace EventFlow.Examples.Shipping.Services.Routing
+namespace EventFlow.Examples.Shipping.ExternalServices.Routing
 {
     public class RoutingService : IRoutingService
     {
@@ -46,13 +46,13 @@ namespace EventFlow.Examples.Shipping.Services.Routing
             _queryProcessor = queryProcessor;
         }
 
-        public async Task<Itinerary> CalculateItineraryAsync(Route route, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<Itinerary>> CalculateItinerariesAsync(Route route, CancellationToken cancellationToken)
         {
             var schedules = await _queryProcessor.ProcessAsync(new GetAllVoyagesQuery(), cancellationToken).ConfigureAwait(false);
-            return CalculateItinerary(route, schedules);
+            return CalculateItineraries(route, schedules);
         }
 
-        public Itinerary CalculateItinerary(Route route, IReadOnlyCollection<Voyage> voyages)
+        public IReadOnlyCollection<Itinerary> CalculateItineraries(Route route, IReadOnlyCollection<Voyage> voyages)
         {
             var voyageIds = (
                 from v in voyages
@@ -61,14 +61,16 @@ namespace EventFlow.Examples.Shipping.Services.Routing
                 )
                 .ToDictionary(a => a.CarrierMovementId, a => a.VoyageId);
 
-            var path = CalculatePath(route, voyages.Select(v => v.Schedule));
+            var paths = CalculatePaths(route, voyages.Select(v => v.Schedule));
 
-            var legs = path.CarrierMovements.Select(m => new TransportLeg(TransportLegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, voyageIds[m.Id], m.Id));
+            var itineraries = paths
+                .Select(p => new Itinerary(p.CarrierMovements.Select(m => new TransportLeg(TransportLegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, voyageIds[m.Id], m.Id))))
+                .ToList();
 
-            return new Itinerary(legs);
+            return itineraries;
         }
 
-        private static Path CalculatePath(Route route, IEnumerable<Schedule> schedules)
+        private static IEnumerable<Path> CalculatePaths(Route route, IEnumerable<Schedule> schedules)
         {
             var graph = new Graph();
             foreach (var carrierMovement in schedules.SelectMany(s => s.CarrierMovements))
@@ -87,12 +89,7 @@ namespace EventFlow.Examples.Shipping.Services.Routing
             {
                 if (!paths.Any())
                 {
-                    if (possiblePaths.Any())
-                    {
-                        return possiblePaths.OrderBy(p => p.Distance).First();
-                    }
-
-                    throw new Exception("Could not find path");
+                    return possiblePaths.OrderBy(p => p.Distance);
                 }
 
                 var orderedPaths = paths

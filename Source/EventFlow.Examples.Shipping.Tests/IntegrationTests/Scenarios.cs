@@ -40,7 +40,7 @@ using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Examples.Shipping.Tests
+namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
 {
     public class Scenarios : Test
     {

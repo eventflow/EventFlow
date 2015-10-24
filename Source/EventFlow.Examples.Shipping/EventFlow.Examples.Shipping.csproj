@@ -93,8 +93,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Application\BookingApplicationService.cs" />
     <Compile Include="Application\IBookingApplicationService.cs" />
-    <Compile Include="Services\Routing\IRoutingService.cs" />
-    <Compile Include="Services\Routing\RoutingService.cs" />
+    <Compile Include="ExternalServices\Routing\IRoutingService.cs" />
+    <Compile Include="ExternalServices\Routing\RoutingService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

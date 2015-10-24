@@ -20,12 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Commands;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
-using EventFlow.Examples.Shipping.Services.Routing;
+using EventFlow.Examples.Shipping.ExternalServices.Routing;
+using EventFlow.Exceptions;
 
 namespace EventFlow.Examples.Shipping.Application
 {
@@ -47,7 +49,13 @@ namespace EventFlow.Examples.Shipping.Application
             var cargoId = CargoId.New;
             await _commandBus.PublishAsync(new CargoBookCommand(cargoId, route), cancellationToken).ConfigureAwait(false);
 
-            var itinerary = await _routingService.CalculateItineraryAsync(route, cancellationToken).ConfigureAwait(false);
+            var itineraries = await _routingService.CalculateItinerariesAsync(route, cancellationToken).ConfigureAwait(false);
+
+            var itinerary = itineraries.FirstOrDefault();
+            if (itinerary == null)
+            {
+                throw DomainError.With("Could not find itinerary");
+            }
 
             await _commandBus.PublishAsync(new CargoSetItineraryCommand(cargoId, itinerary), cancellationToken).ConfigureAwait(false);
 

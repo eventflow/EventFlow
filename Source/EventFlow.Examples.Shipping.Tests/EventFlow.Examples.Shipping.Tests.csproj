@@ -65,10 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Locations.cs" />
-    <Compile Include="RoutingServiceTests.cs" />
-    <Compile Include="Scenarios.cs" />
+    <Compile Include="UnitTests\ExternalServices\Routing\RoutingServiceTests.cs" />
+    <Compile Include="IntegrationTests\Scenarios.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TransportLegsAreConnectedSpecificationTests.cs" />
+    <Compile Include="UnitTests\Domain\Model\CardoModel\Speficications\TransportLegsAreConnectedSpecificationTests.cs" />
     <Compile Include="Voyages.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +92,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

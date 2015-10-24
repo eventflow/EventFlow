@@ -23,7 +23,7 @@
 using System.Reflection;
 using EventFlow.Examples.Shipping.Application;
 using EventFlow.Examples.Shipping.Domain.Services;
-using EventFlow.Examples.Shipping.Services.Routing;
+using EventFlow.Examples.Shipping.ExternalServices.Routing;
 using EventFlow.Extensions;
 
 namespace EventFlow.Examples.Shipping

@@ -28,7 +28,8 @@ using EventFlow.Configuration;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Commands;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
 using EventFlow.Examples.Shipping.Domain.Services;
-using EventFlow.Examples.Shipping.Services.Routing;
+using EventFlow.Examples.Shipping.ExternalServices.Routing;
+using EventFlow.Exceptions;
 using EventFlow.Jobs;
 using EventFlow.Queries;
 
@@ -60,7 +61,15 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs
                 return;
             }
 
-            var newItinerary = await routingService.CalculateItineraryAsync(cargo.Route, cancellationToken).ConfigureAwait(false);
+            var newItineraries = await routingService.CalculateItinerariesAsync(cargo.Route, cancellationToken).ConfigureAwait(false);
+
+            var newItinerary = newItineraries.FirstOrDefault();
+            if (newItinerary == null)
+            {
+                // TODO: Tell domain that a new itinerary could not be found
+                throw DomainError.With("Could not find itinerary");
+            }
+
             await commandBus.PublishAsync(new CargoSetItineraryCommand(cargo.Id, newItinerary), cancellationToken).ConfigureAwait(false);
         }
     }

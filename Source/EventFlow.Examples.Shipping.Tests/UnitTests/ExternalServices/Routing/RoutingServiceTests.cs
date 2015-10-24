@@ -22,27 +22,34 @@
 
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.Services.Routing;
+using EventFlow.Examples.Shipping.ExternalServices.Routing;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Examples.Shipping.Tests
+namespace EventFlow.Examples.Shipping.Tests.UnitTests.ExternalServices.Routing
 {
     public class RoutingServiceTests : TestsFor<RoutingService>
     {
         [Test]
         public void Itinerary()
         {
+            // Arrange
             var hongkongToNewYork = new Voyage(Voyages.HongkongToNewYorkId, Voyages.HongkongToNewYorkSchedule);
             var newYorkToDallas = new Voyage(Voyages.NewYorkToDallasId, Voyages.NewYorkToDallasSchedule);
-            var itinerary = Sut.CalculateItinerary(
+
+            // Act
+            var itineraries = Sut.CalculateItineraries(
                 new Route(
                     Locations.Tokyo,
                     Locations.Chicago,
                     1.October(2008).At(11, 00),
                     1.January(2014)), 
                 new[] { hongkongToNewYork, newYorkToDallas });
+
+            // Assert
+            // TODO: Assert list of legs
+            itineraries.Should().HaveCount(1);
         }
     }
 }
