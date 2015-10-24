@@ -3,7 +3,7 @@
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td>
-      <img src="./icon-256.png" />
+      <img src="./icon-128.png" />
     </td>
     <td>
       <p>
