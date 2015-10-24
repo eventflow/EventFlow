@@ -36,7 +36,7 @@ namespace EventFlow.EventStores.MsSql
 {
     public class MsSqlEventPersistence : IEventPersistence
     {
-        public class EventDataModel : ICommittedDomainEvent
+        public class EventDataModel
         {
             public long GlobalSequenceNumber { get; set; }
             public Guid BatchId { get; set; }
@@ -87,11 +87,19 @@ namespace EventFlow.EventStores.MsSql
                     })
                 .ConfigureAwait(false);
 
+            var committedDomainEvents = eventDataModels
+                .Select(m => new CommittedDomainEvent(
+                    m.AggregateId,
+                    m.Data,
+                    m.Metadata,
+                    m.AggregateSequenceNumber))
+                .ToList();
+
             var nextPosition = eventDataModels.Any()
                 ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
                 : startPostion;
 
-            return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
+            return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
@@ -152,7 +160,7 @@ namespace EventFlow.EventStores.MsSql
                 throw;
             }
 
-            eventDataModels = eventDataModels
+            var committedDomainEvents = eventDataModels
                 .Zip(
                     ids,
                     (e, i) =>
@@ -160,9 +168,14 @@ namespace EventFlow.EventStores.MsSql
                             e.GlobalSequenceNumber = i;
                             return e;
                         })
+                .Select(m => new CommittedDomainEvent(
+                    m.AggregateId,
+                    m.Data,
+                    m.Metadata,
+                    m.AggregateSequenceNumber))
                 .ToList();
 
-            return eventDataModels;
+            return committedDomainEvents;
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
@@ -184,7 +197,16 @@ namespace EventFlow.EventStores.MsSql
                         AggregateId = id.Value
                     })
                 .ConfigureAwait(false);
-            return eventDataModels;
+
+            var committedDomainEvents = eventDataModels
+                .Select(m => new CommittedDomainEvent(
+                    m.AggregateId,
+                    m.Data,
+                    m.Metadata,
+                    m.AggregateSequenceNumber))
+                .ToList();
+
+            return committedDomainEvents;
         }
 
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
