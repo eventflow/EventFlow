@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.Extensions;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Core.VersionedTypes
@@ -45,7 +46,7 @@ namespace EventFlow.Core.VersionedTypes
         public override string ToString()
         {
             var assemblyName = Type.Assembly.GetName();
-            return $"{Name} v{Version} ({assemblyName.Name} - {Type.Name})";
+            return $"{Name} v{Version} ({assemblyName.Name} - {Type.PrettyPrint()})";
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

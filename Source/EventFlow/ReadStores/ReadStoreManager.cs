@@ -59,7 +59,7 @@ namespace EventFlow.ReadStores
             if (!iAmReadModelForInterfaceTypes.Any())
             {
                 throw new ArgumentException(
-                    $"Read model type '{ReadModelType.Name}' does not implement any 'IAmReadModelFor<>'");
+                    $"Read model type '{ReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
             }
 
             AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
@@ -89,8 +89,8 @@ namespace EventFlow.ReadStores
             {
                 Log.Verbose(() => string.Format(
                     "None of these events was relevant for read model '{0}', skipping update: {1}",
-                    ReadModelType.Name,
-                    string.Join(", ", domainEvents.Select(e => e.EventType.Name))
+                    ReadModelType.PrettyPrint(),
+                    string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
                     ));
                 return;
             }

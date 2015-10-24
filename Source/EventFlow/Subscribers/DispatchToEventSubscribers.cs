@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.Subscribers
@@ -71,10 +72,10 @@ namespace EventFlow.Subscribers
         {
             try
             {
-                _log.Verbose(
+                _log.Verbose(() => string.Format(
                     "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                    handler.GetType().Name,
-                    domainEvent.EventType.Name);
+                    handler.GetType().PrettyPrint(),
+                    domainEvent.EventType.PrettyPrint()));
                 await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
@@ -82,7 +83,7 @@ namespace EventFlow.Subscribers
                 _log.Error(
                     exception,
                     "Failed to dispatch to event handler {0}",
-                    handler.GetType().Name);
+                    handler.GetType().PrettyPrint());
             }
         }
 

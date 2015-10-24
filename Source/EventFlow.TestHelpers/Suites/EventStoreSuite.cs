@@ -244,7 +244,7 @@ namespace EventFlow.TestHelpers.Suites
                 }
             }
 
-            wasCorrectException.Should().BeTrue("Action was expected to throw exception {0}", typeof(TException).Name);
+            wasCorrectException.Should().BeTrue("Action was expected to throw exception {0}", typeof(TException).PrettyPrint());
         }
     }
 }

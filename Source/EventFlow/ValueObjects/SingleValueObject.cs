@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.Extensions;
 
 namespace EventFlow.ValueObjects
 {
@@ -45,7 +46,7 @@ namespace EventFlow.ValueObjects
             var other = obj as SingleValueObject<T>;
             if (other == null)
             {
-                throw new ArgumentException($"Cannot compare '{GetType().Name}' and '{obj.GetType().Name}'");
+                throw new ArgumentException($"Cannot compare '{GetType().PrettyPrint()}' and '{obj.GetType().PrettyPrint()}'");
             }
 
             return Value.CompareTo(other.Value);
