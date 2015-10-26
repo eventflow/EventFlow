@@ -75,11 +75,7 @@ namespace EventFlow.EventStores
             }
 
             var aggregateType = typeof (TAggregate);
-            _log.Verbose(
-                "Storing {0} events for aggregate '{1}' with ID '{2}'",
-                uncommittedDomainEvents.Count,
-                aggregateType.Name,
-                id);
+            _log.Verbose(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
             var batchId = Guid.NewGuid().ToString();
             var storeMetadata = new[]
@@ -195,11 +191,7 @@ namespace EventFlow.EventStores
             var aggregate = await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
             aggregate.ApplyEvents(domainEvents);
 
-            _log.Verbose(
-                "Done loading aggregate '{0}' with ID '{1}' after applying {2} events",
-                aggregateType.Name,
-                id,
-                domainEvents.Count);
+            _log.Verbose(() => $"Done loading aggregate '{aggregateType.PrettyPrint()}' with ID '{id}' after applying {domainEvents.Count} events");
 
             return aggregate;
         }

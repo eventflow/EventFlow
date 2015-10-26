@@ -28,6 +28,7 @@ using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
@@ -93,7 +94,7 @@ namespace EventFlow.EventStores
             _log.Verbose(() => string.Format(
                 "Upgrading {0} events and found these event upgraders to use: {1}",
                 domainEventList.Count,
-                string.Join(", ", eventUpgraders.Values.SelectMany(a => a.EventUpgraders.Select(e => e.GetType().Name)))));
+                string.Join(", ", eventUpgraders.Values.SelectMany(a => a.EventUpgraders.Select(e => e.GetType().PrettyPrint())))));
 
             return domainEventList
                 .SelectMany(e =>
@@ -123,7 +124,7 @@ namespace EventFlow.EventStores
                         var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
                         if (aggregateRootInterface == null)
                         {
-                            throw new ArgumentException($"Type '{t.Name}' is not a '{typeof (IAggregateRoot<>).Name}'", nameof(aggregateType));
+                            throw new ArgumentException($"Type '{t.PrettyPrint()}' is not a '{typeof (IAggregateRoot<>).PrettyPrint()}'", nameof(aggregateType));
                         }
 
                         var arguments = aggregateRootInterface.GetGenericArguments();

@@ -125,7 +125,7 @@ namespace EventFlow.Core.VersionedTypes
             if (definition == null)
             {
                 throw new ArgumentException(
-                    $"Could not create a versioned type definition for type '{type.Name}' in '{GetType().PrettyPrint()}'",
+                    $"Could not create a versioned type definition for type '{type.PrettyPrint()}' in '{GetType().PrettyPrint()}'",
                     nameof(type));
             }
 

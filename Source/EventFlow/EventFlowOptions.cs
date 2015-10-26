@@ -80,7 +80,7 @@ namespace EventFlow
             {
                 if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
-                    throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
+                    throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
             }
@@ -93,7 +93,7 @@ namespace EventFlow
             {
                 if (!typeof (ICommand).IsAssignableFrom(commandType))
                 {
-                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof (ICommand).PrettyPrint()}");
+                    throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof (ICommand).PrettyPrint()}");
                 }
                 _commandTypes.Add(commandType);
             }
@@ -106,7 +106,7 @@ namespace EventFlow
             {
                 if (!typeof (IJob).IsAssignableFrom(jobType))
                 {
-                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof (IJob).PrettyPrint()}");
+                    throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
             }

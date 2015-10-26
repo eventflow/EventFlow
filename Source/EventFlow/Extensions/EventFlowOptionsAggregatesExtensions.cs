@@ -70,7 +70,7 @@ namespace EventFlow.Extensions
                 .ToList();
             if (invalidTypes.Any())
             {
-                var names = string.Join(", ", invalidTypes.Select(t => t.Name));
+                var names = string.Join(", ", invalidTypes.Select(t => t.PrettyPrint()));
                 throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
             }
 

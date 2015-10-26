@@ -63,9 +63,7 @@ namespace EventFlow.Extensions
                     .ToList();
                 if (!handlesCommandTypes.Any())
                 {
-                    throw new ArgumentException(string.Format(
-                        "Type '{0}' does not implement ICommandHandler<TAggregate, TCommand>",
-                        commandHandlerType.Name));
+                    throw new ArgumentException($"Type '{commandHandlerType.PrettyPrint()}' does not implement '{typeof (ICommandHandler<,,,>).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>

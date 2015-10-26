@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using EventFlow.Extensions;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Core
@@ -60,6 +61,12 @@ namespace EventFlow.Core
             return BuildWith(guid);
         }
 
+        public static T NewComb()
+        {
+            var guid = GuidFactories.Comb.Create();
+            return BuildWith(guid);
+        }
+
         public static T With(string value)
         {
             try
@@ -78,7 +85,7 @@ namespace EventFlow.Core
 
         private static T BuildWith(Guid guid)
         {
-            var value = $"{Name}-{guid}".ToLowerInvariant();
+            var value = $"{Name}-{guid.ToString("D")}";
             return With(value);
         }
 
@@ -91,16 +98,16 @@ namespace EventFlow.Core
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return $"Aggregate ID of type '{typeof (T).Name}' is null or empty";
+                yield return $"Aggregate ID of type '{typeof (T).PrettyPrint()}' is null or empty";
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' contains leading and/or traling spaces";
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not start with '{Name}'";
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).Name}' does not follow the syntax '[NAME]-[GUID]' in lower case";
+                yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)
