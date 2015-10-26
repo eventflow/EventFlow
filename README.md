@@ -43,7 +43,7 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 
 ### Examples
 
-* **[Simple](#simple example):** Shows the key concepts of EventFlow in a few
+* **[Simple](#simple-example):** Shows the key concepts of EventFlow in a few
   lines of code
 * **Shipping:** To get a more complete example of how EventFlow _could_ be used,
   have a look at the shipping example found here in the code base. The example
