@@ -1,4 +1,8 @@
-### New in 0.21 (not released yet)
+### New in 0.22 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.21.1312 (released 2015-10-26)
 
 * New: Added `Identity<>.NewComb()` that creates sequential unique IDs which can
   be used to minimize database fragmentation
