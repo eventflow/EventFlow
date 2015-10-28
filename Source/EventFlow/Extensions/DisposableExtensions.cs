@@ -33,6 +33,8 @@ namespace EventFlow.Extensions
             ILog log,
             string message)
         {
+            if (disposable == null) return;
+
             try
             {
                 disposable.Dispose();
