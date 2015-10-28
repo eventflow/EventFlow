@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EventFlow.Examples.Shipping</RootNamespace>
+    <AssemblyName>EventFlow.Examples.Shipping</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Application\IScheduleApplicationService.cs" />
+    <Compile Include="Application\ScheduleApplicationService.cs" />
+    <Compile Include="Domain\Model\CargoModel\Jobs\VerifyCargoItineraryJob.cs" />
+    <Compile Include="Domain\Model\CargoModel\Jobs\VerifyCargosForVoyageJob.cs" />
+    <Compile Include="Domain\Model\CargoModel\Cargo.cs" />
+    <Compile Include="Domain\Model\CargoModel\CargoAggregate.cs" />
+    <Compile Include="Domain\Model\CargoModel\CargoId.cs" />
+    <Compile Include="Domain\Model\CargoModel\CargoState.cs" />
+    <Compile Include="Domain\Model\CargoModel\Commands\CargoSetItineraryCommand.cs" />
+    <Compile Include="Domain\Model\CargoModel\Commands\CargoBookCommand.cs" />
+    <Compile Include="Domain\Model\CargoModel\Entities\TransportLegId.cs" />
+    <Compile Include="Domain\Model\CargoModel\Events\CargoBookedEvent.cs" />
+    <Compile Include="Domain\Model\CargoModel\Events\CargoItinerarySetEvent.cs" />
+    <Compile Include="Domain\Model\CargoModel\Queries\GetCargoQuery.cs" />
+    <Compile Include="Domain\Model\CargoModel\Queries\GetCargosDependentOnVoyageQuery.cs" />
+    <Compile Include="Domain\Model\CargoModel\Specifications\TransportLegsAreConnectedSpecification.cs" />
+    <Compile Include="Domain\Model\CargoModel\Subscribers\ScheduleChangedSubscriber.cs" />
+    <Compile Include="Domain\Model\CargoModel\ValueObjects\Itinerary.cs" />
+    <Compile Include="Domain\Model\CargoModel\Entities\TransportLeg.cs" />
+    <Compile Include="Domain\Model\CargoModel\ValueObjects\Route.cs" />
+    <Compile Include="Domain\Model\CargoModel\Specifications\RouteSpecification.cs" />
+    <Compile Include="Domain\Model\LocationModel\Events\LocationCreatedEvent.cs" />
+    <Compile Include="Domain\Model\LocationModel\Location.cs" />
+    <Compile Include="Domain\Model\LocationModel\LocationAggregate.cs" />
+    <Compile Include="Domain\Model\LocationModel\LocationId.cs" />
+    <Compile Include="Domain\Model\LocationModel\LocationState.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Commands\VoyageCreateCommand.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Commands\VoyageDelayCommand.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Entities\CarrierMovementId.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Events\VoyageScheduleUpdatedEvent.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Queries\GetAllVoyagesQuery.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Entities\CarrierMovement.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Events\VoyageCreatedEvent.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Queries\GetVoyagesQuery.cs" />
+    <Compile Include="Domain\Model\VoyageModel\ValueObjects\Schedule.cs" />
+    <Compile Include="Domain\Model\VoyageModel\Voyage.cs" />
+    <Compile Include="Domain\Model\VoyageModel\VoyageAggregate.cs" />
+    <Compile Include="Domain\Model\VoyageModel\ScheduleBuilder.cs" />
+    <Compile Include="Domain\Model\VoyageModel\VoyageId.cs" />
+    <Compile Include="Domain\Model\VoyageModel\VoyageState.cs" />
+    <Compile Include="Domain\Services\IUpdateItineraryService.cs" />
+    <Compile Include="Domain\Services\UpdateItineraryService.cs" />
+    <Compile Include="Domain\Specs.cs" />
+    <Compile Include="EventFlowExamplesShipping.cs" />
+    <Compile Include="Extensions\CarrierMovementExtensions.cs" />
+    <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Application\BookingApplicationService.cs" />
+    <Compile Include="Application\IBookingApplicationService.cs" />
+    <Compile Include="ExternalServices\Routing\IRoutingService.cs" />
+    <Compile Include="ExternalServices\Routing\RoutingService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
+      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
+      <Name>EventFlow</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

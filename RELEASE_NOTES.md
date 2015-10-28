@@ -1,8 +1,112 @@
-### New in 0.14 (not released yet)
+### New in 0.22 (not released yet)
 
+* _Nothing yet_
+
+### New in 0.21.1312 (released 2015-10-26)
+
+* New: Added `Identity<>.NewComb()` that creates sequential unique IDs which can
+  be used to minimize database fragmentation
+* New: Added `IReadModelContext.Resolver` to allow read models to fetch
+  additional resources when events are applied
+* New: The `PrettyPrint()` type extension method, mostly used for verbose
+  logging, now prints even prettier type names, e.g.
+  `KeyValuePair<Boolean,Int64>` instead of merely `KeyValuePair'2`, making log
+  messages slightly more readable
+
+### New in 0.20.1274 (released 2015-10-22)
+
+* Breaking: `Entity<T>` now inherits from `ValueObject` but uses only the `Id`
+  field as equality component. Override `GetEqualityComponents()` if you have
+  a different notion of equality for a specific entity
+* Breaking: `Entity<T>` will now throw an `ArgumentNullException` if the `id`
+  passed to its constructor is `null`
+* Breaking: Fixed method spelling. Renamed
+ `ISpecification<T>.WhyIsNotStatisfiedBy` to `WhyIsNotSatisfiedBy` and
+ `Specification<T>.IsNotStatisfiedBecause` to `IsNotSatisfiedBecause`
+* New: Read model support for Elasticsearch via the new NuGet package
+  `EventFlow.ReadStores.Elasticsearch`
+
+### New in 0.19.1225 (released 2015-10-19)
+
+* Breaking: `AddDefaults` now also adds the job type definition to the
+  `IJobsDefinitonService`
+* New: Implemented a basic specification pattern by providing
+  `ISpecification<T>`, an easy-to-use `Specificaion<T>` and a set of extension
+  methods. Look at the EventFlow specification tests to get started
+* Fixed: `IEventDefinitionService`, `ICommandDefinitonService` and
+  `IJobsDefinitonService` now longer throw an exception if an existing
+  event is loaded, i.e., multiple calls to `AddEvents(...)`, `AddCommand(...)`
+  and `AddJobs(...)` no longer throws an exception
+* Fixed: `DomainError.With(...)` no longer executes `string.format` if only
+  one argument is parsed
+
+### New in 0.18.1181 (released 2015-10-07)
+
+* POTENTIAL DATA LOSS for the **files event store**: The EventFlow
+  internal functionality regarding event stores has been refactored resulting
+  in information regarding aggregate names being removed from the event
+  persistence layer. The files based event store no longer stores its events in
+  the path `[STORE PATH]\[AGGREGATE NAME]\[AGGREGATE ID]\[SEQUENCE].json`, but
+  in the path `[STORE PATH]\[AGGREGATE ID]\[SEQUENCE].json`. Thus if you are
+  using the files event store for tests, you should move the events into the
+  new file structure. Alternatively, implement the new `IFilesEventLocator` and
+  provide your own custom event file layout.
+* Breaking: Event stores have been split into two parts, the `IEventStore`
+  and the new `IEventPersistence`. `IEventStore` has the same interface before
+  but the implementation is now no longer responsible for persisting the events,
+  only converting and serializing the persisted events. `IEventPersistence`
+  handles the actual storing of events and thus if any custom event stores have
+  been implemented, they should implement to the new `IEventPersistence`
+  instead.
+* New: Added `IEntity`, `IEntity<>` and an optional `Entity<>` that developers
+  can use to implement DDD entities.
+
+### New in 0.17.1134 (released 2015-09-28)
+
+* Fixed: Using NuGet package `EventFlow.Autofac` causes an exception with the
+  message `The type 'EventFlow.Configuration.Registrations.AutofacStartable'
+  is not assignable to service 'Autofac.IStartable` during EventFlow setup
+
+### New in 0.16.1120 (released 2015-09-27)
+
+* Breaking: Removed `HasRegistrationFor<>` and `GetRegisteredServices()`
+  from `IServiceRegistration` and added them to `IResolver` instead. The
+  methods required that all service registrations went through EventFlow,
+  which in most cases they will not
+* Obsolete: Marked `IServiceRegistration.RegisterIfNotRegistered(...)`, use
+  the `keepDefault = true` on the other `Register(...)` methods instead
+* New: Major changes have been done to how EventFlow handles service
+  registration and bootstrapping in order for developers to skip calling
+  `CreateResolver()` (or `CreateContainer()` if using the `EventFlow.Autofac`
+  package) completely. EventFlow will register its bootstrap services in the
+  IoC container and configure itself whenever the container is created    
+* New: Introduced `IBootstrap` interface that you can register. It has a
+  single `BootAsync(...)` method that will be called as soon as the IoC
+  container is ready (similar to that of `IStartable` of Autofac)
+* Fixed: Correct order of service registration decorators. They are now
+  applied in the same order they are applied, e.g., the _last_ registered
+  service decorator will be the "outer" service
+* Fixed: Added missing `ICommand<,>` interface to abstract `Command<,>` class in
+  `EventFlow.Commands`.
+
+### New in 0.15.1057 (released 2015-09-24)
+
+* Fixed: Added `UseHangfireJobScheduler()` and marked `UseHandfireJobScheduler()`
+  obsolete, fixing method spelling mistake
+
+### New in 0.14.1051 (released 2015-09-23)
+
+* Breaking: All `EventFlowOptions` extensions are now `IEventFlowOptions`
+  instead and `EventFlowOptions` implements this interface. If you have made
+  your own extensions, you will need to use the newly created interface
+  instead. Changed in order to make testing of extensions and classes
+  dependent on the EventFlow options easier to test
+* New: You can now bundle your configuration of EventFlow into modules that
+  implement `IModule` and register these by calling
+  `EventFlowOptions.RegisterModule(...)`
 * New: EventFlow now supports scheduled job execution via e.g. Hangfire. You
   can create your own scheduler or install the new `EventFlow.Hangfire` NuGet
-  package. Read the jobs documentation for more details 
+  package. Read the jobs documentation for more details
 * New: Created the OWIN `CommandPublishMiddleware` middleware that can
   handle publishing of commands by posting a JSON serialized command to
   e.g. `/commands/ping/1` in which `ping` is the command name and `1` its
