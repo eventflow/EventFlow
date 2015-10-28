@@ -125,7 +125,8 @@ using (var resolver = EventFlowOptions.New
 }
 ```
 
-Note: `.ConfigureAwait(false)` omitted in above example.
+Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in 
+the above example to ease reading.
 
 ## State of EventFlow
 
