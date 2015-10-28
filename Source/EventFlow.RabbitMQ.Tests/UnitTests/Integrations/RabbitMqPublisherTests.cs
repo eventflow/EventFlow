@@ -42,7 +42,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
         private Mock<IRabbitMqConfiguration> _rabbitMqConfigurationMock;
         private Mock<ILog> _logMock;
         private Mock<IModel> _modelMock;
-        private Mock<IRabbitConnection> _rabbitConnectionMock;
+        private Mock<IRabbitMqModelCollection> _rabbitConnectionMock;
 
         [SetUp]
         public void SetUp()
@@ -57,10 +57,10 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             var basicPropertiesMock = new Mock<IBasicProperties>();
             _modelMock = new Mock<IModel>();
-            _rabbitConnectionMock = new Mock<IRabbitConnection>();
+            _rabbitConnectionMock = new Mock<IRabbitMqModelCollection>();
 
             _rabbitMqConnectionFactoryMock
-                .Setup(f => f.CreateConnectionAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
+                .Setup(f => f.CreateModelCollectionAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_rabbitConnectionMock.Object));
             _rabbitMqConfigurationMock
                 .Setup(c => c.Uri)

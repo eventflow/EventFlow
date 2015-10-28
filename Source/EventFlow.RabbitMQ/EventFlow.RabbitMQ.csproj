@@ -52,10 +52,12 @@
     </Compile>
     <Compile Include="Exchange.cs" />
     <Compile Include="Extensions\EventFlowOptionsRabbitMqExtensions.cs" />
-    <Compile Include="Integrations\IRabbitConnection.cs" />
+    <Compile Include="Integrations\IRabbitMqHandlerSession.cs" />
+    <Compile Include="Integrations\IRabbitMqModelCollection.cs" />
     <Compile Include="Integrations\IRabbitMqConsumer.cs" />
     <Compile Include="Integrations\IRabbitMqMessageHandler.cs" />
-    <Compile Include="Integrations\RabbitConnection.cs" />
+    <Compile Include="Integrations\RabbitMqHandlerSession.cs" />
+    <Compile Include="Integrations\RabbitMqModelCollection.cs" />
     <Compile Include="Integrations\RabbitMqConsumer.cs" />
     <Compile Include="MessageId.cs" />
     <Compile Include="RabbitMqDomainEventPublisher.cs" />

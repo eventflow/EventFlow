@@ -41,7 +41,7 @@ namespace EventFlow.RabbitMQ.Integrations
         private readonly IRabbitMqConfiguration _configuration;
         private readonly ITransientFaultHandler<IRabbitMqRetryStrategy> _transientFaultHandler;
         private readonly AsyncLock _asyncLock = new AsyncLock();
-        private readonly Dictionary<Uri, IRabbitConnection> _connections = new Dictionary<Uri, IRabbitConnection>(); 
+        private readonly Dictionary<Uri, IRabbitMqModelCollection> _connections = new Dictionary<Uri, IRabbitMqModelCollection>(); 
 
         public RabbitMqPublisher(
             ILog log,
@@ -63,13 +63,13 @@ namespace EventFlow.RabbitMQ.Integrations
         public async Task PublishAsync(IReadOnlyCollection<RabbitMqMessage> rabbitMqMessages, CancellationToken cancellationToken)
         {
             var uri = _configuration.Uri;
-            IRabbitConnection rabbitConnection = null;
+            IRabbitMqModelCollection rabbitMqModelCollection = null;
             try
             {
-                rabbitConnection = await GetRabbitMqConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
+                rabbitMqModelCollection = await GetRabbitMqConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 await _transientFaultHandler.TryAsync(
-                    c => rabbitConnection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages), c),
+                    c => rabbitMqModelCollection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages), c),
                     Label.Named("rabbitmq-publish"),
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -80,11 +80,11 @@ namespace EventFlow.RabbitMQ.Integrations
             }
             catch (Exception e)
             {
-                if (rabbitConnection != null)
+                if (rabbitMqModelCollection != null)
                 {
                     using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
                     {
-                        rabbitConnection.Dispose();
+                        rabbitMqModelCollection.Dispose();
                         _connections.Remove(uri);
                     }
                 }
@@ -93,20 +93,20 @@ namespace EventFlow.RabbitMQ.Integrations
             }
         }
 
-        private async Task<IRabbitConnection> GetRabbitMqConnectionAsync(Uri uri, CancellationToken cancellationToken)
+        private async Task<IRabbitMqModelCollection> GetRabbitMqConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                IRabbitConnection rabbitConnection;
-                if (_connections.TryGetValue(uri, out rabbitConnection))
+                IRabbitMqModelCollection rabbitMqModelCollection;
+                if (_connections.TryGetValue(uri, out rabbitMqModelCollection))
                 {
-                    return rabbitConnection;
+                    return rabbitMqModelCollection;
                 }
 
-                rabbitConnection = await _connectionFactory.CreateConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
-                _connections.Add(uri, rabbitConnection);
+                rabbitMqModelCollection = await _connectionFactory.CreateModelCollectionAsync(uri, cancellationToken).ConfigureAwait(false);
+                _connections.Add(uri, rabbitMqModelCollection);
 
-                return rabbitConnection;
+                return rabbitMqModelCollection;
             }
         }
 

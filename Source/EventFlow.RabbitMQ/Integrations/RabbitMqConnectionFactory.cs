@@ -46,12 +46,16 @@ namespace EventFlow.RabbitMQ.Integrations
             _configuration = configuration;
         }
 
-        public async Task<IRabbitConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
+        public async Task<IRabbitMqModelCollection> CreateModelCollectionAsync(Uri uri, CancellationToken cancellationToken)
+        {
+            var connection = await CreateConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
+            return new RabbitMqModelCollection(_log, _configuration.ModelsPrConnection, connection);
+        }
+
+        public async Task<IConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {
             var connectionFactory = await CreateConnectionFactoryAsync(uri, cancellationToken).ConfigureAwait(false);
-            var connection = connectionFactory.CreateConnection();
-
-            return new RabbitConnection(_log, _configuration.ModelsPrConnection, connection);
+            return connectionFactory.CreateConnection();
         }
 
         private async Task<ConnectionFactory> CreateConnectionFactoryAsync(Uri uri, CancellationToken cancellationToken)

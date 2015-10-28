@@ -33,14 +33,14 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitConnection : IRabbitConnection
+    public class RabbitMqModelCollection : IRabbitMqModelCollection
     {
         private readonly ILog _log;
         private readonly IConnection _connection;
         private readonly AsyncLock _asyncLock;
         private readonly ConcurrentBag<IModel> _models; 
 
-        public RabbitConnection(ILog log, int maxModels, IConnection connection)
+        public RabbitMqModelCollection(ILog log, int maxModels, IConnection connection)
         {
             _connection = connection;
             _log = log;

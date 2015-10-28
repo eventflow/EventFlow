@@ -21,56 +21,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Logs;
-using RabbitMQ.Client.Events;
+using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public class RabbitMqConsumer<THandler> : IRabbitMqConsumer<THandler>
-        where THandler : IRabbitMqMessageHandler
+    public class RabbitMqHandlerSession : IRabbitMqHandlerSession
     {
         private readonly ILog _log;
-        private readonly THandler _messageHandler;
-        private readonly IRabbitMqConnectionFactory _connectionFactory;
+        private readonly IRabbitMqMessageHandler _rabbitMqMessageHandler;
+        private readonly IConnection _connection;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public RabbitMqConsumer(
+        public RabbitMqHandlerSession(
             ILog log,
-            THandler messageHandler,
-            IRabbitMqConnectionFactory connectionFactory)
+            IRabbitMqMessageHandler rabbitMqMessageHandler,
+            IConnection connection)
         {
             _log = log;
-            _messageHandler = messageHandler;
-            _connectionFactory = connectionFactory;
+            _rabbitMqMessageHandler = rabbitMqMessageHandler;
+            _connection = connection;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public Task ConnectAsync(CancellationToken cancellationToken)
         {
+
             return Task.FromResult(0);
-        }
-
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            var connection = await _connectionFactory.CreateConnectionAsync(new Uri(""), cancellationToken).ConfigureAwait(false);
-            var model = connection.CreateModel();
-            var eventingBasicConsumer = new EventingBasicConsumer(model);
-            eventingBasicConsumer.Received += EventingBasicConsumerOnReceived;
-        }
-
-        private void EventingBasicConsumerOnReceived(object sender, BasicDeliverEventArgs basicDeliverEventArgs)
-        {
-            var rabbitMqMessage = RabbitMqMessage.Create(basicDeliverEventArgs);
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(_messageHandler.HandleAsync(rabbitMqMessage, CancellationToken.None));
-            }
         }
 
         public void Dispose()
         {
+            _connection.DisposeSafe(_log, "Failed to dispose RabbitMQ connection");
         }
     }
 }

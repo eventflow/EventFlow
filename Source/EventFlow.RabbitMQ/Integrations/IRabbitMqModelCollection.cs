@@ -28,7 +28,7 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
-    public interface IRabbitConnection : IDisposable
+    public interface IRabbitMqModelCollection : IDisposable
     {
         Task<T> WithModelAsync<T>(Func<IModel, Task<T>> action, CancellationToken cancellationToken);
     }

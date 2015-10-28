@@ -22,14 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public interface IRabbitMqConsumer : IDisposable
     {
-        Task StartAsync();
-        Task StopAsync();
+        Task StartAsync(CancellationToken cancellationToken);
+        Task StopAsync(CancellationToken cancellationToken);
     }
 
     public interface IRabbitMqConsumer<THandler> : IRabbitMqConsumer
