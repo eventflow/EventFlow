@@ -197,8 +197,8 @@ several areas that you could help out with.
 
 ## Thanks
 
-[![ReSharper](./Documentation/Images/logo_resharper.png)](https://www.jetbrains.com/resharper/)
-
+* [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
+* [iconmonstr](http://iconmonstr.com/network-6-icon/): Free icons for EventFlow
 
 ## License
 
