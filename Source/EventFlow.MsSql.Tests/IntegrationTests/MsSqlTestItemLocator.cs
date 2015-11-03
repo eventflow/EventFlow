@@ -20,40 +20,24 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.Entities;
-using EventFlow.TestHelpers.Aggregates.Test.Queries;
-using EventFlow.TestHelpers.Suites;
-using FluentAssertions;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
-    public class MssqlReadModelStoreTests : ReadModelStoreSuite<MsSqlIntegrationTestConfiguration>
+    public class MsSqlTestItemLocator : IReadModelLocator
     {
-        [Test]
-        public async Task Items()
+        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
         {
-            // Arrange
-            var id = TestId.New;
-            var testItems = Fixture.CreateMany<TestItem>().ToList();
-
-            // Act
-            foreach (var testItem in testItems)
+            var itemAddedEvent = domainEvent as IDomainEvent<TestAggregate, TestId, ItemAddedEvent>;
+            if (itemAddedEvent != null)
             {
-                await CommandBus.PublishAsync(new AddItemCommand(id, testItem), CancellationToken.None).ConfigureAwait(false);
+                yield return itemAddedEvent.AggregateEvent.TestItem.Id.Value;
             }
-
-            // Assert
-            var returnedTestItems = await QueryProcessor.ProcessAsync(new GetItemsQuery(), CancellationToken.None).ConfigureAwait(false);
-            returnedTestItems.ShouldAllBeEquivalentTo(testItems);
         }
     }
 }

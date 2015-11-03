@@ -20,40 +20,33 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.Commands;
 using EventFlow.TestHelpers.Aggregates.Test.Entities;
-using EventFlow.TestHelpers.Aggregates.Test.Queries;
-using EventFlow.TestHelpers.Suites;
-using FluentAssertions;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.TestHelpers.Aggregates.Test.Commands
 {
-    public class MssqlReadModelStoreTests : ReadModelStoreSuite<MsSqlIntegrationTestConfiguration>
+    public class AddItemCommand : Command<TestAggregate, TestId>
     {
-        [Test]
-        public async Task Items()
+        public TestItem TestItem { get; }
+
+        public AddItemCommand(
+            TestId aggregateId,
+            TestItem testItem)
+            : base(aggregateId)
         {
-            // Arrange
-            var id = TestId.New;
-            var testItems = Fixture.CreateMany<TestItem>().ToList();
+            TestItem = testItem;
+        }
+    }
 
-            // Act
-            foreach (var testItem in testItems)
-            {
-                await CommandBus.PublishAsync(new AddItemCommand(id, testItem), CancellationToken.None).ConfigureAwait(false);
-            }
-
-            // Assert
-            var returnedTestItems = await QueryProcessor.ProcessAsync(new GetItemsQuery(), CancellationToken.None).ConfigureAwait(false);
-            returnedTestItems.ShouldAllBeEquivalentTo(testItems);
+    public class AddItemCommandHandler : CommandHandler<TestAggregate, TestId, AddItemCommand>
+    {
+        public override Task ExecuteAsync(TestAggregate aggregate, AddItemCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.AddItem(command.TestItem);
+            return Task.FromResult(0);
         }
     }
 }
