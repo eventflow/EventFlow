@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,11 +31,15 @@ using EventFlow.Core;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Test.Entities;
+using EventFlow.TestHelpers.Aggregates.Test.Queries;
 using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using Helpz.MsSql;
 
@@ -51,9 +57,15 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             TestDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
             var resolver = eventFlowOptions
+                .RegisterServices(sr =>
+                    {
+                        sr.RegisterType(typeof (MsSqlTestItemLocator));
+                        sr.Register<IQueryHandler<GetItemsQuery, IReadOnlyCollection<TestItem>>, MsSqlGetItemsQueryHandler>();
+                    })
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString.Value))
                 .UseEventStore<MsSqlEventPersistence>()
                 .UseMssqlReadModel<MsSqlTestAggregateReadModel>()
+                .UseMssqlReadModel<MsSqlTestAggregateItemReadModel, MsSqlTestItemLocator>()
                 .CreateResolver();
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();

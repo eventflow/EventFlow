@@ -24,6 +24,7 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
+using EventFlow.TestHelpers.Aggregates.Test.Entities;
 using EventFlow.TestHelpers.Aggregates.Test.Events;
 using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
@@ -34,13 +35,16 @@ namespace EventFlow.TestHelpers.Aggregates.Test
         IEmit<DomainErrorAfterFirstEvent>
     {
         private readonly List<PingId> _pingsReceived = new List<PingId>();
+        private readonly List<TestItem> _testItems = new List<TestItem>(); 
 
         public bool DomainErrorAfterFirstReceived { get; private set; }
-        public IReadOnlyCollection<PingId> PingsReceived { get { return _pingsReceived; } }
+        public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
+        public IReadOnlyCollection<TestItem> TestItems => _testItems; 
 
         public TestAggregate(TestId id) : base(id)
         {
             Register<PingEvent>(e => _pingsReceived.Add(e.PingId));
+            Register<ItemAddedEvent>(e => _testItems.Add(e.TestItem));
         }
 
         public void DomainErrorAfterFirst()
@@ -56,6 +60,11 @@ namespace EventFlow.TestHelpers.Aggregates.Test
         public void Ping(PingId pingId)
         {
             Emit(new PingEvent(pingId));
+        }
+
+        public void AddItem(TestItem testItem)
+        {
+            Emit(new ItemAddedEvent(testItem));
         }
 
         public void Apply(DomainErrorAfterFirstEvent e)

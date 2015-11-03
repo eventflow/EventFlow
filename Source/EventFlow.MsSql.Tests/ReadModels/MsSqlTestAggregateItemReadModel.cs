@@ -22,38 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.Entities;
-using EventFlow.TestHelpers.Aggregates.Test.Queries;
-using EventFlow.TestHelpers.Suites;
-using FluentAssertions;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
+using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.MsSql.Tests.ReadModels
 {
-    public class MssqlReadModelStoreTests : ReadModelStoreSuite<MsSqlIntegrationTestConfiguration>
+    [Table("ReadModel-TestAggregateItem")]
+    public class MsSqlTestAggregateItemReadModel : MssqlReadModel,
+        IAmReadModelFor<TestAggregate, TestId, ItemAddedEvent>
     {
-        [Test]
-        public async Task Items()
+        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, ItemAddedEvent> domainEvent)
         {
-            // Arrange
-            var id = TestId.New;
-            var testItems = Fixture.CreateMany<TestItem>().ToList();
-
-            // Act
-            foreach (var testItem in testItems)
-            {
-                await CommandBus.PublishAsync(new AddItemCommand(id, testItem), CancellationToken.None).ConfigureAwait(false);
-            }
-
-            // Assert
-            var returnedTestItems = await QueryProcessor.ProcessAsync(new GetItemsQuery(), CancellationToken.None).ConfigureAwait(false);
-            returnedTestItems.ShouldAllBeEquivalentTo(testItems);
+            // Left blank
         }
     }
 }

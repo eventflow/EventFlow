@@ -20,40 +20,43 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.Core;
+using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates.Test.Entities;
 using EventFlow.TestHelpers.Aggregates.Test.Queries;
-using EventFlow.TestHelpers.Suites;
-using FluentAssertions;
-using NUnit.Framework;
-using Ploeh.AutoFixture;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers
 {
-    public class MssqlReadModelStoreTests : ReadModelStoreSuite<MsSqlIntegrationTestConfiguration>
+    public class MsSqlGetItemsQueryHandler : IQueryHandler<GetItemsQuery, IReadOnlyCollection<TestItem>>
     {
-        [Test]
-        public async Task Items()
+        private readonly IMsSqlConnection _msSqlConnection;
+
+        public MsSqlGetItemsQueryHandler(
+            IMsSqlConnection msSqlConnection)
         {
-            // Arrange
-            var id = TestId.New;
-            var testItems = Fixture.CreateMany<TestItem>().ToList();
+            _msSqlConnection = msSqlConnection;
+        }
 
-            // Act
-            foreach (var testItem in testItems)
-            {
-                await CommandBus.PublishAsync(new AddItemCommand(id, testItem), CancellationToken.None).ConfigureAwait(false);
-            }
+        public async Task<IReadOnlyCollection<TestItem>> ExecuteQueryAsync(GetItemsQuery query, CancellationToken cancellationToken)
+        {
+            // TODO: Store the aggrgate that it belongs to
+            // TODO: Fix bad naming for AggregateId column
 
-            // Assert
-            var returnedTestItems = await QueryProcessor.ProcessAsync(new GetItemsQuery(), CancellationToken.None).ConfigureAwait(false);
-            returnedTestItems.ShouldAllBeEquivalentTo(testItems);
+            var readModels = await _msSqlConnection.QueryAsync<MsSqlTestAggregateItemReadModel>(
+                Label.Named("fetch"),
+                cancellationToken,
+                "SELECT * FROM [ReadModel-TestAggregateItem]")
+                .ConfigureAwait(false);
+
+            return readModels
+                .Select(rm => new TestItem(TestItemId.With(rm.AggregateId)))
+                .ToList();
         }
     }
 }

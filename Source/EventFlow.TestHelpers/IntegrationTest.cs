@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.TestHelpers.Aggregates.Test.Commands;
@@ -40,6 +41,7 @@ namespace EventFlow.TestHelpers
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
+        protected IQueryProcessor QueryProcessor { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
         protected TIntegrationTestConfiguration Configuration { get; private set; }
 
@@ -56,6 +58,7 @@ namespace EventFlow.TestHelpers
             EventStore = Resolver.Resolve<IEventStore>();
             CommandBus = Resolver.Resolve<ICommandBus>();
             ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
+            QueryProcessor = Resolver.Resolve<IQueryProcessor>();
         }
 
         [TearDown]
