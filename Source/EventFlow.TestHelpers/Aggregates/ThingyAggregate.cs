@@ -21,45 +21,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
-using Newtonsoft.Json;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.Exceptions;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+
+namespace EventFlow.TestHelpers.Aggregates
 {
-    [CommandVersion("Ping", 1)]
-    public class PingCommand : Command<TestAggregate, TestId>
+    [AggregateName("Thingy")]
+    public class ThingyAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
+        IEmit<ThingyDomainErrorAfterFirstEvent>
     {
-        public PingId PingId { get; }
+        private readonly List<PingId> _pingsReceived = new List<PingId>();
 
-        public PingCommand(TestId aggregateId, PingId pingId)
-            : this(aggregateId, CommandId.New, pingId)
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public IReadOnlyCollection<PingId> PingsReceived { get { return _pingsReceived; } }
+
+        public ThingyAggregate(ThingyId id) : base(id)
         {
+            Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
         }
 
-        public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
-            : base (aggregateId, sourceId)
+        public void DomainErrorAfterFirst()
         {
-            PingId = pingId;
+            if (DomainErrorAfterFirstReceived)
+            {
+                throw DomainError.With("DomainErrorAfterFirst already received!");
+            }
+
+            Emit(new ThingyDomainErrorAfterFirstEvent());
         }
 
-        [JsonConstructor]
-        public PingCommand(TestId aggregateId, SourceId sourceId, PingId pingId)
-            : base(aggregateId, sourceId)
+        public void Ping(PingId pingId)
         {
-            PingId = pingId;
+            Emit(new ThingyPingEvent(pingId));
         }
-    }
 
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
+        public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

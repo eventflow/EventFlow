@@ -28,8 +28,8 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 
@@ -38,9 +38,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public class ReadStoreManagerTests : TestsFor<SingleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTests.TestReadModel>, ReadStoreManagerTests.TestReadModel>>
     {
         public class TestReadModel : IReadModel,
-            IAmReadModelFor<TestAggregate, TestId, PingEvent>
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
         {
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
+            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
             {
             }
         }
@@ -59,8 +59,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             // Arrange
             var events = new []
                 {
-                    ToDomainEvent(A<PingEvent>()),
-                    ToDomainEvent(A<DomainErrorAfterFirstEvent>()),
+                    ToDomainEvent(A<ThingyPingEvent>()),
+                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>()),
                 };
 
             // Act

@@ -34,7 +34,7 @@ using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.ReadModels;
 using Helpz.MsSql;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests

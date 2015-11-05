@@ -25,7 +25,7 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -34,11 +34,11 @@ namespace EventFlow.Tests.UnitTests.Commands
 {
     public class CommandTests : Test
     {
-        public class CriticalCommand : Command<TestAggregate, TestId, EventId>
+        public class CriticalCommand : Command<ThingyAggregate, ThingyId, EventId>
         {
             public string CriticalData { get; }
 
-            public CriticalCommand(TestId aggregateId, EventId sourceId, string criticalData) : base(aggregateId, sourceId)
+            public CriticalCommand(ThingyId aggregateId, EventId sourceId, string criticalData) : base(aggregateId, sourceId)
             {
                 CriticalData = criticalData;
             }

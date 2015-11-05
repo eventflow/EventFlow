@@ -21,30 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.ComponentModel.DataAnnotations.Schema;
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 
-namespace EventFlow.MsSql.Tests.ReadModels
+using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Entities;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+
+namespace EventFlow.TestHelpers.Aggregates
 {
-    [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlTestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel
+    public class Thingy : Entity<ThingyId>
     {
-        public bool DomainErrorAfterFirstReceived { get; set; }
-        public int PingsReceived { get; set; }
+        public IReadOnlyCollection<PingId> PingIds { get; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public Thingy(
+            ThingyId id,
+            IEnumerable<PingId> pingIds)
+            : base(id)
         {
-            PingsReceived++;
-        }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
-        {
-            DomainErrorAfterFirstReceived = true;
+            PingIds = pingIds.ToList();
         }
     }
 }

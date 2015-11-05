@@ -21,22 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public class DomainErrorAfterFirstCommand : Command<TestAggregate, TestId>
+    /// <summary>
+    /// "Nop" is short for "no operation"
+    /// </summary>
+    public class ThingyNopCommand : Command<ThingyAggregate, ThingyId>
     {
-        public DomainErrorAfterFirstCommand(TestId aggregateId) : base(aggregateId) { }
+        public ThingyNopCommand(ThingyId aggregateId) : base(aggregateId)
+        {
+        }
     }
 
-    public class DomainErrorAfterFirstCommandHander : CommandHandler<TestAggregate, TestId, DomainErrorAfterFirstCommand>
+    public class ThingyNopCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyNopCommand>
     {
-        public override Task ExecuteAsync(TestAggregate aggregate, DomainErrorAfterFirstCommand command, CancellationToken cancellationToken)
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyNopCommand command, CancellationToken cancellationToken)
         {
-            aggregate.DomainErrorAfterFirst();
             return Task.FromResult(0);
         }
     }

@@ -22,10 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.ReadModels;
 
 namespace EventFlow.TestHelpers
 {

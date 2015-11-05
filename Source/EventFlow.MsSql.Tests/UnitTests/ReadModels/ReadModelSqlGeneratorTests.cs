@@ -43,7 +43,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 
             // Assert
             sql.Should().Be(
-                "INSERT INTO [ReadModel-TestAggregate] " +
+                "INSERT INTO [ReadModel-ThingyAggregate] " +
                 "(AggregateId, CreateTime, DomainErrorAfterFirstReceived, LastAggregateSequenceNumber, PingsReceived, UpdatedTime) " +
                 "VALUES " +
                 "(@AggregateId, @CreateTime, @DomainErrorAfterFirstReceived, @LastAggregateSequenceNumber, @PingsReceived, @UpdatedTime)");
@@ -57,7 +57,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 
             // Assert
             sql.Should().Be(
-                "UPDATE [ReadModel-TestAggregate] SET " +
+                "UPDATE [ReadModel-ThingyAggregate] SET " +
                 "CreateTime = @CreateTime, DomainErrorAfterFirstReceived = @DomainErrorAfterFirstReceived, " +
                 "LastAggregateSequenceNumber = @LastAggregateSequenceNumber, " +
                 "PingsReceived = @PingsReceived, UpdatedTime = @UpdatedTime " +
@@ -71,7 +71,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateSelectSql<MsSqlTestAggregateReadModel>();
 
             // Assert
-            sql.Should().Be("SELECT * FROM [ReadModel-TestAggregate] WHERE AggregateId = @AggregateId");
+            sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId");
         }
 
         [Test]

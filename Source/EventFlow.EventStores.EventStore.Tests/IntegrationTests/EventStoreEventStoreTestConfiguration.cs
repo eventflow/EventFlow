@@ -32,7 +32,7 @@ using EventFlow.MetadataProviders;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.ReadModels;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 

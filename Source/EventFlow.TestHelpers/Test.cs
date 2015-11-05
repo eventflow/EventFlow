@@ -25,9 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Test;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.TestHelpers.Aggregates;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -44,7 +44,7 @@ namespace EventFlow.TestHelpers
         public void SetUpTest()
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
-            Fixture.Customize<TestId>(x => x.FromFactory(() => TestId.New));
+            Fixture.Customize<ThingyId>(x => x.FromFactory(() => ThingyId.New));
             Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
             Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
 
@@ -69,7 +69,7 @@ namespace EventFlow.TestHelpers
             return mock;
         }
 
-        protected IDomainEvent<TestAggregate, TestId> ToDomainEvent<TAggregateEvent>(
+        protected IDomainEvent<ThingyAggregate, ThingyId> ToDomainEvent<TAggregateEvent>(
             TAggregateEvent aggregateEvent,
             int aggregateSequenceNumber = 0)
             where TAggregateEvent : IAggregateEvent
@@ -85,10 +85,10 @@ namespace EventFlow.TestHelpers
                 aggregateSequenceNumber = A<int>();
             }
 
-            return DomainEventFactory.Create<TestAggregate, TestId>(
+            return DomainEventFactory.Create<ThingyAggregate, ThingyId>(
                 aggregateEvent,
                 metadata,
-                A<TestId>(),
+                A<ThingyId>(),
                 aggregateSequenceNumber);
         }
 

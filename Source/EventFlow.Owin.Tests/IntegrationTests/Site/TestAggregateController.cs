@@ -24,9 +24,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
@@ -45,8 +45,8 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         [Route("ping")]
         public async Task<IHttpActionResult> Ping(string id)
         {
-            var testId = TestId.With(id);
-            var pingCommand = new PingCommand(testId, PingId.New);
+            var testId = ThingyId.With(id);
+            var pingCommand = new ThingyPingCommand(testId, PingId.New);
             await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
             return Ok();
         }

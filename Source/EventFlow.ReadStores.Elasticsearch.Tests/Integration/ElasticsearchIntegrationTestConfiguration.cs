@@ -29,7 +29,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.ReadStores.Elasticsearch.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.ReadModels;
 using Nest;
 using NUnit.Framework;
 

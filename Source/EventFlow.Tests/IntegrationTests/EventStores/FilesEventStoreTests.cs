@@ -32,7 +32,7 @@ using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates.ReadModels;
 using EventFlow.TestHelpers.Suites;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores

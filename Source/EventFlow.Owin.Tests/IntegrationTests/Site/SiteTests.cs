@@ -25,7 +25,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Commands;
 using Microsoft.Owin.Hosting;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -63,7 +63,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         public async Task PublishCommand()
         {
             // Arrange
-            var pingCommand = A<PingCommand>();
+            var pingCommand = A<ThingyPingCommand>();
 
             // Act
             await PostAsync("commands/Ping/1", pingCommand).ConfigureAwait(false);

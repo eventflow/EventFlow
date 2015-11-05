@@ -22,9 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using EventFlow.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ReadModels;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests
@@ -42,12 +42,12 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests
             Index = FieldIndexOption.NotAnalyzed)]
         public int PingsReceived { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> e)
         {
             DomainErrorAfterFirstReceived = true;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> e)
         {
             PingsReceived++;
         }

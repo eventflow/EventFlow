@@ -21,11 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Aggregates;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Events
+using EventFlow.Queries;
+
+namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate, TestId>
+    public class ThingyGetQuery : IQuery<Thingy>
     {
+        public ThingyGetQuery(
+            ThingyId thingyId)
+        {
+            ThingyId = thingyId;
+        }
+
+        public ThingyId ThingyId { get; }
     }
 }

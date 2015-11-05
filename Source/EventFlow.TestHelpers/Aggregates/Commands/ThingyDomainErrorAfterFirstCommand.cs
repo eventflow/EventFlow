@@ -21,14 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Core;
 
-namespace EventFlow.TestHelpers.Aggregates.Test
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
+
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public class TestId : Identity<TestId>
+    public class ThingyDomainErrorAfterFirstCommand : Command<ThingyAggregate, ThingyId>
     {
-        public TestId(string value) : base(value)
+        public ThingyDomainErrorAfterFirstCommand(ThingyId aggregateId) : base(aggregateId) { }
+    }
+
+    public class ThingyDomainErrorAfterFirstCommandHander : CommandHandler<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyDomainErrorAfterFirstCommand command, CancellationToken cancellationToken)
         {
+            aggregate.DomainErrorAfterFirst();
+            return Task.FromResult(0);
         }
     }
 }

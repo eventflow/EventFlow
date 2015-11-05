@@ -27,9 +27,9 @@ using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
@@ -65,11 +65,11 @@ namespace EventFlow.TestHelpers
             Resolver?.Dispose();
         }
 
-        protected async Task PublishPingCommandAsync(TestId testId, int count = 1)
+        protected async Task PublishPingCommandAsync(ThingyId thingyId, int count = 1)
         {
             for (var i = 0; i < count; i++)
             {
-                await CommandBus.PublishAsync(new PingCommand(testId, PingId.New), CancellationToken.None).ConfigureAwait(false);
+                await CommandBus.PublishAsync(new ThingyPingCommand(thingyId, PingId.New), CancellationToken.None).ConfigureAwait(false);
             }
         }
     }

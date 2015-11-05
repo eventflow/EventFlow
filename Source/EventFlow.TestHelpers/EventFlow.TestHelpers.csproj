@@ -69,16 +69,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aggregates\Test\Commands\DoesNothingCommand.cs" />
-    <Compile Include="Aggregates\Test\Commands\DomainErrorAfterFirstCommand.cs" />
-    <Compile Include="Aggregates\Test\Commands\PingCommand.cs" />
-    <Compile Include="Aggregates\Test\Events\DomainErrorAfterFirstEvent.cs" />
-    <Compile Include="Aggregates\Test\Events\PingEvent.cs" />
-    <Compile Include="Aggregates\Test\ReadModels\ITestAggregateReadModel.cs" />
-    <Compile Include="Aggregates\Test\ReadModels\InMemoryTestAggregateReadModel.cs" />
-    <Compile Include="Aggregates\Test\TestAggregate.cs" />
-    <Compile Include="Aggregates\Test\TestId.cs" />
-    <Compile Include="Aggregates\Test\ValueObjects\PingId.cs" />
+    <Compile Include="Aggregates\Commands\ThingyNopCommand.cs" />
+    <Compile Include="Aggregates\Commands\ThingyDomainErrorAfterFirstCommand.cs" />
+    <Compile Include="Aggregates\Commands\ThingyPingCommand.cs" />
+    <Compile Include="Aggregates\Events\ThingyDomainErrorAfterFirstEvent.cs" />
+    <Compile Include="Aggregates\Events\ThingyPingEvent.cs" />
+    <Compile Include="Aggregates\Queries\ThingyGetQuery.cs" />
+    <Compile Include="Aggregates\ReadModels\ITestAggregateReadModel.cs" />
+    <Compile Include="Aggregates\ReadModels\InMemoryTestAggregateReadModel.cs" />
+    <Compile Include="Aggregates\Thingy.cs" />
+    <Compile Include="Aggregates\ThingyAggregate.cs" />
+    <Compile Include="Aggregates\ThingyId.cs" />
+    <Compile Include="Aggregates\ValueObjects\PingId.cs" />
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="IntegrationTestConfiguration.cs" />
@@ -99,6 +101,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

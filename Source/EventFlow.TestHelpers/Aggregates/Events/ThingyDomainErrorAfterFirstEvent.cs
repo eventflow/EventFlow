@@ -21,30 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.ComponentModel.DataAnnotations.Schema;
+
 using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
+using EventFlow.EventStores;
 
-namespace EventFlow.MsSql.Tests.ReadModels
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlTestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel
+    [EventVersion("ThingyDomainErrorAfterFirst", 1)]
+    public class ThingyDomainErrorAfterFirstEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        public bool DomainErrorAfterFirstReceived { get; set; }
-        public int PingsReceived { get; set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-        {
-            PingsReceived++;
-        }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
-        {
-            DomainErrorAfterFirstReceived = true;
-        }
     }
 }
