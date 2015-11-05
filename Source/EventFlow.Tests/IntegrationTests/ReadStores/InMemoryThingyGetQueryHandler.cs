@@ -22,16 +22,30 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates.Events;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 
-namespace EventFlow.TestHelpers.Aggregates.ReadModels
+namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    public interface ITestAggregateReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    public class InMemoryThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        bool DomainErrorAfterFirstReceived { get; }
-        int PingsReceived { get; }
+        private readonly IInMemoryReadStore<InMemoryThingyReadModel> _readStore;
+
+        public InMemoryThingyGetQueryHandler(
+            IInMemoryReadStore<InMemoryThingyReadModel> readStore)
+        {
+            _readStore = readStore;
+        }
+
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
+        {
+            var readModels = await _readStore.FindAsync(rm => rm.ThingyId == query.ThingyId, cancellationToken).ConfigureAwait(false);
+            return readModels.SingleOrDefault()?.ToThingy();
+        }
     }
 }

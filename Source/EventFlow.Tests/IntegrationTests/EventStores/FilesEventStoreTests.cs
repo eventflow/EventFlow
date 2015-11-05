@@ -26,14 +26,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 using EventFlow.TestHelpers.Suites;
+using EventFlow.Tests.IntegrationTests.ReadStores;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
@@ -53,7 +52,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 Directory.CreateDirectory(storePath);
 
                 var resolver = eventFlowOptions
-                    .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
+                    .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                     .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                     .CreateResolver();
 
@@ -64,22 +63,14 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
                 return resolver;
             }
 
-            public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
-            {
-                return await _queryProcessor.ProcessAsync(
-                    new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value),
-                    CancellationToken.None)
-                    .ConfigureAwait(false);
-            }
-
             public override Task PurgeTestAggregateReadModelAsync()
             {
-                return _readModelPopulator.PurgeAsync<InMemoryTestAggregateReadModel>(CancellationToken.None);
+                return _readModelPopulator.PurgeAsync<InMemoryThingyReadModel>(CancellationToken.None);
             }
 
             public override Task PopulateTestAggregateReadModelAsync()
             {
-                return _readModelPopulator.PopulateAsync<InMemoryTestAggregateReadModel>(CancellationToken.None);
+                return _readModelPopulator.PopulateAsync<InMemoryThingyReadModel>(CancellationToken.None);
             }
 
             public override void TearDown()

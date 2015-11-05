@@ -21,37 +21,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.ComponentModel.DataAnnotations.Schema;
+
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.MsSql.Tests.ReadModels
+namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlTestAggregateReadModel : MssqlReadModel,
+    public class InMemoryThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        public bool DomainErrorAfterFirstReceived { get; set; }
-        public int PingsReceived { get; set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-        {
-            PingsReceived++;
-        }
+        public ThingyId ThingyId { get; private set; }
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
+            ThingyId = domainEvent.AggregateIdentity;
             DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        {
+            ThingyId = domainEvent.AggregateIdentity;
+            PingsReceived++;
         }
 
         public Thingy ToThingy()
         {
             return new Thingy(
-                ThingyId.With(AggregateId),
+                ThingyId,
                 PingsReceived,
                 DomainErrorAfterFirstReceived);
         }

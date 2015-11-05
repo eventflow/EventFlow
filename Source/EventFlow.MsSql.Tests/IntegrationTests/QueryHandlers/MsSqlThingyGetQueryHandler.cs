@@ -22,25 +22,36 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates.Events;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
+using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.Queries;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 
-namespace EventFlow.TestHelpers.Aggregates.ReadModels
+namespace EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers
 {
-    public class InMemoryTestAggregateReadModel : IReadModel, ITestAggregateReadModel
+    public class MsSqlThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        private readonly IMsSqlConnection _msSqlConnection;
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        public MsSqlThingyGetQueryHandler(
+            IMsSqlConnection msSqlConnection)
         {
-            DomainErrorAfterFirstReceived = true;
+            _msSqlConnection = msSqlConnection;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            PingsReceived++;
+            var readModels = await _msSqlConnection.QueryAsync<MsSqlTestAggregateReadModel>(
+                Label.Named("mssql-fetch-test-read-model"),
+                cancellationToken,
+                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
+                new { AggregateId = query.ThingyId.Value })
+                .ConfigureAwait(false);
+            return readModels.SingleOrDefault()?.ToThingy();
         }
     }
 }

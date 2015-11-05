@@ -23,16 +23,12 @@
 // 
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 
 namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTestConfiguration
     {
         public abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
-
-        public abstract Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id);
 
         public abstract Task PurgeTestAggregateReadModelAsync();
 

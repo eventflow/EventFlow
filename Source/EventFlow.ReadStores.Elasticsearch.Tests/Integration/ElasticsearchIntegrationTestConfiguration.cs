@@ -26,10 +26,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.ReadStores.Elasticsearch.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 using Nest;
 using NUnit.Framework;
 
@@ -64,12 +62,6 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
             _readModelStore = _resolver.Resolve<IElasticsearchReadModelStore<ElasticsearchTestAggregateReadModel>>();
 
             return _resolver;
-        }
-
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
-        {
-            var readModelEnvelope = await _readModelStore.GetAsync(id.Value, CancellationToken.None).ConfigureAwait(false);
-            return readModelEnvelope.ReadModel;
         }
 
         public override Task PurgeTestAggregateReadModelAsync()

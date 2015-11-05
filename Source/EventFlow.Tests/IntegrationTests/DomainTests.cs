@@ -37,8 +37,8 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.Tests.IntegrationTests.ReadStores;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -96,7 +96,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<PingReadModel, IPingReadModelLocator>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
@@ -112,9 +112,9 @@ namespace EventFlow.Tests.IntegrationTests
                 commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
                 var testAggregate = eventStore.LoadAggregate<ThingyAggregate, ThingyId>(id, CancellationToken.None);
                 var testReadModelFromQuery1 = queryProcessor.Process(
-                    new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value), CancellationToken.None);
+                    new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None);
                 var testReadModelFromQuery2 = queryProcessor.Process(
-                    new InMemoryQuery<InMemoryTestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
+                    new InMemoryQuery<InMemoryThingyReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
                 var pingReadModels = queryProcessor.Process(
                     new InMemoryQuery<PingReadModel>(m => true), CancellationToken.None);
 

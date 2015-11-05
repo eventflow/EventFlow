@@ -24,13 +24,12 @@
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests
 {
     [ElasticType(IdProperty = "Id", Name = "test")]
-    public class ElasticsearchTestAggregateReadModel : ITestAggregateReadModel
+    public class ElasticsearchTestAggregateReadModel : IReadModel
     {
         [ElasticProperty(
             Name = "DomainErrorAfterFirstReceived",

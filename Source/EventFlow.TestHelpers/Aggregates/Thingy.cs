@@ -22,23 +22,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Collections.Generic;
-using System.Linq;
 using EventFlow.Entities;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates
 {
     public class Thingy : Entity<ThingyId>
     {
-        public IReadOnlyCollection<PingId> PingIds { get; }
+        public int PingsReceived { get; }
+        public bool DomainErrorAfterFirstReceived { get; }
 
         public Thingy(
             ThingyId id,
-            IEnumerable<PingId> pingIds)
+            int pingsReceived,
+            bool domainErrorAfterFirstReceived)
             : base(id)
         {
-            PingIds = pingIds.ToList();
+            PingsReceived = pingsReceived;
+            DomainErrorAfterFirstReceived = domainErrorAfterFirstReceived;
         }
     }
 }

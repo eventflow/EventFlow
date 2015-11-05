@@ -37,7 +37,7 @@ namespace EventFlow.TestHelpers.Aggregates
         private readonly List<PingId> _pingsReceived = new List<PingId>();
 
         public bool DomainErrorAfterFirstReceived { get; private set; }
-        public IReadOnlyCollection<PingId> PingsReceived { get { return _pingsReceived; } }
+        public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
 
         public ThingyAggregate(ThingyId id) : base(id)
         {

@@ -21,20 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Linq;
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.ReadModels;
 using Helpz.MsSql;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
@@ -54,6 +53,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(TestDatabase.ConnectionString.Value))
                 .UseEventStore<MsSqlEventPersistence>()
                 .UseMssqlReadModel<MsSqlTestAggregateReadModel>()
+                .AddQueryHandlers(typeof(MsSqlThingyGetQueryHandler))
                 .CreateResolver();
 
             MsSqlConnection = resolver.Resolve<IMsSqlConnection>();
@@ -65,18 +65,6 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
             return resolver;
-        }
-
-        public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
-        {
-            var sql = ReadModelSqlGenerator.CreateSelectSql<MsSqlTestAggregateReadModel>();
-            var readModels = await MsSqlConnection.QueryAsync<MsSqlTestAggregateReadModel>(
-                Label.Named("mssql-fetch-test-read-model"), 
-                CancellationToken.None,
-                sql,
-                new { AggregateId = id.Value })
-                .ConfigureAwait(false);
-            return readModels.SingleOrDefault();
         }
 
         public override Task PurgeTestAggregateReadModelAsync()

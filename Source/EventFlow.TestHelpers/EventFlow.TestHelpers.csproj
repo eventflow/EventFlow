@@ -75,8 +75,6 @@
     <Compile Include="Aggregates\Events\ThingyDomainErrorAfterFirstEvent.cs" />
     <Compile Include="Aggregates\Events\ThingyPingEvent.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetQuery.cs" />
-    <Compile Include="Aggregates\ReadModels\ITestAggregateReadModel.cs" />
-    <Compile Include="Aggregates\ReadModels\InMemoryTestAggregateReadModel.cs" />
     <Compile Include="Aggregates\Thingy.cs" />
     <Compile Include="Aggregates\ThingyAggregate.cs" />
     <Compile Include="Aggregates\ThingyId.cs" />
