@@ -20,21 +20,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using Microsoft.Owin.Hosting;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
     public class SiteTests : Test
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private readonly RestClient _restClient = new RestClient();
         private IDisposable _site;
         private Uri _uri;
 
@@ -69,33 +67,16 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             await PostAsync("commands/ThingyPing/1", pingCommand).ConfigureAwait(false);
         }
 
-        private async Task<string> GetAsync(string url)
+        private Task<string> GetAsync(string url)
         {
             var uri = new Uri(_uri, url);
-
-            using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
-            {
-                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-                Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);
-                httpResponseMessage.EnsureSuccessStatusCode();
-                Console.WriteLine("Received content from {0} : {1}", url, content);
-                return content;
-            }
+            return _restClient.GetAsync(uri);
         }
 
-        private async Task<string> PostAsync(string url, object obj)
+        private Task<string> PostAsync(string url, object obj)
         {
             var uri = new Uri(_uri, url);
-            var json = JsonConvert.SerializeObject(obj);
-
-            using (var httpResponseMessage = await HttpClient.PostAsync(uri, new StringContent(json)).ConfigureAwait(false))
-            {
-                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-                Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);
-                httpResponseMessage.EnsureSuccessStatusCode();
-                Console.WriteLine("Received content from {0} : {1}", url, content);
-                return content;
-            }
+            return _restClient.PostObjectAsync(uri, obj);
         }
     }
 }

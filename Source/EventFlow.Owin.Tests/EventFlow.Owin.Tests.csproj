@@ -99,6 +99,7 @@
     <Compile Include="IntegrationTests\Site\Startup.cs" />
     <Compile Include="IntegrationTests\Site\ThingyController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RestClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj">
