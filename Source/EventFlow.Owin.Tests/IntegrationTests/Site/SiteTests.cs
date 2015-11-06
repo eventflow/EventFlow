@@ -55,8 +55,8 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         public async Task Ping()
         {
             // Act
-            await GetAsync("testaggregate/ping?id=test-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
-            await GetAsync("testaggregate/ping?id=test-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
+            await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
+            await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             var pingCommand = A<ThingyPingCommand>();
 
             // Act
-            await PostAsync("commands/Ping/1", pingCommand).ConfigureAwait(false);
+            await PostAsync("commands/ThingyPing/1", pingCommand).ConfigureAwait(false);
         }
 
         private async Task<string> GetAsync(string url)

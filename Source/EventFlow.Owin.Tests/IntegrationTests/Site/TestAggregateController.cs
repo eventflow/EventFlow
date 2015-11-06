@@ -30,7 +30,7 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
-    [RoutePrefix("testaggregate")]
+    [RoutePrefix("thingy")]
     public class TestAggregateController : ApiController
     {
         private readonly ICommandBus _commandBus;
