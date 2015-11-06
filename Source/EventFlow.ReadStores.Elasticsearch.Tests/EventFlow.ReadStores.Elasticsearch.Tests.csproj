@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ElasticsearchTestAggregateReadModel.cs" />
-    <Compile Include="Integration\ElasticsearchIntegrationTestConfiguration.cs" />
     <Compile Include="Integration\ElasticsearchReadModelStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

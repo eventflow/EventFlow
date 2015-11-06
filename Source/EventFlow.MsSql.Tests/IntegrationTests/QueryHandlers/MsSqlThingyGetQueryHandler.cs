@@ -45,7 +45,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers
 
         public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            var readModels = await _msSqlConnection.QueryAsync<MsSqlTestAggregateReadModel>(
+            var readModels = await _msSqlConnection.QueryAsync<MsSqlThingyReadModel>(
                 Label.Named("mssql-fetch-test-read-model"),
                 cancellationToken,
                 "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",

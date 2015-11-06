@@ -31,7 +31,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 namespace EventFlow.MsSql.Tests.ReadModels
 {
     [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlTestAggregateReadModel : MssqlReadModel,
+    public class MsSqlThingyReadModel : MssqlReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {

@@ -35,26 +35,23 @@ using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
 {
-    public abstract class IntegrationTest<TIntegrationTestConfiguration> : Test
-        where TIntegrationTestConfiguration : IntegrationTestConfiguration, new()
+    public abstract class IntegrationTest: Test
     {
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected IQueryProcessor QueryProcessor { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
-        protected TIntegrationTestConfiguration Configuration { get; private set; }
 
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            Configuration = new TIntegrationTestConfiguration();
-
             var eventFlowOptions = EventFlowOptions.New
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly);
 
-            Resolver = Configuration.CreateRootResolver(eventFlowOptions);
+            Resolver = CreateRootResolver(eventFlowOptions);
+
             EventStore = Resolver.Resolve<IEventStore>();
             CommandBus = Resolver.Resolve<ICommandBus>();
             QueryProcessor = Resolver.Resolve<IQueryProcessor>();
@@ -64,9 +61,10 @@ namespace EventFlow.TestHelpers
         [TearDown]
         public void TearDownIntegrationTest()
         {
-            Configuration?.TearDown();
             Resolver?.Dispose();
         }
+
+        protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
 
         protected async Task PublishPingCommandAsync(ThingyId thingyId, int count = 1)
         {

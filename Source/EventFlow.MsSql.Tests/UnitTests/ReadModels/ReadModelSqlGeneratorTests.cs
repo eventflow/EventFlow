@@ -39,7 +39,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
         public void CreateInsertSql_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateInsertSql<MsSqlTestAggregateReadModel>();
+            var sql = Sut.CreateInsertSql<MsSqlThingyReadModel>();
 
             // Assert
             sql.Should().Be(
@@ -53,7 +53,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
         public void CreateUpdateSql_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateUpdateSql<MsSqlTestAggregateReadModel>();
+            var sql = Sut.CreateUpdateSql<MsSqlThingyReadModel>();
 
             // Assert
             sql.Should().Be(
@@ -68,7 +68,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
         public void CreateSelectSql_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateSelectSql<MsSqlTestAggregateReadModel>();
+            var sql = Sut.CreateSelectSql<MsSqlThingyReadModel>();
 
             // Assert
             sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId");

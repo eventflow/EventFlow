@@ -36,7 +36,7 @@ namespace EventFlow.Tests.IntegrationTests
         {
             // Arrange
             var resolver = EventFlowOptions.New
-                .CreateResolver(true);
+                .CreateResolver();
 
             // Act
             IEventPersistence eventPersistence = null;

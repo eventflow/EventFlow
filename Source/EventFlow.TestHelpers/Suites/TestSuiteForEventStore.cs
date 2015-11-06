@@ -38,8 +38,7 @@ using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
 {
-    public class EventStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public abstract class TestSuiteForEventStore : IntegrationTest
     {
         [Test]
         public async Task NewAggregateCanBeLoaded()

@@ -23,60 +23,39 @@
 // 
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
-using EventFlow.Queries;
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
-using EventFlow.Tests.IntegrationTests.ReadStores;
+using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
-    public class FilesEventStoreTests : EventStoreSuite<FilesEventStoreTests.FilesConfiguration>
+    public class FilesEventStoreTests : TestSuiteForEventStore
     {
-        public class FilesConfiguration : IntegrationTestConfiguration
+        private IFilesEventStoreConfiguration _configuration;
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            private IFilesEventStoreConfiguration _configuration;
-            private IReadModelPopulator _readModelPopulator;
-            private IQueryProcessor _queryProcessor;
+            var storePath = Path.Combine(
+                Path.GetTempPath(),
+                Guid.NewGuid().ToString());
 
-            public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-            {
-                var storePath = Path.Combine(
-                    Path.GetTempPath(),
-                    Guid.NewGuid().ToString());
-                Directory.CreateDirectory(storePath);
+            Directory.CreateDirectory(storePath);
 
-                var resolver = eventFlowOptions
-                    .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
-                    .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-                    .CreateResolver();
+            var resolver = eventFlowOptions
+                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
+                .CreateResolver();
 
-                _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
-                _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
-                _queryProcessor = resolver.Resolve<IQueryProcessor>();
+            _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
 
-                return resolver;
-            }
+            return resolver;
+        }
 
-            public override Task PurgeTestAggregateReadModelAsync()
-            {
-                return _readModelPopulator.PurgeAsync<InMemoryThingyReadModel>(CancellationToken.None);
-            }
-
-            public override Task PopulateTestAggregateReadModelAsync()
-            {
-                return _readModelPopulator.PopulateAsync<InMemoryThingyReadModel>(CancellationToken.None);
-            }
-
-            public override void TearDown()
-            {
-                Directory.Delete(_configuration.StorePath, true);
-            }
+        [TearDown]
+        public void TearDown()
+        {
+            Directory.Delete(_configuration.StorePath, true);
         }
     }
 }

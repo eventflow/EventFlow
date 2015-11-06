@@ -31,8 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
 {
-    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public abstract class TestSuiteForReadModelStore : IntegrationTest
     {
         [Test]
         public async Task NonExistingReadModelReturnsNull()
@@ -70,7 +69,7 @@ namespace EventFlow.TestHelpers.Suites
             await PublishPingCommandAsync(id).ConfigureAwait(false);
 
             // Act
-            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
@@ -83,15 +82,19 @@ namespace EventFlow.TestHelpers.Suites
             // Arrange
             var id = ThingyId.New;
             await PublishPingCommandAsync(id, 2).ConfigureAwait(false);
-            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             
             // Act
-            await Configuration.PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
+            await PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
             readModel.PingsReceived.Should().Be(2);
         }
+
+        protected abstract Task PurgeTestAggregateReadModelAsync();
+
+        protected abstract Task PopulateTestAggregateReadModelAsync();
     }
 }

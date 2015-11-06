@@ -73,13 +73,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="IntegrationTests\MsSqlEventStoreTests.cs" />
-    <Compile Include="IntegrationTests\MsSqlIntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTests\MssqlReadModelStoreTests.cs" />
     <Compile Include="IntegrationTests\QueryHandlers\MsSqlThingyGetQueryHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadModels\MsSqlTestAggregateReadModel.cs" />
+    <Compile Include="ReadModels\MsSqlThingyReadModel.cs" />
     <Compile Include="UnitTests\ReadModels\ReadModelSqlGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>

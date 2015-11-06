@@ -81,11 +81,10 @@
     <Compile Include="Aggregates\ValueObjects\PingId.cs" />
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
-    <Compile Include="IntegrationTestConfiguration.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Suites\EventStoreSuite.cs" />
-    <Compile Include="Suites\ReadModelStoreSuite.cs" />
+    <Compile Include="Suites\TestSuiteForEventStore.cs" />
+    <Compile Include="Suites\TestSuiteForReadModelStore.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TestsFor.cs" />
   </ItemGroup>
