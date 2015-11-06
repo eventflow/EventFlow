@@ -28,8 +28,8 @@ using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests
 {
-    [ElasticType(IdProperty = "Id", Name = "test")]
-    public class ElasticsearchTestAggregateReadModel : IReadModel
+    [ElasticType(IdProperty = "Id", Name = "thingy")]
+    public class ElasticsearchThingyReadModel : IReadModel
     {
         [ElasticProperty(
             Name = "DomainErrorAfterFirstReceived",

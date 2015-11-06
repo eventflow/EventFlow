@@ -52,7 +52,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 
             var resolver = eventFlowOptions
                 .ConfigureElasticsearch(new Uri(url))
-                .UseElasticsearchReadModel<ElasticsearchTestAggregateReadModel>()
+                .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .CreateResolver();
 
             _elasticClient = resolver.Resolve<IElasticClient>();
@@ -63,12 +63,12 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 
         protected override Task PurgeTestAggregateReadModelAsync()
         {
-            return ReadModelPopulator.PurgeAsync<ElasticsearchTestAggregateReadModel>(CancellationToken.None);
+            return ReadModelPopulator.PurgeAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
         }
 
         protected override Task PopulateTestAggregateReadModelAsync()
         {
-            return ReadModelPopulator.PopulateAsync<ElasticsearchTestAggregateReadModel>(CancellationToken.None);
+            return ReadModelPopulator.PopulateAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]
@@ -76,7 +76,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
         {
             try
             {
-                var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchTestAggregateReadModel>();
+                var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
                 _elasticClient.DeleteIndex(readModelDescription.IndexName.Value);
             }
             catch (Exception e)

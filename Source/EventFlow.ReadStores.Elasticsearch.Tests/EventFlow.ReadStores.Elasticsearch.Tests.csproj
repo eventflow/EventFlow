@@ -67,7 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ElasticsearchTestAggregateReadModel.cs" />
+    <Compile Include="ElasticsearchThingyReadModel.cs" />
     <Compile Include="Integration\ElasticsearchReadModelStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
