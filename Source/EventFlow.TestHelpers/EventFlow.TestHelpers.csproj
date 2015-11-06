@@ -81,6 +81,7 @@
     <Compile Include="Aggregates\ValueObjects\PingId.cs" />
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
+    <Compile Include="Extensions\EventStoreExtensions.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Suites\TestSuiteForEventStore.cs" />
