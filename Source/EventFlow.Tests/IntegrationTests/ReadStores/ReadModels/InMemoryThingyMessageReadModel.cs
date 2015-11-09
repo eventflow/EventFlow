@@ -22,36 +22,34 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.MsSql.Tests.IntegrationTestsForReadStore.ReadModels
+namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
 {
-    [Table("ReadModel-ThingyMessage")]
-    public class MsSqlThingyMessageReadModel : IReadModel,
+    public class InMemoryThingyMessageReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
-        public string ThingyId { get; private set; }
-        public string AggregateId { get; private set; }
+        public ThingyId ThingyId { get; private set; }
+        public ThingyMessageId ThingyMessageId { get; private set; }
         public string Message { get; private set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
         {
-            ThingyId = domainEvent.AggregateIdentity.Value;
+            ThingyId = domainEvent.AggregateIdentity;
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            AggregateId = thingyMessage.Id.Value;
+            ThingyMessageId = thingyMessage.Id;
             Message = thingyMessage.Message;
         }
 
         public ThingyMessage ToThingyMessage()
         {
             return new ThingyMessage(
-                ThingyMessageId.With(AggregateId),
+                ThingyMessageId,
                 Message);
         }
     }

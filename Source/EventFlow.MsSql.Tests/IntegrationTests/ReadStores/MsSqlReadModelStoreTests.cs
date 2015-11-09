@@ -22,17 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
+using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.ReadStores.MsSql.Extensions;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;
-using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTestsForEventStore
+namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
 {
-    public class MsSqlEventStoreTests : TestSuiteForEventStore
+    public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
     {
         private IMsSqlDatabase _testDatabase;
 
@@ -41,8 +46,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTestsForEventStore
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
             var resolver = eventFlowOptions
+                .RegisterServices(sr => sr.RegisterType(typeof (ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseEventStore<MsSqlEventPersistence>()
+                .UseMssqlReadModel<MsSqlThingyReadModel>()
+                .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(typeof(MsSqlThingyGetQueryHandler), typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
@@ -52,10 +60,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTestsForEventStore
             return resolver;
         }
 
-        [TearDown]
-        public void TearDown()
+        protected override Task PurgeTestAggregateReadModelAsync()
         {
-            _testDatabase.Dispose();
+            return ReadModelPopulator.PurgeAsync<MsSqlThingyReadModel>(CancellationToken.None);
+        }
+
+        protected override Task PopulateTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PopulateAsync<MsSqlThingyReadModel>(CancellationToken.None);
         }
     }
 }

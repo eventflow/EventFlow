@@ -22,35 +22,31 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Entities;
-using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
-    public class InMemoryThingyMessageReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
+    public class InMemoryThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        public ThingyId ThingyId { get; private set; }
-        public ThingyMessageId ThingyMessageId { get; private set; }
-        public string Message { get; private set; }
+        private readonly IInMemoryReadStore<InMemoryThingyReadModel> _readStore;
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
+        public InMemoryThingyGetQueryHandler(
+            IInMemoryReadStore<InMemoryThingyReadModel> readStore)
         {
-            ThingyId = domainEvent.AggregateIdentity;
-
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            ThingyMessageId = thingyMessage.Id;
-            Message = thingyMessage.Message;
+            _readStore = readStore;
         }
 
-        public ThingyMessage ToThingyMessage()
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            return new ThingyMessage(
-                ThingyMessageId,
-                Message);
+            var readModels = await _readStore.FindAsync(rm => rm.ThingyId == query.ThingyId, cancellationToken).ConfigureAwait(false);
+            return readModels.SingleOrDefault()?.ToThingy();
         }
     }
 }

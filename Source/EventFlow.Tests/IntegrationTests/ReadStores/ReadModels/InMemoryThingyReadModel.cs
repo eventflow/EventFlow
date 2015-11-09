@@ -22,36 +22,39 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.MsSql.Tests.IntegrationTestsForReadStore.ReadModels;
-using EventFlow.Queries;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Queries;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.MsSql.Tests.IntegrationTestsForReadStore.QueryHandlers
+namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
 {
-    public class MsSqlThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
+    public class InMemoryThingyReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        private readonly IMsSqlConnection _msSqlConnection;
+        public ThingyId ThingyId { get; private set; }
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
 
-        public MsSqlThingyGetQueryHandler(
-            IMsSqlConnection msSqlConnection)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
-            _msSqlConnection = msSqlConnection;
+            ThingyId = domainEvent.AggregateIdentity;
+            DomainErrorAfterFirstReceived = true;
         }
 
-        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-            var readModels = await _msSqlConnection.QueryAsync<MsSqlThingyReadModel>(
-                Label.Named("mssql-fetch-test-read-model"),
-                cancellationToken,
-                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
-                new { AggregateId = query.ThingyId.Value })
-                .ConfigureAwait(false);
-            return readModels.SingleOrDefault()?.ToThingy();
+            ThingyId = domainEvent.AggregateIdentity;
+            PingsReceived++;
+        }
+
+        public Thingy ToThingy()
+        {
+            return new Thingy(
+                ThingyId,
+                PingsReceived,
+                DomainErrorAfterFirstReceived);
         }
     }
 }

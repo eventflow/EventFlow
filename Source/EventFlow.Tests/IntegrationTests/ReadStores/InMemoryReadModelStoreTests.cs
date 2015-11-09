@@ -28,6 +28,8 @@ using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
+using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
+using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 
 namespace EventFlow.Tests.IntegrationTests.ReadStores
 {

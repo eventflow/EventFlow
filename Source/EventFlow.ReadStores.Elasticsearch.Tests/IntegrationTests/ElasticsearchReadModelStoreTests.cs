@@ -29,11 +29,14 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.ReadStores.Elasticsearch.Extensions;
+using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
+using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Nest;
 using NUnit.Framework;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
+namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
 {
     public class ElasticsearchReadModelStoreTests : TestSuiteForReadModelStore
     {
@@ -68,17 +71,25 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
                 Assert.Inconclusive("The environment variabel named 'ELASTICSEARCH_URL' isn't set. Set it to e.g. 'http://localhost:9200'");
             }
 
-            var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider($"eventflow-test-{Guid.NewGuid().ToString("D")}");
+            var indexName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
+            var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(indexName);
 
             var resolver = eventFlowOptions
+                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureElasticsearch(new Uri(url))
                 .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
-                .AddQueryHandlers(typeof(ElasticsearchThingyGetQueryHandler))
+                .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(typeof(ElasticsearchThingyGetQueryHandler), typeof(ElasticsearchThingyGetMessagesQueryHandler))
                 .RegisterServices(sr => sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider))
                 .CreateResolver();
 
             _elasticClient = resolver.Resolve<IElasticClient>();
             _readModelDescriptionProvider = resolver.Resolve<IReadModelDescriptionProvider>();
+
+            _elasticClient.CreateIndex(indexName);
+            _elasticClient.Map<ElasticsearchThingyMessageReadModel>(d => d
+                .Index(indexName)
+                .MapFromAttributes());
 
             return resolver;
         }

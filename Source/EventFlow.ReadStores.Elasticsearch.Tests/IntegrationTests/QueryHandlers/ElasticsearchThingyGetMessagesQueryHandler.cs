@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015 Rasmus Mikkelsen
 // Copyright (c) 2015 eBay Software Foundation
@@ -27,27 +27,42 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
-using EventFlow.ReadStores.InMemory;
+using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
+using Nest;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
-    public class InMemoryThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
+    public class ElasticsearchThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
-        private readonly IInMemoryReadStore<InMemoryThingyMessageReadModel> _readStore;
+        private readonly IElasticClient _elasticClient;
+        private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
-        public InMemoryThingyGetMessagesQueryHandler(
-            IInMemoryReadStore<InMemoryThingyMessageReadModel> readStore)
+        public ElasticsearchThingyGetMessagesQueryHandler(
+            IElasticClient elasticClient,
+            IReadModelDescriptionProvider readModelDescriptionProvider)
         {
-            _readStore = readStore;
+            _elasticClient = elasticClient;
+            _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
         public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query, CancellationToken cancellationToken)
         {
-            var readModels = await _readStore.FindAsync(rm => rm.ThingyId == query.ThingyId, cancellationToken).ConfigureAwait(false);
-            return readModels
-                .Select(rm => rm.ToThingyMessage())
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyMessageReadModel>();
+            var indexName = readModelDescription.IndexName.Value;
+
+            // Never do this
+            await _elasticClient.FlushAsync(d => d.Index(indexName)).ConfigureAwait(false);
+            await _elasticClient.RefreshAsync(d => d.Index(indexName)).ConfigureAwait(false);
+
+            var searchResponse = await _elasticClient.SearchAsync<ElasticsearchThingyMessageReadModel>(d => d
+                .Index(indexName)
+                .Query(q => q.Term(m => m.ThingyId, query.ThingyId.Value)))
+                .ConfigureAwait(false);
+
+            return searchResponse.Documents
+                .Select(d => d.ToThingyMessage())
                 .ToList();
         }
     }

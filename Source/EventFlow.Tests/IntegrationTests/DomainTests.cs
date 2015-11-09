@@ -39,6 +39,7 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.Tests.IntegrationTests.ReadStores;
+using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
 

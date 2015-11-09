@@ -22,30 +22,34 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
 using EventFlow.ReadStores.InMemory;
-using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
+using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
-    public class InMemoryThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
+    public class InMemoryThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
-        private readonly IInMemoryReadStore<InMemoryThingyReadModel> _readStore;
+        private readonly IInMemoryReadStore<InMemoryThingyMessageReadModel> _readStore;
 
-        public InMemoryThingyGetQueryHandler(
-            IInMemoryReadStore<InMemoryThingyReadModel> readStore)
+        public InMemoryThingyGetMessagesQueryHandler(
+            IInMemoryReadStore<InMemoryThingyMessageReadModel> readStore)
         {
             _readStore = readStore;
         }
 
-        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query, CancellationToken cancellationToken)
         {
             var readModels = await _readStore.FindAsync(rm => rm.ThingyId == query.ThingyId, cancellationToken).ConfigureAwait(false);
-            return readModels.SingleOrDefault()?.ToThingy();
+            return readModels
+                .Select(rm => rm.ToThingyMessage())
+                .ToList();
         }
     }
 }

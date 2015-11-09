@@ -23,38 +23,43 @@
 // 
 
 using EventFlow.Aggregates;
-using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
+using Nest;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
-    public class InMemoryThingyReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    [ElasticType(IdProperty = "Id", Name = "message")]
+    public class ElasticsearchThingyMessageReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
-        public ThingyId ThingyId { get; private set; }
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
+        public string Id { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        [ElasticProperty(
+            Name = "ThingyId",
+            Index = FieldIndexOption.NotAnalyzed)]
+        public string ThingyId { get; set; }
+
+        [ElasticProperty(
+            Name = "Message",
+            Index = FieldIndexOption.No)]
+        public string Message { get; set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
         {
-            ThingyId = domainEvent.AggregateIdentity;
-            DomainErrorAfterFirstReceived = true;
+            ThingyId = domainEvent.AggregateIdentity.Value;
+
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+            Id = thingyMessage.Id.Value;
+            Message = thingyMessage.Message;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public ThingyMessage ToThingyMessage()
         {
-            ThingyId = domainEvent.AggregateIdentity;
-            PingsReceived++;
-        }
-
-        public Thingy ToThingy()
-        {
-            return new Thingy(
-                ThingyId,
-                PingsReceived,
-                DomainErrorAfterFirstReceived);
+            return new ThingyMessage(
+                ThingyMessageId.With(Id),
+                Message);
         }
     }
 }

@@ -74,5 +74,19 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
                     })
                 .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel>();
         }
+
+        public static IEventFlowOptions UseElasticsearchReadModel<TReadModel, TReadModelLocator>(
+            this IEventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
+                    })
+                .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+        }
     }
 }

@@ -25,38 +25,34 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 
-#pragma warning disable 618
-
-namespace EventFlow.MsSql.Tests.IntegrationTestsForReadStore.ReadModels
+namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
 {
-    [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlThingyReadModel : MssqlReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    [Table("ReadModel-ThingyMessage")]
+    public class MsSqlThingyMessageReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
-        public bool DomainErrorAfterFirstReceived { get; set; }
-        public int PingsReceived { get; set; }
+        public string ThingyId { get; set; }
+        public string AggregateId { get; set; }
+        public string Message { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
         {
-            PingsReceived++;
+            ThingyId = domainEvent.AggregateIdentity.Value;
+
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+            AggregateId = thingyMessage.Id.Value;
+            Message = thingyMessage.Message;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        public ThingyMessage ToThingyMessage()
         {
-            DomainErrorAfterFirstReceived = true;
-        }
-
-        public Thingy ToThingy()
-        {
-            return new Thingy(
-                ThingyId.With(AggregateId),
-                PingsReceived,
-                DomainErrorAfterFirstReceived);
+            return new ThingyMessage(
+                ThingyMessageId.With(AggregateId),
+                Message);
         }
     }
 }
