@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -28,23 +29,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Extensions;
+using EventFlow.ReadStores.MsSql.Attributes;
 
 namespace EventFlow.ReadStores.MsSql
 {
     public class ReadModelSqlGenerator : IReadModelSqlGenerator
     {
+        private static readonly ConcurrentDictionary<Type, string> TableNames = new ConcurrentDictionary<Type, string>();
+        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> PropertyInfos = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
+        private static readonly ConcurrentDictionary<Type, string> IdentityColumns = new ConcurrentDictionary<Type, string>();
         private readonly Dictionary<Type, string> _insertSqls = new Dictionary<Type, string>();
+        private readonly Dictionary<Type, string> _purgeSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
-        private readonly Dictionary<Type, string> _purgeSqls = new Dictionary<Type, string>(); 
-        private static readonly ConcurrentDictionary<Type, string> TableNames = new ConcurrentDictionary<Type, string>();
-        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> PropertyInfos = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>(); 
-        private static readonly ConcurrentDictionary<Type, string> IdentityColumns = new ConcurrentDictionary<Type, string>(); 
 
         public string CreateInsertSql<TReadModel>()
             where TReadModel : IReadModel
         {
-            var readModelType = typeof(TReadModel);
+            var readModelType = typeof (TReadModel);
             string sql;
             if (_insertSqls.TryGetValue(readModelType, out sql))
             {
@@ -55,7 +57,7 @@ namespace EventFlow.ReadStores.MsSql
                 "INSERT INTO {0} ({1}) VALUES ({2})",
                 GetTableName<TReadModel>(),
                 string.Join(", ", GetInsertColumns<TReadModel>()),
-                string.Join(", ", GetInsertColumns<TReadModel>().Select(c => string.Format("@{0}", c))));
+                string.Join(", ", GetInsertColumns<TReadModel>().Select(c => $"@{c}")));
             _insertSqls[readModelType] = sql;
 
             return sql;
@@ -71,7 +73,10 @@ namespace EventFlow.ReadStores.MsSql
                 return sql;
             }
 
-            sql = string.Format("SELECT * FROM {0} WHERE AggregateId = @AggregateId", GetTableName<TReadModel>());
+            sql = string.Format(
+                "SELECT * FROM {0} WHERE {1} = @EventFlowReadModelId",
+                GetTableName<TReadModel>(),
+                GetIdentityColumn<TReadModel>());
             _selectSqls[readModelType] = sql;
 
             return sql;
@@ -103,13 +108,13 @@ namespace EventFlow.ReadStores.MsSql
         {
             return _purgeSqls.GetOrCreate(
                 typeof (TReadModel),
-                t => string.Format("DELETE FROM {0}", GetTableName(t)));
+                t => $"DELETE FROM {GetTableName(t)}");
         }
 
         protected IEnumerable<string> GetInsertColumns<TReadModel>()
             where TReadModel : IReadModel
         {
-            return GetPropertyInfos<TReadModel>()
+            return GetPropertyInfos(typeof (TReadModel))
                 .Where(p => p.Name != "Id") // TODO: Maybe use the key attribute to mark this
                 .Select(p => p.Name);
         }
@@ -125,7 +130,7 @@ namespace EventFlow.ReadStores.MsSql
         public string GetTableName<TReadModel>()
             where TReadModel : IReadModel
         {
-            return GetTableName(typeof(TReadModel));
+            return GetTableName(typeof (TReadModel));
         }
 
         protected virtual string GetTableName(Type readModelType)
@@ -133,25 +138,29 @@ namespace EventFlow.ReadStores.MsSql
             return TableNames.GetOrAdd(
                 readModelType,
                 t =>
-                    {
-                        var tableAttribute = t.GetCustomAttribute<TableAttribute>(false);
-                        return tableAttribute != null
-                            ? string.Format("[{0}]", tableAttribute.Name)
-                            : string.Format("[ReadModel-{0}]", t.Name.Replace("ReadModel", string.Empty));
-                    });
+                {
+                    var tableAttribute = t.GetCustomAttribute<TableAttribute>(false);
+                    return tableAttribute != null
+                        ? $"[{tableAttribute.Name}]"
+                        : $"[ReadModel-{t.Name.Replace("ReadModel", string.Empty)}]";
+                });
         }
 
-        private static string GetIdentityColumn<TReadModel>()
+        private string GetIdentityColumn<TReadModel>()
         {
             return IdentityColumns.GetOrAdd(
-                typeof(TReadModel),
-                t => "AggregateId");
+                typeof (TReadModel),
+                t =>
+                {
+                    var propertyInfo = GetPropertyInfos(t).SingleOrDefault(pi => pi.GetCustomAttribute<MsSqlReadModelIdentityColumnAttribute>() != null);
+                    return propertyInfo?.Name ?? "AggregateId";
+                });
         }
 
-        protected IReadOnlyCollection<PropertyInfo> GetPropertyInfos<TReadModel>()
+        protected IReadOnlyCollection<PropertyInfo> GetPropertyInfos(Type readModelType)
         {
             return PropertyInfos.GetOrAdd(
-                typeof(TReadModel),
+                readModelType,
                 t =>
                 {
                     return t
@@ -159,6 +168,6 @@ namespace EventFlow.ReadStores.MsSql
                         .OrderBy(p => p.Name)
                         .ToList();
                 });
-        } 
+        }
     }
 }

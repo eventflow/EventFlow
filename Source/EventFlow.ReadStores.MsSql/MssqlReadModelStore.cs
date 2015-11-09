@@ -117,7 +117,7 @@ namespace EventFlow.ReadStores.MsSql
                 Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)),
                 cancellationToken,
                 selectSql,
-                new { AggregateId = id })
+                new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
             var readModel = readModels.SingleOrDefault();
 

@@ -58,12 +58,12 @@ namespace EventFlow.TestHelpers.Suites
             var id = ThingyId.New;
             
             // Act
-            await PublishPingCommandAsync(id).ConfigureAwait(false);
+            await PublishPingCommandAsync(id, 5).ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(1);
+            readModel.PingsReceived.Should().Be(5);
         }
 
         [Test]

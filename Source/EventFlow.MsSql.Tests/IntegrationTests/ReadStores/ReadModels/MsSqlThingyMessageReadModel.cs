@@ -25,6 +25,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql.Attributes;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -36,7 +37,10 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
         public string ThingyId { get; set; }
-        public string AggregateId { get; set; }
+
+        [MsSqlReadModelIdentityColumn]
+        public string MessageId { get; set; }
+
         public string Message { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
@@ -44,14 +48,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
             ThingyId = domainEvent.AggregateIdentity.Value;
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            AggregateId = thingyMessage.Id.Value;
+            MessageId = thingyMessage.Id.Value;
             Message = thingyMessage.Message;
         }
 
         public ThingyMessage ToThingyMessage()
         {
             return new ThingyMessage(
-                ThingyMessageId.With(AggregateId),
+                ThingyMessageId.With(MessageId),
                 Message);
         }
     }
