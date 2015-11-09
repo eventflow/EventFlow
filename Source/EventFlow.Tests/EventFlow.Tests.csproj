@@ -76,7 +76,9 @@
     <Compile Include="IntegrationTests\EventStores\FilesEventStoreTests.cs" />
     <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
+    <Compile Include="IntegrationTests\ReadStores\InMemoryThingyGetMessagesQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryThingyGetQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\InMemoryThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />

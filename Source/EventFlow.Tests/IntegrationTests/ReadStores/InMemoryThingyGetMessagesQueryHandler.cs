@@ -22,41 +22,33 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers.Aggregates.Entities;
-using EventFlow.TestHelpers.Suites;
+using EventFlow.TestHelpers.Aggregates.Queries;
 
 namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
+    public class InMemoryThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
-                .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(typeof(InMemoryThingyGetQueryHandler), typeof(InMemoryThingyGetMessagesQueryHandler))
-                .CreateResolver();
+        private readonly IInMemoryReadStore<InMemoryThingyMessageReadModel> _readStore;
 
-            return resolver;
+        public InMemoryThingyGetMessagesQueryHandler(
+            IInMemoryReadStore<InMemoryThingyMessageReadModel> readStore)
+        {
+            _readStore = readStore;
         }
 
-        protected override Task PurgeTestAggregateReadModelAsync()
+        public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query, CancellationToken cancellationToken)
         {
-            return Task.WhenAll(
-                ReadModelPopulator.PurgeAsync<InMemoryThingyReadModel>(CancellationToken.None),
-                ReadModelPopulator.PurgeAsync<InMemoryThingyMessageReadModel>(CancellationToken.None));
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return Task.WhenAll(
-                ReadModelPopulator.PopulateAsync<InMemoryThingyReadModel>(CancellationToken.None),
-                ReadModelPopulator.PopulateAsync<InMemoryThingyMessageReadModel>(CancellationToken.None));
+            var readModels = await _readStore.FindAsync(rm => rm.ThingyId == query.ThingyId, cancellationToken).ConfigureAwait(false);
+            return readModels
+                .Select(rm => rm.ToThingyMessage())
+                .ToList();
         }
     }
 }
