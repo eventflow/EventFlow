@@ -69,12 +69,12 @@ to the documentation.
  * Files - only for test
  * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
-* **Read models:** Denormalized representation of aggregate events
-  optimized for reading fast. Currently there is support for these
-  read model storage types.
-  * [Elasticsearch](./Documentation/ReadStores-Elasticsearch.md)
-  * In-memory - only for test
-  * Microsoft SQL Server
+* [**Read models:**](./Documentation/ReadStores.md) Denormalized representation
+  of aggregate events optimized for reading fast. Currently there is support for
+  these read model storage types.
+  * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
+  * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
+  * [Microsoft SQL Server](Documentation/ReadStores.md#mssql)
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
