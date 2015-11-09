@@ -21,16 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests
+namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 {
     [ElasticType(IdProperty = "Id", Name = "thingy")]
-    public class ElasticsearchThingyReadModel : IReadModel
+    public class ElasticsearchThingyReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
+        public string Id { get; set; }
+
         [ElasticProperty(
             Name = "DomainErrorAfterFirstReceived",
             Index = FieldIndexOption.NotAnalyzed)]
@@ -41,14 +46,24 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests
             Index = FieldIndexOption.NotAnalyzed)]
         public int PingsReceived { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
+            Id = domainEvent.AggregateIdentity.Value;
             DomainErrorAfterFirstReceived = true;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> e)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
+            Id = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
+        }
+
+        public Thingy ToThingy()
+        {
+            return new Thingy(
+                ThingyId.With(Id),
+                PingsReceived,
+                DomainErrorAfterFirstReceived);
         }
     }
 }

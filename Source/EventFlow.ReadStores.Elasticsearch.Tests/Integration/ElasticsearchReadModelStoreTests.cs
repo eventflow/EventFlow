@@ -27,6 +27,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.ReadStores.Elasticsearch.Extensions;
 using EventFlow.TestHelpers.Suites;
 using Nest;
@@ -39,6 +40,23 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
         private IElasticClient _elasticClient;
         private IReadModelDescriptionProvider _readModelDescriptionProvider;
 
+        public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
+        {
+            private readonly string _indexName;
+
+            public TestReadModelDescriptionProvider(
+                string indexName)
+            {
+                _indexName = indexName;
+            }
+
+            public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
+            {
+                return new ReadModelDescription(
+                    new IndexName(_indexName));
+            }
+        }
+
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             // Disable SSL certificate validation
@@ -50,9 +68,13 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
                 Assert.Inconclusive("The environment variabel named 'ELASTICSEARCH_URL' isn't set. Set it to e.g. 'http://localhost:9200'");
             }
 
+            var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider($"eventflow-test-{Guid.NewGuid().ToString("D")}");
+
             var resolver = eventFlowOptions
                 .ConfigureElasticsearch(new Uri(url))
                 .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
+                .AddQueryHandlers(typeof(ElasticsearchThingyGetQueryHandler))
+                .RegisterServices(sr => sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider))
                 .CreateResolver();
 
             _elasticClient = resolver.Resolve<IElasticClient>();
@@ -77,7 +99,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
             try
             {
                 var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
-                _elasticClient.DeleteIndex(readModelDescription.IndexName.Value);
+                var indexName = readModelDescription.IndexName.Value;
+                Console.WriteLine("Deleting test index '{0}'", indexName);
+                _elasticClient.DeleteIndex(indexName);
             }
             catch (Exception e)
             {
