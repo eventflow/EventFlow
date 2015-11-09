@@ -67,9 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ElasticsearchTestAggregateReadModel.cs" />
-    <Compile Include="Integration\ElasticsearchIntegrationTestConfiguration.cs" />
+    <Compile Include="Integration\ElasticsearchThingyReadModel.cs" />
     <Compile Include="Integration\ElasticsearchReadModelStoreTests.cs" />
+    <Compile Include="Integration\ElasticsearchThingyGetQueryHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

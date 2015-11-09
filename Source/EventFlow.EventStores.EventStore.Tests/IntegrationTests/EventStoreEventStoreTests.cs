@@ -21,13 +21,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Net;
+using EventFlow.Configuration;
+using EventFlow.EventStores.EventStore.Extensions;
+using EventFlow.Extensions;
+using EventFlow.MetadataProviders;
 using EventFlow.TestHelpers.Suites;
+using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
     [Explicit("EventStore from https://geteventstore.com/ required to run")]
-    public class EventStoreEventStoreTests : EventStoreSuite<EventStoreEventStoreTestConfiguration>
+    public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            var connectionSettings = ConnectionSettings.Create()
+                .EnableVerboseLogging()
+                .KeepReconnecting()
+                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
+                .Build();
+
+            var resolver = eventFlowOptions
+                .AddMetadataProvider<AddGuidMetadataProvider>()
+                .UseEventStoreEventStore(new IPEndPoint(IPAddress.Loopback, 1113), connectionSettings)
+                .CreateResolver();
+
+            return resolver;
+        }
     }
 }

@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.IO;
 using System.Threading;
@@ -31,14 +31,13 @@ using Autofac;
 using Autofac.Integration.WebApi;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
 using EventFlow.Owin.Middlewares;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Commands;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
@@ -95,7 +94,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .AddOwinMetadataProviders()
-                .AddCommands(new [] {typeof(PingCommand)})
+                .AddCommands(new [] {typeof(ThingyPingCommand)})
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
                 .CreateContainer(false);

@@ -28,15 +28,15 @@ using EventFlow.Hangfire.Integration;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 using Hangfire;
 using Helpz.MsSql;
 using NUnit.Framework;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
@@ -71,11 +71,11 @@ namespace EventFlow.Hangfire.Tests.Integration
                 using (new BackgroundJobServer())
                 {
                     // Arrange
-                    var testId = TestId.New;
+                    var testId = ThingyId.New;
                     var pingId = PingId.New;
                     var jobScheduler = resolver.Resolve<IJobScheduler>();
                     var eventStore = resolver.Resolve<IEventStore>();
-                    var executeCommandJob = PublishCommandJob.Create(new PingCommand(testId, pingId), resolver);
+                    var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), resolver);
 
                     // Act
                     await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
@@ -84,7 +84,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                     var start = DateTimeOffset.Now;
                     while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(20))
                     {
-                        var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate, TestId>(testId, CancellationToken.None).ConfigureAwait(false);
+                        var testAggregate = await eventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                         if (!testAggregate.IsNew)
                         {
                             Assert.Pass();

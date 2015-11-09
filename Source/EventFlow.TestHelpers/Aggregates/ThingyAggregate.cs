@@ -21,18 +21,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.Exceptions;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Events
+namespace EventFlow.TestHelpers.Aggregates
 {
-    public class PingEvent : AggregateEvent<TestAggregate, TestId>
+    [AggregateName("Thingy")]
+    public class ThingyAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
+        IEmit<ThingyDomainErrorAfterFirstEvent>
     {
-        public PingId PingId { get; private set; }
+        private readonly List<PingId> _pingsReceived = new List<PingId>();
 
-        public PingEvent(PingId pingId)
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
+
+        public ThingyAggregate(ThingyId id) : base(id)
         {
-            PingId = pingId;
+            Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
+        }
+
+        public void DomainErrorAfterFirst()
+        {
+            if (DomainErrorAfterFirstReceived)
+            {
+                throw DomainError.With("DomainErrorAfterFirst already received!");
+            }
+
+            Emit(new ThingyDomainErrorAfterFirstEvent());
+        }
+
+        public void Ping(PingId pingId)
+        {
+            Emit(new ThingyPingEvent(pingId));
+        }
+
+        public void Apply(ThingyDomainErrorAfterFirstEvent e)
+        {
+            DomainErrorAfterFirstReceived = true;
         }
     }
 }

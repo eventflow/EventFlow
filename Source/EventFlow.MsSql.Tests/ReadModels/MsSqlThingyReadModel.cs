@@ -21,30 +21,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
+using System.ComponentModel.DataAnnotations.Schema;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.MsSql.Tests.ReadModels
 {
-    [TestFixture]
-    public class ConfigurationTests
+    [Table("ReadModel-ThingyAggregate")]
+    public class MsSqlThingyReadModel : MssqlReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        [Test]
-        public void CanResolve()
+        public bool DomainErrorAfterFirstReceived { get; set; }
+        public int PingsReceived { get; set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver();
+            PingsReceived++;
+        }
 
-            // Act
-            IEventPersistence eventPersistence = null;
-            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        {
+            DomainErrorAfterFirstReceived = true;
+        }
 
-            // Assert
-            eventPersistence.Should().NotBeNull();
-            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
+        public Thingy ToThingy()
+        {
+            return new Thingy(
+                ThingyId.With(AggregateId),
+                PingsReceived,
+                DomainErrorAfterFirstReceived);
         }
     }
 }

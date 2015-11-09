@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[ReadModel-TestAggregate](
+﻿CREATE TABLE [dbo].[ReadModel-ThingyAggregate](
 	[PingsReceived] [int] NOT NULL,
 	[DomainErrorAfterFirstReceived] [bit] NOT NULL,
 
@@ -8,13 +8,13 @@
 	[CreateTime] [datetimeoffset](7) NOT NULL,
 	[UpdatedTime] [datetimeoffset](7) NOT NULL,
 	[LastAggregateSequenceNumber] [int] NOT NULL,
-	CONSTRAINT [PK_ReadModel-TestAggregate] PRIMARY KEY CLUSTERED 
+	CONSTRAINT [PK_ReadModel-ThingyAggregate] PRIMARY KEY CLUSTERED 
 	(
 		[Id] ASC
 	)
 )
 
-CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-TestAggregate_AggregateId] ON [dbo].[ReadModel-TestAggregate]
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-ThingyAggregate_AggregateId] ON [dbo].[ReadModel-ThingyAggregate]
 (
 	[AggregateId] ASC
 )

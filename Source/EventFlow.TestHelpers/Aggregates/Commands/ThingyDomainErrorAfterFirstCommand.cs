@@ -21,30 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.ComponentModel.DataAnnotations.Schema;
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 
-namespace EventFlow.MsSql.Tests.ReadModels
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
+
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    [Table("ReadModel-TestAggregate")]
-    public class MsSqlTestAggregateReadModel : MssqlReadModel, ITestAggregateReadModel
+    public class ThingyDomainErrorAfterFirstCommand : Command<ThingyAggregate, ThingyId>
     {
-        public bool DomainErrorAfterFirstReceived { get; set; }
-        public int PingsReceived { get; set; }
+        public ThingyDomainErrorAfterFirstCommand(ThingyId aggregateId) : base(aggregateId) { }
+    }
 
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
+    public class ThingyDomainErrorAfterFirstCommandHander : CommandHandler<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyDomainErrorAfterFirstCommand command, CancellationToken cancellationToken)
         {
-            PingsReceived++;
-        }
-
-        public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> domainEvent)
-        {
-            DomainErrorAfterFirstReceived = true;
+            aggregate.DomainErrorAfterFirst();
+            return Task.FromResult(0);
         }
     }
 }

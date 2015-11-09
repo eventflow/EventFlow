@@ -24,16 +24,16 @@
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
     [TestFixture]
-    public class AggregateRootTests : TestsFor<TestAggregate>
+    public class AggregateRootTests : TestsFor<ThingyAggregate>
     {
         [Test]
         public void InitialVersionIsZero()
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void EventsCanBeApplied()
         {
             // Arrange
-            var events = Many<PingEvent>(2);
+            var events = Many<ThingyPingEvent>(2);
 
             // Act
             Sut.ApplyEvents(events);
@@ -98,7 +98,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         {
             // Arrange
             const int expectedVersion = 7;
-            var domainEvent = ToDomainEvent(A<PingEvent>(), expectedVersion);
+            var domainEvent = ToDomainEvent(A<ThingyPingEvent>(), expectedVersion);
 
             // Act
             Sut.ApplyEvents(new []{ domainEvent });

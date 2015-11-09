@@ -21,11 +21,41 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using EventFlow.Configuration;
+using EventFlow.EventStores.MsSql;
+using EventFlow.Extensions;
+using EventFlow.MsSql.Extensions;
 using EventFlow.TestHelpers.Suites;
+using Helpz.MsSql;
+using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
-    public class MsSqlEventStoreTests : EventStoreSuite<MsSqlIntegrationTestConfiguration>
+    public class MsSqlEventStoreTests : TestSuiteForEventStore
     {
+        private IMsSqlDatabase _testDatabase;
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+
+            var resolver = eventFlowOptions
+                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
+                .UseEventStore<MsSqlEventPersistence>()
+                .CreateResolver();
+
+            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
+
+            return resolver;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _testDatabase.Dispose();
+        }
     }
 }

@@ -24,7 +24,7 @@
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -34,11 +34,11 @@ namespace EventFlow.Tests.IntegrationTests
     {
         public class Service { }
 
-        public class ServiceDependentAggregate : AggregateRoot<ServiceDependentAggregate, TestId>
+        public class ServiceDependentAggregate : AggregateRoot<ServiceDependentAggregate, ThingyId>
         {
             public Service Service { get; }
 
-            public ServiceDependentAggregate(TestId id, Service service) : base(id)
+            public ServiceDependentAggregate(ThingyId id, Service service) : base(id)
             {
                 Service = service;
             }
@@ -57,7 +57,7 @@ namespace EventFlow.Tests.IntegrationTests
                 var aggregateFactory = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, TestId>(TestId.New).ConfigureAwait(false);
+                var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
                 serviceDependentAggregate.Service.Should()

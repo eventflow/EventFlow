@@ -21,18 +21,46 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
-using EventFlow.ValueObjects;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.ValueObjects
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
+using EventFlow.Core;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
+
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public class PingId : SingleValueObject<string>
+    [CommandVersion("ThingyPing", 1)]
+    public class ThingyPingCommand : Command<ThingyAggregate, ThingyId>
     {
-        public static PingId New => new PingId(Guid.NewGuid().ToString());
-        public static PingId With(string value) { return new PingId(value); }
+        public PingId PingId { get; }
 
-        public PingId(string value) : base (value)
+        public ThingyPingCommand(ThingyId aggregateId, PingId pingId)
+            : this(aggregateId, CommandId.New, pingId)
         {
+        }
+
+        public ThingyPingCommand(ThingyId aggregateId, ISourceId sourceId, PingId pingId)
+            : base (aggregateId, sourceId)
+        {
+            PingId = pingId;
+        }
+
+        [JsonConstructor]
+        public ThingyPingCommand(ThingyId aggregateId, SourceId sourceId, PingId pingId)
+            : base(aggregateId, sourceId)
+        {
+            PingId = pingId;
+        }
+    }
+
+    public class ThingyPingCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.Ping(command.PingId);
+            return Task.FromResult(0);
         }
     }
 }

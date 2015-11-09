@@ -21,11 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Aggregates;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Events
+using System;
+using EventFlow.ValueObjects;
+
+namespace EventFlow.TestHelpers.Aggregates.ValueObjects
 {
-    public class DomainErrorAfterFirstEvent : AggregateEvent<TestAggregate, TestId>
+    public class PingId : SingleValueObject<string>
     {
+        public static PingId New => new PingId(Guid.NewGuid().ToString());
+        public static PingId With(string value) { return new PingId(value); }
+
+        public PingId(string value) : base (value)
+        {
+        }
     }
 }

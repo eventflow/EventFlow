@@ -21,24 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Commands;
+using EventFlow.Aggregates;
+using EventFlow.Core;
+using EventFlow.EventStores;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.TestHelpers.Extensions
 {
-    public class DoesNothingCommand : Command<TestAggregate, TestId>
+    public static class EventStoreExtensions
     {
-        public DoesNothingCommand(TestId aggregateId) : base(aggregateId)
+        public static Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
+            this IEventStore eventStore,
+            TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-        }
-    }
-
-    public class DoesNothingCommandHandler : CommandHandler<TestAggregate, TestId, DoesNothingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, DoesNothingCommand command, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(0);
+            return eventStore.LoadAggregateAsync<TAggregate, TIdentity>(id, CancellationToken.None);
         }
     }
 }

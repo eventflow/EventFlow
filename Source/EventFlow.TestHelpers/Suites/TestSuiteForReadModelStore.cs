@@ -21,24 +21,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
 {
-    public class ReadModelStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public abstract class TestSuiteForReadModelStore : IntegrationTest
     {
         [Test]
         public async Task NonExistingReadModelReturnsNull()
         {
             // Arrange
-            var id = TestId.New;
+            var id = ThingyId.New;
 
             // Act
-            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             readModel.Should().BeNull();
@@ -48,11 +50,11 @@ namespace EventFlow.TestHelpers.Suites
         public async Task ReadModelReceivesEvent()
         {
             // Arrange
-            var id = TestId.New;
+            var id = ThingyId.New;
             
             // Act
             await PublishPingCommandAsync(id).ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
@@ -63,12 +65,12 @@ namespace EventFlow.TestHelpers.Suites
         public async Task PurgeRemovesReadModels()
         {
             // Arrange
-            var id = TestId.New;
+            var id = ThingyId.New;
             await PublishPingCommandAsync(id).ConfigureAwait(false);
 
             // Act
-            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             readModel.Should().BeNull();
@@ -78,17 +80,21 @@ namespace EventFlow.TestHelpers.Suites
         public async Task PopulateCreatesReadModels()
         {
             // Arrange
-            var id = TestId.New;
+            var id = ThingyId.New;
             await PublishPingCommandAsync(id, 2).ConfigureAwait(false);
-            await Configuration.PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             
             // Act
-            await Configuration.PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
-            var readModel = await Configuration.GetTestAggregateReadModelAsync(id).ConfigureAwait(false);
+            await PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
             readModel.PingsReceived.Should().Be(2);
         }
+
+        protected abstract Task PurgeTestAggregateReadModelAsync();
+
+        protected abstract Task PopulateTestAggregateReadModelAsync();
     }
 }

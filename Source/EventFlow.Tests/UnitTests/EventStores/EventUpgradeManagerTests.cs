@@ -26,9 +26,9 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -45,15 +45,15 @@ namespace EventFlow.Tests.UnitTests.EventStores
             _resolverMock = InjectMock<IResolver>();
 
             _resolverMock
-                .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<TestAggregate, TestId>>>())
-                .Returns(new IEventUpgrader<TestAggregate, TestId>[]
+                .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>>())
+                .Returns(new IEventUpgrader<ThingyAggregate, ThingyId>[]
                     {
                         new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
                         new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
                         new DamagedEventRemover(),
                     });
             _resolverMock
-                .Setup(r => r.ResolveAll(typeof(IEventUpgrader<TestAggregate, TestId>)))
+                .Setup(r => r.ResolveAll(typeof(IEventUpgrader<ThingyAggregate, ThingyId>)))
                 .Returns(new object[]
                     {
                         new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
@@ -66,7 +66,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void EmptyListReturnsEmptyList()
         {
             // Arrange
-            var events = new IDomainEvent<TestAggregate, TestId>[] { };
+            var events = new IDomainEvent<ThingyAggregate, ThingyId>[] { };
 
             // Act
             var upgradedEvents = Sut.Upgrade(events);
@@ -81,8 +81,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             // Arrange
             var events = new[]
                 {
-                    ToDomainEvent(new PingEvent(PingId.New)),
-                    ToDomainEvent(new DomainErrorAfterFirstEvent())
+                    ToDomainEvent(new ThingyPingEvent(PingId.New)),
+                    ToDomainEvent(new ThingyDomainErrorAfterFirstEvent())
                 };
 
             // Act
@@ -112,16 +112,16 @@ namespace EventFlow.Tests.UnitTests.EventStores
             upgradedEvents.Count.Should().Be(3);
             foreach (var upgradedEvent in upgradedEvents)
             {
-                upgradedEvent.Should().BeAssignableTo<IDomainEvent<TestAggregate, TestId, TestEventV3>>();
+                upgradedEvent.Should().BeAssignableTo<IDomainEvent<ThingyAggregate, ThingyId, TestEventV3>>();
             }
         }
 
-        public class TestEventV1 : AggregateEvent<TestAggregate, TestId> { }
-        public class TestEventV2 : AggregateEvent<TestAggregate, TestId> { }
-        public class TestEventV3 : AggregateEvent<TestAggregate, TestId> { }
-        public class DamagedEvent : AggregateEvent<TestAggregate, TestId> { }
+        public class TestEventV1 : AggregateEvent<ThingyAggregate, ThingyId> { }
+        public class TestEventV2 : AggregateEvent<ThingyAggregate, ThingyId> { }
+        public class TestEventV3 : AggregateEvent<ThingyAggregate, ThingyId> { }
+        public class DamagedEvent : AggregateEvent<ThingyAggregate, ThingyId> { }
 
-        public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<TestAggregate, TestId>
+        public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<ThingyAggregate, ThingyId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -130,16 +130,16 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IEnumerable<IDomainEvent<TestAggregate, TestId>> Upgrade(IDomainEvent<TestAggregate, TestId> domainEvent)
+            public IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
             {
-                var testEvent1 = domainEvent as IDomainEvent<TestAggregate, TestId, TestEventV1>;
+                var testEvent1 = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, TestEventV1>;
                 yield return testEvent1 == null
                     ? domainEvent
-                    : _domainEventFactory.Upgrade<TestAggregate, TestId>(domainEvent, new TestEventV2());
+                    : _domainEventFactory.Upgrade<ThingyAggregate, ThingyId>(domainEvent, new TestEventV2());
             }
         }
 
-        public class UpgradeTestEventV2ToTestEventV3 : IEventUpgrader<TestAggregate, TestId>
+        public class UpgradeTestEventV2ToTestEventV3 : IEventUpgrader<ThingyAggregate, ThingyId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -148,20 +148,20 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IEnumerable<IDomainEvent<TestAggregate, TestId>> Upgrade(IDomainEvent<TestAggregate, TestId> domainEvent)
+            public IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
             {
-                var testEvent2 = domainEvent as IDomainEvent<TestAggregate, TestId, TestEventV2>;
+                var testEvent2 = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, TestEventV2>;
                 yield return testEvent2 == null
                     ? domainEvent
-                    : _domainEventFactory.Upgrade<TestAggregate, TestId>(domainEvent, new TestEventV3());
+                    : _domainEventFactory.Upgrade<ThingyAggregate, ThingyId>(domainEvent, new TestEventV3());
             }
         }
 
-        public class DamagedEventRemover : IEventUpgrader<TestAggregate, TestId>
+        public class DamagedEventRemover : IEventUpgrader<ThingyAggregate, ThingyId>
         {
-            public IEnumerable<IDomainEvent<TestAggregate, TestId>> Upgrade(IDomainEvent<TestAggregate, TestId> domainEvent)
+            public IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
             {
-                var damagedEvent = domainEvent as IDomainEvent<TestAggregate, TestId, DamagedEvent>;
+                var damagedEvent = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, DamagedEvent>;
                 if (damagedEvent == null)
                 {
                     yield return domainEvent;

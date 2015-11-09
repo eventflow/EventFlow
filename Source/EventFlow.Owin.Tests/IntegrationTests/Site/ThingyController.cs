@@ -20,47 +20,35 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
-namespace EventFlow.TestHelpers.Aggregates.Test
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+
+namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
-    [AggregateName("Test")]
-    public class TestAggregate : AggregateRoot<TestAggregate, TestId>,
-        IEmit<DomainErrorAfterFirstEvent>
+    [RoutePrefix("thingy")]
+    public class ThingyController : ApiController
     {
-        private readonly List<PingId> _pingsReceived = new List<PingId>();
+        private readonly ICommandBus _commandBus;
 
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public IReadOnlyCollection<PingId> PingsReceived { get { return _pingsReceived; } }
-
-        public TestAggregate(TestId id) : base(id)
+        public ThingyController(
+            ICommandBus commandBus)
         {
-            Register<PingEvent>(e => _pingsReceived.Add(e.PingId));
+            _commandBus = commandBus;
         }
 
-        public void DomainErrorAfterFirst()
+        [HttpGet]
+        [Route("ping")]
+        public async Task<IHttpActionResult> Ping(string id)
         {
-            if (DomainErrorAfterFirstReceived)
-            {
-                throw DomainError.With("DomainErrorAfterFirst already received!");
-            }
-
-            Emit(new DomainErrorAfterFirstEvent());
-        }
-
-        public void Ping(PingId pingId)
-        {
-            Emit(new PingEvent(pingId));
-        }
-
-        public void Apply(DomainErrorAfterFirstEvent e)
-        {
-            DomainErrorAfterFirstReceived = true;
+            var testId = ThingyId.With(id);
+            var pingCommand = new ThingyPingCommand(testId, PingId.New);
+            await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
+            return Ok();
         }
     }
 }
