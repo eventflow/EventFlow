@@ -22,40 +22,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
-using EventFlow.EventStores.MsSql;
-using EventFlow.Extensions;
-using EventFlow.MsSql.Extensions;
-using EventFlow.TestHelpers.Suites;
-using Helpz.MsSql;
-using NUnit.Framework;
+using System.ComponentModel.DataAnnotations.Schema;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+#pragma warning disable 618
+
+namespace EventFlow.MsSql.Tests.IntegrationTestsForReadStore.ReadModels
 {
-    public class MsSqlEventStoreTests : TestSuiteForEventStore
+    [Table("ReadModel-ThingyAggregate")]
+    public class MsSqlThingyReadModel : MssqlReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        private IMsSqlDatabase _testDatabase;
+        public bool DomainErrorAfterFirstReceived { get; set; }
+        public int PingsReceived { get; set; }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
-
-            var resolver = eventFlowOptions
-                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseEventStore<MsSqlEventPersistence>()
-                .CreateResolver();
-
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
-            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
-            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
-
-            return resolver;
+            PingsReceived++;
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
-            _testDatabase.Dispose();
+            DomainErrorAfterFirstReceived = true;
+        }
+
+        public Thingy ToThingy()
+        {
+            return new Thingy(
+                ThingyId.With(AggregateId),
+                PingsReceived,
+                DomainErrorAfterFirstReceived);
         }
     }
 }

@@ -28,15 +28,16 @@ using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers;
-using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.MsSql.Tests.IntegrationTestsForReadStore.QueryHandlers;
+using EventFlow.MsSql.Tests.IntegrationTestsForReadStore.ReadModels;
 using EventFlow.ReadStores.MsSql.Extensions;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests
+namespace EventFlow.MsSql.Tests.IntegrationTestsForReadStore
 {
-    public class MssqlReadModelStoreTests : TestSuiteForReadModelStore
+    public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
     {
         private IMsSqlDatabase _testDatabase;
 
@@ -45,9 +46,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
             var resolver = eventFlowOptions
+                .RegisterServices(sr => sr.RegisterType(typeof (ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UseMssqlReadModel<MsSqlThingyReadModel>()
-                .AddQueryHandlers(typeof(MsSqlThingyGetQueryHandler))
+                .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(typeof(MsSqlThingyGetQueryHandler), typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();

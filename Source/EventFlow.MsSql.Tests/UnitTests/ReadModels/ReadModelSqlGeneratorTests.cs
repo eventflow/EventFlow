@@ -22,7 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System.ComponentModel.DataAnnotations.Schema;
-using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.MsSql.Tests.IntegrationTestsForReadStore;
+using EventFlow.MsSql.Tests.IntegrationTestsForReadStore.ReadModels;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers;
 using FluentAssertions;
