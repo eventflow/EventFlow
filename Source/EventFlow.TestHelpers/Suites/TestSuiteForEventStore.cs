@@ -30,22 +30,22 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
 {
-    public class EventStoreSuite<TConfiguration> : IntegrationTest<TConfiguration>
-        where TConfiguration : IntegrationTestConfiguration, new()
+    public abstract class TestSuiteForEventStore : IntegrationTest
     {
         [Test]
         public async Task NewAggregateCanBeLoaded()
         {
             // Act
-            var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(TestId.New, CancellationToken.None).ConfigureAwait(false);
+            var testAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
             // Assert
             testAggregate.Should().NotBeNull();
@@ -56,8 +56,8 @@ namespace EventFlow.TestHelpers.Suites
         public async Task EventsCanBeStored()
         {
             // Arrange
-            var id = TestId.New;
-            var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var id = ThingyId.New;
+            var testAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
             testAggregate.Ping(PingId.New);
 
             // Act
@@ -65,12 +65,12 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             domainEvents.Count.Should().Be(1);
-            var pingEvent = domainEvents.Single() as IDomainEvent<TestAggregate, TestId, PingEvent>;
+            var pingEvent = domainEvents.Single() as IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>;
             pingEvent.Should().NotBeNull();
             pingEvent.AggregateIdentity.Should().Be(id);
             pingEvent.AggregateSequenceNumber.Should().Be(1);
-            pingEvent.AggregateType.Should().Be(typeof (TestAggregate));
-            pingEvent.EventType.Should().Be(typeof (PingEvent));
+            pingEvent.AggregateType.Should().Be(typeof (ThingyAggregate));
+            pingEvent.EventType.Should().Be(typeof (ThingyPingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
             pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
@@ -80,13 +80,13 @@ namespace EventFlow.TestHelpers.Suites
         public async Task AggregatesCanBeLoaded()
         {
             // Arrange
-            var id = TestId.New;
-            var testAggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var id = ThingyId.New;
+            var testAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
             testAggregate.Ping(PingId.New);
             await testAggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
 
             // Act
-            var loadedTestAggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var loadedTestAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
 
             // Assert
             loadedTestAggregate.Should().NotBeNull();
@@ -99,10 +99,10 @@ namespace EventFlow.TestHelpers.Suites
         public async Task AggregateEventStreamsAreSeperate()
         {
             // Arrange
-            var id1 = TestId.New;
-            var id2 = TestId.New;
-            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id1).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id2).ConfigureAwait(false);
             aggregate1.Ping(PingId.New);
             aggregate2.Ping(PingId.New);
             aggregate2.Ping(PingId.New);
@@ -110,8 +110,8 @@ namespace EventFlow.TestHelpers.Suites
             // Act
             await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
             await aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
-            aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id1, CancellationToken.None).ConfigureAwait(false);
+            aggregate2 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id2, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             aggregate1.Version.Should().Be(1);
@@ -122,12 +122,12 @@ namespace EventFlow.TestHelpers.Suites
         public async Task DomainEventCanBeLoaded()
         {
             // Arrange
-            var id1 = TestId.New;
-            var id2 = TestId.New;
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
             var pingId1 = PingId.New;
             var pingId2 = PingId.New;
-            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            var aggregate1 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id1).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id2).ConfigureAwait(false);
             aggregate1.Ping(pingId1);
             aggregate2.Ping(pingId2);
             await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
@@ -144,10 +144,10 @@ namespace EventFlow.TestHelpers.Suites
         public async Task AggregateEventStreamsCanBeDeleted()
         {
             // Arrange
-            var id1 = TestId.New;
-            var id2 = TestId.New;
-            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id1).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id2).ConfigureAwait(false);
             aggregate1.Ping(PingId.New);
             aggregate2.Ping(PingId.New);
             aggregate2.Ping(PingId.New);
@@ -155,11 +155,11 @@ namespace EventFlow.TestHelpers.Suites
             await aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
 
             // Act
-            await EventStore.DeleteAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            await EventStore.DeleteAggregateAsync<ThingyAggregate, ThingyId>(id2, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id1, CancellationToken.None).ConfigureAwait(false);
-            aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id2, CancellationToken.None).ConfigureAwait(false);
+            aggregate1 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id1).ConfigureAwait(false);
+            aggregate2 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id2).ConfigureAwait(false);
             aggregate1.Version.Should().Be(1);
             aggregate2.Version.Should().Be(0);
         }
@@ -168,8 +168,8 @@ namespace EventFlow.TestHelpers.Suites
         public async Task NoEventsEmittedIsOk()
         {
             // Arrange
-            var id = TestId.New;
-            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var id = ThingyId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None).ConfigureAwait(false);
 
             // Act
             await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
@@ -179,8 +179,8 @@ namespace EventFlow.TestHelpers.Suites
         public async Task NextPositionIsIdOfNextEvent()
         {
             // Arrange
-            var id = TestId.New;
-            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var id = ThingyId.New;
+            var aggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
             aggregate.Ping(PingId.New);
             await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
 
@@ -195,9 +195,9 @@ namespace EventFlow.TestHelpers.Suites
         public async Task LoadingFirstPageShouldLoadCorrectEvents()
         {
             // Arrange
-            var id = TestId.New;
+            var id = ThingyId.New;
             var pingIds = new[] {PingId.New, PingId.New, PingId.New};
-            var aggregate = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var aggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None).ConfigureAwait(false);
             aggregate.Ping(pingIds[0]);
             aggregate.Ping(pingIds[1]);
             aggregate.Ping(pingIds[2]);
@@ -207,17 +207,17 @@ namespace EventFlow.TestHelpers.Suites
             var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 200, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[0]);
-            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<TestAggregate, TestId, PingEvent>)e).AggregateEvent.PingId == pingIds[1]);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)e).AggregateEvent.PingId == pingIds[0]);
+            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)e).AggregateEvent.PingId == pingIds[1]);
         }
 
         [Test]
         public async Task OptimisticConcurrency()
         {
             // Arrange
-            var id = TestId.New;
-            var aggregate1 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
-            var aggregate2 = await EventStore.LoadAggregateAsync<TestAggregate, TestId>(id, CancellationToken.None).ConfigureAwait(false);
+            var id = ThingyId.New;
+            var aggregate1 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None).ConfigureAwait(false);
+            var aggregate2 = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None).ConfigureAwait(false);
 
             aggregate1.DomainErrorAfterFirst();
             aggregate2.DomainErrorAfterFirst();

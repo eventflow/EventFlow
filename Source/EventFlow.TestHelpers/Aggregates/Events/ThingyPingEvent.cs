@@ -21,16 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.ReadModels
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    public interface ITestAggregateReadModel : IReadModel,
-        IAmReadModelFor<TestAggregate, TestId, DomainErrorAfterFirstEvent>,
-        IAmReadModelFor<TestAggregate, TestId, PingEvent>
+    [EventVersion("ThingyPing", 1)]
+    public class ThingyPingEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        bool DomainErrorAfterFirstReceived { get; }
-        int PingsReceived { get; }
+        public PingId PingId { get; private set; }
+
+        public ThingyPingEvent(PingId pingId)
+        {
+            PingId = pingId;
+        }
     }
 }

@@ -21,11 +21,50 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.EventStores.MsSql;
+using EventFlow.Extensions;
+using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers;
+using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers.Suites;
+using Helpz.MsSql;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
 {
-    public class MssqlReadModelStoreTests : ReadModelStoreSuite<MsSqlIntegrationTestConfiguration>
+    public class MssqlReadModelStoreTests : TestSuiteForReadModelStore
     {
+        private IMsSqlDatabase _testDatabase;
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+
+            var resolver = eventFlowOptions
+                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
+                .UseMssqlReadModel<MsSqlThingyReadModel>()
+                .AddQueryHandlers(typeof(MsSqlThingyGetQueryHandler))
+                .CreateResolver();
+
+            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
+
+            return resolver;
+        }
+
+        protected override Task PurgeTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PurgeAsync<MsSqlThingyReadModel>(CancellationToken.None);
+        }
+
+        protected override Task PopulateTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PopulateAsync<MsSqlThingyReadModel>(CancellationToken.None);
+        }
     }
 }

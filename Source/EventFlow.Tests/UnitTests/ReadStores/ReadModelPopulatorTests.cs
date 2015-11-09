@@ -31,8 +31,8 @@ using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 
@@ -42,9 +42,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public class ReadModelPopulatorTests : TestsFor<ReadModelPopulator>
     {
         public class TestReadModel : IReadModel,
-            IAmReadModelFor<TestAggregate, TestId, PingEvent>
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
         {
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
+            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
             {
             }
         }
@@ -96,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         public async Task PopulateCallsApplyDomainEvents()
         {
             // Arrange
-            ArrangeEventStore(Many<PingEvent>(6));
+            ArrangeEventStore(Many<ThingyPingEvent>(6));
 
             // Act
             await Sut.PopulateAsync<TestReadModel>(CancellationToken.None).ConfigureAwait(false);
@@ -115,9 +115,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             // Arrange
             var events = new IAggregateEvent[]
                 {
-                    A<PingEvent>(),
-                    A<DomainErrorAfterFirstEvent>(),
-                    A<PingEvent>(),
+                    A<ThingyPingEvent>(),
+                    A<ThingyDomainErrorAfterFirstEvent>(),
+                    A<ThingyPingEvent>(),
                 };
             ArrangeEventStore(events);
 
@@ -128,7 +128,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             _readStoreManagerMock
                 .Verify(
                     s => s.UpdateReadStoresAsync(
-                        It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == 2 && l.All(e => e.EventType == typeof(PingEvent))),
+                        It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == 2 && l.All(e => e.EventType == typeof(ThingyPingEvent))),
                         It.IsAny<CancellationToken>()),
                     Times.Once);
         }

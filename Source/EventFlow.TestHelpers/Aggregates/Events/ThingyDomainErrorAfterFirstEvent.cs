@@ -21,30 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using EventFlow.Aggregates;
 using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    [TestFixture]
-    public class ConfigurationTests
+    [EventVersion("ThingyDomainErrorAfterFirst", 1)]
+    public class ThingyDomainErrorAfterFirstEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        [Test]
-        public void CanResolve()
-        {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver();
-
-            // Act
-            IEventPersistence eventPersistence = null;
-            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
-
-            // Assert
-            eventPersistence.Should().NotBeNull();
-            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
-        }
     }
 }

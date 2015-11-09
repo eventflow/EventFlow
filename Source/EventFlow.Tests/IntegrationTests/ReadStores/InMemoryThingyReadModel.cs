@@ -21,34 +21,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Http;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
 
-namespace EventFlow.Owin.Tests.IntegrationTests.Site
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+
+namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    [RoutePrefix("testaggregate")]
-    public class TestAggregateController : ApiController
+    public class InMemoryThingyReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        private readonly ICommandBus _commandBus;
+        public ThingyId ThingyId { get; private set; }
+        public bool DomainErrorAfterFirstReceived { get; private set; }
+        public int PingsReceived { get; private set; }
 
-        public TestAggregateController(
-            ICommandBus commandBus)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
-            _commandBus = commandBus;
+            ThingyId = domainEvent.AggregateIdentity;
+            DomainErrorAfterFirstReceived = true;
         }
 
-        [HttpGet]
-        [Route("ping")]
-        public async Task<IHttpActionResult> Ping(string id)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-            var testId = TestId.With(id);
-            var pingCommand = new PingCommand(testId, PingId.New);
-            await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
-            return Ok();
+            ThingyId = domainEvent.AggregateIdentity;
+            PingsReceived++;
+        }
+
+        public Thingy ToThingy()
+        {
+            return new Thingy(
+                ThingyId,
+                PingsReceived,
+                DomainErrorAfterFirstReceived);
         }
     }
 }

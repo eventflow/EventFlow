@@ -21,45 +21,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.Core;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
-using Newtonsoft.Json;
+using EventFlow.Queries;
+using EventFlow.ReadStores.InMemory;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 
-namespace EventFlow.TestHelpers.Aggregates.Test.Commands
+namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    [CommandVersion("Ping", 1)]
-    public class PingCommand : Command<TestAggregate, TestId>
+    public class InMemoryThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        public PingId PingId { get; }
+        private readonly IInMemoryReadStore<InMemoryThingyReadModel> _readStore;
 
-        public PingCommand(TestId aggregateId, PingId pingId)
-            : this(aggregateId, CommandId.New, pingId)
+        public InMemoryThingyGetQueryHandler(
+            IInMemoryReadStore<InMemoryThingyReadModel> readStore)
         {
+            _readStore = readStore;
         }
 
-        public PingCommand(TestId aggregateId, ISourceId sourceId, PingId pingId)
-            : base (aggregateId, sourceId)
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            PingId = pingId;
-        }
-
-        [JsonConstructor]
-        public PingCommand(TestId aggregateId, SourceId sourceId, PingId pingId)
-            : base(aggregateId, sourceId)
-        {
-            PingId = pingId;
-        }
-    }
-
-    public class PingCommandHandler : CommandHandler<TestAggregate, TestId, PingCommand>
-    {
-        public override Task ExecuteAsync(TestAggregate aggregate, PingCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Ping(command.PingId);
-            return Task.FromResult(0);
+            var readModels = await _readStore.FindAsync(rm => rm.ThingyId == query.ThingyId, cancellationToken).ConfigureAwait(false);
+            return readModels.SingleOrDefault()?.ToThingy();
         }
     }
 }

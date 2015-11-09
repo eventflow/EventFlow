@@ -21,11 +21,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers.Suites;
 
 namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    public class InMemoryReadModelStoreTests : ReadModelStoreSuite<InMemoryConfiguration>
+    public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
     {
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            var resolver = eventFlowOptions
+                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
+                .AddQueryHandlers(typeof(InMemoryThingyGetQueryHandler))
+                .CreateResolver();
+
+            return resolver;
+        }
+
+        protected override Task PurgeTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PurgeAsync<InMemoryThingyReadModel>(CancellationToken.None);
+        }
+
+        protected override Task PopulateTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PopulateAsync<InMemoryThingyReadModel>(CancellationToken.None);
+        }
     }
 }

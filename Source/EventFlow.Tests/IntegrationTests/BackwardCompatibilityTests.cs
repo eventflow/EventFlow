@@ -29,9 +29,9 @@ using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -39,7 +39,7 @@ namespace EventFlow.Tests.IntegrationTests
 {
     public class BackwardCompatibilityTests : Test
     {
-        private readonly TestId _testId = TestId.With("test-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7");
+        private readonly ThingyId _thingyId = ThingyId.With("thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7");
         private IResolver _resolver;
         private ICommandBus _commandBus;
         private IEventStore _eventStore;
@@ -65,7 +65,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void ValidateTestAggregate()
         {
             // Act
-            var testAggregate = _eventStore.LoadAggregate<TestAggregate, TestId>(_testId, CancellationToken.None);
+            var testAggregate = _eventStore.LoadAggregate<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
 
             // Assert
             testAggregate.Version.Should().Be(2);
@@ -76,7 +76,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test, Explicit]
         public void CreateEventHelper()
         {
-            _commandBus.Publish(new PingCommand(_testId, PingId.New), CancellationToken.None);
+            _commandBus.Publish(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
         }
     }
 }

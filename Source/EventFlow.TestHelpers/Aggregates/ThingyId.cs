@@ -21,32 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
-using System.Text.RegularExpressions;
 
-namespace EventFlow.MsSql.Tests.Extensions
+using EventFlow.Core;
+
+namespace EventFlow.TestHelpers.Aggregates
 {
-    public static class StringExtensions
+    public class ThingyId : Identity<ThingyId>
     {
-        private static readonly Regex DatabaseReplace = new Regex(@"(?<key>Initial Catalog|Database)=[a-zA-Z0-9\-_]+", RegexOptions.Compiled);
-        private static readonly Regex DatabaseExtract = new Regex(@"(Initial Catalog|Database)=(?<database>[a-zA-Z0-9\-_]+)", RegexOptions.Compiled);
-
-        public static string GetDatabaseInConnectionstring(this string connectionString)
+        public ThingyId(string value) : base(value)
         {
-            var match = DatabaseExtract.Match(connectionString);
-            if (!match.Success)
-            {
-                throw new ArgumentException(string.Format(
-                    "Could not get database from connection string '{0}'",
-                    connectionString));
-            }
-
-            return match.Groups["database"].Value;
-        }
-
-        public static string ReplaceDatabaseInConnectionstring(this string connectionString, string database)
-        {
-            return DatabaseReplace.Replace(connectionString, $"${{key}}={database}");
         }
     }
 }

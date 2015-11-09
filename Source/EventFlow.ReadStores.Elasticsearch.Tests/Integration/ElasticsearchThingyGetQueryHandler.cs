@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015 Rasmus Mikkelsen
 // Copyright (c) 2015 eBay Software Foundation
@@ -21,44 +21,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
+
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Subscribers;
-using EventFlow.TestHelpers;
+using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
-using Moq;
-using NUnit.Framework;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using Nest;
 
-namespace EventFlow.Tests.UnitTests.Subscribers
+namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
 {
-    public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
+    public class ElasticsearchThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        private Mock<IResolver> _resolverMock;
+        private readonly IElasticClient _elasticClient;
+        private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
-        [SetUp]
-        public void SetUp()
+        public ElasticsearchThingyGetQueryHandler(
+            IElasticClient elasticClient,
+            IReadModelDescriptionProvider readModelDescriptionProvider)
         {
-            _resolverMock = InjectMock<IResolver>();
+            _elasticClient = elasticClient;
+            _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
-        [Test]
-        public async Task SubscribersGetCalled()
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            // Arrange
-            var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>>();
-            _resolverMock
-                .Setup(r => r.ResolveAll(It.IsAny<Type>()))
-                .Returns(new object[] {subscriberMock.Object});
-
-            // Act
-            await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
-
-            // Assert
-            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
+            var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
+                query.ThingyId.Value,
+                readModelDescription.IndexName.Value)
+                .ConfigureAwait(false);
+            return getResponse != null && getResponse.Found
+                ? getResponse.Source.ToThingy()
+                : null;
         }
     }
 }
