@@ -72,7 +72,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
                 var rabbitMqMessage = consumer.GetMessages().Single();
                 rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
-                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.test.ping-event.1");
+                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
 
                 var pingEvent = (IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)eventJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,
