@@ -1,6 +1,7 @@
 ### New in 0.22 (not released yet)
 
-* _Nothing yet_
+* Fixed: Added missing `UseElasticsearchReadModel<TReadModel, TReadModelLocator>()`
+  extension
 
 ### New in 0.21.1312 (released 2015-10-26)
 
