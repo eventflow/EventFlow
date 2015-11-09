@@ -27,6 +27,7 @@ using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+#pragma warning disable 618
 
 namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {

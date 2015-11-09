@@ -27,6 +27,7 @@ using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
+#pragma warning disable 618
 
 namespace EventFlow.MsSql.Tests.ReadModels
 {

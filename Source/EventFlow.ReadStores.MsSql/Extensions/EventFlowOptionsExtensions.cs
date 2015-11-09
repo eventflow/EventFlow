@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 
@@ -30,7 +31,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
     {
         public static IEventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMssqlReadModel, new()
+            where TReadModel : class, IReadModel, new()
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
@@ -45,7 +46,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
 
         public static IEventFlowOptions UseMssqlReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMssqlReadModel, new()
+            where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
                 .RegisterServices(f =>

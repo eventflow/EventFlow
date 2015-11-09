@@ -25,6 +25,7 @@ using System;
 
 namespace EventFlow.ReadStores.MsSql
 {
+    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
     public interface IMssqlReadModel : IReadModel
     {
         string AggregateId { get; set; }
