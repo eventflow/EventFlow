@@ -72,7 +72,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateSelectSql<MsSqlThingyReadModel>();
 
             // Assert
-            sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId");
+            sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @EventFlowReadModelId");
         }
 
         [Test]
