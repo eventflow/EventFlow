@@ -1,12 +1,12 @@
 # Read model stores
 
 In order to create query handlers that perform and enable them search across
-multiple fields, read models or projects are used.
+multiple fields, read models or projections are used.
 
-Read models are a flatten views of a subset or all aggregate domain events
+Read models are a flattened views of a subset or all aggregate domain events
 created specifically for efficient queries.
 
-Here's a simple example of how a read models for doing searches for usernames
+Here's a simple example of how a read model for doing searches for usernames
 could look. The read model handles the `UserCreated` domain event event to get
 the username and user ID.
 
@@ -34,7 +34,7 @@ isn't the case. Here are some examples.
 
 - Items from a collection on the aggregate root
 - Deterministic ID created from event data
-- Entity within the aggregate root
+- Entity within the aggregate
 
 To create read models in these cases, use the EventFlow concept of read model
 locators, which is basically a mapping from a domain event to a read model ID.
