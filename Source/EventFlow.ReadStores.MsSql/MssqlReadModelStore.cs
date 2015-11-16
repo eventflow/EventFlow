@@ -25,12 +25,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
+using EventFlow.ReadStores.MsSql.Attributes;
+
 #pragma warning disable 618
 
 namespace EventFlow.ReadStores.MsSql
@@ -42,6 +46,32 @@ namespace EventFlow.ReadStores.MsSql
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
+        private static readonly Func<TReadModel, int?> GetVersion;
+        private static readonly Action<TReadModel, int?> SetVersion;
+
+        static MssqlReadModelStore()
+        {
+            var propertyInfos = typeof (TReadModel)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            var versionPropertyInfo = propertyInfos
+                .SingleOrDefault(p => p.GetCustomAttribute<MsSqlReadModelVersionColumnAttribute>() != null);
+            if (versionPropertyInfo == null)
+            {
+                versionPropertyInfo = propertyInfos.SingleOrDefault(p => p.Name == "LastAggregateSequenceNumber");
+            }
+
+            if (versionPropertyInfo == null)
+            {
+                GetVersion = rm => null as int?;
+                SetVersion = (rm, v) => { };
+            }
+            else
+            {
+                GetVersion = rm => (int?)versionPropertyInfo.GetValue(rm);
+                SetVersion = (rm, v) => versionPropertyInfo.SetValue(rm, v);
+            }
+        }
 
         public MssqlReadModelStore(
             ILog log,
@@ -59,8 +89,6 @@ namespace EventFlow.ReadStores.MsSql
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
-            // TODO: Transaction
-
             foreach (var readModelUpdate in readModelUpdates)
             {
                 IMssqlReadModel mssqlReadModel;
@@ -79,14 +107,13 @@ namespace EventFlow.ReadStores.MsSql
                         mssqlReadModel.AggregateId = readModelUpdate.ReadModelId;
                         mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
                     }
+                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModel);
                 }
-
-                // TODO: Implement version support, again...
 
                 readModelEnvelope = await updateReadModel(
                     readModelContext,
                     readModelUpdate.DomainEvents,
-                    ReadModelEnvelope<TReadModel>.With(readModel),
+                    readModelEnvelope,
                     cancellationToken)
                     .ConfigureAwait(false);
 
@@ -95,6 +122,10 @@ namespace EventFlow.ReadStores.MsSql
                 {
                     mssqlReadModel.UpdatedTime = DateTimeOffset.Now;
                     mssqlReadModel.LastAggregateSequenceNumber = (int)readModelEnvelope.Version.GetValueOrDefault();
+                }
+                else
+                {
+                    SetVersion(readModel, (int?) readModelEnvelope.Version);
                 }
 
                 var sql = isNew
@@ -111,7 +142,8 @@ namespace EventFlow.ReadStores.MsSql
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
         {
-            var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
+            var readModelType = typeof (TReadModel);
+            var readModelNameLowerCased = readModelType.Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
                 Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)),
@@ -119,12 +151,21 @@ namespace EventFlow.ReadStores.MsSql
                 selectSql,
                 new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
+
             var readModel = readModels.SingleOrDefault();
 
-            // TODO: Implement version support, again...
+            if (readModel == null)
+            {
+                Log.Verbose(() => $"Could not find any MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
+                return ReadModelEnvelope<TReadModel>.Empty;
+            }
 
-            return readModel == null
-                ? ReadModelEnvelope<TReadModel>.Empty
+            var readModelVersion = GetVersion(readModel);
+
+            Log.Verbose(() => $"Foud MSSQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
+
+            return readModelVersion.HasValue
+                ? ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion.Value)
                 : ReadModelEnvelope<TReadModel>.With(readModel);
         }
 
