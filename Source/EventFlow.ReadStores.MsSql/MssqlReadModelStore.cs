@@ -46,6 +46,7 @@ namespace EventFlow.ReadStores.MsSql
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
+        private readonly IReadModelFactory<TReadModel> _readModelFactory;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
 
@@ -76,11 +77,13 @@ namespace EventFlow.ReadStores.MsSql
         public MssqlReadModelStore(
             ILog log,
             IMsSqlConnection connection,
-            IReadModelSqlGenerator readModelSqlGenerator)
+            IReadModelSqlGenerator readModelSqlGenerator,
+            IReadModelFactory<TReadModel> readModelFactory)
             : base(log)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
+            _readModelFactory = readModelFactory;
         }
 
         public override async Task UpdateAsync(
@@ -100,7 +103,7 @@ namespace EventFlow.ReadStores.MsSql
 
                 if (readModel == null)
                 {
-                    readModel = new TReadModel();
+                    readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
                     mssqlReadModel = readModel as IMssqlReadModel;
                     if (mssqlReadModel != null)
                     {
