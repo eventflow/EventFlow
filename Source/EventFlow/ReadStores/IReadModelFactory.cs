@@ -22,42 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.ReadStores
 {
-    public class ReadModelEnvelope<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public interface IReadModelFactory<TReadModel>
+        where TReadModel : IReadModel, new()
     {
-        private ReadModelEnvelope(
-            string readModelId,
-            TReadModel readModel,
-            long? version)
-        {
-            if (string.IsNullOrEmpty(readModelId)) throw new ArgumentNullException(nameof(readModelId));
-
-            ReadModelId = readModelId;
-            ReadModel = readModel;
-            Version = version;
-        }
-
-        public string ReadModelId { get; }
-        public TReadModel ReadModel { get; }
-        public long? Version { get; }
-
-        public static ReadModelEnvelope<TReadModel> Empty(string readModelId)
-        {
-            return new ReadModelEnvelope<TReadModel>(readModelId, null, null);
-        }
-
-        public static ReadModelEnvelope<TReadModel> With(string readModelId, TReadModel readModel)
-        {
-            return new ReadModelEnvelope<TReadModel>(readModelId, readModel, null);
-        }
-
-        public static ReadModelEnvelope<TReadModel> With(string readModelId, TReadModel readModel, long version)
-        {
-            return new ReadModelEnvelope<TReadModel>(readModelId, readModel, version);
-        }
+        Task<TReadModel> CreateAsync(string id, CancellationToken cancellationToken);
     }
 }

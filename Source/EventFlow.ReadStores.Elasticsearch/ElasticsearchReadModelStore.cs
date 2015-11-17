@@ -67,11 +67,11 @@ namespace EventFlow.ReadStores.Elasticsearch
 
             if (!getResponse.IsValid || !getResponse.Found)
             {
-                return ReadModelEnvelope<TReadModel>.Empty;
+                return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var version = long.Parse(getResponse.Version);
-            return ReadModelEnvelope<TReadModel>.With(getResponse.Source, version);
+            return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, version);
         }
 
         public Task DeleteAllAsync(
@@ -109,8 +109,8 @@ namespace EventFlow.ReadStores.Elasticsearch
                     .ConfigureAwait(false);
 
                 var readModelEnvelope = response.Found
-                    ? ReadModelEnvelope<TReadModel>.With(response.Source, long.Parse(response.Version))
-                    : ReadModelEnvelope<TReadModel>.Empty;
+                    ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, long.Parse(response.Version))
+                    : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
 
                 readModelEnvelope = await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);
 

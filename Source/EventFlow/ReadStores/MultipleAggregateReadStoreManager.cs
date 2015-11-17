@@ -44,8 +44,9 @@ namespace EventFlow.ReadStores
             IResolver resolver,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
-            TReadModelLocator readModelLocator)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier)
+            TReadModelLocator readModelLocator,
+            IReadModelFactory<TReadModel> readModelFactory)
+            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _readModelLocator = readModelLocator;
         }
@@ -69,9 +70,9 @@ namespace EventFlow.ReadStores
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
-            var readModel = readModelEnvelope.ReadModel ?? new TReadModel();
+            var readModel = readModelEnvelope.ReadModel ?? await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
             await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
-            return ReadModelEnvelope<TReadModel>.With(readModel);
+            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel);
         }
     }
 }

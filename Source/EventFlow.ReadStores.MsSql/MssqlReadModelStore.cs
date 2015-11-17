@@ -46,6 +46,7 @@ namespace EventFlow.ReadStores.MsSql
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
+        private readonly IReadModelFactory<TReadModel> _readModelFactory;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
 
@@ -76,11 +77,13 @@ namespace EventFlow.ReadStores.MsSql
         public MssqlReadModelStore(
             ILog log,
             IMsSqlConnection connection,
-            IReadModelSqlGenerator readModelSqlGenerator)
+            IReadModelSqlGenerator readModelSqlGenerator,
+            IReadModelFactory<TReadModel> readModelFactory)
             : base(log)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
+            _readModelFactory = readModelFactory;
         }
 
         public override async Task UpdateAsync(
@@ -100,14 +103,14 @@ namespace EventFlow.ReadStores.MsSql
 
                 if (readModel == null)
                 {
-                    readModel = new TReadModel();
+                    readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
                     mssqlReadModel = readModel as IMssqlReadModel;
                     if (mssqlReadModel != null)
                     {
                         mssqlReadModel.AggregateId = readModelUpdate.ReadModelId;
                         mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
                     }
-                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModel);
+                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
                 }
 
                 readModelEnvelope = await updateReadModel(
@@ -157,7 +160,7 @@ namespace EventFlow.ReadStores.MsSql
             if (readModel == null)
             {
                 Log.Verbose(() => $"Could not find any MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
-                return ReadModelEnvelope<TReadModel>.Empty;
+                return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var readModelVersion = GetVersion(readModel);
@@ -165,8 +168,8 @@ namespace EventFlow.ReadStores.MsSql
             Log.Verbose(() => $"Foud MSSQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
-                ? ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion.Value)
-                : ReadModelEnvelope<TReadModel>.With(readModel);
+                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
+                : ReadModelEnvelope<TReadModel>.With(id, readModel);
         }
 
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)
