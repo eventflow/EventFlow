@@ -74,7 +74,7 @@ to the documentation.
   these read model storage types.
   * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
   * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
-  * [Microsoft SQL Server](Documentation/ReadStores.md#mssql)
+  * [Microsoft SQL Server](Documentation/ReadStores.md#microsoft-sql-server)
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
@@ -125,7 +125,7 @@ using (var resolver = EventFlowOptions.New
 }
 ```
 
-Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in 
+Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in
 the above example to ease reading.
 
 ## State of EventFlow

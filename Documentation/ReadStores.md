@@ -40,31 +40,56 @@ To create read models in these cases, use the EventFlow concept of read model
 locators, which is basically a mapping from a domain event to a read model ID.
 
 As an example, consider if we could add several nicknames to a user. We might
-have a domain event called `UserNicknamesAdded` similar to this.
+have a domain event called `UserNicknameAdded` similar to this.
 
 ```csharp
-public class UserNicknamesAdded : AggregateEvent<UserAggregate, UserId>
+public class UserNicknameAdded : AggregateEvent<UserAggregate, UserId>
 {
-  public IReadOnlyCollection<Nickname> Nicknames { get; set; }
+  public Nickname Nickname { get; set; }
 }
 ```
 
 We could then create a read model locator that would return the ID for each
-nickname in the `Nicknames` collection by implementing it like this. 
+nickname we add via the event like this.
 
 ```csharp
 public class UserNicknameReadModelLocator : IReadModelLocator
 {
   public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
   {
-    var userNicknamesAdded = domainEvent as
-      IDomainEvent<UserAggregate, UserId, UserNicknamesAdded>;
-    return userNicknamesAdded == null
-      ? Enumerable.Empty<string>()
-      : userNicknamesAdded.Nicknames.Select(n => n.Id);
+    var userNicknameAdded = domainEvent as
+      IDomainEvent<UserAggregate, UserId, UserNicknameAdded>;
+    if (userNicknameAdded == null)
+    {
+      yield break;
+    }
+
+    yield return userNicknameAdded.Nickname.Id;
   }
 }
 ```
+
+And then use a read model similar to this that represent each nickname.
+
+```csharp
+public class UserNicknameReadModel : IReadModel,
+  IAmReadModelFor<UserAggregate, UserId, UserNicknameAdded>
+{
+  public string UserId { get; set; }
+  public string Nickname { get; set; }
+
+  public void Apply(
+    IReadModelContext context,
+    IDomainEvent<UserAggregate, UserId, UserCreated> domainEvent)
+  {
+    UserId = domainEvent.AggregateIdentity.Value;
+    Nickname = domainEvent.AggregateEvent.Nickname.Value;
+  }
+}
+```
+
+We could then use this nickname read model to query all the nicknames for a
+given user by search for read models that have a specific `UserId`.
 
 ## Read store implementations
 
@@ -72,38 +97,60 @@ EventFlow has built-in support for several different read model stores.
 
 ### In-memory
 
+The in-memory read store is easy to use and easy to configure. All read models
+are stored in-memory, so if EventFlow is restarted all read models are lost.
 
-### Elasticsearch
-
-Configuring EventFlow to use
-[Elasticsearch](https://www.elastic.co/products/elasticsearch) as a store for
-read models is done in steps.
-
-1. Configure Elasticsearch connection in EventFlow
-1. Configure your Elasticsearch read models in EventFlow
-
-Given you have defined a read model class named `MyElasticsearchReadModel`, the
-above will look like this.
+To configure the in-memory read model store, simply call
+`UseInMemoryReadStoreFor<>` or `UseInMemoryReadStoreFor<,>` with your read
+model as the generic argument.
 
 ```csharp
 var resolver = EventFlowOptions.New
+  ...
+  .UseInMemoryReadStoreFor<UserReadModel>()
+  .UseInMemoryReadStoreFor<UserNicknameReadModel,UserNicknameReadModelLocator>()
+  ...
+  .CreateResolver();
+```
+
+### Microsoft SQL Server
+
+To configure the MSSQL read model store, simply call
+`UseMssqlReadModel<>` or `UseMssqlReadModel<,>` with your read
+model as the generic argument.
+
+```csharp
+var resolver = EventFlowOptions.New
+  ...
+  .UseMssqlReadModel<UserReadModel>()
+  .UseMssqlReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
+  ...
+  .CreateResolver();
+```
+
+### Elasticsearch
+
+To configure the [Elasticsearch](https://www.elastic.co/products/elasticsearch)
+read model store, simply call `UseElasticsearchReadModel<>` or
+`UseElasticsearchReadModel<,>` with your read model as the generic argument.
+
+```csharp
+var resolver = EventFlowOptions.New
+  ...
   .ConfigureElasticsearch(new Uri("http://localhost:9200/"))
-  .UseElasticsearchReadModel<MyElasticsearchReadModel>()
+  ...
+  .UseElasticsearchReadModel<UserReadModel>()
+  .UseElasticsearchReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
   ...
   .CreateResolver();
 ```
 
 Overloads of `ConfigureElasticsearch(...)` is available for alternative
-Elasticsearch configuration.
+Elasticsearch configurations.
 
-EventFlow makes assumptions regarding how you use Elasticsearch to store read
-models.
-
-* The host application of EventFlow is responsible for creating correct
-  Elasticsearch type mapping for any indexes by creating index templates
+Make sure to create any mapping the read model requires in Elasticsearch
+_before_ using the read model in EventFlow.
 
 If you want to control the index a specific read model is stored in, create
 create an implementation of `IReadModelDescriptionProvider` and register it
 in the [EventFlow IoC](./Customize.md).
-
-### MSSQL
