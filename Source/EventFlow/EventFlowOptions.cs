@@ -175,6 +175,7 @@ namespace EventFlow
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            serviceRegistration.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
             serviceRegistration.Register<IBootstrap, DefinitionServicesInitilizer>();
             serviceRegistration.Register(_ => ModuleRegistration, Lifetime.Singleton);
             serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
