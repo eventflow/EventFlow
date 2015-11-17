@@ -40,8 +40,9 @@ namespace EventFlow.ReadStores
             ILog log,
             IResolver resolver,
             TReadModelStore readModelStore,
-            IReadModelDomainEventApplier readModelDomainEventApplier)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier)
+            IReadModelDomainEventApplier readModelDomainEventApplier,
+            IReadModelFactory<TReadModel> readModelFactory)
+            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
         }
 
@@ -72,7 +73,7 @@ namespace EventFlow.ReadStores
 
             var readModelVersion = domainEvents.Max(e => e.AggregateSequenceNumber);
 
-            return ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion);
+            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, readModelVersion);
         }
     }
 }

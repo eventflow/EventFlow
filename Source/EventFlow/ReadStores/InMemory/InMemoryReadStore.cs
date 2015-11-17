@@ -53,7 +53,7 @@ namespace EventFlow.ReadStores.InMemory
                 ReadModelEnvelope<TReadModel> readModelEnvelope;
                 return _readModels.TryGetValue(id, out readModelEnvelope)
                     ? readModelEnvelope
-                    : ReadModelEnvelope<TReadModel>.Empty;
+                    : ReadModelEnvelope<TReadModel>.Empty(id);
             }
         }
 
@@ -92,7 +92,7 @@ namespace EventFlow.ReadStores.InMemory
                     ReadModelEnvelope<TReadModel> readModelEnvelope;
                     if (!_readModels.TryGetValue(readModelUpdate.ReadModelId, out readModelEnvelope))
                     {
-                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty;
+                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
                     }
 
                     readModelEnvelope = await updateReadModel(

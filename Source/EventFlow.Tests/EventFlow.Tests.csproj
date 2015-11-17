@@ -110,6 +110,7 @@
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\EventStores\EventStoreTests.cs" />
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadModelFactoryTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />

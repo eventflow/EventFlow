@@ -207,6 +207,7 @@
     <Compile Include="ReadStores\InMemory\Queries\InMemoryQuery.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryQueryHandler.cs" />
     <Compile Include="ReadStores\IReadModelDomainEventApplier.cs" />
+    <Compile Include="ReadStores\IReadModelFactory.cs" />
     <Compile Include="ReadStores\IReadModelPopulator.cs" />
     <Compile Include="ReadStores\IReadModelStore.cs" />
     <Compile Include="ReadStores\IReadStoreManager.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="ReadStores\ReadModelDomainEventApplier.cs" />
     <Compile Include="ReadStores\MultipleAggregateReadStoreManager.cs" />
     <Compile Include="ReadStores\ReadModelEnvelope.cs" />
+    <Compile Include="ReadStores\ReadModelFactory.cs" />
     <Compile Include="ReadStores\ReadModelPopulator.cs" />
     <Compile Include="ReadStores\ReadModelStore.cs" />
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
