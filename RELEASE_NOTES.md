@@ -1,5 +1,7 @@
 ### New in 0.22 (not released yet)
 
+* New: To customize how a specific read model is initially created, implement
+  a specific `IReadModelFactory<>` that can bootstrap that read model
 * New: How EventFlow handles MSSQL read models has been refactored to allow
   significantly more freedom to developers. MSSQL read models are no longer
   required to implement `IMssqlReadModel`, only the empty `IReadModel`
