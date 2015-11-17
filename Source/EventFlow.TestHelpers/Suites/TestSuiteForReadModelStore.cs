@@ -22,12 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
+using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
+using Ploeh.AutoFixture;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -40,7 +45,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = ThingyId.New;
 
             // Act
-            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
             readModel.Should().BeNull();
@@ -53,12 +58,57 @@ namespace EventFlow.TestHelpers.Suites
             var id = ThingyId.New;
             
             // Act
-            await PublishPingCommandAsync(id).ConfigureAwait(false);
-            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
+            await PublishPingCommandAsync(id, 5).ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(1);
+            readModel.PingsReceived.Should().Be(5);
+        }
+
+        [Test]
+        public async Task InitialReadModelVersionIsNull()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+
+            // Act
+            var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            version.Should().NotHaveValue();
+        }
+
+        [Test]
+        public async Task ReadModelVersionShouldMatchAggregate()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            const int expectedVersion = 5;
+            await PublishPingCommandAsync(thingyId, expectedVersion).ConfigureAwait(false);
+
+            // Act
+            var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            version.Should().Be((long)version);
+        }
+
+        [Test]
+        public async Task CanStoreMultipleMessages()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            var otherThingyId = ThingyId.New;
+            var thingyMessages = await CreateAndPublishThingyMessagesAsync(thingyId, 5).ConfigureAwait(false);
+            await CreateAndPublishThingyMessagesAsync(otherThingyId, 3).ConfigureAwait(false);
+
+            // Act
+            var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
+            returnedThingyMessages.ShouldAllBeEquivalentTo(thingyMessages);
         }
 
         [Test]
@@ -70,7 +120,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
-            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
             readModel.Should().BeNull();
@@ -86,11 +136,18 @@ namespace EventFlow.TestHelpers.Suites
             
             // Act
             await PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
-            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), CancellationToken.None).ConfigureAwait(false);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
             readModel.Should().NotBeNull();
             readModel.PingsReceived.Should().Be(2);
+        }
+
+        private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)
+        {
+            var thingyMessages = Fixture.CreateMany<ThingyMessage>(count).ToList();
+            await Task.WhenAll(thingyMessages.Select(m => CommandBus.PublishAsync(new ThingyAddMessageCommand(thingyId, m)))).ConfigureAwait(false);
+            return thingyMessages;
         }
 
         protected abstract Task PurgeTestAggregateReadModelAsync();

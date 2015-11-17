@@ -25,43 +25,52 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
+using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
+using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.ReadStores.MsSql.Extensions;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
-using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
-using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
+using Helpz.MsSql;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
 {
-    public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
+    public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
     {
+        private IMsSqlDatabase _testDatabase;
+
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+
             var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
-                .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
+                .RegisterServices(sr => sr.RegisterType(typeof (ThingyMessageLocator)))
+                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
+                .UseMssqlReadModel<MsSqlThingyReadModel>()
+                .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
-                    typeof(InMemoryThingyGetQueryHandler),
-                    typeof(InMemoryThingyGetVersionQueryHandler),
-                    typeof(InMemoryThingyGetMessagesQueryHandler))
+                    typeof(MsSqlThingyGetQueryHandler),
+                    typeof(MsSqlThingyGetVersionQueryHandler),
+                    typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
+
+            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
             return resolver;
         }
 
         protected override Task PurgeTestAggregateReadModelAsync()
         {
-            return Task.WhenAll(
-                ReadModelPopulator.PurgeAsync<InMemoryThingyReadModel>(CancellationToken.None),
-                ReadModelPopulator.PurgeAsync<InMemoryThingyMessageReadModel>(CancellationToken.None));
+            return ReadModelPopulator.PurgeAsync<MsSqlThingyReadModel>(CancellationToken.None);
         }
 
         protected override Task PopulateTestAggregateReadModelAsync()
         {
-            return Task.WhenAll(
-                ReadModelPopulator.PopulateAsync<InMemoryThingyReadModel>(CancellationToken.None),
-                ReadModelPopulator.PopulateAsync<InMemoryThingyMessageReadModel>(CancellationToken.None));
+            return ReadModelPopulator.PopulateAsync<MsSqlThingyReadModel>(CancellationToken.None);
         }
     }
 }

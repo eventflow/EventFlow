@@ -22,11 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System.ComponentModel.DataAnnotations.Schema;
-using EventFlow.MsSql.Tests.ReadModels;
+using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.ReadStores.MsSql;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+#pragma warning disable 618
 
 namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {
@@ -71,7 +72,7 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateSelectSql<MsSqlThingyReadModel>();
 
             // Assert
-            sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId");
+            sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @EventFlowReadModelId");
         }
 
         [Test]

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015 Rasmus Mikkelsen
 // Copyright (c) 2015 eBay Software Foundation
@@ -25,35 +25,29 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
-using EventFlow.TestHelpers.Aggregates;
+using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers.Aggregates.Queries;
-using Nest;
+using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.Integration
+namespace EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
-    public class ElasticsearchThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
+    public class InMemoryThingyGetVersionQueryHandler : IQueryHandler<ThingyGetVersionQuery, long?>
     {
-        private readonly IElasticClient _elasticClient;
-        private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
+        private readonly IInMemoryReadStore<InMemoryThingyReadModel> _readStore;
 
-        public ElasticsearchThingyGetQueryHandler(
-            IElasticClient elasticClient,
-            IReadModelDescriptionProvider readModelDescriptionProvider)
+        public InMemoryThingyGetVersionQueryHandler(
+            IInMemoryReadStore<InMemoryThingyReadModel> readStore)
         {
-            _elasticClient = elasticClient;
-            _readModelDescriptionProvider = readModelDescriptionProvider;
+            _readStore = readStore;
         }
 
-        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
+        public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
         {
-            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
-            var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
+            var readModelEnvelope = await _readStore.GetAsync(
                 query.ThingyId.Value,
-                readModelDescription.IndexName.Value)
+                cancellationToken)
                 .ConfigureAwait(false);
-            return getResponse != null && getResponse.Found
-                ? getResponse.Source.ToThingy()
-                : null;
+            return readModelEnvelope.Version;
         }
     }
 }

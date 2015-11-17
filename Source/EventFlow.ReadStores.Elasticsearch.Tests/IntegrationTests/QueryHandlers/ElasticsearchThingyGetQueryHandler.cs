@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015 Rasmus Mikkelsen
 // Copyright (c) 2015 eBay Software Foundation
@@ -22,36 +22,39 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.MsSql.Tests.ReadModels;
 using EventFlow.Queries;
+using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Queries;
+using Nest;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.QueryHandlers
+namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
-    public class MsSqlThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
+    public class ElasticsearchThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        private readonly IMsSqlConnection _msSqlConnection;
+        private readonly IElasticClient _elasticClient;
+        private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
-        public MsSqlThingyGetQueryHandler(
-            IMsSqlConnection msSqlConnection)
+        public ElasticsearchThingyGetQueryHandler(
+            IElasticClient elasticClient,
+            IReadModelDescriptionProvider readModelDescriptionProvider)
         {
-            _msSqlConnection = msSqlConnection;
+            _elasticClient = elasticClient;
+            _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
         public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            var readModels = await _msSqlConnection.QueryAsync<MsSqlThingyReadModel>(
-                Label.Named("mssql-fetch-test-read-model"),
-                cancellationToken,
-                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
-                new { AggregateId = query.ThingyId.Value })
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
+            var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
+                query.ThingyId.Value,
+                readModelDescription.IndexName.Value)
                 .ConfigureAwait(false);
-            return readModels.SingleOrDefault()?.ToThingy();
+            return getResponse != null && getResponse.Found
+                ? getResponse.Source.ToThingy()
+                : null;
         }
     }
 }

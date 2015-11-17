@@ -26,13 +26,13 @@ namespace EventFlow.ReadStores.MsSql
     public interface IReadModelSqlGenerator
     {
         string CreateInsertSql<TReadModel>()
-            where TReadModel : IMssqlReadModel;
+            where TReadModel : IReadModel;
 
         string CreateSelectSql<TReadModel>()
-            where TReadModel : IMssqlReadModel;
+            where TReadModel : IReadModel;
 
         string CreateUpdateSql<TReadModel>()
-            where TReadModel : IMssqlReadModel;
+            where TReadModel : IReadModel;
 
         string CreatePurgeSql<TReadModel>()
             where TReadModel : IReadModel;

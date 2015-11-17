@@ -21,10 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-namespace EventFlow.ReadStores.MsSql
+
+using System.Collections.Generic;
+using EventFlow.Queries;
+using EventFlow.TestHelpers.Aggregates.Entities;
+
+namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public class ThingyGetMessagesQuery : IQuery<IReadOnlyCollection<ThingyMessage>>
     {
+        public ThingyGetMessagesQuery(
+            ThingyId thingyId)
+        {
+            ThingyId = thingyId;
+        }
+
+        public ThingyId ThingyId { get; }
     }
 }
