@@ -50,7 +50,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void GetEventDefinition_EventWithVersion(Type eventType, int expectedVersion, string expectedName)
         {
             // Act
-            var eventDefinition = Sut.GetEventDefinition(eventType);
+            var eventDefinition = Sut.GetDefinition(eventType);
 
             // Assert
             eventDefinition.Name.Should().Be(expectedName);
@@ -65,7 +65,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void LoadEventsFollowedByGetEventDefinition_ReturnsCorrectAnswer(string eventName, int eventVersion, Type expectedEventType)
         {
             // Arrange
-            Sut.LoadEvents(new []
+            Sut.Load(new []
                 {
                     typeof(TestEvent),
                     typeof(TestEventV2),
@@ -74,7 +74,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 });
 
             // Act
-            var eventDefinition = Sut.GetEventDefinition(eventName, eventVersion);
+            var eventDefinition = Sut.GetDefinition(eventName, eventVersion);
 
             // Assert
             eventDefinition.Name.Should().Be(eventName);
@@ -87,8 +87,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
         {
             Assert.DoesNotThrow(() =>
             {
-                Sut.LoadEvents(new[] { typeof(TestEvent), typeof(TestEvent) });
-                Sut.LoadEvents(new[] { typeof(TestEvent) });
+                Sut.Load(new[] { typeof(TestEvent), typeof(TestEvent) });
+                Sut.Load(new[] { typeof(TestEvent) });
             });
         }
 
@@ -96,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void CanLoadNull()
         {
             // Act
-            Sut.LoadEvents(null);
+            Sut.Load(null);
         }
     }
 }

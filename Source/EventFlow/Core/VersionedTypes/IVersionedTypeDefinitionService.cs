@@ -20,23 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using System.Collections.Generic;
 
-namespace EventFlow.Jobs
+namespace EventFlow.Core.VersionedTypes
 {
-    public class JobDefinitionService : VersionedTypeDefinitionService<JobVersionAttribute, JobDefinition>, IJobDefinitionService
+    public interface IVersionedTypeDefinitionService<TAttribute, TDefinition>
+        where TAttribute : VersionedTypeAttribute
+        where TDefinition : VersionedTypeDefinition
     {
-        public JobDefinitionService(ILog log)
-            : base(log)
-        {
-        }
-
-        protected override JobDefinition CreateDefinition(int version, Type type, string name)
-        {
-            return new JobDefinition(version, type, name);
-        }
+        void Load(IEnumerable<Type> types);
+        bool TryGetDefinition(string name, int version, out TDefinition definition);
+        TDefinition GetDefinition(string name, int version);
+        TDefinition GetDefinition(Type type);
     }
 }

@@ -31,7 +31,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.Core.VersionedTypes
 {
-    public abstract class VersionedTypeDefinitionService<TAttribute, TDefinition>
+    public abstract class VersionedTypeDefinitionService<TAttribute, TDefinition> : IVersionedTypeDefinitionService<TAttribute, TDefinition>
         where TAttribute : VersionedTypeAttribute
         where TDefinition : VersionedTypeDefinition
     {
@@ -50,7 +50,7 @@ namespace EventFlow.Core.VersionedTypes
             _log = log;
         }
 
-        protected void Load(IEnumerable<Type> types)
+        public void Load(IEnumerable<Type> types)
         {
             if (types == null)
             {
@@ -94,13 +94,13 @@ namespace EventFlow.Core.VersionedTypes
             }
         }
 
-        protected bool TryGetDefinition(string name, int version, out TDefinition definition)
+        public bool TryGetDefinition(string name, int version, out TDefinition definition)
         {
             var key = GetKey(name, version);
             return _definitionsByName.TryGetValue(key, out definition);
         }
 
-        protected TDefinition GetDefinition(string name, int version)
+        public TDefinition GetDefinition(string name, int version)
         {
             TDefinition definition;
             if (!TryGetDefinition(name, version, out definition))
@@ -111,7 +111,7 @@ namespace EventFlow.Core.VersionedTypes
             return definition;
         }
 
-        protected TDefinition GetDefinition(Type type)
+        public TDefinition GetDefinition(Type type)
         {
             if (type == null)
             {

@@ -62,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.Commands
         public void GetCommandDefinition_EventWithVersion(Type commandType, int expectedVersion, string expectedName)
         {
             // Act
-            var commandDefinition = Sut.GetCommandDefinition(commandType);
+            var commandDefinition = Sut.GetDefinition(commandType);
 
             // Assert
             commandDefinition.Name.Should().Be(expectedName);
@@ -77,7 +77,7 @@ namespace EventFlow.Tests.UnitTests.Commands
         public void LoadCommandFollowedByGetCommandDefinition_ReturnsCorrectAnswer(string commandName, int commandVersion, Type expectedCommandType)
         {
             // Arrange
-            Sut.LoadCommands(new []
+            Sut.Load(new []
                 {
                     typeof(TestCommand),
                     typeof(TestCommandV2),
@@ -86,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.Commands
                 });
 
             // Act
-            var commandDefinition = Sut.GetCommandDefinition(commandName, commandVersion);
+            var commandDefinition = Sut.GetDefinition(commandName, commandVersion);
 
             // Assert
             commandDefinition.Name.Should().Be(commandName);
@@ -98,7 +98,7 @@ namespace EventFlow.Tests.UnitTests.Commands
         public void CanLoadNull()
         {
             // Act
-            Sut.LoadCommands(null);
+            Sut.Load(null);
         }
     }
 }

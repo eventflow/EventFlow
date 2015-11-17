@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System;
-using System.Collections.Generic;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 
@@ -32,26 +31,6 @@ namespace EventFlow.Commands
     {
         public CommandDefinitionService(ILog log) : base(log)
         {
-        }
-
-        public void LoadCommands(IEnumerable<Type> commandTypes)
-        {
-            Load(commandTypes);
-        }
-
-        public CommandDefinition GetCommandDefinition(Type commandType)
-        {
-            return GetDefinition(commandType);
-        }
-
-        public CommandDefinition GetCommandDefinition(string commandName, int version)
-        {
-            return GetDefinition(commandName, version);
-        }
-
-        public bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition)
-        {
-            return TryGetDefinition(name, version, out definition);
         }
 
         protected override CommandDefinition CreateDefinition(int version, Type type, string name)
