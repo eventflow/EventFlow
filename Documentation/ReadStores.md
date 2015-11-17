@@ -128,6 +128,20 @@ var resolver = EventFlowOptions.New
   .CreateResolver();
 ```
 
+By convention, EventFlow uses the table named `ReadModel-[CLASS NAME]` as the
+table to store the read models rows in. If you need to change this, use the
+`Table` from the `System.ComponentModel.DataAnnotations.Schema` namespace. So
+in the above example, the read model `UserReadModel` would be stored in
+a table called `ReadModel-UserReadModel` unless stated otherwise.
+
+To allow EventFlow to find the read models stored, a single column is required
+to have the `MsSqlReadModelIdentityColumn` attribute. This will be used to
+store the read model ID.
+
+You should also create a `int` column that has the `MsSqlReadModelVersionColumn`
+attribute to tell EventFlow which column is used to store the read model version
+in.
+
 ### Elasticsearch
 
 To configure the [Elasticsearch](https://www.elastic.co/products/elasticsearch)
