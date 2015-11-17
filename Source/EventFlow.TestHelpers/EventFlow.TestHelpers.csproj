@@ -69,12 +69,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Aggregates\Commands\ThingyAddMessageCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyNopCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyDomainErrorAfterFirstCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyPingCommand.cs" />
+    <Compile Include="Aggregates\Entities\ThingyMessage.cs" />
+    <Compile Include="Aggregates\Entities\ThingyMessageId.cs" />
+    <Compile Include="Aggregates\Entities\ThingyMessageLocator.cs" />
     <Compile Include="Aggregates\Events\ThingyDomainErrorAfterFirstEvent.cs" />
+    <Compile Include="Aggregates\Events\ThingyMessageAddedEvent.cs" />
     <Compile Include="Aggregates\Events\ThingyPingEvent.cs" />
+    <Compile Include="Aggregates\Queries\ThingyGetMessagesQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetQuery.cs" />
+    <Compile Include="Aggregates\Queries\ThingyGetVersionQuery.cs" />
     <Compile Include="Aggregates\Thingy.cs" />
     <Compile Include="Aggregates\ThingyAggregate.cs" />
     <Compile Include="Aggregates\ThingyId.cs" />
@@ -82,6 +89,7 @@
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="Extensions\EventStoreExtensions.cs" />
+    <Compile Include="Extensions\QueryProcessorExtensions.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Suites\TestSuiteForEventStore.cs" />

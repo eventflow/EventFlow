@@ -21,39 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.ComponentModel.DataAnnotations.Schema;
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.MsSql.Tests.ReadModels
+using System;
+
+namespace EventFlow.ReadStores.MsSql.Attributes
 {
-    [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlThingyReadModel : MssqlReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class MsSqlReadModelVersionColumnAttribute : Attribute
     {
-        public bool DomainErrorAfterFirstReceived { get; set; }
-        public int PingsReceived { get; set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-        {
-            PingsReceived++;
-        }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
-        {
-            DomainErrorAfterFirstReceived = true;
-        }
-
-        public Thingy ToThingy()
-        {
-            return new Thingy(
-                ThingyId.With(AggregateId),
-                PingsReceived,
-                DomainErrorAfterFirstReceived);
-        }
     }
 }

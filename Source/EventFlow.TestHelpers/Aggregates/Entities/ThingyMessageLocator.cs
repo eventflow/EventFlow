@@ -21,10 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-namespace EventFlow.ReadStores.MsSql
+
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates.Events;
+
+namespace EventFlow.TestHelpers.Aggregates.Entities
 {
-    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public class ThingyMessageLocator : IReadModelLocator
     {
+        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
+        {
+            var messageAddedEvent = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>;
+            if (messageAddedEvent == null)
+            {
+                yield break;
+            }
+
+            yield return messageAddedEvent.AggregateEvent.ThingyMessage.Id.Value;
+        }
     }
 }

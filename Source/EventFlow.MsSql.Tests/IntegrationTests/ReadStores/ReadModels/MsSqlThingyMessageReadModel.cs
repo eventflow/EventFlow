@@ -21,26 +21,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
-using EventFlow.Extensions;
 
-namespace EventFlow.ReadStores.MsSql
+using System.ComponentModel.DataAnnotations.Schema;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.ReadStores.MsSql.Attributes;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.Events;
+
+namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
 {
-    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
-    public abstract class MssqlReadModel : IMssqlReadModel
+    [Table("ReadModel-ThingyMessage")]
+    public class MsSqlThingyMessageReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
-        public string AggregateId { get; set; }
-        public DateTimeOffset CreateTime { get; set; }
-        public DateTimeOffset UpdatedTime { get; set; }
-        public int LastAggregateSequenceNumber { get; set; }
+        public string ThingyId { get; set; }
 
-        public override string ToString()
+        [MsSqlReadModelIdentityColumn]
+        public string MessageId { get; set; }
+
+        public string Message { get; set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
         {
-            return string.Format(
-                "Read model '{0}' for '{1} v{2}'",
-                GetType().PrettyPrint(),
-                AggregateId,
-                LastAggregateSequenceNumber);
+            ThingyId = domainEvent.AggregateIdentity.Value;
+
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+            MessageId = thingyMessage.Id.Value;
+            Message = thingyMessage.Message;
+        }
+
+        public ThingyMessage ToThingyMessage()
+        {
+            return new ThingyMessage(
+                ThingyMessageId.With(MessageId),
+                Message);
         }
     }
 }

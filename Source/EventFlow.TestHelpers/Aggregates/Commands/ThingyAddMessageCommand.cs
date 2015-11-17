@@ -21,10 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-namespace EventFlow.ReadStores.MsSql
+
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
+using EventFlow.TestHelpers.Aggregates.Entities;
+
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public class ThingyAddMessageCommand : Command<ThingyAggregate, ThingyId>
     {
+        public ThingyMessage ThingyMessage { get; }
+
+        public ThingyAddMessageCommand(
+            ThingyId aggregateId,
+            ThingyMessage thingyMessage)
+            : base(aggregateId)
+        {
+            ThingyMessage = thingyMessage;
+        }
+    }
+
+    public class ThingyAddMessageCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyAddMessageCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyAddMessageCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.AddMessage(command.ThingyMessage);
+            return Task.FromResult(0);
+        }
     }
 }

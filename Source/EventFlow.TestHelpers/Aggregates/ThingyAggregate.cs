@@ -23,8 +23,10 @@
 // 
 
 using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
@@ -35,13 +37,16 @@ namespace EventFlow.TestHelpers.Aggregates
         IEmit<ThingyDomainErrorAfterFirstEvent>
     {
         private readonly List<PingId> _pingsReceived = new List<PingId>();
+        private readonly List<ThingyMessage> _messages = new List<ThingyMessage>(); 
 
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
+        public IReadOnlyCollection<ThingyMessage> Messages => _messages;
 
         public ThingyAggregate(ThingyId id) : base(id)
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
+            Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
         }
 
         public void DomainErrorAfterFirst()
@@ -52,6 +57,16 @@ namespace EventFlow.TestHelpers.Aggregates
             }
 
             Emit(new ThingyDomainErrorAfterFirstEvent());
+        }
+
+        public void AddMessage(ThingyMessage message)
+        {
+            if (_messages.Any(m => m.Id == message.Id))
+            {
+                throw DomainError.With($"Thingy '{Id}' already has a message with ID '{message.Id}'");
+            }
+
+            Emit(new ThingyMessageAddedEvent(message));
         }
 
         public void Ping(PingId pingId)

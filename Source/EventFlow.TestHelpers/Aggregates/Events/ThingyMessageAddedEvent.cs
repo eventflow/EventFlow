@@ -23,38 +23,18 @@
 // 
 
 using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Entities;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    public class InMemoryThingyReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    public class ThingyMessageAddedEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        public ThingyId ThingyId { get; private set; }
-        public bool DomainErrorAfterFirstReceived { get; private set; }
-        public int PingsReceived { get; private set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        public ThingyMessageAddedEvent(
+            ThingyMessage thingyMessage)
         {
-            ThingyId = domainEvent.AggregateIdentity;
-            DomainErrorAfterFirstReceived = true;
+            ThingyMessage = thingyMessage;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-        {
-            ThingyId = domainEvent.AggregateIdentity;
-            PingsReceived++;
-        }
-
-        public Thingy ToThingy()
-        {
-            return new Thingy(
-                ThingyId,
-                PingsReceived,
-                DomainErrorAfterFirstReceived);
-        }
+        public ThingyMessage ThingyMessage { get; }
     }
 }

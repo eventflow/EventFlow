@@ -28,6 +28,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -44,9 +45,11 @@ namespace EventFlow.TestHelpers
         public void SetUpTest()
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
+
             Fixture.Customize<ThingyId>(x => x.FromFactory(() => ThingyId.New));
+            Fixture.Customize<ThingyMessageId>(x => x.FromFactory(() => ThingyMessageId.New));
             Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
-            Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named(string.Format("label-{0}", Guid.NewGuid().ToString().ToLowerInvariant()))));
+            Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named($"label-{Guid.NewGuid().ToString("D")}")));
 
             DomainEventFactory = new DomainEventFactory();
         }
