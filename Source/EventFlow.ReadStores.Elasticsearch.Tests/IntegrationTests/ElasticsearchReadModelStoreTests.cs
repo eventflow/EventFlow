@@ -79,7 +79,10 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
                 .ConfigureElasticsearch(new Uri(url))
                 .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(typeof(ElasticsearchThingyGetQueryHandler), typeof(ElasticsearchThingyGetMessagesQueryHandler))
+                .AddQueryHandlers(
+                    typeof(ElasticsearchThingyGetQueryHandler),
+                    typeof(ElasticsearchThingyGetVersionQueryHandler),
+                    typeof(ElasticsearchThingyGetMessagesQueryHandler))
                 .RegisterServices(sr => sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider))
                 .CreateResolver();
 

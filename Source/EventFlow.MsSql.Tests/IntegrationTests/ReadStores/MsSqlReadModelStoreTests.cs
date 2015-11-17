@@ -50,7 +50,10 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UseMssqlReadModel<MsSqlThingyReadModel>()
                 .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(typeof(MsSqlThingyGetQueryHandler), typeof(MsSqlThingyGetMessagesQueryHandler))
+                .AddQueryHandlers(
+                    typeof(MsSqlThingyGetQueryHandler),
+                    typeof(MsSqlThingyGetVersionQueryHandler),
+                    typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();

@@ -41,7 +41,10 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(typeof(InMemoryThingyGetQueryHandler), typeof(InMemoryThingyGetMessagesQueryHandler))
+                .AddQueryHandlers(
+                    typeof(InMemoryThingyGetQueryHandler),
+                    typeof(InMemoryThingyGetVersionQueryHandler),
+                    typeof(InMemoryThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
             return resolver;

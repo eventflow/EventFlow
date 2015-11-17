@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetMessagesQueryHandler.cs" />
+    <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetVersionQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadModels\ElasticsearchThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ElasticsearchReadModelStoreTests.cs" />
     <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetQueryHandler.cs" />

@@ -76,6 +76,7 @@
     <Compile Include="IntegrationTests\EventStores\MsSqlEventStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\MsSqlReadModelStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\MsSqlThingyGetMessagesQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\MsSqlThingyGetVersionQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\MsSqlThingyGetQueryHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\MsSqlThingyMessageReadModel.cs" />

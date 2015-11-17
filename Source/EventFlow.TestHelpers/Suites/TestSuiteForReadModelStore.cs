@@ -67,6 +67,34 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task InitialReadModelVersionIsNull()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+
+            // Act
+            var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            version.Should().NotHaveValue();
+        }
+
+        [Test]
+        public async Task ReadModelVersionShouldMatchAggregate()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            const int expectedVersion = 5;
+            await PublishPingCommandAsync(thingyId, expectedVersion).ConfigureAwait(false);
+
+            // Act
+            var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            version.Should().Be((long)version);
+        }
+
+        [Test]
         public async Task CanStoreMultipleMessages()
         {
             // Arrange

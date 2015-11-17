@@ -78,6 +78,7 @@
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetMessagesQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetVersionQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
