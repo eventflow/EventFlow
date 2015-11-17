@@ -110,7 +110,7 @@ namespace EventFlow.ReadStores.MsSql
                         mssqlReadModel.AggregateId = readModelUpdate.ReadModelId;
                         mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
                     }
-                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModel);
+                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
                 }
 
                 readModelEnvelope = await updateReadModel(
@@ -160,7 +160,7 @@ namespace EventFlow.ReadStores.MsSql
             if (readModel == null)
             {
                 Log.Verbose(() => $"Could not find any MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
-                return ReadModelEnvelope<TReadModel>.Empty;
+                return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var readModelVersion = GetVersion(readModel);
@@ -168,8 +168,8 @@ namespace EventFlow.ReadStores.MsSql
             Log.Verbose(() => $"Foud MSSQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
-                ? ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion.Value)
-                : ReadModelEnvelope<TReadModel>.With(readModel);
+                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
+                : ReadModelEnvelope<TReadModel>.With(id, readModel);
         }
 
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)

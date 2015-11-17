@@ -47,6 +47,7 @@ namespace EventFlow.ReadStores
         protected IResolver Resolver { get; }
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
+        protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
 
         protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
         protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
@@ -71,12 +72,14 @@ namespace EventFlow.ReadStores
             ILog log,
             IResolver resolver,
             TReadModelStore readModelStore,
-            IReadModelDomainEventApplier readModelDomainEventApplier)
+            IReadModelDomainEventApplier readModelDomainEventApplier,
+            IReadModelFactory<TReadModel> readModelFactory)
         {
             Log = log;
             Resolver = resolver;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
+            ReadModelFactory = readModelFactory;
         }
 
         public async Task UpdateReadStoresAsync(
