@@ -20,10 +20,14 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using EventFlow.Extensions;
 
 namespace EventFlow.Core
 {
@@ -38,6 +42,30 @@ namespace EventFlow.Core
                 path :
                 Path.GetDirectoryName(path);
             return codeBase;
+        }
+
+        public static TResult CallFactory<T, TResult>(Type type, string methodName)
+        {
+            var methodInfo = type
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .SingleOrDefault(m => m.Name == methodName);
+
+            if (methodInfo == null)
+            {
+                throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
+            }
+
+            var instanceExpression = Expression.Parameter(type);
+            var argumentExpressions = methodInfo
+                .GetParameters()
+                .Select(p => Expression.Parameter(p.ParameterType))
+                .ToList();
+            var callExpression = Expression.Call(instanceExpression, methodInfo, argumentExpressions);
+
+            var lambdaArguments = new[] { instanceExpression }.Concat(argumentExpressions);
+            var lambdaExpression = Expression.Lambda<TResult>(callExpression, lambdaArguments);
+
+            return lambdaExpression.Compile();
         }
     }
 }
