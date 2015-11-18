@@ -118,7 +118,9 @@
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="Core\VersionedTypes\IVersionedTypeDefinitionService.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedTypeUpgradeService.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeUpgradeService.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="EventFlowOptions.cs" />
