@@ -84,12 +84,15 @@ namespace EventFlow.Queries
                 .GetInterfaces()
                 .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
             var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
-            var methodInfo = queryHandlerType.GetMethod("ExecuteQueryAsync");
+            var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<object, object, CancellationToken, object>>(
+                queryHandlerType,
+                "ExecuteQueryAsync",
+                queryType, typeof(CancellationToken));
             return new CacheItem
                 {
                     QueryHandlerType = queryHandlerType,
-                    HandlerFunc = (h, q, c) => methodInfo.Invoke(h, new object[]{q, c})
-                };
+                    HandlerFunc = invokeExecuteQueryAsync
+            };
         }
     }
 }
