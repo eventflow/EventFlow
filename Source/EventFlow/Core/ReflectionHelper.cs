@@ -65,14 +65,12 @@ namespace EventFlow.Core
                 throw new ArgumentException("Incorrect number of arguments");
             }
 
-            var varCnt = 1;
-
-            var instanceArgument = Expression.Parameter(genericArguments[0], $"arg{varCnt}"); varCnt++;
+            var instanceArgument = Expression.Parameter(genericArguments[0]);;
             var lambdaArgument = new List<ParameterExpression>
                 {
                     instanceArgument,
                 };
-            var instanceVariable = Expression.Variable(type, $"var{varCnt}"); varCnt++;
+            var instanceVariable = Expression.Variable(type);
             var blockVariables = new List<ParameterExpression>
                 {
                         instanceVariable,
@@ -84,8 +82,8 @@ namespace EventFlow.Core
             var callArguments = new List<ParameterExpression>();
             foreach (var a in funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}))
             {
-                var sourceParameter = Expression.Parameter(a.Source, $"arg{varCnt}"); varCnt++;
-                var destinationVariable = Expression.Variable(a.Destination, $"var{varCnt}"); varCnt++;
+                var sourceParameter = Expression.Parameter(a.Source);
+                var destinationVariable = Expression.Variable(a.Destination);
                 var assignToDestination = Expression.Assign(destinationVariable, Expression.ConvertChecked(sourceParameter, a.Destination));
 
                 lambdaArgument.Add(sourceParameter);
