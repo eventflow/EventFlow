@@ -45,11 +45,11 @@ namespace EventFlow.Core
             return codeBase;
         }
 
-        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName)
+        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, Type[] methodSignature = null)
         {
-            var methodInfo = type
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .SingleOrDefault(m => m.Name == methodName);
+            var methodInfo = methodSignature == null
+                ? type.GetMethods(BindingFlags.Instance | BindingFlags.Public).SingleOrDefault(m => m.Name == methodName)
+                : type.GetMethod(methodName, methodSignature);
 
             if (methodInfo == null)
             {
@@ -57,8 +57,8 @@ namespace EventFlow.Core
             }
 
             var genericArguments = typeof (TResult).GetGenericArguments();
-            var funcArgumentList = genericArguments.Skip(1).Take(genericArguments.Length - 2).ToList();
             var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();
+            var funcArgumentList = genericArguments.Skip(1).Take(methodArgumentList.Count).ToList();
 
             if (funcArgumentList.Count != methodArgumentList.Count)
             {
