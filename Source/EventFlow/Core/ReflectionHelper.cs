@@ -45,7 +45,7 @@ namespace EventFlow.Core
             return codeBase;
         }
 
-        public static TResult CallFactory<TResult>(Type type, string methodName)
+        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName)
         {
             var methodInfo = type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public)

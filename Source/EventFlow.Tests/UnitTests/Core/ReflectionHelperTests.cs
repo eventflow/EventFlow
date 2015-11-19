@@ -32,10 +32,10 @@ namespace EventFlow.Tests.UnitTests.Core
     public class ReflectionHelperTests
     {
         [Test]
-        public void CallFactory()
+        public void CompileMethodInvocation()
         {
             // Act
-            var caller = ReflectionHelper.CallFactory<Func<Calculator, int, int, int>>(typeof (Calculator), "Add");
+            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof (Calculator), "Add");
             var result = caller(new Calculator(), 1, 2);
 
             // Assert
