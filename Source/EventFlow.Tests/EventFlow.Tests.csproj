@@ -75,8 +75,12 @@
     <Compile Include="IntegrationTests\DomainTests.cs" />
     <Compile Include="IntegrationTests\EventStores\FilesEventStoreTests.cs" />
     <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
-    <Compile Include="IntegrationTests\InMemoryConfiguration.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetMessagesQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetVersionQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyMessageReadModel.cs" />
+    <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\EventStores\EventStoreTests.cs" />
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadModelFactoryTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />

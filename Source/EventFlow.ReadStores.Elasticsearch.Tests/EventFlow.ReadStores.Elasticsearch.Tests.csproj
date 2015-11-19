@@ -67,9 +67,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ElasticsearchTestAggregateReadModel.cs" />
-    <Compile Include="Integration\ElasticsearchIntegrationTestConfiguration.cs" />
-    <Compile Include="Integration\ElasticsearchReadModelStoreTests.cs" />
+    <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetMessagesQueryHandler.cs" />
+    <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetVersionQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadModels\ElasticsearchThingyReadModel.cs" />
+    <Compile Include="IntegrationTests\ElasticsearchReadModelStoreTests.cs" />
+    <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadModels\ElasticsearchThingyMessageReadModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

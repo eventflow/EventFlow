@@ -49,6 +49,8 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Attributes\MsSqlReadModelIdentityColumnAttribute.cs" />
+    <Compile Include="Attributes\MsSqlReadModelVersionColumnAttribute.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMssqlReadModel.cs" />
     <Compile Include="IMssqlReadModelStore.cs" />

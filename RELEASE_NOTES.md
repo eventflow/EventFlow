@@ -1,4 +1,28 @@
-### New in 0.21 (not released yet)
+### New in 0.22 (not released yet)
+
+* New: To customize how a specific read model is initially created, implement
+  a specific `IReadModelFactory<>` that can bootstrap that read model
+* New: How EventFlow handles MSSQL read models has been refactored to allow
+  significantly more freedom to developers. MSSQL read models are no longer
+  required to implement `IMssqlReadModel`, only the empty `IReadModel`
+  interface. Effectively, this means that no specific columns are required,
+  meaning that the following columns are no longer enforced on MSSQL read
+  models. Use the new required `MsSqlReadModelIdentityColumn` attribute to mark
+  the identity column and the optional (but recommended)
+  `MsSqlReadModelVersionColumn` to mark the version column.
+  - `string AggregateId`
+  - `DateTimeOffset CreateTime`
+  - `DateTimeOffset UpdatedTime`
+  - `int LastAggregateSequenceNumber`
+* Obsolete: `IMssqlReadModel` and `MssqlReadModel`. Developers should instead
+  use the `MsSqlReadModelIdentityColumn` and `MsSqlReadModelVersionColumn`
+  attributes to mark the identity and version columns (read above).
+  EventFlow will continue to support `IMssqlReadModel`, but it _will_ be
+  removed at some point in the future
+* Fixed: Added missing `UseElasticsearchReadModel<TReadModel, TReadModelLocator>()`
+  extension
+
+### New in 0.21.1312 (released 2015-10-26)
 
 * New: Added `Identity<>.NewComb()` that creates sequential unique IDs which can
   be used to minimize database fragmentation

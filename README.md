@@ -43,7 +43,7 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 
 ### Examples
 
-* **[Simple](#simple example):** Shows the key concepts of EventFlow in a few
+* **[Simple](#simple-example):** Shows the key concepts of EventFlow in a few
   lines of code
 * **Shipping:** To get a more complete example of how EventFlow _could_ be used,
   have a look at the shipping example found here in the code base. The example
@@ -69,12 +69,12 @@ to the documentation.
  * Files - only for test
  * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
-* **Read models:** Denormalized representation of aggregate events
-  optimized for reading fast. Currently there is support for these
-  read model storage types.
-  * [Elasticsearch](./Documentation/ReadStores-Elasticsearch.md)
-  * In-memory - only for test
-  * Microsoft SQL Server
+* [**Read models:**](./Documentation/ReadStores.md) Denormalized representation
+  of aggregate events optimized for reading fast. Currently there is support for
+  these read model storage types.
+  * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
+  * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
+  * [Microsoft SQL Server](Documentation/ReadStores.md#microsoft-sql-server)
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
@@ -125,7 +125,8 @@ using (var resolver = EventFlowOptions.New
 }
 ```
 
-Note: `.ConfigureAwait(false)` omitted in above example.
+Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in
+the above example to ease reading.
 
 ## State of EventFlow
 
@@ -197,8 +198,8 @@ several areas that you could help out with.
 
 ## Thanks
 
-[![ReSharper](./Documentation/Images/logo_resharper.png)](https://www.jetbrains.com/resharper/)
-
+* [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
+* [iconmonstr](http://iconmonstr.com/network-6-icon/): Free icons for EventFlow
 
 ## License
 
@@ -206,6 +207,7 @@ several areas that you could help out with.
 The MIT License (MIT)
 
 Copyright (c) 2015 Rasmus Mikkelsen
+Copyright (c) 2015 eBay Software Foundation
 https://github.com/rasmus/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
