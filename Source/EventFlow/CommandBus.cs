@@ -205,11 +205,13 @@ namespace EventFlow
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
 
+                        var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(commandHandlerType, "ExecuteAsync");
+
                         return new CommandExecutionDetails
                             {
                                 AggregateType = commandTypes[0],
                                 CommandHandlerType = commandHandlerType,
-                                Invoker = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(commandHandlerType, "ExecuteAsync")
+                                Invoker = invokeExecuteAsync
                             };
                     });
         }
