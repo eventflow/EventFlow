@@ -23,6 +23,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -44,7 +45,7 @@ namespace EventFlow.Core
             return codeBase;
         }
 
-        public static TResult CallFactory<T, TResult>(Type type, string methodName)
+        public static TResult CallFactory<TResult>(Type type, string methodName)
         {
             var methodInfo = type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public)
@@ -55,15 +56,50 @@ namespace EventFlow.Core
                 throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
             }
 
-            var instanceExpression = Expression.Parameter(type);
-            var argumentExpressions = methodInfo
-                .GetParameters()
-                .Select(p => Expression.Parameter(p.ParameterType))
-                .ToList();
-            var callExpression = Expression.Call(instanceExpression, methodInfo, argumentExpressions);
+            var genericArguments = typeof (TResult).GetGenericArguments();
+            var funcArgumentList = genericArguments.Skip(1).Take(genericArguments.Length - 2).ToList();
+            var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();
 
-            var lambdaArguments = new[] { instanceExpression }.Concat(argumentExpressions);
-            var lambdaExpression = Expression.Lambda<TResult>(callExpression, lambdaArguments);
+            if (funcArgumentList.Count != methodArgumentList.Count)
+            {
+                throw new ArgumentException("Incorrect number of arguments");
+            }
+
+            var varCnt = 1;
+
+            var instanceArgument = Expression.Parameter(genericArguments[0], $"arg{varCnt}"); varCnt++;
+            var lambdaArgument = new List<ParameterExpression>
+                {
+                    instanceArgument,
+                };
+            var instanceVariable = Expression.Variable(type, $"var{varCnt}"); varCnt++;
+            var blockVariables = new List<ParameterExpression>
+                {
+                        instanceVariable,
+                };
+            var blockExpressions = new List<Expression>
+                {
+                    Expression.Assign(instanceVariable, Expression.ConvertChecked(instanceArgument, type))
+                };
+            var callArguments = new List<ParameterExpression>();
+            foreach (var a in funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}))
+            {
+                var sourceParameter = Expression.Parameter(a.Source, $"arg{varCnt}"); varCnt++;
+                var destinationVariable = Expression.Variable(a.Destination, $"var{varCnt}"); varCnt++;
+                var assignToDestination = Expression.Assign(destinationVariable, Expression.ConvertChecked(sourceParameter, a.Destination));
+
+                lambdaArgument.Add(sourceParameter);
+                callArguments.Add(destinationVariable);
+                blockVariables.Add(destinationVariable);
+                blockExpressions.Add(assignToDestination);
+            }
+
+            var callExpression = Expression.Call(instanceVariable, methodInfo, callArguments);
+            blockExpressions.Add(callExpression);
+
+            var block = Expression.Block(blockVariables, blockExpressions);
+
+            var lambdaExpression = Expression.Lambda<TResult>(block, lambdaArgument);
 
             return lambdaExpression.Compile();
         }

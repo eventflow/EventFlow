@@ -35,7 +35,7 @@ namespace EventFlow.Tests.UnitTests.Core
         public void CallFactory()
         {
             // Act
-            var caller = ReflectionHelper.CallFactory<int, Func<Calculator, int, int, int>>(typeof (Calculator), "Add");
+            var caller = ReflectionHelper.CallFactory<Func<Calculator, int, int, int>>(typeof (Calculator), "Add");
             var result = caller(new Calculator(), 1, 2);
 
             // Assert

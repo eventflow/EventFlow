@@ -211,7 +211,7 @@ namespace EventFlow
                             {
                                 AggregateType = commandTypes[0],
                                 CommandHandlerType = commandHandlerType,
-                                Invoker = ((h, a, command, c) => (Task)invoker.Invoke(h, new object[] { a, command, c }))
+                                Invoker = ReflectionHelper.CallFactory<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(commandHandlerType, "ExecuteAsync") // ((h, a, command, c) => (Task)invoker.Invoke(h, new object[] { a, command, c }))
                             };
                     });
         }
