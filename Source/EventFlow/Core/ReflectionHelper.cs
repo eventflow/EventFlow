@@ -45,9 +45,9 @@ namespace EventFlow.Core
             return codeBase;
         }
 
-        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, Type[] methodSignature = null)
+        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, params Type[] methodSignature)
         {
-            var methodInfo = methodSignature == null
+            var methodInfo = methodSignature == null || !methodSignature.Any()
                 ? type.GetMethods(BindingFlags.Instance | BindingFlags.Public).SingleOrDefault(m => m.Name == methodName)
                 : type.GetMethod(methodName, methodSignature);
 
