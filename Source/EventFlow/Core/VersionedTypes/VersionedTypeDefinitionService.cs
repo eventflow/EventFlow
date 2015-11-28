@@ -43,7 +43,7 @@ namespace EventFlow.Core.VersionedTypes
 
         private readonly ILog _log;
         private readonly Dictionary<Type, TDefinition> _definitionsByType = new Dictionary<Type, TDefinition>();
-        private readonly Dictionary<string, TDefinition> _definitionsByName = new Dictionary<string, TDefinition>();
+        private readonly Dictionary<string, Dictionary<int, TDefinition>> _definitionByNameAndVersion = new Dictionary<string, Dictionary<int, TDefinition>>(); 
 
         protected VersionedTypeDefinitionService(
             ILog log)
@@ -58,7 +58,10 @@ namespace EventFlow.Core.VersionedTypes
                 return;
             }
 
-            var definitions = types.Select(GetDefinition).ToList();
+            var definitions = types
+                .Distinct()
+                .Select(GetDefinition)
+                .ToList();
             if (!definitions.Any())
             {
                 return;
@@ -80,25 +83,37 @@ namespace EventFlow.Core.VersionedTypes
 
             foreach (var definition in definitions)
             {
-                var key = GetKey(definition.Name, definition.Version);
-                if (!_definitionsByName.ContainsKey(key))
+                Dictionary<int, TDefinition> versions;
+                if (!_definitionByNameAndVersion.TryGetValue(definition.Name, out versions))
                 {
-                    _definitionsByName.Add(key, definition);
+                    versions = new Dictionary<int, TDefinition>();
+                    _definitionByNameAndVersion.Add(definition.Name, versions);
                 }
-                else
+
+                if (versions.ContainsKey(definition.Version))
                 {
                     _log.Information(
                         "Already loaded versioned type '{0}' v{1}, skipping it",
                         definition.Name,
                         definition.Version);
+                    continue;
                 }
+
+                versions.Add(definition.Version, definition);
             }
         }
 
         public bool TryGetDefinition(string name, int version, out TDefinition definition)
         {
-            var key = GetKey(name, version);
-            return _definitionsByName.TryGetValue(key, out definition);
+            Dictionary<int, TDefinition> versions;
+            if (_definitionByNameAndVersion.TryGetValue(name, out versions))
+            {
+                return versions.TryGetValue(version, out definition);
+            }
+
+            definition = null;
+
+            return false;
         }
 
         public TDefinition GetDefinition(string name, int version)
@@ -137,6 +152,8 @@ namespace EventFlow.Core.VersionedTypes
 
             return definition;
         }
+
+        protected abstract TDefinition CreateDefinition(int version, Type type, string name);
 
         private IEnumerable<TDefinition> CreateDefinitions(Type versionedType)
         {
@@ -178,13 +195,6 @@ namespace EventFlow.Core.VersionedTypes
                     attribute.Version,
                     versionedType,
                     attribute.Name);
-        }
-
-        protected abstract TDefinition CreateDefinition(int version, Type type, string name);
-
-        private static string GetKey(string versionedTypeName, int version)
-        {
-            return $"{versionedTypeName} - v{version}";
         }
     }
 }
