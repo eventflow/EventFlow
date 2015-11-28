@@ -103,6 +103,19 @@ namespace EventFlow.Core.VersionedTypes
             }
         }
 
+        public IEnumerable<TDefinition> GetDefinitions(string name)
+        {
+            Dictionary<int, TDefinition> versions;
+            return _definitionByNameAndVersion.TryGetValue(name, out versions)
+                ? versions.Values.OrderBy(d => d.Version)
+                : Enumerable.Empty<TDefinition>();
+        }
+
+        public IEnumerable<TDefinition> GetAllDefinitions()
+        {
+            return _definitionByNameAndVersion.SelectMany(kv => kv.Value.Values);
+        } 
+
         public bool TryGetDefinition(string name, int version, out TDefinition definition)
         {
             Dictionary<int, TDefinition> versions;
