@@ -177,7 +177,9 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IEventFlowOptions.cs" />
     <Compile Include="Jobs\IJobId.cs" />
+    <Compile Include="Jobs\IJobUpgradeService.cs" />
     <Compile Include="Jobs\JobId.cs" />
+    <Compile Include="Jobs\JobUpgradeService.cs" />
     <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
     <Compile Include="Jobs\IJob.cs" />
     <Compile Include="Jobs\IJobDefinitionService.cs" />

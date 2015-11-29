@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using EventFlow.Logs;
+
 namespace EventFlow.Core.VersionedTypes
 {
     public abstract class VersionedTypeUpgradeService<TAttribute, TDefinition, TDefinitionService> : IVersionedTypeUpgradeService<TAttribute, TDefinition>
@@ -29,12 +31,15 @@ namespace EventFlow.Core.VersionedTypes
         where TDefinition : VersionedTypeDefinition
         where TDefinitionService : IVersionedTypeDefinitionService<TAttribute, TDefinition>
     {
-        private readonly TDefinitionService _definitionService;
+        protected ILog Log { get; private set; }
+        protected TDefinitionService DefinitionService { get; private set; }
 
         protected VersionedTypeUpgradeService(
+            ILog log,
             TDefinitionService definitionService)
         {
-            _definitionService = definitionService;
+            Log = log;
+            DefinitionService = definitionService;
         }
     }
 }

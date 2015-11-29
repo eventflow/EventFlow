@@ -22,22 +22,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 
 namespace EventFlow.Jobs
 {
-    public class JobDefinitionService : VersionedTypeDefinitionService<JobVersionAttribute, JobDefinition>, IJobDefinitionService
+    public class JobUpgradeService : VersionedTypeUpgradeService<JobVersionAttribute, JobDefinition, IJobDefinitionService>
     {
-        public JobDefinitionService(ILog log)
-            : base(log)
+        public JobUpgradeService(
+            ILog log,
+            IJobDefinitionService definitionService)
+            : base(log, definitionService)
         {
         }
 
-        protected override JobDefinition CreateDefinition(int version, Type type, string name)
+        public Task<IJob> UpgradeAsync(IJob job, CancellationToken cancellationToken)
         {
-            return new JobDefinition(version, type, name);
+            var definition = DefinitionService.GetDefinition(job.GetType());
+            var versionedTypes = DefinitionService.GetDefinitions(definition.Name)
+                .ToList();
+            var versionsUpgrade = versionedTypes
+                .Where(d => d.Version > definition.Version)
+                .ToList();
+
+            if (!versionsUpgrade.Any())
+            {
+                Log.Verbose($"Nothing to upgrade for job '{definition}'");
+                return Task.FromResult(job);
+            }
+
+            Log.Verbose(() => $"Upgrading job '{definition}' through these: {string.Join(", ", versionsUpgrade.Select(d => d.ToString()))}");
+
+            return null;
         }
     }
 }
