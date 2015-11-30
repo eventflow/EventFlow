@@ -35,11 +35,34 @@ namespace EventFlow.Tests.UnitTests.Core
         public void CompileMethodInvocation()
         {
             // Act
-            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof (Calculator), "Add");
+            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof (Calculator), "Add", typeof(int), typeof(int));
             var result = caller(new Calculator(), 1, 2);
 
             // Assert
             result.Should().Be(3);
+        }
+
+        [Test]
+        public void CompileMethodInvocation_CanUpcast()
+        {
+            // Arrange
+            var a = (INumber) new Number {I = 1};
+            var b = (INumber) new Number {I = 2};
+
+            // Act
+            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, INumber, INumber, INumber>>(typeof(Calculator), "Add", typeof(Number), typeof(Number));
+            var result = caller(new Calculator(), a, b);
+
+            // Assert
+            var c = (Number) result;
+            c.I.Should().Be(3);
+        }
+
+        public interface INumber { }
+
+        public class Number : INumber
+        {
+            public int I { get; set; }
         }
 
         public class Calculator
@@ -47,6 +70,11 @@ namespace EventFlow.Tests.UnitTests.Core
             public int Add(int a, int b)
             {
                 return a + b;
+            }
+
+            public Number Add(Number a, Number b)
+            {
+                return new Number {I = Add(a.I, b.I)};
             }
         }
     }

@@ -45,6 +45,10 @@ namespace EventFlow.Core
             return codeBase;
         }
 
+        /// <summary>
+        /// Handles correct upcast. If no upcast was needed, then this could be exchanged to an <c>Expression.Call</c>
+        /// and an <c>Expression.Lambda</c>.
+        /// </summary>
         public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, params Type[] methodSignature)
         {
             var methodInfo = methodSignature == null || !methodSignature.Any()
@@ -66,6 +70,15 @@ namespace EventFlow.Core
             }
 
             var instanceArgument = Expression.Parameter(genericArguments[0]);;
+
+            var argumentPairs = funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}).ToList();
+            if (argumentPairs.All(a => a.Source == a.Destination))
+            {
+                // No need to do anything fancy, the types are the same
+                var parameters = funcArgumentList.Select(Expression.Parameter).ToList();
+                return Expression.Lambda<TResult>(Expression.Call(instanceArgument, methodInfo, parameters), new [] { instanceArgument }.Concat(parameters)).Compile();
+            }
+
             var lambdaArgument = new List<ParameterExpression>
                 {
                     instanceArgument,
@@ -80,7 +93,8 @@ namespace EventFlow.Core
                     Expression.Assign(instanceVariable, Expression.ConvertChecked(instanceArgument, type))
                 };
             var callArguments = new List<ParameterExpression>();
-            foreach (var a in funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}))
+
+            foreach (var a in argumentPairs)
             {
                 var sourceParameter = Expression.Parameter(a.Source);
                 var destinationVariable = Expression.Variable(a.Destination);
