@@ -118,9 +118,7 @@
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
     <Compile Include="Core\VersionedTypes\IVersionedTypeDefinitionService.cs" />
-    <Compile Include="Core\VersionedTypes\IVersionedTypeUpgradeService.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
-    <Compile Include="Core\VersionedTypes\VersionedTypeUpgradeService.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="EventFlowOptions.cs" />
@@ -177,9 +175,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IEventFlowOptions.cs" />
     <Compile Include="Jobs\IJobId.cs" />
-    <Compile Include="Jobs\IJobUpgradeService.cs" />
     <Compile Include="Jobs\JobId.cs" />
-    <Compile Include="Jobs\JobUpgradeService.cs" />
     <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
     <Compile Include="Jobs\IJob.cs" />
     <Compile Include="Jobs\IJobDefinitionService.cs" />
