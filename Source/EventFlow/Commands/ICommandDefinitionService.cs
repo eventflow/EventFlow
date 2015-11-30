@@ -21,16 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
-using System.Collections.Generic;
+
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Commands
 {
-    public interface ICommandDefinitionService
+    public interface ICommandDefinitionService : IVersionedTypeDefinitionService<CommandVersionAttribute, CommandDefinition>
     {
-        void LoadCommands(IEnumerable<Type> commandTypes);
-        CommandDefinition GetCommandDefinition(Type commandType);
-        CommandDefinition GetCommandDefinition(string commandName, int version);
-        bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition);
     }
 }

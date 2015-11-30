@@ -23,57 +23,76 @@
 // 
 
 using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+using EventFlow.Jobs;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
+using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.EventStores
+namespace EventFlow.Tests.UnitTests.Jobs
 {
-    public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, IAggregateEvent, EventVersionAttribute, EventDefinition>
+    [TestFixture]
+    public class JobDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<JobDefinitionService, IJob, JobVersionAttribute, JobDefinition>
     {
-        [EventVersion("Fancy", 42)]
-        public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        [JobVersion("Fancy", 42)]
+        public class TestJobWithLongName : IJob
+        {
+            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
-        public class TestEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        public class TestJob : IJob
+        {
+            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
-        public class TestEventV2 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        public class TestJobV2 : IJob
+        {
+            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
-        public class OldTestEventV5 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
-
-        public class OldThe5ThEventV4 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        public class OldTestJobV5 : IJob
+        {
+            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         public override IEnumerable<VersionTypeTestCase> GetTestCases()
         {
             yield return new VersionTypeTestCase
                 {
-                    Name = "TestEvent",
-                    Type = typeof(TestEvent),
+                    Name = "TestJob",
+                    Type = typeof(TestJob),
                     Version = 1,
                 };
             yield return new VersionTypeTestCase
                 {
-                    Name = "TestEvent",
-                    Type = typeof(TestEventV2),
+                    Name = "TestJob",
+                    Type = typeof(TestJobV2),
                     Version = 2,
                 };
             yield return new VersionTypeTestCase
                 {
-                    Name = "TestEvent",
-                    Type = typeof(OldTestEventV5),
+                    Name = "TestJob",
+                    Type = typeof(OldTestJobV5),
                     Version = 5,
                 };
             yield return new VersionTypeTestCase
                 {
                     Name = "Fancy",
-                    Type = typeof(TestEventWithLongName),
+                    Type = typeof(TestJobWithLongName),
                     Version = 42,
-                };
-            yield return new VersionTypeTestCase
-                {
-                    Name = "The5ThEvent",
-                    Type = typeof(OldThe5ThEventV4),
-                    Version = 4,
                 };
         }
     }

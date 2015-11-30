@@ -61,7 +61,7 @@ namespace EventFlow.Jobs
         public Task ExecuteAsync(string jobName, int version, string json, CancellationToken cancellationToken)
         {
             JobDefinition jobDefinition;
-            if (!_jobDefinitionService.TryGetJobDefinition(jobName, version, out jobDefinition))
+            if (!_jobDefinitionService.TryGetDefinition(jobName, version, out jobDefinition))
             {
                 throw UnknownJobException.With(jobName, version);
             }
