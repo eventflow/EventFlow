@@ -23,12 +23,13 @@
 // 
 
 using System;
+using EventFlow.Aggregates;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
     {
         public EventDefinitionService(ILog log)
             : base(log)

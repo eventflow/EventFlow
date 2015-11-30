@@ -32,8 +32,8 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 {
-    public abstract class VersionedTypeDefinitionServiceTestSuite<TSut, TAttribute, TDefinition> : TestsFor<TSut>
-        where TSut : VersionedTypeDefinitionService<TAttribute, TDefinition>
+    public abstract class VersionedTypeDefinitionServiceTestSuite<TSut, TTypeCheck, TAttribute, TDefinition> : TestsFor<TSut>
+        where TSut : VersionedTypeDefinitionService<TTypeCheck, TAttribute, TDefinition>
         where TAttribute : VersionedTypeAttribute
         where TDefinition : VersionedTypeDefinition
     {
@@ -48,7 +48,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
         public void Load_FollowedBy_GetEventDefinition_ReturnsCorrectAnswer(VersionTypeTestCase testCase)
         {
             // Arrange
-            Sut.Load(GetTestCases().Select(t => t.Type));
+            Sut.Load(GetTestCases().Select(t => t.Type).ToList());
 
             // Act
             var eventDefinition = Sut.GetDefinition(testCase.Name, testCase.Version);
@@ -81,10 +81,17 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
         }
 
         [Test]
+        public void Load_CalledWithInvalidType_ThrowsException()
+        {
+            // Act + Assert
+            Assert.Throws<ArgumentException>(() => Sut.Load(typeof (object)));
+        }
+
+        [Test]
         public void CanLoadNull()
         {
             // Act + Assert
-            Sut.Load(null);
+            Assert.DoesNotThrow(() => Sut.Load(null));
         }
 
         public abstract IEnumerable<VersionTypeTestCase> GetTestCases();

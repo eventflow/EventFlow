@@ -30,7 +30,7 @@ using EventFlow.Tests.UnitTests.Core.VersionedTypes;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
-    public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, EventVersionAttribute, EventDefinition>
+    public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, IAggregateEvent, EventVersionAttribute, EventDefinition>
     {
         [EventVersion("Fancy", 42)]
         public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }

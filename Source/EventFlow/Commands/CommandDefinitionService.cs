@@ -27,7 +27,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.Commands
 {
-    public class CommandDefinitionService : VersionedTypeDefinitionService<CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
+    public class CommandDefinitionService : VersionedTypeDefinitionService<ICommand, CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
     {
         public CommandDefinitionService(ILog log) : base(log)
         {

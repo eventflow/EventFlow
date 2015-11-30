@@ -33,7 +33,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.Core.VersionedTypes
 {
-    public abstract class VersionedTypeDefinitionService<TAttribute, TDefinition> : IVersionedTypeDefinitionService<TAttribute, TDefinition>
+    public abstract class VersionedTypeDefinitionService<TTypeCheck, TAttribute, TDefinition> : IVersionedTypeDefinitionService<TAttribute, TDefinition>
         where TAttribute : VersionedTypeAttribute
         where TDefinition : VersionedTypeDefinition
     {
@@ -53,11 +53,25 @@ namespace EventFlow.Core.VersionedTypes
             _log = log;
         }
 
-        public void Load(IEnumerable<Type> types)
+        public void Load(params Type[] types)
+        {
+            Load((IReadOnlyCollection<Type>) types);
+        }
+
+        public void Load(IReadOnlyCollection<Type> types)
         {
             if (types == null)
             {
                 return;
+            }
+
+            var invalidTypes = types
+                .Where(t => !typeof (TTypeCheck)
+                .IsAssignableFrom(t))
+                .ToList();
+            if (invalidTypes.Any())
+            {
+                throw new ArgumentException($"The following types are not of type '{typeof(TTypeCheck).PrettyPrint()}': {string.Join(", ", invalidTypes.Select(t => t.PrettyPrint()))}");
             }
 
             lock (_syncRoot)

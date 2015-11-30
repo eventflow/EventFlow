@@ -32,7 +32,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [TestFixture]
-    public class CommandDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<CommandDefinitionService, CommandVersionAttribute, CommandDefinition>
+    public class CommandDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<CommandDefinitionService, ICommand, CommandVersionAttribute, CommandDefinition>
     {
         [CommandVersion("Fancy", 42)]
         public class TestCommandWithLongName : Command<IAggregateRoot<IIdentity>, IIdentity>

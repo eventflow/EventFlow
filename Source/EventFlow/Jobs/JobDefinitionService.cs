@@ -28,7 +28,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.Jobs
 {
-    public class JobDefinitionService : VersionedTypeDefinitionService<JobVersionAttribute, JobDefinition>, IJobDefinitionService
+    public class JobDefinitionService : VersionedTypeDefinitionService<IJob, JobVersionAttribute, JobDefinition>, IJobDefinitionService
     {
         public JobDefinitionService(ILog log)
             : base(log)
