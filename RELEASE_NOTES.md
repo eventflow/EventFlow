@@ -1,4 +1,8 @@
-### New in 0.22 (not released yet)
+### New in 0.23 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.22.1393 (released 2015-11-19)
 
 * New: To customize how a specific read model is initially created, implement
   a specific `IReadModelFactory<>` that can bootstrap that read model
