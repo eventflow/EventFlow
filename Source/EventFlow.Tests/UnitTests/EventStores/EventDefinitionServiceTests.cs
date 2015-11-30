@@ -83,6 +83,13 @@ namespace EventFlow.Tests.UnitTests.EventStores
         }
 
         [Test]
+        public void GetDefinitionShouldFailForUnknownEvents()
+        {
+            // Act + Assert
+            Assert.Throws<ArgumentException>(() => Sut.GetDefinition(typeof (TestEvent)));
+        }
+
+        [Test]
         public void CanLoadSameEventMultipleTimes()
         {
             Assert.DoesNotThrow(() =>
