@@ -37,5 +37,6 @@ namespace EventFlow.Core.VersionedTypes
         IEnumerable<TDefinition> GetAllDefinitions();
         TDefinition GetDefinition(string name, int version);
         TDefinition GetDefinition(Type type);
+        bool TryGetDefinition(Type type, out TDefinition definition);
     }
 }

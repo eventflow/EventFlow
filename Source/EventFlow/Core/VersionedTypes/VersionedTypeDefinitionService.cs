@@ -161,6 +161,13 @@ namespace EventFlow.Core.VersionedTypes
             return definition;
         }
 
+        public bool TryGetDefinition(Type type, out TDefinition definition)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return _definitionsByType.TryGetValue(type, out definition);
+        }
+
         private TDefinition CreateDefinition(Type type)
         {
             var definition = CreateDefinitions(type).FirstOrDefault(d => d != null);
