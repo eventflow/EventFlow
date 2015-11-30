@@ -58,6 +58,22 @@ namespace EventFlow.Tests.UnitTests.Core
             c.I.Should().Be(3);
         }
 
+        [Test]
+        public void CompileMethodInvocation_CanDoBothUpcastAndPass()
+        {
+            // Arrange
+            var a = (INumber)new Number { I = 1 };
+            const int b = 2;
+
+            // Act
+            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, INumber, int, INumber>>(typeof(Calculator), "Add", typeof(Number), typeof(int));
+            var result = caller(new Calculator(), a, b);
+
+            // Assert
+            var c = (Number)result;
+            c.I.Should().Be(3);
+        }
+
         public interface INumber { }
 
         public class Number : INumber
@@ -75,6 +91,11 @@ namespace EventFlow.Tests.UnitTests.Core
             public Number Add(Number a, Number b)
             {
                 return new Number {I = Add(a.I, b.I)};
+            }
+
+            public Number Add(Number a, int b)
+            {
+                return new Number { I = Add(a.I, b) };
             }
         }
     }

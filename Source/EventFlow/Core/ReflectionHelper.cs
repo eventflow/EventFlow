@@ -96,14 +96,23 @@ namespace EventFlow.Core
 
             foreach (var a in argumentPairs)
             {
-                var sourceParameter = Expression.Parameter(a.Source);
-                var destinationVariable = Expression.Variable(a.Destination);
-                var assignToDestination = Expression.Assign(destinationVariable, Expression.ConvertChecked(sourceParameter, a.Destination));
+                if (a.Source == a.Destination)
+                {
+                    var sourceParameter = Expression.Parameter(a.Source);
+                    lambdaArgument.Add(sourceParameter);
+                    callArguments.Add(sourceParameter);
+                }
+                else
+                {
+                    var sourceParameter = Expression.Parameter(a.Source);
+                    var destinationVariable = Expression.Variable(a.Destination);
+                    var assignToDestination = Expression.Assign(destinationVariable, Expression.ConvertChecked(sourceParameter, a.Destination));
 
-                lambdaArgument.Add(sourceParameter);
-                callArguments.Add(destinationVariable);
-                blockVariables.Add(destinationVariable);
-                blockExpressions.Add(assignToDestination);
+                    lambdaArgument.Add(sourceParameter);
+                    callArguments.Add(destinationVariable);
+                    blockVariables.Add(destinationVariable);
+                    blockExpressions.Add(assignToDestination);
+                }
             }
 
             var callExpression = Expression.Call(instanceVariable, methodInfo, callArguments);
