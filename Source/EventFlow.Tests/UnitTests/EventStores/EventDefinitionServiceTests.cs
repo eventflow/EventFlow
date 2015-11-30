@@ -41,6 +41,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         public class OldTestEventV5 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
 
+        public class OldThe5ThEventV4 : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+
         public override IEnumerable<VersionTypeTestCase> GetTestCases()
         {
             yield return new VersionTypeTestCase
@@ -66,6 +68,12 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     Name = "Fancy",
                     Type = typeof(TestEventWithLongName),
                     Version = 42,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "The5ThEvent",
+                    Type = typeof(OldThe5ThEventV4),
+                    Version = 4,
                 };
         }
     }
