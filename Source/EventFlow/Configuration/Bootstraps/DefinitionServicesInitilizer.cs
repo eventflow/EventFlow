@@ -50,9 +50,9 @@ namespace EventFlow.Configuration.Bootstraps
 
         public Task BootAsync(CancellationToken cancellationToken)
         {
-            _commandDefinitionService.LoadCommands(_loadedVersionedTypes.Commands);
-            _eventDefinitionService.LoadEvents(_loadedVersionedTypes.Events);
-            _jobDefinitionService.LoadJobs(_loadedVersionedTypes.Jobs);
+            _commandDefinitionService.Load(_loadedVersionedTypes.Commands);
+            _eventDefinitionService.Load(_loadedVersionedTypes.Events);
+            _jobDefinitionService.Load(_loadedVersionedTypes.Jobs);
 
             return Task.FromResult(0);
         }

@@ -51,7 +51,7 @@ namespace EventFlow.Jobs
 
         public async Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
         {
-            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
+            var jobDefinition = _jobDefinitionService.GetDefinition(job.GetType());
             var json = _jsonSerializer.Serialize(job);
 
             _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");

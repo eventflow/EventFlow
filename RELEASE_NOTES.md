@@ -1,6 +1,12 @@
 ### New in 0.23 (not released yet)
 
-* _Nothing yet_
+* Fixed: EventFlow now correctly throws an `ArgumentException` if e.g. an event
+  is emitted that hasn't been added during EventFlow initialization. EventFlow
+  would handle the save operation correctly, but if EventFlow was reinitialized
+  and the event was loaded _before_ it being emitted again, an exception would
+  be thrown as EventFlow would know which type to use. Please make sure to
+  correctly load all event, command and job types before use.
+* Fixed: Versioned type naming convention now allows numbers
 
 ### New in 0.22.1393 (released 2015-11-19)
 

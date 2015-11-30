@@ -53,7 +53,7 @@ namespace EventFlow.Provided.Jobs
             var jsonSerializer = resolver.Resolve<IJsonSerializer>();
             var commandBus = resolver.Resolve<ICommandBus>();
 
-            var commandDefinition = commandDefinitionService.GetCommandDefinition(Name, Version);
+            var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
             var command = (ICommand) jsonSerializer.Deserialize(Data, commandDefinition.Type);
 
             return command.PublishAsync(commandBus, cancellationToken);
@@ -75,7 +75,7 @@ namespace EventFlow.Provided.Jobs
             IJsonSerializer jsonSerializer)
         {
             var data = jsonSerializer.Serialize(command);
-            var commandDefinition = commandDefinitionService.GetCommandDefinition(command.GetType());
+            var commandDefinition = commandDefinitionService.GetDefinition(command.GetType());
 
             return new PublishCommandJob(
                 data,
