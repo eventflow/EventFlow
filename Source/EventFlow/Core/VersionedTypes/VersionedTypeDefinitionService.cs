@@ -60,7 +60,8 @@ namespace EventFlow.Core.VersionedTypes
 
             var definitions = types
                 .Distinct()
-                .Select(GetDefinition)
+                .Where(t => !_definitionsByType.ContainsKey(t))
+                .Select(CreateDefinition)
                 .ToList();
             if (!definitions.Any())
             {
@@ -83,6 +84,8 @@ namespace EventFlow.Core.VersionedTypes
 
             foreach (var definition in definitions)
             {
+                _definitionsByType.Add(definition.Type, definition);
+
                 Dictionary<int, TDefinition> versions;
                 if (!_definitionByNameAndVersion.TryGetValue(definition.Name, out versions))
                 {
@@ -142,15 +145,19 @@ namespace EventFlow.Core.VersionedTypes
 
         public TDefinition GetDefinition(Type type)
         {
-            if (type == null)
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            TDefinition definition;
+            if (!_definitionsByType.TryGetValue(type, out definition))
             {
-                throw new ArgumentNullException(nameof(type));
-            }
-            if (_definitionsByType.ContainsKey(type))
-            {
-                return _definitionsByType[type];
+                throw new ArgumentException($"No definition for type '{type.PrettyPrint()}', have you remembered to load it during EventFlow initialization");
             }
 
+            return definition;
+        }
+
+        private TDefinition CreateDefinition(Type type)
+        {
             var definition = CreateDefinitions(type).FirstOrDefault(d => d != null);
             if (definition == null)
             {
@@ -160,8 +167,6 @@ namespace EventFlow.Core.VersionedTypes
             }
 
             _log.Verbose(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
-
-            _definitionsByType.Add(type, definition);
 
             return definition;
         }
