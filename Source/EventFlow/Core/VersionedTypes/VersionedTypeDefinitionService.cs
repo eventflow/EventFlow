@@ -23,6 +23,7 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -41,9 +42,10 @@ namespace EventFlow.Core.VersionedTypes
             @"^(Old){0,1}(?<name>[a-zA-Z]+)(V(?<version>[0-9]+)){0,1}$",
             RegexOptions.Compiled);
 
+        private readonly object _syncRoot = new object();
         private readonly ILog _log;
-        private readonly Dictionary<Type, TDefinition> _definitionsByType = new Dictionary<Type, TDefinition>();
-        private readonly Dictionary<string, Dictionary<int, TDefinition>> _definitionByNameAndVersion = new Dictionary<string, Dictionary<int, TDefinition>>(); 
+        private readonly ConcurrentDictionary<Type, TDefinition> _definitionsByType = new ConcurrentDictionary<Type, TDefinition>();
+        private readonly ConcurrentDictionary<string, Dictionary<int, TDefinition>> _definitionByNameAndVersion = new ConcurrentDictionary<string, Dictionary<int, TDefinition>>(); 
 
         protected VersionedTypeDefinitionService(
             ILog log)
@@ -58,51 +60,54 @@ namespace EventFlow.Core.VersionedTypes
                 return;
             }
 
-            var definitions = types
-                .Distinct()
-                .Where(t => !_definitionsByType.ContainsKey(t))
-                .Select(CreateDefinition)
-                .ToList();
-            if (!definitions.Any())
+            lock (_syncRoot)
             {
-                return;
-            }
-
-            _log.Verbose(() =>
+                var definitions = types
+                    .Distinct()
+                    .Where(t => !_definitionsByType.ContainsKey(t))
+                    .Select(CreateDefinition)
+                    .ToList();
+                if (!definitions.Any())
                 {
-                    var assemblies = definitions
-                        .Select(d => d.Type.Assembly.GetName().Name)
-                        .Distinct()
-                        .OrderBy(n => n)
-                        .ToList();
-                    return string.Format(
-                        "Added {0} versioned types to '{1}' from these assemblies: {2}",
-                        definitions.Count,
-                        GetType().PrettyPrint(),
-                        string.Join(", ", assemblies));
-                });
-
-            foreach (var definition in definitions)
-            {
-                _definitionsByType.Add(definition.Type, definition);
-
-                Dictionary<int, TDefinition> versions;
-                if (!_definitionByNameAndVersion.TryGetValue(definition.Name, out versions))
-                {
-                    versions = new Dictionary<int, TDefinition>();
-                    _definitionByNameAndVersion.Add(definition.Name, versions);
+                    return;
                 }
 
-                if (versions.ContainsKey(definition.Version))
-                {
-                    _log.Information(
-                        "Already loaded versioned type '{0}' v{1}, skipping it",
-                        definition.Name,
-                        definition.Version);
-                    continue;
-                }
+                _log.Verbose(() =>
+                    {
+                        var assemblies = definitions
+                            .Select(d => d.Type.Assembly.GetName().Name)
+                            .Distinct()
+                            .OrderBy(n => n)
+                            .ToList();
+                        return string.Format(
+                            "Added {0} versioned types to '{1}' from these assemblies: {2}",
+                            definitions.Count,
+                            GetType().PrettyPrint(),
+                            string.Join(", ", assemblies));
+                    });
 
-                versions.Add(definition.Version, definition);
+                foreach (var definition in definitions)
+                {
+                    _definitionsByType.TryAdd(definition.Type, definition);
+
+                    Dictionary<int, TDefinition> versions;
+                    if (!_definitionByNameAndVersion.TryGetValue(definition.Name, out versions))
+                    {
+                        versions = new Dictionary<int, TDefinition>();
+                        _definitionByNameAndVersion.TryAdd(definition.Name, versions);
+                    }
+
+                    if (versions.ContainsKey(definition.Version))
+                    {
+                        _log.Information(
+                            "Already loaded versioned type '{0}' v{1}, skipping it",
+                            definition.Name,
+                            definition.Version);
+                        continue;
+                    }
+
+                    versions.Add(definition.Version, definition);
+                }
             }
         }
 
