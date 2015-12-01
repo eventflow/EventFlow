@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.19.{build}
+version: 0.23.{build}
 
 skip_tags: true
 
@@ -11,6 +11,8 @@ build_script:
 environment:
   RABBITMQ_URL:
     secure: xwGqQQNW97xHpuYOINuuTGji7GBCyo6uFKz04+k6S5S9afMcStqC6Z9/kYQO8xL6zlcoPi8Z1A6dyDUFGwHaLZ6N3u9qd3iiTTFR8BUo1CM=
+  ELASTICSEARCH_URL:
+    secure: UdRrKQ1ooMr8pSDJX8nSIRLOb87mMqMnhfDpKdXoqklQJxf5e+WDDVH5YWbn4JAvDn/YIDqkLD47C+rzwpYLMw==
 
 test: off
 

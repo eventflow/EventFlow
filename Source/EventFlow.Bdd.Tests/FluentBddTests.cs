@@ -20,10 +20,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using NUnit.Framework;
 
 namespace EventFlow.Bdd.Tests
@@ -33,16 +33,16 @@ namespace EventFlow.Bdd.Tests
         [Test]
         public void BddFlow()
         {
-            var testId = TestId.New;
+            var testId = ThingyId.New;
 
             Scenario("Ping event").Run(s => s
                 .Given(g => g
-                    .Event<TestAggregate, TestId, PingEvent>(testId, A<PingEvent>())
-                    .Event<TestAggregate, TestId, DomainErrorAfterFirstEvent>(testId, A<DomainErrorAfterFirstEvent>()))
+                    .Event<ThingyAggregate, ThingyId, ThingyPingEvent>(testId, A<ThingyPingEvent>())
+                    .Event<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>(testId, A<ThingyDomainErrorAfterFirstEvent>()))
                 .When(w => w
-                    .Command(new PingCommand(testId, PingId.New)))
+                    .Command(new ThingyPingCommand(testId, PingId.New)))
                 .Then(t => t
-                    .Event<TestAggregate, TestId, PingEvent>(testId)));
+                    .Event<ThingyAggregate, ThingyId, ThingyPingEvent>(testId)));
         }
     }
 }

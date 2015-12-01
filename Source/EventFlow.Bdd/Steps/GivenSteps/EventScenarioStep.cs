@@ -47,7 +47,7 @@ namespace EventFlow.Bdd.Steps.GivenSteps
             _identity = identity;
             _aggregateEvent = aggregateEvent;
 
-            var eventDescription = resolver.Resolve<IEventDefinitionService>().GetEventDefinition(aggregateEvent.GetType());
+            var eventDescription = resolver.Resolve<IEventDefinitionService>().GetDefinition(aggregateEvent.GetType());
 
             Name = $"{eventDescription.Name} v{eventDescription.Version} is emitted";
         }

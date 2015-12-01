@@ -1,6 +1,77 @@
-### New in 0.19 (not released yet)
+### New in 0.23 (not released yet)
 
-* _Nothing yet_
+* Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
+  been incorrectly configure with known versioned types, e.g. an event
+  is emitted that hasn't been added during EventFlow initialization. EventFlow
+  would handle the save operation correctly, but if EventFlow was reinitialized
+  and the event was loaded _before_ it being emitted again, an exception would
+  be thrown as EventFlow would know which type to use. Please make sure to
+  correctly load all event, command and job types before use
+* Fixed: `IReadModelFactory<>.CreateAsync(...)` is now correctly used in
+  read store mangers 
+* Fixed: Versioned type naming convention now allows numbers
+
+### New in 0.22.1393 (released 2015-11-19)
+
+* New: To customize how a specific read model is initially created, implement
+  a specific `IReadModelFactory<>` that can bootstrap that read model
+* New: How EventFlow handles MSSQL read models has been refactored to allow
+  significantly more freedom to developers. MSSQL read models are no longer
+  required to implement `IMssqlReadModel`, only the empty `IReadModel`
+  interface. Effectively, this means that no specific columns are required,
+  meaning that the following columns are no longer enforced on MSSQL read
+  models. Use the new required `MsSqlReadModelIdentityColumn` attribute to mark
+  the identity column and the optional (but recommended)
+  `MsSqlReadModelVersionColumn` to mark the version column.
+  - `string AggregateId`
+  - `DateTimeOffset CreateTime`
+  - `DateTimeOffset UpdatedTime`
+  - `int LastAggregateSequenceNumber`
+* Obsolete: `IMssqlReadModel` and `MssqlReadModel`. Developers should instead
+  use the `MsSqlReadModelIdentityColumn` and `MsSqlReadModelVersionColumn`
+  attributes to mark the identity and version columns (read above).
+  EventFlow will continue to support `IMssqlReadModel`, but it _will_ be
+  removed at some point in the future
+* Fixed: Added missing `UseElasticsearchReadModel<TReadModel, TReadModelLocator>()`
+  extension
+
+### New in 0.21.1312 (released 2015-10-26)
+
+* New: Added `Identity<>.NewComb()` that creates sequential unique IDs which can
+  be used to minimize database fragmentation
+* New: Added `IReadModelContext.Resolver` to allow read models to fetch
+  additional resources when events are applied
+* New: The `PrettyPrint()` type extension method, mostly used for verbose
+  logging, now prints even prettier type names, e.g.
+  `KeyValuePair<Boolean,Int64>` instead of merely `KeyValuePair'2`, making log
+  messages slightly more readable
+
+### New in 0.20.1274 (released 2015-10-22)
+
+* Breaking: `Entity<T>` now inherits from `ValueObject` but uses only the `Id`
+  field as equality component. Override `GetEqualityComponents()` if you have
+  a different notion of equality for a specific entity
+* Breaking: `Entity<T>` will now throw an `ArgumentNullException` if the `id`
+  passed to its constructor is `null`
+* Breaking: Fixed method spelling. Renamed
+ `ISpecification<T>.WhyIsNotStatisfiedBy` to `WhyIsNotSatisfiedBy` and
+ `Specification<T>.IsNotStatisfiedBecause` to `IsNotSatisfiedBecause`
+* New: Read model support for Elasticsearch via the new NuGet package
+  `EventFlow.ReadStores.Elasticsearch`
+
+### New in 0.19.1225 (released 2015-10-19)
+
+* Breaking: `AddDefaults` now also adds the job type definition to the
+  `IJobsDefinitonService`
+* New: Implemented a basic specification pattern by providing
+  `ISpecification<T>`, an easy-to-use `Specificaion<T>` and a set of extension
+  methods. Look at the EventFlow specification tests to get started
+* Fixed: `IEventDefinitionService`, `ICommandDefinitonService` and
+  `IJobsDefinitonService` now longer throw an exception if an existing
+  event is loaded, i.e., multiple calls to `AddEvents(...)`, `AddCommand(...)`
+  and `AddJobs(...)` no longer throws an exception
+* Fixed: `DomainError.With(...)` no longer executes `string.format` if only
+  one argument is parsed
 
 ### New in 0.18.1181 (released 2015-10-07)
 

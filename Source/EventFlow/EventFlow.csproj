@@ -117,6 +117,7 @@
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedTypeDefinitionService.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IEntity.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="Extensions\IdentityExtensions.cs" />
     <Compile Include="Extensions\ResolverExtensions.cs" />
     <Compile Include="Extensions\SourceIdExtensions.cs" />
+    <Compile Include="Extensions\SpecificationExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IEventFlowOptions.cs" />
@@ -187,6 +189,12 @@
     <Compile Include="Jobs\JobVersionAttribute.cs" />
     <Compile Include="Logs\NullLog.cs" />
     <Compile Include="Provided\ProvidedJobsConfigurationModule.cs" />
+    <Compile Include="Provided\Specifications\AggregateIsNewSpecification.cs" />
+    <Compile Include="Provided\Specifications\AndSpeficication.cs" />
+    <Compile Include="Provided\Specifications\NotSpecification.cs" />
+    <Compile Include="Provided\Specifications\OrSpecification.cs" />
+    <Compile Include="Provided\Specifications\AllSpecification.cs" />
+    <Compile Include="Provided\Specifications\AtLeastSpecification.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\IQueryProcessor.cs" />
@@ -197,6 +205,7 @@
     <Compile Include="ReadStores\InMemory\Queries\InMemoryQuery.cs" />
     <Compile Include="ReadStores\InMemory\InMemoryQueryHandler.cs" />
     <Compile Include="ReadStores\IReadModelDomainEventApplier.cs" />
+    <Compile Include="ReadStores\IReadModelFactory.cs" />
     <Compile Include="ReadStores\IReadModelPopulator.cs" />
     <Compile Include="ReadStores\IReadModelStore.cs" />
     <Compile Include="ReadStores\IReadStoreManager.cs" />
@@ -204,11 +213,14 @@
     <Compile Include="ReadStores\ReadModelDomainEventApplier.cs" />
     <Compile Include="ReadStores\MultipleAggregateReadStoreManager.cs" />
     <Compile Include="ReadStores\ReadModelEnvelope.cs" />
+    <Compile Include="ReadStores\ReadModelFactory.cs" />
     <Compile Include="ReadStores\ReadModelPopulator.cs" />
     <Compile Include="ReadStores\ReadModelStore.cs" />
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
+    <Compile Include="Specifications\ISpecification.cs" />
+    <Compile Include="Specifications\Specification.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />

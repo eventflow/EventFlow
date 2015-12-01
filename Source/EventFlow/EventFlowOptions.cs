@@ -1,25 +1,26 @@
 ﻿// The MIT License (MIT)
-//
+// 
 // Copyright (c) 2015 Rasmus Mikkelsen
+// Copyright (c) 2015 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+// 
 using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
@@ -80,7 +81,7 @@ namespace EventFlow
             {
                 if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
-                    throw new ArgumentException($"Type {aggregateEventType.Name} is not a {typeof (IAggregateEvent).Name}");
+                    throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
             }
@@ -93,7 +94,7 @@ namespace EventFlow
             {
                 if (!typeof (ICommand).IsAssignableFrom(commandType))
                 {
-                    throw new ArgumentException($"Type {commandType.Name} is not a {typeof (ICommand).PrettyPrint()}");
+                    throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof (ICommand).PrettyPrint()}");
                 }
                 _commandTypes.Add(commandType);
             }
@@ -106,7 +107,7 @@ namespace EventFlow
             {
                 if (!typeof (IJob).IsAssignableFrom(jobType))
                 {
-                    throw new ArgumentException($"Type {jobType.Name} is not a {typeof (IJob).PrettyPrint()}");
+                    throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
             }
@@ -174,6 +175,7 @@ namespace EventFlow
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            serviceRegistration.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
             serviceRegistration.Register<IBootstrap, DefinitionServicesInitilizer>();
             serviceRegistration.Register(_ => ModuleRegistration, Lifetime.Singleton);
             serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(

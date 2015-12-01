@@ -56,7 +56,7 @@ namespace EventFlow.Bdd.Steps.ThenSteps
             _identity = identity;
             _predicate = predicate;
             _eventStreamSubscription = resolver.Resolve<IEventStream>().Subscribe(this);
-            _eventDescription = resolver.Resolve<IEventDefinitionService>().GetEventDefinition(typeof (TAggregateEvent));
+            _eventDescription = resolver.Resolve<IEventDefinitionService>().GetDefinition(typeof (TAggregateEvent));
 
             Name = $"{_eventDescription.Name} v{_eventDescription.Version} happend";
         }

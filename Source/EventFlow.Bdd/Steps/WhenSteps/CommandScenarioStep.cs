@@ -47,7 +47,7 @@ namespace EventFlow.Bdd.Steps.WhenSteps
             _resolver = resolver;
             _command = command;
 
-            var commandDefinition = _resolver.Resolve<ICommandDefinitionService>().GetCommandDefinition(command.GetType());
+            var commandDefinition = _resolver.Resolve<ICommandDefinitionService>().GetDefinition(command.GetType());
 
             Name = $"{commandDefinition.Name} v{commandDefinition.Version} is published";
         }

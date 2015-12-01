@@ -1,25 +1,26 @@
 ﻿// The MIT License (MIT)
-//
+// 
 // Copyright (c) 2015 Rasmus Mikkelsen
+// Copyright (c) 2015 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+// 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -72,13 +73,7 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            var commandTypeName = command.GetType().PrettyPrint();
-            var aggregateType = typeof (TAggregate);
-            _log.Verbose(
-                "Executing command '{0}' with ID '{1}' on aggregate '{2}'",
-                commandTypeName,
-                command.SourceId,
-                aggregateType);
+            _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
@@ -90,9 +85,9 @@ namespace EventFlow
                 _log.Debug(
                     exception,
                     "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
-                    commandTypeName,
+                    command.GetType().PrettyPrint(),
                     command.SourceId,
-                    aggregateType,
+                    typeof(TAggregate),
                     exception.GetType().PrettyPrint(),
                     exception.Message);
                 throw;
@@ -100,19 +95,19 @@ namespace EventFlow
 
             if (!domainEvents.Any())
             {
-                _log.Verbose(
+                _log.Verbose(() => string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
-                    commandTypeName,
+                    command.GetType().PrettyPrint(),
                     command.SourceId,
-                    aggregateType);
+                    typeof(TAggregate).PrettyPrint()));
                 return command.SourceId;
             }
 
             _log.Verbose(() => string.Format(
                 "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
-                commandTypeName,
+                command.GetType().PrettyPrint(),
                 command.SourceId,
-                aggregateType,
+                typeof(TAggregate),
                 string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
             await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
