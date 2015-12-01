@@ -7,6 +7,8 @@
   and the event was loaded _before_ it being emitted again, an exception would
   be thrown as EventFlow would know which type to use. Please make sure to
   correctly load all event, command and job types before use
+* Fixed: `IReadModelFactory<>.CreateAsync(...)` is now correctly using in
+  read store mangers 
 * Fixed: Versioned type naming convention now allows numbers
 
 ### New in 0.22.1393 (released 2015-11-19)
