@@ -1,6 +1,7 @@
 ### New in 0.23 (not released yet)
 
-* Fixed: EventFlow now correctly throws an `ArgumentException` if e.g. an event
+* Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
+  been incorrectly configure with known versioned types, e.g. an event
   is emitted that hasn't been added during EventFlow initialization. EventFlow
   would handle the save operation correctly, but if EventFlow was reinitialized
   and the event was loaded _before_ it being emitted again, an exception would
