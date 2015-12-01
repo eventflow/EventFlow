@@ -106,7 +106,7 @@ namespace EventFlow.Core
                 {
                     var sourceParameter = Expression.Parameter(a.Source);
                     var destinationVariable = Expression.Variable(a.Destination);
-                    var assignToDestination = Expression.Assign(destinationVariable, Expression.ConvertChecked(sourceParameter, a.Destination));
+                    var assignToDestination = Expression.Assign(destinationVariable, Expression.Convert(sourceParameter, a.Destination));
 
                     lambdaArgument.Add(sourceParameter);
                     callArguments.Add(destinationVariable);
