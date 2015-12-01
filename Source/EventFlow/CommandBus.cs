@@ -146,24 +146,26 @@ namespace EventFlow
             var commandType = command.GetType();
             var commandExecutionDetails = GetCommandExecutionDetails(commandType);
 
-            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType).ToList();
+            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType)
+                .Cast<ICommandHandler>()
+                .ToList();
             if (!commandHandlers.Any())
             {
                 throw new NoCommandHandlersException(string.Format(
                     "No command handlers registered for the command '{0}' on aggregate '{1}'",
                     commandType.PrettyPrint(),
-                    commandExecutionDetails.AggregateType.PrettyPrint()));
+                    typeof(TAggregate).PrettyPrint()));
             }
             if (commandHandlers.Count > 1)
             {
                 throw new InvalidOperationException(string.Format(
                     "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
                     commandType.PrettyPrint(),
-                    commandExecutionDetails.AggregateType.PrettyPrint(),
+                    typeof(TAggregate).PrettyPrint(),
                     string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
             }
 
-            var commandHandler = (ICommandHandler) commandHandlers.Single();
+            var commandHandler = commandHandlers.Single();
 
             return _transientFaultHandler.TryAsync(
                 async c =>
@@ -186,7 +188,6 @@ namespace EventFlow
 
         private class CommandExecutionDetails
         {
-            public Type AggregateType { get; set; }
             public Type CommandHandlerType { get; set; }
             public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
         }
@@ -209,7 +210,6 @@ namespace EventFlow
 
                         return new CommandExecutionDetails
                             {
-                                AggregateType = commandTypes[0],
                                 CommandHandlerType = commandHandlerType,
                                 Invoker = invokeExecuteAsync
                             };
