@@ -239,6 +239,7 @@ Target "Default" DoNothing
     ==> "UnitTest"
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
+    ==> "CreatePackageEventFlowBdd"
     ==> "CreatePackageEventFlowRabbitMQ"
     ==> "CreatePackageEventFlowHangfire"
     ==> "CreatePackageEventFlowMsSql"
