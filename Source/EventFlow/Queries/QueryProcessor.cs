@@ -38,7 +38,7 @@ namespace EventFlow.Queries
         private class CacheItem
         {
             public Type QueryHandlerType { get; set; }
-            public Func<object, object, CancellationToken, object> HandlerFunc { get; set; }
+            public Func<IQueryHandler, IQuery, CancellationToken, Task> HandlerFunc { get; set; }
         }
 
         private readonly ILog _log;
@@ -60,7 +60,7 @@ namespace EventFlow.Queries
                 queryType,
                 CreateCacheItem);
 
-            var queryHandler = _resolver.Resolve(cacheItem.QueryHandlerType);
+            var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
             _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
 
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
@@ -84,7 +84,7 @@ namespace EventFlow.Queries
                 .GetInterfaces()
                 .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
             var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
-            var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<object, object, CancellationToken, object>>(
+            var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
                 queryHandlerType,
                 "ExecuteQueryAsync",
                 queryType, typeof(CancellationToken));
