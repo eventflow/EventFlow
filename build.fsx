@@ -83,6 +83,21 @@ Target "CreatePackageEventFlowAutofac" (fun _ ->
             "Source/EventFlow.Autofac/EventFlow.Autofac.nuspec"
     )
 
+Target "CreatePackageEventFlowBdd" (fun _ ->
+    let binDir = "Source/EventFlow.Bdd/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.Bdd.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Bdd"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep]
+            Publish = false })
+            "Source/EventFlow.Bdd/EventFlow.Bdd.nuspec"
+    )
+
 Target "CreatePackageEventFlowRabbitMQ" (fun _ ->
     let binDir = "Source/EventFlow.RabbitMQ/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.RabbitMQ.dll")
