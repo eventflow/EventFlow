@@ -115,7 +115,6 @@ namespace EventFlow.ReadStores.MsSql
             where TReadModel : IReadModel
         {
             return GetPropertyInfos(typeof (TReadModel))
-                .Where(p => p.Name != "Id") // TODO: Maybe use the key attribute to mark this
                 .Select(p => p.Name);
         }
 
@@ -165,6 +164,7 @@ namespace EventFlow.ReadStores.MsSql
                 {
                     return t
                         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                        .Where(p => p.GetCustomAttribute<MsSqlReadModelIgnoreColumnAttribute>() == null)
                         .OrderBy(p => p.Name)
                         .ToList();
                 });
