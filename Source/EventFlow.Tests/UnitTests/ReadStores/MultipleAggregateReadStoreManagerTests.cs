@@ -22,8 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 
@@ -39,6 +42,39 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             _readModelLocator = InjectMock<IReadModelLocator>();
 
             _readModelLocator.Setup(l => l.GetReadModelIds(It.IsAny<IDomainEvent>())).Returns(new[] {A<string>()});
+        }
+
+        [Test]
+        public async Task LocatorShouldNotBeInvokedForIrelevantDomainEvents()
+        {
+            // Arrange
+            var events = new[]
+                {
+                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>())
+                };
+
+            // Act
+            await Sut.UpdateReadStoresAsync(events, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            _readModelLocator.Verify(l => l.GetReadModelIds(It.IsAny<IDomainEvent>()), Times.Never);
+        }
+
+        [Test]
+        public async Task LocatorShouldOnlyBeInvokedForIrelevantDomainEvents()
+        {
+            // Arrange
+            var events = new[]
+                {
+                    ToDomainEvent(A<ThingyPingEvent>()),
+                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>())
+                };
+
+            // Act
+            await Sut.UpdateReadStoresAsync(events, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            _readModelLocator.Verify(l => l.GetReadModelIds(It.IsAny<IDomainEvent>()), Times.Once);
         }
     }
 }
