@@ -1,7 +1,11 @@
 ### New in 0.23 (not released yet)
 
+* Fixed: Instead of using `MethodInfo.Invoke` to call methods on reflected
+  types, e.g. when a command is published, EventFlow now compiles an expression
+  tree instead. This has a slight initial overhead, but provides a significant
+  performance improvement for subsequent calls
 * Fixed: EventFlow no longer ignores columns named `Id` in MSSQL read models.
-  If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute 
+  If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute
 * Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
   been incorrectly configure with known versioned types, e.g. an event
   is emitted that hasn't been added during EventFlow initialization. EventFlow
