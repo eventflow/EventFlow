@@ -40,8 +40,9 @@ namespace EventFlow.Aggregates
         static AggregateState()
         {
             var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
+            var eventApplier = typeof (TEventApplier);
 
-            ApplyMethods = typeof (TEventApplier)
+            ApplyMethods = eventApplier
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(mi =>
                     {
@@ -53,7 +54,7 @@ namespace EventFlow.Aggregates
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,
-                    mi => (Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>) ((ea, e) => mi.Invoke(ea, new []{ e } )));
+                    mi => ReflectionHelper.CompileMethodInvocation<Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>>(eventApplier, "Apply", mi.GetParameters()[0].ParameterType));
         }
 
         protected AggregateState()

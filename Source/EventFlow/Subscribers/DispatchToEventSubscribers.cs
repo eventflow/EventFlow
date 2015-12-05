@@ -25,11 +25,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -100,12 +100,13 @@ namespace EventFlow.Subscribers
                             .GetGenericArguments();
 
                         var handlerType = typeof(ISubscribeSynchronousTo<,,>).MakeGenericType(arguments[0], arguments[1], arguments[2]);
-                        var methodInfo = handlerType.GetMethod("HandleAsync", BindingFlags.Instance | BindingFlags.Public);
+                        var invokeHandleAsync = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, CancellationToken, Task>>(handlerType, "HandleAsync");
+
                         return new SubscriberInfomation
                             {
                                 SubscriberType = handlerType,
-                                HandleMethod = (Func<object, IDomainEvent, CancellationToken, Task>) ((h, e, c) => (Task) methodInfo.Invoke(h, new object[] {e, c}))
-                            };
+                                HandleMethod = invokeHandleAsync,
+                        };
                     });
         }
     }
