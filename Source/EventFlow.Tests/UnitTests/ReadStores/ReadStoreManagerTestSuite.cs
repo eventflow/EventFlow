@@ -38,12 +38,12 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public abstract class ReadStoreManagerTestSuite<T> : TestsFor<T>
         where T : IReadStoreManager<ReadStoreManagerTestReadModel>
     {
-        private Mock<IReadModelStore<ReadStoreManagerTestReadModel>> _readModelStoreMock;
+        protected Mock<IReadModelStore<ReadStoreManagerTestReadModel>> ReadModelStoreMock { get; private set; }
 
         [SetUp]
         public void SetUpReadStoreManagerTestSuite()
         {
-            _readModelStoreMock = InjectMock<IReadModelStore<ReadStoreManagerTestReadModel>>();
+            ReadModelStoreMock = InjectMock<IReadModelStore<ReadStoreManagerTestReadModel>>();
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.UpdateReadStoresAsync(events, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            _readModelStoreMock.Verify(
+            ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.Is<IReadOnlyCollection<ReadModelUpdate>>(l => l.Count == 1),
                     It.IsAny<IReadModelContext>(),

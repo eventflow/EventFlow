@@ -22,6 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -75,6 +78,30 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             // Assert
             _readModelLocator.Verify(l => l.GetReadModelIds(It.IsAny<IDomainEvent>()), Times.Once);
+        }
+
+        [Test]
+        public async Task IfNoReadModelIdsAreReturned_ThenDontInvokeTheReadModelStore()
+        {
+            // Arrange
+            _readModelLocator.Setup(l => l.GetReadModelIds(It.IsAny<IDomainEvent>())).Returns(Enumerable.Empty<string>());
+            var events = new[]
+                {
+                    ToDomainEvent(A<ThingyPingEvent>()),
+                };
+
+            // Act
+            await Sut.UpdateReadStoresAsync(events, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            _readModelLocator.Verify(l => l.GetReadModelIds(It.IsAny<IDomainEvent>()), Times.Once);
+            ReadModelStoreMock.Verify(
+                s => s.UpdateAsync(
+                    It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
+                    It.IsAny<IReadModelContext>(),
+                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<ReadStoreManagerTestReadModel>, CancellationToken, Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Never);
         }
     }
 }
