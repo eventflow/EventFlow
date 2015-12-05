@@ -92,6 +92,7 @@
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
+    <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />

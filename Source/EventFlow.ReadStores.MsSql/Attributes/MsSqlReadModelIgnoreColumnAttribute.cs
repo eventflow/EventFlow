@@ -21,18 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace EventFlow.Queries
+using System;
+
+namespace EventFlow.ReadStores.MsSql.Attributes
 {
-    public interface IQueryHandler
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class MsSqlReadModelIgnoreColumnAttribute : Attribute
     {
-    }
-
-    public interface IQueryHandler<in TQuery, TResult> : IQueryHandler
-        where TQuery : IQuery<TResult>
-    {
-        Task<TResult> ExecuteQueryAsync(TQuery query, CancellationToken cancellationToken);
     }
 }
