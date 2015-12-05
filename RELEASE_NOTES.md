@@ -1,4 +1,8 @@
-### New in 0.23 (not released yet)
+### New in 0.24 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.23.1470 (released 2015-12-05)
 
 * Breaking: EventFlow no longer ignores columns named `Id` in MSSQL read models.
   If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute
