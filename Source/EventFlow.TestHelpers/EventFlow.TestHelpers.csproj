@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Aggregates\Commands\ThingyAddMessageCommand.cs" />
+    <Compile Include="Aggregates\Commands\ThingyImportCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyNopCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyDomainErrorAfterFirstCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyPingCommand.cs" />
