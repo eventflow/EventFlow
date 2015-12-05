@@ -1,5 +1,7 @@
 ### New in 0.23 (not released yet)
 
+* Fixed: EventFlow no longer ignores columns named `Id` in MSSQL read models.
+  If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute 
 * Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
   been incorrectly configure with known versioned types, e.g. an event
   is emitted that hasn't been added during EventFlow initialization. EventFlow
@@ -8,7 +10,7 @@
   be thrown as EventFlow would know which type to use. Please make sure to
   correctly load all event, command and job types before use
 * Fixed: `IReadModelFactory<>.CreateAsync(...)` is now correctly used in
-  read store mangers 
+  read store mangers
 * Fixed: Versioned type naming convention now allows numbers
 
 ### New in 0.22.1393 (released 2015-11-19)
