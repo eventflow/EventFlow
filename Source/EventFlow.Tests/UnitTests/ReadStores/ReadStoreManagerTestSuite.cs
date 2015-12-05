@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015 Rasmus Mikkelsen
 // Copyright (c) 2015 eBay Software Foundation
@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -28,50 +29,42 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    public class ReadStoreManagerTests : TestsFor<SingleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTests.TestReadModel>, ReadStoreManagerTests.TestReadModel>>
+    public abstract class ReadStoreManagerTestSuite<T> : TestsFor<T>
+        where T : IReadStoreManager<ReadStoreManagerTestReadModel>
     {
-        public class TestReadModel : IReadModel,
-            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
-        {
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-            {
-            }
-        }
-
-        private Mock<IReadModelStore<TestReadModel>> _readModelStoreMock;
+        protected Mock<IReadModelStore<ReadStoreManagerTestReadModel>> ReadModelStoreMock { get; private set; }
 
         [SetUp]
-        public void SetUp()
+        public void SetUpReadStoreManagerTestSuite()
         {
-            _readModelStoreMock = InjectMock<IReadModelStore<TestReadModel>>();
+            ReadModelStoreMock = InjectMock<IReadModelStore<ReadStoreManagerTestReadModel>>();
         }
 
         [Test]
         public async Task ReadStoreIsUpdatedWithRelevantEvents()
         {
             // Arrange
-            var events = new []
+            var events = new[]
                 {
                     ToDomainEvent(A<ThingyPingEvent>()),
-                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>()),
+                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>())
                 };
 
             // Act
             await Sut.UpdateReadStoresAsync(events, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            _readModelStoreMock.Verify(
+            ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.Is<IReadOnlyCollection<ReadModelUpdate>>(l => l.Count == 1),
                     It.IsAny<IReadModelContext>(),
-                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TestReadModel>, CancellationToken, Task<ReadModelEnvelope<TestReadModel>>>>(),
+                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<ReadStoreManagerTestReadModel>, CancellationToken, Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }

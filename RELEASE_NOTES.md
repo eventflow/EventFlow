@@ -6,6 +6,7 @@
   types, e.g. when a command is published, EventFlow now compiles an expression
   tree instead. This has a slight initial overhead, but provides a significant
   performance improvement for subsequent calls
+* Fixed: Read model stores are only invoked if there's any read model updates
 * Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
   been incorrectly configure with known versioned types, e.g. an event
   is emitted that hasn't been added during EventFlow initialization. EventFlow

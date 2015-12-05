@@ -115,7 +115,10 @@
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelFactoryTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
-    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestReadModel.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestSuite.cs" />
+    <Compile Include="UnitTests\ReadStores\MultipleAggregateReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\SingleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
