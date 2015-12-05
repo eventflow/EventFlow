@@ -21,8 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,10 +130,12 @@ namespace EventFlow.EventStores
 
                         var arguments = aggregateRootInterface.GetGenericArguments();
                         var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
-                        var methodInfo = eventUpgraderType.GetMethod("Upgrade");
+
+                        var invokeUpgrade = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, IEnumerable<IDomainEvent>>>(eventUpgraderType, "Upgrade");
+
                         return new EventUpgraderCacheItem(
                             eventUpgraderType,
-                            (o, e) => ((IEnumerable)methodInfo.Invoke(o, new object[] { e })).Cast<IDomainEvent>());
+                            invokeUpgrade);
                     });
         }
     }

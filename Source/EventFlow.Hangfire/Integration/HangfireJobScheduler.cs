@@ -67,7 +67,7 @@ namespace EventFlow.Hangfire.Integration
 
         private Task<IJobId> ScheduleAsync(IJob job, Func<IBackgroundJobClient, JobDefinition, string, string> schedule)
         {
-            var jobDefinition = _jobDefinitionService.GetJobDefinition(job.GetType());
+            var jobDefinition = _jobDefinitionService.GetDefinition(job.GetType());
             var json = _jsonSerializer.Serialize(job);
 
             var id = schedule(_backgroundJobClient, jobDefinition, json);

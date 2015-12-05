@@ -20,25 +20,24 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
-using EventFlow.Aggregates;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using System.Collections.Generic;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Core.VersionedTypes
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    public interface IVersionedTypeDefinitionService<TAttribute, TDefinition>
+        where TAttribute : VersionedTypeAttribute
+        where TDefinition : VersionedTypeDefinition
     {
-        public EventDefinitionService(ILog log)
-            : base(log)
-        {
-        }
-
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            return new EventDefinition(version, type, name);
-        }
+        void Load(IReadOnlyCollection<Type> types);
+        IEnumerable<TDefinition> GetDefinitions(string name);
+        bool TryGetDefinition(string name, int version, out TDefinition definition);
+        IEnumerable<TDefinition> GetAllDefinitions();
+        TDefinition GetDefinition(string name, int version);
+        TDefinition GetDefinition(Type type);
+        bool TryGetDefinition(Type type, out TDefinition definition);
+        void Load(params Type[] types);
     }
 }

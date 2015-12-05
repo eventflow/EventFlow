@@ -47,7 +47,7 @@ namespace EventFlow.EventStores
 
         public SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas)
         {
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(aggregateEvent.GetType());
+            var eventDefinition = _eventDefinitionService.GetDefinition(aggregateEvent.GetType());
 
             var metadata = new Metadata(metadatas
                 .Where(kv => kv.Key != MetadataKeys.EventName && kv.Key != MetadataKeys.EventVersion) // TODO: Fix this
@@ -89,7 +89,7 @@ namespace EventFlow.EventStores
 
         private IDomainEvent Deserialize(string aggregateId, string json, IMetadata metadata)
         {
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(
+            var eventDefinition = _eventDefinitionService.GetDefinition(
                 metadata.EventName,
                 metadata.EventVersion);
 

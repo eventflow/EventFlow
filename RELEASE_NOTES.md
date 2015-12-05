@@ -1,4 +1,24 @@
-### New in 0.22 (not released yet)
+### New in 0.23 (not released yet)
+
+* Breaking: EventFlow no longer ignores columns named `Id` in MSSQL read models.
+  If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute
+* Fixed: Instead of using `MethodInfo.Invoke` to call methods on reflected
+  types, e.g. when a command is published, EventFlow now compiles an expression
+  tree instead. This has a slight initial overhead, but provides a significant
+  performance improvement for subsequent calls
+* Fixed: Read model stores are only invoked if there's any read model updates
+* Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
+  been incorrectly configure with known versioned types, e.g. an event
+  is emitted that hasn't been added during EventFlow initialization. EventFlow
+  would handle the save operation correctly, but if EventFlow was reinitialized
+  and the event was loaded _before_ it being emitted again, an exception would
+  be thrown as EventFlow would know which type to use. Please make sure to
+  correctly load all event, command and job types before use
+* Fixed: `IReadModelFactory<>.CreateAsync(...)` is now correctly used in
+  read store mangers
+* Fixed: Versioned type naming convention now allows numbers
+
+### New in 0.22.1393 (released 2015-11-19)
 
 * New: To customize how a specific read model is initially created, implement
   a specific `IReadModelFactory<>` that can bootstrap that read model

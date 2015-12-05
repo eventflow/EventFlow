@@ -92,9 +92,12 @@
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
+    <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
+    <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />
+    <Compile Include="UnitTests\Jobs\JobDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Jobs\JobsFlowTests.cs" />
     <Compile Include="UnitTests\Provided\Specifications\AtLeastSpecificationTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
@@ -112,7 +115,10 @@
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelFactoryTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />
-    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestReadModel.cs" />
+    <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestSuite.cs" />
+    <Compile Include="UnitTests\ReadStores\MultipleAggregateReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\SingleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />

@@ -23,22 +23,11 @@
 // 
 
 using System;
-using EventFlow.Aggregates;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
 
-namespace EventFlow.EventStores
+namespace EventFlow.ReadStores.MsSql.Attributes
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class MsSqlReadModelIgnoreColumnAttribute : Attribute
     {
-        public EventDefinitionService(ILog log)
-            : base(log)
-        {
-        }
-
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            return new EventDefinition(version, type, name);
-        }
     }
 }

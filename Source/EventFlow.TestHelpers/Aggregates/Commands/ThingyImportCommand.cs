@@ -21,38 +21,49 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
-using EventFlow.EventStores;
-using EventFlow.Jobs;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.Configuration.Bootstraps
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public class DefinitionServicesInitilizer : IBootstrap
+    public class ThingyImportCommand : Command<ThingyAggregate, ThingyId>
     {
-        private readonly ICommandDefinitionService _commandDefinitionService;
-        private readonly IEventDefinitionService _eventDefinitionService;
-        private readonly IJobDefinitionService _jobDefinitionService;
-        private readonly ILoadedVersionedTypes _loadedVersionedTypes;
+        public IReadOnlyCollection<PingId> PingIds { get; }
+        public IReadOnlyCollection<ThingyMessage> ThingyMessages { get; }
 
-        public DefinitionServicesInitilizer(
-            ILoadedVersionedTypes loadedVersionedTypes,
-            IEventDefinitionService eventDefinitionService,
-            ICommandDefinitionService commandDefinitionService,
-            IJobDefinitionService jobDefinitionService)
+        public ThingyImportCommand(
+            ThingyId aggregateId,
+            IEnumerable<PingId> pingIds,
+            IEnumerable<ThingyMessage> thingyMessages)
+            : base(aggregateId)
         {
-            _loadedVersionedTypes = loadedVersionedTypes;
-            _eventDefinitionService = eventDefinitionService;
-            _commandDefinitionService = commandDefinitionService;
-            _jobDefinitionService = jobDefinitionService;
+            PingIds = pingIds.ToList();
+            ThingyMessages = thingyMessages.ToList();
         }
+    }
 
-        public Task BootAsync(CancellationToken cancellationToken)
+    public class ThingyImportCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyImportCommand>
+    {
+        public override Task ExecuteAsync(
+            ThingyAggregate aggregate,
+            ThingyImportCommand command,
+            CancellationToken cancellationToken)
         {
-            _commandDefinitionService.Load(_loadedVersionedTypes.Commands);
-            _eventDefinitionService.Load(_loadedVersionedTypes.Events);
-            _jobDefinitionService.Load(_loadedVersionedTypes.Jobs);
+            foreach (var pingId in command.PingIds)
+            {
+                aggregate.Ping(pingId);
+            }
+
+            foreach (var thingyMessage in command.ThingyMessages)
+            {
+                aggregate.AddMessage(thingyMessage);
+            }
 
             return Task.FromResult(0);
         }

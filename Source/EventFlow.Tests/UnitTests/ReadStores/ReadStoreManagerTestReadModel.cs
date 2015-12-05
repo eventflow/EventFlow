@@ -20,25 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System;
 using EventFlow.Aggregates;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    public class ReadStoreManagerTestReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        public EventDefinitionService(ILog log)
-            : base(log)
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-        }
-
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            return new EventDefinition(version, type, name);
         }
     }
 }
