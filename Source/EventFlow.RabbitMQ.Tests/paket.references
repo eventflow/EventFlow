@@ -1,0 +1,6 @@
+AutoFixture
+FluentAssertions
+Moq
+Newtonsoft.Json
+NUnit
+RabbitMQ.Client

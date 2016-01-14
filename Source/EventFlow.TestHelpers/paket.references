@@ -1,0 +1,6 @@
+AutoFixture
+AutoFixture.AutoMoq
+FluentAssertions
+Moq
+Newtonsoft.Json
+NUnit
