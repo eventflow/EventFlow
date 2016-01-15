@@ -1,4 +1,4 @@
-#r @"tools\FAKE.Core\tools\FakeLib.dll"
+#r @"packages\FAKE\tools\FakeLib.dll"
 open System
 open Fake 
 open Fake.AssemblyInfoFile
