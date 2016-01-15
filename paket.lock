@@ -20,11 +20,11 @@ NUGET
       Elasticsearch.Net (>= 1.7.1)
       Newtonsoft.Json (>= 7.0 < 8.0)
     EventStore.Client (3.0.2) - framework: >= net451
-    HangFire.Core (1.4.6) - framework: >= net451
+    HangFire.Core (1.5.3) - framework: >= net451
       Newtonsoft.Json (>= 5.0.0)
       Owin (>= 1.0)
-    HangFire.SqlServer (1.4.6) - framework: >= net451
-      HangFire.Core (1.4.6)
+    HangFire.SqlServer (1.5.3) - framework: >= net451
+      HangFire.Core (1.5.3)
     JetBrains.Annotations (9.1.1) - framework: >= net451
     Microsoft.AspNet.WebApi.Client (5.2.3) - framework: >= net451
       Newtonsoft.Json (>= 6.0.4) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
@@ -65,7 +65,7 @@ REDIRECTS: ON
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    AutoFixture (3.31.1)
+    AutoFixture (3.38.1)
     AutoFixture.AutoMoq (3.31.1) - framework: >= net451
       AutoFixture (>= 3.31.1)
       Moq (>= 4.1.1308.2120)
