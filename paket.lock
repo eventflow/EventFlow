@@ -47,6 +47,7 @@ NUGET
     HangFire.SqlServer (1.4.6) - framework: >= net451
       HangFire.Core (1.4.6)
     Helpz (0.1.8) - framework: >= net451
+    ilmerge (2.14.1208)
     JetBrains.Annotations (9.1.1) - framework: >= net451
     Microsoft.AspNet.WebApi.Client (5.2.3) - framework: >= net451
       Newtonsoft.Json (>= 6.0.4) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
@@ -72,6 +73,7 @@ NUGET
       Newtonsoft.Json (>= 7.0 < 8.0)
     Newtonsoft.Json (7.0.1) - framework: >= net451
     NUnit (2.6.4)
+    NUnit.Runners (2.6.4)
     Owin (1.0) - framework: >= net451
     RabbitMQ.Client (3.5.4)
     System.Collections (4.0.10) - framework: dnxcore50
