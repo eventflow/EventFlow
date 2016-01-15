@@ -1,5 +1,8 @@
 # EventFlow
 
+This repository uses [`git lfs`](https://git-lfs.github.com/), install it if you
+want to build the code.
+
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td>
