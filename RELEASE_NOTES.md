@@ -1,6 +1,7 @@
 ### New in 0.24 (not released yet)
 
  * Breaking: The following NuGet references have been updated
+  - `EventStore.Client` v3.4.0 (up from v3.0.2)
   - `Hangfire.Core` v1.5.3 (up from v1.4.6)
  * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
 
