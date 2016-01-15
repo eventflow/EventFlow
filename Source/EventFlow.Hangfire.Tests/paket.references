@@ -1,7 +1,9 @@
-FluentAssertions
 Hangfire.Core
 Hangfire.SqlServer
-Helpz
 Newtonsoft.Json
-NUnit
 Owin
+
+group Test
+	FluentAssertions
+	Helpz
+	NUnit

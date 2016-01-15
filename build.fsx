@@ -1,4 +1,4 @@
-#r @"packages\FAKE\tools\FakeLib.dll"
+#r @"packages\build\FAKE\tools\FakeLib.dll"
 open System
 open Fake 
 open Fake.AssemblyInfoFile
@@ -15,8 +15,8 @@ let dirPackages = "./Build/Packages"
 let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
 let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
-let toolNUnitDir = "./packages/NUnit.Runners/tools"
-let toolIlMerge = "./packages/ilmerge/tools/ILMerge.exe"
+let toolNUnitDir = "./packages/build/NUnit.Runners/tools"
+let toolIlMerge = "./packages/build/ilmerge/tools/ILMerge.exe"
 let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
 

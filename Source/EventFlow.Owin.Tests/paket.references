@@ -2,7 +2,6 @@ Autofac
 Autofac.Owin
 Autofac.WebApi2
 Autofac.WebApi2.Owin
-FluentAssertions
 Microsoft.AspNet.WebApi.Client
 Microsoft.AspNet.WebApi.Core
 Microsoft.AspNet.WebApi.Owin
@@ -11,5 +10,8 @@ Microsoft.Owin
 Microsoft.Owin.Host.HttpListener
 Microsoft.Owin.Hosting
 Newtonsoft.Json
-NUnit
 Owin
+
+group Test
+	FluentAssertions
+	NUnit

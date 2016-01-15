@@ -1,3 +1,5 @@
 Autofac
-FluentAssertions
-NUnit
+
+group Test
+	FluentAssertions
+	NUnit

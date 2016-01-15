@@ -1,7 +1,9 @@
-AutoFixture
-AutoFixture.AutoMoq
 EventStore.Client
-FluentAssertions
-Moq
 Newtonsoft.Json
-NUnit
+
+group Test
+	AutoFixture
+	AutoFixture.AutoMoq
+	FluentAssertions
+	Moq
+	NUnit

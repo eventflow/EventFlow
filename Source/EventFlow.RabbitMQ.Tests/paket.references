@@ -1,6 +1,8 @@
-AutoFixture
-FluentAssertions
-Moq
 Newtonsoft.Json
-NUnit
 RabbitMQ.Client
+
+group Test
+	AutoFixture
+	FluentAssertions
+	Moq
+	NUnit

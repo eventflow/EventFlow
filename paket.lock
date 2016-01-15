@@ -1,4 +1,4 @@
-REDIRECTS: ON
+REDIRECTS: OFF
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
@@ -13,10 +13,6 @@ NUGET
       Autofac (>= 3.5.0 < 4.0.0)
       Autofac.Owin (>= 3.1.0 < 4.0.0)
       Autofac.WebApi2 (>= 3.4.0 < 4.0.0)
-    AutoFixture (3.31.1)
-    AutoFixture.AutoMoq (3.31.1) - framework: >= net451
-      AutoFixture (>= 3.31.1)
-      Moq (>= 4.1.1308.2120)
     Dapper (1.42) - framework: >= net451
     dbup (3.2.1) - framework: >= net451
     Elasticsearch.Net (1.7.1) - framework: >= net451
@@ -24,31 +20,11 @@ NUGET
       Elasticsearch.Net (>= 1.7.1)
       Newtonsoft.Json (>= 7.0 < 8.0)
     EventStore.Client (3.0.2) - framework: >= net451
-    FAKE (4.14.5)
-    FluentAssertions (4.0.0)
-      System.Collections (>= 4.0.10) - framework: dnxcore50
-      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
-      System.Globalization (>= 4.0.10) - framework: dnxcore50
-      System.Linq (>= 4.0.0) - framework: dnxcore50
-      System.Linq.Expressions (>= 4.0.10) - framework: dnxcore50
-      System.ObjectModel (>= 4.0.10) - framework: dnxcore50
-      System.Reflection (>= 4.0.10) - framework: dnxcore50
-      System.Reflection.Extensions (>= 4.0.0) - framework: dnxcore50
-      System.Reflection.Primitives (>= 4.0.0) - framework: dnxcore50
-      System.Reflection.TypeExtensions (>= 4.0.0) - framework: dnxcore50
-      System.Runtime (>= 4.0.20) - framework: dnxcore50
-      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
-      System.Text.RegularExpressions (>= 4.0.10) - framework: dnxcore50
-      System.Threading (>= 4.0.10) - framework: dnxcore50
-      System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
-      System.Xml.XDocument (>= 4.0.10) - framework: dnxcore50
     HangFire.Core (1.4.6) - framework: >= net451
       Newtonsoft.Json (>= 5.0.0)
       Owin (>= 1.0)
     HangFire.SqlServer (1.4.6) - framework: >= net451
       HangFire.Core (1.4.6)
-    Helpz (0.1.8) - framework: >= net451
-    ilmerge (2.14.1208)
     JetBrains.Annotations (9.1.1) - framework: >= net451
     Microsoft.AspNet.WebApi.Client (5.2.3) - framework: >= net451
       Newtonsoft.Json (>= 6.0.4) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
@@ -68,15 +44,51 @@ NUGET
     Microsoft.Owin.Hosting (3.0.1) - framework: >= net451
       Microsoft.Owin (>= 3.0.1)
       Owin (>= 1.0)
-    Moq (4.2.1507.0118)
     NEST (1.7.1) - framework: >= net451
       Elasticsearch.Net (>= 1.7.1)
       Newtonsoft.Json (>= 7.0 < 8.0)
     Newtonsoft.Json (7.0.1) - framework: >= net451
-    NUnit (2.6.4)
-    NUnit.Runners (2.6.4)
     Owin (1.0) - framework: >= net451
     RabbitMQ.Client (3.5.4)
+
+GROUP Build
+REDIRECTS: OFF
+NUGET
+  remote: https://www.nuget.org/api/v2
+  specs:
+    FAKE (4.14.5)
+    ilmerge (2.14.1208)
+    NUnit.Runners (2.6.4)
+
+GROUP Test
+REDIRECTS: ON
+NUGET
+  remote: https://www.nuget.org/api/v2
+  specs:
+    AutoFixture (3.31.1)
+    AutoFixture.AutoMoq (3.31.1) - framework: >= net451
+      AutoFixture (>= 3.31.1)
+      Moq (>= 4.1.1308.2120)
+    FluentAssertions (4.0.0)
+      System.Collections (>= 4.0.10) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
+      System.Globalization (>= 4.0.10) - framework: dnxcore50
+      System.Linq (>= 4.0.0) - framework: dnxcore50
+      System.Linq.Expressions (>= 4.0.10) - framework: dnxcore50
+      System.ObjectModel (>= 4.0.10) - framework: dnxcore50
+      System.Reflection (>= 4.0.10) - framework: dnxcore50
+      System.Reflection.Extensions (>= 4.0.0) - framework: dnxcore50
+      System.Reflection.Primitives (>= 4.0.0) - framework: dnxcore50
+      System.Reflection.TypeExtensions (>= 4.0.0) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
+      System.Text.RegularExpressions (>= 4.0.10) - framework: dnxcore50
+      System.Threading (>= 4.0.10) - framework: dnxcore50
+      System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
+      System.Xml.XDocument (>= 4.0.10) - framework: dnxcore50
+    Helpz (0.1.8) - framework: >= net451
+    Moq (4.2.1507.0118)
+    NUnit (2.6.4)
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.0) - framework: dnxcore50
       System.Resources.ResourceManager (>= 4.0.0) - framework: dnxcore50

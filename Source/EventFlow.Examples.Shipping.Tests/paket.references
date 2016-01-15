@@ -1,5 +1,6 @@
-AutoFixture
-AutoFixture.AutoMoq
-FluentAssertions
-Moq
-NUnit
+group Test
+	AutoFixture
+	AutoFixture.AutoMoq
+	FluentAssertions
+	Moq
+	NUnit

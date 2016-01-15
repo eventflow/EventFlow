@@ -1,5 +1,7 @@
 Elasticsearch.Net
-FluentAssertions
 NEST
 Newtonsoft.Json
-NUnit
+
+group Test
+	FluentAssertions
+	NUnit
