@@ -1,6 +1,6 @@
 ### New in 0.24 (not released yet)
 
-* _Nothing yet_
+ * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
 
 ### New in 0.23.1470 (released 2015-12-05)
 
