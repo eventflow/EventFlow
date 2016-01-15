@@ -14,7 +14,7 @@ NUGET
       Autofac.Owin (>= 3.1.0 < 4.0.0)
       Autofac.WebApi2 (>= 3.4.0 < 4.0.0)
     Dapper (1.42) - framework: >= net451
-    dbup (3.2.1) - framework: >= net451
+    dbup (3.3.0) - framework: >= net451
     Elasticsearch.Net (1.7.1) - framework: >= net451
     Elasticsearch.Net.JsonNET (1.7.1) - framework: >= net451
       Elasticsearch.Net (>= 1.7.1)

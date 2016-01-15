@@ -95,7 +95,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
       <ItemGroup>
         <Reference Include="DbUp">
-          <HintPath>..\..\packages\dbup\lib\NET35\DbUp.dll</HintPath>
+          <HintPath>..\..\packages\dbup\lib\net35\DbUp.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
