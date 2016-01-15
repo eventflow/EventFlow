@@ -12,7 +12,7 @@ NUGET
       Autofac (>= 3.5.0 < 4.0.0)
       Autofac.Owin (>= 3.1.0 < 4.0.0)
       Autofac.WebApi2 (>= 3.4.0 < 4.0.0)
-    AutoFixture (3.31.3)
+    AutoFixture (3.31.1)
     AutoFixture.AutoMoq (3.31.1) - framework: >= net451
       AutoFixture (>= 3.31.1)
       Moq (>= 4.1.1308.2120)
