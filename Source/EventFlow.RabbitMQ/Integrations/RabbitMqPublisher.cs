@@ -132,7 +132,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 basicProperties.MessageId = message.MessageId.Value;
 
                 // TODO: Evil or not evil? Do a Task.Run here?
-                model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, false, basicProperties, bytes);
+                model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, basicProperties, bytes);
             }
 
             return Task.FromResult(0);
