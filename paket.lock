@@ -14,18 +14,18 @@ NUGET
       Autofac.Owin (>= 3.1.0 < 4.0.0)
       Autofac.WebApi2 (>= 3.4.0 < 4.0.0)
     Dapper (1.42) - framework: >= net451
-    dbup (3.2.1) - framework: >= net451
+    dbup (3.3.0) - framework: >= net451
     Elasticsearch.Net (1.7.1) - framework: >= net451
     Elasticsearch.Net.JsonNET (1.7.1) - framework: >= net451
       Elasticsearch.Net (>= 1.7.1)
       Newtonsoft.Json (>= 7.0 < 8.0)
-    EventStore.Client (3.0.2) - framework: >= net451
-    HangFire.Core (1.4.6) - framework: >= net451
+    EventStore.Client (3.4.0) - framework: >= net451
+    HangFire.Core (1.5.3) - framework: >= net451
       Newtonsoft.Json (>= 5.0.0)
       Owin (>= 1.0)
-    HangFire.SqlServer (1.4.6) - framework: >= net451
-      HangFire.Core (1.4.6)
-    JetBrains.Annotations (9.1.1) - framework: >= net451
+    HangFire.SqlServer (1.5.3) - framework: >= net451
+      HangFire.Core (1.5.3)
+    JetBrains.Annotations (10.0.0) - framework: >= net451
     Microsoft.AspNet.WebApi.Client (5.2.3) - framework: >= net451
       Newtonsoft.Json (>= 6.0.4) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
     Microsoft.AspNet.WebApi.Core (5.2.3) - framework: >= net451
@@ -49,7 +49,7 @@ NUGET
       Newtonsoft.Json (>= 7.0 < 8.0)
     Newtonsoft.Json (7.0.1) - framework: >= net451
     Owin (1.0) - framework: >= net451
-    RabbitMQ.Client (3.5.4)
+    RabbitMQ.Client (3.6.0)
 
 GROUP Build
 REDIRECTS: OFF
@@ -65,11 +65,11 @@ REDIRECTS: ON
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    AutoFixture (3.31.1)
+    AutoFixture (3.38.1)
     AutoFixture.AutoMoq (3.31.1) - framework: >= net451
       AutoFixture (>= 3.31.1)
       Moq (>= 4.1.1308.2120)
-    FluentAssertions (4.0.0)
+    FluentAssertions (4.2.1)
       System.Collections (>= 4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
       System.Globalization (>= 4.0.10) - framework: dnxcore50
@@ -87,7 +87,7 @@ NUGET
       System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
       System.Xml.XDocument (>= 4.0.10) - framework: dnxcore50
     Helpz (0.1.8) - framework: >= net451
-    Moq (4.2.1507.0118)
+    Moq (4.2.1510.2205)
     NUnit (2.6.4)
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.0) - framework: dnxcore50

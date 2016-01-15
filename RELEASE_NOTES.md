@@ -1,6 +1,10 @@
 ### New in 0.24 (not released yet)
 
-* _Nothing yet_
+ * Breaking: The following NuGet references have been updated
+  - `EventStore.Client` v3.4.0 (up from v3.0.2)
+  - `Hangfire.Core` v1.5.3 (up from v1.4.6)
+  - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+ * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
 
 ### New in 0.23.1470 (released 2015-12-05)
 
