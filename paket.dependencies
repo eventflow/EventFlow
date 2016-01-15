@@ -23,7 +23,7 @@ nuget Microsoft.Owin.Hosting 3.0.1 framework: >= net451
 nuget NEST 1.7.1 framework: >= net451
 nuget Newtonsoft.Json 7.0.1 framework: >= net451
 nuget Owin 1.0 framework: >= net451
-nuget RabbitMQ.Client 3.5.4
+nuget RabbitMQ.Client 3.6.0
 
 group Build
 	redirects: off
