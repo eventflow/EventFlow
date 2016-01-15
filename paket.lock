@@ -69,7 +69,7 @@ NUGET
     AutoFixture.AutoMoq (3.31.1) - framework: >= net451
       AutoFixture (>= 3.31.1)
       Moq (>= 4.1.1308.2120)
-    FluentAssertions (4.0.0)
+    FluentAssertions (4.2.1)
       System.Collections (>= 4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
       System.Globalization (>= 4.0.10) - framework: dnxcore50
@@ -87,7 +87,7 @@ NUGET
       System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
       System.Xml.XDocument (>= 4.0.10) - framework: dnxcore50
     Helpz (0.1.8) - framework: >= net451
-    Moq (4.2.1507.0118)
+    Moq (4.2.1510.2205)
     NUnit (2.6.4)
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.0) - framework: dnxcore50
