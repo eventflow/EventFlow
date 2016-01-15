@@ -1,3 +1,4 @@
+redirects: on
 source https://www.nuget.org/api/v2/
 
 nuget Autofac 3.5.2
