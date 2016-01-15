@@ -192,3 +192,6 @@ FakesAssemblies/
 # NCrunch
 *.ncrunchsolution
 *.ncrunchproject
+
+# Paket
+/.paket/paket.exe

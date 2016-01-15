@@ -11,6 +11,7 @@ nuget dbup 3.2.1 framework: >= net451
 nuget Elasticsearch.Net 1.7.1 framework: >= net451
 nuget Elasticsearch.Net.JsonNET 1.7.1 framework: >= net451
 nuget EventStore.Client 3.0.2 framework: >= net451
+nuget FAKE 4.14.5
 nuget FluentAssertions 4.0.0
 nuget Hangfire.Core 1.4.6 framework: >= net451
 nuget Hangfire.SqlServer 1.4.6 framework: >= net451

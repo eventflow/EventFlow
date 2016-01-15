@@ -23,6 +23,7 @@ NUGET
       Elasticsearch.Net (>= 1.7.1)
       Newtonsoft.Json (>= 7.0 < 8.0)
     EventStore.Client (3.0.2) - framework: >= net451
+    FAKE (4.14.5)
     FluentAssertions (4.0.0)
       System.Collections (>= 4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
