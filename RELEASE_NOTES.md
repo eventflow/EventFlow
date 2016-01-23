@@ -11,6 +11,7 @@
    - `EventFlow.RabbitMQ`
    - `EventFlow.EventStores.EventStore`
  * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
+ * Fixed: `EventStore.Client` throws WrongExpectedVersionException when commiting multiple times. #187
 
 ### New in 0.23.1470 (released 2015-12-05)
 
