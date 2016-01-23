@@ -20,7 +20,7 @@ artifacts:
   - path: Build\Packages\*.nupkg
 
 cache:
-  - packages -> **\packages.config
+  - packages -> paket.lock
 
 services:
   - mssql2014
