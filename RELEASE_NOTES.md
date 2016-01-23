@@ -4,6 +4,7 @@
    - `EventStore.Client` v3.4.0 (up from v3.0.2)
    - `Hangfire.Core` v1.5.3 (up from v1.4.6)
    - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+ * New: EventFlow now uses Paket to manage NuGet packages
  * Fixed: Updated NuGet package titles of the following NuGet packages to
    contain assembly name to get a better overview when searching on
    [nuget.org](http://nuget.org)
