@@ -1,9 +1,15 @@
 ### New in 0.24 (not released yet)
 
  * Breaking: The following NuGet references have been updated
-  - `EventStore.Client` v3.4.0 (up from v3.0.2)
-  - `Hangfire.Core` v1.5.3 (up from v1.4.6)
-  - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+   - `EventStore.Client` v3.4.0 (up from v3.0.2)
+   - `Hangfire.Core` v1.5.3 (up from v1.4.6)
+   - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+ * New: EventFlow now uses Paket to manage NuGet packages
+ * Fixed: Updated NuGet package titles of the following NuGet packages to
+   contain assembly name to get a better overview when searching on
+   [nuget.org](http://nuget.org)
+   - `EventFlow.RabbitMQ`
+   - `EventFlow.EventStores.EventStore`
  * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
  * Fixed: `EventStore.Client` throws WrongExpectedVersionException when commiting multiple times. #187
 
