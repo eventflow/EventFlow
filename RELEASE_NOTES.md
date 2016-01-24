@@ -1,7 +1,7 @@
 ### New in 0.24 (not released yet)
 
  * Breaking: The following NuGet references have been updated
-   - `EventStore.Client` v3.4.0 (up from v3.0.2)
+   - `EventStore.Client` v3.3.1 (up from v3.0.2)
    - `Hangfire.Core` v1.5.3 (up from v1.4.6)
    - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
  * New: EventFlow now uses Paket to manage NuGet packages
