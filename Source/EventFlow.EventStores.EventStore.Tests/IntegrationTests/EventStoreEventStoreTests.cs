@@ -37,6 +37,7 @@ using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
+    [Timeout(120000)]
     [Category(Categories.Integration)]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
@@ -59,6 +60,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()
                 .KeepReconnecting()
+                .KeepRetrying()
                 .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
                 .Build();
 
