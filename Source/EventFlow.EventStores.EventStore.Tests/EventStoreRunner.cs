@@ -60,7 +60,7 @@ namespace EventFlow.EventStores.EventStore.Tests
 
         public static async Task<IDisposable> StartAsync()
         {
-            var eventStoreVersion = EventStoreVersions.First(kv => kv.Key == new Version(3, 3, 1));
+            var eventStoreVersion = EventStoreVersions.OrderByDescending(kv => kv.Key).First();
             await InstallEventStoreAsync(eventStoreVersion.Key).ConfigureAwait(false);
 
             var disposable = StartExe(
