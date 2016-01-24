@@ -24,6 +24,7 @@
 
 using System;
 using System.Net;
+using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
@@ -45,6 +46,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
         public void SetUp()
         {
             _eventStore = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
+            Thread.Sleep(TimeSpan.FromSeconds(3)); // Let EventStore initialize
         }
 
         [TearDown]
