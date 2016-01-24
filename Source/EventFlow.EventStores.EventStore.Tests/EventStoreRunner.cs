@@ -92,7 +92,7 @@ namespace EventFlow.EventStores.EventStore.Tests
                     }
                     catch (Exception)
                     {
-                        Debug.Print("Failed to connect, retrying");
+                        Console.WriteLine("Failed to connect, retrying");
                     }
                 }
             }
@@ -135,7 +135,7 @@ namespace EventFlow.EventStores.EventStore.Tests
             };
             Action<Process> initializeProcess = p =>
                 {
-                    Debug.Print($"{process.ProcessName} START =======================================");
+                    Console.WriteLine($"{process.ProcessName} START =======================================");
                     p.Start();
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
@@ -148,11 +148,11 @@ namespace EventFlow.EventStores.EventStore.Tests
                     {
                         process.Kill();
                         process.WaitForExit(10000);
-                        Debug.Print($"{process.ProcessName} KILLED  =======================================");
+                        Console.WriteLine($"{process.ProcessName} KILLED  =======================================");
                     }
                     catch (Exception e)
                     {
-                        Debug.Print($"Failed to kill process: {e.Message}");
+                        Console.WriteLine($"Failed to kill process: {e.Message}");
                     }
                 });
         }
@@ -161,11 +161,11 @@ namespace EventFlow.EventStores.EventStore.Tests
         {
             if (IsEventStoreInstalled(version))
             {
-                Debug.Print($"EventStore v'{version}' is already installed");
+                Console.WriteLine($"EventStore v'{version}' is already installed");
                 return;
             }
 
-            Debug.Print($"EventStore v{version} not installed, installing it");
+            Console.WriteLine($"EventStore v{version} not installed, installing it");
 
             var tempDownload = Path.Combine(
                 Path.GetTempPath(),
@@ -187,7 +187,7 @@ namespace EventFlow.EventStores.EventStore.Tests
 
         private static void ExtractZipFile(string zipSourcePath, string directoryDestinationPath)
         {
-            Debug.Print($"Extracting '{zipSourcePath}' to '{directoryDestinationPath}'");
+            Console.WriteLine($"Extracting '{zipSourcePath}' to '{directoryDestinationPath}'");
 
             if (!Directory.Exists(directoryDestinationPath))
             {
@@ -216,7 +216,7 @@ namespace EventFlow.EventStores.EventStore.Tests
                 throw new ArgumentException($"File '{destinationPath}' already exists");
             }
 
-            Debug.Print($"Downloading '{sourceUri}' to '{destinationPath}'");
+            Console.WriteLine($"Downloading '{sourceUri}' to '{destinationPath}'");
 
             using (var httpClient = new HttpClient())
             using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, sourceUri))
