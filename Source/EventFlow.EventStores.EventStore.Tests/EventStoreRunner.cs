@@ -135,6 +135,7 @@ namespace EventFlow.EventStores.EventStore.Tests
             };
             Action<Process> initializeProcess = p =>
                 {
+                    Debug.Print($"{process.ProcessName} START =======================================");
                     p.Start();
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
@@ -146,6 +147,8 @@ namespace EventFlow.EventStores.EventStore.Tests
                     try
                     {
                         process.Kill();
+                        process.WaitForExit(10000);
+                        Debug.Print($"{process.ProcessName} KILLED  =======================================");
                     }
                     catch (Exception e)
                     {
