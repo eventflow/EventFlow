@@ -46,11 +46,11 @@ namespace EventFlow.EventStores.EventStore.Tests
             {new Version(3, 4, 0), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.4.0.zip", UriKind.Absolute)}
         };
 
-        [Test]
+        [Test, Explicit("Used to test the EventStore runner")]
         [Timeout(60000)]
         public async Task TestRunner()
         {
-            using (var eventStore = await StartAsync().ConfigureAwait(false))
+            using (await StartAsync().ConfigureAwait(false))
             {
                 // Put EventStore usage here...
                 Thread.Sleep(TimeSpan.FromSeconds(0.5));
