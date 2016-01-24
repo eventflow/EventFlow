@@ -67,8 +67,7 @@ namespace EventFlow.EventStores.EventStore.Tests
                 Path.Combine(GetEventStorePath(eventStoreVersion.Key), "EventStore.ClusterNode.exe"),
                 "'admin' user added to $users",
                 "--mem-db=True",
-                "--cluster-size=1",
-                "--skip-db-verify=True");
+                "--cluster-size=1");
 
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()
