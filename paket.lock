@@ -19,7 +19,7 @@ NUGET
     Elasticsearch.Net.JsonNET (1.7.1) - framework: >= net451
       Elasticsearch.Net (>= 1.7.1)
       Newtonsoft.Json (>= 7.0 < 8.0)
-    EventStore.Client (3.4.0) - framework: >= net451
+    EventStore.Client (3.3.1) - framework: >= net451
     HangFire.Core (1.5.3) - framework: >= net451
       Newtonsoft.Json (>= 5.0.0)
       Owin (>= 1.0)

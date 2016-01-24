@@ -43,7 +43,8 @@ namespace EventFlow.EventStores.EventStore.Tests
     {
         private static readonly Dictionary<Version, Uri> EventStoreVersions = new Dictionary<Version, Uri>
         {
-            {new Version(3, 4, 0), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.4.0.zip", UriKind.Absolute)}
+            {new Version(3, 4, 0), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.4.0.zip", UriKind.Absolute)},
+            {new Version(3, 3, 1), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.3.1.zip", UriKind.Absolute)}
         };
 
         [Test, Explicit("Used to test the EventStore runner")]
@@ -59,7 +60,7 @@ namespace EventFlow.EventStores.EventStore.Tests
 
         public static async Task<IDisposable> StartAsync()
         {
-            var eventStoreVersion = EventStoreVersions.OrderByDescending(kv => kv.Key).First();
+            var eventStoreVersion = EventStoreVersions.First(kv => kv.Key == new Version(3, 3, 1));
             await InstallEventStoreAsync(eventStoreVersion.Key).ConfigureAwait(false);
 
             var disposable = StartExe(
