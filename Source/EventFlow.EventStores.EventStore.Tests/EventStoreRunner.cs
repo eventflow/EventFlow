@@ -134,7 +134,7 @@ namespace EventFlow.EventStores.EventStore.Tests
             };
             Action<Process> initializeProcess = p =>
                 {
-                    Console.WriteLine($"{process.ProcessName} START =======================================");
+                    Console.WriteLine($"{exeName} START =======================================");
                     p.Start();
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
