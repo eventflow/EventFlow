@@ -21,35 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
-using EventFlow.Logs;
 
-namespace EventFlow.Extensions
+namespace EventFlow.TestHelpers
 {
-    public static class DisposableExtensions
+    public sealed class Categories
     {
-        public static void DisposeSafe(
-            this IDisposable disposable,
-            string message)
-        {
-            DisposeSafe(disposable, new ConsoleLog(), message);
-        }
-
-        public static void DisposeSafe(
-            this IDisposable disposable, 
-            ILog log,
-            string message)
-        {
-            if (disposable == null) return;
-
-            try
-            {
-                disposable.Dispose();
-            }
-            catch (Exception e)
-            {
-                log.Warning(e, message);
-            }
-        }
+        /// <summary>
+        /// Tests that use external systems or represents a scenario
+        /// </summary>
+        public const string Integration = "integration";
     }
 }

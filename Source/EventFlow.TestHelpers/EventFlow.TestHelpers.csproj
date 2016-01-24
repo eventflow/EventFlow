@@ -59,6 +59,7 @@
     <Compile Include="Aggregates\ThingyAggregate.cs" />
     <Compile Include="Aggregates\ThingyId.cs" />
     <Compile Include="Aggregates\ValueObjects\PingId.cs" />
+    <Compile Include="Categories.cs" />
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="Extensions\EventStoreExtensions.cs" />

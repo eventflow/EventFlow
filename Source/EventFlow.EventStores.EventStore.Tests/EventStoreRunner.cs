@@ -29,6 +29,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores.EventStore.Tests.Extensions;
 using NUnit.Framework;
@@ -49,6 +50,7 @@ namespace EventFlow.EventStores.EventStore.Tests
             using (var eventStore = await StartAsync().ConfigureAwait(false))
             {
                 // Put EventStore usage here...
+                Thread.Sleep(TimeSpan.FromSeconds(5));
             }
         }
 
@@ -59,7 +61,7 @@ namespace EventFlow.EventStores.EventStore.Tests
 
             return StartExe(
                 Path.Combine(GetEventStorePath(eventStoreVersion.Key), "EventStore.ClusterNode.exe"),
-                "Subscriptions Became Master so now handling subscriptions",
+                "'admin' user added to $users",
                 "--mem-db",
                 "--cluster-size 1");
         }
@@ -77,7 +79,8 @@ namespace EventFlow.EventStores.EventStore.Tests
                             UseShellExecute = false,
                             RedirectStandardError = true,
                             RedirectStandardOutput = true,
-                        }
+                            WorkingDirectory = Path.GetDirectoryName(exePath),
+                    }
                 };
             var exeName = Path.GetFileName(exePath);
             process.OutputDataReceived += (sender, eventArgs) =>
@@ -96,6 +99,7 @@ namespace EventFlow.EventStores.EventStore.Tests
                     p.BeginErrorReadLine();
                 };
             process.WaitForOutput(initializationDone, initializeProcess);
+
             return new DisposableAction(() =>
                 {
                     try
