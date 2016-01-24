@@ -31,12 +31,15 @@ using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.ReadStores.MsSql.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;
+using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
 {
+    [Category(Categories.Integration)]
     public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
     {
         private IMsSqlDatabase _testDatabase;

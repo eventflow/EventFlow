@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
+    [Category(Categories.Integration)]
     public class SiteTests : Test
     {
         private readonly RestClient _restClient = new RestClient();

@@ -42,6 +42,7 @@ using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
+    [Category(Categories.Integration)]
     public class RabbitMqTests
     {
         private Uri _uri;

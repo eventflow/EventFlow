@@ -23,12 +23,14 @@
 // 
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
     [TestFixture]
+    [Category(Categories.Scenario)]
     public class ConfigurationTests
     {
         [Test]

@@ -26,10 +26,13 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
+using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
+    [Category(Categories.Unit)]
     public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, IAggregateEvent, EventVersionAttribute, EventDefinition>
     {
         [EventVersion("Fancy", 42)]

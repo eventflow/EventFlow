@@ -29,6 +29,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
+    [Category(Categories.Unit)]
     public class SingleValueObjectTests : Test
     {
         public class StringSingleValue : SingleValueObject<string>

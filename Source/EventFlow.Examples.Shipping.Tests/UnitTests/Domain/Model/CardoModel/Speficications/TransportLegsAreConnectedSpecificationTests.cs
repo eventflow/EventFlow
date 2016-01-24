@@ -31,6 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CardoModel.Speficications
 {
+    [Category(Categories.Unit)]
     public class TransportLegsAreConnectedSpecificationTests : Test
     {
         [Test]

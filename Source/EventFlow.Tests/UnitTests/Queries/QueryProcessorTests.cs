@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Queries
 {
+    [Category(Categories.Unit)]
     public class QueryProcessorTests : TestsFor<QueryProcessor>
     {
         private Mock<IResolver> _resolverMock;

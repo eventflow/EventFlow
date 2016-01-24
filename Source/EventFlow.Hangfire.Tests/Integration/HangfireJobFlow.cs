@@ -40,6 +40,7 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
+    [Category(Categories.Integration)]
     public class HangfireJobFlow : Test
     {
         private IMsSqlDatabase _msSqlDatabase;

@@ -29,12 +29,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
+    [Category(Categories.Unit)]
     public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTestReadModel>, ReadStoreManagerTestReadModel, IReadModelLocator>>
     {
         private Mock<IReadModelLocator> _readModelLocator;

@@ -27,8 +27,18 @@ namespace EventFlow.TestHelpers
     public sealed class Categories
     {
         /// <summary>
-        /// Tests that use external systems or represents a scenario
+        /// Tests that use external systems
         /// </summary>
         public const string Integration = "integration";
+
+        /// <summary>
+        /// Tests that execute an in-memory scenario
+        /// </summary>
+        public const string Scenario = "scenario";
+
+        /// <summary>
+        /// Tests that test a single class
+        /// </summary>
+        public const string Unit = "unit";
     }
 }

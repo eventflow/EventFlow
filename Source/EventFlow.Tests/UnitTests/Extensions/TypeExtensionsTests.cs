@@ -24,11 +24,13 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class TypeExtensionsTests
     {
         [TestCase(typeof(string), "String")]

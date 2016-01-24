@@ -23,11 +23,13 @@
 // 
 using System.Linq;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Unit)]
     public class CircularBufferTests
     {
         [TestCase(1)] // Below capasity

@@ -35,6 +35,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
+    [Category(Categories.Unit)]
     public class EventUpgradeManagerTests : TestsFor<EventUpgradeManager>
     {
         private Mock<IResolver> _resolverMock;

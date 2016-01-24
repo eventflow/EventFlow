@@ -34,6 +34,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class AggregatesExtensionsTests
     {
         [Test]
