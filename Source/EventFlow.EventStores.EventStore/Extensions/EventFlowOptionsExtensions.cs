@@ -50,7 +50,10 @@ namespace EventFlow.EventStores.EventStore.Extensions
             IPEndPoint ipEndPoint,
             ConnectionSettings connectionSettings)
         {
-            var eventStoreConnection = EventStoreConnection.Create(connectionSettings, ipEndPoint);
+            var eventStoreConnection = EventStoreConnection.Create(
+                connectionSettings,
+                ipEndPoint,
+                $"EventFlow v{typeof(EventFlowOptionsExtensions).Assembly.GetName().Version}");
 
             using (var a = AsyncHelper.Wait)
             {
