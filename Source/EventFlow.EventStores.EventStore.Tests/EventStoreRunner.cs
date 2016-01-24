@@ -124,7 +124,14 @@ namespace EventFlow.EventStores.EventStore.Tests
                 }
                 Console.WriteLine("OUT - {0}: {1}", exeName, eventArgs.Data);
             };
-            process.ErrorDataReceived += (sender, eventArgs) => Console.WriteLine("ERR - {0}: {1}", exeName, eventArgs.Data);
+            process.ErrorDataReceived += (sender, eventArgs) =>
+            {
+                if (string.IsNullOrEmpty(eventArgs.Data))
+                {
+                    return;
+                }
+                Console.WriteLine("ERR - {0}: {1}", exeName, eventArgs.Data);
+            };
             Action<Process> initializeProcess = p =>
                 {
                     p.Start();
