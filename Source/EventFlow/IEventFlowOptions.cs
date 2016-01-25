@@ -42,5 +42,6 @@ namespace EventFlow
         IEventFlowOptions RegisterModule<TModule>(TModule module) where TModule : IModule;
 
         IRootResolver CreateResolver(bool validateRegistrations = true);
+        IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes);
     }
 }

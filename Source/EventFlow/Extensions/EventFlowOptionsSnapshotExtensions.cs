@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,30 +20,35 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
+using System.Linq;
 using System.Reflection;
+using EventFlow.EventStores.Snapshots;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsDefaultExtensions
+    public static class EventFlowOptionsSnapshotExtensions
     {
-        public static IEventFlowOptions AddDefaults(
+        public static IEventFlowOptions AddSnapshots(
+            this IEventFlowOptions eventFlowOptions,
+            params Type[] snapshotTypes)
+        {
+            return eventFlowOptions.AddSnapshots(snapshotTypes);
+        }
+
+        public static IEventFlowOptions AddSnapshots(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
-            return eventFlowOptions
-                .AddEvents(fromAssembly, predicate)
-                .AddJobs(fromAssembly, predicate)
-                .AddCommands(fromAssembly, predicate)
-                .AddCommandHandlers(fromAssembly, predicate)
-                .AddMetadataProviders(fromAssembly, predicate)
-                .AddSubscribers(fromAssembly, predicate)
-                .AddEventUpgraders(fromAssembly, predicate)
-                .AddQueryHandlers(fromAssembly, predicate)
-                .AddSnapshots(fromAssembly, predicate);
+            predicate = predicate ?? (t => true);
+            var snapshotTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(ISnapshot).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowOptions.AddSnapshots(snapshotTypes);
         }
     }
 }

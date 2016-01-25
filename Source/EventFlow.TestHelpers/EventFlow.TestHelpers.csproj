@@ -55,6 +55,9 @@
     <Compile Include="Aggregates\Queries\ThingyGetMessagesQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetVersionQuery.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshot.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshotV1.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshotV2.cs" />
     <Compile Include="Aggregates\Thingy.cs" />
     <Compile Include="Aggregates\ThingyAggregate.cs" />
     <Compile Include="Aggregates\ThingyId.cs" />

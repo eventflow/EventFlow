@@ -22,28 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Extensions
+namespace EventFlow.EventStores.Snapshots
 {
-    public static class EventFlowOptionsDefaultExtensions
+    public interface ICanSnapshot
     {
-        public static IEventFlowOptions AddDefaults(
-            this IEventFlowOptions eventFlowOptions,
-            Assembly fromAssembly,
-            Predicate<Type> predicate = null)
-        {
-            return eventFlowOptions
-                .AddEvents(fromAssembly, predicate)
-                .AddJobs(fromAssembly, predicate)
-                .AddCommands(fromAssembly, predicate)
-                .AddCommandHandlers(fromAssembly, predicate)
-                .AddMetadataProviders(fromAssembly, predicate)
-                .AddSubscribers(fromAssembly, predicate)
-                .AddEventUpgraders(fromAssembly, predicate)
-                .AddQueryHandlers(fromAssembly, predicate)
-                .AddSnapshots(fromAssembly, predicate);
-        }
+    }
+
+    public interface ICanSnapshot<TSnapshot> : ICanSnapshot
+    {
+        Task<TSnapshot> CreateSnapshotAsync(CancellationToken cancellationToken);
+        Task LoadSnapshotAsync(TSnapshot snapshot, CancellationToken cancellationToken);
     }
 }

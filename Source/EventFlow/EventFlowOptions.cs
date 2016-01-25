@@ -32,6 +32,7 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.EventStores.Snapshots;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Logs;
@@ -48,6 +49,7 @@ namespace EventFlow
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
+        private readonly List<Type> _snapshotTypes = new List<Type>(); 
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
 
         private EventFlowOptions()
@@ -110,6 +112,19 @@ namespace EventFlow
                     throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
+            }
+            return this;
+        }
+
+        public IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes)
+        {
+            foreach (var snapshotType in snapshotTypes)
+            {
+                if (!typeof(ISnapshot).IsAssignableFrom(snapshotType))
+                {
+                    throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
+                }
+                _snapshotTypes.Add(snapshotType);
             }
             return this;
         }
