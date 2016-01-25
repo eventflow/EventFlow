@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,7 @@ namespace EventFlow.Aggregates
         static AggregateRoot()
         {
             var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
+            var aggregateType = typeof(TAggregate);
 
             ApplyMethods = typeof(TAggregate)
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -66,7 +68,7 @@ namespace EventFlow.Aggregates
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,
-                    mi => (Action<TAggregate, IAggregateEvent>)((a, e) => mi.Invoke(a, new object[] { e })));
+                    mi => ReflectionHelper.CompileMethodInvocation<Action<TAggregate, IAggregateEvent>>(aggregateType, "Apply", mi.GetParameters()[0].ParameterType));
         }
 
         protected AggregateRoot(TIdentity id)

@@ -33,6 +33,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
     [TestFixture]
+    [Category(Categories.Unit)]
     public class AggregateRootTests : TestsFor<ThingyAggregate>
     {
         [Test]

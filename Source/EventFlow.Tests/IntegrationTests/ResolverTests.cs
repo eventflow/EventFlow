@@ -24,12 +24,14 @@
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
+    [Category(Categories.Scenario)]
     public class ResolverTests
     {
         public class Service { }

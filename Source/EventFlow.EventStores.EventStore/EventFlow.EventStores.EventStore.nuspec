@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EventFlow.EventStores.EventStore</id>
-    <title>EventFlow - Event Store event store</title>
+    <title>EventFlow.EventStores.EventStore</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
     <description>Event Store event store for EventFlow. Download it from https://geteventstore.com/. </description>

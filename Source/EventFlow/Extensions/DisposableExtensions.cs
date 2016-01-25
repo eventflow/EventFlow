@@ -29,6 +29,13 @@ namespace EventFlow.Extensions
     public static class DisposableExtensions
     {
         public static void DisposeSafe(
+            this IDisposable disposable,
+            string message)
+        {
+            DisposeSafe(disposable, new ConsoleLog(), message);
+        }
+
+        public static void DisposeSafe(
             this IDisposable disposable, 
             ILog log,
             string message)

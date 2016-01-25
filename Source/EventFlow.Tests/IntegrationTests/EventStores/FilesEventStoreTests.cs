@@ -26,11 +26,13 @@ using System.IO;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
+    [Category(Categories.Integration)]
     public class FilesEventStoreTests : TestSuiteForEventStore
     {
         private IFilesEventStoreConfiguration _configuration;

@@ -22,11 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.ComponentModel;
 using EventFlow.Configuration;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
+    [Category(Categories.Scenario)]
     public class InMemoryEventStoreTests : TestSuiteForEventStore
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)

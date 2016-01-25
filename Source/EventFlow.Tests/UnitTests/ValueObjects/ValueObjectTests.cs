@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
+    [Category(Categories.Unit)]
     public class ValueObjectTests : Test
     {
         public class StringObject : ValueObject

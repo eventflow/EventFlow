@@ -26,12 +26,14 @@ using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
 {
+    [Category(Categories.Integration)]
     public class MsSqlEventStoreTests : TestSuiteForEventStore
     {
         private IMsSqlDatabase _testDatabase;

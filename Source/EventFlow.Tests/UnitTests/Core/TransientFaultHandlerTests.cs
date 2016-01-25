@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Unit)]
     public class TransientFaultHandlerTests : TestsFor<TransientFaultHandler<IRetryStrategy>>
     {
         private Mock<IRetryStrategy> _retryStrategyMock;

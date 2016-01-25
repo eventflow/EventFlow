@@ -23,12 +23,14 @@
 // 
 using System;
 using EventFlow.Aggregates;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
+    [Category(Categories.Unit)]
     public class AggregateRootNameTests
     {
         public class MyFancyAggregate : AggregateRoot<MyFancyAggregate, ThingyId>

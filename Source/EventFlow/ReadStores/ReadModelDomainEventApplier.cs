@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.ReadStores
 {
@@ -54,10 +55,13 @@ namespace EventFlow.ReadStores
                     t =>
                         {
                             var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
-                            var methodInfo = readModelType.GetMethod("Apply", new[] { typeof(IReadModelContext), domainEventType });
+
+                            var methodSignature = new[] {typeof (IReadModelContext), domainEventType};
+                            var methodInfo = readModelType.GetMethod("Apply", methodSignature);
+
                             return methodInfo == null
                                 ? null
-                                : (Action<IReadModel, IReadModelContext, IDomainEvent>)((r, c, e) => methodInfo.Invoke(r, new object[] { c, e }));
+                                : ReflectionHelper.CompileMethodInvocation<Action<IReadModel, IReadModelContext, IDomainEvent>>(readModelType, "Apply", methodSignature);
                         });
 
                 if (applyMethod != null)

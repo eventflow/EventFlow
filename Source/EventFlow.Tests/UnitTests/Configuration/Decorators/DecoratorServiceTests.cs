@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Configuration.Decorators
 {
+    [Category(Categories.Unit)]
     public class DecoratorServiceTests : TestsFor<DecoratorService>
     {
         // ReSharper disable ClassNeverInstantiated.Local

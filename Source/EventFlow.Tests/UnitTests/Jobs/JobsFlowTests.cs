@@ -36,6 +36,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Jobs
 {
+    [Category(Categories.Unit)]
     public class JobsFlowTests
     {
         [Test]

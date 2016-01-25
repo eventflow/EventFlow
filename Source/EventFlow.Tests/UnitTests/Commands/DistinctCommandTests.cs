@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using EventFlow.Commands;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
@@ -32,6 +33,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [Timeout(10000)]
+    [Category(Categories.Unit)]
     public class DistinctCommandTests
     {
         public class MyDistinctCommand : DistinctCommand<ThingyAggregate, ThingyId>

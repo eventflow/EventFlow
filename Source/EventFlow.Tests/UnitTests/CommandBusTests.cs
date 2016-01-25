@@ -45,6 +45,7 @@ using Ploeh.AutoFixture;
 namespace EventFlow.Tests.UnitTests
 {
     [TestFixture]
+    [Category(Categories.Unit)]
     public class CommandBusTests : TestsFor<CommandBus>
     {
         private Mock<IEventStore> _eventStoreMock;

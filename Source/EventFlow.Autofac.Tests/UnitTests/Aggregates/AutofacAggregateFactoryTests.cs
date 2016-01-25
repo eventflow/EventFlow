@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
@@ -34,6 +35,7 @@ using NUnit.Framework;
 namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
 {
     [TestFixture]
+    [Category(Categories.Scenario)]
     public class AutofacAggregateFactoryTests
     {
         [Test]

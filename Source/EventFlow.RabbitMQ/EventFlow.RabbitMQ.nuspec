@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EventFlow.RabbitMQ</id>
-    <title>EventFlow - RabbitMQ integration</title>
+    <title>EventFlow.RabbitMQ</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
     <description>RabbitMQ integration for EventFlow</description>

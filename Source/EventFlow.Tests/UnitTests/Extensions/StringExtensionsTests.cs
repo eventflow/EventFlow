@@ -22,11 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class StringExtensionsTests
     {
         [TestCase("EventName", "event-name")]

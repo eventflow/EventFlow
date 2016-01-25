@@ -21,16 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
-using System.Collections.Generic;
+
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Jobs
 {
-    public interface IJobDefinitionService
+    public interface IJobDefinitionService : IVersionedTypeDefinitionService<JobVersionAttribute, JobDefinition>
     {
-        void LoadJobs(IEnumerable<Type> jobTypes);
-        JobDefinition GetJobDefinition(Type jobType);
-        JobDefinition GetJobDefinition(string jobName, int version);
-        bool TryGetJobDefinition(string name, int version, out JobDefinition definition);
     }
 }

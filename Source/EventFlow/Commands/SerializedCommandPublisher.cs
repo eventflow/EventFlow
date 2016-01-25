@@ -57,7 +57,7 @@ namespace EventFlow.Commands
             _log.Verbose($"Executing serilized command '{name}' v{version}");
 
             CommandDefinition commandDefinition;
-            if (!_commandDefinitionService.TryGetCommandDefinition(name, version, out commandDefinition))
+            if (!_commandDefinitionService.TryGetDefinition(name, version, out commandDefinition))
             {
                 throw new ArgumentException($"No command definition found for command '{name}' v{version}");
             }

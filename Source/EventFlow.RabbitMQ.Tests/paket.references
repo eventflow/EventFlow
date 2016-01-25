@@ -1,0 +1,8 @@
+Newtonsoft.Json
+RabbitMQ.Client
+
+group Test
+	AutoFixture
+	FluentAssertions
+	Moq
+	NUnit

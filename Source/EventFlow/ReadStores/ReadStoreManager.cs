@@ -108,6 +108,16 @@ namespace EventFlow.ReadStores
             var readModelContext = new ReadModelContext(Resolver);
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 
+            if (!readModelUpdates.Any())
+            {
+                Log.Verbose(() => string.Format(
+                    "No read model updates after building for read model '{0}' in store '{1}' with these events: {2}",
+                    typeof(TReadModel).PrettyPrint(),
+                    typeof(TReadModelStore).PrettyPrint(),
+                    string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
+                return;
+            }
+
             await ReadModelStore.UpdateAsync(
                 readModelUpdates,
                 readModelContext,

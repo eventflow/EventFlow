@@ -1,0 +1,17 @@
+Autofac
+Autofac.Owin
+Autofac.WebApi2
+Autofac.WebApi2.Owin
+Microsoft.AspNet.WebApi.Client
+Microsoft.AspNet.WebApi.Core
+Microsoft.AspNet.WebApi.Owin
+Microsoft.AspNet.WebApi.OwinSelfHost
+Microsoft.Owin
+Microsoft.Owin.Host.HttpListener
+Microsoft.Owin.Hosting
+Newtonsoft.Json
+Owin
+
+group Test
+	FluentAssertions
+	NUnit

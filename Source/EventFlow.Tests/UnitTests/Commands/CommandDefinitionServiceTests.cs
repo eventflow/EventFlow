@@ -21,18 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System;
+
+using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
+using EventFlow.Tests.UnitTests.Core.VersionedTypes;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [TestFixture]
-    public class CommandDefinitionServiceTests : TestsFor<CommandDefinitionService>
+    [Category(Categories.Unit)]
+    public class CommandDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<CommandDefinitionService, ICommand, CommandVersionAttribute, CommandDefinition>
     {
         [CommandVersion("Fancy", 42)]
         public class TestCommandWithLongName : Command<IAggregateRoot<IIdentity>, IIdentity>
@@ -55,50 +57,32 @@ namespace EventFlow.Tests.UnitTests.Commands
             public OldTestCommandV5(IIdentity aggregateId) : base(aggregateId) { }
         }
 
-        [TestCase(typeof(TestCommand), 1, "TestCommand")]
-        [TestCase(typeof(TestCommandV2), 2, "TestCommand")]
-        [TestCase(typeof(OldTestCommandV5), 5, "TestCommand")]
-        [TestCase(typeof(TestCommandWithLongName), 42, "Fancy")]
-        public void GetCommandDefinition_EventWithVersion(Type commandType, int expectedVersion, string expectedName)
+        public override IEnumerable<VersionTypeTestCase> GetTestCases()
         {
-            // Act
-            var commandDefinition = Sut.GetCommandDefinition(commandType);
-
-            // Assert
-            commandDefinition.Name.Should().Be(expectedName);
-            commandDefinition.Version.Should().Be(expectedVersion);
-            commandDefinition.Type.Should().Be(commandType);
-        }
-
-        [TestCase("TestCommand", 1, typeof(TestCommand))]
-        [TestCase("TestCommand", 2, typeof(TestCommandV2))]
-        [TestCase("TestCommand", 5, typeof(OldTestCommandV5))]
-        [TestCase("Fancy", 42, typeof(TestCommandWithLongName))]
-        public void LoadCommandFollowedByGetCommandDefinition_ReturnsCorrectAnswer(string commandName, int commandVersion, Type expectedCommandType)
-        {
-            // Arrange
-            Sut.LoadCommands(new []
+            yield return new VersionTypeTestCase
                 {
-                    typeof(TestCommand),
-                    typeof(TestCommandV2),
-                    typeof(OldTestCommandV5),
-                    typeof(TestCommandWithLongName)
-                });
-
-            // Act
-            var commandDefinition = Sut.GetCommandDefinition(commandName, commandVersion);
-
-            // Assert
-            commandDefinition.Name.Should().Be(commandName);
-            commandDefinition.Version.Should().Be(commandVersion);
-            commandDefinition.Type.Should().Be(expectedCommandType);
-        }
-
-        [Test]
-        public void CanLoadNull()
-        {
-            // Act
-            Sut.LoadCommands(null);
+                    Name = "TestCommand",
+                    Type = typeof(TestCommand),
+                    Version = 1,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "TestCommand",
+                    Type = typeof(TestCommandV2),
+                    Version = 2,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "TestCommand",
+                    Type = typeof(OldTestCommandV5),
+                    Version = 5,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "Fancy",
+                    Type = typeof(TestCommandWithLongName),
+                    Version = 42,
+                };
         }
     }
 }

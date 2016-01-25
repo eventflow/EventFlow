@@ -36,6 +36,7 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 {
+    [Category(Categories.Unit)]
     public class RabbitMqPublisherTests : TestsFor<RabbitMqPublisher>
     {
         private Mock<IRabbitMqConnectionFactory> _rabbitMqConnectionFactoryMock;
@@ -101,7 +102,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             // Assert
             _modelMock.Verify(
-                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
+                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
                 Times.Exactly(rabbitMqMessages.Count));
             _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Never);
         }

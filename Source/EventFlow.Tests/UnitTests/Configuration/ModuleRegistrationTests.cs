@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Configuration
 {
+    [Category(Categories.Unit)]
     public class ModuleRegistrationTests : TestsFor<ModuleRegistration>
     {
         [Test]

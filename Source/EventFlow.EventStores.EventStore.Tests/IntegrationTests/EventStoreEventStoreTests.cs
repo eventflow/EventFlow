@@ -22,11 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Net;
+using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
@@ -34,14 +37,31 @@ using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
-    [Explicit("EventStore from https://geteventstore.com/ required to run")]
+    [TestFixture]
+    [Timeout(30000)]
+    [Category(Categories.Integration)]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
+        private IDisposable _eventStore;
+
+        [TestFixtureSetUp]
+        public void SetUp()
+        {
+            _eventStore = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
+        }
+
+        [TestFixtureTearDown]
+        public void TearDown()
+        {
+            _eventStore.DisposeSafe("EventStore shutdown");
+        }
+
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()
                 .KeepReconnecting()
+                .KeepRetrying()
                 .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
                 .Build();
 
