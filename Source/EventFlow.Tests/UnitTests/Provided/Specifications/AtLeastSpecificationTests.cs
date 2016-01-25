@@ -22,12 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Specifications;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Provided.Specifications
 {
+    [Category(Categories.Unit)]
     public class AtLeastSpecificationTests
     {
         [TestCase(1, 1, false)]

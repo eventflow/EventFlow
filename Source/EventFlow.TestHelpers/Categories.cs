@@ -20,16 +20,25 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers;
-using NUnit.Framework;
-
-namespace EventFlow.Tests.UnitTests.ReadStores
+namespace EventFlow.TestHelpers
 {
-    [Category(Categories.Unit)]
-    public class SingleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<SingleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTestReadModel>, ReadStoreManagerTestReadModel>>
+    public sealed class Categories
     {
+        /// <summary>
+        /// Tests that use external systems
+        /// </summary>
+        public const string Integration = "integration";
+
+        /// <summary>
+        /// Tests that execute an in-memory scenario
+        /// </summary>
+        public const string Scenario = "scenario";
+
+        /// <summary>
+        /// Tests that test a single class
+        /// </summary>
+        public const string Unit = "unit";
     }
 }

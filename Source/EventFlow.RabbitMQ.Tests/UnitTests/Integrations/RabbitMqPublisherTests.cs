@@ -36,6 +36,7 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 {
+    [Category(Categories.Unit)]
     public class RabbitMqPublisherTests : TestsFor<RabbitMqPublisher>
     {
         private Mock<IRabbitMqConnectionFactory> _rabbitMqConnectionFactoryMock;

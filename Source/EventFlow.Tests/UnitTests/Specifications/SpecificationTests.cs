@@ -24,11 +24,13 @@
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Specifications;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Specifications
 {
+    [Category(Categories.Unit)]
     public class SpecificationTests
     {
         [Test]

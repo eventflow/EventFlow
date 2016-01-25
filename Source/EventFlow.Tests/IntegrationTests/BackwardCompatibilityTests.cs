@@ -37,6 +37,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
+    [Category(Categories.Integration)]
     public class BackwardCompatibilityTests : Test
     {
         private readonly ThingyId _thingyId = ThingyId.With("thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7");

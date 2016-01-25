@@ -31,6 +31,7 @@ using EventFlow.Extensions;
 using EventFlow.ReadStores.Elasticsearch.Extensions;
 using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Nest;
@@ -38,6 +39,7 @@ using NUnit.Framework;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
 {
+    [Category(Categories.Integration)]
     public class ElasticsearchReadModelStoreTests : TestSuiteForReadModelStore
     {
         private IElasticClient _elasticClient;

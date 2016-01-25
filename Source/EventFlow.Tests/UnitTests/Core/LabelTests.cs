@@ -23,10 +23,12 @@
 // 
 using System;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Unit)]
     public class LabelTests
     {
         [TestCase("valid-label")]

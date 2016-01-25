@@ -26,12 +26,14 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [TestFixture]
+    [Category(Categories.Unit)]
     public class CommandDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<CommandDefinitionService, ICommand, CommandVersionAttribute, CommandDefinition>
     {
         [CommandVersion("Fancy", 42)]

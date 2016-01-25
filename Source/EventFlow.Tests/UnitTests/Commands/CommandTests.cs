@@ -23,7 +23,6 @@
 // 
 using EventFlow.Aggregates;
 using EventFlow.Commands;
-using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
@@ -32,6 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
+    [Category(Categories.Unit)]
     public class CommandTests : Test
     {
         public class CriticalCommand : Command<ThingyAggregate, ThingyId, EventId>

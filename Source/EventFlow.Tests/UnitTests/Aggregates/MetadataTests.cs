@@ -31,6 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
+    [Category(Categories.Unit)]
     public class MetadataTests : Test
     {
         [Test]

@@ -28,6 +28,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Configuration.Registrations
 {
+    [Category(Categories.Unit)]
     public class AutofacServiceRegistrationTests : Test
     {
         // ReSharper disable ClassNeverInstantiated.Local

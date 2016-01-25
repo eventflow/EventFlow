@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {
+    [Category(Categories.Unit)]
     public class ReadModelSqlGeneratorTests : TestsFor<ReadModelSqlGenerator>
     {
         [Test]

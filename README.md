@@ -199,6 +199,27 @@ several areas that you could help out with.
     existing applications
   * Provide a platform for DDD discussions
 
+### Integration tests
+EvenFlow has several tests that verify that its able to use the systems it
+integrates with correctly.
+
+ * **Elasticsearch:** Set an environment variable named `ELASTICSEARCH_URL` with
+   the URL for the Elasticsearch instance you would like to use.
+ * **EventStore:** EventStore is automatically downloaded and run during the
+   EventStore integration tests from your `TEMP` directory. However, EventStore
+   requires to be able to
+   [listen to HTTP requests](http://docs.geteventstore.com/server/3.4.0/).
+   If you run Visual Studio as administrator or configure it yourself up front.
+ * **MSSQL:** Microsoft SQL Server is required to be running
+ * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
+   for the RabbitMQ instance you would like to use.
+
+There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
+[here](https://github.com/rasmus/Vagrant.Boxes).
+
+Alternatively you can skip the NUnit tests marked with the `integration`
+category.
+
 ## Thanks
 
 * [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses

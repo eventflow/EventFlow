@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests.UnitTests.ExternalServices.Routing
 {
+    [Category(Categories.Unit)]
     public class RoutingServiceTests : TestsFor<RoutingService>
     {
         [Test]

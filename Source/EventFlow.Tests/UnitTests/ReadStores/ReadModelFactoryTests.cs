@@ -31,6 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
+    [Category(Categories.Unit)]
     public class ReadModelFactoryTests : Test
     {
         [Test]

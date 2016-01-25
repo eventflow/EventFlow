@@ -35,6 +35,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Subscribers
 {
+    [Category(Categories.Unit)]
     public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
     {
         private Mock<IResolver> _resolverMock;
