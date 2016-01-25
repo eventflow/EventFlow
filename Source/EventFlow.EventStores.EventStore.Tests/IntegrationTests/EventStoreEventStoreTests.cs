@@ -37,19 +37,20 @@ using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
-    [Timeout(120000)]
+    [TestFixture]
+    [Timeout(30000)]
     [Category(Categories.Integration)]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
         private IDisposable _eventStore;
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             _eventStore = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
             _eventStore.DisposeSafe("EventStore shutdown");
