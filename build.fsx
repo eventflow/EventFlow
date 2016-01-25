@@ -110,7 +110,7 @@ Target "CreatePackageEventFlowHangfire" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "Hangfire.Core",  "1.4.6"] // Need to fix this
+                "Hangfire.Core",  "1.5.3"]
             Publish = false })
             "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
