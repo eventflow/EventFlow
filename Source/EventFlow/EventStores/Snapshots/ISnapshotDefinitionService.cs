@@ -22,16 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.EventStores.Snapshots
 {
-    public interface ISnapshotDefinitionService
+    public interface ISnapshotDefinitionService : IVersionedTypeDefinitionService<SnapshotVersionAttribute, SnapshotDefinition>
     {
-        void LoadSnapshots(IEnumerable<Type> snapshotTypes);
-        SnapshotDefinition GetSnapshotDefinition(Type snapshotType);
-        SnapshotDefinition GetSnapshotDefinition(string snapshotName, int version);
-        bool TryGetSnapshotDefinition(string name, int version, out SnapshotDefinition definition);
     }
 }

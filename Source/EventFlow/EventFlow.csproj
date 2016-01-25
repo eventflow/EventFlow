@@ -135,6 +135,7 @@
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
     <Compile Include="EventStores\ISerializedEvent.cs" />
+    <Compile Include="EventStores\Snapshots\ISnapshot.cs" />
     <Compile Include="EventStores\Snapshots\ISnapshotDefinitionService.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotDefinition.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotVersionAttribute.cs" />

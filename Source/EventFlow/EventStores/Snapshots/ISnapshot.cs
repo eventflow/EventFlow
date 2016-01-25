@@ -22,23 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
-
 namespace EventFlow.EventStores.Snapshots
 {
-    public class SnapshotDefinitionService : VersionedTypeDefinitionService<ISnapshot, SnapshotVersionAttribute, SnapshotDefinition>, ISnapshotDefinitionService
+    public interface ISnapshot
     {
-        public SnapshotDefinitionService(
-            ILog log)
-            : base(log)
-        {
-        }
-
-        protected override SnapshotDefinition CreateDefinition(int version, Type type, string name)
-        {
-            return new SnapshotDefinition(version, type, name);
-        }
     }
 }
