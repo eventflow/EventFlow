@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.ReadStores
 {
@@ -54,10 +55,13 @@ namespace EventFlow.ReadStores
                     t =>
                         {
                             var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
-                            var methodInfo = readModelType.GetMethod("Apply", new[] { typeof(IReadModelContext), domainEventType });
+
+                            var methodSignature = new[] {typeof (IReadModelContext), domainEventType};
+                            var methodInfo = readModelType.GetMethod("Apply", methodSignature);
+
                             return methodInfo == null
                                 ? null
-                                : (Action<IReadModel, IReadModelContext, IDomainEvent>)((r, c, e) => methodInfo.Invoke(r, new object[] { c, e }));
+                                : ReflectionHelper.CompileMethodInvocation<Action<IReadModel, IReadModelContext, IDomainEvent>>(readModelType, "Apply", methodSignature);
                         });
 
                 if (applyMethod != null)

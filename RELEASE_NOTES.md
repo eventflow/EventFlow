@@ -1,5 +1,32 @@
-### New in 0.23 (not released yet)
+### New in 0.25 (not released yet)
 
+ * _Nothing yet_
+
+### New in 0.24.1563 (released 2016-01-17)
+
+ * Breaking: The following NuGet references have been updated
+   - `EventStore.Client` v3.4.0 (up from v3.0.2)
+   - `Hangfire.Core` v1.5.3 (up from v1.4.6)
+   - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+ * New: EventFlow now uses Paket to manage NuGet packages
+ * Fixed: Incorrect use of `EventStore.Client` that caused it to throw
+   `WrongExpectedVersionException` when committing aggregates multiple times
+ * Fixed: Updated NuGet package titles of the following NuGet packages to
+   contain assembly name to get a better overview when searching on
+   [nuget.org](http://nuget.org)
+   - `EventFlow.RabbitMQ`
+   - `EventFlow.EventStores.EventStore`
+ * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
+
+### New in 0.23.1470 (released 2015-12-05)
+
+* Breaking: EventFlow no longer ignores columns named `Id` in MSSQL read models.
+  If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute
+* Fixed: Instead of using `MethodInfo.Invoke` to call methods on reflected
+  types, e.g. when a command is published, EventFlow now compiles an expression
+  tree instead. This has a slight initial overhead, but provides a significant
+  performance improvement for subsequent calls
+* Fixed: Read model stores are only invoked if there's any read model updates
 * Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
   been incorrectly configure with known versioned types, e.g. an event
   is emitted that hasn't been added during EventFlow initialization. EventFlow
@@ -8,7 +35,7 @@
   be thrown as EventFlow would know which type to use. Please make sure to
   correctly load all event, command and job types before use
 * Fixed: `IReadModelFactory<>.CreateAsync(...)` is now correctly used in
-  read store mangers 
+  read store mangers
 * Fixed: Versioned type naming convention now allows numbers
 
 ### New in 0.22.1393 (released 2015-11-19)

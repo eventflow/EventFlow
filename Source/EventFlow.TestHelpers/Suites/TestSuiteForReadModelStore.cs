@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,7 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
@@ -109,6 +110,28 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
             returnedThingyMessages.ShouldAllBeEquivalentTo(thingyMessages);
+        }
+
+        [Test]
+        public async Task CanHandleMultipleMessageAtOnce()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            var pingIds = Many<PingId>(5);
+            var thingyMessages = Many<ThingyMessage>(7);
+
+            // Act
+            await CommandBus.PublishAsync(new ThingyImportCommand(
+                thingyId,
+                pingIds,
+                thingyMessages))
+                .ConfigureAwait(false);
+            var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
+            var thingy = await QueryProcessor.ProcessAsync(new ThingyGetQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            thingy.PingsReceived.Should().Be(pingIds.Count);
+            returnedThingyMessages.ShouldAllBeEquivalentTo(returnedThingyMessages);
         }
 
         [Test]

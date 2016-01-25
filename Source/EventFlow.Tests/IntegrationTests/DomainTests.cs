@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,6 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using EventFlow.Tests.IntegrationTests.ReadStores;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
@@ -46,6 +45,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests
 {
     [TestFixture]
+    [Category(Categories.Scenario)]
     public class DomainTests
     {
         public class Subscriber : ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>

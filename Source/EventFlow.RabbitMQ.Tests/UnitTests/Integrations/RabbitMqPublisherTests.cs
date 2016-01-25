@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,7 @@ using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 {
+    [Category(Categories.Unit)]
     public class RabbitMqPublisherTests : TestsFor<RabbitMqPublisher>
     {
         private Mock<IRabbitMqConnectionFactory> _rabbitMqConnectionFactoryMock;
@@ -101,7 +102,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             // Assert
             _modelMock.Verify(
-                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
+                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
                 Times.Exactly(rabbitMqMessages.Count));
             _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Never);
         }

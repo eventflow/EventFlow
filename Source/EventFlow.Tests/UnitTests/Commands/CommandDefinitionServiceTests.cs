@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,12 +26,14 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [TestFixture]
+    [Category(Categories.Unit)]
     public class CommandDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<CommandDefinitionService, ICommand, CommandVersionAttribute, CommandDefinition>
     {
         [CommandVersion("Fancy", 42)]

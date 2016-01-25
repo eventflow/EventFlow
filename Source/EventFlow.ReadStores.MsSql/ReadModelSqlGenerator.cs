@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -115,7 +115,6 @@ namespace EventFlow.ReadStores.MsSql
             where TReadModel : IReadModel
         {
             return GetPropertyInfos(typeof (TReadModel))
-                .Where(p => p.Name != "Id") // TODO: Maybe use the key attribute to mark this
                 .Select(p => p.Name);
         }
 
@@ -165,6 +164,7 @@ namespace EventFlow.ReadStores.MsSql
                 {
                     return t
                         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                        .Where(p => p.GetCustomAttribute<MsSqlReadModelIgnoreColumnAttribute>() == null)
                         .OrderBy(p => p.Name)
                         .ToList();
                 });

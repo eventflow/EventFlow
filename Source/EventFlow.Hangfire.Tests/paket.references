@@ -1,0 +1,9 @@
+Hangfire.Core
+Hangfire.SqlServer
+Newtonsoft.Json
+Owin
+
+group Test
+	FluentAssertions
+	Helpz
+	NUnit

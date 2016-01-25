@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -141,6 +141,25 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task AggregateCanHaveMultipleCommits()
+        {
+            // Arrange
+            var id = ThingyId.New;
+
+            // Act
+            var aggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            aggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
+            aggregate.Ping(PingId.New);
+            await aggregate.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            aggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(id).ConfigureAwait(false);
+
+            // Assert
+            aggregate.PingsReceived.Count.Should().Be(2);
+        }
+
+        [Test]
         public async Task AggregateEventStreamsCanBeDeleted()
         {
             // Arrange
@@ -207,8 +226,8 @@ namespace EventFlow.TestHelpers.Suites
             var domainEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 200, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)e).AggregateEvent.PingId == pingIds[0]);
-            domainEvents.DomainEvents.Should().Contain(e => ((IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)e).AggregateEvent.PingId == pingIds[1]);
+            domainEvents.DomainEvents.OfType<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>().Should().Contain(e => e.AggregateEvent.PingId == pingIds[0]);
+            domainEvents.DomainEvents.OfType<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>().Should().Contain(e => e.AggregateEvent.PingId == pingIds[1]);
         }
 
         [Test]

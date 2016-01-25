@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -28,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
+    [Category(Categories.Unit)]
     public class SingleValueObjectConverterTests
     {
         [TestCase("test  test", "\"test  test\"")]

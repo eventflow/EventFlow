@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,68 +21,75 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.ReadStores;
 using EventFlow.ReadStores.MsSql;
+using EventFlow.ReadStores.MsSql.Attributes;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
-#pragma warning disable 618
 
 namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 {
+    [Category(Categories.Unit)]
     public class ReadModelSqlGeneratorTests : TestsFor<ReadModelSqlGenerator>
     {
-        [Table("FancyTable")]
-        public class TestTableAttribute : MssqlReadModel { }
-
         [Test]
         public void CreateInsertSql_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateInsertSql<MsSqlThingyReadModel>();
+            var sql = Sut.CreateInsertSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be(
-                "INSERT INTO [ReadModel-ThingyAggregate] " +
-                "(AggregateId, CreateTime, DomainErrorAfterFirstReceived, LastAggregateSequenceNumber, PingsReceived, UpdatedTime) " +
-                "VALUES " +
-                "(@AggregateId, @CreateTime, @DomainErrorAfterFirstReceived, @LastAggregateSequenceNumber, @PingsReceived, @UpdatedTime)");
+            sql.Should().Be("INSERT INTO [ReadModel-TestAttributes] (Id, UpdatedTime) VALUES (@Id, @UpdatedTime)");
         }
 
         [Test]
         public void CreateUpdateSql_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateUpdateSql<MsSqlThingyReadModel>();
+            var sql = Sut.CreateUpdateSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be(
-                "UPDATE [ReadModel-ThingyAggregate] SET " +
-                "CreateTime = @CreateTime, DomainErrorAfterFirstReceived = @DomainErrorAfterFirstReceived, " +
-                "LastAggregateSequenceNumber = @LastAggregateSequenceNumber, " +
-                "PingsReceived = @PingsReceived, UpdatedTime = @UpdatedTime " +
-                "WHERE AggregateId = @AggregateId");
+            sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET UpdatedTime = @UpdatedTime WHERE Id = @Id");
         }
 
         [Test]
         public void CreateSelectSql_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateSelectSql<MsSqlThingyReadModel>();
+            var sql = Sut.CreateSelectSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be("SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @EventFlowReadModelId");
+            sql.Should().Be("SELECT * FROM [ReadModel-TestAttributes] WHERE Id = @EventFlowReadModelId");
         }
 
         [Test]
         public void GetTableName_UsesTableAttribute()
         {
             // Act
-            var tableName = Sut.GetTableName<TestTableAttribute>();
+            var tableName = Sut.GetTableName<TestTableAttributeReadModel>();
 
             // Assert
-            tableName.Should().Be("[FancyTable]");
+            tableName.Should().Be("[Fancy]");
+        }
+
+        public class TestAttributesReadModel : IReadModel
+        {
+            [MsSqlReadModelIdentityColumn]
+            public string Id { get; set; }
+
+            public DateTimeOffset UpdatedTime { get; set; }
+
+            [MsSqlReadModelIgnoreColumn]
+            public string Secret { get; set; }
+        }
+
+        [Table("Fancy")]
+        public class TestTableAttributeReadModel : IReadModel
+        {
         }
     }
 }
