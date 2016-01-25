@@ -1,4 +1,20 @@
-### New in 0.23 (not released yet)
+### New in 0.24 (not released yet)
+
+ * Breaking: The following NuGet references have been updated
+   - `EventStore.Client` v3.4.0 (up from v3.0.2)
+   - `Hangfire.Core` v1.5.3 (up from v1.4.6)
+   - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+ * New: EventFlow now uses Paket to manage NuGet packages
+ * Fixed: Incorrect use of `EventStore.Client` that caused it to throw
+   `WrongExpectedVersionException` when committing aggregates multiple times
+ * Fixed: Updated NuGet package titles of the following NuGet packages to
+   contain assembly name to get a better overview when searching on
+   [nuget.org](http://nuget.org)
+   - `EventFlow.RabbitMQ`
+   - `EventFlow.EventStores.EventStore`
+ * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
+
+### New in 0.23.1470 (released 2015-12-05)
 
 * Breaking: EventFlow no longer ignores columns named `Id` in MSSQL read models.
   If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute
