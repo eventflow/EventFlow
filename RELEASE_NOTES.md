@@ -1,4 +1,8 @@
-### New in 0.24 (not released yet)
+### New in 0.25 (not released yet)
+
+ * _Nothing yet_
+
+### New in 0.24.1563 (released 2016-01-17)
 
  * Breaking: The following NuGet references have been updated
    - `EventStore.Client` v3.4.0 (up from v3.0.2)
