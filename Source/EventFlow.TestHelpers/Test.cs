@@ -64,6 +64,19 @@ namespace EventFlow.TestHelpers
             return Fixture.CreateMany<T>(count).ToList();
         }
 
+        protected T Mock<T>()
+            where T : class
+        {
+            return new Mock<T>().Object;
+        }
+
+        protected T Inject<T>(T instance)
+            where T : class
+        {
+            Fixture.Inject(instance);
+            return instance;
+        }
+
         protected Mock<T> InjectMock<T>()
             where T : class
         {

@@ -20,24 +20,13 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores.Snapshots;
-
-namespace EventFlow.Aggregates
+namespace EventFlow.EventStores.Snapshots
 {
-    public interface ISnapshotAggregateRoot : IAggregateRoot
+    public sealed class SnapshotMetadataKeys
     {
-        Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
-    }
-
-    public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSnapshot : ISnapshot
-    {
+        public const string SnapshotName = "snapshot_name";
+        public const string SnapshotVersion = "snapshot_version";
     }
 }

@@ -20,24 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores.Snapshots;
+using System;
+using System.Collections.Generic;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Core
 {
-    public interface ISnapshotAggregateRoot : IAggregateRoot
+    public interface IMetadataContainer : IReadOnlyDictionary<string, string>
     {
-        Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
-    }
-
-    public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSnapshot : ISnapshot
-    {
+        string GetMetadataValue(string key);
+        T GetMetadataValue<T>(string key, Func<string, T> converter);
     }
 }

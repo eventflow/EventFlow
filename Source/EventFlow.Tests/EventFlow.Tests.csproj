@@ -68,6 +68,7 @@
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
+    <Compile Include="UnitTests\EventStores\Snapshots\SnapshotBuilderTests.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />

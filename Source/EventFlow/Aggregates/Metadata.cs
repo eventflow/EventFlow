@@ -21,17 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Core;
-using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using Newtonsoft.Json;
 
 namespace EventFlow.Aggregates
 {
-    public class Metadata : Dictionary<string, string>, IMetadata
+    public class Metadata : MetadataContainer, IMetadata
     {
         public static IMetadata Empty { get; } = new Metadata();
 
@@ -151,48 +151,6 @@ namespace EventFlow.Aggregates
                 metadata[kv.Key] = kv.Value;
             }
             return metadata;
-        }
-
-        public void AddRange(params KeyValuePair<string, string>[] keyValuePairs)
-        {
-            AddRange((IEnumerable<KeyValuePair<string, string>>) keyValuePairs);
-        }
-
-        public void AddRange(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
-        {
-            foreach (var keyValuePair in keyValuePairs)
-            {
-                Add(keyValuePair.Key, keyValuePair.Value);
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Join(Environment.NewLine, this.Select(kv => $"{kv.Key}: {kv.Value}"));
-        }
-
-        public string GetMetadataValue(string key)
-        {
-            return GetMetadataValue(key, s => s);
-        }
-
-        public T GetMetadataValue<T>(string key, Func<string, T> converter)
-        {
-            string value;
-
-            if (!TryGetValue(key, out value))
-            {
-                throw new MetadataKeyNotFoundException(key);
-            }
-
-            try
-            {
-                return converter(value);
-            }
-            catch (Exception e)
-            {
-                throw new MetadataParseException(key, value, e);
-            }
         }
     }
 }

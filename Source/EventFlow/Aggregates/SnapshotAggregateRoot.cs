@@ -29,8 +29,8 @@ using EventFlow.EventStores.Snapshots;
 
 namespace EventFlow.Aggregates
 {
-    public abstract class SnapshotAggregateRoot<TSnapshot, TAggregate, TIdentity> : AggregateRoot<TAggregate, TIdentity>,
-        ISnapshotAggregateRoot<TSnapshot, TIdentity>
+    public abstract class SnapshotAggregateRoot<TAggregate, TIdentity, TSnapshot> : AggregateRoot<TAggregate, TIdentity>,
+        ISnapshotAggregateRoot<TIdentity, TSnapshot>
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
         where TSnapshot : ISnapshot
@@ -41,22 +41,29 @@ namespace EventFlow.Aggregates
         {
         }
 
-        public async Task<ISnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
+        public async Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken)
         {
             var snapshot = await InternalCreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
 
             // TODO: Enrich snapshot
 
-            return snapshot;
+            var snapshotContainer = new SnapshotContainer(
+                snapshot,
+                new SnapshotMetadata());
+
+            return snapshotContainer;
         }
 
-        public Task LoadSnapshotAsyncAsync(ISnapshot snapshot, CancellationToken cancellationToken)
+        public Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
-            return InternalLoadSnapshotAsync((TSnapshot) snapshot, cancellationToken);
+            return InternalLoadSnapshotAsync(
+                (TSnapshot) snapshotContainer.Snapshot,
+                snapshotContainer.Metadata,
+                cancellationToken);
         }
 
         protected abstract Task<TSnapshot> InternalCreateSnapshotAsync(CancellationToken cancellationToken);
 
-        protected abstract Task InternalLoadSnapshotAsync(TSnapshot snapshot, CancellationToken cancellationToken);
+        protected abstract Task InternalLoadSnapshotAsync(TSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken);
     }
 }

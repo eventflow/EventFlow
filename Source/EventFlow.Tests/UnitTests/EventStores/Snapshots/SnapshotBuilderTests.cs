@@ -24,20 +24,35 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
+using NUnit.Framework;
 using EventFlow.EventStores.Snapshots;
+using EventFlow.Logs;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Snapshots;
+using FluentAssertions;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
-    public interface ISnapshotAggregateRoot : IAggregateRoot
+    public class SnapshotBuilderTests : TestsFor<SnapshotBuilder>
     {
-        Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
-    }
+        [SetUp]
+        public void SetUp()
+        {
+            var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
+            snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
+            Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
+        }
 
-    public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSnapshot : ISnapshot
-    {
+        [Test]
+        public async Task BuildSnapshotAsyncT()
+        {
+            // Act
+            var serializedSnapshot = await Sut.BuildSnapshotAsync(new ThingyAggregate(ThingyId.New), CancellationToken.None);
+
+            // Assert
+            serializedSnapshot.Metadata.SnapshotName.Should().Be("thingy");
+            serializedSnapshot.Metadata.SnapshotVersion.Should().Be(3);
+        } 
     }
 }

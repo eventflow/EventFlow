@@ -22,22 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores.Snapshots;
-
-namespace EventFlow.Aggregates
+namespace EventFlow.EventStores.Snapshots
 {
-    public interface ISnapshotAggregateRoot : IAggregateRoot
+    public class SnapshotContainer
     {
-        Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
-    }
+        public SnapshotContainer(
+            ISnapshot snapshot,
+            ISnapshotMetadata metadata)
+        {
+            Snapshot = snapshot;
+            Metadata = metadata;
+        }
 
-    public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSnapshot : ISnapshot
-    {
+        public ISnapshot Snapshot { get; }
+        public ISnapshotMetadata Metadata { get; }
     }
 }

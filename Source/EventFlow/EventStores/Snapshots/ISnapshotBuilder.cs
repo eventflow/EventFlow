@@ -24,20 +24,18 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventStores.Snapshots;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventStores.Snapshots
 {
-    public interface ISnapshotAggregateRoot : IAggregateRoot
+    public interface ISnapshotBuilder
     {
-        Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
-    }
+        Task<SerializedSnapshot> BuildSnapshotAsync(IAggregateRoot aggregateRoot, CancellationToken cancellationToken);
 
-    public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSnapshot : ISnapshot
-    {
+        Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TAggregate aggregate, CancellationToken cancellationToken)
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
     }
 }

@@ -20,24 +20,36 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Core;
-using EventFlow.EventStores.Snapshots;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventStores.Snapshots
 {
-    public interface ISnapshotAggregateRoot : IAggregateRoot
+    public class SnapshotMetadata : MetadataContainer, ISnapshotMetadata
     {
-        Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
-    }
+        public SnapshotMetadata()
+        {
+        }
 
-    public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSnapshot : ISnapshot
-    {
+        public SnapshotMetadata(IDictionary<string, string> keyValuePairs)
+            : base(keyValuePairs)
+        {
+        }
+
+        public SnapshotMetadata(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+            : base(keyValuePairs.ToDictionary(kv => kv.Key, kv => kv.Value))
+        {
+        }
+
+        public SnapshotMetadata(params KeyValuePair<string, string>[] keyValuePairs)
+            : this((IEnumerable<KeyValuePair<string, string>>) keyValuePairs)
+        {
+        }
+
+        public string SnapshotName => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
+        public int SnapshotVersion => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
     }
 }
