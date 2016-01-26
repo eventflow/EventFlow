@@ -22,11 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.EventStores.Snapshots;
 
-namespace EventFlow.EventStores.InMemory
+namespace EventFlow.Aggregates
 {
-    public class InMemorySnapshotStore : ISnapshotStore
+    public interface ISnapshotAggregateRoot : IAggregateRoot
+    {
+        Task<ISnapshot> CreateSnapshotAsync(CancellationToken cancellationToken);
+        Task LoadSnapshotAsyncAsync(ISnapshot snapshot, CancellationToken cancellationToken);
+    }
+
+    public interface ISnapshotAggregateRoot<TSnapshot, out TIdentity> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TSnapshot : ISnapshot
     {
     }
 }

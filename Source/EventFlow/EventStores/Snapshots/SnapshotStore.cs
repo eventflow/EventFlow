@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,18 +22,36 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.EventStores.Snapshots
 {
-    public interface ICanSnapshot
+    public class SnapshotStore : ISnapshotStore
     {
-    }
+        private readonly ISnapshotPersistence _snapshotPersistence;
 
-    public interface ICanSnapshot<TSnapshot> : ICanSnapshot
-    {
-        Task<TSnapshot> CreateSnapshotAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotAsync(TSnapshot snapshot, CancellationToken cancellationToken);
+        public SnapshotStore(
+            ISnapshotPersistence snapshotPersistence)
+        {
+            _snapshotPersistence = snapshotPersistence;
+        }
+
+        public Task<TSnapshot> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TIdentity identity)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>()
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

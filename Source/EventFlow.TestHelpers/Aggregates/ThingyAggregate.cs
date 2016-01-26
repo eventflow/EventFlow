@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.EventStores.Snapshots;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -37,9 +36,8 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 namespace EventFlow.TestHelpers.Aggregates
 {
     [AggregateName("Thingy")]
-    public class ThingyAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
-        IEmit<ThingyDomainErrorAfterFirstEvent>,
-        ICanSnapshot<ThingySnapshot>
+    public class ThingyAggregate : SnapshotAggregateRoot<ThingySnapshot, ThingyAggregate, ThingyId>,
+        IEmit<ThingyDomainErrorAfterFirstEvent>
     {
         private readonly List<PingId> _pingsReceived = new List<PingId>();
         private readonly List<ThingyMessage> _messages = new List<ThingyMessage>(); 
@@ -84,12 +82,12 @@ namespace EventFlow.TestHelpers.Aggregates
             DomainErrorAfterFirstReceived = true;
         }
 
-        public Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
+        protected override Task<ThingySnapshot> InternalCreateSnapshotAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(new ThingySnapshot(PingsReceived));
         }
 
-        public Task LoadSnapshotAsync(ThingySnapshot snapshot, CancellationToken cancellationToken)
+        protected override Task InternalLoadSnapshotAsync(ThingySnapshot snapshot, CancellationToken cancellationToken)
         {
             _pingsReceived.AddRange(snapshot.PingsReceived);
             return Task.FromResult(0);

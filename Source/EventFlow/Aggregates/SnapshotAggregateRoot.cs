@@ -22,23 +22,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventStores.Snapshots;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Aggregates
 {
-    public interface ISnapshotStore
+    public abstract class SnapshotAggregateRoot<TSnapshot, TAggregate, TIdentity> : AggregateRoot<TAggregate, TIdentity>,
+        ISnapshotAggregateRoot<TSnapshot, TIdentity>
+        where TAggregate : AggregateRoot<TAggregate, TIdentity>
+        where TIdentity : IIdentity
+        where TSnapshot : ISnapshot
     {
-        Task<TSnapshot> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            TIdentity identity)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot;
+        protected SnapshotAggregateRoot(
+            TIdentity id)
+            : base(id)
+        {
+        }
 
-        Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>()
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot;
+        public async Task<ISnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
+        {
+            var snapshot = await InternalCreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+            // TODO: Enrich snapshot
+
+            return snapshot;
+        }
+
+        public Task LoadSnapshotAsyncAsync(ISnapshot snapshot, CancellationToken cancellationToken)
+        {
+            return InternalLoadSnapshotAsync((TSnapshot) snapshot, cancellationToken);
+        }
+
+        protected abstract Task<TSnapshot> InternalCreateSnapshotAsync(CancellationToken cancellationToken);
+
+        protected abstract Task InternalLoadSnapshotAsync(TSnapshot snapshot, CancellationToken cancellationToken);
     }
 }
