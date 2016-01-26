@@ -21,18 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Core;
-using EventFlow.Core.VersionedTypes;
 
-namespace EventFlow.Aggregates
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace EventFlow.Core.VersionedTypes
 {
-    public interface IAggregateEvent : IVersionedType
+    public interface IVersionedTypeUpgradeService<TAttribute, TDefinition, TVersionedType>
+        where TAttribute : VersionedTypeAttribute
+        where TDefinition : VersionedTypeDefinition
+        where TVersionedType : IVersionedType
     {
-    }
-
-    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
+        Task<TVersionedType> UpgradeAsync(TVersionedType versionedType, CancellationToken cancellationToken);
     }
 }

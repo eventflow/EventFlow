@@ -21,18 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Core;
-using EventFlow.Core.VersionedTypes;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Core.VersionedTypes
 {
-    public interface IAggregateEvent : IVersionedType
-    {
-    }
-
-    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
+    public interface IVersionedType
     {
     }
 }

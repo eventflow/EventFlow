@@ -22,9 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using EventFlow.Core.VersionedTypes;
+
 namespace EventFlow.EventStores.Snapshots
 {
-    public interface ISnapshot
+    public interface ISnapshot : IVersionedType
     {
     }
 }

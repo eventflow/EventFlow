@@ -36,6 +36,10 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -111,8 +115,12 @@
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedType.cs" />
     <Compile Include="Core\VersionedTypes\IVersionedTypeDefinitionService.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedTypeUpgrader.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedTypeUpgradeService.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeUpgradeService.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="EventFlowOptions.cs" />
@@ -143,6 +151,7 @@
     <Compile Include="EventStores\Snapshots\ISnapshotBuilder.cs" />
     <Compile Include="EventStores\Snapshots\ISnapshotMetadata.cs" />
     <Compile Include="EventStores\Snapshots\ISnapshotPersistence.cs" />
+    <Compile Include="EventStores\Snapshots\ISnapshotUpgradeService.cs" />
     <Compile Include="EventStores\Snapshots\SerializedSnapshot.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotContainer.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotBuilder.cs" />
@@ -154,6 +163,7 @@
     <Compile Include="EventStores\Snapshots\ISnapshotDefinitionService.cs" />
     <Compile Include="EventStores\Snapshots\ISnapshotStore.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotDefinition.cs" />
+    <Compile Include="EventStores\Snapshots\SnapshotUpgradeService.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotVersionAttribute.cs" />
     <Compile Include="EventStores\Snapshots\SnapshotDefinitionService.cs" />
     <Compile Include="Exceptions\DomainError.cs" />

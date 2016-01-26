@@ -21,18 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Core;
+
+using System.Linq;
 using EventFlow.Core.VersionedTypes;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
 {
-    public interface IAggregateEvent : IVersionedType
+    public class ThingySnapshotV2ToV3Upgrader : IVersionedTypeUpgrader<ThingySnapshotV2, ThingySnapshot>
     {
-    }
-
-    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
+        public ThingySnapshot Upgrade(ThingySnapshotV2 fromVersionedType)
+        {
+            return new ThingySnapshot(Enumerable.Empty<PingId>());
+        }
     }
 }

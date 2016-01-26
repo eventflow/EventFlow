@@ -24,35 +24,47 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using EventFlow.Configuration;
+using EventFlow.Core.VersionedTypes;
 using EventFlow.EventStores.Snapshots;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
+using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
 using FluentAssertions;
+using Moq;
+using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
-    public class SnapshotBuilderTests : TestsFor<SnapshotBuilder>
+    public class SnapshotUpgradeServiceTests : TestsFor<SnapshotUpgradeService>
     {
+        private Mock<IResolver> _resolverMock;
+
         [SetUp]
         public void SetUp()
         {
+            _resolverMock = InjectMock<IResolver>();
+            _resolverMock
+                .Setup(r => r.Resolve(typeof (IVersionedTypeUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
+                .Returns(() => new ThingySnapshotV1ToV2Upgrader());
+            _resolverMock
+                .Setup(r => r.Resolve(typeof(IVersionedTypeUpgrader<ThingySnapshotV2, ThingySnapshot>)))
+                .Returns(() => new ThingySnapshotV2ToV3Upgrader());
+
             var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
             snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
             Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
         }
 
         [Test]
-        public async Task BuildSnapshotAsync()
+        public async Task UpgradeAsync()
         {
             // Act
-            var serializedSnapshot = await Sut.BuildSnapshotAsync(new ThingyAggregate(ThingyId.New), CancellationToken.None);
+            var snapshot = await Sut.UpgradeAsync(new ThingySnapshotV1(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            serializedSnapshot.Metadata.SnapshotName.Should().Be("thingy");
-            serializedSnapshot.Metadata.SnapshotVersion.Should().Be(3);
-        } 
+            snapshot.Should().BeOfType<ThingySnapshot>();
+        }
     }
 }

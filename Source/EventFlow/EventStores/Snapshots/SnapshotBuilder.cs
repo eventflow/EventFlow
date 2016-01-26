@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using Newtonsoft.Json;
 
@@ -56,7 +57,9 @@ namespace EventFlow.EventStores.Snapshots
         {
             if (!(aggregateRoot is ISnapshotAggregateRoot))
             {
-                return Task.FromResult(null as SerializedSnapshot);
+                throw new ArgumentException(
+                    $"Aggregate '{aggregateRoot.GetType().PrettyPrint()}' does not support snapshotting",
+                    nameof(aggregateRoot));
             }
 
             var cacheItem = GetCacheItem(aggregateRoot.GetType());

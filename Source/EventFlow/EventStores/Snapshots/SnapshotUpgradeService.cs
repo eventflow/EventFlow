@@ -21,18 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Core;
+
+using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.EventStores.Snapshots
 {
-    public interface IAggregateEvent : IVersionedType
+    public class SnapshotUpgradeService :
+        VersionedTypeUpgradeService<SnapshotVersionAttribute, SnapshotDefinition, ISnapshot, ISnapshotDefinitionService>,
+        ISnapshotUpgradeService
     {
-    }
-
-    public interface IAggregateEvent<TAggregate, TIdentity> : IAggregateEvent
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
+        public SnapshotUpgradeService(
+            ILog log,
+            IResolver resolver,
+            ISnapshotDefinitionService definitionService)
+            : base(log, resolver, definitionService)
+        {
+        }
     }
 }
