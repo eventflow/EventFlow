@@ -1,7 +1,10 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.14.{build}
+version: 0.25.{build}
+
+before_build:
+  - cmd: netsh http add urlacl url=http://+:2113/ user=Everyone
 
 skip_tags: true
 
@@ -10,7 +13,9 @@ build_script:
 
 environment:
   RABBITMQ_URL:
-    secure: xwGqQQNW97xHpuYOINuuTGji7GBCyo6uFKz04+k6S5S9afMcStqC6Z9/kYQO8xL6zlcoPi8Z1A6dyDUFGwHaLZ6N3u9qd3iiTTFR8BUo1CM=
+    secure: W49qXP+4ZjxPTpBev0ZtuiajlgUwK8DyxTugRqcYoYpTDilN8TpqGS6+MGIYqJAFBtOkzyV+ZT2lVDVsKNXpyQArzVwCoMiOoGDNaULf3ujooaqBFC0rXyZpeTPhfI2q
+  ELASTICSEARCH_URL:
+    secure: EMy8m38J6dDu7ilgWl5T5w0cKG5Nex1oFvxvY0R/DyMuGfs7ml50phQ0an6K6eWb2p8EeiUZPGhpe5RQONuuG9Y9EfWeVEbz7OFjLYTix1Q=
 
 test: off
 
@@ -18,7 +23,7 @@ artifacts:
   - path: Build\Packages\*.nupkg
 
 cache:
-  - packages -> **\packages.config
+  - packages -> paket.lock
 
 services:
   - mssql2014

@@ -1,6 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +27,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSagasExtensions
     {
-        public static EventFlowOptions AddSagas(
-            this EventFlowOptions eventFlowOptions,
+        public static IEventFlowOptions AddSagas(
+            this IEventFlowOptions eventFlowOptions,
             params Type[] sagaTypes)
         {
             return eventFlowOptions.AddSagas(sagaTypes);

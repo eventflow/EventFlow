@@ -1,14 +1,15 @@
 rem @echo off
 
-mkdir Tools
-powershell -Command "if ((Test-Path '.\Tools\NuGet.exe') -eq $false) {(New-Object System.Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '.\Tools\NuGet.exe')}"
+".paket\paket.bootstrapper.exe"
+IF %errorlevel% NEQ 0 (
+	exit /b %errorlevel%
+)
 
-".\Tools\NuGet.exe" "install" "FAKE.Core" "-OutputDirectory" "Tools" "-ExcludeVersion" "-version" "4.1.3"
-".\Tools\NuGet.exe" "install" "NUnit.Runners" "-OutputDirectory" "Tools" "-ExcludeVersion" "-version" "2.6.4"
-".\Tools\NuGet.exe" "install" "ilmerge" "-OutputDirectory" "Tools" "-ExcludeVersion" "-version" "2.14.1208"
+".paket\paket.exe" restore
+IF %errorlevel% NEQ 0 (
+	exit /b %errorlevel%
+)
 
-".\Tools\NuGet.exe" restore .\EventFlow.sln
-
-"Tools\FAKE.Core\tools\Fake.exe" "build.fsx" "nugetApikey=%NUGET_APIKEY%" "buildVersion=%APPVEYOR_BUILD_VERSION%"
+"packages\build\FAKE\tools\Fake.exe" "build.fsx" "nugetApikey=%NUGET_APIKEY%" "buildVersion=%APPVEYOR_BUILD_VERSION%"
 
 exit /b %errorlevel%

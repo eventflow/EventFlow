@@ -1,5 +1,11 @@
 # FAQ - frequently asked questions
 
+#### How can I ensure that only specific users can execute commands?
+
+You should implement a _decorator_ for the `ICommadBus` that does the authentication.
+Have a look at the [decorator](./Customize.md#decorating-implementations) documentation
+to see how this can be achieved. 
+
 #### Why isn't there a "global sequence number" on domain events?
 
 While this is easy to support in some event stores like MSSQL, it doesn't
