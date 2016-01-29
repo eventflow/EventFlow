@@ -1,31 +1,34 @@
 ﻿// The MIT License (MIT)
-//
-// Copyright (c) 2015 Rasmus Mikkelsen
+// 
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+// 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -41,8 +44,10 @@ namespace EventFlow.ReadStores
         // ReSharper enable StaticMemberInGenericType
 
         protected ILog Log { get; }
+        protected IResolver Resolver { get; }
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
+        protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
 
         protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
         protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
@@ -56,7 +61,7 @@ namespace EventFlow.ReadStores
             if (!iAmReadModelForInterfaceTypes.Any())
             {
                 throw new ArgumentException(
-                    $"Read model type '{ReadModelType.Name}' does not implement any 'IAmReadModelFor<>'");
+                    $"Read model type '{ReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
             }
 
             AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
@@ -65,12 +70,16 @@ namespace EventFlow.ReadStores
 
         protected ReadStoreManager(
             ILog log,
+            IResolver resolver,
             TReadModelStore readModelStore,
-            IReadModelDomainEventApplier readModelDomainEventApplier)
+            IReadModelDomainEventApplier readModelDomainEventApplier,
+            IReadModelFactory<TReadModel> readModelFactory)
         {
             Log = log;
+            Resolver = resolver;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
+            ReadModelFactory = readModelFactory;
         }
 
         public async Task UpdateReadStoresAsync(
@@ -84,14 +93,30 @@ namespace EventFlow.ReadStores
             {
                 Log.Verbose(() => string.Format(
                     "None of these events was relevant for read model '{0}', skipping update: {1}",
-                    ReadModelType.Name,
-                    string.Join(", ", domainEvents.Select(e => e.EventType.Name))
+                    ReadModelType.PrettyPrint(),
+                    string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
                     ));
                 return;
             }
 
-            var readModelContext = new ReadModelContext();
+            Log.Verbose(() => string.Format(
+                "Updating read model '{0}' in store '{1}' with these events: {2}",
+                typeof(TReadModel).PrettyPrint(),
+                typeof(TReadModelStore).PrettyPrint(),
+                string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
+
+            var readModelContext = new ReadModelContext(Resolver);
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
+
+            if (!readModelUpdates.Any())
+            {
+                Log.Verbose(() => string.Format(
+                    "No read model updates after building for read model '{0}' in store '{1}' with these events: {2}",
+                    typeof(TReadModel).PrettyPrint(),
+                    typeof(TReadModelStore).PrettyPrint(),
+                    string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
+                return;
+            }
 
             await ReadModelStore.UpdateAsync(
                 readModelUpdates,

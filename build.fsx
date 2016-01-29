@@ -1,4 +1,4 @@
-#r @"tools\FAKE.Core\tools\FakeLib.dll"
+#r @"packages\build\FAKE\tools\FakeLib.dll"
 open System
 open Fake 
 open Fake.AssemblyInfoFile
@@ -15,8 +15,8 @@ let dirPackages = "./Build/Packages"
 let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
 let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
-let toolNUnit = "./Tools/NUnit.Runners/tools"
-let toolIlMerge = "./Tools/ilmerge/tools/ILMerge.exe"
+let toolNUnitDir = "./packages/build/NUnit.Runners/tools"
+let toolIlMerge = "./packages/build/ilmerge/tools/ILMerge.exe"
 let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
 
@@ -43,7 +43,7 @@ Target "UnitTest" (fun _ ->
             {p with
                 DisableShadowCopy = true;
                 Framework = "net-4.0";
-                ToolPath = "./Tools/NUnit.Runners/tools";
+                ToolPath = toolNUnitDir;
                 TimeOut = TimeSpan.FromMinutes 30.0;
                 ToolName = "nunit-console-x86.exe";
                 OutputFile = filePathUnitTestReport})
@@ -110,7 +110,7 @@ Target "CreatePackageEventFlowHangfire" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "Hangfire.Core",  "1.4.6"] // Need to fix this
+                "Hangfire.Core",  "1.5.3"]
             Publish = false })
             "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
@@ -181,6 +181,24 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             "Source/EventFlow.ReadStores.MsSql/EventFlow.ReadStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowReadStoresElasticsearch" (fun _ ->
+    let binDir = "Source/EventFlow.ReadStores.Elasticsearch/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.ReadStores.Elasticsearch.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.ReadStores.Elasticsearch"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "NEST",  GetPackageVersion "./packages/" "NEST"
+                "Elasticsearch.Net",  GetPackageVersion "./packages/" "Elasticsearch.Net"
+                "Elasticsearch.Net.JsonNET",  GetPackageVersion "./packages/" "Elasticsearch.Net.JsonNET"]
+            Publish = false })
+            "Source/EventFlow.ReadStores.Elasticsearch/EventFlow.ReadStores.Elasticsearch.nuspec"
+    )
+
 Target "CreatePackageEventFlowOwin" (fun _ ->
     let binDir = "Source/EventFlow.Owin/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.Owin.dll")
@@ -211,6 +229,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
+    ==> "CreatePackageEventFlowReadStoresElasticsearch"
     ==> "CreatePackageEventFlowEventStoresEventStore"
     ==> "CreatePackageEventFlowOwin"
     ==> "Default"

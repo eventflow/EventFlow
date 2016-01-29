@@ -1,10 +1,32 @@
 # EventFlow
 
-[![Join the chat at https://gitter.im/rasmus/EventFlow](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+This repository uses [`git lfs`](https://git-lfs.github.com/), install it if you
+want to build the code.
 
-[![NuGet Status](http://img.shields.io/nuget/v/EventFlow.svg?style=flat)](https://www.nuget.org/packages/EventFlow/)
-[![Build status](https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true)](https://ci.appveyor.com/project/rasmusnu/eventflow)
-[![License](https://img.shields.io/github/license/rasmus/eventflow.svg)](./LICENSE)
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./icon-128.png" />
+    </td>
+    <td>
+      <p>
+        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+          <img src="https://badges.gitter.im/Join%20Chat.svg" />
+        </a>
+      </p>
+      <p>
+        <a href="https://www.nuget.org/packages/EventFlow/">
+          <img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" />
+        </a>
+      </p>
+      <p>
+        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow">
+          <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
+        </a>
+      </p>
+    </td>
+  </tr>
+</table>
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
@@ -15,14 +37,24 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 ### Features
 
 * **CQRS+ES framework**
-* **Async/await first:** Every part of EventFlow is written using async/await. In
-  some places EventFlow exposes sync methods like e.g. the `ICommandBus`, but these
-  merely _try_ to do the right thing using an async bridge
+* **Async/await first:** Every part of EventFlow is written using async/await.
 * **Highly configurable and extendable**
 * **Easy to use**
 * **No use of threads or background workers making it "web friendly"**
 * **Cancellation:** All methods that does IO work or might delay execution (due to
   retries), takes a `CancellationToken` argument to allow you to cancel the operation
+
+### Examples
+
+* **[Simple](#simple-example):** Shows the key concepts of EventFlow in a few
+  lines of code
+* **Shipping:** To get a more complete example of how EventFlow _could_ be used,
+  have a look at the shipping example found here in the code base. The example
+  is based on the shipping example from the book "Domain-Driven Design -
+  Tackling Complexity in the Heart of Software" by Eric Evans. Its
+  _in-progress_, but should provide inspiration on how to use EventFlow on a
+  larger scale. If you have ideas and/or comments, create a pull request or
+  an issue
 
 ### Overview
 
@@ -40,11 +72,12 @@ to the documentation.
  * Files - only for test
  * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
-* **Read models:** Denormalized representation of aggregate events
-  optimized for reading fast. Currently there is support for these
-  read model storage types.
-  * In-memory - only for test
-  * Microsoft SQL Server
+* [**Read models:**](./Documentation/ReadStores.md) Denormalized representation
+  of aggregate events optimized for reading fast. Currently there is support for
+  these read model storage types.
+  * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
+  * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
+  * [Microsoft SQL Server](Documentation/ReadStores.md#microsoft-sql-server)
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
@@ -66,7 +99,7 @@ to the documentation.
   EventFlow can be swapped with a custom implementation through the embedded
   IoC container.
 
-## Full example
+## Simple example
 Here's an example on how to use the in-memory event store (default)
 and a in-memory read model store.
 
@@ -95,7 +128,8 @@ using (var resolver = EventFlowOptions.New
 }
 ```
 
-Note: `.ConfigureAwait(false)` omitted in above example.
+Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in
+the above example to ease reading.
 
 ## State of EventFlow
 
@@ -115,6 +149,8 @@ Many of the technical design decisions in EventFlow is based on articles. This
 section lists some of them. If you have a link with a relevant article, please
 share it by creating an issue with the link.
 
+* **Domain-Driven Design**
+ - [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/) by Eric Evans
 * **General CQRS+ES**
  - [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
    published by Microsoft
@@ -155,18 +191,47 @@ several areas that you could help out with.
    across articles that might be relevant for EventFlow, or even better, can
    point to specfic EventFlow functionality that might be done better, then
    please create an issue or ask in the Gitter chat
+* **Expand the shipping example:** If you have ideas on how to expand the
+  shipping example found in the code base, the please create a pull request
+  or create an issue
+  * Give a good understanding of how to use EventFlow
+  * Give a better understanding of how API changes in EventFlow affect
+    existing applications
+  * Provide a platform for DDD discussions
+
+### Integration tests
+EvenFlow has several tests that verify that its able to use the systems it
+integrates with correctly.
+
+ * **Elasticsearch:** Set an environment variable named `ELASTICSEARCH_URL` with
+   the URL for the Elasticsearch instance you would like to use.
+ * **EventStore:** EventStore is automatically downloaded and run during the
+   EventStore integration tests from your `TEMP` directory. However, EventStore
+   requires to be able to
+   [listen to HTTP requests](http://docs.geteventstore.com/server/3.4.0/).
+   If you run Visual Studio as administrator or configure it yourself up front.
+ * **MSSQL:** Microsoft SQL Server is required to be running
+ * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
+   for the RabbitMQ instance you would like to use.
+
+There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
+[here](https://github.com/rasmus/Vagrant.Boxes).
+
+Alternatively you can skip the NUnit tests marked with the `integration`
+category.
 
 ## Thanks
 
-[![ReSharper](./Documentation/Images/logo_resharper.png)](https://www.jetbrains.com/resharper/)
-
+* [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
+* [iconmonstr](http://iconmonstr.com/network-6-icon/): Free icons for EventFlow
 
 ## License
 
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015 Rasmus Mikkelsen
+Copyright (c) 2015-2016 Rasmus Mikkelsen
+Copyright (c) 2015-2016 eBay Software Foundation
 https://github.com/rasmus/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

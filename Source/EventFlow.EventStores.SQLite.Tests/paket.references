@@ -1,0 +1,9 @@
+Newtonsoft.Json
+System.Data.SQLite.Core
+
+group Test
+	AutoFixture
+	AutoFixture.AutoMoq
+	FluentAssertions
+	Moq
+	NUnit

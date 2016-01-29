@@ -1,0 +1,7 @@
+Elasticsearch.Net
+NEST
+Newtonsoft.Json
+
+group Test
+	FluentAssertions
+	NUnit

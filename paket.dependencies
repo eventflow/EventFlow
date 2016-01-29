@@ -1,0 +1,47 @@
+redirects: off
+source https://www.nuget.org/api/v2/
+
+nuget Autofac 3.5.2
+nuget Autofac.Owin 3.1.0 framework: >= net451
+nuget Autofac.WebApi2 3.4.0 framework: >= net451
+nuget Autofac.WebApi2.Owin 3.2.0 framework: >= net451
+nuget Dapper 1.42 framework: >= net451
+nuget dbup 3.3.0 framework: >= net451
+nuget Elasticsearch.Net 1.7.1 framework: >= net451
+nuget Elasticsearch.Net.JsonNET 1.7.1 framework: >= net451
+nuget EventStore.Client 3.4.0 framework: >= net451
+nuget Hangfire.Core 1.5.3 framework: >= net451
+nuget Hangfire.SqlServer 1.5.3 framework: >= net451
+nuget JetBrains.Annotations 10.0.0 framework: >= net451
+nuget Microsoft.AspNet.WebApi.Client 5.2.3 framework: >= net451
+nuget Microsoft.AspNet.WebApi.Core 5.2.3 framework: >= net451
+nuget Microsoft.AspNet.WebApi.Owin 5.2.3 framework: >= net451
+nuget Microsoft.AspNet.WebApi.OwinSelfHost 5.2.3 framework: >= net451
+nuget Microsoft.Owin 3.0.1 framework: >= net451
+nuget Microsoft.Owin.Host.HttpListener 3.0.1 framework: >= net451
+nuget Microsoft.Owin.Hosting 3.0.1 framework: >= net451
+nuget NEST 1.7.1 framework: >= net451
+nuget Newtonsoft.Json 7.0.1 framework: >= net451
+nuget Owin 1.0 framework: >= net451
+nuget RabbitMQ.Client 3.6.0
+nuget System.Data.SQLite.Core 1.0.98.1
+
+group Build
+	redirects: off
+	source https://www.nuget.org/api/v2/
+
+	nuget FAKE 4.14.5
+	nuget ilmerge 2.14.1208
+	nuget NUnit.Runners 2.6.4
+
+
+group Test
+	redirects: on
+	source https://www.nuget.org/api/v2/
+	
+	nuget AutoFixture 3.38.1
+	nuget AutoFixture.AutoMoq 3.31.1 framework: >= net451
+	nuget FluentAssertions 4.2.1
+	nuget Helpz 0.1.8 framework: >= net451
+	nuget Moq 4.2.1510.2205
+	nuget NUnit 2.6.4
