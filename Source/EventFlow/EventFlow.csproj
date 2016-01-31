@@ -111,6 +111,7 @@
     <Compile Include="Core\Label.cs" />
     <Compile Include="Core\MetadataContainer.cs" />
     <Compile Include="Core\ReflectionHelper.cs" />
+    <Compile Include="Core\RetryDelay.cs" />
     <Compile Include="Core\RetryStrategies\IOptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />

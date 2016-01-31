@@ -21,33 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using DbUp.Engine.Output;
-using EventFlow.Logs;
 
-namespace EventFlow.MsSql.Integrations
+using System.Reflection;
+
+namespace EventFlow.Sql.Migrations
 {
-    public class DbUpUpgradeLog : IUpgradeLog
+    public interface ISqlDatabaseMigrator
     {
-        private readonly ILog _log;
-
-        public DbUpUpgradeLog(ILog log)
-        {
-            _log = log;
-        }
-
-        public void WriteInformation(string format, params object[] args)
-        {
-            _log.Information(format, args);
-        }
-
-        public void WriteError(string format, params object[] args)
-        {
-            _log.Error(format, args);
-        }
-
-        public void WriteWarning(string format, params object[] args)
-        {
-            _log.Warning(format, args);
-        }
+        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
+        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
     }
 }
