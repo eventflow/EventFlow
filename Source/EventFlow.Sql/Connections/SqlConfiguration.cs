@@ -32,6 +32,8 @@ namespace EventFlow.Sql.Connections
         public T SetConnectionString(string connectionString)
         {
             ConnectionString = connectionString;
+
+            // Are there alternatives to this double cast?
             return (T) (object) this;
         }
     }

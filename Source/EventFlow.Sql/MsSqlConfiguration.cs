@@ -26,7 +26,7 @@ using EventFlow.Sql.Connections;
 
 namespace EventFlow.Sql
 {
-    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>
+    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
     {
         public static MsSqlConfiguration New => new MsSqlConfiguration();
 
