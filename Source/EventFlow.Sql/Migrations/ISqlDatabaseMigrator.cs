@@ -24,7 +24,7 @@
 
 using System.Reflection;
 
-namespace EventFlow.Sql
+namespace EventFlow.Sql.Migrations
 {
     public interface ISqlDatabaseMigrator
     {

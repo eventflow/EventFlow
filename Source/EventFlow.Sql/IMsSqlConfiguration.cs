@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using EventFlow.Sql.Connections;
+
 namespace EventFlow.Sql
 {
     public interface IMsSqlConfiguration : ISqlConfiguration

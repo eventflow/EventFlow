@@ -29,20 +29,14 @@ namespace EventFlow.Sql.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static IEventFlowOptions ConfigureSql(this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.RegisterServices(f =>
-                {
-                    f.Register<ISqlDatabaseMigrator, SqlDatabaseMigrator>();
-                });
-        }
-
-        public static IEventFlowOptions ConfigureMsSql(this IEventFlowOptions eventFlowOptions, IMsSqlConfiguration sqlConfiguration)
+        public static IEventFlowOptions ConfigureMsSql(
+            this IEventFlowOptions eventFlowOptions,
+            IMsSqlConfiguration sqlConfiguration)
         {
             return eventFlowOptions
-                .ConfigureSql()
                 .RegisterServices(f =>
                     {
+                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
                         f.Register<IMsSqlConnection, MsSqlConnection>();
                         f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
                         f.Register(_ => sqlConfiguration, Lifetime.Singleton);

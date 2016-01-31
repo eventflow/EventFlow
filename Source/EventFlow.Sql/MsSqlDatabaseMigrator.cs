@@ -21,19 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Reflection;
-using EventFlow.Sql;
+
+using EventFlow.Logs;
 using EventFlow.Sql.Migrations;
 
-namespace EventFlow.EventStores.MsSql
+namespace EventFlow.Sql
 {
-    public static class EventFlowEventStoresMsSql
+    public class MsSqlDatabaseMigrator : SqlDatabaseMigrator<IMsSqlConfiguration>, IMsSqlDatabaseMigrator
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
-
-        public static void MigrateDatabase(ISqlDatabaseMigrator sqlDatabaseMigrator)
+        public MsSqlDatabaseMigrator(
+            ILog log,
+            IMsSqlConfiguration sqlConfiguration)
+            : base(log, sqlConfiguration)
         {
-            sqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
         }
     }
 }

@@ -27,19 +27,21 @@ using System.Linq;
 using System.Reflection;
 using DbUp;
 using EventFlow.Logs;
+using EventFlow.Sql.Connections;
 using EventFlow.Sql.Exceptions;
 using EventFlow.Sql.Integrations;
 
-namespace EventFlow.Sql
+namespace EventFlow.Sql.Migrations
 {
-    public class SqlDatabaseMigrator : ISqlDatabaseMigrator
+    public class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
+        where TConfiguration : ISqlConfiguration
     {
         private readonly ILog _log;
         private readonly ISqlConfiguration _sqlConfiguration;
 
         public SqlDatabaseMigrator(
             ILog log,
-            ISqlConfiguration sqlConfiguration)
+            TConfiguration sqlConfiguration)
         {
             _log = log;
             _sqlConfiguration = sqlConfiguration;
@@ -65,7 +67,7 @@ namespace EventFlow.Sql
                 .ToList();
 
             _log.Information(
-                "Going to migrate the MSSQL database by executing these scripts: {0}",
+                "Going to migrate the SQL database by executing these scripts: {0}",
                 string.Join(", ", scripts));
 
             var result = upgradeEngine.PerformUpgrade();
