@@ -22,34 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
-using EventFlow.EventStores.SQLite.Connections;
-using EventFlow.EventStores.SQLite.RetryStrategies;
-using EventFlow.Extensions;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.EventStores.SQLite.Extensions
+namespace EventFlow.EventStores.SQLite.Connections
 {
-    public static class EventFlowOptionsExtensions
+    public class SQLiteConnectionFactory : ISQLiteConnectionFactory
     {
-        public static IEventFlowOptions ConfigureSQLite(
-            this IEventFlowOptions eventFlowOptions,
-            ISQLiteConfiguration sqLiteConfiguration)
+        public async Task<IDbConnection> OpenConnectionAsync(string connectionString, CancellationToken cancellationToken)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<ISQLiteConnection, SQLiteConnection>();
-                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
-                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
-                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
-                });
-        }
-
-        public static IEventFlowOptions UseSQLiteEventStore(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions
-                .UseEventStore<SQLiteEventPersistence>();
+            var sqLiteConnection = new System.Data.SQLite.SQLiteConnection(connectionString);
+            await sqLiteConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            return sqLiteConnection;
         }
     }
 }

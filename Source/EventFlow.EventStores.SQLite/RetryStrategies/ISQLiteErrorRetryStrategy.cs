@@ -22,34 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
-using EventFlow.EventStores.SQLite.Connections;
-using EventFlow.EventStores.SQLite.RetryStrategies;
-using EventFlow.Extensions;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores.SQLite.Extensions
+namespace EventFlow.EventStores.SQLite.RetryStrategies
 {
-    public static class EventFlowOptionsExtensions
+    public interface ISQLiteErrorRetryStrategy : IRetryStrategy
     {
-        public static IEventFlowOptions ConfigureSQLite(
-            this IEventFlowOptions eventFlowOptions,
-            ISQLiteConfiguration sqLiteConfiguration)
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<ISQLiteConnection, SQLiteConnection>();
-                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
-                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
-                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
-                });
-        }
-
-        public static IEventFlowOptions UseSQLiteEventStore(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions
-                .UseEventStore<SQLiteEventPersistence>();
-        }
     }
 }

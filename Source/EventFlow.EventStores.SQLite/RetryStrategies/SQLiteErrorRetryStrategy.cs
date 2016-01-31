@@ -22,34 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
-using EventFlow.EventStores.SQLite.Connections;
-using EventFlow.EventStores.SQLite.RetryStrategies;
-using EventFlow.Extensions;
+using System;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores.SQLite.Extensions
+namespace EventFlow.EventStores.SQLite.RetryStrategies
 {
-    public static class EventFlowOptionsExtensions
+    public class SQLiteErrorRetryStrategy : ISQLiteErrorRetryStrategy
     {
-        public static IEventFlowOptions ConfigureSQLite(
-            this IEventFlowOptions eventFlowOptions,
-            ISQLiteConfiguration sqLiteConfiguration)
+        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<ISQLiteConnection, SQLiteConnection>();
-                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
-                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
-                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
-                });
-        }
+            // TODO: Inspect exception and if its a SQLite transient error
 
-        public static IEventFlowOptions UseSQLiteEventStore(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions
-                .UseEventStore<SQLiteEventPersistence>();
+            return Retry.No;
         }
     }
 }

@@ -22,32 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
+using EventFlow.Sql.Connections;
 
 namespace EventFlow.EventStores.SQLite
 {
-    public interface IConnection
+    public class SQLiteConfiguration : SqlConfiguration<ISQLiteConfiguration>, ISQLiteConfiguration
     {
-        Task<int> ExecuteAsync(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
+        public static SQLiteConfiguration New => new SQLiteConfiguration();
 
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-
-        Task<TResult> WithConnectionAsync<TResult>(
-            Label label,
-            Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
-            CancellationToken cancellationToken);
+        private SQLiteConfiguration() { }
     }
 }

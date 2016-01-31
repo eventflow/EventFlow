@@ -49,11 +49,11 @@ namespace EventFlow.EventStores.SQLite
         }
 
         private readonly ILog _log;
-        private readonly IConnection _connection;
+        private readonly ISQLiteConnection _connection;
 
         public SQLiteEventPersistence(
             ILog log,
-            IConnection connection)
+            ISQLiteConnection connection)
         {
             _log = log;
             _connection = connection;

@@ -22,34 +22,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores.SQLite.Connections;
 using EventFlow.EventStores.SQLite.RetryStrategies;
-using EventFlow.Extensions;
+using EventFlow.Logs;
+using EventFlow.Sql.Connections;
 
-namespace EventFlow.EventStores.SQLite.Extensions
+namespace EventFlow.EventStores.SQLite
 {
-    public static class EventFlowOptionsExtensions
+    public class SQLiteConnection : SqlConnection<ISQLiteConfiguration, ISQLiteErrorRetryStrategy, ISQLiteConnectionFactory>, ISQLiteConnection
     {
-        public static IEventFlowOptions ConfigureSQLite(
-            this IEventFlowOptions eventFlowOptions,
-            ISQLiteConfiguration sqLiteConfiguration)
+        public SQLiteConnection(
+            ILog log,
+            ISQLiteConfiguration configuration,
+            ISQLiteConnectionFactory connectionFactory,
+            ITransientFaultHandler<ISQLiteErrorRetryStrategy> transientFaultHandler)
+            : base(log, configuration, connectionFactory, transientFaultHandler)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<ISQLiteConnection, SQLiteConnection>();
-                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
-                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
-                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
-                });
-        }
-
-        public static IEventFlowOptions UseSQLiteEventStore(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions
-                .UseEventStore<SQLiteEventPersistence>();
         }
     }
 }

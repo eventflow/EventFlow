@@ -114,9 +114,8 @@ namespace EventFlow.Sql.Connections
             return TransientFaultHandler.TryAsync(
                 async c =>
                 {
-                    using (var sqlConnection = new SqlConnection(Configuration.ConnectionString))
+                    using (var sqlConnection = await ConnectionFactory.OpenConnectionAsync(Configuration.ConnectionString, cancellationToken).ConfigureAwait(false))
                     {
-                        await sqlConnection.OpenAsync(c).ConfigureAwait(false);
                         return await withConnection(sqlConnection, c).ConfigureAwait(false);
                     }
                 },

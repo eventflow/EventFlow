@@ -24,7 +24,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Data.SQLite;
 using System.IO;
 using System.Threading;
 using EventFlow.Configuration;
@@ -50,15 +49,11 @@ namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
 
             var resolver = eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
+                .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
                 .UseSQLiteEventStore()
-                .RegisterServices(sr =>
-                    {
-                        sr.Register<IConnection, Connection>();
-                        sr.Register(r => new SQLiteConnection($"Data Source={_databasePath};Version=3;"));
-                    })
                 .CreateResolver();
 
-            var connection = resolver.Resolve<IConnection>();
+            var connection = resolver.Resolve<ISQLiteConnection>();
             const string sqlCreateTable = @"
                 CREATE TABLE [EventFlow](
 	                [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
