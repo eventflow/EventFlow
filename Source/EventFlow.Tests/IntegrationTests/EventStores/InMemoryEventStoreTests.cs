@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,11 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.ComponentModel;
+using EventFlow.Configuration;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
-    public class InMemoryEventStoreTests : EventStoreSuite<InMemoryConfiguration>
+    [Category(Categories.Scenario)]
+    public class InMemoryEventStoreTests : TestSuiteForEventStore
     {
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.CreateResolver();
+        }
     }
 }

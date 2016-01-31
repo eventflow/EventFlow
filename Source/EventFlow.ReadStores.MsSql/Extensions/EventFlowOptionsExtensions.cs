@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 
@@ -30,7 +31,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
     {
         public static IEventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMssqlReadModel, new()
+            where TReadModel : class, IReadModel, new()
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
@@ -45,7 +46,7 @@ namespace EventFlow.ReadStores.MsSql.Extensions
 
         public static IEventFlowOptions UseMssqlReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMssqlReadModel, new()
+            where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
                 .RegisterServices(f =>

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.ReadStores.MsSql
 {
+    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
     public abstract class MssqlReadModel : IMssqlReadModel
     {
         public string AggregateId { get; set; }

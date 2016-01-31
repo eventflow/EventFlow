@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,7 +47,7 @@ namespace EventFlow.EventStores
 
         public SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas)
         {
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(aggregateEvent.GetType());
+            var eventDefinition = _eventDefinitionService.GetDefinition(aggregateEvent.GetType());
 
             var metadata = new Metadata(metadatas
                 .Where(kv => kv.Key != MetadataKeys.EventName && kv.Key != MetadataKeys.EventVersion) // TODO: Fix this
@@ -89,7 +89,7 @@ namespace EventFlow.EventStores
 
         private IDomainEvent Deserialize(string aggregateId, string json, IMetadata metadata)
         {
-            var eventDefinition = _eventDefinitionService.GetEventDefinition(
+            var eventDefinition = _eventDefinitionService.GetDefinition(
                 metadata.EventName,
                 metadata.EventVersion);
 

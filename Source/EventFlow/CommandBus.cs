@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -146,24 +146,26 @@ namespace EventFlow
             var commandType = command.GetType();
             var commandExecutionDetails = GetCommandExecutionDetails(commandType);
 
-            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType).ToList();
+            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType)
+                .Cast<ICommandHandler>()
+                .ToList();
             if (!commandHandlers.Any())
             {
                 throw new NoCommandHandlersException(string.Format(
                     "No command handlers registered for the command '{0}' on aggregate '{1}'",
                     commandType.PrettyPrint(),
-                    commandExecutionDetails.AggregateType.PrettyPrint()));
+                    typeof(TAggregate).PrettyPrint()));
             }
             if (commandHandlers.Count > 1)
             {
                 throw new InvalidOperationException(string.Format(
                     "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
                     commandType.PrettyPrint(),
-                    commandExecutionDetails.AggregateType.PrettyPrint(),
+                    typeof(TAggregate).PrettyPrint(),
                     string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
             }
 
-            var commandHandler = (ICommandHandler) commandHandlers.Single();
+            var commandHandler = commandHandlers.Single();
 
             return _transientFaultHandler.TryAsync(
                 async c =>
@@ -186,7 +188,6 @@ namespace EventFlow
 
         private class CommandExecutionDetails
         {
-            public Type AggregateType { get; set; }
             public Type CommandHandlerType { get; set; }
             public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
         }
@@ -205,13 +206,12 @@ namespace EventFlow
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
 
-                        var invoker = commandHandlerType.GetMethod("ExecuteAsync");
+                        var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(commandHandlerType, "ExecuteAsync");
 
                         return new CommandExecutionDetails
                             {
-                                AggregateType = commandTypes[0],
                                 CommandHandlerType = commandHandlerType,
-                                Invoker = ((h, a, command, c) => (Task)invoker.Invoke(h, new object[] { a, command, c }))
+                                Invoker = invokeExecuteAsync
                             };
                     });
         }

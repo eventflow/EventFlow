@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,12 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Unit)]
     public class IdentityTests
     {
         [Test]
@@ -38,24 +40,24 @@ namespace EventFlow.Tests.UnitTests.Core
             const string name = "fantastic 4";
 
             // Arrange
-            var testId = TestId.NewDeterministic(namespaceId, name);
+            var testId = ThingyId.NewDeterministic(namespaceId, name);
 
             // Assert
-            testId.Value.Should().Be("test-da7ab6b1-c513-581f-a1a0-7cdf17109deb");
-            TestId.IsValid(testId.Value).Should().BeTrue();
+            testId.Value.Should().Be("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb");
+            ThingyId.IsValid(testId.Value).Should().BeTrue();
         }
 
         [Test]
         public void WithValidValue()
         {
-            Assert.DoesNotThrow(() => TestId.With("test-da7ab6b1-c513-581f-a1a0-7cdf17109deb"));
+            Assert.DoesNotThrow(() => ThingyId.With("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb"));
         }
 
         [Test]
         public void ShouldBeLowerCase()
         {
             // Act
-            var testId = TestId.New;
+            var testId = ThingyId.New;
 
             // Assert
             testId.Value.Should().Be(testId.Value.ToLowerInvariant());
@@ -65,20 +67,20 @@ namespace EventFlow.Tests.UnitTests.Core
         public void NewIsValid()
         {
             // Arrange
-            var testId = TestId.New;
+            var testId = ThingyId.New;
 
             // Assert
-            TestId.IsValid(testId.Value).Should().BeTrue();
+            ThingyId.IsValid(testId.Value).Should().BeTrue();
         }
 
         [TestCase("da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
-        [TestCase("test-769077C6-F84D-46E3-AD2E-828A576AAAF3")]
+        [TestCase("thingy-769077C6-F84D-46E3-AD2E-828A576AAAF3")]
         [TestCase(null)]
         [TestCase("")]
         public void CannotCreateBadIds(string badIdValue)
         {
             // Act
-            Assert.Throws<ArgumentException>(() => TestId.With(badIdValue));
+            Assert.Throws<ArgumentException>(() => ThingyId.With(badIdValue));
         }
     }
 }

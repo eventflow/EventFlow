@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,14 +24,15 @@
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
+    [Category(Categories.Unit)]
     public class AggregateStateTests : TestsFor<AggregateStateTests.TestAggregateState>
     {
         [Test]
@@ -41,14 +42,14 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var pingId = PingId.New;
 
             // Act
-            Sut.Apply(null, new PingEvent(pingId));
+            Sut.Apply(null, new ThingyPingEvent(pingId));
 
             // Assert
             Sut.PingIds.Should().Contain(pingId);
         }
 
-        public class TestAggregateState : AggregateState<TestAggregate, TestId, TestAggregateState>,
-            IEmit<PingEvent>
+        public class TestAggregateState : AggregateState<ThingyAggregate, ThingyId, TestAggregateState>,
+            IEmit<ThingyPingEvent>
         {
             public ISet<PingId> PingIds { get; private set; }
 
@@ -57,7 +58,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 PingIds = new HashSet<PingId>();
             }
 
-            public void Apply(PingEvent e)
+            public void Apply(ThingyPingEvent e)
             {
                 PingIds.Add(e.PingId);
             }

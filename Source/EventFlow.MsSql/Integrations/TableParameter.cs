@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,6 +41,8 @@ namespace EventFlow.MsSql.Integrations
         private readonly IEnumerable<TRow> _rows;
         private readonly SqlMapper.IDynamicParameters _otherParameters;
 
+        // ReSharper disable StaticMemberInGenericType
+        // The PropertyInfos and SqlMetaDatas static fields are dependant on the TRow type
         private static readonly Dictionary<SqlDbType, Action<SqlDataRecord, int, object>> SqlDataRecordSetters = new Dictionary<SqlDbType, Action<SqlDataRecord, int, object>>
             {
                 {SqlDbType.Text, (r, i, o) => r.SetString(i, (string)o)},
@@ -59,6 +62,7 @@ namespace EventFlow.MsSql.Integrations
             };
         private static readonly SqlMetaData[] SqlMetaDatas;
         private static readonly Dictionary<string, PropertyInfo> PropertyInfos;
+        // ReSharper restore StaticMemberInGenericType
 
         static TableParameter()
         {
@@ -103,7 +107,7 @@ namespace EventFlow.MsSql.Integrations
             var sqlParameter = (SqlParameter)command.CreateParameter();
             sqlParameter.SqlDbType = SqlDbType.Structured;
             sqlParameter.ParameterName = name;
-            sqlParameter.TypeName = string.Format("{0}_list_type", typeof(TRow).Name.ToLowerInvariant());
+            sqlParameter.TypeName = $"{typeof (TRow).Name.ToLowerInvariant()}_list_type";
             sqlParameter.Value = sqlDataRecords;
             return sqlParameter;
         }
@@ -128,7 +132,7 @@ namespace EventFlow.MsSql.Integrations
                 catch (Exception exception)
                 {
                     throw new InvalidDataException(
-                        string.Format("Failed to configure property '{0}' with value '{1}'", pair.MetaData.Name, propertyValue),
+                        $"Failed to configure property '{pair.MetaData.Name}' with value '{propertyValue}'",
                         exception);
                 }
             }

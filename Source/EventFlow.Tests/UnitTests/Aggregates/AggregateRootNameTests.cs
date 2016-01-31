@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,28 +23,30 @@
 // 
 using System;
 using EventFlow.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
+    [Category(Categories.Unit)]
     public class AggregateRootNameTests
     {
-        public class MyFancyAggregate : AggregateRoot<MyFancyAggregate, TestId>
+        public class MyFancyAggregate : AggregateRoot<MyFancyAggregate, ThingyId>
         {
-            public MyFancyAggregate(TestId id) : base(id) { }
+            public MyFancyAggregate(ThingyId id) : base(id) { }
         }
 
         [AggregateName("BetterNamedAggregate")]
-        public class MyOtherFancyAggregate : AggregateRoot<MyOtherFancyAggregate, TestId>
+        public class MyOtherFancyAggregate : AggregateRoot<MyOtherFancyAggregate, ThingyId>
         {
-            public MyOtherFancyAggregate(TestId id) : base(id) { }
+            public MyOtherFancyAggregate(ThingyId id) : base(id) { }
         }
 
-        public class FancyDomainStuff : AggregateRoot<FancyDomainStuff, TestId>
+        public class FancyDomainStuff : AggregateRoot<FancyDomainStuff, ThingyId>
         {
-            public FancyDomainStuff(TestId id) : base(id) { }
+            public FancyDomainStuff(ThingyId id) : base(id) { }
         }
 
         [TestCase(typeof(MyFancyAggregate), "MyFancyAggregate")]
@@ -53,7 +55,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void AggregateName(Type aggregateType, string expectedName)
         {
             // Arrange
-            var aggregate = (IAggregateRoot) Activator.CreateInstance(aggregateType, TestId.New);
+            var aggregate = (IAggregateRoot) Activator.CreateInstance(aggregateType, ThingyId.New);
 
             // Assert
             aggregate.Name.Value.Should().Be(expectedName);

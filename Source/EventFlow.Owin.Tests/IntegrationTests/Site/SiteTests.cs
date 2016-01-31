@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,21 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
+using EventFlow.TestHelpers.Aggregates.Commands;
 using Microsoft.Owin.Hosting;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
 {
+    [Category(Categories.Integration)]
     public class SiteTests : Test
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private readonly RestClient _restClient = new RestClient();
         private IDisposable _site;
         private Uri _uri;
 
@@ -55,47 +54,30 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
         public async Task Ping()
         {
             // Act
-            await GetAsync("testaggregate/ping?id=test-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
-            await GetAsync("testaggregate/ping?id=test-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
+            await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
+            await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
         }
 
         [Test]
         public async Task PublishCommand()
         {
             // Arrange
-            var pingCommand = A<PingCommand>();
+            var pingCommand = A<ThingyPingCommand>();
 
             // Act
-            await PostAsync("commands/Ping/1", pingCommand).ConfigureAwait(false);
+            await PostAsync("commands/ThingyPing/1", pingCommand).ConfigureAwait(false);
         }
 
-        private async Task<string> GetAsync(string url)
+        private Task<string> GetAsync(string url)
         {
             var uri = new Uri(_uri, url);
-
-            using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
-            {
-                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-                Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);
-                httpResponseMessage.EnsureSuccessStatusCode();
-                Console.WriteLine("Received content from {0} : {1}", url, content);
-                return content;
-            }
+            return _restClient.GetAsync(uri);
         }
 
-        private async Task<string> PostAsync(string url, object obj)
+        private Task<string> PostAsync(string url, object obj)
         {
             var uri = new Uri(_uri, url);
-            var json = JsonConvert.SerializeObject(obj);
-
-            using (var httpResponseMessage = await HttpClient.PostAsync(uri, new StringContent(json)).ConfigureAwait(false))
-            {
-                var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-                Console.WriteLine("Received a '{0}' from '{1}' with this content: {2}", httpResponseMessage.StatusCode, url, content);
-                httpResponseMessage.EnsureSuccessStatusCode();
-                Console.WriteLine("Received content from {0} : {1}", url, content);
-                return content;
-            }
+            return _restClient.PostObjectAsync(uri, obj);
         }
     }
 }

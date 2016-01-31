@@ -1,6 +1,76 @@
-### New in 0.22 (not released yet)
+### New in 0.25 (not released yet)
 
-* _Nothing yet_
+ * Breaking: Renamed `MssqlMigrationException` to `SqlMigrationException`
+ * Breaking: Renamed `SqlErrorRetryStrategy` to `MsSqlErrorRetryStrategy`
+   as its MSSQL specific
+ * Breaking: The NuGet package `Dapper` is no longer IL merged with the package
+   `EventFlow.MsSql` but is now listed as a NuGet dependency. The current
+   version used by EventFlow is `v1.42`
+ * New: Introduced the NuGet package `EventFlow.Sql` as shared package for
+   EventFlow packages that uses SQL
+ * New: Its now possible to configure the retry delay for MSSQL transient
+   errors using the new `IMsSqlConfiguration.SetTransientRetryDelay`. The
+   default is a random delay between 50 and 100 milliseconds.
+
+### New in 0.24.1563 (released 2016-01-17)
+
+ * Breaking: The following NuGet references have been updated
+   - `EventStore.Client` v3.4.0 (up from v3.0.2)
+   - `Hangfire.Core` v1.5.3 (up from v1.4.6)
+   - `RabbitMQ.Client` v3.6.0 (up from v3.5.4)
+ * New: EventFlow now uses Paket to manage NuGet packages
+ * Fixed: Incorrect use of `EventStore.Client` that caused it to throw
+   `WrongExpectedVersionException` when committing aggregates multiple times
+ * Fixed: Updated NuGet package titles of the following NuGet packages to
+   contain assembly name to get a better overview when searching on
+   [nuget.org](http://nuget.org)
+   - `EventFlow.RabbitMQ`
+   - `EventFlow.EventStores.EventStore`
+ * Fixed: Updated internal NuGet reference `dbup` to v3.3.0 (up from v3.2.1)
+
+### New in 0.23.1470 (released 2015-12-05)
+
+* Breaking: EventFlow no longer ignores columns named `Id` in MSSQL read models.
+  If you were dependent on this, use the `MsSqlReadModelIgnoreColumn` attribute
+* Fixed: Instead of using `MethodInfo.Invoke` to call methods on reflected
+  types, e.g. when a command is published, EventFlow now compiles an expression
+  tree instead. This has a slight initial overhead, but provides a significant
+  performance improvement for subsequent calls
+* Fixed: Read model stores are only invoked if there's any read model updates
+* Fixed: EventFlow now correctly throws an `ArgumentException` if EventFlow has
+  been incorrectly configure with known versioned types, e.g. an event
+  is emitted that hasn't been added during EventFlow initialization. EventFlow
+  would handle the save operation correctly, but if EventFlow was reinitialized
+  and the event was loaded _before_ it being emitted again, an exception would
+  be thrown as EventFlow would know which type to use. Please make sure to
+  correctly load all event, command and job types before use
+* Fixed: `IReadModelFactory<>.CreateAsync(...)` is now correctly used in
+  read store mangers
+* Fixed: Versioned type naming convention now allows numbers
+
+### New in 0.22.1393 (released 2015-11-19)
+
+* New: To customize how a specific read model is initially created, implement
+  a specific `IReadModelFactory<>` that can bootstrap that read model
+* New: How EventFlow handles MSSQL read models has been refactored to allow
+  significantly more freedom to developers. MSSQL read models are no longer
+  required to implement `IMssqlReadModel`, only the empty `IReadModel`
+  interface. Effectively, this means that no specific columns are required,
+  meaning that the following columns are no longer enforced on MSSQL read
+  models. Use the new required `MsSqlReadModelIdentityColumn` attribute to mark
+  the identity column and the optional (but recommended)
+  `MsSqlReadModelVersionColumn` to mark the version column.
+  - `string AggregateId`
+  - `DateTimeOffset CreateTime`
+  - `DateTimeOffset UpdatedTime`
+  - `int LastAggregateSequenceNumber`
+* Obsolete: `IMssqlReadModel` and `MssqlReadModel`. Developers should instead
+  use the `MsSqlReadModelIdentityColumn` and `MsSqlReadModelVersionColumn`
+  attributes to mark the identity and version columns (read above).
+  EventFlow will continue to support `IMssqlReadModel`, but it _will_ be
+  removed at some point in the future
+* Fixed: Added missing `UseElasticsearchReadModel<TReadModel, TReadModelLocator>()`
+  extension
 
 ### New in 0.21.1312 (released 2015-10-26)
 

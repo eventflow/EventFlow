@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,13 +28,14 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Subscribers
 {
+    [Category(Categories.Unit)]
     public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
     {
         private Mock<IResolver> _resolverMock;
@@ -49,16 +50,16 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         public async Task SubscribersGetCalled()
         {
             // Arrange
-            var subscriberMock = new Mock<ISubscribeSynchronousTo<TestAggregate, TestId, PingEvent>>();
+            var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>>();
             _resolverMock
                 .Setup(r => r.ResolveAll(It.IsAny<Type>()))
                 .Returns(new object[] {subscriberMock.Object});
 
             // Act
-            await Sut.DispatchAsync(new[] { A<DomainEvent<TestAggregate, TestId, PingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<TestAggregate, TestId, PingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -117,7 +117,7 @@ namespace EventFlow.EventStores.EventStore
                     })
                 .ToList();
 
-            var expectedVersion = Math.Max(serializedEvents.Min(e => e.AggregateSequenceNumber) - 1, 0);
+            var expectedVersion = Math.Max(serializedEvents.Min(e => e.AggregateSequenceNumber) - 2, ExpectedVersion.NoStream);
             var eventDatas = serializedEvents
                 .Select(e =>
                     {
@@ -131,10 +131,7 @@ namespace EventFlow.EventStores.EventStore
 
             try
             {
-                using (var transaction = await _connection.StartTransactionAsync(
-                    id.Value,
-                    expectedVersion == 0 ? ExpectedVersion.NoStream : expectedVersion)
-                    .ConfigureAwait(false))
+                using (var transaction = await _connection.StartTransactionAsync(id.Value, expectedVersion).ConfigureAwait(false))
                 {
                     await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
                     var writeResult = await transaction.CommitAsync().ConfigureAwait(false);

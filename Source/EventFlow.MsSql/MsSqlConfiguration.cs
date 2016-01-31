@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,20 +20,27 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
+using System;
+using EventFlow.Core;
+using EventFlow.Sql.Connections;
+
 namespace EventFlow.MsSql
 {
-    public class MsSqlConfiguration : IMsSqlConfiguration
+    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
     {
         public static MsSqlConfiguration New => new MsSqlConfiguration();
 
-        public string ConnectionString { get; private set; }
+        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
+            TimeSpan.FromMilliseconds(50),
+            TimeSpan.FromMilliseconds(100));
 
         private MsSqlConfiguration() { }
 
-        public MsSqlConfiguration SetConnectionString(string connectionString)
+        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
         {
-            ConnectionString = connectionString;
+            TransientRetryDelay = retryDelay;
             return this;
         }
     }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,15 +33,16 @@ using EventFlow.Logs;
 using EventFlow.RabbitMQ.Extensions;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
+    [Category(Categories.Integration)]
     public class RabbitMqTests
     {
         private Uri _uri;
@@ -68,13 +69,13 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
                 var pingId = PingId.New;
-                commandBus.Publish(new PingCommand(TestId.New, pingId), CancellationToken.None);
+                commandBus.Publish(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None);
 
                 var rabbitMqMessage = consumer.GetMessages().Single();
                 rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
-                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.test.ping-event.1");
+                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
 
-                var pingEvent = (IDomainEvent<TestAggregate, TestId, PingEvent>)eventJsonSerializer.Deserialize(
+                var pingEvent = (IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)eventJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,
                     new Metadata(rabbitMqMessage.Headers));
 

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,12 +23,14 @@
 // 
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
     [TestFixture]
+    [Category(Categories.Scenario)]
     public class ConfigurationTests
     {
         [Test]
@@ -36,7 +38,7 @@ namespace EventFlow.Tests.IntegrationTests
         {
             // Arrange
             var resolver = EventFlowOptions.New
-                .CreateResolver(true);
+                .CreateResolver();
 
             // Act
             IEventPersistence eventPersistence = null;

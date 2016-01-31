@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,7 +53,7 @@ namespace EventFlow.Provided.Jobs
             var jsonSerializer = resolver.Resolve<IJsonSerializer>();
             var commandBus = resolver.Resolve<ICommandBus>();
 
-            var commandDefinition = commandDefinitionService.GetCommandDefinition(Name, Version);
+            var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
             var command = (ICommand) jsonSerializer.Deserialize(Data, commandDefinition.Type);
 
             return command.PublishAsync(commandBus, cancellationToken);
@@ -75,7 +75,7 @@ namespace EventFlow.Provided.Jobs
             IJsonSerializer jsonSerializer)
         {
             var data = jsonSerializer.Serialize(command);
-            var commandDefinition = commandDefinitionService.GetCommandDefinition(command.GetType());
+            var commandDefinition = commandDefinitionService.GetDefinition(command.GetType());
 
             return new PublishCommandJob(
                 data,

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,8 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,10 +130,12 @@ namespace EventFlow.EventStores
 
                         var arguments = aggregateRootInterface.GetGenericArguments();
                         var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
-                        var methodInfo = eventUpgraderType.GetMethod("Upgrade");
+
+                        var invokeUpgrade = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, IEnumerable<IDomainEvent>>>(eventUpgraderType, "Upgrade");
+
                         return new EventUpgraderCacheItem(
                             eventUpgraderType,
-                            (o, e) => ((IEnumerable)methodInfo.Invoke(o, new object[] { e })).Cast<IDomainEvent>());
+                            invokeUpgrade);
                     });
         }
     }

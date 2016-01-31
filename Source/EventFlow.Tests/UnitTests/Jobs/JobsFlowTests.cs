@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,14 +28,15 @@ using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Jobs
 {
+    [Category(Categories.Unit)]
     public class JobsFlowTests
     {
         [Test]
@@ -46,17 +47,17 @@ namespace EventFlow.Tests.UnitTests.Jobs
                 .CreateResolver(false))
             {
                 // Arrange
-                var testId = TestId.New;
+                var testId = ThingyId.New;
                 var pingId = PingId.New;
                 var jobScheduler = resolver.Resolve<IJobScheduler>();
                 var eventStore = resolver.Resolve<IEventStore>();
-                var executeCommandJob = PublishCommandJob.Create(new PingCommand(testId, pingId), resolver);
+                var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), resolver);
 
                 // Act
                 await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
 
                 // Assert
-                var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate, TestId>(testId, CancellationToken.None).ConfigureAwait(false);
+                var testAggregate = await eventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                 testAggregate.IsNew.Should().BeFalse();
             }
         }

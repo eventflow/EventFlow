@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,36 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System;
-using System.Collections.Generic;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 
 namespace EventFlow.Commands
 {
-    public class CommandDefinitionService : VersionedTypeDefinitionService<CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
+    public class CommandDefinitionService : VersionedTypeDefinitionService<ICommand, CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
     {
         public CommandDefinitionService(ILog log) : base(log)
         {
-        }
-
-        public void LoadCommands(IEnumerable<Type> commandTypes)
-        {
-            Load(commandTypes);
-        }
-
-        public CommandDefinition GetCommandDefinition(Type commandType)
-        {
-            return GetDefinition(commandType);
-        }
-
-        public CommandDefinition GetCommandDefinition(string commandName, int version)
-        {
-            return GetDefinition(commandName, version);
-        }
-
-        public bool TryGetCommandDefinition(string name, int version, out CommandDefinition definition)
-        {
-            return TryGetDefinition(name, version, out definition);
         }
 
         protected override CommandDefinition CreateDefinition(int version, Type type, string name)

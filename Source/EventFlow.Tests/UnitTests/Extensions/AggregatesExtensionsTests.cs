@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,16 +24,17 @@
 using System;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
 using FluentAssertions;
 using NUnit.Framework;
 using EventFlow.Configuration.Registrations;
 using EventFlow.TestHelpers;
 using System.Collections.Generic;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class AggregatesExtensionsTests
     {
         [Test]
@@ -65,7 +66,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
 
             // Assert
             var resolver = sut.CreateResolver(false);
-            resolver.HasRegistrationFor<TestAggregate>().Should().Be(true);
+            resolver.HasRegistrationFor<ThingyAggregate>().Should().Be(true);
         }
 
         [Test]
@@ -92,7 +93,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
                 .UseServiceRegistration(registry);
 
             // Act
-            Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(TestId) });
+            Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(ThingyId) });
 
             // Assert
             act.ShouldThrow<ArgumentException>();
@@ -114,21 +115,21 @@ namespace EventFlow.Tests.UnitTests.Extensions
         }
     }
 
-    public abstract class AbstractTestAggregate : AggregateRoot<TestAggregate, TestId>,
-        IEmit<DomainErrorAfterFirstEvent>
+    public abstract class AbstractTestAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
+        IEmit<ThingyDomainErrorAfterFirstEvent>
     {
-        public AbstractTestAggregate(TestId id) : base(id)
+        public AbstractTestAggregate(ThingyId id) : base(id)
         {
         }
 
-        public void Apply(DomainErrorAfterFirstEvent aggregateEvent)
+        public void Apply(ThingyDomainErrorAfterFirstEvent aggregateEvent)
         {
         }
     }
 
     public class LocalTestAggregate : AbstractTestAggregate
     {
-        public LocalTestAggregate(TestId id) : base(id)
+        public LocalTestAggregate(ThingyId id) : base(id)
         {
         }
     }

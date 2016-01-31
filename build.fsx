@@ -1,4 +1,4 @@
-#r @"tools\FAKE.Core\tools\FakeLib.dll"
+#r @"packages\build\FAKE\tools\FakeLib.dll"
 open System
 open Fake 
 open Fake.AssemblyInfoFile
@@ -15,8 +15,8 @@ let dirPackages = "./Build/Packages"
 let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
 let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
-let toolNUnit = "./Tools/NUnit.Runners/tools"
-let toolIlMerge = "./Tools/ilmerge/tools/ILMerge.exe"
+let toolNUnitDir = "./packages/build/NUnit.Runners/tools"
+let toolIlMerge = "./packages/build/ilmerge/tools/ILMerge.exe"
 let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
 
@@ -43,7 +43,7 @@ Target "UnitTest" (fun _ ->
             {p with
                 DisableShadowCopy = true;
                 Framework = "net-4.0";
-                ToolPath = "./Tools/NUnit.Runners/tools";
+                ToolPath = toolNUnitDir;
                 TimeOut = TimeSpan.FromMinutes 30.0;
                 ToolName = "nunit-console-x86.exe";
                 OutputFile = filePathUnitTestReport})
@@ -110,25 +110,42 @@ Target "CreatePackageEventFlowHangfire" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "Hangfire.Core",  "1.4.6"] // Need to fix this
+                "Hangfire.Core",  "1.5.3"]
             Publish = false })
             "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
 
-Target "CreatePackageEventFlowMsSql" (fun _ ->
-    let binDir = "Source\\EventFlow.MsSql\\bin\\" + buildMode + "\\"
+Target "CreatePackageEventFlowSql" (fun _ ->
+    let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
     let result = ExecProcess (fun info ->
-       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.MsSql\\bin\\EventFlow.MsSql.dll " + binDir + "EventFlow.MsSql.dll " + binDir + "Dapper.dll "  + binDir + "DbUp.dll"
+       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.Sql\\bin\\EventFlow.Sql.dll " + binDir + "EventFlow.Sql.dll " + binDir + "dbup.dll"
        info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
-    if result <> 0 then failwithf "ILMerge of EventFlow.MsSql returned with a non-zero exit code"
     NuGet (fun p -> 
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Sql"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
+            Publish = false })
+            "Source/EventFlow.Sql/EventFlow.Sql.nuspec"
+    )
+
+Target "CreatePackageEventFlowMsSql" (fun _ ->
+    let binDir = "Source/EventFlow.MsSql/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.MsSql.dll")
+    NuGet (fun p ->
         {p with
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.MsSql"
             Version = nugetVersion
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
-                "EventFlow",  nugetVersionDep]
+                "EventFlow",  nugetVersionDep
+                "EventFlow.Sql",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
             Publish = false })
             "Source/EventFlow.MsSql/EventFlow.MsSql.nuspec"
     )
@@ -226,6 +243,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowRabbitMQ"
     ==> "CreatePackageEventFlowHangfire"
+    ==> "CreatePackageEventFlowSql"
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"

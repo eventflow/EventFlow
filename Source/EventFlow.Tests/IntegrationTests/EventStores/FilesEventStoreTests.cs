@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,69 +23,41 @@
 // 
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
-using EventFlow.Queries;
-using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
 using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
-    public class FilesEventStoreTests : EventStoreSuite<FilesEventStoreTests.FilesConfiguration>
+    [Category(Categories.Integration)]
+    public class FilesEventStoreTests : TestSuiteForEventStore
     {
-        public class FilesConfiguration : IntegrationTestConfiguration
+        private IFilesEventStoreConfiguration _configuration;
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            private IFilesEventStoreConfiguration _configuration;
-            private IReadModelPopulator _readModelPopulator;
-            private IQueryProcessor _queryProcessor;
+            var storePath = Path.Combine(
+                Path.GetTempPath(),
+                Guid.NewGuid().ToString());
 
-            public override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-            {
-                var storePath = Path.Combine(
-                    Path.GetTempPath(),
-                    Guid.NewGuid().ToString());
-                Directory.CreateDirectory(storePath);
+            Directory.CreateDirectory(storePath);
 
-                var resolver = eventFlowOptions
-                    .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
-                    .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-                    .CreateResolver();
+            var resolver = eventFlowOptions
+                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
+                .CreateResolver();
 
-                _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
-                _readModelPopulator = resolver.Resolve<IReadModelPopulator>();
-                _queryProcessor = resolver.Resolve<IQueryProcessor>();
+            _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
 
-                return resolver;
-            }
+            return resolver;
+        }
 
-            public override async Task<ITestAggregateReadModel> GetTestAggregateReadModelAsync(IIdentity id)
-            {
-                return await _queryProcessor.ProcessAsync(
-                    new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value),
-                    CancellationToken.None)
-                    .ConfigureAwait(false);
-            }
-
-            public override Task PurgeTestAggregateReadModelAsync()
-            {
-                return _readModelPopulator.PurgeAsync<InMemoryTestAggregateReadModel>(CancellationToken.None);
-            }
-
-            public override Task PopulateTestAggregateReadModelAsync()
-            {
-                return _readModelPopulator.PopulateAsync<InMemoryTestAggregateReadModel>(CancellationToken.None);
-            }
-
-            public override void TearDown()
-            {
-                Directory.Delete(_configuration.StorePath, true);
-            }
+        [TearDown]
+        public void TearDown()
+        {
+            Directory.Delete(_configuration.StorePath, true);
         }
     }
 }

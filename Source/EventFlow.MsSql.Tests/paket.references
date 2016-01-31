@@ -1,0 +1,9 @@
+Newtonsoft.Json
+
+group Test
+	AutoFixture
+	AutoFixture.AutoMoq
+	FluentAssertions
+	Helpz
+	Moq
+	NUnit

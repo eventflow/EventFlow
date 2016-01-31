@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,35 +34,36 @@ using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory.Queries;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Commands;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
-using EventFlow.TestHelpers.Aggregates.Test.ReadModels;
-using EventFlow.TestHelpers.Aggregates.Test.ValueObjects;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
     [TestFixture]
+    [Category(Categories.Scenario)]
     public class DomainTests
     {
-        public class Subscriber : ISubscribeSynchronousTo<TestAggregate, TestId, DomainErrorAfterFirstEvent>
+        public class Subscriber : ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>
         {
-            public Task HandleAsync(IDomainEvent<TestAggregate, TestId, DomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> e, CancellationToken cancellationToken)
             {
-                Console.WriteLine("Subscriber got DomainErrorAfterFirstEvent");
+                Console.WriteLine("Subscriber got ThingyDomainErrorAfterFirstEvent");
                 return Task.FromResult(0);
             }
         }
 
         public class PingReadModel :
             IReadModel,
-            IAmReadModelFor<TestAggregate, TestId, PingEvent>
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
         {
             public PingId Id { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<TestAggregate, TestId, PingEvent> domainEvent)
+            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
             {
                 Id = domainEvent.AggregateEvent.PingId;
             }
@@ -74,7 +75,7 @@ namespace EventFlow.Tests.IntegrationTests
         {
             public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
             {
-                var pingEvent = domainEvent as IDomainEvent<TestAggregate, TestId, PingEvent>;
+                var pingEvent = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>;
                 if (pingEvent == null)
                 {
                     yield break;
@@ -96,7 +97,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
-                .UseInMemoryReadStoreFor<InMemoryTestAggregateReadModel>()
+                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<PingReadModel, IPingReadModelLocator>()
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
@@ -104,17 +105,17 @@ namespace EventFlow.Tests.IntegrationTests
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventStore = resolver.Resolve<IEventStore>();
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var id = TestId.New;
+                var id = ThingyId.New;
 
                 // Act
-                commandBus.Publish(new DomainErrorAfterFirstCommand(id), CancellationToken.None);
-                commandBus.Publish(new PingCommand(id, PingId.New), CancellationToken.None);
-                commandBus.Publish(new PingCommand(id, PingId.New), CancellationToken.None);
-                var testAggregate = eventStore.LoadAggregate<TestAggregate, TestId>(id, CancellationToken.None);
+                commandBus.Publish(new ThingyDomainErrorAfterFirstCommand(id), CancellationToken.None);
+                commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
+                commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
+                var testAggregate = eventStore.LoadAggregate<ThingyAggregate, ThingyId>(id, CancellationToken.None);
                 var testReadModelFromQuery1 = queryProcessor.Process(
-                    new ReadModelByIdQuery<InMemoryTestAggregateReadModel>(id.Value), CancellationToken.None);
+                    new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None);
                 var testReadModelFromQuery2 = queryProcessor.Process(
-                    new InMemoryQuery<InMemoryTestAggregateReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
+                    new InMemoryQuery<InMemoryThingyReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
                 var pingReadModels = queryProcessor.Process(
                     new InMemoryQuery<PingReadModel>(m => true), CancellationToken.None);
 

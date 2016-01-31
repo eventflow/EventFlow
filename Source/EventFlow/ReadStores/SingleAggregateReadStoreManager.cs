@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,8 +40,9 @@ namespace EventFlow.ReadStores
             ILog log,
             IResolver resolver,
             TReadModelStore readModelStore,
-            IReadModelDomainEventApplier readModelDomainEventApplier)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier)
+            IReadModelDomainEventApplier readModelDomainEventApplier,
+            IReadModelFactory<TReadModel> readModelFactory)
+            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
         }
 
@@ -66,13 +67,13 @@ namespace EventFlow.ReadStores
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
-            var readModel = readModelEnvelope.ReadModel ?? new TReadModel();
+            var readModel = readModelEnvelope.ReadModel ?? await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
 
             await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
 
             var readModelVersion = domainEvents.Max(e => e.AggregateSequenceNumber);
 
-            return ReadModelEnvelope<TReadModel>.With(readModel, readModelVersion);
+            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, readModelVersion);
         }
     }
 }

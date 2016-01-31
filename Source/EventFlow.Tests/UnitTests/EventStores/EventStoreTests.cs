@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,14 +27,15 @@ using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Test;
-using EventFlow.TestHelpers.Aggregates.Test.Events;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
+    [Category(Categories.Unit)]
     public class EventStoreTests : TestsFor<InMemoryEventPersistence>
     {
         private Mock<IEventUpgradeManager> _eventUpgradeManagerMock;
@@ -49,8 +50,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             _eventUpgradeManagerMock = InjectMock<IEventUpgradeManager>();
 
             _eventUpgradeManagerMock
-                .Setup(m => m.Upgrade(It.IsAny<IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>>>()))
-                .Returns<IReadOnlyCollection<IDomainEvent<TestAggregate, TestId>>>(c => c);
+                .Setup(m => m.Upgrade(It.IsAny<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>()))
+                .Returns<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(c => c);
             _eventJsonSerializerMock
                 .Setup(m => m.Serialize(It.IsAny<IAggregateEvent>(), It.IsAny<IEnumerable<KeyValuePair<string, string>>>()))
                 .Returns<IAggregateEvent, IEnumerable<KeyValuePair<string, string>>>(
@@ -63,7 +64,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private List<IUncommittedEvent> ManyUncommittedEvents(int count = 3)
         {
-            return Many<PingEvent>(count)
+            return Many<ThingyPingEvent>(count)
                 .Select((e, i) => (IUncommittedEvent)new UncommittedEvent(e, new Metadata(new Dictionary<string, string>
                     {
                         {MetadataKeys.AggregateSequenceNumber, (i + 1).ToString()}

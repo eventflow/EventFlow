@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,13 +27,15 @@ using EventFlow.Aggregates;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.TestHelpers.Aggregates.Test;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
 {
     [TestFixture]
+    [Category(Categories.Scenario)]
     public class AutofacAggregateFactoryTests
     {
         [Test]
@@ -46,11 +48,11 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
-                var id = TestId.New;
+                var id = ThingyId.New;
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id).ConfigureAwait(false);
+                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdParameter.Id.Should().Be(id);
@@ -70,11 +72,11 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var container = containerBuilder.Build())
             using (var lifetimeScope = container.BeginLifetimeScope())
             {
-                var id = TestId.New;
+                var id = ThingyId.New;
                 var sut = lifetimeScope.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, TestId>(id).ConfigureAwait(false);
+                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdParameter.Id.Should().Be(id);
@@ -94,7 +96,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, TestId>(TestId.New).ConfigureAwait(false);
+                var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdAndInterfaceParameters.Resolver.Should().BeAssignableTo<IResolver>();
@@ -115,7 +117,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 var sut = resolver.Resolve<IAggregateFactory>();
 
                 // Act
-                var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, TestId>(TestId.New).ConfigureAwait(false);
+                var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
                 aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
@@ -127,17 +129,17 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         {
         }
 
-        public class TestAggregate : AggregateRoot<TestAggregate, TestId>
+        public class TestAggregate : AggregateRoot<TestAggregate, ThingyId>
         {
-            public TestAggregate(TestId id)
+            public TestAggregate(ThingyId id)
                 : base(id)
             {
             }
         }
 
-        public class TestAggregateWithPinger : AggregateRoot<TestAggregateWithPinger, TestId>
+        public class TestAggregateWithPinger : AggregateRoot<TestAggregateWithPinger, ThingyId>
         {
-            public TestAggregateWithPinger(TestId id, Pinger pinger)
+            public TestAggregateWithPinger(ThingyId id, Pinger pinger)
                 : base(id)
             {
                 Pinger = pinger;
@@ -146,9 +148,9 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             public Pinger Pinger { get; }
         }
 
-        public class TestAggregateWithResolver : AggregateRoot<TestAggregateWithResolver, TestId>
+        public class TestAggregateWithResolver : AggregateRoot<TestAggregateWithResolver, ThingyId>
         {
-            public TestAggregateWithResolver(TestId id, IResolver resolver)
+            public TestAggregateWithResolver(ThingyId id, IResolver resolver)
                 : base(id)
             {
                 Resolver = resolver;

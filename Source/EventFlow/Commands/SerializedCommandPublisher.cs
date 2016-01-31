@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -57,7 +57,7 @@ namespace EventFlow.Commands
             _log.Verbose($"Executing serilized command '{name}' v{version}");
 
             CommandDefinition commandDefinition;
-            if (!_commandDefinitionService.TryGetCommandDefinition(name, version, out commandDefinition))
+            if (!_commandDefinitionService.TryGetDefinition(name, version, out commandDefinition))
             {
                 throw new ArgumentException($"No command definition found for command '{name}' v{version}");
             }

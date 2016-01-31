@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -73,6 +73,20 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
                         f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
                     })
                 .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel>();
+        }
+
+        public static IEventFlowOptions UseElasticsearchReadModel<TReadModel, TReadModelLocator>(
+            this IEventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
+                    })
+                .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
     }
 }

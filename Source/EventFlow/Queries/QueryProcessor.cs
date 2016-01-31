@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,7 @@ namespace EventFlow.Queries
         private class CacheItem
         {
             public Type QueryHandlerType { get; set; }
-            public Func<object, object, CancellationToken, object> HandlerFunc { get; set; }
+            public Func<IQueryHandler, IQuery, CancellationToken, Task> HandlerFunc { get; set; }
         }
 
         private readonly ILog _log;
@@ -60,9 +60,9 @@ namespace EventFlow.Queries
                 queryType,
                 CreateCacheItem);
 
-            var queryHandler = _resolver.Resolve(cacheItem.QueryHandlerType);
-            _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' by using query handler '{cacheItem.QueryHandlerType.PrettyPrint()}'");
-            
+            var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
+            _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
+
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
 
             return await task.ConfigureAwait(false);
@@ -84,12 +84,15 @@ namespace EventFlow.Queries
                 .GetInterfaces()
                 .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
             var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
-            var methodInfo = queryHandlerType.GetMethod("ExecuteQueryAsync");
+            var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
+                queryHandlerType,
+                "ExecuteQueryAsync",
+                queryType, typeof(CancellationToken));
             return new CacheItem
                 {
                     QueryHandlerType = queryHandlerType,
-                    HandlerFunc = (h, q, c) => methodInfo.Invoke(h, new object[]{q, c})
-                };
+                    HandlerFunc = invokeExecuteQueryAsync
+            };
         }
     }
 }
