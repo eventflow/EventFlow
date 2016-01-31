@@ -46,24 +46,15 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Exceptions\SqlMigrationException.cs" />
-    <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="IMsSqlConfiguration.cs" />
-    <Compile Include="IMsSqlConnection.cs" />
     <Compile Include="Connections\ISqlConfiguration.cs" />
     <Compile Include="Connections\ISqlConnection.cs" />
-    <Compile Include="IMsSqlDatabaseMigrator.cs" />
     <Compile Include="Migrations\ISqlDatabaseMigrator.cs" />
     <Compile Include="Integrations\DbUpUpgradeLog.cs" />
     <Compile Include="Integrations\TableParameter.cs" />
-    <Compile Include="MsSqlConfiguration.cs" />
-    <Compile Include="MsSqlConnection.cs" />
     <Compile Include="Connections\SqlConfiguration.cs" />
     <Compile Include="Connections\SqlConnection.cs" />
-    <Compile Include="MsSqlDatabaseMigrator.cs" />
     <Compile Include="Migrations\SqlDatabaseMigrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RetryStrategies\IMsSqlErrorRetryStrategy.cs" />
-    <Compile Include="RetryStrategies\MsSqlErrorRetryStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EventFlow.Sql.nuspec" />

@@ -23,6 +23,7 @@
 //
 
 using System.Reflection;
+using EventFlow.MsSql;
 using EventFlow.Sql;
 
 namespace EventFlow.EventStores.MsSql

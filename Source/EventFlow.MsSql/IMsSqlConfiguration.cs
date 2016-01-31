@@ -20,20 +20,17 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using EventFlow.Logs;
-using EventFlow.Sql.Migrations;
+using EventFlow.Core;
+using EventFlow.Sql.Connections;
 
-namespace EventFlow.Sql
+namespace EventFlow.MsSql
 {
-    public class MsSqlDatabaseMigrator : SqlDatabaseMigrator<IMsSqlConfiguration>, IMsSqlDatabaseMigrator
+    public interface IMsSqlConfiguration : ISqlConfiguration
     {
-        public MsSqlDatabaseMigrator(
-            ILog log,
-            IMsSqlConfiguration sqlConfiguration)
-            : base(log, sqlConfiguration)
-        {
-        }
+        RetryDelay TransientRetryDelay { get; }
+
+        IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay);
     }
 }

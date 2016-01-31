@@ -22,11 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Sql.Migrations;
+using EventFlow.Core;
 
-namespace EventFlow.Sql
+namespace EventFlow.MsSql.RetryStrategies
 {
-    public interface IMsSqlDatabaseMigrator : ISqlDatabaseMigrator
+    public interface IMsSqlErrorRetryStrategy : IRetryStrategy
     {
     }
 }

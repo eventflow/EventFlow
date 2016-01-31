@@ -22,11 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using EventFlow.Core;
+using EventFlow.MsSql.RetryStrategies;
 using EventFlow.Sql.Connections;
 
-namespace EventFlow.Sql
+namespace EventFlow.MsSql
 {
-    public interface IMsSqlConnection : ISqlConnection
+    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy>, IMsSqlConnection
     {
+        public MsSqlConnection(
+            IMsSqlConfiguration configuration,
+            ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
+            : base(configuration, transientFaultHandler)
+        {
+        }
     }
 }

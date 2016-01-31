@@ -115,6 +115,22 @@ Target "CreatePackageEventFlowHangfire" (fun _ ->
             "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
 
+Target "CreatePackageEventFlowMsSql" (fun _ ->
+    let binDir = "Source/EventFlow.MsSql/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.MsSql.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.MsSql"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "EventFlow.Sql",  nugetVersionDep]
+            Publish = false })
+            "Source/EventFlow.MsSql/EventFlow.MsSql.nuspec"
+    )
+
 Target "CreatePackageEventFlowSql" (fun _ ->
     let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
     let result = ExecProcess (fun info ->
@@ -144,7 +160,8 @@ Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "EventFlow.Sql",  nugetVersionDep]
+                "EventFlow.Sql",  nugetVersionDep
+                "EventFlow.MsSql",  nugetVersionDep]
             Publish = false })
             "Source/EventFlow.EventStores.MsSql/EventFlow.EventStores.MsSql.nuspec"
     )
@@ -176,7 +193,8 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "EventFlow.Sql",  nugetVersionDep]
+                "EventFlow.Sql",  nugetVersionDep
+                "EventFlow.MsSql",  nugetVersionDep]
             Publish = false })
             "Source/EventFlow.ReadStores.MsSql/EventFlow.ReadStores.MsSql.nuspec"
     )
@@ -227,6 +245,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowRabbitMQ"
     ==> "CreatePackageEventFlowHangfire"
     ==> "CreatePackageEventFlowSql"
+    ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresElasticsearch"

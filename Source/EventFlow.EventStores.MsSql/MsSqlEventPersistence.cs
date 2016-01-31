@@ -32,6 +32,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
+using EventFlow.MsSql;
 using EventFlow.Sql;
 
 namespace EventFlow.EventStores.MsSql

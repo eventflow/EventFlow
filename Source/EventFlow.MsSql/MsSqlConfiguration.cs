@@ -20,27 +20,28 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using EventFlow.Configuration;
-using EventFlow.Sql.RetryStrategies;
+using System;
+using EventFlow.Core;
+using EventFlow.Sql.Connections;
 
-namespace EventFlow.Sql.Extensions
+namespace EventFlow.MsSql
 {
-    public static class EventFlowOptionsExtensions
+    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
     {
-        public static IEventFlowOptions ConfigureMsSql(
-            this IEventFlowOptions eventFlowOptions,
-            IMsSqlConfiguration sqlConfiguration)
+        public static MsSqlConfiguration New => new MsSqlConfiguration();
+
+        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
+            TimeSpan.FromMilliseconds(50),
+            TimeSpan.FromMilliseconds(100));
+
+        private MsSqlConfiguration() { }
+
+        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                    {
-                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
-                        f.Register<IMsSqlConnection, MsSqlConnection>();
-                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
-                        f.Register(_ => sqlConfiguration, Lifetime.Singleton);
-                    });
+            TransientRetryDelay = retryDelay;
+            return this;
         }
     }
 }

@@ -22,11 +22,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Core;
+using EventFlow.Configuration;
+using EventFlow.MsSql.RetryStrategies;
 
-namespace EventFlow.Sql.RetryStrategies
+namespace EventFlow.MsSql.Extensions
 {
-    public interface IMsSqlErrorRetryStrategy : IRetryStrategy
+    public static class EventFlowOptionsExtensions
     {
+        public static IEventFlowOptions ConfigureMsSql(
+            this IEventFlowOptions eventFlowOptions,
+            IMsSqlConfiguration sqlConfiguration)
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
+                        f.Register<IMsSqlConnection, MsSqlConnection>();
+                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
+                        f.Register(_ => sqlConfiguration, Lifetime.Singleton);
+                    });
+        }
     }
 }

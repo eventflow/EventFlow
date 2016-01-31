@@ -27,7 +27,7 @@ using System.Data.SqlClient;
 using EventFlow.Core;
 using EventFlow.Logs;
 
-namespace EventFlow.Sql.RetryStrategies
+namespace EventFlow.MsSql.RetryStrategies
 {
     public class MsSqlErrorRetryStrategy : IMsSqlErrorRetryStrategy
     {
