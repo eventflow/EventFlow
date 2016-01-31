@@ -20,35 +20,39 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
-using EventFlow.MsSql.Integrations;
-using EventFlow.MsSql.RetryStrategies;
+using EventFlow.Logs;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Sql.Connections
 {
-    public class MsSqlConnection : IMsSqlConnection
+    public abstract class SqlConnection<TConfiguration, TRetryStrategy> : ISqlConnection
+        where TConfiguration : ISqlConfiguration
+        where TRetryStrategy : IRetryStrategy
     {
-        private readonly IMsSqlConfiguration _configuration;
-        private readonly ITransientFaultHandler<ISqlErrorRetryStrategy> _transientFaultHandler;
+        protected ILog Log { get; }
+        protected TConfiguration Configuration { get; }
+        protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
 
-        public MsSqlConnection(
-            IMsSqlConfiguration configuration,
-            ITransientFaultHandler<ISqlErrorRetryStrategy> transientFaultHandler)
+        protected SqlConnection(
+            ILog log,
+            TConfiguration configuration,
+            ITransientFaultHandler<TRetryStrategy> transientFaultHandler)
         {
-            _configuration = configuration;
-            _transientFaultHandler = transientFaultHandler;
+            Log = log;
+            Configuration = configuration;
+            TransientFaultHandler = transientFaultHandler;
         }
 
-        public Task<int> ExecuteAsync(
+        public virtual Task<int> ExecuteAsync(
             Label label,
             CancellationToken cancellationToken,
             string sql,
@@ -64,7 +68,7 @@ namespace EventFlow.MsSql
                 cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+        public virtual async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
             Label label,
             CancellationToken cancellationToken,
             string sql,
@@ -83,27 +87,29 @@ namespace EventFlow.MsSql
                 .ToList();
         }
 
-        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+        public virtual Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
             Label label,
             CancellationToken cancellationToken,
             string sql,
-            IEnumerable<TRow> rows,
-            object param = null)
+            IEnumerable<TRow> rows)
             where TRow : class, new()
         {
-            var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new { });
-            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
+            Log.Debug(
+                "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
+                sql);
+
+            return QueryAsync<TResult>(label, cancellationToken, sql, rows);
         }
 
-        public Task<TResult> WithConnectionAsync<TResult>(
+        public virtual Task<TResult> WithConnectionAsync<TResult>(
             Label label,
             Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
             CancellationToken cancellationToken)
         {
-            return _transientFaultHandler.TryAsync(
+            return TransientFaultHandler.TryAsync(
                 async c =>
                     {
-                        using (var sqlConnection = new SqlConnection(_configuration.ConnectionString))
+                        using (var sqlConnection = new System.Data.SqlClient.SqlConnection(Configuration.ConnectionString))
                         {
                             await sqlConnection.OpenAsync(c).ConfigureAwait(false);
                             return await withConnection(sqlConnection, c).ConfigureAwait(false);

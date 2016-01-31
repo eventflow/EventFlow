@@ -20,28 +20,25 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
 using System;
-using EventFlow.Core;
-using EventFlow.Sql.Connections;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Sql.Exceptions
 {
-    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
+    public class SqlMigrationException : Exception
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
+        public IReadOnlyCollection<string> Scripts { get; private set; }
 
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
-        private MsSqlConfiguration() { }
-
-        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
+        public SqlMigrationException(
+            IEnumerable<string> scripts, 
+            string message,
+            Exception innerException)
+            : base(message, innerException)
         {
-            TransientRetryDelay = retryDelay;
-            return this;
+            Scripts = scripts.ToList();
         }
     }
 }

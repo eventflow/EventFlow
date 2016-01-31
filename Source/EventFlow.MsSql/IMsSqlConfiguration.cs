@@ -20,21 +20,17 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+//
+
 using EventFlow.Core;
+using EventFlow.Sql.Connections;
 
 namespace EventFlow.MsSql
 {
-    public interface IMsSqlConnection
+    public interface IMsSqlConfiguration : ISqlConfiguration
     {
-        Task<int> ExecuteAsync(Label label, CancellationToken cancellationToken, string sql, object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(Label label, CancellationToken cancellationToken, string sql, object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(Label label, CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
-            where TRow : class, new();
+        RetryDelay TransientRetryDelay { get; }
+
+        IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay);
     }
 }

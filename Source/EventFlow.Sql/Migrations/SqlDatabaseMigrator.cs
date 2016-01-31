@@ -20,33 +20,36 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Linq;
 using System.Reflection;
 using DbUp;
 using EventFlow.Logs;
-using EventFlow.MsSql.Exceptions;
-using EventFlow.MsSql.Integrations;
+using EventFlow.Sql.Connections;
+using EventFlow.Sql.Exceptions;
+using EventFlow.Sql.Integrations;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Sql.Migrations
 {
-    public class MsSqlDatabaseMigrator : IMsSqlDatabaseMigrator
+    public class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
+        where TConfiguration : ISqlConfiguration
     {
         private readonly ILog _log;
-        private readonly IMsSqlConfiguration _msSqlConfiguration;
+        private readonly ISqlConfiguration _sqlConfiguration;
 
-        public MsSqlDatabaseMigrator(
+        public SqlDatabaseMigrator(
             ILog log,
-            IMsSqlConfiguration msSqlConfiguration)
+            TConfiguration sqlConfiguration)
         {
             _log = log;
-            _msSqlConfiguration = msSqlConfiguration;
+            _sqlConfiguration = sqlConfiguration;
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
         {
-            MigrateDatabaseUsingEmbeddedScripts(assembly, _msSqlConfiguration.ConnectionString);
+            MigrateDatabaseUsingEmbeddedScripts(assembly, _sqlConfiguration.ConnectionString);
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
@@ -64,13 +67,13 @@ namespace EventFlow.MsSql
                 .ToList();
 
             _log.Information(
-                "Going to migrate the MSSQL database by executing these scripts: {0}",
+                "Going to migrate the SQL database by executing these scripts: {0}",
                 string.Join(", ", scripts));
 
             var result = upgradeEngine.PerformUpgrade();
             if (!result.Successful)
             {
-                throw new MssqlMigrationException(scripts, result.Error.Message, result.Error);
+                throw new SqlMigrationException(scripts, result.Error.Message, result.Error);
             }
         }
     }
