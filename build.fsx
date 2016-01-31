@@ -133,7 +133,7 @@ Target "CreatePackageEventFlowMsSql" (fun _ ->
     )
 
 Target "CreatePackageEventFlowSql" (fun _ ->
-    let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
+    let binDir = "Source/EventFlow.Sql/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.Sql.dll")
     NuGet (fun p -> 
         {p with
