@@ -31,7 +31,7 @@ namespace EventFlow.MsSql.Extensions
     {
         public static IEventFlowOptions ConfigureMsSql(
             this IEventFlowOptions eventFlowOptions,
-            IMsSqlConfiguration sqlConfiguration)
+            IMsSqlConfiguration msSqlConfiguration)
         {
             return eventFlowOptions
                 .RegisterServices(f =>
@@ -39,7 +39,7 @@ namespace EventFlow.MsSql.Extensions
                         f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
                         f.Register<IMsSqlConnection, MsSqlConnection>();
                         f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
-                        f.Register(_ => sqlConfiguration, Lifetime.Singleton);
+                        f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
                     });
         }
     }
