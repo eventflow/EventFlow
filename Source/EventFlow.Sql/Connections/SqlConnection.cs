@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,23 +35,27 @@ using EventFlow.Logs;
 
 namespace EventFlow.Sql.Connections
 {
-    public abstract class SqlConnection<TConfiguration, TRetryStrategy> : ISqlConnection
+    public abstract class SqlConnection<TConfiguration, TRetryStrategy, TConnectionFactory> : ISqlConnection
         where TConfiguration : ISqlConfiguration
         where TRetryStrategy : IRetryStrategy
+        where TConnectionFactory : ISqlConnectionFactory
     {
-        protected ILog Log { get; }
-        protected TConfiguration Configuration { get; }
-        protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
-
         protected SqlConnection(
             ILog log,
             TConfiguration configuration,
+            TConnectionFactory connectionFactory,
             ITransientFaultHandler<TRetryStrategy> transientFaultHandler)
         {
+            ConnectionFactory = connectionFactory;
             Log = log;
             Configuration = configuration;
             TransientFaultHandler = transientFaultHandler;
         }
+
+        protected TConnectionFactory ConnectionFactory { get; }
+        protected ILog Log { get; }
+        protected TConfiguration Configuration { get; }
+        protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
 
         public virtual Task<int> ExecuteAsync(
             Label label,
@@ -61,10 +66,10 @@ namespace EventFlow.Sql.Connections
             return WithConnectionAsync(
                 label,
                 (c, ct) =>
-                    {
-                        var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
-                        return c.ExecuteAsync(commandDefinition);
-                    },
+                {
+                    var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
+                    return c.ExecuteAsync(commandDefinition);
+                },
                 cancellationToken);
         }
 
@@ -76,14 +81,14 @@ namespace EventFlow.Sql.Connections
         {
             return (
                 await WithConnectionAsync(
-                label,
-                (c, ct) =>
+                    label,
+                    (c, ct) =>
                     {
                         var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
                         return c.QueryAsync<TResult>(commandDefinition);
                     },
-                cancellationToken)
-                .ConfigureAwait(false))
+                    cancellationToken)
+                    .ConfigureAwait(false))
                 .ToList();
         }
 
@@ -108,13 +113,13 @@ namespace EventFlow.Sql.Connections
         {
             return TransientFaultHandler.TryAsync(
                 async c =>
+                {
+                    using (var sqlConnection = new SqlConnection(Configuration.ConnectionString))
                     {
-                        using (var sqlConnection = new System.Data.SqlClient.SqlConnection(Configuration.ConnectionString))
-                        {
-                            await sqlConnection.OpenAsync(c).ConfigureAwait(false);
-                            return await withConnection(sqlConnection, c).ConfigureAwait(false);
-                        }
-                    },
+                        await sqlConnection.OpenAsync(c).ConfigureAwait(false);
+                        return await withConnection(sqlConnection, c).ConfigureAwait(false);
+                    }
+                },
                 label,
                 cancellationToken);
         }

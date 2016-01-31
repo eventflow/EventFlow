@@ -22,40 +22,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.Logs;
-using EventFlow.MsSql.Connections;
-using EventFlow.MsSql.Integrations;
-using EventFlow.MsSql.RetryStrategies;
-using EventFlow.Sql.Connections;
 
-namespace EventFlow.MsSql
+namespace EventFlow.MsSql.Connections
 {
-    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy, IMsSqlConnectionFactory>, IMsSqlConnection
+    public class MsSqlConnectionFactory : IMsSqlConnectionFactory
     {
-        public MsSqlConnection(
-            ILog log,
-            IMsSqlConfiguration configuration,
-            IMsSqlConnectionFactory connectionFactory,
-            ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
-            : base(log, configuration, connectionFactory, transientFaultHandler)
+        public async Task<IDbConnection> OpenConnectionAsync(string connectionString, CancellationToken cancellationToken)
         {
-        }
-
-        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows)
-        {
-            Log.Verbose(
-                "Using optimised table type to insert with SQL: {0}",
-                sql);
-            var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
-            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
+            var sqlConnection = new SqlConnection(connectionString);
+            await sqlConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            return sqlConnection;
         }
     }
 }

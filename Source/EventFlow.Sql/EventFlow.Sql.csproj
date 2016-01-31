@@ -45,6 +45,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Connections\ISqlConnectionFactory.cs" />
     <Compile Include="Exceptions\SqlMigrationException.cs" />
     <Compile Include="Connections\ISqlConfiguration.cs" />
     <Compile Include="Connections\ISqlConnection.cs" />
