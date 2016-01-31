@@ -32,12 +32,15 @@ namespace EventFlow.Sql.RetryStrategies
     public class MsSqlErrorRetryStrategy : IMsSqlErrorRetryStrategy
     {
         private readonly ILog _log;
+        private readonly IMsSqlConfiguration _msSqlConfiguration;
         private static readonly Random Random = new Random();
 
         public MsSqlErrorRetryStrategy(
-            ILog log)
+            ILog log,
+            IMsSqlConfiguration msSqlConfiguration)
         {
             _log = log;
+            _msSqlConfiguration = msSqlConfiguration;
         }
 
         public virtual Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
@@ -103,7 +106,7 @@ namespace EventFlow.Sql.RetryStrategies
                 // A connection was successfully established with the server, but then an error occurred during the login process.
                 // (provider: TCP Provider, error: 0 - The specified network name is no longer available.)
                 case 64:
-                    return Retry.YesAfter(TimeSpan.FromMilliseconds(Random.NextDouble() * 100));
+                    return Retry.YesAfter(_msSqlConfiguration.TransientRetryDelay.PickDelay());
 
                 default:
                     return Retry.No;

@@ -24,24 +24,30 @@
 
 using System;
 using EventFlow.Core;
-using EventFlow.Sql.Connections;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Sql
+namespace EventFlow.Tests.UnitTests.Core
 {
-    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
+    public class RetryDelayTests
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
-
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
-        private MsSqlConfiguration() { }
-
-        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
+        [Test]
+        [Repeat(42)] // 42 is indeed that number of times to run a test to ensure its always true
+        public void PickDelay_IsWithinBounds()
         {
-            TransientRetryDelay = retryDelay;
-            return this;
+            // Arrange
+            const double max = 1000;
+            const double min = 500;
+            var sut = RetryDelay.Between(
+                TimeSpan.FromMilliseconds(min),
+                TimeSpan.FromMilliseconds(max));
+
+            // Act
+            var delay = sut.PickDelay();
+
+            // Assert
+            delay.TotalMilliseconds.Should().BeGreaterOrEqualTo(min);
+            delay.TotalMilliseconds.Should().BeLessOrEqualTo(max);
         }
     }
 }
