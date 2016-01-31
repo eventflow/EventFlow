@@ -20,10 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System.Reflection;
 using EventFlow.Sql;
-using EventFlow.Sql.Migrations;
 
 namespace EventFlow.EventStores.MsSql
 {
@@ -31,7 +31,7 @@ namespace EventFlow.EventStores.MsSql
     {
         public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
 
-        public static void MigrateDatabase(ISqlDatabaseMigrator sqlDatabaseMigrator)
+        public static void MigrateDatabase(IMsSqlDatabaseMigrator sqlDatabaseMigrator)
         {
             sqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
         }
