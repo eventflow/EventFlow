@@ -133,8 +133,10 @@ Target "CreatePackageEventFlowMsSql" (fun _ ->
     )
 
 Target "CreatePackageEventFlowSql" (fun _ ->
-    let binDir = "Source/EventFlow.Sql/bin/"
-    CopyFile binDir (binDir + buildMode + "/EventFlow.Sql.dll")
+    let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
+    let result = ExecProcess (fun info ->
+       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow\\bin\\EventFlow.Sql.dll " + binDir + "EventFlow.Sql.dll " + binDir + "dbup.dll"
+       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
     NuGet (fun p -> 
         {p with
             OutputPath = dirPackages
