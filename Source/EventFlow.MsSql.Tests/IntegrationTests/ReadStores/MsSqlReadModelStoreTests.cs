@@ -61,7 +61,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
                     typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
-            var databaseMigrator = resolver.Resolve<ISqlDatabaseMigrator>();
+            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 

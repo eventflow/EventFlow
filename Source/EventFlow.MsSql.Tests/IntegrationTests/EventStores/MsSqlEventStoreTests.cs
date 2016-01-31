@@ -27,7 +27,6 @@ using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.Sql;
 using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;
@@ -49,7 +48,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
                 .UseEventStore<MsSqlEventPersistence>()
                 .CreateResolver();
 
-            var databaseMigrator = resolver.Resolve<ISqlDatabaseMigrator>();
+            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
