@@ -22,36 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public class SnapshotStore : ISnapshotStore
+    public class CommittedSnapshot
     {
-        private readonly ISnapshotPersistence _snapshotPersistence;
+        public string SerializedMetadata { get; }
+        public string SerializedData { get; }
+        public int AggregateSequenceNumber { get; }
 
-        public SnapshotStore(
-            ISnapshotPersistence snapshotPersistence)
+        public CommittedSnapshot(
+            string serializedMetadata,
+            string serializedData,
+            int aggregateSequenceNumber)
         {
-            _snapshotPersistence = snapshotPersistence;
-        }
-
-        public Task<TSnapshot> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TIdentity identity)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>()
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot
-        {
-            throw new System.NotImplementedException();
+            SerializedMetadata = serializedMetadata;
+            SerializedData = serializedData;
+            AggregateSequenceNumber = aggregateSequenceNumber;
         }
     }
 }

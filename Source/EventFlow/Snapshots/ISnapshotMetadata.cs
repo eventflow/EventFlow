@@ -20,24 +20,15 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-namespace EventFlow.EventStores.Snapshots
+using EventFlow.Core;
+
+namespace EventFlow.Snapshots
 {
-    public class CommittedSnapshot
+    public interface ISnapshotMetadata : IMetadataContainer
     {
-        public string SerializedMetadata { get; }
-        public string SerializedData { get; }
-        public int AggregateSequenceNumber { get; }
-
-        public CommittedSnapshot(
-            string serializedMetadata,
-            string serializedData,
-            int aggregateSequenceNumber)
-        {
-            SerializedMetadata = serializedMetadata;
-            SerializedData = serializedData;
-            AggregateSequenceNumber = aggregateSequenceNumber;
-        }
+        string SnapshotName { get; }
+        int SnapshotVersion { get; }
     }
 }

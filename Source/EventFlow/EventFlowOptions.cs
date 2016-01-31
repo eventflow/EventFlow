@@ -32,13 +32,15 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
-using EventFlow.EventStores.Snapshots;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Logs;
 using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.Snapshots;
+using EventFlow.Snapshots.Stores;
+using EventFlow.Snapshots.Stores.InMemory;
 using EventFlow.Subscribers;
 
 namespace EventFlow

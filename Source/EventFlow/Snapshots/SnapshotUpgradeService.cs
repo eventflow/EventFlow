@@ -22,19 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-namespace EventFlow.EventStores.Snapshots
-{
-    public class SnapshotContainer
-    {
-        public SnapshotContainer(
-            ISnapshot snapshot,
-            ISnapshotMetadata metadata)
-        {
-            Snapshot = snapshot;
-            Metadata = metadata;
-        }
+using EventFlow.Configuration;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-        public ISnapshot Snapshot { get; }
-        public ISnapshotMetadata Metadata { get; }
+namespace EventFlow.Snapshots
+{
+    public class SnapshotUpgradeService :
+        VersionedTypeUpgradeService<SnapshotVersionAttribute, SnapshotDefinition, ISnapshot, ISnapshotDefinitionService>,
+        ISnapshotUpgradeService
+    {
+        public SnapshotUpgradeService(
+            ILog log,
+            IResolver resolver,
+            ISnapshotDefinitionService definitionService)
+            : base(log, resolver, definitionService)
+        {
+        }
     }
 }

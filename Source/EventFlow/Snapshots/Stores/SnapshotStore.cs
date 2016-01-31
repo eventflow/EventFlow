@@ -22,22 +22,36 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots.Stores
 {
-    public class SnapshotUpgradeService :
-        VersionedTypeUpgradeService<SnapshotVersionAttribute, SnapshotDefinition, ISnapshot, ISnapshotDefinitionService>,
-        ISnapshotUpgradeService
+    public class SnapshotStore : ISnapshotStore
     {
-        public SnapshotUpgradeService(
-            ILog log,
-            IResolver resolver,
-            ISnapshotDefinitionService definitionService)
-            : base(log, resolver, definitionService)
+        private readonly ISnapshotPersistence _snapshotPersistence;
+
+        public SnapshotStore(
+            ISnapshotPersistence snapshotPersistence)
         {
+            _snapshotPersistence = snapshotPersistence;
+        }
+
+        public Task<TSnapshot> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TIdentity identity)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>()
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

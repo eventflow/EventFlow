@@ -22,20 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public interface ISnapshotBuilder
+    public interface ISnapshotPersistence
     {
-        Task<SerializedSnapshot> BuildSnapshotAsync(IAggregateRoot aggregateRoot, CancellationToken cancellationToken);
-
-        Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TAggregate aggregate, CancellationToken cancellationToken)
-            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot;
     }
 }

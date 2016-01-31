@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,13 +20,22 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using EventFlow.Core.VersionedTypes;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public interface ISnapshotDefinitionService : IVersionedTypeDefinitionService<SnapshotVersionAttribute, SnapshotDefinition>
+    public interface ISnapshotBuilder
     {
+        Task<SerializedSnapshot> BuildSnapshotAsync(IAggregateRoot aggregateRoot, CancellationToken cancellationToken);
+
+        Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TAggregate aggregate, CancellationToken cancellationToken)
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
     }
 }

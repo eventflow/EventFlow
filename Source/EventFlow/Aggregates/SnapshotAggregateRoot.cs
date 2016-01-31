@@ -25,7 +25,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.EventStores.Snapshots;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Aggregates
 {

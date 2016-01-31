@@ -20,13 +20,21 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
+using System;
 using EventFlow.Core.VersionedTypes;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public interface ISnapshot : IVersionedType
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SnapshotVersionAttribute : VersionedTypeAttribute
     {
+        public SnapshotVersionAttribute(
+            string name,
+            int version)
+            : base(name, version)
+        {
+        }
     }
 }

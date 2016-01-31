@@ -20,22 +20,13 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public class SerializedSnapshot : CommittedSnapshot
+    public sealed class SnapshotMetadataKeys
     {
-        public ISnapshotMetadata Metadata { get; }
-
-        public SerializedSnapshot(
-            string serializedMetadata,
-            string serializedData,
-            int aggregateSequenceNumber,
-            ISnapshotMetadata metadata)
-            : base(serializedMetadata, serializedData, aggregateSequenceNumber)
-        {
-            Metadata = metadata;
-        }
+        public const string SnapshotName = "snapshot_name";
+        public const string SnapshotVersion = "snapshot_version";
     }
 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
+// Copyright (c) 2015 Rasmus Mikkelsen
+// Copyright (c) 2015 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,13 +22,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using EventFlow.Core;
+using System;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public interface ISnapshotMetadata : IMetadataContainer
+    public class SnapshotDefinitionService : VersionedTypeDefinitionService<ISnapshot, SnapshotVersionAttribute, SnapshotDefinition>, ISnapshotDefinitionService
     {
-        string SnapshotName { get; }
-        int SnapshotVersion { get; }
+        public SnapshotDefinitionService(
+            ILog log)
+            : base(log)
+        {
+        }
+
+        protected override SnapshotDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new SnapshotDefinition(version, type, name);
+        }
     }
 }

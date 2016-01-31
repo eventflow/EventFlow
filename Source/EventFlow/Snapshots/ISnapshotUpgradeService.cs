@@ -22,11 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.EventStores.Snapshots;
+using EventFlow.Core.VersionedTypes;
 
-namespace EventFlow.EventStores.InMemory
+namespace EventFlow.Snapshots
 {
-    public class InMemorySnapshotPersistence : ISnapshotPersistence
+    public interface ISnapshotUpgradeService : IVersionedTypeUpgradeService<SnapshotVersionAttribute, SnapshotDefinition, ISnapshot>
     {
     }
 }

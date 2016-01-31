@@ -25,7 +25,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using EventFlow.EventStores.Snapshots;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Extensions
 {

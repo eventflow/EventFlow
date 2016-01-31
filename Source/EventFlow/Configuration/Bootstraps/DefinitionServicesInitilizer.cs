@@ -26,8 +26,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.EventStores;
-using EventFlow.EventStores.Snapshots;
 using EventFlow.Jobs;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Configuration.Bootstraps
 {

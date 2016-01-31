@@ -34,7 +34,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using Newtonsoft.Json;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
     public class SnapshotBuilder : ISnapshotBuilder
     {

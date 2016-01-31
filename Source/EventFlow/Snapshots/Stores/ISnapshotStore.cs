@@ -20,36 +20,25 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots.Stores
 {
-    public class SnapshotMetadata : MetadataContainer, ISnapshotMetadata
+    public interface ISnapshotStore
     {
-        public SnapshotMetadata()
-        {
-        }
+        Task<TSnapshot> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+            TIdentity identity)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
 
-        public SnapshotMetadata(IDictionary<string, string> keyValuePairs)
-            : base(keyValuePairs)
-        {
-        }
-
-        public SnapshotMetadata(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
-            : base(keyValuePairs.ToDictionary(kv => kv.Key, kv => kv.Value))
-        {
-        }
-
-        public SnapshotMetadata(params KeyValuePair<string, string>[] keyValuePairs)
-            : this((IEnumerable<KeyValuePair<string, string>>) keyValuePairs)
-        {
-        }
-
-        public string SnapshotName => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
-        public int SnapshotVersion => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
+        Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>()
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
     }
 }

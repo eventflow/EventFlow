@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using EventFlow.EventStores.Snapshots;
+using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots

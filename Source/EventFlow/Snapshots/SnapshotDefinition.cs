@@ -20,25 +20,21 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
 using System;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public class SnapshotDefinitionService : VersionedTypeDefinitionService<ISnapshot, SnapshotVersionAttribute, SnapshotDefinition>, ISnapshotDefinitionService
+    public class SnapshotDefinition : VersionedTypeDefinition
     {
-        public SnapshotDefinitionService(
-            ILog log)
-            : base(log)
+        public SnapshotDefinition(
+            int version,
+            Type type,
+            string name)
+            : base(version, type, name)
         {
-        }
-
-        protected override SnapshotDefinition CreateDefinition(int version, Type type, string name)
-        {
-            return new SnapshotDefinition(version, type, name);
         }
     }
 }

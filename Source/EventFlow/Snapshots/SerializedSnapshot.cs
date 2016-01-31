@@ -22,9 +22,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public interface ISnapshotPersistence
+    public class SerializedSnapshot : CommittedSnapshot
     {
+        public ISnapshotMetadata Metadata { get; }
+
+        public SerializedSnapshot(
+            string serializedMetadata,
+            string serializedData,
+            int aggregateSequenceNumber,
+            ISnapshotMetadata metadata)
+            : base(serializedMetadata, serializedData, aggregateSequenceNumber)
+        {
+            Metadata = metadata;
+        }
     }
 }

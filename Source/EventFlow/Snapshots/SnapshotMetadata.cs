@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,21 +20,36 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System;
-using EventFlow.Core.VersionedTypes;
+using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public class SnapshotDefinition : VersionedTypeDefinition
+    public class SnapshotMetadata : MetadataContainer, ISnapshotMetadata
     {
-        public SnapshotDefinition(
-            int version,
-            Type type,
-            string name)
-            : base(version, type, name)
+        public SnapshotMetadata()
         {
         }
+
+        public SnapshotMetadata(IDictionary<string, string> keyValuePairs)
+            : base(keyValuePairs)
+        {
+        }
+
+        public SnapshotMetadata(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+            : base(keyValuePairs.ToDictionary(kv => kv.Key, kv => kv.Value))
+        {
+        }
+
+        public SnapshotMetadata(params KeyValuePair<string, string>[] keyValuePairs)
+            : this((IEnumerable<KeyValuePair<string, string>>) keyValuePairs)
+        {
+        }
+
+        public string SnapshotName => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
+        public int SnapshotVersion => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
     }
 }

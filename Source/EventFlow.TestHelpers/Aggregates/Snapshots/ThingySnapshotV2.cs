@@ -22,7 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.EventStores.Snapshots;
+using EventFlow.Snapshots;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots
 {

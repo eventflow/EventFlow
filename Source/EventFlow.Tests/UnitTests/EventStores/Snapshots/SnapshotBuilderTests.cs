@@ -25,8 +25,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using EventFlow.EventStores.Snapshots;
 using EventFlow.Logs;
+using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
