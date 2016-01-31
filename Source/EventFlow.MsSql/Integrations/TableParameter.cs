@@ -32,7 +32,7 @@ using System.Reflection;
 using Dapper;
 using Microsoft.SqlServer.Server;
 
-namespace EventFlow.Sql.Integrations
+namespace EventFlow.MsSql.Integrations
 {
     internal class TableParameter<TRow> : SqlMapper.IDynamicParameters
         where TRow : class, new()
@@ -41,6 +41,8 @@ namespace EventFlow.Sql.Integrations
         private readonly IEnumerable<TRow> _rows;
         private readonly SqlMapper.IDynamicParameters _otherParameters;
 
+        // ReSharper disable StaticMemberInGenericType
+        // The PropertyInfos and SqlMetaDatas static fields are dependant on the TRow type
         private static readonly Dictionary<SqlDbType, Action<SqlDataRecord, int, object>> SqlDataRecordSetters = new Dictionary<SqlDbType, Action<SqlDataRecord, int, object>>
             {
                 {SqlDbType.Text, (r, i, o) => r.SetString(i, (string)o)},
@@ -60,6 +62,7 @@ namespace EventFlow.Sql.Integrations
             };
         private static readonly SqlMetaData[] SqlMetaDatas;
         private static readonly Dictionary<string, PropertyInfo> PropertyInfos;
+        // ReSharper restore StaticMemberInGenericType
 
         static TableParameter()
         {
@@ -104,7 +107,7 @@ namespace EventFlow.Sql.Integrations
             var sqlParameter = (SqlParameter)command.CreateParameter();
             sqlParameter.SqlDbType = SqlDbType.Structured;
             sqlParameter.ParameterName = name;
-            sqlParameter.TypeName = string.Format("{0}_list_type", typeof(TRow).Name.ToLowerInvariant());
+            sqlParameter.TypeName = $"{typeof (TRow).Name.ToLowerInvariant()}_list_type";
             sqlParameter.Value = sqlDataRecords;
             return sqlParameter;
         }
@@ -129,7 +132,7 @@ namespace EventFlow.Sql.Integrations
                 catch (Exception exception)
                 {
                     throw new InvalidDataException(
-                        string.Format("Failed to configure property '{0}' with value '{1}'", pair.MetaData.Name, propertyValue),
+                        $"Failed to configure property '{pair.MetaData.Name}' with value '{propertyValue}'",
                         exception);
                 }
             }

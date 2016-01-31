@@ -126,17 +126,15 @@ Target "CreatePackageEventFlowMsSql" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "EventFlow.Sql",  nugetVersionDep]
+                "EventFlow.Sql",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
             Publish = false })
             "Source/EventFlow.MsSql/EventFlow.MsSql.nuspec"
     )
 
 Target "CreatePackageEventFlowSql" (fun _ ->
     let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
-    let result = ExecProcess (fun info ->
-       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.Sql\\bin\\EventFlow.Sql.dll " + binDir + "EventFlow.Sql.dll " + binDir + "Dapper.dll "  + binDir + "DbUp.dll"
-       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
-    if result <> 0 then failwithf "ILMerge of EventFlow.Sql returned with a non-zero exit code"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.Sql.dll")
     NuGet (fun p -> 
         {p with
             OutputPath = dirPackages
@@ -144,7 +142,8 @@ Target "CreatePackageEventFlowSql" (fun _ ->
             Version = nugetVersion
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
-                "EventFlow",  nugetVersionDep]
+                "EventFlow",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
             Publish = false })
             "Source/EventFlow.Sql/EventFlow.Sql.nuspec"
     )

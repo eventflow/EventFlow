@@ -30,7 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
-using EventFlow.Sql.Integrations;
+using EventFlow.Logs;
 
 namespace EventFlow.Sql.Connections
 {
@@ -38,15 +38,18 @@ namespace EventFlow.Sql.Connections
         where TConfiguration : ISqlConfiguration
         where TRetryStrategy : IRetryStrategy
     {
-        private readonly TConfiguration _configuration;
-        private readonly ITransientFaultHandler<TRetryStrategy> _transientFaultHandler;
+        protected ILog Log { get; }
+        protected TConfiguration Configuration { get; }
+        protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
 
         protected SqlConnection(
+            ILog log,
             TConfiguration configuration,
             ITransientFaultHandler<TRetryStrategy> transientFaultHandler)
         {
-            _configuration = configuration;
-            _transientFaultHandler = transientFaultHandler;
+            Log = log;
+            Configuration = configuration;
+            TransientFaultHandler = transientFaultHandler;
         }
 
         public virtual Task<int> ExecuteAsync(
@@ -88,12 +91,14 @@ namespace EventFlow.Sql.Connections
             Label label,
             CancellationToken cancellationToken,
             string sql,
-            IEnumerable<TRow> rows,
-            object param = null)
+            IEnumerable<TRow> rows)
             where TRow : class, new()
         {
-            var tableParameter = new TableParameter<TRow>("@rows", rows, param ?? new { });
-            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
+            Log.Debug(
+                "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
+                sql);
+
+            return QueryAsync<TResult>(label, cancellationToken, sql, rows);
         }
 
         public virtual Task<TResult> WithConnectionAsync<TResult>(
@@ -101,10 +106,10 @@ namespace EventFlow.Sql.Connections
             Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
             CancellationToken cancellationToken)
         {
-            return _transientFaultHandler.TryAsync(
+            return TransientFaultHandler.TryAsync(
                 async c =>
                     {
-                        using (var sqlConnection = new System.Data.SqlClient.SqlConnection(_configuration.ConnectionString))
+                        using (var sqlConnection = new System.Data.SqlClient.SqlConnection(Configuration.ConnectionString))
                         {
                             await sqlConnection.OpenAsync(c).ConfigureAwait(false);
                             return await withConnection(sqlConnection, c).ConfigureAwait(false);

@@ -47,8 +47,7 @@ namespace EventFlow.Sql.Connections
             Label label,
             CancellationToken cancellationToken,
             string sql,
-            IEnumerable<TRow> rows,
-            object param = null)
+            IEnumerable<TRow> rows)
             where TRow : class, new();
     }
 }

@@ -50,7 +50,6 @@
     <Compile Include="Connections\ISqlConnection.cs" />
     <Compile Include="Migrations\ISqlDatabaseMigrator.cs" />
     <Compile Include="Integrations\DbUpUpgradeLog.cs" />
-    <Compile Include="Integrations\TableParameter.cs" />
     <Compile Include="Connections\SqlConfiguration.cs" />
     <Compile Include="Connections\SqlConnection.cs" />
     <Compile Include="Migrations\SqlDatabaseMigrator.cs" />

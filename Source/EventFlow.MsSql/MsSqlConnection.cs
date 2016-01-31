@@ -22,7 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Logs;
+using EventFlow.MsSql.Integrations;
 using EventFlow.MsSql.RetryStrategies;
 using EventFlow.Sql.Connections;
 
@@ -31,10 +36,24 @@ namespace EventFlow.MsSql
     public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy>, IMsSqlConnection
     {
         public MsSqlConnection(
+            ILog log,
             IMsSqlConfiguration configuration,
             ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
-            : base(configuration, transientFaultHandler)
+            : base(log, configuration, transientFaultHandler)
         {
+        }
+
+        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            IEnumerable<TRow> rows)
+        {
+            Log.Verbose(
+                "Using optimised table type to insert with SQL: {0}",
+                sql);
+            var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
+            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
         }
     }
 }
