@@ -176,8 +176,8 @@ Target "CreatePackageEventFlowEventStoresSQLite" (fun _ ->
             Version = nugetVersion
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
-                "Dapper",  GetPackageVersion "./packages/" "Dapper"
                 "EventFlow",  nugetVersionDep
+                "EventFlow.Sql",  nugetVersionDep
                 "System.Data.SQLite.Core",  GetPackageVersion "./packages/" "System.Data.SQLite.Core"]
             Publish = false })
             "Source/EventFlow.EventStores.SQLite/EventFlow.EventStores.SQLite.nuspec"
