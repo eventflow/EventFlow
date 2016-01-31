@@ -115,6 +115,24 @@ Target "CreatePackageEventFlowHangfire" (fun _ ->
             "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
 
+Target "CreatePackageEventFlowSql" (fun _ ->
+    let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
+    let result = ExecProcess (fun info ->
+       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.Sql\\bin\\EventFlow.Sql.dll " + binDir + "EventFlow.Sql.dll " + binDir + "dbup.dll"
+       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
+    NuGet (fun p -> 
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Sql"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
+            Publish = false })
+            "Source/EventFlow.Sql/EventFlow.Sql.nuspec"
+    )
+
 Target "CreatePackageEventFlowMsSql" (fun _ ->
     let binDir = "Source/EventFlow.MsSql/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.MsSql.dll")
@@ -132,24 +150,6 @@ Target "CreatePackageEventFlowMsSql" (fun _ ->
             "Source/EventFlow.MsSql/EventFlow.MsSql.nuspec"
     )
 
-Target "CreatePackageEventFlowSql" (fun _ ->
-    let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
-    let result = ExecProcess (fun info ->
-       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow\\bin\\EventFlow.Sql.dll " + binDir + "EventFlow.Sql.dll " + binDir + "dbup.dll"
-       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
-    NuGet (fun p -> 
-        {p with
-            OutputPath = dirPackages
-            WorkingDir = "Source/EventFlow.Sql"
-            Version = nugetVersion
-            ReleaseNotes = toLines releaseNotes.Notes
-            Dependencies = [
-                "EventFlow",  nugetVersionDep
-                "Dapper", GetPackageVersion "./packages/" "Dapper"]
-            Publish = false })
-            "Source/EventFlow.Sql/EventFlow.Sql.nuspec"
-    )
-
 Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
     let binDir = "Source/EventFlow.EventStores.MsSql/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.EventStores.MsSql.dll")
@@ -161,7 +161,6 @@ Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "EventFlow.Sql",  nugetVersionDep
                 "EventFlow.MsSql",  nugetVersionDep]
             Publish = false })
             "Source/EventFlow.EventStores.MsSql/EventFlow.EventStores.MsSql.nuspec"
@@ -194,7 +193,6 @@ Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
                 "EventFlow",  nugetVersionDep
-                "EventFlow.Sql",  nugetVersionDep
                 "EventFlow.MsSql",  nugetVersionDep]
             Publish = false })
             "Source/EventFlow.ReadStores.MsSql/EventFlow.ReadStores.MsSql.nuspec"
