@@ -20,35 +20,36 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
-using EventFlow.MsSql.Integrations;
-using EventFlow.MsSql.RetryStrategies;
+using EventFlow.Sql.Integrations;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Sql.Connections
 {
-    public class MsSqlConnection : IMsSqlConnection
+    public abstract class SqlConnection<TConfiguration, TRetryStrategy> : ISqlConnection
+        where TConfiguration : ISqlConfiguration
+        where TRetryStrategy : IRetryStrategy
     {
-        private readonly IMsSqlConfiguration _configuration;
-        private readonly ITransientFaultHandler<ISqlErrorRetryStrategy> _transientFaultHandler;
+        private readonly TConfiguration _configuration;
+        private readonly ITransientFaultHandler<TRetryStrategy> _transientFaultHandler;
 
-        public MsSqlConnection(
-            IMsSqlConfiguration configuration,
-            ITransientFaultHandler<ISqlErrorRetryStrategy> transientFaultHandler)
+        protected SqlConnection(
+            TConfiguration configuration,
+            ITransientFaultHandler<TRetryStrategy> transientFaultHandler)
         {
             _configuration = configuration;
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public Task<int> ExecuteAsync(
+        public virtual Task<int> ExecuteAsync(
             Label label,
             CancellationToken cancellationToken,
             string sql,
@@ -64,7 +65,7 @@ namespace EventFlow.MsSql
                 cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+        public virtual async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
             Label label,
             CancellationToken cancellationToken,
             string sql,
@@ -83,7 +84,7 @@ namespace EventFlow.MsSql
                 .ToList();
         }
 
-        public Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+        public virtual Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
             Label label,
             CancellationToken cancellationToken,
             string sql,
@@ -95,7 +96,7 @@ namespace EventFlow.MsSql
             return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
         }
 
-        public Task<TResult> WithConnectionAsync<TResult>(
+        public virtual Task<TResult> WithConnectionAsync<TResult>(
             Label label,
             Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
             CancellationToken cancellationToken)
@@ -103,7 +104,7 @@ namespace EventFlow.MsSql
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        using (var sqlConnection = new SqlConnection(_configuration.ConnectionString))
+                        using (var sqlConnection = new System.Data.SqlClient.SqlConnection(_configuration.ConnectionString))
                         {
                             await sqlConnection.OpenAsync(c).ConfigureAwait(false);
                             return await withConnection(sqlConnection, c).ConfigureAwait(false);

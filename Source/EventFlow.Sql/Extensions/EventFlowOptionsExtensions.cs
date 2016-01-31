@@ -21,13 +21,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Reflection;
 
-namespace EventFlow.MsSql
+using EventFlow.Configuration;
+using EventFlow.Sql.RetryStrategies;
+
+namespace EventFlow.Sql.Extensions
 {
-    public interface IMsSqlDatabaseMigrator
+    public static class EventFlowOptionsExtensions
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
+        public static IEventFlowOptions ConfigureSql(this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.RegisterServices(f =>
+                {
+                    f.Register<ISqlDatabaseMigrator, SqlDatabaseMigrator>();
+                });
+        }
+
+        public static IEventFlowOptions ConfigureMsSql(this IEventFlowOptions eventFlowOptions, IMsSqlConfiguration sqlConfiguration)
+        {
+            return eventFlowOptions
+                .ConfigureSql()
+                .RegisterServices(f =>
+                    {
+                        f.Register<IMsSqlConnection, MsSqlConnection>();
+                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
+                        f.Register(_ => sqlConfiguration, Lifetime.Singleton);
+                    });
+        }
     }
 }

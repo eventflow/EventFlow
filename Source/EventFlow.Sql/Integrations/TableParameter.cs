@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -31,7 +32,7 @@ using System.Reflection;
 using Dapper;
 using Microsoft.SqlServer.Server;
 
-namespace EventFlow.MsSql.Integrations
+namespace EventFlow.Sql.Integrations
 {
     internal class TableParameter<TRow> : SqlMapper.IDynamicParameters
         where TRow : class, new()

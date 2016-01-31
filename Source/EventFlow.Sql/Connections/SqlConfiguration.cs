@@ -20,38 +20,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
-using EventFlow.Queries;
-using EventFlow.Sql;
-using EventFlow.TestHelpers.Aggregates.Queries;
-
-namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
+namespace EventFlow.Sql
 {
-    public class MsSqlThingyGetVersionQueryHandler : IQueryHandler<ThingyGetVersionQuery, long?>
+    public abstract class SqlConfiguration<T> : ISqlConfiguration
+        where T : ISqlConfiguration
     {
-        private readonly IMsSqlConnection _sqlConnection;
+        public string ConnectionString { get; private set; }
 
-        public MsSqlThingyGetVersionQueryHandler(
-            IMsSqlConnection sqlConnection)
+        public T SetConnectionString(string connectionString)
         {
-            _sqlConnection = sqlConnection;
-        }
-
-        public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
-        {
-            var readModels = await _sqlConnection.QueryAsync<MsSqlThingyReadModel>(
-                Label.Named("mssql-fetch-test-read-model"),
-                cancellationToken,
-                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
-                new { AggregateId = query.ThingyId.Value })
-                .ConfigureAwait(false);
-            return readModels.SingleOrDefault()?.LastAggregateSequenceNumber;
+            ConnectionString = connectionString;
+            return (T) (object) this;
         }
     }
 }

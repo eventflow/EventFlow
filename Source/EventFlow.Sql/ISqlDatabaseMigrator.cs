@@ -21,11 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Core;
 
-namespace EventFlow.MsSql.RetryStrategies
+using System.Reflection;
+
+namespace EventFlow.Sql
 {
-    public interface ISqlErrorRetryStrategy : IRetryStrategy
+    public interface ISqlDatabaseMigrator
     {
+        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
+        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
     }
 }

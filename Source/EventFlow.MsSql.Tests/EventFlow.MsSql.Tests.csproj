@@ -61,13 +61,13 @@
       <Project>{0c92026e-7e6d-40b9-a4dd-a7041e23aa7d}</Project>
       <Name>EventFlow.EventStores.MsSql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj">
-      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
-      <Name>EventFlow.MsSql</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventFlow.ReadStores.MsSql\EventFlow.ReadStores.MsSql.csproj">
       <Project>{cc886dd8-a471-4a08-822b-46f6dc5ae347}</Project>
       <Name>EventFlow.ReadStores.MsSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
+      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
+      <Name>EventFlow.Sql</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>

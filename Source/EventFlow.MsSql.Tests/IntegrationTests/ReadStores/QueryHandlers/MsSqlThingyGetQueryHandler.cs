@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.Queries;
+using EventFlow.Sql;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Queries;
 
@@ -35,17 +36,17 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
     public class MsSqlThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        private readonly IMsSqlConnection _msSqlConnection;
+        private readonly IMsSqlConnection _sqlConnection;
 
         public MsSqlThingyGetQueryHandler(
-            IMsSqlConnection msSqlConnection)
+            IMsSqlConnection sqlConnection)
         {
-            _msSqlConnection = msSqlConnection;
+            _sqlConnection = sqlConnection;
         }
 
         public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
-            var readModels = await _msSqlConnection.QueryAsync<MsSqlThingyReadModel>(
+            var readModels = await _sqlConnection.QueryAsync<MsSqlThingyReadModel>(
                 Label.Named("mssql-fetch-test-read-model"),
                 cancellationToken,
                 "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",

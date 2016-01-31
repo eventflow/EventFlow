@@ -21,20 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
 
-namespace EventFlow.MsSql
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace EventFlow.Sql.Exceptions
 {
-    public interface IMsSqlConnection
+    public class SqlMigrationException : Exception
     {
-        Task<int> ExecuteAsync(Label label, CancellationToken cancellationToken, string sql, object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(Label label, CancellationToken cancellationToken, string sql, object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(Label label, CancellationToken cancellationToken, string sql, IEnumerable<TRow> rows, object param = null)
-            where TRow : class, new();
+        public IReadOnlyCollection<string> Scripts { get; private set; }
+
+        public SqlMigrationException(
+            IEnumerable<string> scripts, 
+            string message,
+            Exception innerException)
+            : base(message, innerException)
+        {
+            Scripts = scripts.ToList();
+        }
     }
 }

@@ -50,9 +50,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj">
+    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
       <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
-      <Name>EventFlow.MsSql</Name>
+      <Name>EventFlow.Sql</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
       <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>

@@ -20,33 +20,34 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Linq;
 using System.Reflection;
 using DbUp;
 using EventFlow.Logs;
-using EventFlow.MsSql.Exceptions;
-using EventFlow.MsSql.Integrations;
+using EventFlow.Sql.Exceptions;
+using EventFlow.Sql.Integrations;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Sql
 {
-    public class MsSqlDatabaseMigrator : IMsSqlDatabaseMigrator
+    public class SqlDatabaseMigrator : ISqlDatabaseMigrator
     {
         private readonly ILog _log;
-        private readonly IMsSqlConfiguration _msSqlConfiguration;
+        private readonly ISqlConfiguration _sqlConfiguration;
 
-        public MsSqlDatabaseMigrator(
+        public SqlDatabaseMigrator(
             ILog log,
-            IMsSqlConfiguration msSqlConfiguration)
+            ISqlConfiguration sqlConfiguration)
         {
             _log = log;
-            _msSqlConfiguration = msSqlConfiguration;
+            _sqlConfiguration = sqlConfiguration;
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
         {
-            MigrateDatabaseUsingEmbeddedScripts(assembly, _msSqlConfiguration.ConnectionString);
+            MigrateDatabaseUsingEmbeddedScripts(assembly, _sqlConfiguration.ConnectionString);
         }
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
@@ -70,7 +71,7 @@ namespace EventFlow.MsSql
             var result = upgradeEngine.PerformUpgrade();
             if (!result.Successful)
             {
-                throw new MssqlMigrationException(scripts, result.Error.Message, result.Error);
+                throw new SqlMigrationException(scripts, result.Error.Message, result.Error);
             }
         }
     }

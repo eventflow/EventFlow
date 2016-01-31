@@ -27,10 +27,11 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
-using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.ReadStores.MsSql.Extensions;
+using EventFlow.Sql;
+using EventFlow.Sql.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
@@ -59,7 +60,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
                     typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            var databaseMigrator = resolver.Resolve<ISqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 

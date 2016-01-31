@@ -20,21 +20,11 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-namespace EventFlow.MsSql
+//
+
+namespace EventFlow.Sql
 {
-    public class MsSqlConfiguration : IMsSqlConfiguration
+    public interface IMsSqlConfiguration : ISqlConfiguration
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
-
-        public string ConnectionString { get; private set; }
-
-        private MsSqlConfiguration() { }
-
-        public MsSqlConfiguration SetConnectionString(string connectionString)
-        {
-            ConnectionString = connectionString;
-            return this;
-        }
     }
 }

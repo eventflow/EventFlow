@@ -22,7 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System.Reflection;
-using EventFlow.MsSql;
+using EventFlow.Sql;
 
 namespace EventFlow.EventStores.MsSql
 {
@@ -30,9 +30,9 @@ namespace EventFlow.EventStores.MsSql
     {
         public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
 
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
+        public static void MigrateDatabase(ISqlDatabaseMigrator sqlDatabaseMigrator)
         {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
+            sqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
         }
     }
 }
