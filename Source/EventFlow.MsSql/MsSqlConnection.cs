@@ -22,26 +22,38 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Logs;
+using EventFlow.MsSql.Integrations;
+using EventFlow.MsSql.RetryStrategies;
 using EventFlow.Sql.Connections;
 
 namespace EventFlow.MsSql
 {
-    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
+    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy>, IMsSqlConnection
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
-
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
-        private MsSqlConfiguration() { }
-
-        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
+        public MsSqlConnection(
+            ILog log,
+            IMsSqlConfiguration configuration,
+            ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
+            : base(log, configuration, transientFaultHandler)
         {
-            TransientRetryDelay = retryDelay;
-            return this;
+        }
+
+        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            IEnumerable<TRow> rows)
+        {
+            Log.Verbose(
+                "Using optimised table type to insert with SQL: {0}",
+                sql);
+            var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
+            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
         }
     }
 }

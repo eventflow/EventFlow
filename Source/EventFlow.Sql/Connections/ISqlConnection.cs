@@ -22,26 +22,32 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Sql.Connections;
 
-namespace EventFlow.MsSql
+namespace EventFlow.Sql.Connections
 {
-    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
+    public interface ISqlConnection
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
-
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
-        private MsSqlConfiguration() { }
-
-        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
-        {
-            TransientRetryDelay = retryDelay;
-            return this;
-        }
+        Task<int> ExecuteAsync(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            object param = null);
+        
+        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>
+            (Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            object param = null);
+        
+        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            IEnumerable<TRow> rows)
+            where TRow : class, new();
     }
 }

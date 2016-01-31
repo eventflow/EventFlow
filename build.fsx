@@ -130,20 +130,37 @@ Target "CreatePackageEventFlowHangfire" (fun _ ->
             "Source/EventFlow.Hangfire/EventFlow.Hangfire.nuspec"
     )
 
-Target "CreatePackageEventFlowMsSql" (fun _ ->
-    let binDir = "Source\\EventFlow.MsSql\\bin\\" + buildMode + "\\"
+Target "CreatePackageEventFlowSql" (fun _ ->
+    let binDir = "Source\\EventFlow.Sql\\bin\\" + buildMode + "\\"
     let result = ExecProcess (fun info ->
-       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.MsSql\\bin\\EventFlow.MsSql.dll " + binDir + "EventFlow.MsSql.dll " + binDir + "Dapper.dll "  + binDir + "DbUp.dll"
+       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow.Sql\\bin\\EventFlow.Sql.dll " + binDir + "EventFlow.Sql.dll " + binDir + "dbup.dll"
        info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
-    if result <> 0 then failwithf "ILMerge of EventFlow.MsSql returned with a non-zero exit code"
     NuGet (fun p -> 
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.Sql"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
+            Publish = false })
+            "Source/EventFlow.Sql/EventFlow.Sql.nuspec"
+    )
+
+Target "CreatePackageEventFlowMsSql" (fun _ ->
+    let binDir = "Source/EventFlow.MsSql/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.MsSql.dll")
+    NuGet (fun p ->
         {p with
             OutputPath = dirPackages
             WorkingDir = "Source/EventFlow.MsSql"
             Version = nugetVersion
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies = [
-                "EventFlow",  nugetVersionDep]
+                "EventFlow",  nugetVersionDep
+                "EventFlow.Sql",  nugetVersionDep
+                "Dapper", GetPackageVersion "./packages/" "Dapper"]
             Publish = false })
             "Source/EventFlow.MsSql/EventFlow.MsSql.nuspec"
     )
@@ -242,6 +259,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowBdd"
     ==> "CreatePackageEventFlowRabbitMQ"
     ==> "CreatePackageEventFlowHangfire"
+    ==> "CreatePackageEventFlowSql"
     ==> "CreatePackageEventFlowMsSql"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"

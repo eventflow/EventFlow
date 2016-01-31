@@ -1,6 +1,16 @@
 ### New in 0.25 (not released yet)
 
- * _Nothing yet_
+ * Breaking: Renamed `MssqlMigrationException` to `SqlMigrationException`
+ * Breaking: Renamed `SqlErrorRetryStrategy` to `MsSqlErrorRetryStrategy`
+   as its MSSQL specific
+ * Breaking: The NuGet package `Dapper` is no longer IL merged with the package
+   `EventFlow.MsSql` but is now listed as a NuGet dependency. The current
+   version used by EventFlow is `v1.42`
+ * New: Introduced the NuGet package `EventFlow.Sql` as shared package for
+   EventFlow packages that uses SQL
+ * New: Its now possible to configure the retry delay for MSSQL transient
+   errors using the new `IMsSqlConfiguration.SetTransientRetryDelay`. The
+   default is a random delay between 50 and 100 milliseconds.
 
 ### New in 0.24.1563 (released 2016-01-17)
 

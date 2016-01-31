@@ -22,26 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using EventFlow.Core;
-using EventFlow.Sql.Connections;
-
-namespace EventFlow.MsSql
+namespace EventFlow.Sql.Connections
 {
-    public class MsSqlConfiguration : SqlConfiguration<IMsSqlConfiguration>, IMsSqlConfiguration
+    public abstract class SqlConfiguration<T> : ISqlConfiguration
+        where T : ISqlConfiguration
     {
-        public static MsSqlConfiguration New => new MsSqlConfiguration();
+        public string ConnectionString { get; private set; }
 
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
-        private MsSqlConfiguration() { }
-
-        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
+        public T SetConnectionString(string connectionString)
         {
-            TransientRetryDelay = retryDelay;
-            return this;
+            ConnectionString = connectionString;
+
+            // Are there alternatives to this double cast?
+            return (T) (object) this;
         }
     }
 }

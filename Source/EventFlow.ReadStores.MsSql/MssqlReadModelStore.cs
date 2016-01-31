@@ -34,6 +34,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
 using EventFlow.ReadStores.MsSql.Attributes;
+using EventFlow.Sql;
 
 #pragma warning disable 618
 

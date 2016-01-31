@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Data.SqlClient;
 using EventFlow.Core;
@@ -28,18 +29,21 @@ using EventFlow.Logs;
 
 namespace EventFlow.MsSql.RetryStrategies
 {
-    public class SqlErrorRetryStrategy : ISqlErrorRetryStrategy
+    public class MsSqlErrorRetryStrategy : IMsSqlErrorRetryStrategy
     {
         private readonly ILog _log;
+        private readonly IMsSqlConfiguration _msSqlConfiguration;
         private static readonly Random Random = new Random();
 
-        public SqlErrorRetryStrategy(
-            ILog log)
+        public MsSqlErrorRetryStrategy(
+            ILog log,
+            IMsSqlConfiguration msSqlConfiguration)
         {
             _log = log;
+            _msSqlConfiguration = msSqlConfiguration;
         }
 
-        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
+        public virtual Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
             var sqlException = exception as SqlException;
             if (sqlException == null || currentRetryCount > 2)
@@ -102,7 +106,7 @@ namespace EventFlow.MsSql.RetryStrategies
                 // A connection was successfully established with the server, but then an error occurred during the login process.
                 // (provider: TCP Provider, error: 0 - The specified network name is no longer available.)
                 case 64:
-                    return Retry.YesAfter(TimeSpan.FromMilliseconds(Random.NextDouble() * 100));
+                    return Retry.YesAfter(_msSqlConfiguration.TransientRetryDelay.PickDelay());
 
                 default:
                     return Retry.No;
