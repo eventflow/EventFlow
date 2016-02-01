@@ -64,7 +64,10 @@ namespace EventFlow.Core.VersionedTypes
             if (!definitionsWithHigherVersion.Any())
             {
                 _log.Verbose(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
+                return Task.FromResult(versionedType);
             }
+
+            _log.Verbose(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {

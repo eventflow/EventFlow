@@ -22,9 +22,41 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-namespace EventFlow.Snapshots
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
+using EventFlow.Extensions;
+using EventFlow.Logs;
+
+namespace EventFlow.Snapshots.Stores.Null
 {
-    public interface ISnapshotPersistence
+    public class NullSnapshotPersistence : ISnapshotPersistence
     {
+        private readonly ILog _log;
+
+        public NullSnapshotPersistence(
+            ILog log)
+        {
+            _log = log;
+        }
+
+        public Task<CommittedSnapshot> GetSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(null as CommittedSnapshot);
+        }
+
+        public Task SetSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            SerializedSnapshot serializedSnapshot,
+            CancellationToken cancellationToken)
+        {
+            _log.Warning($"Trying to store aggregate snapshot '{aggregateType.PrettyPrint()}' with ID '{identity}' in the NULL store. Configure another store!");
+            return Task.FromResult(0);
+        }
     }
 }

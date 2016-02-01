@@ -22,9 +22,56 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
+
 namespace EventFlow.Snapshots.Stores.InMemory
 {
     public class InMemorySnapshotPersistence : ISnapshotPersistence
     {
+        private readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly Dictionary<Type, Dictionary<string, CommittedSnapshot>> _snapshots = new Dictionary<Type, Dictionary<string, CommittedSnapshot>>(); 
+
+        public async Task<CommittedSnapshot> GetSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                Dictionary<string, CommittedSnapshot> snapshots;
+                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                {
+                    return null;
+                }
+
+                CommittedSnapshot committedSnapshot;
+                return snapshots.TryGetValue(identity.Value, out committedSnapshot)
+                    ? committedSnapshot
+                    : null;
+            }
+        }
+
+        public async Task SetSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            SerializedSnapshot serializedSnapshot,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                Dictionary<string, CommittedSnapshot> snapshots;
+                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                {
+                    snapshots = new Dictionary<string, CommittedSnapshot>();
+                    _snapshots[aggregateType] = snapshots;
+                }
+
+                snapshots[identity.Value] = serializedSnapshot;
+            }
+        }
     }
 }
