@@ -47,25 +47,25 @@ namespace EventFlow.SQLite.RetryStrategies
                 return Retry.No;
             }
 
-            switch (sqLiteException.ErrorCode)
+            switch (sqLiteException.ResultCode)
             {
                 // https://www.sqlite.org/rescode.html#locked
                 // The SQLITE_LOCKED result code indicates that a write operation could not continue because of a
                 // conflict within the same database connection or a conflict with a different database connection
                 // that uses a shared cache.
-                case (int)SQLiteErrorCode.Locked:
+                case SQLiteErrorCode.Locked:
 
                 // https://www.sqlite.org/rescode.html#busy
                 // The SQLITE_BUSY result code indicates that the database file could not be written (or in some cases
                 // read) because of concurrent activity by some other database connection, usually a database
                 // connection in a separate process.
-                case (int)SQLiteErrorCode.Busy:
+                case SQLiteErrorCode.Busy:
 
                 // https://www.sqlite.org/rescode.html#nomem
                 // The SQLITE_NOMEM result code indicates that SQLite was unable to allocate all the memory it needed
                 // to complete the operation. In other words, an internal call to sqlite3_malloc() or sqlite3_realloc()
                 // has failed in a case where the memory being allocated was required in order to continue the operation.
-                case (int)SQLiteErrorCode.NoMem:
+                case SQLiteErrorCode.NoMem:
                     return Retry.YesAfter(_configuration.TransientRetryDelay.PickDelay());
 
                 default:
