@@ -41,6 +41,8 @@ namespace EventFlow.Aggregates
         {
         }
 
+        public int? SnapshotVersion { get; private set; }
+
         public async Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken)
         {
             var snapshot = await InternalCreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
@@ -56,6 +58,8 @@ namespace EventFlow.Aggregates
 
         public Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
+            SnapshotVersion = snapshotContainer.Metadata.AggregateSequenceNumber;
+
             return InternalLoadSnapshotAsync(
                 (TSnapshot) snapshotContainer.Snapshot,
                 snapshotContainer.Metadata,

@@ -49,6 +49,7 @@ namespace EventFlow.Snapshots
         {
         }
 
+        public int AggregateSequenceNumber => GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse);
         public string SnapshotName => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
         public int SnapshotVersion => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
     }

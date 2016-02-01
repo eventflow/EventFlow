@@ -25,22 +25,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.Snapshots.Stores
+namespace EventFlow.Snapshots.Strategies
 {
-    public interface ISnapshotStore
+    public interface ISnapshotStrategy
     {
-        Task<TAggregate> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            TIdentity identity,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
-
-        Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            TAggregate aggregate,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+        Task<bool> ShouldCreateSnapshotAsync(ISnapshotAggregateRoot snapshotAggregateRoot, CancellationToken cancellationToken);
     }
 }

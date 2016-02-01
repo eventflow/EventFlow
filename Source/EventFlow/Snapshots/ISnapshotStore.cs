@@ -20,16 +20,27 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 
 namespace EventFlow.Snapshots
 {
-    public interface ISnapshotMetadata : IMetadataContainer
+    public interface ISnapshotStore
     {
-        string SnapshotName { get; }
-        int SnapshotVersion { get; }
-        int AggregateSequenceNumber { get; }
+        Task<TAggregate> LoadSnapshotAsync<TAggregate, TIdentity>(
+            TIdentity identity,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
+        Task StoreSnapshotAsync<TAggregate, TIdentity>(
+            TAggregate aggregate,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

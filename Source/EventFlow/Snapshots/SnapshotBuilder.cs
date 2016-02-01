@@ -78,8 +78,11 @@ namespace EventFlow.Snapshots
 
             var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof (TSnapshot));
 
+            _log.Verbose(() => $"Building snapshot '{snapsnotDefinition.Name}' v{snapsnotDefinition.Version} for {typeof(TAggregate).PrettyPrint()} with ID '{aggregate.Id}'");
+
             var updatedSnapshotMetadata = new SnapshotMetadata(snapshotContainer.Metadata.Concat(new Dictionary<string, string>
                 {
+                    {SnapshotMetadataKeys.AggregateSequenceNumber, aggregate.Version.ToString()},
                     {SnapshotMetadataKeys.SnapshotName, snapsnotDefinition.Name},
                     {SnapshotMetadataKeys.SnapshotVersion, snapsnotDefinition.Version.ToString()},
                 }));
@@ -90,7 +93,6 @@ namespace EventFlow.Snapshots
             return new SerializedSnapshot(
                 serializedMetadata,
                 serializedData,
-                aggregate.Version,
                 updatedSnapshotMetadata);
         }
 

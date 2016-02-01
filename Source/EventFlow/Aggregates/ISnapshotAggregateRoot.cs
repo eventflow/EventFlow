@@ -31,6 +31,8 @@ namespace EventFlow.Aggregates
 {
     public interface ISnapshotAggregateRoot : IAggregateRoot
     {
+        int? SnapshotVersion { get; }
+
         Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken);
         Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
     }

@@ -20,16 +20,23 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using EventFlow.Core;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Snapshots
+namespace EventFlow.Snapshots.Strategies
 {
-    public interface ISnapshotMetadata : IMetadataContainer
+    public class SnapshotStrategy : ISnapshotStrategy
     {
-        string SnapshotName { get; }
-        int SnapshotVersion { get; }
-        int AggregateSequenceNumber { get; }
+        public Task<bool> ShouldCreateSnapshotAsync(
+            ISnapshotAggregateRoot snapshotAggregateRoot,
+            CancellationToken cancellationToken)
+        {
+            var currentSnapshotVersion = snapshotAggregateRoot.SnapshotVersion.GetValueOrDefault();
+            var shouldCreateSnapshot = snapshotAggregateRoot.Version - currentSnapshotVersion > 100; // TODO: Configure
+            return Task.FromResult(shouldCreateSnapshot);
+        }
     }
 }

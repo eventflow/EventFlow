@@ -28,16 +28,13 @@ namespace EventFlow.Snapshots
     {
         public string SerializedMetadata { get; }
         public string SerializedData { get; }
-        public int AggregateSequenceNumber { get; }
 
         public CommittedSnapshot(
             string serializedMetadata,
-            string serializedData,
-            int aggregateSequenceNumber)
+            string serializedData)
         {
             SerializedMetadata = serializedMetadata;
             SerializedData = serializedData;
-            AggregateSequenceNumber = aggregateSequenceNumber;
         }
     }
 }

@@ -28,8 +28,10 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using EventFlow.Snapshots.Stores;
+using EventFlow.Snapshots.Strategies;
 
-namespace EventFlow.Snapshots.Stores
+namespace EventFlow.Snapshots
 {
     public class SnapshotStore : ISnapshotStore
     {
@@ -40,6 +42,7 @@ namespace EventFlow.Snapshots.Stores
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotPersistence _snapshotPersistence;
         private readonly IAggregateFactory _aggregateFactory;
+        private readonly ISnapshotStrategy _snapshotStrategy;
 
         public SnapshotStore(
             ILog log,
@@ -48,7 +51,8 @@ namespace EventFlow.Snapshots.Stores
             ISnapshotDefinitionService snapshotDefinitionService,
             ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotPersistence snapshotPersistence,
-            IAggregateFactory aggregateFactory)
+            IAggregateFactory aggregateFactory,
+            ISnapshotStrategy snapshotStrategy)
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
@@ -57,9 +61,10 @@ namespace EventFlow.Snapshots.Stores
             _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotPersistence = snapshotPersistence;
             _aggregateFactory = aggregateFactory;
+            _snapshotStrategy = snapshotStrategy;
         }
 
-        public async Task<TAggregate> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+        public async Task<TAggregate> LoadSnapshotAsync<TAggregate, TIdentity>(
             TIdentity identity,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -93,7 +98,7 @@ namespace EventFlow.Snapshots.Stores
             return (TAggregate) aggregate;
         }
 
-        public async Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+        public async Task StoreSnapshotAsync<TAggregate, TIdentity>(
             TAggregate aggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -101,6 +106,11 @@ namespace EventFlow.Snapshots.Stores
         {
             var snapshotAggregateRoot = aggregate as ISnapshotAggregateRoot;
             if (snapshotAggregateRoot == null)
+            {
+                return;
+            }
+
+            if (!await _snapshotStrategy.ShouldCreateSnapshotAsync(snapshotAggregateRoot, cancellationToken).ConfigureAwait(false))
             {
                 return;
             }

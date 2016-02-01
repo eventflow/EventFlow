@@ -159,11 +159,11 @@
     <Compile Include="Snapshots\SnapshotMetadata.cs" />
     <Compile Include="Snapshots\SnapshotMetadataKeys.cs" />
     <Compile Include="Snapshots\Stores\Null\NullSnapshotPersistence.cs" />
-    <Compile Include="Snapshots\Stores\SnapshotStore.cs" />
+    <Compile Include="Snapshots\SnapshotStore.cs" />
     <Compile Include="EventStores\ISerializedEvent.cs" />
     <Compile Include="Snapshots\ISnapshot.cs" />
     <Compile Include="Snapshots\ISnapshotDefinitionService.cs" />
-    <Compile Include="Snapshots\Stores\ISnapshotStore.cs" />
+    <Compile Include="Snapshots\ISnapshotStore.cs" />
     <Compile Include="Snapshots\SnapshotDefinition.cs" />
     <Compile Include="Snapshots\SnapshotUpgradeService.cs" />
     <Compile Include="Snapshots\SnapshotVersionAttribute.cs" />
@@ -242,6 +242,8 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
+    <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
+    <Compile Include="Snapshots\Strategies\SnapshotStrategy.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Specification.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />

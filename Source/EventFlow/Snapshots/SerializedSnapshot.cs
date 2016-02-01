@@ -31,9 +31,8 @@ namespace EventFlow.Snapshots
         public SerializedSnapshot(
             string serializedMetadata,
             string serializedData,
-            int aggregateSequenceNumber,
             ISnapshotMetadata metadata)
-            : base(serializedMetadata, serializedData, aggregateSequenceNumber)
+            : base(serializedMetadata, serializedData)
         {
             Metadata = metadata;
         }
