@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>EventFlow.EventStores.SQLite</id>
-    <title>EventFlow.EventStores.SQLite - SQLite event store</title>
+    <id>EventFlow.SQLite</id>
+    <title>EventFlow.SQLite</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
     <description>SQLite event store for EventFlow</description>
@@ -18,6 +18,6 @@
     @references@
   </metadata>
   <files>
-  	<file src="bin\EventFlow.EventStores.SQLite.dll" target="lib\net451" />
+  	<file src="bin\EventFlow.SQLite.dll" target="lib\net451" />
   </files>
 </package>
