@@ -31,8 +31,6 @@ namespace EventFlow.SQLite.RetryStrategies
     {
         public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
-            // TODO: Inspect exception and if its a SQLite transient error
-
             return Retry.No;
         }
     }

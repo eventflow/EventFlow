@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,7 +102,36 @@ namespace EventFlow.Sql.Connections
                 "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
                 sql);
 
-            return QueryAsync<TResult>(label, cancellationToken, sql, rows);
+            return WithConnectionAsync<IReadOnlyCollection<TResult>>(
+                label,
+                async (c, ct) =>
+                {
+                    using (var transaction = c.BeginTransaction())
+                    {
+                        try
+                        {
+                            var results = new List<TResult>();
+                            foreach (var row in rows)
+                            {
+                                var commandDefinition = new CommandDefinition(sql, row, cancellationToken: ct);
+                                var result = await c.QueryAsync<TResult>(commandDefinition).ConfigureAwait(false);
+                                results.Add(result.First());
+                            }
+                            transaction.Commit();
+                            return results;
+                        }
+                        catch (Exception e)
+                        {
+                            transaction.Rollback();
+                            Log.Debug(
+                                e,
+                                "Exceptions was thrown while inserting multiple rows within a transaction in '{0}'",
+                                label);
+                            throw;
+                        }
+                    }
+                },
+                cancellationToken);
         }
 
         public virtual Task<TResult> WithConnectionAsync<TResult>(

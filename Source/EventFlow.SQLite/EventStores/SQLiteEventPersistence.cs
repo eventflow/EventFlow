@@ -132,23 +132,16 @@ namespace EventFlow.SQLite.EventStores
                         (@BatchId, @AggregateId, @AggregateName, @Data, @Metadata, @AggregateSequenceNumber);
                 SELECT last_insert_rowid() FROM EventFlow";
 
-            List<long> ids = new List<long>();
+            IReadOnlyCollection<long> ids;
 
             try
             {
-                // TODO: Do in transaction
-
-                foreach (var eventDataModel in eventDataModels)
-                {
-                    var row = await _connection.QueryAsync<long>(
-                        Label.Named("sqlite-insert-single-event"),
-                        cancellationToken,
-                        sql,
-                        eventDataModel)
-                        .ConfigureAwait(false);
-                    var globalId = (row).OrderByDescending(i => i).First(); // TODO: WHY?
-                    ids.Add(globalId);
-                }
+                ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
+                    Label.Named("sqlite-insert-events"),
+                    cancellationToken,
+                    sql,
+                    eventDataModels)
+                    .ConfigureAwait(false);
             }
             catch (SQLiteException e)
             {
