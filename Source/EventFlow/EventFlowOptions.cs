@@ -174,9 +174,10 @@ namespace EventFlow
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
             serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
+            serviceRegistration.Register<ISnapshotBuilder, SnapshotBuilder>();
             serviceRegistration.Register<ISnapshotPersistence, InMemorySnapshotPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ISnapshotUpgradeService, SnapshotUpgradeService>();
-            serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>();
+            serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
             serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();
             serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
