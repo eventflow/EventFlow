@@ -35,7 +35,7 @@ using EventFlow.Logs;
 namespace EventFlow.Sql.Connections
 {
     public abstract class SqlConnection<TConfiguration, TRetryStrategy, TConnectionFactory> : ISqlConnection
-        where TConfiguration : ISqlConfiguration
+        where TConfiguration : ISqlConfiguration<TConfiguration>
         where TRetryStrategy : IRetryStrategy
         where TConnectionFactory : ISqlConnectionFactory
     {

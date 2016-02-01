@@ -23,15 +23,54 @@
 // 
 
 using System;
+using System.Data.SQLite;
 using EventFlow.Core;
+using EventFlow.SQLite.Connections;
 
 namespace EventFlow.SQLite.RetryStrategies
 {
     public class SQLiteErrorRetryStrategy : ISQLiteErrorRetryStrategy
     {
+        private readonly ISQLiteConfiguration _configuration;
+
+        public SQLiteErrorRetryStrategy(
+            ISQLiteConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
-            return Retry.No;
+            var sqLiteException = exception as SQLiteException;
+            if (sqLiteException == null || currentRetryCount > 2)
+            {
+                return Retry.No;
+            }
+
+            switch (sqLiteException.ErrorCode)
+            {
+                // https://www.sqlite.org/rescode.html#locked
+                // The SQLITE_LOCKED result code indicates that a write operation could not continue because of a
+                // conflict within the same database connection or a conflict with a different database connection
+                // that uses a shared cache.
+                case (int)SQLiteErrorCode.Locked:
+
+                // https://www.sqlite.org/rescode.html#busy
+                // The SQLITE_BUSY result code indicates that the database file could not be written (or in some cases
+                // read) because of concurrent activity by some other database connection, usually a database
+                // connection in a separate process.
+                case (int)SQLiteErrorCode.Busy:
+
+                // https://www.sqlite.org/rescode.html#nomem
+                // The SQLITE_NOMEM result code indicates that SQLite was unable to allocate all the memory it needed
+                // to complete the operation. In other words, an internal call to sqlite3_malloc() or sqlite3_realloc()
+                // has failed in a case where the memory being allocated was required in order to continue the operation.
+                case (int)SQLiteErrorCode.NoMem:
+                    return Retry.YesAfter(_configuration.TransientRetryDelay.PickDelay());
+
+                default:
+                    return Retry.No;
+            }
         }
     }
 }

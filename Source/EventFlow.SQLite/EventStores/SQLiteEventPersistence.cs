@@ -145,7 +145,7 @@ namespace EventFlow.SQLite.EventStores
             }
             catch (SQLiteException e)
             {
-                if (e.ErrorCode == 19)
+                if (e.ErrorCode == (int) SQLiteErrorCode.Constraint)
                 {
                     throw new OptimisticConcurrencyException(e.ToString(), e);
                 }
