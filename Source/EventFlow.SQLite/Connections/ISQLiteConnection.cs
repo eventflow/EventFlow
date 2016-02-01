@@ -24,7 +24,7 @@
 
 using EventFlow.Sql.Connections;
 
-namespace EventFlow.EventStores.SQLite
+namespace EventFlow.SQLite.Connections
 {
     public interface ISQLiteConnection : ISqlConnection
     {

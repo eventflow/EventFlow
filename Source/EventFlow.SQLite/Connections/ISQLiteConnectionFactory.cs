@@ -24,12 +24,9 @@
 
 using EventFlow.Sql.Connections;
 
-namespace EventFlow.EventStores.SQLite
+namespace EventFlow.SQLite.Connections
 {
-    public class SQLiteConfiguration : SqlConfiguration<ISQLiteConfiguration>, ISQLiteConfiguration
+    public interface ISQLiteConnectionFactory : ISqlConnectionFactory
     {
-        public static SQLiteConfiguration New => new SQLiteConfiguration();
-
-        private SQLiteConfiguration() { }
     }
 }

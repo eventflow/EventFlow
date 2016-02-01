@@ -7,8 +7,8 @@
     <ProjectGuid>{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.EventStores.SQLite.Tests</RootNamespace>
-    <AssemblyName>EventFlow.EventStores.SQLite.Tests</AssemblyName>
+    <RootNamespace>EventFlow.SQLite.Tests</RootNamespace>
+    <AssemblyName>EventFlow.SQLite.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -45,11 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IntegrationTests\SQLiteEventStoreTests.cs" />
+    <Compile Include="IntegrationTests\EventStores\SQLiteEventStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.EventStores.SQLite\EventFlow.EventStores.SQLite.csproj">
+    <ProjectReference Include="..\EventFlow.SQLite\EventFlow.SQLite.csproj">
       <Project>{cee8e914-b31c-4aaa-b520-cf72560d90fa}</Project>
       <Name>EventFlow.EventStores.SQLite</Name>
     </ProjectReference>

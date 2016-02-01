@@ -28,13 +28,14 @@ using System.IO;
 using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.EventStores.SQLite.Extensions;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
+using EventFlow.SQLite.Connections;
+using EventFlow.SQLite.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 
-namespace EventFlow.EventStores.SQLite.Tests.IntegrationTests
+namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
 {
     [Category(Categories.Integration)]
     public class SQLiteEventStoreTests : TestSuiteForEventStore

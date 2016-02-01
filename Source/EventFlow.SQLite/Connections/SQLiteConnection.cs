@@ -22,11 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using EventFlow.Core;
+using EventFlow.Logs;
 using EventFlow.Sql.Connections;
+using EventFlow.SQLite.RetryStrategies;
 
-namespace EventFlow.EventStores.SQLite.Connections
+namespace EventFlow.SQLite.Connections
 {
-    public interface ISQLiteConnectionFactory : ISqlConnectionFactory
+    public class SQLiteConnection : SqlConnection<ISQLiteConfiguration, ISQLiteErrorRetryStrategy, ISQLiteConnectionFactory>, ISQLiteConnection
     {
+        public SQLiteConnection(
+            ILog log,
+            ISQLiteConfiguration configuration,
+            ISQLiteConnectionFactory connectionFactory,
+            ITransientFaultHandler<ISQLiteErrorRetryStrategy> transientFaultHandler)
+            : base(log, configuration, connectionFactory, transientFaultHandler)
+        {
+        }
     }
 }

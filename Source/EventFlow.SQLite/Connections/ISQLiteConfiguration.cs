@@ -22,18 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using EventFlow.Core;
+using EventFlow.Sql.Connections;
 
-namespace EventFlow.EventStores.SQLite.RetryStrategies
+namespace EventFlow.SQLite.Connections
 {
-    public class SQLiteErrorRetryStrategy : ISQLiteErrorRetryStrategy
+    public interface ISQLiteConfiguration : ISqlConfiguration
     {
-        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
-        {
-            // TODO: Inspect exception and if its a SQLite transient error
-
-            return Retry.No;
-        }
     }
 }

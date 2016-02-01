@@ -7,8 +7,8 @@
     <ProjectGuid>{CEE8E914-B31C-4AAA-B520-CF72560D90FA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.EventStores.SQLite</RootNamespace>
-    <AssemblyName>EventFlow.EventStores.SQLite</AssemblyName>
+    <RootNamespace>EventFlow.SQLite</RootNamespace>
+    <AssemblyName>EventFlow.SQLite</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -49,14 +49,14 @@
     <Compile Include="Connections\ISQLiteConnectionFactory.cs" />
     <Compile Include="Connections\SQLiteConnectionFactory.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="ISQLiteConfiguration.cs" />
-    <Compile Include="ISQLiteConnection.cs" />
+    <Compile Include="Connections\ISQLiteConfiguration.cs" />
+    <Compile Include="Connections\ISQLiteConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RetryStrategies\ISQLiteErrorRetryStrategy.cs" />
     <Compile Include="RetryStrategies\SQLiteErrorRetryStrategy.cs" />
-    <Compile Include="SQLiteConfiguration.cs" />
-    <Compile Include="SQLiteConnection.cs" />
-    <Compile Include="SQLiteEventPersistence.cs" />
+    <Compile Include="Connections\SQLiteConfiguration.cs" />
+    <Compile Include="Connections\SQLiteConnection.cs" />
+    <Compile Include="EventStores\SQLiteEventPersistence.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
@@ -69,7 +69,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.EventStores.SQLite.nuspec" />
+    <None Include="EventFlow.SQLite.nuspec" />
     <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

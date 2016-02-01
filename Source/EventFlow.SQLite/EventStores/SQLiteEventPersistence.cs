@@ -30,10 +30,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
+using EventFlow.SQLite.Connections;
 
-namespace EventFlow.EventStores.SQLite
+namespace EventFlow.SQLite.EventStores
 {
     public class SQLiteEventPersistence : IEventPersistence
     {

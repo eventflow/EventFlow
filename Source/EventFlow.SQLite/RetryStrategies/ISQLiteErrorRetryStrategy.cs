@@ -22,19 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Core;
 
-namespace EventFlow.EventStores.SQLite.Connections
+namespace EventFlow.SQLite.RetryStrategies
 {
-    public class SQLiteConnectionFactory : ISQLiteConnectionFactory
+    public interface ISQLiteErrorRetryStrategy : IRetryStrategy
     {
-        public async Task<IDbConnection> OpenConnectionAsync(string connectionString, CancellationToken cancellationToken)
-        {
-            var sqLiteConnection = new System.Data.SQLite.SQLiteConnection(connectionString);
-            await sqLiteConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
-            return sqLiteConnection;
-        }
     }
 }
