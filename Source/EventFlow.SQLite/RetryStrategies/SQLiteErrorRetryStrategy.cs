@@ -60,12 +60,6 @@ namespace EventFlow.SQLite.RetryStrategies
                 // read) because of concurrent activity by some other database connection, usually a database
                 // connection in a separate process.
                 case SQLiteErrorCode.Busy:
-
-                // https://www.sqlite.org/rescode.html#nomem
-                // The SQLITE_NOMEM result code indicates that SQLite was unable to allocate all the memory it needed
-                // to complete the operation. In other words, an internal call to sqlite3_malloc() or sqlite3_realloc()
-                // has failed in a case where the memory being allocated was required in order to continue the operation.
-                case SQLiteErrorCode.NoMem:
                     return Retry.YesAfter(_configuration.TransientRetryDelay.PickDelay());
 
                 default:
