@@ -166,6 +166,23 @@ Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
             "Source/EventFlow.EventStores.MsSql/EventFlow.EventStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowSQLite" (fun _ ->
+    let binDir = "Source/EventFlow.SQLite/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.SQLite.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.SQLite"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "EventFlow.Sql",  nugetVersionDep
+                "System.Data.SQLite.Core",  GetPackageVersion "./packages/" "System.Data.SQLite.Core"]
+            Publish = false })
+            "Source/EventFlow.SQLite/EventFlow.SQLite.nuspec"
+    )
+
 Target "CreatePackageEventFlowEventStoresEventStore" (fun _ ->
     let binDir = "Source/EventFlow.EventStores.EventStore/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.EventStores.EventStore.dll")
@@ -245,6 +262,7 @@ Target "Default" DoNothing
     ==> "CreatePackageEventFlowHangfire"
     ==> "CreatePackageEventFlowSql"
     ==> "CreatePackageEventFlowMsSql"
+    ==> "CreatePackageEventFlowSQLite"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresElasticsearch"

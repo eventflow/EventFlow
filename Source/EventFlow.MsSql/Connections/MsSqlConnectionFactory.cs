@@ -22,39 +22,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
 
-namespace EventFlow.Sql.Connections
+namespace EventFlow.MsSql.Connections
 {
-    public interface ISqlConnection
+    public class MsSqlConnectionFactory : IMsSqlConnectionFactory
     {
-        Task<int> ExecuteAsync(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>
-            (Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows)
-            where TRow : class, new();
-
-        Task<TResult> WithConnectionAsync<TResult>(
-            Label label,
-            Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
-            CancellationToken cancellationToken);
+        public async Task<IDbConnection> OpenConnectionAsync(string connectionString, CancellationToken cancellationToken)
+        {
+            var sqlConnection = new SqlConnection(connectionString);
+            await sqlConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            return sqlConnection;
+        }
     }
 }

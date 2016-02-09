@@ -22,10 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using EventFlow.Core;
+
 namespace EventFlow.Sql.Connections
 {
-    public interface ISqlConfiguration
+    public interface ISqlConfiguration<out T>
+        where T : ISqlConfiguration<T>
     {
+        RetryDelay TransientRetryDelay { get; }
         string ConnectionString { get; }
+
+        T SetTransientRetryDelay(RetryDelay retryDelay);
     }
 }

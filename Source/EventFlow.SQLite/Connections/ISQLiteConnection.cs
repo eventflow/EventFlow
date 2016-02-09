@@ -20,41 +20,13 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
+using EventFlow.Sql.Connections;
 
-namespace EventFlow.Sql.Connections
+namespace EventFlow.SQLite.Connections
 {
-    public interface ISqlConnection
+    public interface ISQLiteConnection : ISqlConnection
     {
-        Task<int> ExecuteAsync(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>
-            (Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows)
-            where TRow : class, new();
-
-        Task<TResult> WithConnectionAsync<TResult>(
-            Label label,
-            Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
-            CancellationToken cancellationToken);
     }
 }

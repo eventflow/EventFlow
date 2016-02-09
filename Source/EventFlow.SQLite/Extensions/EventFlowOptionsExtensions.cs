@@ -20,41 +20,37 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
+using EventFlow.Configuration;
+using EventFlow.Extensions;
+using EventFlow.SQLite.Connections;
+using EventFlow.SQLite.EventStores;
+using EventFlow.SQLite.RetryStrategies;
 
-namespace EventFlow.Sql.Connections
+namespace EventFlow.SQLite.Extensions
 {
-    public interface ISqlConnection
+    public static class EventFlowOptionsExtensions
     {
-        Task<int> ExecuteAsync(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>
-            (Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            object param = null);
-        
-        Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows)
-            where TRow : class, new();
+        public static IEventFlowOptions ConfigureSQLite(
+            this IEventFlowOptions eventFlowOptions,
+            ISQLiteConfiguration sqLiteConfiguration)
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                {
+                    f.Register<ISQLiteConnection, SQLiteConnection>();
+                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
+                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
+                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
+                });
+        }
 
-        Task<TResult> WithConnectionAsync<TResult>(
-            Label label,
-            Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
-            CancellationToken cancellationToken);
+        public static IEventFlowOptions UseSQLiteEventStore(
+            this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .UseEventStore<SQLiteEventPersistence>();
+        }
     }
 }
