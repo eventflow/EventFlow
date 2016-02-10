@@ -42,6 +42,7 @@ namespace EventFlow.Autofac.Registrations
         }
 
         public T Resolve<T>()
+            where T : class
         {
             return _componentContext.Resolve<T>();
         }

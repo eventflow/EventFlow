@@ -23,18 +23,28 @@
 // 
 
 using System;
+using TinyIoC;
 
 namespace EventFlow.Configuration.Registrations
 {
-    public class TinyIoCServiceRegistration : IServiceRegistration
+    internal class TinyIoCServiceRegistration : IServiceRegistration
     {
+        private readonly TinyIoCContainer _container = new TinyIoCContainer();
+
+        public TinyIoCServiceRegistration()
+        {
+            _container.Register<IResolver>((c, p) => new TinyIoCResolver(c));
+        }
+
         public void Register<TService, TImplementation>(
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false)
             where TService : class
             where TImplementation : class, TService
         {
-            throw new NotImplementedException();
+            // TODO: Keep default
+
+            SetLifetime(_container.Register<TService, TImplementation>(), lifetime);
         }
 
         public void Register<TService>(
@@ -43,7 +53,10 @@ namespace EventFlow.Configuration.Registrations
             bool keepDefault = false)
             where TService : class
         {
-            throw new NotImplementedException();
+            // TODO: Keep default
+            // TODO: Lifetime
+
+            _container.Register((c, p) => factory(new ResolverContext(new TinyIoCResolver(c))));
         }
 
         public void Register(
@@ -52,7 +65,9 @@ namespace EventFlow.Configuration.Registrations
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false)
         {
-            throw new NotImplementedException();
+            // TODO: Keep default
+
+            SetLifetime(_container.Register(serviceType, implementationType), lifetime);
         }
 
         public void RegisterType(
@@ -60,7 +75,9 @@ namespace EventFlow.Configuration.Registrations
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false)
         {
-            throw new NotImplementedException();
+            // TODO: Keep default
+
+            SetLifetime(_container.Register(serviceType), lifetime);
         }
 
         public void RegisterGeneric(
@@ -69,7 +86,9 @@ namespace EventFlow.Configuration.Registrations
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false)
         {
-            throw new NotImplementedException();
+            // TODO: Keep default
+
+            SetLifetime(_container.Register(serviceType, implementationType), lifetime);
         }
 
         public void RegisterIfNotRegistered<TService, TImplementation>(
@@ -77,17 +96,39 @@ namespace EventFlow.Configuration.Registrations
             where TService : class
             where TImplementation : class, TService
         {
-            throw new NotImplementedException();
+            if (_container.CanResolve<TService>())
+            {
+                return;
+            }
+
+            SetLifetime(_container.Register<TService, TImplementation>(), lifetime);
         }
 
         public void Decorate<TService>(Func<IResolverContext, TService, TService> factory)
         {
-            throw new NotImplementedException();
+            // TODO: Create this...
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            throw new NotImplementedException();
+            return new TinyIoCResolver(_container);
+        }
+
+        private static TinyIoCContainer.RegisterOptions SetLifetime(TinyIoCContainer.RegisterOptions registerOptions, Lifetime lifetime)
+        {
+            switch (lifetime)
+            {
+                case Lifetime.AlwaysUnique:
+                    registerOptions = registerOptions.AsMultiInstance();
+                    break;
+                case Lifetime.Singleton:
+                    registerOptions = registerOptions.AsSingleton();
+                    break;
+                default:
+                    throw new NotImplementedException($"Type '{lifetime}' not handled");
+            }
+
+            return registerOptions;
         }
     }
 }

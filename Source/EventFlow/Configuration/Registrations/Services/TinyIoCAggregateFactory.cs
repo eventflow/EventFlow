@@ -28,7 +28,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Configuration.Registrations.Services
 {
-    public class TinyIoCAggregateFactory : IAggregateFactory
+    internal class TinyIoCAggregateFactory : IAggregateFactory
     {
         public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(
             TIdentity id)

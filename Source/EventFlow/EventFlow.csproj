@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Registrations\Services\TinyIoCAggregateFactory.cs" />
+    <Compile Include="Configuration\Registrations\TinyIoCResolver.cs" />
     <Compile Include="Configuration\Registrations\TinyIoCServiceRegistration.cs" />
     <Compile Include="TinyIoC.cs">
       <Paket>True</Paket>

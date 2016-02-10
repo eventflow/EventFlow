@@ -21,23 +21,58 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Collections.Generic;
+using TinyIoC;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Registrations
 {
-    public interface IResolver
+    internal class TinyIoCResolver : IRootResolver
     {
-        T Resolve<T>()
-            where T : class;
+        private readonly TinyIoCContainer _container;
 
-        object Resolve(Type serviceType);
+        public TinyIoCResolver(
+            TinyIoCContainer container)
+        {
+            _container = container;
+        }
 
-        IEnumerable<object> ResolveAll(Type serviceType);
+        public T Resolve<T>()
+            where T : class
+        {
+            return _container.Resolve<T>();
+        }
 
-        IEnumerable<Type> GetRegisteredServices();
+        public object Resolve(Type serviceType)
+        {
+            return _container.Resolve(serviceType);
+        }
 
-        bool HasRegistrationFor<T>()
-            where T : class;
+        public IEnumerable<object> ResolveAll(Type serviceType)
+        {
+            return _container.ResolveAll(serviceType);
+        }
+
+        public IEnumerable<Type> GetRegisteredServices()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasRegistrationFor<T>()
+            where T : class
+        {
+            return _container.CanResolve<T>();
+        }
+
+        public void Dispose()
+        {
+            _container.Dispose();
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new TinyIoCResolver(_container.GetChildContainer());
+        }
     }
 }
