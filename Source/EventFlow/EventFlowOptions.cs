@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
@@ -48,11 +49,11 @@ namespace EventFlow
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory;
 
         private EventFlowOptions()
         {
-            UseServiceRegistration(new AutofacServiceRegistration());
+            UseServiceRegistration(new TinyIoCServiceRegistration());
 
             ModuleRegistration = new ModuleRegistration(this);
             ModuleRegistration.Register<ProvidedJobsModule>();

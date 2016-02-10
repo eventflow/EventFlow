@@ -50,11 +50,8 @@ Target "UnitTest" (fun _ ->
     )
 
 Target "CreatePackageEventFlow" (fun _ ->
-    let binDir = "Source\\EventFlow\\bin\\" + buildMode + "\\"
-    let result = ExecProcess (fun info ->
-       info.Arguments <- "/targetplatform:v4 /internalize /allowDup /target:library /out:Source\\EventFlow\\bin\\EventFlow.dll " + binDir + "EventFlow.dll " + binDir + "Autofac.dll"
-       info.FileName <- toolIlMerge) (TimeSpan.FromMinutes 5.0)
-    if result <> 0 then failwithf "ILMerge of EventFlow returned with a non-zero exit code"
+    let binDir = "Source/EventFlow/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.dll")
     NuGet (fun p -> 
         {p with
             OutputPath = dirPackages

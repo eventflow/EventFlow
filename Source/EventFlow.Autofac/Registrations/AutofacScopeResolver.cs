@@ -20,41 +20,31 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using EventFlow.Aggregates;
+using Autofac;
 using EventFlow.Configuration;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Autofac.Registrations
 {
-    public static class ResolverExtensions
+    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        public static void ValidateRegistrations(
-            this IResolver resolver)
+        private readonly ILifetimeScope _lifetimeScope;
+
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
         {
-            var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices().Where(t => !t.IsAbstract || t.GetGenericTypeDefinition() != typeof(IAggregateRoot<>)))
-            {
-                try
-                {
-                    resolver.Resolve(type);
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
-                }
-            }
+            _lifetimeScope = lifetimeScope;
+        }
 
-            if (!exceptions.Any())
-            {
-                return;
-            }
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
 
-            var message = string.Join(", ", exceptions.Select(e => e.Message));
-            throw new AggregateException(message, exceptions);
+        public virtual void Dispose()
+        {
+            _lifetimeScope.Dispose();
         }
     }
 }

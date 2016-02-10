@@ -20,29 +20,22 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using Autofac;
+//
 
-namespace EventFlow.Configuration.Registrations
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
+
+namespace EventFlow.Configuration.Registrations.Services
 {
-    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
+    public class TinyIoCAggregateFactory : IAggregateFactory
     {
-        private readonly ILifetimeScope _lifetimeScope;
-
-        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
-            : base(lifetimeScope)
+        public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            _lifetimeScope = lifetimeScope;
-        }
-
-        public IScopeResolver BeginScope()
-        {
-            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
-        }
-
-        public virtual void Dispose()
-        {
-            _lifetimeScope.Dispose();
+            throw new System.NotImplementedException();
         }
     }
 }

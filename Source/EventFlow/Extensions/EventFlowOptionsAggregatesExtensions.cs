@@ -20,12 +20,12 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations.Services;
 
@@ -36,7 +36,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseResolverAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>());
+            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, TinyIoCAggregateFactory>());
         }
 
         public static IEventFlowOptions AddAggregateRoots(
@@ -48,7 +48,7 @@ namespace EventFlow.Extensions
             var aggregateRootTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.IsAbstract)
-                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() ==  typeof(IAggregateRoot<>))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
         }
@@ -67,7 +67,7 @@ namespace EventFlow.Extensions
             var aggregateRootTypeList = aggregateRootTypes.ToList();
 
             var invalidTypes = aggregateRootTypeList
-                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => t.IsAbstract || t.GetGenericTypeDefinition() != typeof(IAggregateRoot<>))
                 .ToList();
             if (invalidTypes.Any())
             {

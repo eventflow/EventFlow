@@ -22,39 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using EventFlow.Autofac.Registrations;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Autofac.Tests.UnitTests.Registrations
 {
-    public static class ResolverExtensions
+    [Category(Categories.Unit)]
+    public class AutofacServiceRegistrationTests : TestSuiteForServiceRegistration<AutofacServiceRegistration>
     {
-        public static void ValidateRegistrations(
-            this IResolver resolver)
-        {
-            var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices().Where(t => !t.IsAbstract || t.GetGenericTypeDefinition() != typeof(IAggregateRoot<>)))
-            {
-                try
-                {
-                    resolver.Resolve(type);
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
-                }
-            }
-
-            if (!exceptions.Any())
-            {
-                return;
-            }
-
-            var message = string.Join(", ", exceptions.Select(e => e.Message));
-            throw new AggregateException(message, exceptions);
-        }
     }
 }

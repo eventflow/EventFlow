@@ -24,9 +24,9 @@
 using System;
 using Autofac;
 using EventFlow.Aggregates;
+using EventFlow.Autofac.Registrations;
+using EventFlow.Autofac.Registrations.Services;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Configuration.Registrations.Services;
 
 namespace EventFlow.Autofac.Extensions
 {
