@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IntegrationTests\EventStores\SQLiteEventStoreTests.cs" />
+    <Compile Include="IntegrationTests\ReadStores\SQLiteReadStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
