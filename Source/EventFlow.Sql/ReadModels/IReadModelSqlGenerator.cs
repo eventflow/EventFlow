@@ -22,13 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using EventFlow.Sql.ReadModels;
+using EventFlow.ReadStores;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.Sql.ReadModels
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
+    public interface IReadModelSqlGenerator
     {
+        string CreateInsertSql<TReadModel>()
+            where TReadModel : IReadModel;
+
+        string CreateSelectSql<TReadModel>()
+            where TReadModel : IReadModel;
+
+        string CreateUpdateSql<TReadModel>()
+            where TReadModel : IReadModel;
+
+        string CreatePurgeSql<TReadModel>()
+            where TReadModel : IReadModel;
     }
 }

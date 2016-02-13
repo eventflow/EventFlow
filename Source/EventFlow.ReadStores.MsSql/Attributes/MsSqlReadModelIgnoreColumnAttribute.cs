@@ -23,11 +23,12 @@
 // 
 
 using System;
+using EventFlow.Sql.ReadModels;
 
 namespace EventFlow.ReadStores.MsSql.Attributes
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIgnoreColumnAttribute : Attribute
+    public class MsSqlReadModelIgnoreColumnAttribute : SqlReadModelIgnoreColumnAttribute
     {
     }
 }

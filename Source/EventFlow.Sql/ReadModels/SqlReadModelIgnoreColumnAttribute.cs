@@ -21,20 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-namespace EventFlow.ReadStores.MsSql
+
+using System;
+
+namespace EventFlow.Sql.ReadModels
 {
-    public interface IReadModelSqlGenerator
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class SqlReadModelIgnoreColumnAttribute : Attribute
     {
-        string CreateInsertSql<TReadModel>()
-            where TReadModel : IReadModel;
-
-        string CreateSelectSql<TReadModel>()
-            where TReadModel : IReadModel;
-
-        string CreateUpdateSql<TReadModel>()
-            where TReadModel : IReadModel;
-
-        string CreatePurgeSql<TReadModel>()
-            where TReadModel : IReadModel;
     }
 }

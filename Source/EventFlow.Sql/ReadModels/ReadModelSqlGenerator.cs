@@ -29,9 +29,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Extensions;
-using EventFlow.ReadStores.MsSql.Attributes;
+using EventFlow.ReadStores;
 
-namespace EventFlow.ReadStores.MsSql
+namespace EventFlow.Sql.ReadModels
 {
     public class ReadModelSqlGenerator : IReadModelSqlGenerator
     {
@@ -151,7 +151,7 @@ namespace EventFlow.ReadStores.MsSql
                 typeof (TReadModel),
                 t =>
                 {
-                    var propertyInfo = GetPropertyInfos(t).SingleOrDefault(pi => pi.GetCustomAttribute<MsSqlReadModelIdentityColumnAttribute>() != null);
+                    var propertyInfo = GetPropertyInfos(t).SingleOrDefault(pi => pi.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute));
                     return propertyInfo?.Name ?? "AggregateId";
                 });
         }
@@ -164,7 +164,7 @@ namespace EventFlow.ReadStores.MsSql
                 {
                     return t
                         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                        .Where(p => p.GetCustomAttribute<MsSqlReadModelIgnoreColumnAttribute>() == null)
+                        .Where(p => !p.GetCustomAttributes().Any(a => a is SqlReadModelIgnoreColumnAttribute))
                         .OrderBy(p => p.Name)
                         .ToList();
                 });
