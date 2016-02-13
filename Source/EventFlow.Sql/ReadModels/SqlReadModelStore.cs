@@ -34,6 +34,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.Sql.Connections;
+using EventFlow.Sql.ReadModels.Attributes;
 
 namespace EventFlow.Sql.ReadModels
 {

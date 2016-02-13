@@ -26,6 +26,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
+using EventFlow.Sql.ReadModels.Attributes;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;

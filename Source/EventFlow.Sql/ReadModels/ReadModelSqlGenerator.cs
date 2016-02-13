@@ -30,6 +30,7 @@ using System.Linq;
 using System.Reflection;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
+using EventFlow.Sql.ReadModels.Attributes;
 
 namespace EventFlow.Sql.ReadModels
 {

@@ -24,7 +24,7 @@
 
 using System;
 
-namespace EventFlow.Sql.ReadModels
+namespace EventFlow.Sql.ReadModels.Attributes
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class SqlReadModelIgnoreColumnAttribute : Attribute

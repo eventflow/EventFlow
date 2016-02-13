@@ -24,6 +24,7 @@
 
 using System;
 using EventFlow.Sql.ReadModels;
+using EventFlow.Sql.ReadModels.Attributes;
 
 namespace EventFlow.ReadStores.MsSql.Attributes
 {

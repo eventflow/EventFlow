@@ -60,9 +60,9 @@
     <Compile Include="ReadModels\IReadModelSqlGenerator.cs" />
     <Compile Include="ReadModels\SqlReadModelStore.cs" />
     <Compile Include="ReadModels\ReadModelSqlGenerator.cs" />
-    <Compile Include="ReadModels\SqlReadModelIdentityColumnAttribute.cs" />
-    <Compile Include="ReadModels\SqlReadModelIgnoreColumnAttribute.cs" />
-    <Compile Include="ReadModels\SqlReadModelVersionColumnAttribute.cs" />
+    <Compile Include="ReadModels\Attributes\SqlReadModelIdentityColumnAttribute.cs" />
+    <Compile Include="ReadModels\Attributes\SqlReadModelIgnoreColumnAttribute.cs" />
+    <Compile Include="ReadModels\Attributes\SqlReadModelVersionColumnAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EventFlow.Sql.nuspec" />
@@ -76,6 +76,7 @@
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
