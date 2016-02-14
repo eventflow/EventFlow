@@ -23,7 +23,6 @@
 // 
 
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using EventFlow.Configuration;
@@ -34,10 +33,11 @@ using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
 namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
 {
-    [Category(Categories.Integration)]
+    [System.ComponentModel.Category(Categories.Integration)]
     public class SQLiteEventStoreTests : TestSuiteForEventStore
     {
         private string _databasePath;
@@ -77,7 +77,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
             return resolver;
         }
 
-        //[TearDown]
+        [TearDown]
         public void TearDown()
         {
             if (!string.IsNullOrEmpty(_databasePath) &&

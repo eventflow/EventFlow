@@ -46,6 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IntegrationTests\EventStores\SQLiteEventStoreTests.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\SQLiteThingyGetMessagesQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\SQLiteThingyGetQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\QueryHandlers\SQLiteThingyGetVersionQueryHandler.cs" />
+    <Compile Include="IntegrationTests\ReadStores\ReadModels\SQLiteThingyMessageReadModel.cs" />
+    <Compile Include="IntegrationTests\ReadStores\ReadModels\SQliteThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\SQLiteReadStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

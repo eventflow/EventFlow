@@ -22,9 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
+using EventFlow.SQLite.Connections;
+using EventFlow.SQLite.Extensions;
+using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.QueryHandlers;
+using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
@@ -33,19 +42,46 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
     [Category(Categories.Integration)]
     public class SQLiteReadStoreTests : TestSuiteForReadModelStore
     {
+        private string _databasePath;
+
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            throw new System.NotImplementedException();
+            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
+
+            using (File.Create(_databasePath)) { }
+
+            var resolver = eventFlowOptions
+                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
+                .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
+                .UseSQLiteReadModel<SQLiteThingyReadModel>()
+                .UseSQLiteReadModel<SQLiteThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(
+                    typeof(SQLiteThingyGetQueryHandler),
+                    typeof(SQLiteThingyGetVersionQueryHandler),
+                    typeof(SQLiteThingyGetMessagesQueryHandler))
+                .CreateResolver();
+
+            return resolver;
         }
 
         protected override Task PurgeTestAggregateReadModelAsync()
         {
-            throw new System.NotImplementedException();
+            return ReadModelPopulator.PurgeAsync<SQLiteThingyReadModel>(CancellationToken.None);
         }
 
         protected override Task PopulateTestAggregateReadModelAsync()
         {
-            throw new System.NotImplementedException();
+            return ReadModelPopulator.PopulateAsync<SQLiteThingyReadModel>(CancellationToken.None);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (!string.IsNullOrEmpty(_databasePath) &&
+                File.Exists(_databasePath))
+            {
+                File.Delete(_databasePath);
+            }
         }
     }
 }
