@@ -40,6 +40,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventFlowTests.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
+    <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />

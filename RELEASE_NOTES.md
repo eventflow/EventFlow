@@ -1,4 +1,22 @@
-### New in 0.24 (not released yet)
+### New in 0.25 (not released yet)
+
+* Fixed: Deadlock in `AsyncHelper` if e.g. an exception caused no `async` tasks
+  to be scheduled. The `AsyncHelper` is used by EventFlow to expose non-`async`
+  methods to developers and provide the means to call `async` methods from
+  a synchronous context without causing a deadlock. There's no change to any of
+  the `async` methods.
+
+  The `AsyncHelper` is used in the following methods.
+  - `ICommandBus.Publish`
+  - `IEventStore.LoadEvents`
+  - `IEventStore.LoadAggregate`
+  - `IEventStore.LoadAllEvents`
+  - `IJobRunner.Execute`
+  - `IReadModelPopulator.Populate`
+  - `IReadModelPopulator.Purge`
+  - `IQueryProcessor.Process`
+
+### New in 0.24.1563 (released 2016-01-17)
 
  * Breaking: The following NuGet references have been updated
    - `EventStore.Client` v3.4.0 (up from v3.0.2)
