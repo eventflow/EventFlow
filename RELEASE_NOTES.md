@@ -1,4 +1,4 @@
-### New in 0.25 (not released yet)
+### New in 0.26 (not released yet)
 
  * Breaking: Renamed `MssqlMigrationException` to `SqlMigrationException`
  * Breaking: Renamed `SqlErrorRetryStrategy` to `MsSqlErrorRetryStrategy`
@@ -13,6 +13,24 @@
  * New: Its now possible to configure the retry delay for MSSQL transient
    errors using the new `IMsSqlConfiguration.SetTransientRetryDelay`. The
    default is a random delay between 50 and 100 milliseconds
+
+### New in 0.25.1695 (released 2016-02-15)
+
+* Fixed: Deadlock in `AsyncHelper` if e.g. an exception caused no `async` tasks
+  to be scheduled. The `AsyncHelper` is used by EventFlow to expose non-`async`
+  methods to developers and provide the means to call `async` methods from
+  a synchronous context without causing a deadlock. There's no change to any of
+  the `async` methods.
+
+  The `AsyncHelper` is used in the following methods.
+  - `ICommandBus.Publish`
+  - `IEventStore.LoadEvents`
+  - `IEventStore.LoadAggregate`
+  - `IEventStore.LoadAllEvents`
+  - `IJobRunner.Execute`
+  - `IReadModelPopulator.Populate`
+  - `IReadModelPopulator.Purge`
+  - `IQueryProcessor.Process`
 
 ### New in 0.24.1563 (released 2016-01-17)
 
