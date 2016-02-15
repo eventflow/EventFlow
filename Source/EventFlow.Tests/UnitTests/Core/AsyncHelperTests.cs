@@ -150,7 +150,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var result = PotentialDeadlockAsync("deadlock").Result;
 
             // Assert
-            // Will be thrown
+            // Will NOT be thrown
             throw new Exception(result);
         }
 
@@ -165,7 +165,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var result = PotentialDeadlockAsync("deadlock").GetAwaiter().GetResult();
 
             // Assert
-            // Will be thrown
+            // Will NOT be thrown
             throw new Exception(result);
         }
 
