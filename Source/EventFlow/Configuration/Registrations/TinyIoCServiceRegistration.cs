@@ -23,6 +23,11 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
 using TinyIoC;
 
 namespace EventFlow.Configuration.Registrations
@@ -111,7 +116,39 @@ namespace EventFlow.Configuration.Registrations
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
+            var bootstraps = GetBootstraps(_container);
+
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(BootAsync(bootstraps, CancellationToken.None));
+            }
+
             return new TinyIoCResolver(_container);
+        }
+
+        private static IEnumerable<IBootstrap> GetBootstraps(TinyIoCContainer tinyIoCContainer)
+        {
+            var list = tinyIoCContainer.ResolveAll<IBootstrap>()
+                .Select(b => new
+                {
+                    Bootstrap = b,
+                    AssemblyName = b.GetType().Assembly.GetName().Name,
+                })
+                .ToList();
+            var eventFlowBootstraps = list
+                .Where(a => a.AssemblyName.StartsWith("EventFlow"))
+                .OrderBy(a => a.AssemblyName)
+                .Select(a => a.Bootstrap);
+            var otherBootstraps = list
+                .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
+                .OrderBy(a => a.AssemblyName)
+                .Select(a => a.Bootstrap);
+            return eventFlowBootstraps.Concat(otherBootstraps).ToList();
+        }
+
+        private static Task BootAsync(IEnumerable<IBootstrap> bootstraps, CancellationToken cancellationToken)
+        {
+            return Task.WhenAll(bootstraps.Select(b => b.BootAsync(cancellationToken)));
         }
 
         private static TinyIoCContainer.RegisterOptions SetLifetime(TinyIoCContainer.RegisterOptions registerOptions, Lifetime lifetime)
