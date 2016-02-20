@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,8 +80,9 @@ namespace EventFlow.Aggregates
             var sagaHandes = saga as ISagaHandles<TAggregate, TIdentity, TAggregateEvent>;
             if (sagaHandes == null)
             {
-                throw new ArgumentException("");
+                throw new ArgumentException($"Saga '{saga.GetType().PrettyPrint()}' cannot process '{EventType.PrettyPrint()}'");
             }
+
             return sagaHandes.ProcessAsync(this, cancellationToken);
         }
 

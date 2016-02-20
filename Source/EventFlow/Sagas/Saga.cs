@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -59,11 +60,11 @@ namespace EventFlow.Sagas
 
         public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            foreach (var unpublishedCommand in _unpublishedCommands)
+            foreach (var unpublishedCommand in _unpublishedCommands.ToList())
             {
                 await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                _unpublishedCommands.Remove(unpublishedCommand);
             }
-            _unpublishedCommands.Clear();
         }
     }
 }

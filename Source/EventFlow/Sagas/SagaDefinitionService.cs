@@ -20,42 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.EventStores;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
-    public class SagaTypeDetails
-    {
-        private readonly ISet<Type> _startedBy;
-        public Type SagaType { get; }
-        public Type SagaLocatorType { get; }
-        public Func<IEventStore, ISagaId, CancellationToken, Task<ISaga>> Loader { get; } 
-
-        public SagaTypeDetails(
-            Type sagaType,
-            Type sagaLocatorType,
-            IEnumerable<Type> startedBy)
-        {
-            _startedBy = new HashSet<Type>(startedBy);
-
-            SagaType = sagaType;
-            SagaLocatorType = sagaLocatorType;
-
-            var methodInfo = sagaType.BaseType.GetMethods().Single(mi => mi.Name == "LoadSagaAsync");
-            Loader = (es, i, c) => ((Task<ISaga>) methodInfo.Invoke(null, new object[] { es, i, c }));
-        }
-
-        public bool IsStartedBy(Type aggregateEventType) { return _startedBy.Contains(aggregateEventType); }
-    }
-
     public class SagaDefinitionService : ISagaDefinitionService
     {
         private readonly ConcurrentDictionary<Type, List<SagaTypeDetails>> _sagaTypeDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaTypeDetails>>();
