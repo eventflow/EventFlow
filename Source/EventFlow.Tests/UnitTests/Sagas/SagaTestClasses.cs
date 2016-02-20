@@ -69,9 +69,9 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 return Task.FromResult(0);
             }
 
-            protected void Apply(SagaEventA e) { }
-            protected void Apply(SagaEventB e) { }
-            protected void Apply(SagaEventC e) { }
+            public void Apply(SagaEventA e) { }
+            public void Apply(SagaEventB e) { }
+            public void Apply(SagaEventC e) { }
         }
 
         public class SagaEventA : AggregateEvent<TestSaga, TestSagaId> { }
@@ -107,9 +107,9 @@ namespace EventFlow.Tests.UnitTests.Sagas
             public void B() { Emit(new SagaTestEventB()); }
             public void C() { Emit(new SagaTestEventC()); }
 
-            protected void Apply(SagaTestEventA e) { As++; }
-            protected void Apply(SagaTestEventB e) { Bs++; }
-            protected void Apply(SagaTestEventC e) { Cs++; }
+            public void Apply(SagaTestEventA e) { As++; }
+            public void Apply(SagaTestEventB e) { Bs++; }
+            public void Apply(SagaTestEventC e) { Cs++; }
         }
 
         public class SagaTestACommand : Command<SagaTestAggregate, SagaTestAggregateId>
