@@ -24,8 +24,11 @@
 
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
+using EventFlow.Sql.ReadModels;
 using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.EventStores;
+using EventFlow.SQLite.ReadStores;
 using EventFlow.SQLite.RetryStrategies;
 
 namespace EventFlow.SQLite.Extensions
@@ -51,6 +54,35 @@ namespace EventFlow.SQLite.Extensions
         {
             return eventFlowOptions
                 .UseEventStore<SQLiteEventPersistence>();
+        }
+
+        public static IEventFlowOptions UseSQLiteReadModel<TReadModel, TReadModelLocator>(
+            this IEventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
+            where TReadModelLocator : IReadModelLocator
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<ISQLiteReadModelStore<TReadModel>, SQLiteReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<ISQLiteReadModelStore<TReadModel>>());
+                    })
+                .UseReadStoreFor<ISQLiteReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+        }
+
+        public static IEventFlowOptions UseSQLiteReadModel<TReadModel>(
+            this IEventFlowOptions eventFlowOptions)
+            where TReadModel : class, IReadModel, new()
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<ISQLiteReadModelStore<TReadModel>, SQLiteReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<ISQLiteReadModelStore<TReadModel>>());
+                    })
+                .UseReadStoreFor<ISQLiteReadModelStore<TReadModel>, TReadModel>();
         }
     }
 }

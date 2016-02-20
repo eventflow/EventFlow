@@ -20,25 +20,28 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.MetadataProviders;
 using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.Extensions;
+using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.QueryHandlers;
+using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
-namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
+namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
 {
     [Category(Categories.Integration)]
-    public class SQLiteEventStoreTests : TestSuiteForEventStore
+    public class SQLiteReadStoreTests : TestSuiteForReadModelStore
     {
         private string _databasePath;
 
@@ -46,35 +49,50 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
 
-            using (File.Create(_databasePath)){ }
+            using (File.Create(_databasePath)) { }
 
             var resolver = eventFlowOptions
-                .AddMetadataProvider<AddGuidMetadataProvider>()
+                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
-                .UseSQLiteEventStore()
+                .UseSQLiteReadModel<SQLiteThingyReadModel>()
+                .UseSQLiteReadModel<SQLiteThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(
+                    typeof(SQLiteThingyGetQueryHandler),
+                    typeof(SQLiteThingyGetVersionQueryHandler),
+                    typeof(SQLiteThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
             var connection = resolver.Resolve<ISQLiteConnection>();
-            const string sqlCreateTable = @"
-                CREATE TABLE [EventFlow](
-	                [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
-	                [BatchId] [uniqueidentifier] NOT NULL,
-	                [AggregateId] [nvarchar](255) NOT NULL,
-	                [AggregateName] [nvarchar](255) NOT NULL,
-	                [Data] [nvarchar](1024) NOT NULL,
-	                [Metadata] [nvarchar](1024) NOT NULL,
-	                [AggregateSequenceNumber] [int] NOT NULL
+            const string sqlThingyAggregate = @"
+                CREATE TABLE [ReadModel-ThingyAggregate](
+	                [Id] [INTEGER] PRIMARY KEY ASC,
+                    [AggregateId] [nvarchar](64) NOT NULL,
+                    [Version] INTEGER,
+	                [PingsReceived] [int] NOT NULL,
+	                [DomainErrorAfterFirstReceived] [bit] NOT NULL
                 )";
-            const string sqlCreateIndex = @"
-                CREATE UNIQUE INDEX [IX_EventFlow_AggregateId_AggregateSequenceNumber] ON [EventFlow]
-                (
-	                [AggregateId] ASC,
-	                [AggregateSequenceNumber] ASC
+            const string sqlThingyMessage = @"
+                CREATE TABLE [ReadModel-ThingyMessage](
+	                [Id] [INTEGER] PRIMARY KEY ASC,
+	                [ThingyId] [nvarchar](64) NOT NULL,
+                    [Version] INTEGER,
+	                [MessageId] [nvarchar](64) NOT NULL,
+	                [Message] [nvarchar](512) NOT NULL
                 )";
-            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlCreateTable, null).Wait();
-            connection.ExecuteAsync(Label.Named("create-index"), CancellationToken.None, sqlCreateIndex, null).Wait();
+            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyAggregate, null).Wait();
+            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyMessage, null).Wait();
 
             return resolver;
+        }
+
+        protected override Task PurgeTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PurgeAsync<SQLiteThingyReadModel>(CancellationToken.None);
+        }
+
+        protected override Task PopulateTestAggregateReadModelAsync()
+        {
+            return ReadModelPopulator.PopulateAsync<SQLiteThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]

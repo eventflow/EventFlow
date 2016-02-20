@@ -22,14 +22,38 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using EventFlow.Sql.ReadModels;
+using System.ComponentModel.DataAnnotations.Schema;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels.Attributes;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
+    [Table("ReadModel-ThingyMessage")]
+    public class SQLiteThingyMessageReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
+        public string ThingyId { get; set; }
+
+        [SqlReadModelIdentityColumn]
+        public string MessageId { get; set; }
+
+        public string Message { get; set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
+        {
+            ThingyId = domainEvent.AggregateIdentity.Value;
+            Message = domainEvent.AggregateEvent.ThingyMessage.Message;
+        }
+
+        public ThingyMessage ToThingyMessage()
+        {
+            return new ThingyMessage(
+                ThingyMessageId.With(MessageId),
+                Message);
+        }
     }
 }

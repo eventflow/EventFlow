@@ -25,13 +25,13 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql;
-using EventFlow.ReadStores.MsSql.Attributes;
+using EventFlow.Sql.ReadModels;
+using EventFlow.Sql.ReadModels.Attributes;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
+namespace EventFlow.Sql.Tests.UnitTests.ReadModels
 {
     [Category(Categories.Unit)]
     public class ReadModelSqlGeneratorTests : TestsFor<ReadModelSqlGenerator>
@@ -78,12 +78,12 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadModels
 
         public class TestAttributesReadModel : IReadModel
         {
-            [MsSqlReadModelIdentityColumn]
+            [SqlReadModelIdentityColumn]
             public string Id { get; set; }
 
             public DateTimeOffset UpdatedTime { get; set; }
 
-            [MsSqlReadModelIgnoreColumn]
+            [SqlReadModelIgnoreColumn]
             public string Secret { get; set; }
         }
 
