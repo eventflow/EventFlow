@@ -49,6 +49,8 @@ namespace EventFlow.Sql.ReadModels
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
+        private static readonly Func<TReadModel, string> GetIdentity;
+        private static readonly Action<TReadModel, string> SetIdentity;
 
         static SqlReadModelStore()
         {
@@ -57,7 +59,6 @@ namespace EventFlow.Sql.ReadModels
 
             var versionPropertyInfo = propertyInfos
                 .SingleOrDefault(p => p.GetCustomAttributes().Any(a => a is SqlReadModelVersionColumnAttribute));
-
             if (versionPropertyInfo == null)
             {
                 GetVersion = rm => null as int?;
@@ -67,6 +68,19 @@ namespace EventFlow.Sql.ReadModels
             {
                 GetVersion = rm => (int?)versionPropertyInfo.GetValue(rm);
                 SetVersion = (rm, v) => versionPropertyInfo.SetValue(rm, v);
+            }
+
+            var identityPropertyInfo = propertyInfos
+                .SingleOrDefault(p => p.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute));
+            if (identityPropertyInfo == null)
+            {
+                GetIdentity = rm => null as string;
+                SetIdentity = (rm, i) => { };
+            }
+            else
+            {
+                GetIdentity = rm => (string)identityPropertyInfo.GetValue(rm);
+                SetIdentity = (rm, i) => identityPropertyInfo.SetValue(rm, i);
             }
         }
 
@@ -109,6 +123,7 @@ namespace EventFlow.Sql.ReadModels
                     .ConfigureAwait(false);
 
                 SetVersion(readModel, (int?) readModelEnvelope.Version);
+                SetIdentity(readModel, readModelEnvelope.ReadModelId);
 
                 var sql = isNew
                     ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()

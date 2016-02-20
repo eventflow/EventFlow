@@ -48,13 +48,11 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-            AggregateId = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
         }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
-            AggregateId = domainEvent.AggregateIdentity.Value;
             DomainErrorAfterFirstReceived = true;
         }
 

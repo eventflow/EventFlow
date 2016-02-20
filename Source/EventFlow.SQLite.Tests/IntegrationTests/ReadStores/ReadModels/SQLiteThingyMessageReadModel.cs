@@ -46,10 +46,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
         {
             ThingyId = domainEvent.AggregateIdentity.Value;
-
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            MessageId = thingyMessage.Id.Value;
-            Message = thingyMessage.Message;
+            Message = domainEvent.AggregateEvent.ThingyMessage.Message;
         }
 
         public ThingyMessage ToThingyMessage()
