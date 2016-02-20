@@ -20,12 +20,14 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.EventStores;
 using EventFlow.Jobs;
+using EventFlow.Sagas;
 
 namespace EventFlow.Configuration.Bootstraps
 {
@@ -34,18 +36,21 @@ namespace EventFlow.Configuration.Bootstraps
         private readonly ICommandDefinitionService _commandDefinitionService;
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IJobDefinitionService _jobDefinitionService;
+        private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ILoadedVersionedTypes _loadedVersionedTypes;
 
         public DefinitionServicesInitilizer(
             ILoadedVersionedTypes loadedVersionedTypes,
             IEventDefinitionService eventDefinitionService,
             ICommandDefinitionService commandDefinitionService,
-            IJobDefinitionService jobDefinitionService)
+            IJobDefinitionService jobDefinitionService,
+            ISagaDefinitionService sagaDefinitionService)
         {
             _loadedVersionedTypes = loadedVersionedTypes;
             _eventDefinitionService = eventDefinitionService;
             _commandDefinitionService = commandDefinitionService;
             _jobDefinitionService = jobDefinitionService;
+            _sagaDefinitionService = sagaDefinitionService;
         }
 
         public Task BootAsync(CancellationToken cancellationToken)
@@ -53,6 +58,7 @@ namespace EventFlow.Configuration.Bootstraps
             _commandDefinitionService.Load(_loadedVersionedTypes.Commands);
             _eventDefinitionService.Load(_loadedVersionedTypes.Events);
             _jobDefinitionService.Load(_loadedVersionedTypes.Jobs);
+            _sagaDefinitionService.LoadSagas(_loadedVersionedTypes.Sagas);
 
             return Task.FromResult(0);
         }

@@ -198,7 +198,8 @@ namespace EventFlow
             serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
-                _aggregateEventTypes),
+                _aggregateEventTypes,
+                _sagaTypes),
                 Lifetime.Singleton);
         }
 
