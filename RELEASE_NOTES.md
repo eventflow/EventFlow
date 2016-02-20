@@ -7,7 +7,7 @@
    `EventFlow.MsSql` but is now listed as a NuGet dependency. The current
    version used by EventFlow is `v1.42`
  * New: Introduced the NuGet package `EventFlow.SQLite` that adds event store
-   support for SQLite databases
+   support for SQLite databases, both as event store and read model store
  * New: Introduced the NuGet package `EventFlow.Sql` as shared package for
    EventFlow packages that uses SQL
  * New: Its now possible to configure the retry delay for MSSQL transient
