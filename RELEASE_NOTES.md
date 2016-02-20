@@ -1,4 +1,8 @@
-### New in 0.26 (not released yet)
+### New in 0.27 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.26.1714 (released 2016-02-20)
 
  * Breaking: Renamed `MssqlMigrationException` to `SqlMigrationException`
  * Breaking: Renamed `SqlErrorRetryStrategy` to `MsSqlErrorRetryStrategy`

@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.26.{build}
+version: 0.27.{build}
 
 before_build:
   - cmd: netsh http add urlacl url=http://+:2113/ user=Everyone
