@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using EventFlow.Commands;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
@@ -32,6 +33,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Commands
 {
     [Timeout(10000)]
+    [Category(Categories.Unit)]
     public class DistinctCommandTests
     {
         public class MyDistinctCommand : DistinctCommand<ThingyAggregate, ThingyId>

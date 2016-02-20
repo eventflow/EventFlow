@@ -5,6 +5,7 @@
 *.suo
 *.user
 *.sln.docstates
+/.vs
 
 # Build results
 [Dd]ebug/
@@ -191,3 +192,6 @@ FakesAssemblies/
 
 # Paket
 /.paket/paket.exe
+
+# FAKE
+/.fake

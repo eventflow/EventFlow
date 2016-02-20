@@ -24,6 +24,7 @@ nuget NEST 1.7.1 framework: >= net451
 nuget Newtonsoft.Json 7.0.1 framework: >= net451
 nuget Owin 1.0 framework: >= net451
 nuget RabbitMQ.Client 3.6.0
+nuget System.Data.SQLite.Core 1.0.99
 
 group Build
 	redirects: off

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.Queries;
+using EventFlow.Sql;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
 

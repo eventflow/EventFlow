@@ -50,7 +50,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\MsSqlThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\MsSqlThingyReadModel.cs" />
-    <Compile Include="UnitTests\ReadModels\ReadModelSqlGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -62,12 +61,16 @@
       <Name>EventFlow.EventStores.MsSql</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj">
-      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
+      <Project>{a0c8e77f-db74-4035-b0de-9baddfca5ebe}</Project>
       <Name>EventFlow.MsSql</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.ReadStores.MsSql\EventFlow.ReadStores.MsSql.csproj">
       <Project>{cc886dd8-a471-4a08-822b-46f6dc5ae347}</Project>
       <Name>EventFlow.ReadStores.MsSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
+      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
+      <Name>EventFlow.Sql</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>

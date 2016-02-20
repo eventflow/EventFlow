@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -32,6 +33,7 @@ using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MsSql;
+using EventFlow.Sql;
 
 namespace EventFlow.EventStores.MsSql
 {

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015 Rasmus Mikkelsen
-// Copyright (c) 2015 eBay Software Foundation
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,22 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using EventFlow.Configuration;
+using EventFlow.MsSql.Connections;
 using EventFlow.MsSql.RetryStrategies;
 
 namespace EventFlow.MsSql.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static IEventFlowOptions ConfigureMsSql(this IEventFlowOptions eventFlowOptions, IMsSqlConfiguration msSqlConfiguration)
+        public static IEventFlowOptions ConfigureMsSql(
+            this IEventFlowOptions eventFlowOptions,
+            IMsSqlConfiguration msSqlConfiguration)
         {
-            return eventFlowOptions.RegisterServices(f =>
-                {
-                    f.Register<IMsSqlConnection, MsSqlConnection>();
-                    f.Register<ISqlErrorRetryStrategy, SqlErrorRetryStrategy>();
-                    f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
-                    f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
-                });
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
+                        f.Register<IMsSqlConnection, MsSqlConnection>();
+                        f.Register<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
+                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
+                        f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
+                    });
         }
     }
 }
