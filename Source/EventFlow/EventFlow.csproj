@@ -210,6 +210,8 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
+    <Compile Include="Sagas\ISagaProcessor.cs" />
+    <Compile Include="Sagas\SagaProcessor.cs" />
     <Compile Include="Sagas\SagaTypeDetails.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Specification.cs" />

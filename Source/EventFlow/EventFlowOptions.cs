@@ -190,6 +190,7 @@ namespace EventFlow
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaManager, SagaManager>();
+            serviceRegistration.RegisterGeneric(typeof(ISagaProcessor<,,,>), typeof(SagaProcessor<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             serviceRegistration.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);

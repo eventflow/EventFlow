@@ -23,11 +23,8 @@
 //
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Sagas;
 
 namespace EventFlow.Aggregates
 {
@@ -37,6 +34,7 @@ namespace EventFlow.Aggregates
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
         public Type AggregateType => typeof (TAggregate);
+        public Type IdentityType => typeof (TIdentity);
         public Type EventType => typeof (TAggregateEvent);
 
         public int AggregateSequenceNumber { get; }
@@ -73,17 +71,6 @@ namespace EventFlow.Aggregates
         public IAggregateEvent GetAggregateEvent()
         {
             return AggregateEvent;
-        }
-
-        public Task InvokeSagaAsync(ISaga saga, CancellationToken cancellationToken)
-        {
-            var sagaHandes = saga as ISagaHandles<TAggregate, TIdentity, TAggregateEvent>;
-            if (sagaHandes == null)
-            {
-                throw new ArgumentException($"Saga '{saga.GetType().PrettyPrint()}' cannot process '{EventType.PrettyPrint()}'");
-            }
-
-            return sagaHandes.ProcessAsync(this, cancellationToken);
         }
 
         public override string ToString()
