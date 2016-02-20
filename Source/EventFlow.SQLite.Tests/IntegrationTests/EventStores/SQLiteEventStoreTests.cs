@@ -37,7 +37,7 @@ using NUnit.Framework;
 
 namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
 {
-    [System.ComponentModel.Category(Categories.Integration)]
+    [Category(Categories.Integration)]
     public class SQLiteEventStoreTests : TestSuiteForEventStore
     {
         private string _databasePath;
