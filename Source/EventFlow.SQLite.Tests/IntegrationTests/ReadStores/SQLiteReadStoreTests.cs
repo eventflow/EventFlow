@@ -27,6 +27,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.Extensions;
@@ -60,6 +61,26 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
                     typeof(SQLiteThingyGetVersionQueryHandler),
                     typeof(SQLiteThingyGetMessagesQueryHandler))
                 .CreateResolver();
+
+            var connection = resolver.Resolve<ISQLiteConnection>();
+            const string sqlThingyAggregate = @"
+                CREATE TABLE [ReadModel-ThingyAggregate](
+	                [Id] [INTEGER] PRIMARY KEY ASC,
+                    [AggregateId] [nvarchar](64) NOT NULL,
+                    [Version] INTEGER,
+	                [PingsReceived] [int] NOT NULL,
+	                [DomainErrorAfterFirstReceived] [bit] NOT NULL
+                )";
+            const string sqlThingyMessage = @"
+                CREATE TABLE [ReadModel-ThingyMessage](
+	                [Id] [INTEGER] PRIMARY KEY ASC,
+	                [ThingyId] [nvarchar](64) NOT NULL,
+                    [Version] INTEGER,
+	                [MessageId] [nvarchar](64) NOT NULL,
+	                [Message] [nvarchar](512) NOT NULL
+                )";
+            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyAggregate, null).Wait();
+            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyMessage, null).Wait();
 
             return resolver;
         }
