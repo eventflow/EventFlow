@@ -224,6 +224,7 @@ category.
 
 * [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
 * [iconmonstr](http://iconmonstr.com/network-6-icon/): Free icons for EventFlow
+* [JC008](https://github.com/JC008): License for Navicat Essentials for SQLite
 
 ## License
 

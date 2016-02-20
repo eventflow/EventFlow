@@ -34,23 +34,27 @@ using EventFlow.Logs;
 
 namespace EventFlow.Sql.Connections
 {
-    public abstract class SqlConnection<TConfiguration, TRetryStrategy> : ISqlConnection
-        where TConfiguration : ISqlConfiguration
+    public abstract class SqlConnection<TConfiguration, TRetryStrategy, TConnectionFactory> : ISqlConnection
+        where TConfiguration : ISqlConfiguration<TConfiguration>
         where TRetryStrategy : IRetryStrategy
+        where TConnectionFactory : ISqlConnectionFactory
     {
-        protected ILog Log { get; }
-        protected TConfiguration Configuration { get; }
-        protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
-
         protected SqlConnection(
             ILog log,
             TConfiguration configuration,
+            TConnectionFactory connectionFactory,
             ITransientFaultHandler<TRetryStrategy> transientFaultHandler)
         {
+            ConnectionFactory = connectionFactory;
             Log = log;
             Configuration = configuration;
             TransientFaultHandler = transientFaultHandler;
         }
+
+        protected TConnectionFactory ConnectionFactory { get; }
+        protected ILog Log { get; }
+        protected TConfiguration Configuration { get; }
+        protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
 
         public virtual Task<int> ExecuteAsync(
             Label label,
@@ -61,10 +65,10 @@ namespace EventFlow.Sql.Connections
             return WithConnectionAsync(
                 label,
                 (c, ct) =>
-                    {
-                        var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
-                        return c.ExecuteAsync(commandDefinition);
-                    },
+                {
+                    var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
+                    return c.ExecuteAsync(commandDefinition);
+                },
                 cancellationToken);
         }
 
@@ -76,14 +80,14 @@ namespace EventFlow.Sql.Connections
         {
             return (
                 await WithConnectionAsync(
-                label,
-                (c, ct) =>
+                    label,
+                    (c, ct) =>
                     {
                         var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
                         return c.QueryAsync<TResult>(commandDefinition);
                     },
-                cancellationToken)
-                .ConfigureAwait(false))
+                    cancellationToken)
+                    .ConfigureAwait(false))
                 .ToList();
         }
 
@@ -98,7 +102,36 @@ namespace EventFlow.Sql.Connections
                 "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
                 sql);
 
-            return QueryAsync<TResult>(label, cancellationToken, sql, rows);
+            return WithConnectionAsync<IReadOnlyCollection<TResult>>(
+                label,
+                async (c, ct) =>
+                {
+                    using (var transaction = c.BeginTransaction())
+                    {
+                        try
+                        {
+                            var results = new List<TResult>();
+                            foreach (var row in rows)
+                            {
+                                var commandDefinition = new CommandDefinition(sql, row, cancellationToken: ct);
+                                var result = await c.QueryAsync<TResult>(commandDefinition).ConfigureAwait(false);
+                                results.Add(result.First());
+                            }
+                            transaction.Commit();
+                            return results;
+                        }
+                        catch (Exception e)
+                        {
+                            transaction.Rollback();
+                            Log.Debug(
+                                e,
+                                "Exceptions was thrown while inserting multiple rows within a transaction in '{0}'",
+                                label);
+                            throw;
+                        }
+                    }
+                },
+                cancellationToken);
         }
 
         public virtual Task<TResult> WithConnectionAsync<TResult>(
@@ -108,13 +141,12 @@ namespace EventFlow.Sql.Connections
         {
             return TransientFaultHandler.TryAsync(
                 async c =>
+                {
+                    using (var sqlConnection = await ConnectionFactory.OpenConnectionAsync(Configuration.ConnectionString, cancellationToken).ConfigureAwait(false))
                     {
-                        using (var sqlConnection = new System.Data.SqlClient.SqlConnection(Configuration.ConnectionString))
-                        {
-                            await sqlConnection.OpenAsync(c).ConfigureAwait(false);
-                            return await withConnection(sqlConnection, c).ConfigureAwait(false);
-                        }
-                    },
+                        return await withConnection(sqlConnection, c).ConfigureAwait(false);
+                    }
+                },
                 label,
                 cancellationToken);
         }

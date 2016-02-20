@@ -1,5 +1,9 @@
-﻿// Copyright 2013 Tom Jacques
-// https://github.com/tejacques/AsyncBridge
+﻿// The MIT License (MIT)
+// 
+// Copyright (c) 2013 Tom Jacques (https://github.com/tejacques/AsyncBridge)
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
+// https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -43,6 +47,7 @@ namespace EventFlow.Core
             private readonly ExclusiveSynchronizationContext _currentContext;
             private readonly SynchronizationContext _oldContext;
             private int _taskCount;
+            private bool _hasAsyncTasks;
 
             /// <summary>
             /// Constructs the AsyncBridge by capturing the current
@@ -64,6 +69,7 @@ namespace EventFlow.Core
             /// <param name="callback">Optional callback</param>
             public void Run(Task task, Action<Task> callback = null)
             {
+                _hasAsyncTasks = true;
                 _currentContext.Post(
                     async _ =>
                         {
@@ -139,7 +145,10 @@ namespace EventFlow.Core
             {
                 try
                 {
-                    _currentContext.BeginMessageLoop();
+                    if (_hasAsyncTasks)
+                    {
+                        _currentContext.BeginMessageLoop();
+                    }
                 }
                 finally
                 {

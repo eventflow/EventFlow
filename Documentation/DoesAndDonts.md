@@ -27,8 +27,8 @@ Here's an example of good clean event JSON produced from a create user event.
 #### Keep old event types
 Keep in mind, that you need to keep the event types in your code for as long as
 these events are in the event source, which in most cases are _forever_ as
-storage is cheap and information, i.e., your domain events, is expensive.
+storage is cheap and information, i.e., your domain events, are expensive.
 
-However, you should still clear your code, have a look at how you can
+However, you should still clean your code, have a look at how you can
 [upgrade and version your events](./EventUpgrade.md) for details on how
 EventFlow supports you in this.
