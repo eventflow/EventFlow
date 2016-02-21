@@ -23,13 +23,16 @@
 // 
 
 using System;
-using EventFlow.Sql.ReadModels;
-using EventFlow.Sql.ReadModels.Attributes;
+using EventFlow.ReadStores;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.MsSql.ReadStores
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelVersionColumnAttribute : SqlReadModelVersionColumnAttribute
+    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
+    public interface IMssqlReadModel : IReadModel
     {
+        string AggregateId { get; set; }
+        DateTimeOffset CreateTime { get; set; }
+        DateTimeOffset UpdatedTime { get; set; }
+        int LastAggregateSequenceNumber { get; set; }
     }
 }

@@ -28,7 +28,7 @@ using EventFlow.MsSql.RetryStrategies;
 
 namespace EventFlow.MsSql.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class EventFlowOptionsMsSqlExtensions
     {
         public static IEventFlowOptions ConfigureMsSql(
             this IEventFlowOptions eventFlowOptions,

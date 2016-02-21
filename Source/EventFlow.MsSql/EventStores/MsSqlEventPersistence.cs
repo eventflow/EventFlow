@@ -30,12 +30,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
-using EventFlow.MsSql;
-using EventFlow.Sql;
 
-namespace EventFlow.EventStores.MsSql
+namespace EventFlow.MsSql.EventStores
 {
     public class MsSqlEventPersistence : IEventPersistence
     {

@@ -21,10 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-namespace EventFlow.ReadStores.MsSql
+
+using System;
+using EventFlow.Extensions;
+
+namespace EventFlow.MsSql.ReadStores
 {
-    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
+    public abstract class MssqlReadModel : IMssqlReadModel
     {
+        public string AggregateId { get; set; }
+        public DateTimeOffset CreateTime { get; set; }
+        public DateTimeOffset UpdatedTime { get; set; }
+        public int LastAggregateSequenceNumber { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "Read model '{0}' for '{1} v{2}'",
+                GetType().PrettyPrint(),
+                AggregateId,
+                LastAggregateSequenceNumber);
+        }
     }
 }

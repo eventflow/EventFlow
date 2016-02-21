@@ -20,16 +20,18 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System;
-using EventFlow.Sql.ReadModels;
-using EventFlow.Sql.ReadModels.Attributes;
+using EventFlow.Extensions;
+using EventFlow.MsSql.EventStores;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.MsSql.Extensions
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
+    public static class EventFlowOptionsMsSqlEventStoreExtensions
     {
+        public static IEventFlowOptions UseMssqlEventStore(this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.UseEventStore<MsSqlEventPersistence>();
+        }
     }
 }

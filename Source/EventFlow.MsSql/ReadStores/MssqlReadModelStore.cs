@@ -32,13 +32,13 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
-using EventFlow.MsSql;
-using EventFlow.ReadStores.MsSql.Attributes;
+using EventFlow.MsSql.ReadStores.Attributes;
+using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
 
 #pragma warning disable 618
 
-namespace EventFlow.ReadStores.MsSql
+namespace EventFlow.MsSql.ReadStores
 {
     public class MssqlReadModelStore<TReadModel> :
         ReadModelStore<TReadModel>,
