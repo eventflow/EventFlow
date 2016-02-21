@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IntegrationTests\EventStores\MsSqlScriptsTests.cs" />
     <Compile Include="IntegrationTests\EventStores\MsSqlEventStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\MsSqlReadModelStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\MsSqlThingyGetMessagesQueryHandler.cs" />
