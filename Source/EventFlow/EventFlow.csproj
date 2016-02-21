@@ -64,6 +64,9 @@
     <Compile Include="Commands\ISerializedCommandPublisher.cs" />
     <Compile Include="Commands\SerializedCommandPublisher.cs" />
     <Compile Include="Configuration\Bootstraps\DefinitionServicesInitilizer.cs" />
+    <Compile Include="Configuration\DryIoc\AsyncExecutionFlowScopeContext.cs" />
+    <Compile Include="Configuration\DryIoc\Container.cs" />
+    <Compile Include="Configuration\DryIoc\FactoryCompiler.cs" />
     <Compile Include="Configuration\IBootstrap.cs" />
     <Compile Include="Configuration\ILoadedVersionedTypes.cs" />
     <Compile Include="Configuration\IModule.cs" />
@@ -72,6 +75,9 @@
     <Compile Include="Configuration\ModuleRegistration.cs" />
     <Compile Include="Configuration\Decorators\IDecoratorService.cs" />
     <Compile Include="Configuration\Decorators\DecoratorService.cs" />
+    <Compile Include="Configuration\Registrations\DryIocResolver.cs" />
+    <Compile Include="Configuration\Registrations\DryIocServiceRegistration.cs" />
+    <Compile Include="Configuration\Registrations\DryIocAggregateRootFactory.cs" />
     <Compile Include="Core\CircularBuffer.cs" />
     <Compile Include="Core\Identity.cs" />
     <Compile Include="Aggregates\AggregateRoot.cs" />
@@ -88,12 +94,7 @@
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Lifetime.cs" />
-    <Compile Include="Configuration\Registrations\Services\AutofacAggregateRootFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
-    <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
-    <Compile Include="Configuration\Registrations\AutofacResolver.cs" />
-    <Compile Include="Configuration\Registrations\AutofacRootResolver.cs" />
-    <Compile Include="Configuration\Registrations\AutofacScopeResolver.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Core\AsyncLock.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="Exceptions\NoCommandHandlersException.cs" />
     <Compile Include="Exceptions\OptimisticConcurrencyException.cs" />
     <Compile Include="Exceptions\UnknownJobException.cs" />
+    <Compile Include="Extensions\BootstrapExtensions.cs" />
     <Compile Include="Extensions\DateTimeOffsetExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DisposableExtensions.cs" />
@@ -261,6 +263,7 @@
     <None Include="EventFlow.nuspec" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

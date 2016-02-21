@@ -20,18 +20,18 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
+using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
-using EventFlow.Core;
 using EventFlow.Extensions;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Autofac.Registrations
 {
     internal class AutofacServiceRegistration : IServiceRegistration
     {
@@ -189,40 +189,12 @@ namespace EventFlow.Configuration.Registrations
             public AutofacStartable(
                 IEnumerable<IBootstrap> bootstraps)
             {
-                _bootstraps = OrderBootstraps(bootstraps);
+                _bootstraps = bootstraps.ToList();
             }
 
             public void Start()
             {
-                using (var a = AsyncHelper.Wait)
-                {
-                    a.Run(StartAsync(CancellationToken.None));
-                }
-            }
-
-            private Task StartAsync(CancellationToken cancellationToken)
-            {
-                return Task.WhenAll(_bootstraps.Select(b => b.BootAsync(cancellationToken)));
-            }
-
-            private static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
-            {
-                var list = bootstraps
-                    .Select(b => new
-                    {
-                        Bootstrap = b,
-                        AssemblyName = b.GetType().Assembly.GetName().Name,
-                    })
-                    .ToList();
-                var eventFlowBootstraps = list
-                    .Where(a => a.AssemblyName.StartsWith("EventFlow"))
-                    .OrderBy(a => a.AssemblyName)
-                    .Select(a => a.Bootstrap);
-                var otherBootstraps = list
-                    .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
-                    .OrderBy(a => a.AssemblyName)
-                    .Select(a => a.Bootstrap);
-                return eventFlowBootstraps.Concat(otherBootstraps).ToList();
+                _bootstraps.Boot(CancellationToken.None);
             }
         }
     }

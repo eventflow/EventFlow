@@ -20,13 +20,13 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
-using EventFlow.Configuration.Registrations;
 using EventFlow.TestHelpers;
 using System.Collections.Generic;
 using EventFlow.TestHelpers.Aggregates;
@@ -41,9 +41,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         public void AbstractAggregateRootImplementationIsNotSelected()
         {
             // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New
-                .UseServiceRegistration(registry);
+            var sut = EventFlowOptions.New;
 
             // Act
             sut.AddAggregateRoots(EventFlowTests.Assembly);
@@ -57,9 +55,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         public void ClosedIAggregateRootImplementationIsSelected()
         {
             // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New
-                .UseServiceRegistration(registry);
+            var sut = EventFlowOptions.New;
 
             // Act
             sut.AddAggregateRoots(EventFlowTestHelpers.Assembly);
@@ -73,9 +69,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         public void AbstractAggregateRootImplementationIsRejected()
         {
             // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New
-                .UseServiceRegistration(registry);
+            var sut = EventFlowOptions.New;
 
             // Act
             Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(AbstractTestAggregate) } );
@@ -88,9 +82,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         public void NonIAggregateRootImplementationIsRejected()
         {
             // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New
-                .UseServiceRegistration(registry);
+            var sut = EventFlowOptions.New;
 
             // Act
             Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(ThingyId) });
@@ -103,9 +95,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         public void ClosedIAggregateRootImplementationIsAccepted()
         {
             // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New
-                .UseServiceRegistration(registry);
+            var sut = EventFlowOptions.New;
 
             // Act
             Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(LocalTestAggregate) });

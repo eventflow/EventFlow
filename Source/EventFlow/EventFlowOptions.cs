@@ -48,11 +48,11 @@ namespace EventFlow
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new DryIocServiceRegistration());
 
         private EventFlowOptions()
         {
-            UseServiceRegistration(new AutofacServiceRegistration());
+            UseServiceRegistration(new DryIocServiceRegistration());
 
             ModuleRegistration = new ModuleRegistration(this);
             ModuleRegistration.Register<ProvidedJobsModule>();

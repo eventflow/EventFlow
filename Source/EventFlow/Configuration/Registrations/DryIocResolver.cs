@@ -20,66 +20,57 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
-using Autofac.Core;
-using EventFlow.Aggregates;
+using DryIoc;
 
 namespace EventFlow.Configuration.Registrations
 {
-    internal class AutofacResolver : IResolver
+    public class DryIocResolver : IRootResolver
     {
-        private readonly IComponentContext _componentContext;
+        private readonly IContainer _container;
 
-        public AutofacResolver(IComponentContext componentContext)
+        public DryIocResolver(IContainer container)
         {
-            _componentContext = componentContext;
+            _container = container;
         }
 
         public T Resolve<T>()
         {
-            return _componentContext.Resolve<T>();
-        }
-
-        public T Resolve<T>(params Parameter[] parameters)
-        {
-            return _componentContext.Resolve<T>(parameters);
+            return _container.Resolve<T>();
         }
 
         public object Resolve(Type serviceType)
         {
-            return _componentContext.Resolve(serviceType);
-        }
-
-        public object Resolve(Type serviceType, params Parameter[] parameters)
-        {
-            return _componentContext.Resolve(serviceType, parameters);
+            return _container.Resolve(serviceType);
         }
 
         public IEnumerable<object> ResolveAll(Type serviceType)
         {
-            var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
-            return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
+            return _container.ResolveMany(serviceType);
         }
 
         public IEnumerable<Type> GetRegisteredServices()
         {
-            return _componentContext.ComponentRegistry.Registrations
-                .SelectMany(x => x.Services)
-                .OfType<TypedService>()
-                .Where(x => !x.ServiceType.Name.StartsWith("Autofac"))
-                .Select(x => x.ServiceType);
+            return _container.GetServiceRegistrations().Select(r => r.ServiceType);
         }
 
-        public bool HasRegistrationFor<T>()
-            where T : class
+        public bool HasRegistrationFor<T>() where T : class
         {
-            var serviceType = typeof (T);
-            return GetRegisteredServices().Any(t => serviceType == t);
+            return _container.IsRegistered<T>();
+        }
+
+        public void Dispose()
+        {
+            _container.Dispose();
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new DryIocResolver(_container.OpenScope());
         }
     }
 }

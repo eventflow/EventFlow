@@ -21,29 +21,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("EventFlow.Autofac")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow.Autofac")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+using Autofac;
+using EventFlow.Configuration;
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+namespace EventFlow.Autofac.Registrations
+{
+    internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
+    {
+        public IContainer Container { get; }
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e9aa6719-9bb0-40d2-aa45-dc024286a2d9")]
+        public AutofacRootResolver(IContainer container)
+            : base(container)
+        {
+            Container = container;
+        }
 
-// Internals
-[assembly: InternalsVisibleTo("EventFlow.Autofac.Tests")]
+        public override void Dispose()
+        {
+            base.Dispose();
+            Container.Dispose();
+        }
+    }
+}
