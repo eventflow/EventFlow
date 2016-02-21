@@ -20,16 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using EventFlow.Configuration.Registrations;
-using EventFlow.TestHelpers;
+//
+
+using EventFlow.Configuration;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Configuration.Registrations
+namespace EventFlow.TestHelpers.Suites
 {
-    [Category(Categories.Unit)]
-    public class AutofacServiceRegistrationTests : Test
+    public abstract class TestSuiteForServiceRegistration<T> : TestsFor<T>
+        where T : IServiceRegistration
     {
         // ReSharper disable ClassNeverInstantiated.Local
         private interface IMagicInterface { }
@@ -46,19 +46,11 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         }
         // ReSharper enable ClassNeverInstantiated.Local
 
-        private AutofacServiceRegistration _sut;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _sut = new AutofacServiceRegistration();
-        }
-
         [Test]
         public void ServiceViaFactory()
         {
             // Act
-            _sut.Register<IMagicInterface>(r => new MagicClass());
+            Sut.Register<IMagicInterface>(r => new MagicClass());
 
             // Assert
             Assert_Service();
@@ -68,7 +60,7 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         public void ServiceViaGeneric()
         {
             // Act
-            _sut.Register<IMagicInterface, MagicClass>();
+            Sut.Register<IMagicInterface, MagicClass>();
 
             // Assert
             Assert_Service();
@@ -78,7 +70,7 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         public void ServiceViaType()
         {
             // Act
-            _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
+            Sut.Register(typeof(IMagicInterface), typeof(MagicClass));
 
             // Assert
             Assert_Service();
@@ -87,7 +79,7 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         public void Assert_Service()
         {
             // Act
-            var resolver = _sut.CreateResolver(true);
+            var resolver = Sut.CreateResolver(true);
             var magicInterface = resolver.Resolve<IMagicInterface>();
 
             // Assert
@@ -99,7 +91,7 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         public void DecoratorViaFactory()
         {
             // Act
-            _sut.Register<IMagicInterface>(r => new MagicClass());
+            Sut.Register<IMagicInterface>(r => new MagicClass());
 
             // Assert
             Assert_Decorator();
@@ -109,7 +101,7 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         public void DecoratorViaGeneric()
         {
             // Act
-            _sut.Register<IMagicInterface, MagicClass>();
+            Sut.Register<IMagicInterface, MagicClass>();
 
             // Assert
             Assert_Decorator();
@@ -119,7 +111,7 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
         public void DecoratorViaType()
         {
             // Act
-            _sut.Register(typeof(IMagicInterface), typeof(MagicClass));
+            Sut.Register(typeof(IMagicInterface), typeof(MagicClass));
 
             // Assert
             Assert_Decorator();
@@ -137,11 +129,11 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             // Return to MagicClassDecorator2
 
             // Arrange
-            _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator1(inner));
-            _sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator2(inner));
+            Sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator1(inner));
+            Sut.Decorate<IMagicInterface>((r, inner) => new MagicClassDecorator2(inner));
 
             // Act
-            var resolver = _sut.CreateResolver(true);
+            var resolver = Sut.CreateResolver(true);
             var magic = resolver.Resolve<IMagicInterface>();
 
             // Assert
@@ -151,5 +143,6 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             var magicClassDecorator1 = (MagicClassDecorator1)magicClassDecorator2.Inner;
             magicClassDecorator1.Inner.Should().BeAssignableTo<MagicClass>();
         }
+        
     }
 }

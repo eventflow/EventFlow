@@ -20,11 +20,11 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 
@@ -36,7 +36,7 @@ namespace EventFlow.Extensions
             this IResolver resolver)
         {
             var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices().Where(t => !t.IsClosedTypeOf(typeof(IAggregateRoot<>))))
+            foreach (var type in resolver.GetRegisteredServices().Where(t => !t.IsAbstract || t.GetGenericTypeDefinition() != typeof(IAggregateRoot<>)))
             {
                 try
                 {

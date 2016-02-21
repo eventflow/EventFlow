@@ -20,24 +20,17 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System;
-using System.Collections.Generic;
+//
 
-namespace EventFlow.Configuration
+using EventFlow.Autofac.Registrations;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
+
+namespace EventFlow.Autofac.Tests.UnitTests.Registrations
 {
-    public interface IResolver
+    [Category(Categories.Unit)]
+    public class AutofacServiceRegistrationTests : TestSuiteForServiceRegistration<AutofacServiceRegistration>
     {
-        T Resolve<T>()
-            where T : class;
-
-        object Resolve(Type serviceType);
-
-        IEnumerable<object> ResolveAll(Type serviceType);
-
-        IEnumerable<Type> GetRegisteredServices();
-
-        bool HasRegistrationFor<T>()
-            where T : class;
     }
 }

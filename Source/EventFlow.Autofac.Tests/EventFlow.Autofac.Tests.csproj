@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Aggregates\AutofacAggregateFactoryTests.cs" />
+    <Compile Include="UnitTests\Registrations\AutofacServiceRegistrationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj">
@@ -252,4 +253,5 @@
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
 </Project>
