@@ -41,6 +41,7 @@ using EventFlow.ReadStores;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.InMemory;
+using EventFlow.Snapshots.Strategies;
 using EventFlow.Subscribers;
 
 namespace EventFlow
@@ -175,6 +176,7 @@ namespace EventFlow
             serviceRegistration.Register<ICommandBus, CommandBus>();
             serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
             serviceRegistration.Register<ISnapshotBuilder, SnapshotBuilder>();
+            serviceRegistration.Register<ISnapshotStrategy, SnapshotStrategy>();
             serviceRegistration.Register<ISnapshotPersistence, InMemorySnapshotPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ISnapshotUpgradeService, SnapshotUpgradeService>();
             serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>(Lifetime.Singleton);
