@@ -22,7 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -49,5 +51,10 @@ namespace EventFlow.Sql.Connections
             string sql,
             IEnumerable<TRow> rows)
             where TRow : class, new();
+
+        Task<TResult> WithConnectionAsync<TResult>(
+            Label label,
+            Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
+            CancellationToken cancellationToken);
     }
 }

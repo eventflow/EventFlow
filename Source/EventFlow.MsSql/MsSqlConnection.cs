@@ -27,19 +27,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Logs;
+using EventFlow.MsSql.Connections;
 using EventFlow.MsSql.Integrations;
 using EventFlow.MsSql.RetryStrategies;
 using EventFlow.Sql.Connections;
 
 namespace EventFlow.MsSql
 {
-    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy>, IMsSqlConnection
+    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy, IMsSqlConnectionFactory>, IMsSqlConnection
     {
         public MsSqlConnection(
             ILog log,
             IMsSqlConfiguration configuration,
+            IMsSqlConnectionFactory connectionFactory,
             ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
-            : base(log, configuration, transientFaultHandler)
+            : base(log, configuration, connectionFactory, transientFaultHandler)
         {
         }
 

@@ -22,8 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using EventFlow.Core;
 using EventFlow.Sql.Connections;
 
 namespace EventFlow.MsSql
@@ -32,16 +30,6 @@ namespace EventFlow.MsSql
     {
         public static MsSqlConfiguration New => new MsSqlConfiguration();
 
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
         private MsSqlConfiguration() { }
-
-        public IMsSqlConfiguration SetTransientRetryDelay(RetryDelay retryDelay)
-        {
-            TransientRetryDelay = retryDelay;
-            return this;
-        }
     }
 }

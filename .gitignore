@@ -192,3 +192,6 @@ FakesAssemblies/
 
 # Paket
 /.paket/paket.exe
+
+# FAKE
+/.fake

@@ -21,20 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-namespace EventFlow.ReadStores.MsSql
+
+using EventFlow.Sql.Connections;
+
+namespace EventFlow.SQLite.Connections
 {
-    public interface IReadModelSqlGenerator
+    public interface ISQLiteConnectionFactory : ISqlConnectionFactory
     {
-        string CreateInsertSql<TReadModel>()
-            where TReadModel : IReadModel;
-
-        string CreateSelectSql<TReadModel>()
-            where TReadModel : IReadModel;
-
-        string CreateUpdateSql<TReadModel>()
-            where TReadModel : IReadModel;
-
-        string CreatePurgeSql<TReadModel>()
-            where TReadModel : IReadModel;
     }
 }

@@ -34,10 +34,10 @@ using EventFlow.Sql.Integrations;
 namespace EventFlow.Sql.Migrations
 {
     public class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
-        where TConfiguration : ISqlConfiguration
+        where TConfiguration : ISqlConfiguration<TConfiguration>
     {
         private readonly ILog _log;
-        private readonly ISqlConfiguration _sqlConfiguration;
+        private readonly TConfiguration _sqlConfiguration;
 
         public SqlDatabaseMigrator(
             ILog log,
