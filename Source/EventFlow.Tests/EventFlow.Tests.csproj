@@ -56,6 +56,7 @@
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
+    <Compile Include="IntegrationTests\SnapshotStores\InMemorySnapshotStoreTests.cs" />
     <Compile Include="IntegrationTests\SnapshotTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
