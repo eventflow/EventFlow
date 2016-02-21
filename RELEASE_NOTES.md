@@ -1,4 +1,8 @@
-### New in 0.25 (not released yet)
+### New in 0.27 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.26.1714 (released 2016-02-20)
 
  * Breaking: Renamed `MssqlMigrationException` to `SqlMigrationException`
  * Breaking: Renamed `SqlErrorRetryStrategy` to `MsSqlErrorRetryStrategy`
@@ -7,12 +11,30 @@
    `EventFlow.MsSql` but is now listed as a NuGet dependency. The current
    version used by EventFlow is `v1.42`
  * New: Introduced the NuGet package `EventFlow.SQLite` that adds event store
-   support for SQLite databases
+   support for SQLite databases, both as event store and read model store
  * New: Introduced the NuGet package `EventFlow.Sql` as shared package for
    EventFlow packages that uses SQL
  * New: Its now possible to configure the retry delay for MSSQL transient
    errors using the new `IMsSqlConfiguration.SetTransientRetryDelay`. The
    default is a random delay between 50 and 100 milliseconds
+
+### New in 0.25.1695 (released 2016-02-15)
+
+* Fixed: Deadlock in `AsyncHelper` if e.g. an exception caused no `async` tasks
+  to be scheduled. The `AsyncHelper` is used by EventFlow to expose non-`async`
+  methods to developers and provide the means to call `async` methods from
+  a synchronous context without causing a deadlock. There's no change to any of
+  the `async` methods.
+
+  The `AsyncHelper` is used in the following methods.
+  - `ICommandBus.Publish`
+  - `IEventStore.LoadEvents`
+  - `IEventStore.LoadAggregate`
+  - `IEventStore.LoadAllEvents`
+  - `IJobRunner.Execute`
+  - `IReadModelPopulator.Populate`
+  - `IReadModelPopulator.Purge`
+  - `IQueryProcessor.Process`
 
 ### New in 0.24.1563 (released 2016-01-17)
 

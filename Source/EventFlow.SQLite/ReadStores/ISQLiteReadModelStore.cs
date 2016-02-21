@@ -20,16 +20,15 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System;
+using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
-using EventFlow.Sql.ReadModels.Attributes;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.SQLite.ReadStores
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
+    public interface ISQLiteReadModelStore<TReadModel> : ISqlReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel, new()
     {
     }
 }

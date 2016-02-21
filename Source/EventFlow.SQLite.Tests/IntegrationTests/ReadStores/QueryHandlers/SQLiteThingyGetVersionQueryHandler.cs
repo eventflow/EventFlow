@@ -22,14 +22,36 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using EventFlow.Sql.ReadModels;
-using EventFlow.Sql.ReadModels.Attributes;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
+using EventFlow.Queries;
+using EventFlow.SQLite.Connections;
+using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Queries;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
+    public class SQLiteThingyGetVersionQueryHandler : IQueryHandler<ThingyGetVersionQuery, long?>
     {
+        private readonly ISQLiteConnection _sqLiteConnection;
+
+        public SQLiteThingyGetVersionQueryHandler(
+            ISQLiteConnection sqLiteConnection)
+        {
+            _sqLiteConnection = sqLiteConnection;
+        }
+
+        public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
+        {
+            var readModels = await _sqLiteConnection.QueryAsync<SQLiteThingyReadModel>(
+                Label.Named("sqlite-fetch-test-read-model"),
+                cancellationToken,
+                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
+                new { AggregateId = query.ThingyId.Value })
+                .ConfigureAwait(false);
+            return readModels.SingleOrDefault()?.Version;
+        }
     }
 }
