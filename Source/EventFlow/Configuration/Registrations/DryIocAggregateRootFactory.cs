@@ -20,29 +20,22 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System.Threading.Tasks;
-using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
 namespace EventFlow.Configuration.Registrations.Services
 {
-    internal class AutofacAggregateRootFactory : IAggregateFactory
+    public class DryIocAggregateRootFactory : IAggregateFactory
     {
-        private readonly AutofacResolver _resolver;
-
-        public AutofacAggregateRootFactory(IResolver resolver)
-        {
-            _resolver = (AutofacResolver)resolver;
-        }
-
-        public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
+        public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregate = _resolver.Resolve<TAggregate>(new TypedParameter(typeof(TIdentity), id));
-            return Task.FromResult(aggregate);
+            throw new System.NotImplementedException();
         }
     }
 }
