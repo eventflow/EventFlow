@@ -50,7 +50,7 @@ namespace EventFlow.TestHelpers
             var eventFlowOptions = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly);
 
-            Resolver = CreateRootResolver(eventFlowOptions);
+            Resolver = CreateRootResolver(Options(eventFlowOptions));
 
             EventStore = Resolver.Resolve<IEventStore>();
             CommandBus = Resolver.Resolve<ICommandBus>();
@@ -62,6 +62,11 @@ namespace EventFlow.TestHelpers
         public void TearDownIntegrationTest()
         {
             Resolver?.Dispose();
+        }
+
+        protected virtual IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions;
         }
 
         protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);

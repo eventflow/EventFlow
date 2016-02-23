@@ -45,6 +45,7 @@
     <Compile Include="Aggregates\Commands\ThingyImportCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyNopCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyDomainErrorAfterFirstCommand.cs" />
+    <Compile Include="Aggregates\Commands\ThingyMultiplePingsCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyPingCommand.cs" />
     <Compile Include="Aggregates\Entities\ThingyMessage.cs" />
     <Compile Include="Aggregates\Entities\ThingyMessageId.cs" />

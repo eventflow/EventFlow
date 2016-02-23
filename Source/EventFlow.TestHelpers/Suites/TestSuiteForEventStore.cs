@@ -20,27 +20,36 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
 {
     public abstract class TestSuiteForEventStore : IntegrationTest
     {
+        private readonly List<IDomainEvent> _publishedDomainEvents = new List<IDomainEvent>();
+        protected IReadOnlyCollection<IDomainEvent> PublishedDomainEvents => _publishedDomainEvents;
+
         [Test]
         public async Task NewAggregateCanBeLoaded()
         {
@@ -244,6 +253,63 @@ namespace EventFlow.TestHelpers.Suites
             // Act
             await aggregate1.CommitAsync(EventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
             await ThrowsExceptionAsync<OptimisticConcurrencyException>(() => aggregate2.CommitAsync(EventStore, SourceId.New, CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task PublishedDomainEventsHaveAggregateSequenceNumbers()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingIds = Many<PingId>(10);
+
+            // Act
+            await CommandBus.PublishAsync(
+                new ThingyMultiplePingsCommand(id, pingIds))
+                .ConfigureAwait(false);
+
+            // Assert
+            PublishedDomainEvents.Count.Should().Be(10);
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(1, 10));
+        }
+
+        [Test]
+        public async Task PublishedDomainEventsContinueAggregateSequenceNumbers()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingIds = Many<PingId>(10);
+            await CommandBus.PublishAsync(
+                new ThingyMultiplePingsCommand(id, pingIds))
+                .ConfigureAwait(false);
+            _publishedDomainEvents.Clear();
+
+            // Act
+            await CommandBus.PublishAsync(
+                new ThingyMultiplePingsCommand(id, pingIds))
+                .ConfigureAwait(false);
+
+            // Assert
+            PublishedDomainEvents.Count.Should().Be(10);
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(11, 10));
+        }
+
+        [SetUp]
+        public void TestSuiteForEventStoreSetUp()
+        {
+            _publishedDomainEvents.Clear();
+        }
+
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();
+
+            subscribeSynchronousToAllMock
+                .Setup(s => s.HandleAsync(It.IsAny<IReadOnlyCollection<IDomainEvent>>(), It.IsAny<CancellationToken>()))
+                .Callback<IReadOnlyCollection<IDomainEvent>, CancellationToken>((d, c) => _publishedDomainEvents.AddRange(d))
+                .Returns(Task.FromResult(0));
+
+            return base.Options(eventFlowOptions)
+                .RegisterServices(sr => sr.Register(r => subscribeSynchronousToAllMock.Object, Lifetime.Singleton));
         }
 
         private static async Task ThrowsExceptionAsync<TException>(Func<Task> action)
