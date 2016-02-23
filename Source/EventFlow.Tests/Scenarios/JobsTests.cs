@@ -21,51 +21,45 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Jobs;
+using EventFlow.Provided.Jobs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Tests.Scenarios
 {
     [Category(Categories.Scenario)]
-    public class ResolverTests
+    public class JobsTests
     {
-        public class Service { }
-
-        public class ServiceDependentAggregate : AggregateRoot<ServiceDependentAggregate, ThingyId>
-        {
-            public Service Service { get; }
-
-            public ServiceDependentAggregate(ThingyId id, Service service) : base(id)
-            {
-                Service = service;
-            }
-        }
-
         [Test]
-        public async Task ResolverAggregatesFactoryCanResolve()
+        public async Task Flow()
         {
             using (var resolver = EventFlowOptions.New
-                .AddAggregateRoots(typeof(ServiceDependentAggregate))
-                .RegisterServices(sr => sr.RegisterType(typeof(Service)))
-                .UseResolverAggregateRootFactory()
-                .CreateResolver())
+                .AddDefaults(EventFlowTestHelpers.Assembly)
+                .CreateResolver(false))
             {
                 // Arrange
-                var aggregateFactory = resolver.Resolve<IAggregateFactory>();
+                var testId = ThingyId.New;
+                var pingId = PingId.New;
+                var jobScheduler = resolver.Resolve<IJobScheduler>();
+                var eventStore = resolver.Resolve<IEventStore>();
+                var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), resolver);
 
                 // Act
-                var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
+                await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
 
                 // Assert
-                serviceDependentAggregate.Service.Should()
-                    .NotBeNull()
-                    .And
-                    .BeOfType<Service>();
+                var testAggregate = await eventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
+                testAggregate.IsNew.Should().BeFalse();
             }
         }
     }

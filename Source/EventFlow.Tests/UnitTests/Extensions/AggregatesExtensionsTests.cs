@@ -118,7 +118,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
     public abstract class AbstractTestAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
         IEmit<ThingyDomainErrorAfterFirstEvent>
     {
-        public AbstractTestAggregate(ThingyId id) : base(id)
+        protected AbstractTestAggregate(ThingyId id) : base(id)
         {
         }
 

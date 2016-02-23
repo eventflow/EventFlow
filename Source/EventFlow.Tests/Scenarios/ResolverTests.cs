@@ -20,48 +20,53 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Aggregates
+namespace EventFlow.Tests.Scenarios
 {
-    [Category(Categories.Unit)]
-    public class AggregateStateTests : TestsFor<AggregateStateTests.TestAggregateState>
+    [Category(Categories.Scenario)]
+    public class ResolverTests
     {
-        [Test]
-        public void ApplyIsInvoked()
+        public class Service { }
+
+        public class ServiceDependentAggregate : AggregateRoot<ServiceDependentAggregate, ThingyId>
         {
-            // Arrange
-            var pingId = PingId.New;
+            public Service Service { get; }
 
-            // Act
-            Sut.Apply(null, new ThingyPingEvent(pingId));
-
-            // Assert
-            Sut.PingIds.Should().Contain(pingId);
+            public ServiceDependentAggregate(ThingyId id, Service service) : base(id)
+            {
+                Service = service;
+            }
         }
 
-        public class TestAggregateState : AggregateState<ThingyAggregate, ThingyId, TestAggregateState>,
-            IEmit<ThingyPingEvent>
+        [Test]
+        public async Task ResolverAggregatesFactoryCanResolve()
         {
-            public ISet<PingId> PingIds { get; }
-
-            public TestAggregateState()
+            using (var resolver = EventFlowOptions.New
+                .AddAggregateRoots(typeof(ServiceDependentAggregate))
+                .RegisterServices(sr => sr.RegisterType(typeof(Service)))
+                .UseResolverAggregateRootFactory()
+                .CreateResolver())
             {
-                PingIds = new HashSet<PingId>();
-            }
+                // Arrange
+                var aggregateFactory = resolver.Resolve<IAggregateFactory>();
 
-            public void Apply(ThingyPingEvent e)
-            {
-                PingIds.Add(e.PingId);
+                // Act
+                var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
+
+                // Assert
+                serviceDependentAggregate.Service.Should()
+                    .NotBeNull()
+                    .And
+                    .BeOfType<Service>();
             }
         }
     }

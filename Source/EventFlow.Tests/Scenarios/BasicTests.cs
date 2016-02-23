@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -42,11 +43,11 @@ using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Tests.Scenarios
 {
     [TestFixture]
     [Category(Categories.Scenario)]
-    public class DomainTests
+    public class BasicTests
     {
         public class Subscriber : ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>
         {

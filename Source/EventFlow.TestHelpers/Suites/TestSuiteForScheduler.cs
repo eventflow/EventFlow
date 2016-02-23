@@ -21,45 +21,54 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.EventStores;
-using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
-using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Jobs
+namespace EventFlow.TestHelpers.Suites
 {
-    [Category(Categories.Unit)]
-    public class JobsFlowTests
+    public abstract class TestSuiteForScheduler : IntegrationTest
     {
-        [Test]
-        public async Task Flow()
+        private IJobScheduler _jobScheduler;
+
+        [SetUp]
+        public void SetUp()
         {
-            using (var resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .CreateResolver(false))
+            _jobScheduler = Resolver.Resolve<IJobScheduler>();
+        }
+
+        [Test]
+        public async Task ScheduleNow()
+        {
+            // Arrange
+            var testId = ThingyId.New;
+            var pingId = PingId.New;
+            var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), Resolver);
+
+            // Act
+            await _jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var start = DateTimeOffset.Now;
+            while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(20))
             {
-                // Arrange
-                var testId = ThingyId.New;
-                var pingId = PingId.New;
-                var jobScheduler = resolver.Resolve<IJobScheduler>();
-                var eventStore = resolver.Resolve<IEventStore>();
-                var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), resolver);
+                var testAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
+                if (!testAggregate.IsNew)
+                {
+                    Assert.Pass();
+                }
 
-                // Act
-                await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
-
-                // Assert
-                var testAggregate = await eventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
-                testAggregate.IsNew.Should().BeFalse();
+                await Task.Delay(TimeSpan.FromSeconds(0.2)).ConfigureAwait(false);
             }
+
+            Assert.Fail("Aggregate did not receive the command as expected");
         }
     }
 }
