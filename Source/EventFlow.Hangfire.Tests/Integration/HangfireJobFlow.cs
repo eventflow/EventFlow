@@ -37,6 +37,7 @@ using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Hangfire.SqlServer;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
@@ -65,11 +66,21 @@ namespace EventFlow.Hangfire.Tests.Integration
                 .UseHangfireJobScheduler()
                 .CreateResolver(false))
             {
+                var sqlServerStorageOptions = new SqlServerStorageOptions
+                    {
+                        QueuePollInterval = TimeSpan.FromSeconds(1),
+                    };
+                var backgroundJobServerOptions = new BackgroundJobServerOptions
+                    {
+                        SchedulePollingInterval = TimeSpan.FromSeconds(1),
+                    };
+
                 GlobalConfiguration.Configuration
-                    .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value)
+                    .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value, sqlServerStorageOptions)
                     .UseActivator(new EventFlowResolverActivator(resolver));
 
-                using (new BackgroundJobServer())
+
+                using (new BackgroundJobServer(backgroundJobServerOptions))
                 {
                     // Arrange
                     var testId = ThingyId.New;
