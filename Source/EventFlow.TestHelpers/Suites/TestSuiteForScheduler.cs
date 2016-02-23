@@ -47,13 +47,30 @@ namespace EventFlow.TestHelpers.Suites
         [Test]
         public async Task ScheduleNow()
         {
+            await ValidateScheduleHappens((j, s) => s.ScheduleNowAsync(j, CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ScheduleAsyncWithDateTime()
+        {
+            await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, DateTimeOffset.Now.AddSeconds(1), CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ScheduleAsyncWithTimeSpan()
+        {
+            await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, TimeSpan.FromSeconds(1), CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        private async Task ValidateScheduleHappens(Func<IJob, IJobScheduler, Task> schedule)
+        {
             // Arrange
             var testId = ThingyId.New;
             var pingId = PingId.New;
             var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), Resolver);
 
             // Act
-            await _jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
+            await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);
 
             // Assert
             var start = DateTimeOffset.Now;
