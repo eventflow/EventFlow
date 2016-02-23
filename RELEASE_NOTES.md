@@ -1,4 +1,10 @@
-### New in 0.26 (not released yet)
+### New in 0.27 (not released yet)
+
+ * New: Configure Hangfire job display names by implementing
+   `IJobDisplayNameBuilder`. The default implementation uses job name and
+   version.
+
+### New in 0.26.1714 (released 2016-02-20)
 
  * Breaking: Renamed `MssqlMigrationException` to `SqlMigrationException`
  * Breaking: Renamed `SqlErrorRetryStrategy` to `MsSqlErrorRetryStrategy`
