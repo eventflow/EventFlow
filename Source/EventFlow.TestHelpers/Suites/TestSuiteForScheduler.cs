@@ -39,7 +39,7 @@ namespace EventFlow.TestHelpers.Suites
         private IJobScheduler _jobScheduler;
 
         [SetUp]
-        public void SetUp()
+        public void TestSuiteForSchedulerSetUp()
         {
             _jobScheduler = Resolver.Resolve<IJobScheduler>();
         }
