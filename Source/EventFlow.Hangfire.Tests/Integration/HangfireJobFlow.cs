@@ -104,7 +104,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                         if (!testAggregate.IsNew)
                         {
                             var jobHtml = await GetAsync(new Uri($"http://localhost:9001/hangfire/jobs/details/{jobId.Value}")).ConfigureAwait(false);
-                            jobHtml.Should().Contain("PublishCommand v1");
+                            jobHtml.Should().Contain("<h1 class=\"page-header\">&quot;PublishCommand v1&quot;</h1>");
 
                             Assert.Pass();
                         }
