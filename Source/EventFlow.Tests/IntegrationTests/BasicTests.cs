@@ -43,10 +43,10 @@ using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.Scenarios
+namespace EventFlow.Tests.IntegrationTests
 {
     [TestFixture]
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class BasicTests
     {
         public class Subscriber : ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>

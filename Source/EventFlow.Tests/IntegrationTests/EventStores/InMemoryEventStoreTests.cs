@@ -29,7 +29,7 @@ using EventFlow.TestHelpers.Suites;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class InMemoryEventStoreTests : TestSuiteForEventStore
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)

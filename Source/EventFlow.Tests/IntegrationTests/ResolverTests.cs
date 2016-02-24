@@ -30,9 +30,9 @@ using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.Scenarios
+namespace EventFlow.Tests.IntegrationTests
 {
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class ResolverTests
     {
         public class Service { }

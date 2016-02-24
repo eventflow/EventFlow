@@ -35,9 +35,9 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.Scenarios
+namespace EventFlow.Tests.IntegrationTests
 {
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class JobsTests
     {
         [Test]
