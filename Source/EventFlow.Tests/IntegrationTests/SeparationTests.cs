@@ -22,7 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
@@ -35,13 +37,13 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
-    public class EnvironmentTests
+    public class SeparationTests
     {
         [Test]
         public async Task AggregatesDontMix()
         {
-            using (var resolver1 = EventFlowOptions.New.AddDefaults(EventFlowTestHelpers.Assembly).CreateResolver(false))
-            using (var resolver2 = EventFlowOptions.New.AddDefaults(EventFlowTestHelpers.Assembly).CreateResolver(false))
+            using (var resolver1 = SetupEventFlow())
+            using (var resolver2 = SetupEventFlow())
             {
                 // Arrange
                 var thingyId = ThingyId.New;
@@ -56,6 +58,19 @@ namespace EventFlow.Tests.IntegrationTests
                 var aggregate = await resolver2.Resolve<IEventStore>().LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
                 aggregate.IsNew.Should().BeTrue();
             }
+        }
+
+        private static IRootResolver SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        {
+            var eventFlowOptions = EventFlowOptions.New
+                .AddDefaults(EventFlowTestHelpers.Assembly);
+
+            if (configure != null)
+            {
+                eventFlowOptions = configure(eventFlowOptions);
+            }
+
+            return eventFlowOptions.CreateResolver(false);
         }
     }
 }

@@ -45,7 +45,7 @@
   <ItemGroup>
     <Compile Include="EventFlowTests.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
-    <Compile Include="IntegrationTests\EnvironmentTests.cs" />
+    <Compile Include="IntegrationTests\SeparationTests.cs" />
     <Compile Include="Scenarios\BasicTests.cs" />
     <Compile Include="IntegrationTests\EventStores\FilesEventStoreTests.cs" />
     <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
