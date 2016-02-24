@@ -75,7 +75,6 @@
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />
     <Compile Include="UnitTests\Jobs\JobDefinitionServiceTests.cs" />
-    <Compile Include="IntegrationTests\JobsTests.cs" />
     <Compile Include="UnitTests\Provided\Specifications\AtLeastSpecificationTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelDomainEventApplierTests.cs" />
