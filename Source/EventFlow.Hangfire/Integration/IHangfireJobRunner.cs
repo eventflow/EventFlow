@@ -20,33 +20,15 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System;
-using EventFlow.Hangfire.Integration;
-using EventFlow.Jobs;
-using Hangfire;
+//
 
-namespace EventFlow.Hangfire.Extensions
+using System.ComponentModel;
+
+namespace EventFlow.Hangfire.Integration
 {
-    public static class EventFlowOptionsHangfireExtensions
+    public interface IHangfireJobRunner
     {
-        [Obsolete("Please use the correctly spelled 'UseHangfireJobScheduler()' instead")]
-        public static IEventFlowOptions UseHandfireJobScheduler(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.UseHangfireJobScheduler();
-        }
-
-        public static IEventFlowOptions UseHangfireJobScheduler(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    sr.Register<IJobScheduler, HangfireJobScheduler>();
-                    sr.Register<IHangfireJobRunner, HangfireJobRunner>();
-                    sr.Register<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
-                    sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
-                });
-        }
+        [DisplayName("{0}")]
+        void Execute(string displayName, string jobName, int version, string job);
     }
 }
