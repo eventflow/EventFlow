@@ -62,7 +62,7 @@ namespace EventFlow.TestHelpers.Suites
             await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, TimeSpan.FromSeconds(1), CancellationToken.None)).ConfigureAwait(false);
         }
 
-        private async Task ValidateScheduleHappens(Func<IJob, IJobScheduler, Task> schedule)
+        private async Task ValidateScheduleHappens(Func<IJob, IJobScheduler, Task<IJobId>> schedule)
         {
             // Arrange
             var testId = ThingyId.New;
@@ -70,7 +70,7 @@ namespace EventFlow.TestHelpers.Suites
             var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), Resolver);
 
             // Act
-            await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);
+            var jobId = await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);
 
             // Assert
             var start = DateTimeOffset.Now;
@@ -79,6 +79,7 @@ namespace EventFlow.TestHelpers.Suites
                 var testAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                 if (!testAggregate.IsNew)
                 {
+                    await AssertJobIsSuccessfullAsync(jobId).ConfigureAwait(false);
                     Assert.Pass();
                 }
 
@@ -86,6 +87,12 @@ namespace EventFlow.TestHelpers.Suites
             }
 
             Assert.Fail("Aggregate did not receive the command as expected");
+        }
+
+        protected virtual Task AssertJobIsSuccessfullAsync(IJobId jobId)
+        {
+            // Overload to do any additional asserts
+            return Task.FromResult(0);
         }
     }
 }

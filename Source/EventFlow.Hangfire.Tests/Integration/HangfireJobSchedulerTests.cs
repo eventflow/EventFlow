@@ -23,6 +23,8 @@
 //
 
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.Hangfire.Extensions;
 using EventFlow.Hangfire.Integration;
@@ -31,8 +33,11 @@ using Hangfire;
 using Helpz.MsSql;
 using NUnit.Framework;
 using EventFlow.Configuration;
+using EventFlow.Jobs;
 using EventFlow.TestHelpers.Suites;
+using FluentAssertions;
 using Hangfire.SqlServer;
+using Microsoft.Owin.Hosting;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
@@ -40,6 +45,7 @@ namespace EventFlow.Hangfire.Tests.Integration
     public class HangfireJobSchedulerTests : TestSuiteForScheduler
     {
         private IMsSqlDatabase _msSqlDatabase;
+        private IDisposable _webApp;
         private BackgroundJobServer _backgroundJobServer;
         private EventFlowResolverActivator _eventFlowResolverActivator;
 
@@ -61,6 +67,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                 .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value, sqlServerStorageOptions)
                 .UseActivator(new DelegatingActivator(() => _eventFlowResolverActivator));
 
+            _webApp = WebApp.Start("http://127.0.0.1:9001", app => app.UseHangfireDashboard());
             _backgroundJobServer = new BackgroundJobServer(backgroundJobServerOptions);
         }
 
@@ -68,6 +75,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         public void FixtureTearDown()
         {
             _backgroundJobServer.DisposeSafe("Hangfire backgroung job server");
+            _webApp.DisposeSafe("Web APP");
             _msSqlDatabase.DisposeSafe("MSSQL database");
         }
 
@@ -95,6 +103,22 @@ namespace EventFlow.Hangfire.Tests.Integration
             _eventFlowResolverActivator = new EventFlowResolverActivator(resolver);
 
             return resolver;
+        }
+
+        protected override async Task AssertJobIsSuccessfullAsync(IJobId jobId)
+        {
+            var jobHtml = await GetAsync($"hangfire/jobs/details/{jobId.Value}").ConfigureAwait(false);
+            jobHtml.Should().Contain("<h1 class=\"page-header\">&quot;PublishCommand v1&quot;</h1>");
+        }
+
+        private static async Task<string> GetAsync(string path)
+        {
+            using (var httpClient = new HttpClient())
+            using (var httpResponseMessage = await httpClient.GetAsync(new Uri($"http://127.0.0.1:9001/{path}")))
+            {
+                httpResponseMessage.EnsureSuccessStatusCode();
+                return await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            }
         }
     }
 }
