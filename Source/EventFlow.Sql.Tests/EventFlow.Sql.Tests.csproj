@@ -58,6 +58,20 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
+      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
+      <Name>EventFlow.Sql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
+      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
+      <Name>EventFlow.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
+      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
+      <Name>EventFlow</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
       <ItemGroup>
@@ -283,19 +297,5 @@
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
-      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
-      <Name>EventFlow.Sql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
-      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
-      <Name>EventFlow.TestHelpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>
