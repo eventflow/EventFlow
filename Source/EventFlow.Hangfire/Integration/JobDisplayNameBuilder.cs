@@ -20,33 +20,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System;
-using EventFlow.Hangfire.Integration;
+//
+
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Jobs;
-using Hangfire;
 
-namespace EventFlow.Hangfire.Extensions
+namespace EventFlow.Hangfire.Integration
 {
-    public static class EventFlowOptionsHangfireExtensions
+    public class JobDisplayNameBuilder : IJobDisplayNameBuilder
     {
-        [Obsolete("Please use the correctly spelled 'UseHangfireJobScheduler()' instead")]
-        public static IEventFlowOptions UseHandfireJobScheduler(
-            this IEventFlowOptions eventFlowOptions)
+        public Task<string> GetDisplayNameAsync(IJob job, JobDefinition jobDefinition, CancellationToken cancellationToken)
         {
-            return eventFlowOptions.UseHangfireJobScheduler();
-        }
-
-        public static IEventFlowOptions UseHangfireJobScheduler(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    sr.Register<IJobScheduler, HangfireJobScheduler>();
-                    sr.Register<IHangfireJobRunner, HangfireJobRunner>();
-                    sr.Register<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
-                    sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
-                });
+            return Task.FromResult($"{jobDefinition.Name} v{jobDefinition.Version}");
         }
     }
 }

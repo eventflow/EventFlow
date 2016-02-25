@@ -1,6 +1,12 @@
-### New in 0.27 (not released yet)
+### New in 0.28 (not released yet)
 
-* _Nothing yet_
+ * _Nothing yet_
+
+### New in 0.27.1765 (released 2016-02-25)
+
+ * New: Configure Hangfire job display names by implementing
+   `IJobDisplayNameBuilder`. The default implementation uses job description
+   name and version
 
 ### New in 0.26.1714 (released 2016-02-20)
 
