@@ -86,7 +86,7 @@ namespace EventFlow.Snapshots
 
             var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
             var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
-            _log.Verbose(() => $"Found snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+            _log.Verbose(() => $"Found snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}' v{metadata.AggregateSequenceNumber}");
 
             var snapshot = (ISnapshot) _jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
             var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);
@@ -107,6 +107,7 @@ namespace EventFlow.Snapshots
             var snapshotAggregateRoot = aggregate as ISnapshotAggregateRoot;
             if (snapshotAggregateRoot == null)
             {
+                _log.Verbose(() => $"Aggregate '{typeof(TAggregate).PrettyPrint()}' is not a snapshot aggregate");
                 return;
             }
 
