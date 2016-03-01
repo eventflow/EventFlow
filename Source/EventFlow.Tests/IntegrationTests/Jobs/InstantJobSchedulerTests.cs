@@ -20,33 +20,21 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
+//
+
+using EventFlow.Configuration;
 using EventFlow.TestHelpers;
-using FluentAssertions;
+using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Tests.IntegrationTests.Jobs
 {
-    [TestFixture]
-    [Category(Categories.Scenario)]
-    public class ConfigurationTests
+    [Category(Categories.Integration)]
+    public class InstantJobSchedulerTests : TestSuiteForScheduler
     {
-        [Test]
-        public void CanResolve()
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver();
-
-            // Act
-            IEventPersistence eventPersistence = null;
-            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
-
-            // Assert
-            eventPersistence.Should().NotBeNull();
-            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
+            return eventFlowOptions.CreateResolver(false);
         }
     }
 }
