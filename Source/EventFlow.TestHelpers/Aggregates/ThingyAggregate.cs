@@ -85,7 +85,9 @@ namespace EventFlow.TestHelpers.Aggregates
 
         protected override Task<ThingySnapshot> InternalCreateSnapshotAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(new ThingySnapshot(PingsReceived));
+            return Task.FromResult(new ThingySnapshot(
+                PingsReceived,
+                Enumerable.Empty<ThingySnapshotVersion>()));
         }
 
         protected override Task InternalLoadSnapshotAsync(ThingySnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)

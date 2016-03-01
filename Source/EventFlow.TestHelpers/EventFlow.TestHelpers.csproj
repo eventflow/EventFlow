@@ -58,6 +58,7 @@
     <Compile Include="Aggregates\Snapshots\ThingySnapshot.cs" />
     <Compile Include="Aggregates\Snapshots\ThingySnapshotV1.cs" />
     <Compile Include="Aggregates\Snapshots\ThingySnapshotV2.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshotVersion.cs" />
     <Compile Include="Aggregates\Snapshots\Upgraders\ThingySnapshotV1ToV2Upgrader.cs" />
     <Compile Include="Aggregates\Snapshots\Upgraders\ThingySnapshotV2ToV3Upgrader.cs" />
     <Compile Include="Aggregates\Thingy.cs" />

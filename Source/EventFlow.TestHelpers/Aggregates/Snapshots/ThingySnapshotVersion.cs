@@ -22,17 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Core.VersionedTypes;
-
-namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
+namespace EventFlow.TestHelpers.Aggregates.Snapshots
 {
-    public class ThingySnapshotV1ToV2Upgrader : IVersionedTypeUpgrader<ThingySnapshotV1, ThingySnapshotV2>
+    public enum ThingySnapshotVersion
     {
-        public ThingySnapshotV2 Upgrade(ThingySnapshotV1 fromVersionedType)
-        {
-            return new ThingySnapshotV2(
-                fromVersionedType.PingsReceived,
-                new [] { ThingySnapshotVersion.Version1, });
-        }
+        Version1,
+        Version2
     }
 }

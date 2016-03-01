@@ -71,7 +71,7 @@ namespace EventFlow.Core.VersionedTypes
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {
-                versionedType = UpgradeToVersion(versionedType, currentDefinition, nextDefinition, cancellationToken);
+                versionedType = UpgradeToVersion(versionedType, currentDefinition, nextDefinition);
                 currentDefinition = nextDefinition;
             }
 
@@ -81,8 +81,7 @@ namespace EventFlow.Core.VersionedTypes
         private TVersionedType UpgradeToVersion(
             TVersionedType versionedType,
             TDefinition fromDefinition,
-            TDefinition toDefinition,
-            CancellationToken cancellationToken)
+            TDefinition toDefinition)
         {
             // TODO: Cache this
             var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);

@@ -24,7 +24,6 @@
 
 using System.Linq;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
 {
@@ -32,7 +31,9 @@ namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
     {
         public ThingySnapshot Upgrade(ThingySnapshotV2 fromVersionedType)
         {
-            return new ThingySnapshot(Enumerable.Empty<PingId>());
+            return new ThingySnapshot(
+                fromVersionedType.PingsReceived,
+                new [] {ThingySnapshotVersion.Version2, }.Concat(fromVersionedType.PreviousVersions));
         }
     }
 }

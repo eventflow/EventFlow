@@ -22,12 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Snapshots;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots
 {
     [SnapshotVersion("thingy", 1)]
     public class ThingySnapshotV1 : ISnapshot
     {
+        public ThingySnapshotV1(
+            IEnumerable<PingId> pingsReceived)
+        {
+            PingsReceived = (pingsReceived ?? Enumerable.Empty<PingId>()).ToList();
+        }
+
+        public IReadOnlyCollection<PingId> PingsReceived { get; }
     }
 }

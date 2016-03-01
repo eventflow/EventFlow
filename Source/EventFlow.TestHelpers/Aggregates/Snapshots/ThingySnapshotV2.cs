@@ -22,12 +22,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Snapshots;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots
 {
     [SnapshotVersion("thingy", 2)]
     public class ThingySnapshotV2 : ISnapshot
     {
+        public ThingySnapshotV2(
+            IEnumerable<PingId> pingsReceived,
+            IEnumerable<ThingySnapshotVersion> previousVersions)
+        {
+            PingsReceived = (pingsReceived ?? Enumerable.Empty<PingId>()).ToList();
+            PreviousVersions = (previousVersions ?? Enumerable.Empty<ThingySnapshotVersion>()).ToList();
+        }
+
+        public IReadOnlyCollection<PingId> PingsReceived { get; }
+        public IReadOnlyCollection<ThingySnapshotVersion> PreviousVersions { get; }
     }
 }

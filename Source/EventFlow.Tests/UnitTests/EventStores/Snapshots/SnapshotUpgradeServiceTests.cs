@@ -31,6 +31,7 @@ using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -61,10 +62,15 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
         public async Task UpgradeAsync()
         {
             // Act
-            var snapshot = await Sut.UpgradeAsync(new ThingySnapshotV1(), CancellationToken.None).ConfigureAwait(false);
+            var pingIds = Many<PingId>();
+            var snapshot = await Sut.UpgradeAsync(new ThingySnapshotV1(pingIds), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             snapshot.Should().BeOfType<ThingySnapshot>();
+            var snapshotV3 = (ThingySnapshot) snapshot;
+            snapshotV3.PingsReceived.ShouldAllBeEquivalentTo(pingIds);
+            snapshotV3.PreviousVersions.Should().Contain(ThingySnapshotVersion.Version1);
+            snapshotV3.PreviousVersions.Should().Contain(ThingySnapshotVersion.Version2);
         }
     }
 }
