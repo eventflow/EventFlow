@@ -34,6 +34,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DbUp, Version=3.3.0.0, Culture=neutral, PublicKeyToken=4b419c53bdfd4cbf, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\dbup\lib\net35\DbUp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,7 +51,10 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Connections\ISQLiteConnectionFactory.cs" />
+    <Compile Include="Connections\ISQLiteDatabaseMigrator.cs" />
     <Compile Include="Connections\SQLiteConnectionFactory.cs" />
+    <Compile Include="Connections\SQLiteDatabaseMigrator.cs" />
+    <Compile Include="EventFlowSQLite.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="Connections\ISQLiteConfiguration.cs" />
     <Compile Include="Connections\ISQLiteConnection.cs" />
@@ -74,6 +81,9 @@
     <None Include="EventFlow.SQLite.nuspec" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\0001 - Create table EventFlow.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -82,6 +92,17 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
+      <ItemGroup>
+        <Reference Include="DbUp.SQLite">
+          <HintPath>..\..\packages\dbup-sqlite\lib\net40\DbUp.SQLite.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
       <PropertyGroup>

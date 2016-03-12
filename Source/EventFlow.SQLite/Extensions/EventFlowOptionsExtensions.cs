@@ -42,6 +42,7 @@ namespace EventFlow.SQLite.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                 {
+                    f.Register<ISQLiteDatabaseMigrator, SQLiteDatabaseMigrator>();
                     f.Register<ISQLiteConnection, SQLiteConnection>();
                     f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
                     f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();

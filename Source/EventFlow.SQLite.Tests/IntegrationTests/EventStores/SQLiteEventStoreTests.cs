@@ -29,6 +29,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
+using EventFlow.Sql.Migrations;
 using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.Extensions;
 using EventFlow.TestHelpers;
@@ -46,7 +47,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
 
-            using (File.Create(_databasePath)){ }
+            using (File.Create(_databasePath)) { }
 
             var resolver = eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
@@ -54,25 +55,9 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
                 .UseSQLiteEventStore()
                 .CreateResolver();
 
-            var connection = resolver.Resolve<ISQLiteConnection>();
-            const string sqlCreateTable = @"
-                CREATE TABLE [EventFlow](
-	                [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
-	                [BatchId] [uniqueidentifier] NOT NULL,
-	                [AggregateId] [nvarchar](255) NOT NULL,
-	                [AggregateName] [nvarchar](255) NOT NULL,
-	                [Data] [nvarchar](1024) NOT NULL,
-	                [Metadata] [nvarchar](1024) NOT NULL,
-	                [AggregateSequenceNumber] [int] NOT NULL
-                )";
-            const string sqlCreateIndex = @"
-                CREATE UNIQUE INDEX [IX_EventFlow_AggregateId_AggregateSequenceNumber] ON [EventFlow]
-                (
-	                [AggregateId] ASC,
-	                [AggregateSequenceNumber] ASC
-                )";
-            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlCreateTable, null).Wait();
-            connection.ExecuteAsync(Label.Named("create-index"), CancellationToken.None, sqlCreateIndex, null).Wait();
+            var databaseMigrator = resolver.Resolve<ISQLiteDatabaseMigrator>();
+            EventFlowSQLite.MigrateDatabase(databaseMigrator);
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
             return resolver;
         }

@@ -52,6 +52,7 @@ namespace EventFlow.Sql.Migrations
             MigrateDatabaseUsingEmbeddedScripts(assembly, _sqlConfiguration.ConnectionString);
         }
 
+        // TODO SQL Server specific
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
         {
             var upgradeEngine = DeployChanges.To
