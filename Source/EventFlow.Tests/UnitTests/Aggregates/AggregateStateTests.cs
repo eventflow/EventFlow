@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
@@ -51,7 +52,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public class TestAggregateState : AggregateState<ThingyAggregate, ThingyId, TestAggregateState>,
             IEmit<ThingyPingEvent>
         {
-            public ISet<PingId> PingIds { get; private set; }
+            public ISet<PingId> PingIds { get; }
 
             public TestAggregateState()
             {

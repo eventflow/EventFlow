@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using EventFlow.Core;
 using EventFlow.Jobs;
 using EventFlow.Logs;
@@ -37,14 +38,17 @@ namespace EventFlow.Hangfire.Integration
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ILog _log;
+        private readonly IJobDisplayNameBuilder _jobDisplayNameBuilder;
 
         public HangfireJobScheduler(
             ILog log,
+            IJobDisplayNameBuilder jobDisplayNameBuilder,
             IJsonSerializer jsonSerializer,
             IBackgroundJobClient backgroundJobClient,
             IJobDefinitionService jobDefinitionService)
         {
             _log = log;
+            _jobDisplayNameBuilder = jobDisplayNameBuilder;
             _jsonSerializer = jsonSerializer;
             _backgroundJobClient = backgroundJobClient;
             _jobDefinitionService = jobDefinitionService;
@@ -52,29 +56,42 @@ namespace EventFlow.Hangfire.Integration
 
         public Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
         {
-            return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Enqueue<IJobRunner>(r => r.Execute(d.Name, d.Version, j)));
+            return ScheduleAsync(
+                job,
+                cancellationToken,
+                (c, d, n, j) => _backgroundJobClient.Enqueue<IHangfireJobRunner>(r => r.Execute(n, d.Name, d.Version, j)));
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
         {
-            return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Schedule<IJobRunner>(r => r.Execute(d.Name, d.Version, j), runAt));
+            return ScheduleAsync(
+                job,
+                cancellationToken,
+                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.Execute(n, d.Name, d.Version, j), runAt));
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
         {
-            return ScheduleAsync(job, (c, d, j) => _backgroundJobClient.Schedule<IJobRunner>(r => r.Execute(d.Name, d.Version, j), delay));
+            return ScheduleAsync(
+                job,
+                cancellationToken,
+                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.Execute(n, d.Name, d.Version, j), delay));
         }
 
-        private Task<IJobId> ScheduleAsync(IJob job, Func<IBackgroundJobClient, JobDefinition, string, string> schedule)
+        private async Task<IJobId> ScheduleAsync(
+            IJob job,
+            CancellationToken cancellationToken,
+            Func<IBackgroundJobClient, JobDefinition, string, string, string> schedule)
         {
             var jobDefinition = _jobDefinitionService.GetDefinition(job.GetType());
             var json = _jsonSerializer.Serialize(job);
+            var name = await _jobDisplayNameBuilder.GetDisplayNameAsync(job, jobDefinition, cancellationToken).ConfigureAwait(false);
 
-            var id = schedule(_backgroundJobClient, jobDefinition, json);
+            var id = schedule(_backgroundJobClient, jobDefinition, name, json);
 
-            _log.Verbose($"Scheduled job '{id}' in Hangfire");
+            _log.Verbose($"Scheduled job '{id}' with name '{name}' in Hangfire");
 
-            return Task.FromResult<IJobId>(new HangfireJobId(id));
+            return new HangfireJobId(id);
         }
     }
 }

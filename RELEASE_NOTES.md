@@ -1,5 +1,6 @@
-### New in 0.27 (not released yet)
+### New in 0.28 (not released yet)
 
+<<<<<<< HEAD
 * New: SQLiteDatabaseMigrator with support for `dbup` based database migration 
   scripts has been added. Behaviour and usage is on par with SQL Server `dbup` 
   migration support in EventFlow.
@@ -7,6 +8,14 @@
   - `dbup-sqlite` v3.3.2
 * Breaking: The following NuGet references have been updated  
   - `dbup` v3.3.2 (up from v3.3.0)
+
+
+### New in 0.27.1765 (released 2016-02-25)
+
+ * New: Configure Hangfire job display names by implementing
+   `IJobDisplayNameBuilder`. The default implementation uses job description
+   name and version
+>>>>>>> develop
 
 ### New in 0.26.1714 (released 2016-02-20)
 
