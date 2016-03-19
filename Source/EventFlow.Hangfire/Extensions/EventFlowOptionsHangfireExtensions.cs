@@ -43,6 +43,8 @@ namespace EventFlow.Hangfire.Extensions
             return eventFlowOptions.RegisterServices(sr =>
                 {
                     sr.Register<IJobScheduler, HangfireJobScheduler>();
+                    sr.Register<IHangfireJobRunner, HangfireJobRunner>();
+                    sr.Register<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
                     sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
                 });
         }

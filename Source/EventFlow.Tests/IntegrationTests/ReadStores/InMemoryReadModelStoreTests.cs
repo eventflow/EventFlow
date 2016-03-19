@@ -35,7 +35,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)

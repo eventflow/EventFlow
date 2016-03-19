@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
@@ -31,7 +32,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class ResolverTests
     {
         public class Service { }

@@ -35,7 +35,7 @@ using NUnit.Framework;
 namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
 {
     [TestFixture]
-    [Category(Categories.Scenario)]
+    [Category(Categories.Integration)]
     public class AutofacAggregateFactoryTests
     {
         [Test]
