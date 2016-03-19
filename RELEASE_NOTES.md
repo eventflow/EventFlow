@@ -1,6 +1,12 @@
 ### New in 0.28 (not released yet)
 
- * _Nothing yet_
+* New: SQLiteDatabaseMigrator with support for `dbup` based database migration 
+  scripts has been added. Behaviour and usage is on par with SQL Server `dbup` 
+  migration support in EventFlow.
+* New: The following NuGet references have been added:
+  - `dbup-sqlite` v3.3.2
+* Breaking: The following NuGet references have been updated  
+  - `dbup` v3.3.2 (up from v3.3.0)
 
 ### New in 0.27.1765 (released 2016-02-25)
 

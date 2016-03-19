@@ -27,36 +27,33 @@ using System.Linq;
 using System.Reflection;
 using DbUp;
 using EventFlow.Logs;
-using EventFlow.Sql.Connections;
 using EventFlow.Sql.Exceptions;
 using EventFlow.Sql.Integrations;
+using EventFlow.Sql.Migrations;
 
-namespace EventFlow.Sql.Migrations
+namespace EventFlow.SQLite.Connections
 {
-    public class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
-        where TConfiguration : ISqlConfiguration<TConfiguration>
+    public class SQLiteDatabaseMigrator : SqlDatabaseMigrator<ISQLiteConfiguration>, ISQLiteDatabaseMigrator
     {
-        private readonly ILog _log;
-        private readonly TConfiguration _sqlConfiguration;
-
-        public SqlDatabaseMigrator(
+        public SQLiteDatabaseMigrator(
             ILog log,
-            TConfiguration sqlConfiguration)
+            ISQLiteConfiguration sqlConfiguration)
+            : base(log, sqlConfiguration)
         {
             _log = log;
             _sqlConfiguration = sqlConfiguration;
         }
 
-        public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
+        public new void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
         {
             MigrateDatabaseUsingEmbeddedScripts(assembly, _sqlConfiguration.ConnectionString);
         }
 
-        // TODO SQL Server specific
-        public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
+        public new void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
         {
+            // TODO { new ExampleAction("SQLite", Deploy(to => to.SQLiteDatabase(string.Empty), (builder, schema, tableName) => { builder.Configure(c => c.Journal = new SQLiteTableJournal(()=>c.ConnectionManager, ()=>c.Log, tableName)); return builder; })) },
             var upgradeEngine = DeployChanges.To
-                .SqlDatabase(connectionString)
+                .SQLiteDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(assembly)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
@@ -68,7 +65,7 @@ namespace EventFlow.Sql.Migrations
                 .ToList();
 
             _log.Information(
-                "Going to migrate the SQL database by executing these scripts: {0}",
+                "Going to migrate the SQLite database by executing these scripts: {0}",
                 string.Join(", ", scripts));
 
             var result = upgradeEngine.PerformUpgrade();
@@ -77,5 +74,10 @@ namespace EventFlow.Sql.Migrations
                 throw new SqlMigrationException(scripts, result.Error.Message, result.Error);
             }
         }
+
+        private readonly ILog _log;
+
+        private readonly ISQLiteConfiguration _sqlConfiguration;
+
     }
 }
