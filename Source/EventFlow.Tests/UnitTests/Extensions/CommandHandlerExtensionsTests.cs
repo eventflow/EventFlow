@@ -50,7 +50,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             Action act = () => sut.AddCommandHandlers(new List<Type> { typeof(AbstractCommandHandler) });
 
             // Assert
-            act.ShouldThrow<ArgumentException>();
+            act.ShouldNotThrow<ArgumentException>();
         }
     }
 

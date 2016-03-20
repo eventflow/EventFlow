@@ -58,9 +58,10 @@ namespace EventFlow.Extensions
             foreach (var commandHandlerType in commandHandlerTypes)
             {
                 var t = commandHandlerType;
+                if (t.IsAbstract) continue;
                 var handlesCommandTypes = t
                     .GetInterfaces()
-                    .Where(i => !t.IsAbstract && i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
                     .ToList();
                 if (!handlesCommandTypes.Any())
                 {
