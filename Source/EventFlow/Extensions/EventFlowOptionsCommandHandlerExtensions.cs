@@ -60,7 +60,7 @@ namespace EventFlow.Extensions
                 var t = commandHandlerType;
                 var handlesCommandTypes = t
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
+                    .Where(i => !t.IsAbstract && i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
                     .ToList();
                 if (!handlesCommandTypes.Any())
                 {

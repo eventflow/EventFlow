@@ -1,6 +1,7 @@
 ### New in 0.28 (not released yet)
 
- * _Nothing yet_
+ * Fixed: Prevent `abstract ICommandHandler<,,,>` from being registered in 
+   `EventFlowOptionsCommandHandlerExtensions.AddCommandHandlers`
 
 ### New in 0.27.1765 (released 2016-02-25)
 

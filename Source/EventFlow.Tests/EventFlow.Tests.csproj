@@ -72,6 +72,7 @@
     <Compile Include="UnitTests\Core\RetryDelayTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
+    <Compile Include="UnitTests\Extensions\CommandHandlerExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />
     <Compile Include="UnitTests\Jobs\JobDefinitionServiceTests.cs" />
