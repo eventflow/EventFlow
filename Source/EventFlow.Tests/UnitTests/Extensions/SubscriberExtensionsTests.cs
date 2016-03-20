@@ -26,29 +26,30 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Commands;
+using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public class CommandHandlerExtensionsTests
+    public class SubscriberExtensionsTests
     {
         [Test]
-        public void AbstractCommandHandlerIsNotRegistered()
+        public void AbstractSubscriberIsNotRegistered()
         {
             // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New.UseServiceRegistration(registry);
 
             // Act
-            Action act = () => sut.AddCommandHandlers(new List<Type>
+            Action act = () => sut.AddSubscribers(new List<Type>
             {
-                typeof (AbstractTestCommandHandler)
+                typeof (AbstractTestSubscriber)
             });
 
             // Assert
@@ -56,10 +57,11 @@ namespace EventFlow.Tests.UnitTests.Extensions
         }
     }
 
-    public abstract class AbstractTestCommandHandler :
-        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+    public abstract class AbstractTestSubscriber :
+        ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
+        public abstract Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
             CancellationToken cancellationToken);
     }
 }

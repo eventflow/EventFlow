@@ -75,6 +75,7 @@ namespace EventFlow.Extensions
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
             {
                 var t = subscribeSynchronousToType;
+                if (t.IsAbstract) continue;
                 var subscribeTos = t
                     .GetInterfaces()
                     .Where(i =>

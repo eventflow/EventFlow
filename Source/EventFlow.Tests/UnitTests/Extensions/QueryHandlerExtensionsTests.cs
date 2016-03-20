@@ -26,29 +26,29 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Commands;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
+using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public class CommandHandlerExtensionsTests
+    public class QueryHandlerExtensionsTests
     {
         [Test]
-        public void AbstractCommandHandlerIsNotRegistered()
+        public void AbstractQueryHandlerIsNotRegistered()
         {
             // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New.UseServiceRegistration(registry);
 
             // Act
-            Action act = () => sut.AddCommandHandlers(new List<Type>
+            Action act = () => sut.AddQueryHandlers(new List<Type>
             {
-                typeof (AbstractTestCommandHandler)
+                typeof (AbstractTestQueryHandler)
             });
 
             // Assert
@@ -56,10 +56,9 @@ namespace EventFlow.Tests.UnitTests.Extensions
         }
     }
 
-    public abstract class AbstractTestCommandHandler :
-        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+    public abstract class AbstractTestQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
+        public abstract Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query,
             CancellationToken cancellationToken);
     }
 }

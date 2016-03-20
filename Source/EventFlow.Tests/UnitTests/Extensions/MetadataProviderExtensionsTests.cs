@@ -24,31 +24,29 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
+using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
+using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public class CommandHandlerExtensionsTests
+    public class MetadataProviderExtensionsTests
     {
         [Test]
-        public void AbstractCommandHandlerIsNotRegistered()
+        public void AbstractMetadataProviderIsNotRegistered()
         {
             // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New.UseServiceRegistration(registry);
 
             // Act
-            Action act = () => sut.AddCommandHandlers(new List<Type>
+            Action act = () => sut.AddMetadataProviders(new List<Type>
             {
-                typeof (AbstractTestCommandHandler)
+                typeof (AbstractTestSubscriber)
             });
 
             // Assert
@@ -56,10 +54,10 @@ namespace EventFlow.Tests.UnitTests.Extensions
         }
     }
 
-    public abstract class AbstractTestCommandHandler :
-        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+    public abstract class AbstractTestMetadataProvider : IMetadataProvider
     {
-        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
-            CancellationToken cancellationToken);
+        public abstract IEnumerable<KeyValuePair<string, string>> ProvideMetadata
+            <TAggregate, TIdentity>(TIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
+            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity;
     }
 }

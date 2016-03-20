@@ -20,35 +20,33 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
+using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
-    public class CommandHandlerExtensionsTests
+    public class EventUpgraderExtensionsTests
     {
         [Test]
-        public void AbstractCommandHandlerIsNotRegistered()
+        public void AbstractEventUpgraderIsNotRegistered()
         {
             // Arrange
             var registry = new AutofacServiceRegistration();
             var sut = EventFlowOptions.New.UseServiceRegistration(registry);
 
             // Act
-            Action act = () => sut.AddCommandHandlers(new List<Type>
+            Action act = () => sut.AddEventUpgraders(new List<Type>
             {
-                typeof (AbstractTestCommandHandler)
+                typeof (AbstractTestEventUpgrader)
             });
 
             // Assert
@@ -56,10 +54,9 @@ namespace EventFlow.Tests.UnitTests.Extensions
         }
     }
 
-    public abstract class AbstractTestCommandHandler :
-        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+    public abstract class AbstractTestEventUpgrader : IEventUpgrader<ThingyAggregate, ThingyId>
     {
-        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
-            CancellationToken cancellationToken);
+        public abstract IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
+            IDomainEvent<ThingyAggregate, ThingyId> domainEvent);
     }
 }
