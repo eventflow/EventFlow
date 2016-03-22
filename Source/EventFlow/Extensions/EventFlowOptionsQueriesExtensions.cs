@@ -67,6 +67,7 @@ namespace EventFlow.Extensions
             foreach (var queryHandlerType in queryHandlerTypes)
             {
                 var t = queryHandlerType;
+                if (t.IsAbstract) continue;
                 var queryHandlerInterfaces = t
                     .GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
