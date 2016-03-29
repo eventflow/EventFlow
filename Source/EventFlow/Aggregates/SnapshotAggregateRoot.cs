@@ -45,13 +45,14 @@ namespace EventFlow.Aggregates
 
         public async Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken)
         {
-            var snapshot = await CreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            var snapshotTask = CreateSnapshotAsync(cancellationToken);
+            var snapshotMetadataTask = CreateSnapshotMetadataAsync(cancellationToken);
 
-            // TODO: Enrich snapshot
+            await Task.WhenAll(snapshotTask, snapshotMetadataTask).ConfigureAwait(false);
 
             var snapshotContainer = new SnapshotContainer(
-                snapshot,
-                new SnapshotMetadata());
+                snapshotTask.Result,
+                snapshotMetadataTask.Result);
 
             return snapshotContainer;
         }
@@ -69,5 +70,10 @@ namespace EventFlow.Aggregates
         protected abstract Task<TSnapshot> CreateSnapshotAsync(CancellationToken cancellationToken);
 
         protected abstract Task LoadSnapshotAsync(TSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken);
+
+        protected virtual Task<ISnapshotMetadata> CreateSnapshotMetadataAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult<ISnapshotMetadata>(new SnapshotMetadata());
+        }
     }
 }
