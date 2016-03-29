@@ -1,4 +1,4 @@
-﻿IF EXISTS (SELECT * FROM SYS.TYPES WHERE is_table_type = 1 AND name = 'eventdatamodel_list_type')
+IF NOT EXISTS (SELECT * FROM SYS.TYPES WHERE is_table_type = 1 AND name = 'eventdatamodel_list_type')
 BEGIN
 	CREATE TYPE eventdatamodel_list_type AS TABLE
 	(
