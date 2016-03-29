@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -40,6 +41,7 @@ namespace EventFlow.TestHelpers
     {
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
+        protected IEventPersistence EventPersistence { get; private set; }
         protected IQueryProcessor QueryProcessor { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
@@ -53,6 +55,7 @@ namespace EventFlow.TestHelpers
             Resolver = CreateRootResolver(Options(eventFlowOptions));
 
             EventStore = Resolver.Resolve<IEventStore>();
+            EventPersistence = Resolver.Resolve<IEventPersistence>();
             CommandBus = Resolver.Resolve<ICommandBus>();
             QueryProcessor = Resolver.Resolve<IQueryProcessor>();
             ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
@@ -71,12 +74,18 @@ namespace EventFlow.TestHelpers
 
         protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
 
-        protected async Task PublishPingCommandAsync(ThingyId thingyId, int count = 1)
+        protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count = 1)
         {
+            var pingIds = new List<PingId>();
+
             for (var i = 0; i < count; i++)
             {
-                await CommandBus.PublishAsync(new ThingyPingCommand(thingyId, PingId.New), CancellationToken.None).ConfigureAwait(false);
+                var pingId = PingId.New;
+                await CommandBus.PublishAsync(new ThingyPingCommand(thingyId, pingId), CancellationToken.None).ConfigureAwait(false);
+                pingIds.Add(pingId);
             }
+
+            return pingIds;
         }
     }
 }

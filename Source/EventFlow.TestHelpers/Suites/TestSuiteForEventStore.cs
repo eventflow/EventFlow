@@ -150,6 +150,23 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task LoadingOfEventsCanStartLater()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            await PublishPingCommandsAsync(id, 5).ConfigureAwait(false);
+
+            // Act
+            var domainEvents = await EventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(id, 3, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents.Should().HaveCount(3);
+            domainEvents.ElementAt(0).AggregateSequenceNumber.Should().Be(3);
+            domainEvents.ElementAt(1).AggregateSequenceNumber.Should().Be(4);
+            domainEvents.ElementAt(2).AggregateSequenceNumber.Should().Be(5);
+        }
+
+        [Test]
         public async Task AggregateCanHaveMultipleCommits()
         {
             // Arrange
