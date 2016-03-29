@@ -41,5 +41,17 @@ namespace EventFlow.Snapshots.Stores
             IIdentity identity,
             SerializedSnapshot serializedSnapshot,
             CancellationToken cancellationToken);
+
+        Task DeleteSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            CancellationToken cancellationToken);
+
+        Task PurgeSnapshotsAsync(
+            Type aggregateType,
+            CancellationToken cancellationToken);
+
+        Task PurgeSnapshotsAsync(
+            CancellationToken cancellationToken);
     }
 }

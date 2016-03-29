@@ -27,13 +27,22 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Extensions;
+using EventFlow.Logs;
 
 namespace EventFlow.Snapshots.Stores.InMemory
 {
     public class InMemorySnapshotPersistence : ISnapshotPersistence
     {
+        private readonly ILog _log;
         private readonly AsyncLock _asyncLock = new AsyncLock();
-        private readonly Dictionary<Type, Dictionary<string, CommittedSnapshot>> _snapshots = new Dictionary<Type, Dictionary<string, CommittedSnapshot>>(); 
+        private readonly Dictionary<Type, Dictionary<string, CommittedSnapshot>> _snapshots = new Dictionary<Type, Dictionary<string, CommittedSnapshot>>();
+
+        public InMemorySnapshotPersistence(
+            ILog log)
+        {
+            _log = log;
+        }
 
         public async Task<CommittedSnapshot> GetSnapshotAsync(
             Type aggregateType,
@@ -63,6 +72,8 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
+                _log.Verbose(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+
                 Dictionary<string, CommittedSnapshot> snapshots;
                 if (!_snapshots.TryGetValue(aggregateType, out snapshots))
                 {
@@ -71,6 +82,48 @@ namespace EventFlow.Snapshots.Stores.InMemory
                 }
 
                 snapshots[identity.Value] = serializedSnapshot;
+            }
+        }
+
+        public async Task DeleteSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                _log.Verbose(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+
+                Dictionary<string, CommittedSnapshot> snapshots;
+                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                {
+                    return;
+                }
+
+                snapshots.Remove(identity.Value);
+            }
+        }
+
+        public async Task PurgeSnapshotsAsync(
+            Type aggregateType,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                _log.Warning($"Purging ALL snapshots of type '{aggregateType.PrettyPrint()}'!");
+
+                _snapshots.Remove(aggregateType);
+            }
+        }
+
+        public async Task PurgeSnapshotsAsync(
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                _log.Warning("Purging ALL snapshots!");
+
+                _snapshots.Clear();
             }
         }
     }

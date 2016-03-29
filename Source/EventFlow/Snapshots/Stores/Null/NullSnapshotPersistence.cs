@@ -56,6 +56,28 @@ namespace EventFlow.Snapshots.Stores.Null
             CancellationToken cancellationToken)
         {
             _log.Warning($"Trying to store aggregate snapshot '{aggregateType.PrettyPrint()}' with ID '{identity}' in the NULL store. Configure another store!");
+
+            return Task.FromResult(0);
+        }
+
+        public Task DeleteSnapshotAsync(
+            Type aggregateType,
+            IIdentity identity,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(0);
+        }
+
+        public Task PurgeSnapshotsAsync(
+            Type aggregateType,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(0);
+        }
+
+        public Task PurgeSnapshotsAsync(
+            CancellationToken cancellationToken)
+        {
             return Task.FromResult(0);
         }
     }
