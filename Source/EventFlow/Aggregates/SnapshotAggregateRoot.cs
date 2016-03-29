@@ -22,9 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Snapshots;
 
 namespace EventFlow.Aggregates
@@ -59,6 +61,9 @@ namespace EventFlow.Aggregates
 
         public Task LoadSnapshotContainerAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
+            if (SnapshotVersion.HasValue) throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has snapshot loaded");
+            if (Version > 0) throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has events loaded");
+
             SnapshotVersion = snapshotContainer.Metadata.AggregateSequenceNumber;
 
             return LoadSnapshotAsync(
