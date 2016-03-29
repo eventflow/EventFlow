@@ -23,8 +23,8 @@
 // 
 
 using System.Linq;
-using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
+using EventFlow.MsSql.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using Helpz.MsSql;

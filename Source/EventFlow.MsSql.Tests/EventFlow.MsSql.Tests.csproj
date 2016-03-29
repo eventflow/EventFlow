@@ -57,10 +57,6 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.EventStores.MsSql\EventFlow.EventStores.MsSql.csproj">
-      <Project>{0c92026e-7e6d-40b9-a4dd-a7041e23aa7d}</Project>
-      <Name>EventFlow.EventStores.MsSql</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj">
       <Project>{a0c8e77f-db74-4035-b0de-9baddfca5ebe}</Project>
       <Name>EventFlow.MsSql</Name>

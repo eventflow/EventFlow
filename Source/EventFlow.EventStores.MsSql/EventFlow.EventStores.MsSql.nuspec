@@ -2,10 +2,10 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EventFlow.EventStores.MsSql</id>
-    <title>EventFlow.EventStores.MsSql - MSSQL event store</title>
+    <title>[Deprecated] EventFlow.EventStores.MsSql</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
-    <description>MSSQL event store for EventFlow</description>
+    <description>Deprecated MSSQL event store package for EventFlow. All content has been moved to EventFlow.MsSql.</description>
     <language>en-US</language>
     <iconUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/icon-256.png</iconUrl>
     <projectUrl>https://github.com/rasmus/EventFlow</projectUrl>
@@ -17,7 +17,4 @@
     @dependencies@
     @references@
   </metadata>
-  <files>
-  	<file src="bin\EventFlow.EventStores.MsSql.dll" target="lib\net451" />
-  </files>
 </package>
