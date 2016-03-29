@@ -27,7 +27,14 @@ namespace EventFlow.Extensions
 {
     public static class StringExtensions
     {
-        private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
+        private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])",
+#if PORTABLE
+            RegexOptions.None
+#else
+            RegexOptions.Compiled
+#endif
+            );
+
 
         public static string ToSlug(this string str)
         {

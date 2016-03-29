@@ -57,11 +57,11 @@ namespace EventFlow.Extensions
         {
             foreach (var commandHandlerType in commandHandlerTypes)
             {
-                var t = commandHandlerType;
+                var t = commandHandlerType.GetTypeInfo();
                 if (t.IsAbstract) continue;
                 var handlesCommandTypes = t
-                    .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
+                    .ImplementedInterfaces
+                    .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
                     .ToList();
                 if (!handlesCommandTypes.Any())
                 {
@@ -72,7 +72,7 @@ namespace EventFlow.Extensions
                     {
                         foreach (var handlesCommandType in handlesCommandTypes)
                         {
-                            sr.Register(handlesCommandType, t);
+                            sr.Register(handlesCommandType, commandHandlerType);
                         }
                     });
             }

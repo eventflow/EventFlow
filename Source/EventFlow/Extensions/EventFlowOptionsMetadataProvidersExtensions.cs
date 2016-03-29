@@ -56,7 +56,11 @@ namespace EventFlow.Extensions
         {
             predicate = predicate ?? (t => true);
             var metadataProviderTypes = fromAssembly
+#if PORTABLE
+                .DefinedTypes
+#else
                 .GetTypes()
+#endif
                 .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
@@ -69,7 +73,11 @@ namespace EventFlow.Extensions
             foreach (var metadataProviderType in metadataProviderTypes)
             {
                 var t = metadataProviderType;
+#if PORTABLE
+                if (t.GetTypeInfo().IsAbstract) continue;
+#else
                 if (t.IsAbstract) continue;
+#endif
                 if (!typeof (IMetadataProvider).IsAssignableFrom(t))
                 {
                     throw new ArgumentException($"Type '{metadataProviderType.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");

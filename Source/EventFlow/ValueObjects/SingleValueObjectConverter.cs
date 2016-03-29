@@ -49,7 +49,7 @@ namespace EventFlow.ValueObjects
                 objectType,
                 t =>
                     {
-                        var constructorInfo = objectType.GetConstructors(BindingFlags.Public | BindingFlags.Instance).Single();
+                        var constructorInfo = objectType.GetTypeInfo().DeclaredConstructors.Where(ci => ci.IsPublic && !ci.IsStatic).Single();
                         var parameterInfo = constructorInfo.GetParameters().Single();
                         return parameterInfo.ParameterType;
                     });
@@ -60,7 +60,7 @@ namespace EventFlow.ValueObjects
 
         public override bool CanConvert(Type objectType)
         {
-            return typeof(ISingleValueObject).IsAssignableFrom(objectType);
+            return typeof(ISingleValueObject).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
         }
     }
 }

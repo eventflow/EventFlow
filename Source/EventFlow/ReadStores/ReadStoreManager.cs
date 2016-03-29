@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -55,8 +56,13 @@ namespace EventFlow.ReadStores
         static ReadStoreManager()
         {
             var iAmReadModelForInterfaceTypes = ReadModelType
+#if PORTABLE
+                .GetTypeInfo().ImplementedInterfaces
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAmReadModelFor<,,>))
+#else
                 .GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+#endif
                 .ToList();
             if (!iAmReadModelForInterfaceTypes.Any())
             {
@@ -64,8 +70,13 @@ namespace EventFlow.ReadStores
                     $"Read model type '{ReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
             }
 
+#if PORTABLE
+            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GenericTypeArguments[0]));
+            AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GenericTypeArguments[2]));
+#else
             AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
             AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[2]));
+#endif
         }
 
         protected ReadStoreManager(

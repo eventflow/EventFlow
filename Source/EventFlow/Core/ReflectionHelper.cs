@@ -36,6 +36,9 @@ namespace EventFlow.Core
     {
         public static string GetCodeBase(Assembly assembly, bool includeFileName = false)
         {
+#if PORTABLE
+            throw new NotImplementedException();
+#else
             var codebase = assembly.GetName().CodeBase;
             var uri = new UriBuilder(codebase);
             var path = Path.GetFullPath(Uri.UnescapeDataString(uri.Path));
@@ -43,6 +46,7 @@ namespace EventFlow.Core
                 path :
                 Path.GetDirectoryName(path);
             return codeBase;
+#endif
         }
 
         /// <summary>
@@ -52,15 +56,15 @@ namespace EventFlow.Core
         public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, params Type[] methodSignature)
         {
             var methodInfo = methodSignature == null || !methodSignature.Any()
-                ? type.GetMethods(BindingFlags.Instance | BindingFlags.Public).SingleOrDefault(m => m.Name == methodName)
-                : type.GetMethod(methodName, methodSignature);
+                ? type.GetRuntimeMethods().Where(mi => !mi.IsStatic && mi.IsPublic).SingleOrDefault(m => m.Name == methodName)
+                : type.GetRuntimeMethod(methodName, methodSignature);
 
             if (methodInfo == null)
             {
                 throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
             }
 
-            var genericArguments = typeof (TResult).GetGenericArguments();
+            var genericArguments = typeof(TResult).GetTypeInfo().GenericTypeArguments;
             var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();
             var funcArgumentList = genericArguments.Skip(1).Take(methodArgumentList.Count).ToList();
 

@@ -40,7 +40,12 @@ namespace EventFlow.Core.VersionedTypes
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Regex NameRegex = new Regex(
             @"^(Old){0,1}(?<name>[a-zA-Z0-9]+?)(V(?<version>[0-9]+)){0,1}$",
-            RegexOptions.Compiled);
+#if PORTABLE
+            RegexOptions.None
+#else
+            RegexOptions.Compiled
+#endif
+            );
 
         private readonly object _syncRoot = new object();
         private readonly ILog _log;
@@ -66,8 +71,8 @@ namespace EventFlow.Core.VersionedTypes
             }
 
             var invalidTypes = types
-                .Where(t => !typeof (TTypeCheck)
-                .IsAssignableFrom(t))
+                .Where(t => !typeof (TTypeCheck).GetTypeInfo()
+                .IsAssignableFrom(t.GetTypeInfo()))
                 .ToList();
             if (invalidTypes.Any())
             {
@@ -89,7 +94,7 @@ namespace EventFlow.Core.VersionedTypes
                 _log.Verbose(() =>
                     {
                         var assemblies = definitions
-                            .Select(d => d.Type.Assembly.GetName().Name)
+                            .Select(d => d.Type.GetTypeInfo().Assembly.GetName().Name)
                             .Distinct()
                             .OrderBy(n => n)
                             .ToList();
@@ -229,7 +234,7 @@ namespace EventFlow.Core.VersionedTypes
 
         private TDefinition CreateDefinitionFromAttribute(Type versionedType)
         {
-            var attribute = versionedType
+            var attribute = versionedType.GetTypeInfo()
                 .GetCustomAttributes()
                 .OfType<TAttribute>()
                 .SingleOrDefault();

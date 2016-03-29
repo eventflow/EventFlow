@@ -25,6 +25,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -198,10 +199,10 @@ namespace EventFlow
                 commandType,
                 t =>
                     {
-                        var commandInterfaceType = t
-                            .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
-                        var commandTypes = commandInterfaceType.GetGenericArguments();
+                        var commandInterfaceType = t.GetTypeInfo()
+                            .ImplementedInterfaces
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
+                        var commandTypes = commandInterfaceType.GenericTypeArguments;
 
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
