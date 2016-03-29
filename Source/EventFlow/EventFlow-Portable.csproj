@@ -203,6 +203,7 @@
     <Compile Include="MetadataProviders\AddMachineNameMetadataProvider.cs" />
     <Compile Include="PclPolyfills\ConcurrentDictionary.cs" />
     <Compile Include="PclPolyfills\ConcurrentQueue.cs" />
+    <Compile Include="PclPolyfills\ReflectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provided\Jobs\PublishCommandJob.cs" />
     <Compile Include="Provided\ProvidedJobsConfigurationModule.cs" />

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
@@ -122,13 +123,13 @@ namespace EventFlow.EventStores
                 aggregateType,
                 t =>
                     {
-                        var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                        var aggregateRootInterface = t.GetTypeInfo().ImplementedInterfaces.SingleOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
                         if (aggregateRootInterface == null)
                         {
                             throw new ArgumentException($"Type '{t.PrettyPrint()}' is not a '{typeof (IAggregateRoot<>).PrettyPrint()}'", nameof(aggregateType));
                         }
 
-                        var arguments = aggregateRootInterface.GetGenericArguments();
+                        var arguments = aggregateRootInterface.GenericTypeArguments;
                         var eventUpgraderType = typeof(IEventUpgrader<,>).MakeGenericType(t, arguments[0]);
 
                         var invokeUpgrade = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, IEnumerable<IDomainEvent>>>(eventUpgraderType, "Upgrade");

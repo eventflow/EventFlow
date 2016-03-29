@@ -64,7 +64,7 @@ namespace EventFlow.Core
                 throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
             }
 
-            var genericArguments = typeof(TResult).GetTypeInfo().GenericTypeArguments;
+            var genericArguments = typeof(TResult).GenericTypeArguments;
             var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();
             var funcArgumentList = genericArguments.Skip(1).Take(methodArgumentList.Count).ToList();
 

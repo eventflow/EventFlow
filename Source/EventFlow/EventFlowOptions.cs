@@ -156,10 +156,7 @@ namespace EventFlow
             // http://docs.autofac.org/en/latest/register/registration.html
             // Maybe swap around and do after and and .PreserveExistingDefaults()
 
-#if PORTABLE
-#else
             serviceRegistration.Register<ILog, ConsoleLog>();
-#endif
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();

@@ -46,9 +46,10 @@ namespace EventFlow.Extensions
         {
             predicate = predicate ?? (t => true);
             var aggregateRootTypes = fromAssembly
-                .GetTypes()
+                .DefinedTypes
                 .Where(t => !t.IsAbstract)
                 .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Select(t => t.AsType())
                 .Where(t => predicate(t));
             return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
         }
@@ -67,7 +68,7 @@ namespace EventFlow.Extensions
             var aggregateRootTypeList = aggregateRootTypes.ToList();
 
             var invalidTypes = aggregateRootTypeList
-                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => t.GetTypeInfo().IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
                 .ToList();
             if (invalidTypes.Any())
             {

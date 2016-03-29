@@ -71,8 +71,8 @@ namespace EventFlow.ReadStores
             }
 
 #if PORTABLE
-            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GenericTypeArguments[0]));
-            AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GenericTypeArguments[2]));
+            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GenericTypeArguments[0]));
+            AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GenericTypeArguments[2]));
 #else
             AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
             AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[2]));
