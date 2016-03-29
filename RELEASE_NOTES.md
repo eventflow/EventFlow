@@ -1,6 +1,21 @@
-### New in 0.27 (not released yet)
+### New in 0.28 (not released yet)
 
-* _Nothing yet_
+* Fixed: Prevent `abstract ICommandHandler<,,,>` from being registered in 
+   `EventFlowOptionsCommandHandlerExtensions.AddCommandHandlers(...)`
+* Fixed: Prevent `abstract IEventUpgrader<,>` from being registered in 
+   `EventFlowOptionsEventUpgradersExtensions.AddEventUpgraders(...)`
+* Fixed: Prevent `abstract IMetadataProvider` from being registered in 
+   `EventFlowOptionsMetadataProvidersExtensions.AddMetadataProviders(...)`
+* Fixed: Prevent `abstract IQueryHandler<,>` from being registered in 
+   `EventFlowOptionsQueriesExtensions.AddQueryHandlers(...)`
+* Fixed: Prevent `abstract ISubscribeSynchronousTo<,,>` from being registered in 
+   `EventFlowOptionsSubscriberExtensions.AddSubscribers(...)`
+
+### New in 0.27.1765 (released 2016-02-25)
+
+ * New: Configure Hangfire job display names by implementing
+   `IJobDisplayNameBuilder`. The default implementation uses job description
+   name and version
 
 ### New in 0.26.1714 (released 2016-02-20)
 
