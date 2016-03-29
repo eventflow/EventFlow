@@ -93,7 +93,7 @@ namespace EventFlow.Snapshots
             var aggregate = (ISnapshotAggregateRoot) await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(identity);
             var snapshotContainer = new SnapshotContainer(upgradedSnapshot, metadata);
 
-            await aggregate.LoadSnapshotAsyncAsync(snapshotContainer, cancellationToken).ConfigureAwait(false);
+            await aggregate.LoadSnapshotContainerAsyncAsync(snapshotContainer, cancellationToken).ConfigureAwait(false);
 
             return (TAggregate) aggregate;
         }

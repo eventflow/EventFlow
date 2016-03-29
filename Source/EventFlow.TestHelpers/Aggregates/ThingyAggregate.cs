@@ -83,14 +83,14 @@ namespace EventFlow.TestHelpers.Aggregates
             DomainErrorAfterFirstReceived = true;
         }
 
-        protected override Task<ThingySnapshot> InternalCreateSnapshotAsync(CancellationToken cancellationToken)
+        protected override Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(new ThingySnapshot(
                 PingsReceived,
                 Enumerable.Empty<ThingySnapshotVersion>()));
         }
 
-        protected override Task InternalLoadSnapshotAsync(ThingySnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
+        protected override Task LoadSnapshotAsync(ThingySnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
         {
             _pingsReceived.AddRange(snapshot.PingsReceived);
             return Task.FromResult(0);

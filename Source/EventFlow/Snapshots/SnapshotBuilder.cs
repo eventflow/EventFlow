@@ -74,7 +74,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var snapshotContainer = await aggregate.CreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            var snapshotContainer = await aggregate.CreateSnapshotContainerAsync(cancellationToken).ConfigureAwait(false);
 
             var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof (TSnapshot));
 

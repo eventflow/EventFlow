@@ -43,9 +43,9 @@ namespace EventFlow.Aggregates
 
         public int? SnapshotVersion { get; private set; }
 
-        public async Task<SnapshotContainer> CreateSnapshotAsync(CancellationToken cancellationToken)
+        public async Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken)
         {
-            var snapshot = await InternalCreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
+            var snapshot = await CreateSnapshotAsync(cancellationToken).ConfigureAwait(false);
 
             // TODO: Enrich snapshot
 
@@ -56,18 +56,18 @@ namespace EventFlow.Aggregates
             return snapshotContainer;
         }
 
-        public Task LoadSnapshotAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
+        public Task LoadSnapshotContainerAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
             SnapshotVersion = snapshotContainer.Metadata.AggregateSequenceNumber;
 
-            return InternalLoadSnapshotAsync(
+            return LoadSnapshotAsync(
                 (TSnapshot) snapshotContainer.Snapshot,
                 snapshotContainer.Metadata,
                 cancellationToken);
         }
 
-        protected abstract Task<TSnapshot> InternalCreateSnapshotAsync(CancellationToken cancellationToken);
+        protected abstract Task<TSnapshot> CreateSnapshotAsync(CancellationToken cancellationToken);
 
-        protected abstract Task InternalLoadSnapshotAsync(TSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken);
+        protected abstract Task LoadSnapshotAsync(TSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken);
     }
 }
