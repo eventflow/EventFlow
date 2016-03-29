@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Entities;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -138,17 +137,33 @@ namespace EventFlow.EventStores
             return allEventsPage;
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+        public Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            return LoadEventsAsync<TAggregate, TIdentity>(
+                id,
+                1,
+                cancellationToken);
+        }
+
+        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
+
             var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
                 id,
+                fromEventSequenceNumber,
                 cancellationToken)
                 .ConfigureAwait(false);
-            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) committedDomainEvents
+            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 

@@ -153,12 +153,16 @@ namespace EventFlow.EventStores.EventStore
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             IIdentity id,
+            int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
             var streamEvents = new List<ResolvedEvent>();
 
             StreamEventsSlice currentSlice;
-            var nextSliceStart = StreamPosition.Start;
+            var nextSliceStart = fromEventSequenceNumber <= 1
+                ? StreamPosition.Start
+                : fromEventSequenceNumber;
+
             do
             {
                 currentSlice = await _connection.ReadStreamEventsForwardAsync(
