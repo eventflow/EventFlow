@@ -5,7 +5,7 @@
     <title>[Deprecated] EventFlow.ReadStores.MsSql</title>
     <version>0.0.0</version>
     <authors>rasmus</authors>
-    <description>Deprecated MSSQL read store package for EventFlow. All content has been moved to EventFlow.MsSql.</description>
+    <description>Deprecated MSSQL read store package for EventFlow. All content has been moved to EventFlow.MsSql and this package will discontinue.</description>
     <language>en-US</language>
     <iconUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/icon-256.png</iconUrl>
     <projectUrl>https://github.com/rasmus/EventFlow</projectUrl>
