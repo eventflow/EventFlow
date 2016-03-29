@@ -45,6 +45,7 @@
     <Compile Include="Aggregates\Commands\ThingyImportCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyNopCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyDomainErrorAfterFirstCommand.cs" />
+    <Compile Include="Aggregates\Commands\ThingyMultiplePingsCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyPingCommand.cs" />
     <Compile Include="Aggregates\Entities\ThingyMessage.cs" />
     <Compile Include="Aggregates\Entities\ThingyMessageId.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Suites\TestSuiteForEventStore.cs" />
     <Compile Include="Suites\TestSuiteForReadModelStore.cs" />
     <Compile Include="Suites\TestSuiteForSnapshotStore.cs" />
+    <Compile Include="Suites\TestSuiteForScheduler.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TestsFor.cs" />
   </ItemGroup>

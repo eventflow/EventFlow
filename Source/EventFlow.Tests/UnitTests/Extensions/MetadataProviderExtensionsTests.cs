@@ -22,19 +22,42 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.ComponentModel;
-using EventFlow.Configuration;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
+using System;
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Core;
+using EventFlow.EventStores;
+using EventFlow.Extensions;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.EventStores
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    [Category(Categories.Integration)]
-    public class InMemoryEventStoreTests : TestSuiteForEventStore
+    public class MetadataProviderExtensionsTests
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        [Test]
+        public void AbstractMetadataProviderIsNotRegistered()
         {
-            return eventFlowOptions.CreateResolver();
+            // Arrange
+            var registry = new AutofacServiceRegistration();
+            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
+
+            // Act
+            Action act = () => sut.AddMetadataProviders(new List<Type>
+            {
+                typeof (AbstractTestSubscriber)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
         }
+    }
+
+    public abstract class AbstractTestMetadataProvider : IMetadataProvider
+    {
+        public abstract IEnumerable<KeyValuePair<string, string>> ProvideMetadata
+            <TAggregate, TIdentity>(TIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
+            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity;
     }
 }

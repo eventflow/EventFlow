@@ -22,19 +22,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.ComponentModel;
-using EventFlow.Configuration;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Extensions;
+using EventFlow.Queries;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.EventStores
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    [Category(Categories.Integration)]
-    public class InMemoryEventStoreTests : TestSuiteForEventStore
+    public class QueryHandlerExtensionsTests
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        [Test]
+        public void AbstractQueryHandlerIsNotRegistered()
         {
-            return eventFlowOptions.CreateResolver();
+            // Arrange
+            var registry = new AutofacServiceRegistration();
+            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
+
+            // Act
+            Action act = () => sut.AddQueryHandlers(new List<Type>
+            {
+                typeof (AbstractTestQueryHandler)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
         }
+    }
+
+    public abstract class AbstractTestQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
+    {
+        public abstract Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query,
+            CancellationToken cancellationToken);
     }
 }

@@ -31,12 +31,14 @@ namespace EventFlow.Tests.UnitTests.Core
     [Category(Categories.Unit)]
     public class LabelTests
     {
+        [TestCase("val")]
         [TestCase("valid-label")]
         public void ValidLabelsWorks(string name)
         {
             Assert.DoesNotThrow(() => Label.Named(name));
         }
 
+        [TestCase("invalid.label")]
         [TestCase("invalid label")]
         public void InvalidLabelThrows(string name)
         {
