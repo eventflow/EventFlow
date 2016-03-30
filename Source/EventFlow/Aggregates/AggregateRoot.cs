@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Aggregates
 {
@@ -128,6 +129,7 @@ namespace EventFlow.Aggregates
 
         public virtual async Task LoadAsync(
             IEventStore eventStore,
+            ISnapshotStore snapshotStore,
             CancellationToken cancellationToken)
         {
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
@@ -137,6 +139,7 @@ namespace EventFlow.Aggregates
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
+            ISnapshotStore snapshotStore,
             ISourceId sourceId,
             CancellationToken cancellationToken)
         {

@@ -23,9 +23,11 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Snapshots;
 
@@ -33,7 +35,7 @@ namespace EventFlow.Aggregates
 {
     public abstract class SnapshotAggregateRoot<TAggregate, TIdentity, TSnapshot> : AggregateRoot<TAggregate, TIdentity>,
         ISnapshotAggregateRoot<TIdentity, TSnapshot>
-        where TAggregate : AggregateRoot<TAggregate, TIdentity>
+        where TAggregate : SnapshotAggregateRoot<TAggregate, TIdentity, TSnapshot>
         where TIdentity : IIdentity
         where TSnapshot : ISnapshot
     {
@@ -44,6 +46,41 @@ namespace EventFlow.Aggregates
         }
 
         public int? SnapshotVersion { get; private set; }
+
+        public override async Task LoadAsync(
+            IEventStore eventStore,
+            ISnapshotStore snapshotStore,
+            CancellationToken cancellationToken)
+        {
+            var snapshot = await snapshotStore.LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+                Id,
+                cancellationToken)
+                .ConfigureAwait(false);
+            if (snapshot == null)
+            {
+                await LoadAsync(eventStore, snapshotStore, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            await LoadSnapshotContainerAsyncAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+            var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(
+                Id,
+                SnapshotVersion.GetValueOrDefault() + 1,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            ApplyEvents(domainEvents);
+        }
+
+        public override Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+            IEventStore eventStore,
+            ISnapshotStore snapshotStore,
+            ISourceId sourceId,
+            CancellationToken cancellationToken)
+        {
+            return base.CommitAsync(eventStore, snapshotStore, sourceId, cancellationToken);
+        }
 
         public async Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken)
         {
@@ -78,7 +115,14 @@ namespace EventFlow.Aggregates
 
         protected virtual Task<ISnapshotMetadata> CreateSnapshotMetadataAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult<ISnapshotMetadata>(new SnapshotMetadata());
+            var snapshotMetadata = (ISnapshotMetadata) new SnapshotMetadata(new Dictionary<string, string>
+                {
+                    {SnapshotMetadataKeys.AggregateId, Id.Value},
+                    {SnapshotMetadataKeys.AggregateName, Name.Value},
+                    {SnapshotMetadataKeys.AggregateSequenceNumber, Version.ToString()},
+                });
+
+            return Task.FromResult(snapshotMetadata);
         }
     }
 }

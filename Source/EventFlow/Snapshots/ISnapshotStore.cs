@@ -31,16 +31,18 @@ namespace EventFlow.Snapshots
 {
     public interface ISnapshotStore
     {
-        Task<TAggregate> LoadSnapshotAsync<TAggregate, TIdentity>(
+        Task<SnapshotContainer> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
             TIdentity identity,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
 
-        Task StoreSnapshotAsync<TAggregate, TIdentity>(
+        Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
             TAggregate aggregate,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
     }
 }

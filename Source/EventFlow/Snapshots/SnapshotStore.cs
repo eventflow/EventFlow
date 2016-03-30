@@ -41,7 +41,6 @@ namespace EventFlow.Snapshots
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotPersistence _snapshotPersistence;
-        private readonly IAggregateFactory _aggregateFactory;
         private readonly ISnapshotStrategy _snapshotStrategy;
 
         public SnapshotStore(
@@ -51,7 +50,6 @@ namespace EventFlow.Snapshots
             ISnapshotDefinitionService snapshotDefinitionService,
             ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotPersistence snapshotPersistence,
-            IAggregateFactory aggregateFactory,
             ISnapshotStrategy snapshotStrategy)
         {
             _log = log;
@@ -60,28 +58,22 @@ namespace EventFlow.Snapshots
             _snapshotDefinitionService = snapshotDefinitionService;
             _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotPersistence = snapshotPersistence;
-            _aggregateFactory = aggregateFactory;
             _snapshotStrategy = snapshotStrategy;
         }
 
-        public async Task<TAggregate> LoadSnapshotAsync<TAggregate, TIdentity>(
+        public async Task<SnapshotContainer> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
             TIdentity identity,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
         {
-            if (!typeof (ISnapshotAggregateRoot).IsAssignableFrom(typeof (TAggregate)))
-            {
-                _log.Verbose(() => $"Aggregate '{typeof(TAggregate).PrettyPrint()}' is not a snapshot aggregate, so cannot load one");
-                return default(TAggregate);
-            }
-
             _log.Verbose(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
             var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(typeof (TAggregate), identity, cancellationToken).ConfigureAwait(false);
             if (committedSnapshot == null)
             {
                 _log.Verbose(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
-                return default(TAggregate);
+                return null;
             }
 
             var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
@@ -90,19 +82,16 @@ namespace EventFlow.Snapshots
 
             var snapshot = (ISnapshot) _jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
             var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);
-            var aggregate = (ISnapshotAggregateRoot) await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(identity);
-            var snapshotContainer = new SnapshotContainer(upgradedSnapshot, metadata);
 
-            await aggregate.LoadSnapshotContainerAsyncAsync(snapshotContainer, cancellationToken).ConfigureAwait(false);
-
-            return (TAggregate) aggregate;
+            return new SnapshotContainer(upgradedSnapshot, metadata);
         }
 
-        public async Task StoreSnapshotAsync<TAggregate, TIdentity>(
+        public async Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
             TAggregate aggregate,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
         {
             var snapshotAggregateRoot = aggregate as ISnapshotAggregateRoot;
             if (snapshotAggregateRoot == null)

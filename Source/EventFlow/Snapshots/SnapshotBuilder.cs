@@ -67,22 +67,19 @@ namespace EventFlow.Snapshots
             return cacheItem.Invoker(this, aggregateRoot, cancellationToken);
         }
 
-        public async Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            TAggregate aggregate,
+        public Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+            SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var snapshotContainer = await aggregate.CreateSnapshotContainerAsync(cancellationToken).ConfigureAwait(false);
-
             var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof (TSnapshot));
 
-            _log.Verbose(() => $"Building snapshot '{snapsnotDefinition.Name}' v{snapsnotDefinition.Version} for {typeof(TAggregate).PrettyPrint()} with ID '{aggregate.Id}'");
+            _log.Verbose(() => $"Building snapshot '{snapsnotDefinition.Name}' v{snapsnotDefinition.Version} for {typeof(TAggregate).PrettyPrint()}");
 
             var updatedSnapshotMetadata = new SnapshotMetadata(snapshotContainer.Metadata.Concat(new Dictionary<string, string>
                 {
-                    {SnapshotMetadataKeys.AggregateSequenceNumber, aggregate.Version.ToString()},
                     {SnapshotMetadataKeys.SnapshotName, snapsnotDefinition.Name},
                     {SnapshotMetadataKeys.SnapshotVersion, snapsnotDefinition.Version.ToString()},
                 }));
@@ -90,10 +87,10 @@ namespace EventFlow.Snapshots
             var serializedMetadata = JsonConvert.SerializeObject(updatedSnapshotMetadata);
             var serializedData = JsonConvert.SerializeObject(snapshotContainer.Snapshot);
 
-            return new SerializedSnapshot(
+            return Task.FromResult(new SerializedSnapshot(
                 serializedMetadata,
                 serializedData,
-                updatedSnapshotMetadata);
+                updatedSnapshotMetadata));
         }
 
         private static CacheItem GetCacheItem(Type aggregateType)

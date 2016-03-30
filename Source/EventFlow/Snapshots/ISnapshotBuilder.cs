@@ -33,7 +33,9 @@ namespace EventFlow.Snapshots
     {
         Task<SerializedSnapshot> BuildSnapshotAsync(IAggregateRoot aggregateRoot, CancellationToken cancellationToken);
 
-        Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(TAggregate aggregate, CancellationToken cancellationToken)
+        Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+            SnapshotContainer snapshotContainer,
+            CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot;

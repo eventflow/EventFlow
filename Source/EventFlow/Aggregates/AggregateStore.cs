@@ -61,7 +61,7 @@ namespace EventFlow.Aggregates
             where TIdentity : IIdentity
         {
             var aggregate = await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
-            await aggregate.LoadAsync(_eventStore, cancellationToken).ConfigureAwait(false);
+            await aggregate.LoadAsync(_eventStore, _snapshotStore, cancellationToken).ConfigureAwait(false);
             return aggregate;
         }
 
@@ -100,7 +100,7 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return aggregate.CommitAsync(_eventStore, sourceId, cancellationToken);
+            return aggregate.CommitAsync(_eventStore, _snapshotStore, sourceId, cancellationToken);
         }
     }
 }
