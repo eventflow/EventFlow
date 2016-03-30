@@ -85,6 +85,21 @@ namespace EventFlow.TestHelpers
             return mock;
         }
 
+        protected IDomainEvent<ThingyAggregate, ThingyId> ADomainEvent<TAggregateEvent>(int aggregateSequenceNumber = 0)
+            where TAggregateEvent : IAggregateEvent
+        {
+            return ToDomainEvent(A<TAggregateEvent>(), aggregateSequenceNumber);
+        }
+
+        protected IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>> ManyDomainEvents<TAggregateEvent>(
+            int count = 3)
+            where TAggregateEvent : IAggregateEvent
+        {
+            return Enumerable.Range(1, count)
+                .Select(ADomainEvent<TAggregateEvent>)
+                .ToList();
+        }
+
         protected IDomainEvent<ThingyAggregate, ThingyId> ToDomainEvent<TAggregateEvent>(
             TAggregateEvent aggregateEvent,
             int aggregateSequenceNumber = 0)

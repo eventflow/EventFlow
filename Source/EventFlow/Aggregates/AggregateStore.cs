@@ -22,11 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
+using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Snapshots;
 
 namespace EventFlow.Aggregates
@@ -36,15 +40,18 @@ namespace EventFlow.Aggregates
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
+        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public AggregateStore(
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
-            ISnapshotStore snapshotStore)
+            ISnapshotStore snapshotStore,
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
+            _transientFaultHandler = transientFaultHandler;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -72,6 +79,34 @@ namespace EventFlow.Aggregates
             }
 
             return aggregate;
+        }
+
+        public Task<IReadOnlyCollection<IDomainEvent>> UpdateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            ISourceId sourceId,
+            Func<TAggregate, CancellationToken, Task> updateAggregate,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return _transientFaultHandler.TryAsync(
+                async c =>
+                {
+                    var aggregate = await LoadAsync<TAggregate, TIdentity>(id, c).ConfigureAwait(false);
+                    if (aggregate.HasSourceId(sourceId))
+                    {
+                        throw new DuplicateOperationException(
+                            sourceId,
+                            id,
+                            $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
+                    }
+
+                    await updateAggregate(aggregate, c).ConfigureAwait(false);
+
+                    return await StoreAsync<TAggregate, TIdentity>(aggregate, sourceId, c).ConfigureAwait(false);
+                },
+                Label.Named("aggregate-update"),
+                cancellationToken);
         }
 
         public Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(

@@ -62,6 +62,7 @@
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateStateTests.cs" />
+    <Compile Include="UnitTests\Aggregates\AggregateStoreTests.cs" />
     <Compile Include="UnitTests\Commands\CommandTests.cs" />
     <Compile Include="UnitTests\Commands\DistinctCommandTests.cs" />
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />

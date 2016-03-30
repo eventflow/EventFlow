@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -166,22 +167,10 @@ namespace EventFlow
 
             var commandHandler = commandHandlers.Single();
 
-            return _transientFaultHandler.TryAsync(
-                async c =>
-                    {
-                        var aggregate = await _aggregateStore.LoadAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
-                        if (aggregate.HasSourceId(command.SourceId))
-                        {
-                            throw new DuplicateOperationException(
-                                command.SourceId,
-                                aggregate.Id,
-                                $"Aggregate '{aggregate.GetType().PrettyPrint()}' has already had operation '{command.SourceId}' performed. New source is '{command.GetType().PrettyPrint()}'");
-                        }
-
-                        await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
-                        return await _aggregateStore.StoreAsync<TAggregate, TIdentity> (aggregate, command.SourceId, c).ConfigureAwait(false);
-                    },
-                Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
+            return _aggregateStore.UpdateAsync<TAggregate, TIdentity>(
+                command.AggregateId,
+                command.SourceId,
+                (a, c) => commandExecutionDetails.Invoker(commandHandler, a, command, c),
                 cancellationToken);
         }
 
