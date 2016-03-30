@@ -169,7 +169,7 @@ namespace EventFlow
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        var aggregate = await _aggregateStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
+                        var aggregate = await _aggregateStore.LoadAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
                         if (aggregate.HasSourceId(command.SourceId))
                         {
                             throw new DuplicateOperationException(
@@ -179,7 +179,7 @@ namespace EventFlow
                         }
 
                         await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
-                        return await _aggregateStore.StoreAggregateAsync<TAggregate, TIdentity> (aggregate, command.SourceId, c).ConfigureAwait(false);
+                        return await _aggregateStore.StoreAsync<TAggregate, TIdentity> (aggregate, command.SourceId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);

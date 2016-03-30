@@ -47,7 +47,7 @@ namespace EventFlow.Aggregates
             _snapshotStore = snapshotStore;
         }
 
-        public async Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
+        public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -58,7 +58,7 @@ namespace EventFlow.Aggregates
             return aggregate;
         }
 
-        public TAggregate LoadAggregate<TAggregate, TIdentity>(
+        public TAggregate Load<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -68,13 +68,13 @@ namespace EventFlow.Aggregates
 
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(LoadAggregateAsync<TAggregate, TIdentity>(id, cancellationToken), r => aggregate = r);
+                a.Run(LoadAsync<TAggregate, TIdentity>(id, cancellationToken), r => aggregate = r);
             }
 
             return aggregate;
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> StoreAggregateAsync<TAggregate, TIdentity>(
+        public Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
             TAggregate aggregate,
             ISourceId sourceId,
             CancellationToken cancellationToken)

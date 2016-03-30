@@ -31,19 +31,19 @@ namespace EventFlow.Aggregates
 {
     public interface IAggregateStore
     {
-        Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
+        Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        TAggregate LoadAggregate<TAggregate, TIdentity>(
+        TAggregate Load<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        Task<IReadOnlyCollection<IDomainEvent>> StoreAggregateAsync<TAggregate, TIdentity>(
+        Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
             TAggregate aggregate,
             ISourceId sourceId,
             CancellationToken cancellationToken)

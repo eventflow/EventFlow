@@ -65,7 +65,7 @@ namespace EventFlow.Tests.UnitTests
             _thingyAggregate = new ThingyAggregate(ThingyId.New);
 
             _aggregateStoreMock
-                .Setup(s => s.LoadAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.LoadAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(_thingyAggregate));
         }
 
@@ -75,7 +75,7 @@ namespace EventFlow.Tests.UnitTests
             // Arrange
             ArrangeCommandHandlerExists<ThingyAggregate, ThingyId, ISourceId, ThingyDomainErrorAfterFirstCommand>();
             _aggregateStoreMock
-                .Setup(s => s.StoreAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyAggregate>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyAggregate>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
 
             // Act
@@ -83,7 +83,7 @@ namespace EventFlow.Tests.UnitTests
 
             // Assert
             _aggregateStoreMock.Verify(
-                s => s.StoreAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyAggregate>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()),
+                s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyAggregate>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(5));
         }
 
@@ -117,7 +117,7 @@ namespace EventFlow.Tests.UnitTests
         private void ArrangeWorkingEventStore()
         {
             _aggregateStoreMock
-                .Setup(s => s.StoreAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyAggregate>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyAggregate>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent>>(Many<IDomainEvent<ThingyAggregate, ThingyId>>()));
         }
 
