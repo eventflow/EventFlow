@@ -161,7 +161,7 @@ namespace EventFlow.EventStores.EventStore
             StreamEventsSlice currentSlice;
             var nextSliceStart = fromEventSequenceNumber <= 1
                 ? StreamPosition.Start
-                : fromEventSequenceNumber;
+                : fromEventSequenceNumber - 1; // Starts from zero
 
             do
             {
@@ -189,7 +189,7 @@ namespace EventFlow.EventStores.EventStore
             return resolvedEvents
                 .Select(e => new EventStoreEvent
                     {
-                        AggregateSequenceNumber = e.Event.EventNumber + 1,
+                        AggregateSequenceNumber = e.Event.EventNumber + 1, // Starts from zero
                         Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
                         AggregateId = e.OriginalStreamId,
                         Data = Encoding.UTF8.GetString(e.Event.Data),
