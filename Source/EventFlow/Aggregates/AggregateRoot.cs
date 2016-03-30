@@ -126,7 +126,16 @@ namespace EventFlow.Aggregates
             _uncommittedEvents.Add(uncommittedEvent);
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+        public virtual async Task LoadAsync(
+            IEventStore eventStore,
+            CancellationToken cancellationToken)
+        {
+            var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
+
+            ApplyEvents(domainEvents);
+        }
+
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
             ISourceId sourceId,
             CancellationToken cancellationToken)

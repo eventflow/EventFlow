@@ -20,43 +20,34 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.EventStores;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateRoot
+    public interface IAggregateStore
     {
-        IAggregateName Name { get; }
-        int Version { get; }
-        IEnumerable<IAggregateEvent> UncommittedEvents { get; }
-        bool IsNew { get; }
+        Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
+        TAggregate LoadAggregate<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
+        Task<IReadOnlyCollection<IDomainEvent>> StoreAggregateAsync<TAggregate, TIdentity>(
+            TAggregate aggregate,
             ISourceId sourceId,
-            CancellationToken cancellationToken);
-
-        bool HasSourceId(ISourceId sourceId);
-
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
-
-        IIdentity GetIdentity();
-
-        Task LoadAsync(
-            IEventStore eventStore,
-            CancellationToken cancellationToken);
-    }
-
-    public interface IAggregateRoot<out TIdentity> : IAggregateRoot
-        where TIdentity : IIdentity
-    {
-        TIdentity Id { get; }
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
     }
 }

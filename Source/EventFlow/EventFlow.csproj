@@ -55,8 +55,10 @@
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
+    <Compile Include="Aggregates\AggregateStore.cs" />
     <Compile Include="Aggregates\EventId.cs" />
     <Compile Include="Aggregates\IAggregateName.cs" />
+    <Compile Include="Aggregates\IAggregateStore.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Aggregates\ISnapshotAggregateRoot.cs" />

@@ -174,6 +174,7 @@ namespace EventFlow
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
+            serviceRegistration.Register<IAggregateStore, AggregateStore>();
             serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
             serviceRegistration.Register<ISnapshotBuilder, SnapshotBuilder>();
             serviceRegistration.Register<ISnapshotStrategy, SnapshotStrategy>();

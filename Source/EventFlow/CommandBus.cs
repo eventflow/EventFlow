@@ -32,7 +32,6 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
-using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -46,20 +45,20 @@ namespace EventFlow
 
         private readonly ILog _log;
         private readonly IResolver _resolver;
-        private readonly IEventStore _eventStore;
+        private readonly IAggregateStore _aggregateStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
-            IEventStore eventStore,
+            IAggregateStore aggregateStore,
             IDomainEventPublisher domainEventPublisher,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _resolver = resolver;
-            _eventStore = eventStore;
+            _aggregateStore = aggregateStore;
             _domainEventPublisher = domainEventPublisher;
             _transientFaultHandler = transientFaultHandler;
         }
@@ -170,7 +169,7 @@ namespace EventFlow
             return _transientFaultHandler.TryAsync(
                 async c =>
                     {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
+                        var aggregate = await _aggregateStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
                         if (aggregate.HasSourceId(command.SourceId))
                         {
                             throw new DuplicateOperationException(
@@ -180,7 +179,7 @@ namespace EventFlow
                         }
 
                         await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
-                        return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
+                        return await _aggregateStore.StoreAggregateAsync<TAggregate, TIdentity> (aggregate, command.SourceId, c).ConfigureAwait(false);
                     },
                 Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
                 cancellationToken);
