@@ -65,22 +65,6 @@ namespace EventFlow.Aggregates
             return aggregate;
         }
 
-        public TAggregate Load<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            var aggregate = default(TAggregate);
-
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(LoadAsync<TAggregate, TIdentity>(id, cancellationToken), r => aggregate = r);
-            }
-
-            return aggregate;
-        }
-
         public Task<IReadOnlyCollection<IDomainEvent>> UpdateAsync<TAggregate, TIdentity>(
             TIdentity id,
             ISourceId sourceId,
