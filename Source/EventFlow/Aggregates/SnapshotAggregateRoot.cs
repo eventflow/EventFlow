@@ -72,7 +72,7 @@ namespace EventFlow.Aggregates
 
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 Id,
-                SnapshotVersion.GetValueOrDefault() + 1,
+                snapshot.Metadata.AggregateSequenceNumber + 1,
                 cancellationToken)
                 .ConfigureAwait(false);
             if (!domainEvents.Any())
