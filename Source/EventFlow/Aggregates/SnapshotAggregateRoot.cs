@@ -77,7 +77,7 @@ namespace EventFlow.Aggregates
                 .ConfigureAwait(false);
             if (!domainEvents.Any())
             {
-                Version = SnapshotVersion.GetValueOrDefault();
+                Version = snapshot.Metadata.AggregateSequenceNumber;
                 return;
             }
 
