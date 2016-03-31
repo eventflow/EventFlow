@@ -25,7 +25,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using EventFlow.Configuration;
 using EventFlow.Snapshots;
+using EventFlow.Snapshots.Stores;
+using EventFlow.Snapshots.Stores.InMemory;
 
 namespace EventFlow.Extensions
 {
@@ -49,6 +52,20 @@ namespace EventFlow.Extensions
                 .Where(t => !t.IsAbstract && typeof(ISnapshot).IsAssignableFrom(t))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddSnapshots(snapshotTypes);
+        }
+
+        public static IEventFlowOptions UseSnapshotStore<TSnapshotStore>(
+            this IEventFlowOptions eventFlowOptions,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TSnapshotStore : class, ISnapshotPersistence
+        {
+            return eventFlowOptions.RegisterServices(sr => sr.Register<ISnapshotPersistence, TSnapshotStore>(lifetime));
+        }
+
+        public static IEventFlowOptions UseInMemorySnapshotStore(
+            this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.UseSnapshotStore<InMemorySnapshotPersistence>(Lifetime.Singleton);
         }
     }
 }

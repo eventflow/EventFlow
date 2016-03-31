@@ -41,6 +41,7 @@ using EventFlow.ReadStores;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.InMemory;
+using EventFlow.Snapshots.Stores.Null;
 using EventFlow.Snapshots.Strategies;
 using EventFlow.Subscribers;
 
@@ -177,7 +178,7 @@ namespace EventFlow
             serviceRegistration.Register<IAggregateStore, AggregateStore>();
             serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
             serviceRegistration.Register<ISnapshotSerilizer, SnapshotSerilizer>();
-            serviceRegistration.Register<ISnapshotPersistence, InMemorySnapshotPersistence>(Lifetime.Singleton);
+            serviceRegistration.Register<ISnapshotPersistence, NullSnapshotPersistence>();
             serviceRegistration.Register<ISnapshotUpgradeService, SnapshotUpgradeService>();
             serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();

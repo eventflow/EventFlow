@@ -31,6 +31,7 @@ using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Snapshots;
+using EventFlow.Snapshots.Stores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
@@ -43,6 +44,7 @@ namespace EventFlow.TestHelpers
         protected IRootResolver Resolver { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ISnapshotStore SnapshotStore { get; private set; }
+        protected ISnapshotPersistence SnapshotPersistence { get; private set; }
         protected IEventPersistence EventPersistence { get; private set; }
         protected IQueryProcessor QueryProcessor { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
@@ -58,6 +60,7 @@ namespace EventFlow.TestHelpers
 
             EventStore = Resolver.Resolve<IEventStore>();
             SnapshotStore = Resolver.Resolve<ISnapshotStore>();
+            SnapshotPersistence = Resolver.Resolve<ISnapshotPersistence>();
             EventPersistence = Resolver.Resolve<IEventPersistence>();
             CommandBus = Resolver.Resolve<ICommandBus>();
             QueryProcessor = Resolver.Resolve<IQueryProcessor>();

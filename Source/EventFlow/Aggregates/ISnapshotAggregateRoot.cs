@@ -22,8 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Snapshots;
 
@@ -32,9 +30,6 @@ namespace EventFlow.Aggregates
     public interface ISnapshotAggregateRoot : IAggregateRoot
     {
         int? SnapshotVersion { get; }
-
-        Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken);
-        Task LoadSnapshotContainerAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken);
     }
 
     public interface ISnapshotAggregateRoot<out TIdentity, TSnapshot> : ISnapshotAggregateRoot, IAggregateRoot<TIdentity>

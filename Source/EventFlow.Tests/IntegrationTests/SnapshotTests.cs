@@ -22,23 +22,64 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Snapshots;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
-    public class SnapshotTests
+    public class SnapshotTests : IntegrationTest
     {
-        private IResolver _resolver;
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public async Task NoSnapshotsAreCreatedWhenCommittingFewEvents()
         {
-            _resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
+            // Arrange
+            var thingyId = ThingyId.New;
+            await PublishPingCommandsAsync(thingyId, ThingyAggregate.SnapshotEveryVersion - 1).ConfigureAwait(false);
+
+            // Act
+            var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
+
+            // Assert
+            thingySnapshot.Should().BeNull();
+        }
+
+        [Test]
+        public async Task SnapshotIsCreatedWhenCommittingManyEvents()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            const int pingsSent = ThingyAggregate.SnapshotEveryVersion + 1;
+            await PublishPingCommandsAsync(thingyId, pingsSent).ConfigureAwait(false);
+
+            // Act
+            var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
+
+            // Assert
+            thingySnapshot.Should().NotBeNull();
+            thingySnapshot.PingsReceived.Count.Should().Be(pingsSent);
+        }
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .UseInMemorySnapshotStore()
                 .CreateResolver();
+        }
+
+        protected async Task<ThingySnapshot> LoadSnapshotAsync(ThingyId thingyId)
+        {
+            var snapshotContainer = await SnapshotStore.LoadSnapshotAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
+                thingyId,
+                CancellationToken.None)
+                .ConfigureAwait(false);
+            return (ThingySnapshot) snapshotContainer?.Snapshot;
         }
     }
 }

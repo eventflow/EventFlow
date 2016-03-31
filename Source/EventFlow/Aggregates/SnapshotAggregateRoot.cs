@@ -63,7 +63,7 @@ namespace EventFlow.Aggregates
                 .ConfigureAwait(false);
             if (snapshot == null)
             {
-                await LoadAsync(eventStore, snapshotStore, cancellationToken).ConfigureAwait(false);
+                await base.LoadAsync(eventStore, snapshotStore, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -84,19 +84,24 @@ namespace EventFlow.Aggregates
             ISourceId sourceId,
             CancellationToken cancellationToken)
         {
-            var domainEvents = await CommitAsync(eventStore, snapshotStore, sourceId, cancellationToken).ConfigureAwait(false);
+            var domainEvents = await base.CommitAsync(eventStore, snapshotStore, sourceId, cancellationToken).ConfigureAwait(false);
 
             if (!await SnapshotStrategy.ShouldCreateSnapshotAsync(this, cancellationToken).ConfigureAwait(false))
             {
                 return domainEvents;
             }
 
-
+            var snapshotContainer = await CreateSnapshotContainerAsync(cancellationToken).ConfigureAwait(false);
+            await snapshotStore.StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+                Id,
+                snapshotContainer,
+                cancellationToken)
+                .ConfigureAwait(false);
 
             return domainEvents;
         }
 
-        public async Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken)
+        private async Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken)
         {
             var snapshotTask = CreateSnapshotAsync(cancellationToken);
             var snapshotMetadataTask = CreateSnapshotMetadataAsync(cancellationToken);
@@ -110,7 +115,7 @@ namespace EventFlow.Aggregates
             return snapshotContainer;
         }
 
-        public Task LoadSnapshotContainerAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
+        private Task LoadSnapshotContainerAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
             if (SnapshotVersion.HasValue) throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has snapshot loaded");
             if (Version > 0) throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has events loaded");

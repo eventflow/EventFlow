@@ -41,6 +41,8 @@ namespace EventFlow.TestHelpers.Aggregates
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
         IEmit<ThingyDomainErrorAfterFirstEvent>
     {
+        public const int SnapshotEveryVersion = 10;
+
         private readonly List<PingId> _pingsReceived = new List<PingId>();
         private readonly List<ThingyMessage> _messages = new List<ThingyMessage>(); 
 
@@ -49,7 +51,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
 
         public ThingyAggregate(ThingyId id)
-            : base(id, SnapshotEveryFewVersionsStrategy.Default)
+            : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
