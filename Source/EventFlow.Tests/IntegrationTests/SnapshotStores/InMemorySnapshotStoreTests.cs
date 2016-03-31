@@ -23,6 +23,7 @@
 // 
 
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
@@ -34,7 +35,9 @@ namespace EventFlow.Tests.IntegrationTests.SnapshotStores
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.CreateResolver();
+            return eventFlowOptions
+                .UseInMemorySnapshotStore()
+                .CreateResolver();
         }
     }
 }

@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
@@ -42,6 +43,7 @@ namespace EventFlow.TestHelpers
     public abstract class IntegrationTest: Test
     {
         protected IRootResolver Resolver { get; private set; }
+        protected IAggregateStore AggregateStore { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ISnapshotStore SnapshotStore { get; private set; }
         protected ISnapshotPersistence SnapshotPersistence { get; private set; }
@@ -58,6 +60,7 @@ namespace EventFlow.TestHelpers
 
             Resolver = CreateRootResolver(Options(eventFlowOptions));
 
+            AggregateStore = Resolver.Resolve<IAggregateStore>();
             EventStore = Resolver.Resolve<IEventStore>();
             SnapshotStore = Resolver.Resolve<ISnapshotStore>();
             SnapshotPersistence = Resolver.Resolve<ISnapshotPersistence>();

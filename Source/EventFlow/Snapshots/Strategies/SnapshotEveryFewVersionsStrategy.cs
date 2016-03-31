@@ -54,7 +54,7 @@ namespace EventFlow.Snapshots.Strategies
             CancellationToken cancellationToken)
         {
             var currentSnapshotVersion = snapshotAggregateRoot.SnapshotVersion.GetValueOrDefault();
-            var shouldCreateSnapshot = snapshotAggregateRoot.Version - currentSnapshotVersion > _snapshotAfterVersions;
+            var shouldCreateSnapshot = snapshotAggregateRoot.Version - currentSnapshotVersion >= _snapshotAfterVersions;
 
             return Task.FromResult(shouldCreateSnapshot);
         }

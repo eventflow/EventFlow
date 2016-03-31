@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -74,6 +75,11 @@ namespace EventFlow.Aggregates
                 SnapshotVersion.GetValueOrDefault() + 1,
                 cancellationToken)
                 .ConfigureAwait(false);
+            if (!domainEvents.Any())
+            {
+                Version = SnapshotVersion.GetValueOrDefault();
+                return;
+            }
 
             ApplyEvents(domainEvents);
         }

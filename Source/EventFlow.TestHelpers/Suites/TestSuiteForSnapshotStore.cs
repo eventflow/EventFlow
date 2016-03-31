@@ -23,9 +23,9 @@
 // 
 
 using System.Threading;
-using EventFlow.Snapshots;
-using EventFlow.Snapshots.Stores;
+using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Snapshots;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -33,21 +33,11 @@ namespace EventFlow.TestHelpers.Suites
 {
     public abstract class TestSuiteForSnapshotStore : IntegrationTest
     {
-        private ISnapshotStore _snapshotStore;
-        private ISnapshotPersistence _snapshotPersistence;
-
-        [SetUp]
-        public void SetUpTestSuiteForSnapshotStore()
-        {
-            _snapshotStore = Resolver.Resolve<ISnapshotStore>();
-            _snapshotPersistence = Resolver.Resolve<ISnapshotPersistence>();
-        }
-
         [Test]
         public void GetSnapshotAsync_NoneExistingSnapshotReturnsNull()
         {
             // Act
-            var committedSnapshot = _snapshotPersistence.GetSnapshotAsync(typeof (ThingyAggregate), ThingyId.New, CancellationToken.None).Result;
+            var committedSnapshot = SnapshotPersistence.GetSnapshotAsync(typeof (ThingyAggregate), ThingyId.New, CancellationToken.None).Result;
 
             // Assert
             committedSnapshot.Should().BeNull();
@@ -57,21 +47,79 @@ namespace EventFlow.TestHelpers.Suites
         public void DeleteSnapshotAsync_GetSnapshotAsync_NoneExistingSnapshotDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => _snapshotPersistence.DeleteSnapshotAsync(typeof(ThingyAggregate), ThingyId.New, CancellationToken.None).Wait());
+            Assert.DoesNotThrow(() => SnapshotPersistence.DeleteSnapshotAsync(typeof(ThingyAggregate), ThingyId.New, CancellationToken.None).Wait());
         }
 
         [Test]
         public void PurgeSnapshotsAsync_NoneExistingSnapshotDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => _snapshotPersistence.PurgeSnapshotsAsync(typeof(ThingyAggregate), CancellationToken.None).Wait());
+            Assert.DoesNotThrow(() => SnapshotPersistence.PurgeSnapshotsAsync(typeof(ThingyAggregate), CancellationToken.None).Wait());
         }
 
         [Test]
         public void PurgeSnapshotsAsync_EmptySnapshotStoreDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => _snapshotPersistence.PurgeSnapshotsAsync(CancellationToken.None).Wait());
+            Assert.DoesNotThrow(() => SnapshotPersistence.PurgeSnapshotsAsync(CancellationToken.None).Wait());
+        }
+
+        [Test]
+        public async Task NoSnapshotsAreCreatedWhenCommittingFewEvents()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            await PublishPingCommandsAsync(thingyId, ThingyAggregate.SnapshotEveryVersion - 1).ConfigureAwait(false);
+
+            // Act
+            var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
+
+            // Assert
+            thingySnapshot.Should().BeNull();
+        }
+
+        [Test]
+        public async Task SnapshotIsCreatedWhenCommittingManyEvents()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            const int pingsSent = ThingyAggregate.SnapshotEveryVersion + 1;
+            await PublishPingCommandsAsync(thingyId, pingsSent).ConfigureAwait(false);
+
+            // Act
+            var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
+
+            // Assert
+            thingySnapshot.Should().NotBeNull();
+            thingySnapshot.PingsReceived.Count.Should().Be(pingsSent);
+        }
+
+        [Test]
+        public async Task LoadedAggregateHasCorrectVersionsWhenSnapshotIsApplied()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            const int pingsSent = ThingyAggregate.SnapshotEveryVersion + 1;
+            await PublishPingCommandsAsync(thingyId, pingsSent).ConfigureAwait(false);
+
+            // Act
+            var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
+                thingyId,
+                CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            thingyAggregate.Version.Should().Be(pingsSent);
+            thingyAggregate.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
+        }
+
+        protected async Task<ThingySnapshot> LoadSnapshotAsync(ThingyId thingyId)
+        {
+            var snapshotContainer = await SnapshotStore.LoadSnapshotAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
+                thingyId,
+                CancellationToken.None)
+                .ConfigureAwait(false);
+            return (ThingySnapshot)snapshotContainer?.Snapshot;
         }
     }
 }

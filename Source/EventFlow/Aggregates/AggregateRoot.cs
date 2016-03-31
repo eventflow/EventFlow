@@ -48,7 +48,7 @@ namespace EventFlow.Aggregates
 
         public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
-        public int Version { get; private set; }
+        public int Version { get; protected set; }
         public bool IsNew => Version <= 0;
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
