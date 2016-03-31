@@ -35,25 +35,16 @@ namespace EventFlow.Snapshots
     public class SnapshotStore : ISnapshotStore
     {
         private readonly ILog _log;
-        private readonly IJsonSerializer _jsonSerializer;
         private readonly ISnapshotSerilizer _snapshotSerilizer;
-        private readonly ISnapshotDefinitionService _snapshotDefinitionService;
-        private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotPersistence _snapshotPersistence;
 
         public SnapshotStore(
             ILog log,
-            IJsonSerializer jsonSerializer,
             ISnapshotSerilizer snapshotSerilizer,
-            ISnapshotDefinitionService snapshotDefinitionService,
-            ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotPersistence snapshotPersistence)
         {
             _log = log;
-            _jsonSerializer = jsonSerializer;
             _snapshotSerilizer = snapshotSerilizer;
-            _snapshotDefinitionService = snapshotDefinitionService;
-            _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotPersistence = snapshotPersistence;
         }
 
@@ -65,21 +56,23 @@ namespace EventFlow.Snapshots
             where TSnapshot : ISnapshot
         {
             _log.Verbose(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
-            var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(typeof (TAggregate), identity, cancellationToken).ConfigureAwait(false);
+            var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(
+                typeof (TAggregate),
+                identity,
+                cancellationToken)
+                .ConfigureAwait(false);
             if (committedSnapshot == null)
             {
                 _log.Verbose(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
                 return null;
             }
 
-            var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
-            var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
-            _log.Verbose(() => $"Found snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}' v{metadata.AggregateSequenceNumber}");
+            var snapshotContainer = await _snapshotSerilizer.DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
+                committedSnapshot,
+                cancellationToken)
+                .ConfigureAwait(false);
 
-            var snapshot = (ISnapshot) _jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
-            var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);
-
-            return new SnapshotContainer(upgradedSnapshot, metadata);
+            return snapshotContainer;
         }
 
         public async Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(

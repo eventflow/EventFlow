@@ -48,7 +48,8 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
 
-        public ThingyAggregate(ThingyId id) : base(id, new SnapshotStrategy())
+        public ThingyAggregate(ThingyId id)
+            : base(id, SnapshotEveryFewVersionsStrategy.Default)
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));

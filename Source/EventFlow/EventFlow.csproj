@@ -245,7 +245,8 @@
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
     <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
-    <Compile Include="Snapshots\Strategies\SnapshotStrategy.cs" />
+    <Compile Include="Snapshots\Strategies\SnapshotEveryFewVersionsStrategy.cs" />
+    <Compile Include="Snapshots\Strategies\SnapshotRandomlyStrategy.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Specification.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />

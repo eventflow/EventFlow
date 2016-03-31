@@ -22,27 +22,42 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.Snapshots
+namespace EventFlow.Snapshots.Strategies
 {
-    public interface ISnapshotSerilizer
+    public class SnapshotRandomlyStrategy : ISnapshotStrategy
     {
-        Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
-            SnapshotContainer snapshotContainer,
-            CancellationToken cancellationToken)
-            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot;
+        private static readonly Random Random = new Random();
+        public const double DefaultChance = 0.01d;
 
-        Task<SnapshotContainer> DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
-            CommittedSnapshot committedSnapshot,
+        public static ISnapshotStrategy Default { get; } = With();
+
+        public static ISnapshotStrategy With(
+            double chance = DefaultChance)
+        {
+            return new SnapshotRandomlyStrategy(
+                chance);
+        }
+
+        private readonly double _chance;
+
+        private SnapshotRandomlyStrategy(
+            double chance)
+        {
+            if (chance < 0.0d || chance > 1.0d) throw new ArgumentOutOfRangeException($"Chance '{chance}' must be between 0.0 and 1.0");
+
+            _chance = chance;
+        }
+
+        public Task<bool> ShouldCreateSnapshotAsync(
+            ISnapshotAggregateRoot snapshotAggregateRoot,
             CancellationToken cancellationToken)
-            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot;
+        {
+            return Task.FromResult(Random.NextDouble() >= _chance);
+        }
     }
 }

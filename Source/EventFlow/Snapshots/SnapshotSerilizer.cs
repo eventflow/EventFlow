@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -37,13 +38,19 @@ namespace EventFlow.Snapshots
     public class SnapshotSerilizer : ISnapshotSerilizer
     {
         private readonly ILog _log;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
 
         public SnapshotSerilizer(
             ILog log,
+            IJsonSerializer jsonSerializer,
+            ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotDefinitionService snapshotDefinitionService)
         {
             _log = log;
+            _jsonSerializer = jsonSerializer;
+            _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotDefinitionService = snapshotDefinitionService;
         }
 
@@ -71,6 +78,26 @@ namespace EventFlow.Snapshots
                 serializedMetadata,
                 serializedData,
                 updatedSnapshotMetadata));
+        }
+
+        public async Task<SnapshotContainer> DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
+            CommittedSnapshot committedSnapshot,
+            CancellationToken cancellationToken)
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot
+        {
+            if (committedSnapshot == null) throw new ArgumentNullException(nameof(committedSnapshot));
+
+            var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
+            var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
+
+            _log.Verbose(() => $"Deserilizing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
+
+            var snapshot = (ISnapshot)_jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
+            var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+            return new SnapshotContainer(upgradedSnapshot, metadata);
         }
     }
 }
