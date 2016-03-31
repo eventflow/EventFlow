@@ -68,7 +68,7 @@ namespace EventFlow.Aggregates
                 return;
             }
 
-            await LoadSnapshotContainerAsyncAsync(snapshot, cancellationToken).ConfigureAwait(false);
+            await LoadSnapshotContainerAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 Id,
@@ -121,7 +121,7 @@ namespace EventFlow.Aggregates
             return snapshotContainer;
         }
 
-        private Task LoadSnapshotContainerAsyncAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
+        private Task LoadSnapshotContainerAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
             if (SnapshotVersion.HasValue) throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has snapshot loaded");
             if (Version > 0) throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has events loaded");
