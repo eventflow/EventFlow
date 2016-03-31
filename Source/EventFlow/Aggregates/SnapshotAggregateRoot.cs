@@ -30,6 +30,7 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Snapshots;
+using EventFlow.Snapshots.Strategies;
 
 namespace EventFlow.Aggregates
 {
@@ -39,10 +40,14 @@ namespace EventFlow.Aggregates
         where TIdentity : IIdentity
         where TSnapshot : ISnapshot
     {
+        protected ISnapshotStrategy SnapshotStrategy { get; }
+
         protected SnapshotAggregateRoot(
-            TIdentity id)
+            TIdentity id,
+            ISnapshotStrategy snapshotStrategy)
             : base(id)
         {
+            SnapshotStrategy = snapshotStrategy;
         }
 
         public int? SnapshotVersion { get; private set; }
@@ -73,13 +78,22 @@ namespace EventFlow.Aggregates
             ApplyEvents(domainEvents);
         }
 
-        public override Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+        public override async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ISourceId sourceId,
             CancellationToken cancellationToken)
         {
-            return base.CommitAsync(eventStore, snapshotStore, sourceId, cancellationToken);
+            var domainEvents = await CommitAsync(eventStore, snapshotStore, sourceId, cancellationToken).ConfigureAwait(false);
+
+            if (!await SnapshotStrategy.ShouldCreateSnapshotAsync(this, cancellationToken).ConfigureAwait(false))
+            {
+                return domainEvents;
+            }
+
+
+
+            return domainEvents;
         }
 
         public async Task<SnapshotContainer> CreateSnapshotContainerAsync(CancellationToken cancellationToken)

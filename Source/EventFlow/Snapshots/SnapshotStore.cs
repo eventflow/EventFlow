@@ -29,7 +29,6 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots.Stores;
-using EventFlow.Snapshots.Strategies;
 
 namespace EventFlow.Snapshots
 {
@@ -37,28 +36,25 @@ namespace EventFlow.Snapshots
     {
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly ISnapshotBuilder _snapshotBuilder;
+        private readonly ISnapshotSerilizer _snapshotSerilizer;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotPersistence _snapshotPersistence;
-        private readonly ISnapshotStrategy _snapshotStrategy;
 
         public SnapshotStore(
             ILog log,
             IJsonSerializer jsonSerializer,
-            ISnapshotBuilder snapshotBuilder,
+            ISnapshotSerilizer snapshotSerilizer,
             ISnapshotDefinitionService snapshotDefinitionService,
             ISnapshotUpgradeService snapshotUpgradeService,
-            ISnapshotPersistence snapshotPersistence,
-            ISnapshotStrategy snapshotStrategy)
+            ISnapshotPersistence snapshotPersistence)
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
-            _snapshotBuilder = snapshotBuilder;
+            _snapshotSerilizer = snapshotSerilizer;
             _snapshotDefinitionService = snapshotDefinitionService;
             _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotPersistence = snapshotPersistence;
-            _snapshotStrategy = snapshotStrategy;
         }
 
         public async Task<SnapshotContainer> LoadSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
@@ -87,27 +83,24 @@ namespace EventFlow.Snapshots
         }
 
         public async Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            TAggregate aggregate,
+            TIdentity identity,
+            SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var snapshotAggregateRoot = aggregate as ISnapshotAggregateRoot;
-            if (snapshotAggregateRoot == null)
-            {
-                _log.Verbose(() => $"Aggregate '{typeof(TAggregate).PrettyPrint()}' is not a snapshot aggregate");
-                return;
-            }
+            var serializedSnapshot = await _snapshotSerilizer.SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+                snapshotContainer,
+                cancellationToken)
+                .ConfigureAwait(false);
 
-            if (!await _snapshotStrategy.ShouldCreateSnapshotAsync(snapshotAggregateRoot, cancellationToken).ConfigureAwait(false))
-            {
-                return;
-            }
-
-            var serializedSnapshot = await _snapshotBuilder.BuildSnapshotAsync(aggregate, cancellationToken).ConfigureAwait(false);
-
-            await _snapshotPersistence.SetSnapshotAsync(typeof (TAggregate), aggregate.Id, serializedSnapshot, cancellationToken).ConfigureAwait(false);
+            await _snapshotPersistence.SetSnapshotAsync(
+                typeof (TAggregate),
+                identity,
+                serializedSnapshot,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

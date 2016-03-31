@@ -24,35 +24,18 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using EventFlow.Logs;
-using EventFlow.Snapshots;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Snapshots;
-using FluentAssertions;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    public class SnapshotBuilderTests : TestsFor<SnapshotBuilder>
+    public interface ISnapshotSerilizer
     {
-        [SetUp]
-        public void SetUp()
-        {
-            var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
-            snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
-            Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
-        }
-
-        [Test]
-        public async Task BuildSnapshotAsync()
-        {
-            // Act
-            var serializedSnapshot = await Sut.BuildSnapshotAsync(new ThingyAggregate(ThingyId.New), CancellationToken.None);
-
-            // Assert
-            serializedSnapshot.Metadata.SnapshotName.Should().Be("thingy");
-            serializedSnapshot.Metadata.SnapshotVersion.Should().Be(3);
-        } 
+        Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+            SnapshotContainer snapshotContainer,
+            CancellationToken cancellationToken)
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
     }
 }

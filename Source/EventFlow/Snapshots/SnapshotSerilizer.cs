@@ -22,8 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -36,14 +34,12 @@ using Newtonsoft.Json;
 
 namespace EventFlow.Snapshots
 {
-    public class SnapshotBuilder : ISnapshotBuilder
+    public class SnapshotSerilizer : ISnapshotSerilizer
     {
-        private static readonly ConcurrentDictionary<Type, CacheItem> CacheItems = new ConcurrentDictionary<Type, CacheItem>();
-
         private readonly ILog _log;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
 
-        public SnapshotBuilder(
+        public SnapshotSerilizer(
             ILog log,
             ISnapshotDefinitionService snapshotDefinitionService)
         {
@@ -51,23 +47,7 @@ namespace EventFlow.Snapshots
             _snapshotDefinitionService = snapshotDefinitionService;
         }
 
-        public Task<SerializedSnapshot> BuildSnapshotAsync(
-            IAggregateRoot aggregateRoot,
-            CancellationToken cancellationToken)
-        {
-            if (!(aggregateRoot is ISnapshotAggregateRoot))
-            {
-                throw new ArgumentException(
-                    $"Aggregate '{aggregateRoot.GetType().PrettyPrint()}' does not support snapshotting",
-                    nameof(aggregateRoot));
-            }
-
-            var cacheItem = GetCacheItem(aggregateRoot.GetType());
-
-            return cacheItem.Invoker(this, aggregateRoot, cancellationToken);
-        }
-
-        public Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
+        public Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
             SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
@@ -91,38 +71,6 @@ namespace EventFlow.Snapshots
                 serializedMetadata,
                 serializedData,
                 updatedSnapshotMetadata));
-        }
-
-        private static CacheItem GetCacheItem(Type aggregateType)
-        {
-            return CacheItems.GetOrAdd(
-                aggregateType,
-                t =>
-                {
-                    var snapshotAggregateRootInterface = t
-                        .GetInterfaces()
-                        .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotAggregateRoot<,>));
-                    var genericArguments = snapshotAggregateRootInterface.GetGenericArguments();
-                    var indentityType = genericArguments[0];
-                    var snapshotType = genericArguments[1];
-
-                    // TODO: Use ReflectionHelper to build faster invokation
-
-                    var genericMethodInfo = typeof (SnapshotBuilder)
-                        .GetMethods()
-                        .Single(mi => mi.Name == "BuildSnapshotAsync" && mi.IsGenericMethod);
-                    var methodInfo = genericMethodInfo.MakeGenericMethod(aggregateType, indentityType, snapshotType);
-
-                    return new CacheItem
-                        {
-                            Invoker = (builder, root, token) => (Task<SerializedSnapshot>) methodInfo.Invoke(builder, new object[] { root, token }),
-                        };
-                });
-        }
-
-        private class CacheItem
-        {
-            public Func<ISnapshotBuilder, IAggregateRoot, CancellationToken, Task<SerializedSnapshot>> Invoker { get; set; }
         }
     }
 }

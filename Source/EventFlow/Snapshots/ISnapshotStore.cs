@@ -39,7 +39,8 @@ namespace EventFlow.Snapshots
             where TSnapshot : ISnapshot;
 
         Task StoreSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            TAggregate aggregate,
+            TIdentity identity,
+            SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity

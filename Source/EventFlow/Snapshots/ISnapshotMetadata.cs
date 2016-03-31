@@ -31,5 +31,7 @@ namespace EventFlow.Snapshots
         string SnapshotName { get; }
         int SnapshotVersion { get; }
         int AggregateSequenceNumber { get; }
+        string AggregateId { get; }
+        string AggregateName { get; }
     }
 }

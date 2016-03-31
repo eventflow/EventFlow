@@ -22,22 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using NUnit.Framework;
+using EventFlow.Logs;
+using EventFlow.Snapshots;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Snapshots;
 
-namespace EventFlow.Snapshots
+namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
-    public interface ISnapshotBuilder
+    public class SnapshotSerilizerTests : TestsFor<SnapshotSerilizer>
     {
-        Task<SerializedSnapshot> BuildSnapshotAsync(IAggregateRoot aggregateRoot, CancellationToken cancellationToken);
-
-        Task<SerializedSnapshot> BuildSnapshotAsync<TAggregate, TIdentity, TSnapshot>(
-            SnapshotContainer snapshotContainer,
-            CancellationToken cancellationToken)
-            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
-            where TIdentity : IIdentity
-            where TSnapshot : ISnapshot;
+        [SetUp]
+        public void SetUp()
+        {
+            var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
+            snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
+            Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
+        }
     }
 }

@@ -151,13 +151,13 @@
     <Compile Include="EventStores\IEventUpgrader.cs" />
     <Compile Include="Snapshots\Stores\InMemory\InMemorySnapshotPersistence.cs" />
     <Compile Include="Snapshots\CommittedSnapshot.cs" />
-    <Compile Include="Snapshots\ISnapshotBuilder.cs" />
+    <Compile Include="Snapshots\ISnapshotSerilizer.cs" />
     <Compile Include="Snapshots\ISnapshotMetadata.cs" />
     <Compile Include="Snapshots\Stores\ISnapshotPersistence.cs" />
     <Compile Include="Snapshots\ISnapshotUpgradeService.cs" />
     <Compile Include="Snapshots\SerializedSnapshot.cs" />
     <Compile Include="Snapshots\SnapshotContainer.cs" />
-    <Compile Include="Snapshots\SnapshotBuilder.cs" />
+    <Compile Include="Snapshots\SnapshotSerilizer.cs" />
     <Compile Include="Snapshots\SnapshotMetadata.cs" />
     <Compile Include="Snapshots\SnapshotMetadataKeys.cs" />
     <Compile Include="Snapshots\Stores\Null\NullSnapshotPersistence.cs" />

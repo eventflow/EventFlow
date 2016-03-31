@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
 using EventFlow.Snapshots;
+using EventFlow.Snapshots.Strategies;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
@@ -47,7 +48,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
 
-        public ThingyAggregate(ThingyId id) : base(id)
+        public ThingyAggregate(ThingyId id) : base(id, new SnapshotStrategy())
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
