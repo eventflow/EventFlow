@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores.EventStore.Tests.Extensions;
+using EventFlow.Extensions;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
@@ -47,6 +48,25 @@ namespace EventFlow.EventStores.EventStore.Tests
             {new Version(3, 3, 1), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.3.1.zip", UriKind.Absolute)}
         };
 
+        public class EventStoreInstance : IDisposable
+        {
+            private readonly IDisposable _processDisposable;
+            public IPEndPoint IpEndPoint { get; }
+
+            public EventStoreInstance(
+                IPEndPoint ipEndPoint,
+                IDisposable processDisposable)
+            {
+                _processDisposable = processDisposable;
+                IpEndPoint = ipEndPoint;
+            }
+
+            public void Dispose()
+            {
+                _processDisposable.Dispose();
+            }
+        }
+
         [Test, Explicit("Used to test the EventStore runner")]
         [Timeout(60000)]
         public async Task TestRunner()
@@ -58,45 +78,62 @@ namespace EventFlow.EventStores.EventStore.Tests
             }
         }
 
-        public static async Task<IDisposable> StartAsync()
+        public static async Task<EventStoreInstance> StartAsync()
         {
             var eventStoreVersion = EventStoreVersions.OrderByDescending(kv => kv.Key).First();
             await InstallEventStoreAsync(eventStoreVersion.Key).ConfigureAwait(false);
 
-            var disposable = StartExe(
-                Path.Combine(GetEventStorePath(eventStoreVersion.Key), "EventStore.ClusterNode.exe"),
-                "'admin' user added to $users",
-                "--mem-db=True",
-                "--cluster-size=1");
+            var tcpPort = TcpHelper.GetFreePort();
+            var httpPort = TcpHelper.GetFreePort();
+            var ipEndPoint = new IPEndPoint(IPAddress.Loopback, tcpPort);
 
-            var connectionSettings = ConnectionSettings.Create()
-                .EnableVerboseLogging()
-                .KeepReconnecting()
-                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
-                .Build();
-            using (var eventStoreConnection = EventStoreConnection.Create(connectionSettings, new IPEndPoint(IPAddress.Loopback, 1113)))
+            IDisposable processDisposable = null;
+            try
             {
-                var start = DateTimeOffset.Now;
-                while (true)
-                {
-                    if (start + TimeSpan.FromSeconds(10) < DateTimeOffset.Now)
-                    {
-                        throw new Exception("Failed to connect to EventStore");
-                    }
+                processDisposable = StartExe(
+                    Path.Combine(GetEventStorePath(eventStoreVersion.Key), "EventStore.ClusterNode.exe"),
+                    "'admin' user added to $users",
+                    "--mem-db=True",
+                    "--cluster-size=1",
+                    $"--ext-tcp-port={tcpPort}",
+                    $"--ext-http-port={httpPort}");
 
-                    try
+                var connectionSettings = ConnectionSettings.Create()
+                    .EnableVerboseLogging()
+                    .KeepReconnecting()
+                    .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
+                    .Build();
+                using (var eventStoreConnection = EventStoreConnection.Create(connectionSettings, ipEndPoint))
+                {
+                    var start = DateTimeOffset.Now;
+                    while (true)
                     {
-                        await eventStoreConnection.ConnectAsync().ConfigureAwait(false);
-                        break;
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Failed to connect, retrying");
+                        if (start + TimeSpan.FromSeconds(10) < DateTimeOffset.Now)
+                        {
+                            throw new Exception("Failed to connect to EventStore");
+                        }
+
+                        try
+                        {
+                            await eventStoreConnection.ConnectAsync().ConfigureAwait(false);
+                            break;
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Failed to connect, retrying");
+                        }
                     }
                 }
             }
+            catch (Exception)
+            {
+                processDisposable.DisposeSafe("Failed to dispose EventStore process");
+                throw;
+            }
 
-            return disposable;
+            return new EventStoreInstance(
+                ipEndPoint,
+                processDisposable);
         }
 
         private static IDisposable StartExe(
