@@ -68,6 +68,10 @@ namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
         }
 
         [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
         public void ShouldThisBeRetried_Exception_ShouldNeverBeRetired(int currentRetryCount)
         {
             // Assert

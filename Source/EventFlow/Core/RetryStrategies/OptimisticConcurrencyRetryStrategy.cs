@@ -24,6 +24,7 @@
 
 using System;
 using EventFlow.Configuration;
+using EventFlow.Exceptions;
 
 namespace EventFlow.Core.RetryStrategies
 {
@@ -39,6 +40,11 @@ namespace EventFlow.Core.RetryStrategies
 
         public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
+            if (!(exception is OptimisticConcurrencyException))
+            {
+                return Retry.No;
+            }
+
             return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions >= currentRetryCount
                 ? Retry.YesAfter(_eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
                 : Retry.No;

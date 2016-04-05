@@ -1,5 +1,10 @@
 ### New in 0.28 (not released yet)
 
+* **Critical fix:** `OptimisticConcurrencyRetryStrategy` now correctly only
+  states that `OptimisticConcurrencyException` should be retried. Before
+  _ALL_ exceptions from the event stores were retried, not only the transient!
+  If you have inadvertently become dependent on this bug, then implement your
+  own `IOptimisticConcurrencyRetryStrategy` that has the old behavior
 * Fixed: `OptimisticConcurrencyRetryStrategy` has a off-by-one error that caused
   it to retry one less that it actually should
 * Fixed: Prevent `abstract ICommandHandler<,,,>` from being registered in
