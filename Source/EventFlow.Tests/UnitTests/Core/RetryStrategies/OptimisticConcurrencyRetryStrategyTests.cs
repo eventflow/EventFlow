@@ -51,6 +51,10 @@ namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
         }
 
         [TestCase(0, true)]
+        [TestCase(1, true)]
+        [TestCase(2, true)]
+        [TestCase(3, true)]
+        [TestCase(4, false)]
         public void ShouldThisBeRetried_OptimisticConcurrencyException_ShouldBeRetired(int currentRetryCount, bool expectedShouldThisBeRetried)
         {
             // Assert

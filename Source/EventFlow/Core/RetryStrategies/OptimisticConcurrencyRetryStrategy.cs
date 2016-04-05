@@ -39,7 +39,7 @@ namespace EventFlow.Core.RetryStrategies
 
         public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
-            return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions > currentRetryCount
+            return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions >= currentRetryCount
                 ? Retry.YesAfter(_eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
                 : Retry.No;
         }
