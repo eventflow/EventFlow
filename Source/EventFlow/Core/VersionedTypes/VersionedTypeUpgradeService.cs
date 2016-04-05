@@ -83,6 +83,8 @@ namespace EventFlow.Core.VersionedTypes
             TDefinition fromDefinition,
             TDefinition toDefinition)
         {
+            _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
+
             // TODO: Cache this
             var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgrader = _resolver.Resolve(versionedTypeUpgraderType);

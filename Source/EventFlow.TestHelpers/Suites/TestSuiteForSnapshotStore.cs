@@ -24,9 +24,14 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
+using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -103,15 +108,86 @@ namespace EventFlow.TestHelpers.Suites
             await PublishPingCommandsAsync(thingyId, pingsSent).ConfigureAwait(false);
 
             // Act
-            var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
-                thingyId,
-                CancellationToken.None)
-                .ConfigureAwait(false);
+            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
 
             // Assert
             thingyAggregate.Version.Should().Be(pingsSent);
             thingyAggregate.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
         }
+
+        [Test]
+        public async Task LoadingNoneExistingSnapshottedAggregateReturnsVersionZeroAndNull()
+        {
+            // Act
+            var thingyAggregate = await LoadAggregateAsync(A<ThingyId>()).ConfigureAwait(false);
+
+            // Assert
+            thingyAggregate.Should().NotBeNull();
+            thingyAggregate.Version.Should().Be(0);
+            thingyAggregate.SnapshotVersion.Should().NotHaveValue();
+        }
+
+        [Test]
+        public async Task OldSnapshotsAreUpgradedToLatestVersion()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var pingIds = Many<PingId>();
+            var expectedVersion = pingIds.Count;
+            var thingySnapshotV1 = new ThingySnapshotV1(pingIds);
+            await StoreSnapshotAsync(thingyId, expectedVersion, thingySnapshotV1).ConfigureAwait(false);
+
+            // Act
+            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+
+            // Assert
+            thingyAggregate.Version.Should().Be(expectedVersion);
+            thingyAggregate.PingsReceived.ShouldAllBeEquivalentTo(pingIds);
+        }
+
+        public Task StoreSnapshotAsync<TSnapshot>(
+            ThingyId thingyId,
+            int aggregateSequenceNumber,
+            TSnapshot snapshot)
+            where TSnapshot : ISnapshot
+        {
+            var snapshotDefinition = SnapshotDefinitionService.GetDefinition(typeof (TSnapshot));
+            var snapshotMetadata = new SnapshotMetadata
+                {
+                    {SnapshotMetadataKeys.AggregateId, thingyId.Value},
+                    {SnapshotMetadataKeys.AggregateName, "ThingyAggregate"},
+                    {SnapshotMetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString()},
+                    {SnapshotMetadataKeys.SnapshotName, snapshotDefinition.Name},
+                    {SnapshotMetadataKeys.SnapshotVersion, snapshotDefinition.Version.ToString()},
+                };
+
+            return SnapshotPersistence.SetSnapshotAsync(
+                typeof(ThingyAggregate),
+                thingyId,
+                new SerializedSnapshot(
+                    JsonConvert.SerializeObject(snapshotMetadata),
+                    JsonConvert.SerializeObject(snapshot),
+                    snapshotMetadata),
+                CancellationToken.None);
+        }
+
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            return base.Options(eventFlowOptions)
+                .RegisterServices(sr =>
+                    {
+                        // TODO: Make easier registration
+                        sr.Register<IVersionedTypeUpgrader<ThingySnapshotV1, ThingySnapshotV2>, ThingySnapshotV1ToV2Upgrader>();
+                        sr.Register<IVersionedTypeUpgrader<ThingySnapshotV2, ThingySnapshot>, ThingySnapshotV2ToV3Upgrader>();
+                    });
+        }
+
+        protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
+        {
+            return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
+                thingyId,
+                CancellationToken.None);
+        } 
 
         protected async Task<ThingySnapshot> LoadSnapshotAsync(ThingyId thingyId)
         {
