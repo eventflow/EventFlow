@@ -3,9 +3,6 @@ init:
 
 version: 0.29.{build}
 
-before_build:
-  - cmd: netsh http add urlacl url=http://+:2113/ user=Everyone
-
 skip_tags: true
 
 build_script:
