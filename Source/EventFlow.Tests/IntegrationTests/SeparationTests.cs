@@ -20,46 +20,57 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System.Threading;
+//
+
+using System;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Jobs;
-using EventFlow.Provided.Jobs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Jobs
+namespace EventFlow.Tests.IntegrationTests
 {
-    [Category(Categories.Unit)]
-    public class JobsFlowTests
+    public class SeparationTests
     {
         [Test]
-        public async Task Flow()
+        public async Task AggregatesDontMix()
         {
-            using (var resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .CreateResolver(false))
+            using (var resolver1 = SetupEventFlow())
+            using (var resolver2 = SetupEventFlow())
             {
                 // Arrange
-                var testId = ThingyId.New;
+                var thingyId = ThingyId.New;
                 var pingId = PingId.New;
-                var jobScheduler = resolver.Resolve<IJobScheduler>();
-                var eventStore = resolver.Resolve<IEventStore>();
-                var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), resolver);
 
                 // Act
-                await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
+                await resolver1.Resolve<ICommandBus>().PublishAsync(
+                    new ThingyPingCommand(thingyId, pingId))
+                    .ConfigureAwait(false);
 
                 // Assert
-                var testAggregate = await eventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
-                testAggregate.IsNew.Should().BeFalse();
+                var aggregate = await resolver2.Resolve<IEventStore>().LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
+                aggregate.IsNew.Should().BeTrue();
             }
+        }
+
+        private static IRootResolver SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        {
+            var eventFlowOptions = EventFlowOptions.New
+                .AddDefaults(EventFlowTestHelpers.Assembly);
+
+            if (configure != null)
+            {
+                eventFlowOptions = configure(eventFlowOptions);
+            }
+
+            return eventFlowOptions.CreateResolver(false);
         }
     }
 }

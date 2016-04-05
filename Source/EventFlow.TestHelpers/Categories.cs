@@ -32,11 +32,6 @@ namespace EventFlow.TestHelpers
         public const string Integration = "integration";
 
         /// <summary>
-        /// Tests that execute an in-memory scenario
-        /// </summary>
-        public const string Scenario = "scenario";
-
-        /// <summary>
         /// Tests that test a single class
         /// </summary>
         public const string Unit = "unit";

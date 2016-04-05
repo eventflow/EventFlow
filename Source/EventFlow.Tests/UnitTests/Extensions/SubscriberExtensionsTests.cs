@@ -21,32 +21,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using EventFlow.TestHelpers;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Extensions;
+using EventFlow.Subscribers;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    [TestFixture]
-    [Category(Categories.Scenario)]
-    public class ConfigurationTests
+    public class SubscriberExtensionsTests
     {
         [Test]
-        public void CanResolve()
+        public void AbstractSubscriberIsNotRegistered()
         {
             // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver();
+            var registry = new AutofacServiceRegistration();
+            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
 
             // Act
-            IEventPersistence eventPersistence = null;
-            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
+            Action act = () => sut.AddSubscribers(new List<Type>
+            {
+                typeof (AbstractTestSubscriber)
+            });
 
             // Assert
-            eventPersistence.Should().NotBeNull();
-            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
+            act.ShouldNotThrow<ArgumentException>();
         }
+    }
+
+    public abstract class AbstractTestSubscriber :
+        ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
+    {
+        public abstract Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+            CancellationToken cancellationToken);
     }
 }
