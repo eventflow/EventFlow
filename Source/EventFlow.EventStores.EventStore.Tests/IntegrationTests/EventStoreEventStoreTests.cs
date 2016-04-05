@@ -22,9 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using System.Net;
-using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
@@ -42,18 +39,18 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
-        private IDisposable _eventStore;
+        private EventStoreRunner.EventStoreInstance _eventStoreInstance;
 
         [TestFixtureSetUp]
         public void SetUp()
         {
-            _eventStore = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
+            _eventStoreInstance = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            _eventStore.DisposeSafe("EventStore shutdown");
+            _eventStoreInstance.DisposeSafe("EventStore shutdown");
         }
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
@@ -67,7 +64,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 
             var resolver = eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .UseEventStoreEventStore(new IPEndPoint(IPAddress.Loopback, 1113), connectionSettings)
+                .UseEventStoreEventStore(_eventStoreInstance.IpEndPoint, connectionSettings)
                 .CreateResolver();
 
             return resolver;
