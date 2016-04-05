@@ -84,6 +84,7 @@ namespace EventFlow.EventStores.EventStore.Tests
             await InstallEventStoreAsync(eventStoreVersion.Key).ConfigureAwait(false);
 
             var tcpPort = TcpHelper.GetFreePort();
+            var httpPort = TcpHelper.GetFreePort();
             var ipEndPoint = new IPEndPoint(IPAddress.Loopback, tcpPort);
 
             IDisposable processDisposable = null;
@@ -94,7 +95,8 @@ namespace EventFlow.EventStores.EventStore.Tests
                     "'admin' user added to $users",
                     "--mem-db=True",
                     "--cluster-size=1",
-                    $"--ext-tcp-port={tcpPort}");
+                    $"--ext-tcp-port={tcpPort}",
+                    $"--ext-http-port={httpPort}");
 
                 var connectionSettings = ConnectionSettings.Create()
                     .EnableVerboseLogging()
