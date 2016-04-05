@@ -70,6 +70,7 @@
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="Extensions\EventStoreExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\QueryProcessorExtensions.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

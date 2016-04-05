@@ -22,34 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using EventFlow.Snapshots;
-using EventFlow.TestHelpers.Extensions;
-using FluentAssertions;
 using Newtonsoft.Json;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Snapshots
+namespace EventFlow.TestHelpers.Extensions
 {
-    public class SnapshotMetadataTests
+    public static class ObjectExtensions
     {
-        [Test]
-        public void DeserializesCorrectly()
+        public static string ToJson<T>(this T obj, bool indented = false)
         {
-            // Arragnge
-            var json = new
-                {
-                    aggregate_sequence_number = "42",
-                    snapshot_name = "thingy",
-                    snapshot_version = "84"
-                }.ToJson();
-
-            // Act
-            var metadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
-
-            // Assert
-            metadata.AggregateSequenceNumber.Should().Be(42);
-            metadata.SnapshotName.Should().Be("thingy");
-            metadata.SnapshotVersion.Should().Be(84);
+            return JsonConvert.SerializeObject(
+                obj,
+                indented ? Formatting.Indented : Formatting.None);
         }
     }
 }
