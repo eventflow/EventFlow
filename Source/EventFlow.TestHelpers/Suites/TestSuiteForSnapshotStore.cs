@@ -91,7 +91,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             thingySnapshot.Should().NotBeNull();
-            thingySnapshot.PingsReceived.Count.Should().Be(pingsSent);
+            thingySnapshot.PingsReceived.Count.Should().Be(ThingyAggregate.SnapshotEveryVersion);
         }
 
         [Test]
