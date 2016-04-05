@@ -35,9 +35,7 @@ using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -79,7 +77,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             // Assert
             _eventStoreMock.Verify(
                 s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()),
-                Times.Exactly(5));
+                Times.Exactly(6));
         }
 
         [Test]

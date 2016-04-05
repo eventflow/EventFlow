@@ -72,6 +72,7 @@
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
     <Compile Include="UnitTests\Core\RetryDelayTests.cs" />
+    <Compile Include="UnitTests\Core\RetryStrategies\OptimisticConcurrencyRetryStrategyTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotSerilizerTests.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotUpgradeServiceTests.cs" />

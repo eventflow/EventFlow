@@ -140,8 +140,8 @@ EventFlow  _is_ currently used in production environments and performs very well
 but it need to mature before key APIs are stable.
 
 EventFlow is greatly opinionated, but its possible to create new implementations
-for almost every part of EventFlow by registering a different implementation of a
-a interface.
+for almost every part of EventFlow by registering a different implementation of
+an interface.
 
 ## Useful articles related to EventFlow and DDD
 
