@@ -1,4 +1,8 @@
-### New in 0.28 (not released yet)
+### New in 0.29 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.28.1852 (released 2016-04-05)
 
 * **Critical fix:** `OptimisticConcurrencyRetryStrategy` now correctly only
   states that `OptimisticConcurrencyException` should be retried. Before
