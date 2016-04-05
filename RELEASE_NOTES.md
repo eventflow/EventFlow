@@ -1,14 +1,21 @@
 ### New in 0.28 (not released yet)
 
-* Fixed: Prevent `abstract ICommandHandler<,,,>` from being registered in 
+* **Critical fix:** `OptimisticConcurrencyRetryStrategy` now correctly only
+  states that `OptimisticConcurrencyException` should be retried. Before
+  _ALL_ exceptions from the event stores were retried, not only the transient!
+  If you have inadvertently become dependent on this bug, then implement your
+  own `IOptimisticConcurrencyRetryStrategy` that has the old behavior
+* Fixed: `OptimisticConcurrencyRetryStrategy` has a off-by-one error that caused
+  it to retry one less that it actually should
+* Fixed: Prevent `abstract ICommandHandler<,,,>` from being registered in
    `EventFlowOptionsCommandHandlerExtensions.AddCommandHandlers(...)`
-* Fixed: Prevent `abstract IEventUpgrader<,>` from being registered in 
+* Fixed: Prevent `abstract IEventUpgrader<,>` from being registered in
    `EventFlowOptionsEventUpgradersExtensions.AddEventUpgraders(...)`
-* Fixed: Prevent `abstract IMetadataProvider` from being registered in 
+* Fixed: Prevent `abstract IMetadataProvider` from being registered in
    `EventFlowOptionsMetadataProvidersExtensions.AddMetadataProviders(...)`
-* Fixed: Prevent `abstract IQueryHandler<,>` from being registered in 
+* Fixed: Prevent `abstract IQueryHandler<,>` from being registered in
    `EventFlowOptionsQueriesExtensions.AddQueryHandlers(...)`
-* Fixed: Prevent `abstract ISubscribeSynchronousTo<,,>` from being registered in 
+* Fixed: Prevent `abstract ISubscribeSynchronousTo<,,>` from being registered in
    `EventFlowOptionsSubscriberExtensions.AddSubscribers(...)`
 
 ### New in 0.27.1765 (released 2016-02-25)

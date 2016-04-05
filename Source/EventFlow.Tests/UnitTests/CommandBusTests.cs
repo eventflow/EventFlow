@@ -84,7 +84,7 @@ namespace EventFlow.Tests.UnitTests
             // Assert
             _eventStoreMock.Verify(
                 s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()),
-                Times.Exactly(5));
+                Times.Exactly(6));
         }
 
         [Test]
