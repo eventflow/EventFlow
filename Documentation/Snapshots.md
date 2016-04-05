@@ -32,3 +32,51 @@ public class UserAggregate :
   }
 }
 ```
+
+When using aggregate snapshots there are several important details to remember
+
+* Aggregates must not make any assumptions regarding the existence of snapshots
+* Aggregates must not assume that if a snapshots are created with increasing
+  aggregate sequence numbers
+* Snapshots must be created in such a way, that the represent the entire
+  history up to the point of snapshot creation
+
+## Upgrading snapshots
+
+As snapshots are persisted to storage
+
+## Snapshot store implementations
+
+EventFlow has built-in support for some snapshot stores.
+
+### Null (or none)
+
+The default implementation used by EventFlow does absolutely nothing besides
+logging a warning if used. It exist only to help developers to select a proper
+snapshot store. Making in-memory the default implementation could present
+problems if snapshots were configured, but the snapshot store configuration
+forgotten.
+
+### In-memory
+
+For testing, or small applications, the in-memory snapshot store is configured
+by merely calling `UseInMemorySnapshotStore()`.
+
+```csharp
+var resolver = EventFlowOptions.New
+  ...
+  .UseInMemorySnapshotStore()
+  ...
+  .CreateResolver();
+```
+
+### Custom
+
+If none of the above stores are adequate, a custom implementation is possible
+by implementing the interface `ISnapshotPersistence`. However, there are
+some rules that the snapshot persistence must follow.
+
+* Its valid to store snapshots in any order, e.g. first version 3 then 2
+* Its valid to overwrite existing snapshots version, e.g. storing version 3
+  then version 3 again
+* Fallback to old snapshots is allowed
