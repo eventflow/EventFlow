@@ -1,6 +1,6 @@
 ### New in 0.29 (not released yet)
 
-* _Nothing yet_
+* New: Added suport to use EventStore persistence with connection strings instead IPs only.
 
 ### New in 0.28.1852 (released 2016-04-05)
 

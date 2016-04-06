@@ -1,26 +1,26 @@
 ﻿// The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2016 Rasmus Mikkelsen
 // Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.Collections.Generic;
@@ -51,14 +51,14 @@ namespace EventFlow.EventStores.EventStore.Tests
         public class EventStoreInstance : IDisposable
         {
             private readonly IDisposable _processDisposable;
-            public IPEndPoint IpEndPoint { get; }
+            public Uri ConnectionStringUri { get; }
 
             public EventStoreInstance(
-                IPEndPoint ipEndPoint,
+                Uri connectionStringUri,
                 IDisposable processDisposable)
             {
                 _processDisposable = processDisposable;
-                IpEndPoint = ipEndPoint;
+                ConnectionStringUri = connectionStringUri;
             }
 
             public void Dispose()
@@ -85,7 +85,7 @@ namespace EventFlow.EventStores.EventStore.Tests
 
             var tcpPort = TcpHelper.GetFreePort();
             var httpPort = TcpHelper.GetFreePort();
-            var ipEndPoint = new IPEndPoint(IPAddress.Loopback, tcpPort);
+            var connectionStringUri = new Uri($"tcp://admin:changeit@{IPAddress.Loopback}:{tcpPort}");
 
             IDisposable processDisposable = null;
             try
@@ -103,7 +103,7 @@ namespace EventFlow.EventStores.EventStore.Tests
                     .KeepReconnecting()
                     .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
                     .Build();
-                using (var eventStoreConnection = EventStoreConnection.Create(connectionSettings, ipEndPoint))
+                using (var eventStoreConnection = EventStoreConnection.Create(connectionSettings, connectionStringUri))
                 {
                     var start = DateTimeOffset.Now;
                     while (true)
@@ -132,7 +132,7 @@ namespace EventFlow.EventStores.EventStore.Tests
             }
 
             return new EventStoreInstance(
-                ipEndPoint,
+                connectionStringUri,
                 processDisposable);
         }
 
@@ -142,16 +142,16 @@ namespace EventFlow.EventStores.EventStore.Tests
             params string[] arguments)
         {
             var process = new Process
+            {
+                StartInfo = new ProcessStartInfo(exePath, string.Join(" ", arguments))
                 {
-                    StartInfo = new ProcessStartInfo(exePath, string.Join(" ", arguments))
-                        {
-                            CreateNoWindow = true,
-                            UseShellExecute = false,
-                            RedirectStandardError = true,
-                            RedirectStandardOutput = true,
-                            WorkingDirectory = Path.GetDirectoryName(exePath),
-                    }
-                };
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    WorkingDirectory = Path.GetDirectoryName(exePath),
+                }
+            };
             var exeName = Path.GetFileName(exePath);
             process.OutputDataReceived += (sender, eventArgs) =>
             {
