@@ -80,6 +80,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.SQLite.Tests", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Sql.Tests", "Source\EventFlow.Sql.Tests\EventFlow.Sql.Tests.csproj", "{36F59228-C7DC-4799-8342-4CAF5C4E95D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow-Portable", "Source\EventFlow\EventFlow-Portable.csproj", "{CFBD5EBD-4527-45C8-8A89-100901BFC140}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -190,6 +192,10 @@ Global
 		{36F59228-C7DC-4799-8342-4CAF5C4E95D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36F59228-C7DC-4799-8342-4CAF5C4E95D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36F59228-C7DC-4799-8342-4CAF5C4E95D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFBD5EBD-4527-45C8-8A89-100901BFC140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFBD5EBD-4527-45C8-8A89-100901BFC140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFBD5EBD-4527-45C8-8A89-100901BFC140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFBD5EBD-4527-45C8-8A89-100901BFC140}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

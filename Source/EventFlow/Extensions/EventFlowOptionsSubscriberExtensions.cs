@@ -58,12 +58,13 @@ namespace EventFlow.Extensions
         {
             predicate = predicate ?? (t => true);
             var subscribeSynchronousToTypes = fromAssembly
-                .GetTypes()
+                .DefinedTypes
                 .Where(t => t
-                    .GetInterfaces()
+                    .ImplementedInterfaces
                     .Any(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
+                        (i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
                         i == typeof(ISubscribeSynchronousToAll)))
+                .Select(t => t.AsType())
                 .Where(t => predicate(t));
             return eventFlowOptions.AddSubscribers(subscribeSynchronousToTypes);
         }
@@ -74,24 +75,24 @@ namespace EventFlow.Extensions
         {
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
             {
-                var t = subscribeSynchronousToType;
+                var t = subscribeSynchronousToType.GetTypeInfo();
                 if (t.IsAbstract) continue;
                 var subscribeTos = t
-                    .GetInterfaces()
+                    .ImplementedInterfaces
                     .Where(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>)) ||
+                        (i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>)) ||
                         i == typeof(ISubscribeSynchronousToAll))
                     .ToList();
                 if (!subscribeTos.Any())
                 {
-                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(ISubscribeSynchronousTo<,,>).PrettyPrint()}'");
+                    throw new ArgumentException($"Type '{subscribeSynchronousToType.PrettyPrint()}' is not an '{typeof(ISubscribeSynchronousTo<,,>).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>
                     {
                         foreach (var subscribeTo in subscribeTos)
                         {
-                            sr.Register(subscribeTo, t);
+                            sr.Register(subscribeTo, subscribeSynchronousToType);
                         }
                     });
             }

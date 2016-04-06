@@ -53,8 +53,9 @@ namespace EventFlow.Extensions
         {
             predicate = predicate ?? (t => true);
             var subscribeSynchronousToTypes = fromAssembly
-                .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
+                .DefinedTypes
+                .Where(t => t.ImplementedInterfaces.Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
+                .Select(t => t.AsType())
                 .Where(t => predicate(t));
             return eventFlowOptions
                 .AddQueryHandlers(subscribeSynchronousToTypes);
@@ -66,22 +67,22 @@ namespace EventFlow.Extensions
         {
             foreach (var queryHandlerType in queryHandlerTypes)
             {
-                var t = queryHandlerType;
+                var t = queryHandlerType.GetTypeInfo();
                 if (t.IsAbstract) continue;
                 var queryHandlerInterfaces = t
-                    .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
+                    .ImplementedInterfaces
+                    .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
                     .ToList();
                 if (!queryHandlerInterfaces.Any())
                 {
-                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
+                    throw new ArgumentException($"Type '{queryHandlerType.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>
                     {
                         foreach (var queryHandlerInterface in queryHandlerInterfaces)
                         {
-                            sr.Register(queryHandlerInterface, t);
+                            sr.Register(queryHandlerInterface, queryHandlerType);
                         }
                     });
             }

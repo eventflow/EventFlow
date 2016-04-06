@@ -39,18 +39,19 @@ namespace EventFlow.Aggregates
 
         static AggregateState()
         {
-            var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
+            var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>).GetTypeInfo();
             var eventApplier = typeof (TEventApplier);
 
             ApplyMethods = eventApplier
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetRuntimeMethods()
+                .Where(mi => !mi.IsStatic)
                 .Where(mi =>
                     {
                         if (mi.Name != "Apply") return false;
                         var parameters = mi.GetParameters();
                         return
                             parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
+                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType.GetTypeInfo());
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,

@@ -40,7 +40,7 @@ namespace EventFlow.Aggregates
     {
         private static readonly Dictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
         private static readonly IAggregateName AggregateName = new AggregateName(
-                typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
+                typeof(TAggregate).GetTypeInfo().CustomAttributes.OfType<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                 typeof (TAggregate).Name);
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
         private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
@@ -53,18 +53,19 @@ namespace EventFlow.Aggregates
 
         static AggregateRoot()
         {
-            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
+            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>).GetTypeInfo();
             var aggregateType = typeof(TAggregate);
 
             ApplyMethods = typeof(TAggregate)
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetRuntimeMethods()
+                .Where(mi => !mi.IsStatic)
                 .Where(mi =>
                     {
                         if (mi.Name != "Apply") return false;
                         var parameters = mi.GetParameters();
                         return
                             parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
+                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType.GetTypeInfo());
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,

@@ -75,7 +75,12 @@ namespace EventFlow.ValueObjects
             return TypeProperties.GetOrAdd(
                 GetType(),
                 t => t
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .GetRuntimeProperties()
+                    .Where(pi =>
+                    {
+                        var method = pi.GetMethod ?? pi.SetMethod;
+                        return !method.IsStatic && method.IsPublic;
+                    })
                     .OrderBy(p => p.Name)
                     .ToList());
         }

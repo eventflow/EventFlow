@@ -50,12 +50,16 @@ namespace EventFlow.Extensions
             this IEventFlowOptions eventFlowOptions,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
+#if PORTABLE
+            throw new NotImplementedException();
+#else
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton);
                     f.Register<IEventPersistence, FilesEventPersistence>();
                     f.Register<IFilesEventLocator, FilesEventLocator>();
                 });
+#endif
         }
     }
 }

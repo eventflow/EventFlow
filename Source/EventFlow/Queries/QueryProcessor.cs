@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -80,10 +81,10 @@ namespace EventFlow.Queries
 
         private static CacheItem CreateCacheItem(Type queryType)
         {
-            var queryInterfaceType = queryType
-                .GetInterfaces()
-                .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
-            var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
+            var queryInterfaceType = queryType.GetTypeInfo()
+                .ImplementedInterfaces
+                .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
+            var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GenericTypeArguments[0]);
             var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
                 queryHandlerType,
                 "ExecuteQueryAsync",

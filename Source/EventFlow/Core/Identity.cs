@@ -45,7 +45,12 @@ namespace EventFlow.Core
             Name = nameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
             ValueValidation = new Regex(
                 @"^[a-z0-9]+\-[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$",
-                RegexOptions.Compiled);
+#if PORTABLE
+                RegexOptions.None
+#else
+                RegexOptions.Compiled
+#endif           
+                );
         }
 
         public static T New => BuildWith(Guid.NewGuid());
@@ -103,7 +108,11 @@ namespace EventFlow.Core
                 yield break;
             }
 
+#if PORTABLE
+            if (!string.Equals(value.Trim(), value, StringComparison.Ordinal))
+#else
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
+#endif
                 yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
                 yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' does not start with '{Name}'";

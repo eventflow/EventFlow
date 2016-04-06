@@ -36,10 +36,12 @@ namespace EventFlow.Extensions
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
+            var faceTypeInfo = typeof(IAggregateEvent).GetTypeInfo();
             predicate = predicate ?? (t => true);
             var aggregateEventTypes = fromAssembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(IAggregateEvent).IsAssignableFrom(t))
+                .DefinedTypes
+                .Where(t => !t.IsAbstract && faceTypeInfo.IsAssignableFrom(t))
+                .Select(t => t.AsType())
                 .Where(t => predicate(t));
             return eventFlowOptions.AddEvents(aggregateEventTypes);
         }

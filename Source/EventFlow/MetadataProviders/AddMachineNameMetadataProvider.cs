@@ -35,10 +35,19 @@ namespace EventFlow.MetadataProviders
 
         static AddMachineNameMetadataProvider()
         {
-            Metadata = new[]
+#if PORTABLE
+            // Environment.GetEnvironmentVariable() isn't available either!
+            throw new NotImplementedException();
+            //Metadata = new[]
+            //{
+            //    new KeyValuePair<string, string>("environment_machinename", Environment.GetEnvironmentVariable("COMPUTERNAME")), 
+            //};
+#else
+                Metadata = new[]
                 {
-                    new KeyValuePair<string, string>("environment_machinename", Environment.MachineName), 
+                    new KeyValuePair<string, string>("environment_machinename", Environment.MachineName),
                 };
+#endif
         }
 
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(

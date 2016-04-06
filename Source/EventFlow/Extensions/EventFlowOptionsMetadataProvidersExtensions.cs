@@ -54,10 +54,12 @@ namespace EventFlow.Extensions
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
+            var faceTypeInfo = typeof(IMetadataProvider).GetTypeInfo();
             predicate = predicate ?? (t => true);
             var metadataProviderTypes = fromAssembly
-                .GetTypes()
-                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t))
+                .DefinedTypes
+                .Where(t => faceTypeInfo.IsAssignableFrom(t))
+                .Select(t => t.AsType())
                 .Where(t => predicate(t));
             return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
         }
@@ -66,16 +68,17 @@ namespace EventFlow.Extensions
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> metadataProviderTypes)
         {
+            var faceTypeInfo = typeof(IMetadataProvider).GetTypeInfo();
             foreach (var metadataProviderType in metadataProviderTypes)
             {
-                var t = metadataProviderType;
+                var t = metadataProviderType.GetTypeInfo();
                 if (t.IsAbstract) continue;
-                if (!typeof (IMetadataProvider).IsAssignableFrom(t))
+                if (!faceTypeInfo.IsAssignableFrom(t))
                 {
                     throw new ArgumentException($"Type '{metadataProviderType.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t));
+                eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t.AsType()));
             }
             return eventFlowOptions;
         }

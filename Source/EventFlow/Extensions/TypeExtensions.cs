@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 
 namespace EventFlow.Extensions
 {
@@ -61,7 +62,7 @@ namespace EventFlow.Extensions
                 return nameParts[0];
             }
 
-            var genericArguments = type.GetGenericArguments();
+            var genericArguments = type.GenericTypeArguments;
             return !type.IsConstructedGenericType
                 ? $"{nameParts[0]}<{new string(',', genericArguments.Length - 1)}>"
                 : $"{nameParts[0]}<{string.Join(",", genericArguments.Select(t => PrettyPrintRecursive(t, depth + 1)))}>";

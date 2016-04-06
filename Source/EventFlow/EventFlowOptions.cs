@@ -23,6 +23,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
@@ -77,9 +78,10 @@ namespace EventFlow
 
         public IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
+            var faceTypeInfo = typeof(IAggregateEvent).GetTypeInfo();
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!faceTypeInfo.IsAssignableFrom(aggregateEventType.GetTypeInfo()))
                 {
                     throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
                 }
@@ -90,9 +92,10 @@ namespace EventFlow
 
         public IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
         {
+            var faceTypeInfo = typeof(ICommand).GetTypeInfo();
             foreach (var commandType in commandTypes)
             {
-                if (!typeof (ICommand).IsAssignableFrom(commandType))
+                if (!faceTypeInfo.IsAssignableFrom(commandType.GetTypeInfo()))
                 {
                     throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof (ICommand).PrettyPrint()}");
                 }
@@ -103,9 +106,10 @@ namespace EventFlow
 
         public IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
         {
+            var faceTypeInfo = typeof(IJob).GetTypeInfo();
             foreach (var jobType in jobTypes)
             {
-                if (!typeof (IJob).IsAssignableFrom(jobType))
+                if (!faceTypeInfo.IsAssignableFrom(jobType.GetTypeInfo()))
                 {
                     throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
                 }

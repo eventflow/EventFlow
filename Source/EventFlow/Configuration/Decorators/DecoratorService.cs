@@ -25,6 +25,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace EventFlow.Configuration.Decorators
 {
@@ -40,7 +41,7 @@ namespace EventFlow.Configuration.Decorators
                 t =>
                 {
                     var genericMethodInfo = GetType()
-                        .GetMethods()
+                        .GetRuntimeMethods()
                         .Single(mi => mi.IsGenericMethodDefinition && mi.Name == "Decorate");
                     var methodInfo = genericMethodInfo.MakeGenericMethod(t);
                     return ((o,r) => methodInfo.Invoke(this, new[] {o, r}));

@@ -46,5 +46,15 @@ namespace EventFlow.Logs
                 : format;
             Console.WriteLine("{0} [{1}]: {2} - {3}", DateTime.Now.ToString("HH:mm:ss"), logLevel, message, exception);
         }
+
+#if PORTABLE
+        private static class Console
+        {
+            public static void WriteLine(string format, params object[] values)
+            {
+                throw new NotImplementedException();
+            }
+        }
+#endif
     }
 }

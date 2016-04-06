@@ -28,7 +28,13 @@ namespace EventFlow.Core
 {
     public class Label
     {
-        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
+        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$",
+#if PORTABLE
+            RegexOptions.None
+#else
+            RegexOptions.Compiled
+#endif
+            );
 
         public static Label Named(string name) { return new Label(name.ToLowerInvariant()); }
 
