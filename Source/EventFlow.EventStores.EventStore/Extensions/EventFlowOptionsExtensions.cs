@@ -38,6 +38,7 @@ namespace EventFlow.EventStores.EventStore.Extensions
             return eventFlowOptions.UseEventStore<EventStoreEventPersistence>();
         }
 
+        [Obsolete("Use the overloads with 'uri' parameter instead.")]
         public static IEventFlowOptions UseEventStoreEventStore(
             this IEventFlowOptions eventFlowOptions,
             IPEndPoint ipEndPoint)
@@ -46,6 +47,7 @@ namespace EventFlow.EventStores.EventStore.Extensions
                 .UseEventStoreEventStore(ipEndPoint, ConnectionSettings.Default);
         }
 
+        [Obsolete("Use the overloads with 'uri' parameter instead.")]
         public static IEventFlowOptions UseEventStoreEventStore(
             this IEventFlowOptions eventFlowOptions,
             IPEndPoint ipEndPoint,
