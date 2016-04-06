@@ -23,11 +23,11 @@
 // 
 
 using System.Linq;
-using EventFlow.Core.VersionedTypes;
+using EventFlow.Snapshots;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
 {
-    public class ThingySnapshotV2ToV3Upgrader : IVersionedTypeUpgrader<ThingySnapshotV2, ThingySnapshot>
+    public class ThingySnapshotV2ToV3Upgrader : ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>
     {
         public ThingySnapshot Upgrade(ThingySnapshotV2 fromVersionedType)
         {

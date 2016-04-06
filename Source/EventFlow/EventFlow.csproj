@@ -149,6 +149,7 @@
     <Compile Include="EventStores\IEventPersistence.cs" />
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
+    <Compile Include="Snapshots\ISnapshotUpgrader.cs" />
     <Compile Include="Snapshots\Stores\InMemory\InMemorySnapshotPersistence.cs" />
     <Compile Include="Snapshots\CommittedSnapshot.cs" />
     <Compile Include="Snapshots\ISnapshotSerilizer.cs" />

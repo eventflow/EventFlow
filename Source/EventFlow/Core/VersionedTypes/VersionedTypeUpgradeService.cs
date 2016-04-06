@@ -78,6 +78,8 @@ namespace EventFlow.Core.VersionedTypes
             return Task.FromResult(versionedType);
         }
 
+        protected abstract Type CreateUpgraderType(Type fromType, Type toType);
+
         private TVersionedType UpgradeToVersion(
             TVersionedType versionedType,
             TDefinition fromDefinition,
@@ -85,9 +87,11 @@ namespace EventFlow.Core.VersionedTypes
         {
             _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
 
-            // TODO: Cache this
+            // TODO: Refactor this!
+
+            var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
-            var versionedTypeUpgrader = _resolver.Resolve(versionedTypeUpgraderType);
+            var versionedTypeUpgrader = _resolver.Resolve(upgraderType);
             var invoker = ReflectionHelper.CompileMethodInvocation<Func<object, TVersionedType, TVersionedType>>(versionedTypeUpgraderType, "Upgrade");
 
             return invoker(versionedTypeUpgrader, versionedType);

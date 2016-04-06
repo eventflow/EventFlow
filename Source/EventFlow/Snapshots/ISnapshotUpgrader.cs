@@ -20,30 +20,15 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System;
-using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
 
 namespace EventFlow.Snapshots
 {
-    public class SnapshotUpgradeService :
-        VersionedTypeUpgradeService<SnapshotVersionAttribute, SnapshotDefinition, ISnapshot, ISnapshotDefinitionService>,
-        ISnapshotUpgradeService
+    public interface ISnapshotUpgrader<in TFrom, out TTo> : IVersionedTypeUpgrader<TFrom, TTo>
+        where TFrom : ISnapshot
+        where TTo : ISnapshot
     {
-        public SnapshotUpgradeService(
-            ILog log,
-            IResolver resolver,
-            ISnapshotDefinitionService definitionService)
-            : base(log, resolver, definitionService)
-        {
-        }
-
-        protected override Type CreateUpgraderType(Type fromType, Type toType)
-        {
-            return typeof (ISnapshotUpgrader<,>).MakeGenericType(fromType, toType);
-        }
     }
 }

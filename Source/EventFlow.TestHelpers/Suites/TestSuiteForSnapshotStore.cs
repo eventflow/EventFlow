@@ -25,6 +25,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core.VersionedTypes;
+using EventFlow.Extensions;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
@@ -170,17 +171,6 @@ namespace EventFlow.TestHelpers.Suites
                     JsonConvert.SerializeObject(snapshot),
                     snapshotMetadata),
                 CancellationToken.None);
-        }
-
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
-        {
-            return base.Options(eventFlowOptions)
-                .RegisterServices(sr =>
-                    {
-                        // TODO: Make easier registration
-                        sr.Register<IVersionedTypeUpgrader<ThingySnapshotV1, ThingySnapshotV2>, ThingySnapshotV1ToV2Upgrader>();
-                        sr.Register<IVersionedTypeUpgrader<ThingySnapshotV2, ThingySnapshot>, ThingySnapshotV2ToV3Upgrader>();
-                    });
         }
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)

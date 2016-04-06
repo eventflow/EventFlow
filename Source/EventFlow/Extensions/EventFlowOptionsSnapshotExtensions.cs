@@ -23,6 +23,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Configuration;
@@ -52,6 +53,45 @@ namespace EventFlow.Extensions
                 .Where(t => !t.IsAbstract && typeof(ISnapshot).IsAssignableFrom(t))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddSnapshots(snapshotTypes);
+        }
+
+        public static IEventFlowOptions AddSnapshotUpgraders(
+            this IEventFlowOptions eventFlowOptions,
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
+        {
+            predicate = predicate ?? (t => true);
+
+            var snapshotUpgraderTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract)
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>)))
+                .Where(t => predicate(t));
+
+            return eventFlowOptions.AddSnapshotUpgraders(snapshotUpgraderTypes);
+        }
+
+        public static IEventFlowOptions AddSnapshotUpgraders(
+            this IEventFlowOptions eventFlowOptions,
+            params Type[] snapshotUpgraderTypes)
+        {
+            return eventFlowOptions.AddSnapshotUpgraders((IEnumerable<Type>)snapshotUpgraderTypes);
+        }
+
+        public static IEventFlowOptions AddSnapshotUpgraders(
+            this IEventFlowOptions eventFlowOptions,
+            IEnumerable<Type> snapshotUpgraderTypes)
+        {
+            return eventFlowOptions.RegisterServices(sr =>
+                {
+                    foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
+                    {
+                        var interfaceType = snapshotUpgraderType
+                            .GetInterfaces()
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>));
+                        sr.Register(interfaceType, snapshotUpgraderType);
+                    }
+                });
         }
 
         public static IEventFlowOptions UseSnapshotStore<TSnapshotStore>(
