@@ -53,7 +53,7 @@ namespace EventFlow.Core.VersionedTypes
             _definitionService = definitionService;
         }
 
-        public Task<TVersionedType> UpgradeAsync(TVersionedType versionedType, CancellationToken cancellationToken)
+        public async Task<TVersionedType> UpgradeAsync(TVersionedType versionedType, CancellationToken cancellationToken)
         {
             var currentDefinition = _definitionService.GetDefinition(versionedType.GetType());
             var definitionsWithHigherVersion = _definitionService.GetDefinitions(currentDefinition.Name)
@@ -64,26 +64,27 @@ namespace EventFlow.Core.VersionedTypes
             if (!definitionsWithHigherVersion.Any())
             {
                 _log.Verbose(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
-                return Task.FromResult(versionedType);
+                return versionedType;
             }
 
             _log.Verbose(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {
-                versionedType = UpgradeToVersion(versionedType, currentDefinition, nextDefinition);
+                versionedType = await UpgradeToVersion(versionedType, currentDefinition, nextDefinition, cancellationToken).ConfigureAwait(false);
                 currentDefinition = nextDefinition;
             }
 
-            return Task.FromResult(versionedType);
+            return versionedType;
         }
 
         protected abstract Type CreateUpgraderType(Type fromType, Type toType);
 
-        private TVersionedType UpgradeToVersion(
+        private async Task<TVersionedType> UpgradeToVersion(
             TVersionedType versionedType,
             TDefinition fromDefinition,
-            TDefinition toDefinition)
+            TDefinition toDefinition,
+            CancellationToken cancellationToken)
         {
             _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
 
@@ -92,9 +93,14 @@ namespace EventFlow.Core.VersionedTypes
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgrader = _resolver.Resolve(upgraderType);
-            var invoker = ReflectionHelper.CompileMethodInvocation<Func<object, TVersionedType, TVersionedType>>(versionedTypeUpgraderType, "Upgrade");
 
-            return invoker(versionedTypeUpgrader, versionedType);
+            var methodInfo = versionedTypeUpgraderType.GetMethod("UpgradeAsync");
+
+            var task = (Task) methodInfo.Invoke(versionedTypeUpgrader, new object[] { versionedType, cancellationToken });
+
+            await task.ConfigureAwait(false);
+
+            return ((dynamic) task).Result;
         }
     }
 }

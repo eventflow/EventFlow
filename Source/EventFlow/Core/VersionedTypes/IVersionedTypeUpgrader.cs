@@ -22,12 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace EventFlow.Core.VersionedTypes
 {
-    public interface IVersionedTypeUpgrader<in TFrom, out TTo>
+    public interface IVersionedTypeUpgrader<in TFrom, TTo>
         where TFrom : IVersionedType
         where TTo : IVersionedType
     {
-        TTo Upgrade(TFrom fromVersionedType);
+        Task<TTo> UpgradeAsync(TFrom fromVersionedType, CancellationToken cancellationToken);
     }
 }

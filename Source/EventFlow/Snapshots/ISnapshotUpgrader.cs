@@ -26,7 +26,7 @@ using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Snapshots
 {
-    public interface ISnapshotUpgrader<in TFrom, out TTo> : IVersionedTypeUpgrader<TFrom, TTo>
+    public interface ISnapshotUpgrader<in TFrom, TTo> : IVersionedTypeUpgrader<TFrom, TTo>
         where TFrom : ISnapshot
         where TTo : ISnapshot
     {

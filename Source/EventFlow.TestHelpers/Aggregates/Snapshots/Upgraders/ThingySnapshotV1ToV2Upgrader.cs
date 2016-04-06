@@ -22,17 +22,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Snapshots;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
 {
     public class ThingySnapshotV1ToV2Upgrader : ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>
     {
-        public ThingySnapshotV2 Upgrade(ThingySnapshotV1 fromVersionedType)
+        public Task<ThingySnapshotV2> UpgradeAsync(ThingySnapshotV1 fromVersionedType, CancellationToken cancellationToken)
         {
-            return new ThingySnapshotV2(
+            var thingySnapshotV2 = new ThingySnapshotV2(
                 fromVersionedType.PingsReceived,
                 new [] { ThingySnapshotVersion.Version1, });
+            return Task.FromResult(thingySnapshotV2);
         }
     }
 }

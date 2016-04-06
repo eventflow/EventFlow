@@ -23,17 +23,21 @@
 // 
 
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Snapshots;
 
 namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
 {
     public class ThingySnapshotV2ToV3Upgrader : ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>
     {
-        public ThingySnapshot Upgrade(ThingySnapshotV2 fromVersionedType)
+        public Task<ThingySnapshot> UpgradeAsync(ThingySnapshotV2 fromVersionedType, CancellationToken cancellationToken)
         {
-            return new ThingySnapshot(
+            var thingySnapshot = new ThingySnapshot(
                 fromVersionedType.PingsReceived,
                 new [] {ThingySnapshotVersion.Version2, }.Concat(fromVersionedType.PreviousVersions));
+
+            return Task.FromResult(thingySnapshot);
         }
     }
 }
