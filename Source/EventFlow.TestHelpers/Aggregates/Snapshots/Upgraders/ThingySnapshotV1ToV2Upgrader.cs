@@ -35,6 +35,7 @@ namespace EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders
             var thingySnapshotV2 = new ThingySnapshotV2(
                 fromVersionedType.PingsReceived,
                 new [] { ThingySnapshotVersion.Version1, });
+
             return Task.FromResult(thingySnapshotV2);
         }
     }

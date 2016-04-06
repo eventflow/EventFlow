@@ -71,7 +71,12 @@ namespace EventFlow.Core.VersionedTypes
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {
-                versionedType = await UpgradeToVersion(versionedType, currentDefinition, nextDefinition, cancellationToken).ConfigureAwait(false);
+                versionedType = await UpgradeToVersionAsync(
+                    versionedType,
+                    currentDefinition,
+                    nextDefinition,
+                    cancellationToken)
+                    .ConfigureAwait(false);
                 currentDefinition = nextDefinition;
             }
 
@@ -80,15 +85,13 @@ namespace EventFlow.Core.VersionedTypes
 
         protected abstract Type CreateUpgraderType(Type fromType, Type toType);
 
-        private async Task<TVersionedType> UpgradeToVersion(
+        private async Task<TVersionedType> UpgradeToVersionAsync(
             TVersionedType versionedType,
             TDefinition fromDefinition,
             TDefinition toDefinition,
             CancellationToken cancellationToken)
         {
             _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
-
-            // TODO: Refactor this!
 
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
