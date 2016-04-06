@@ -49,6 +49,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
+        public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {}; 
 
         public ThingyAggregate(ThingyId id)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
@@ -97,6 +98,7 @@ namespace EventFlow.TestHelpers.Aggregates
         protected override Task LoadSnapshotAsync(ThingySnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
         {
             _pingsReceived.AddRange(snapshot.PingsReceived);
+            SnapshotVersions = snapshot.PreviousVersions;
             return Task.FromResult(0);
         }
     }

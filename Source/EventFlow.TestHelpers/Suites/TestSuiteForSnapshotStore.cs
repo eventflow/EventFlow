@@ -143,6 +143,7 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             thingyAggregate.Version.Should().Be(expectedVersion);
             thingyAggregate.PingsReceived.ShouldAllBeEquivalentTo(pingIds);
+            thingyAggregate.SnapshotVersions.Should().Contain(new[] {ThingySnapshotVersion.Version1, ThingySnapshotVersion.Version2});
         }
 
         public Task StoreSnapshotAsync<TSnapshot>(
