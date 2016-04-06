@@ -24,12 +24,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Extensions;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
-using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -129,7 +126,32 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
-        public async Task OldSnapshotsAreUpgradedToLatestVersion()
+        public async Task OldSnapshotsAreUpgradedToLatestVersionAndHaveCorrectMetadata()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var pingIds = Many<PingId>();
+            var expectedVersion = pingIds.Count;
+            var thingySnapshotV1 = new ThingySnapshotV1(pingIds);
+            await StoreSnapshotAsync(thingyId, expectedVersion, thingySnapshotV1).ConfigureAwait(false);
+
+            // Act
+            var snapshotContainer = await SnapshotStore.LoadSnapshotAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
+                thingyId,
+                CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            snapshotContainer.Snapshot.Should().BeOfType<ThingySnapshot>();
+            snapshotContainer.Metadata.AggregateId.Should().Be(thingyId.Value);
+            snapshotContainer.Metadata.AggregateName.Should().Be("ThingyAggregate");
+            snapshotContainer.Metadata.AggregateSequenceNumber.Should().Be(expectedVersion);
+            snapshotContainer.Metadata.SnapshotName.Should().Be("thingy");
+            snapshotContainer.Metadata.SnapshotVersion.Should().Be(1);
+        }
+
+        [Test]
+        public async Task OldSnapshotsAreUpgradedToLatestVersionAndAppliedToAggregate()
         {
             // Arrange
             var thingyId = A<ThingyId>();
