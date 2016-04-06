@@ -25,6 +25,11 @@ cache:
 services:
   - mssql2014
 
+on_success:
+- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
+- pip install codecov
+- codecov -f "Build\\Reports\\opencover-results-unit.xml"
+
 nuget:
   account_feed: false
   project_feed: false
