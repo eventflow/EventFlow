@@ -209,10 +209,7 @@ integrates with correctly.
  * **Elasticsearch:** Set an environment variable named `ELASTICSEARCH_URL` with
    the URL for the Elasticsearch instance you would like to use.
  * **EventStore:** EventStore is automatically downloaded and run during the
-   EventStore integration tests from your `TEMP` directory. However, EventStore
-   requires to be able to
-   [listen to HTTP requests](http://docs.geteventstore.com/server/3.4.0/).
-   If you run Visual Studio as administrator or configure it yourself up front.
+   EventStore integration tests from your `TEMP` directory
  * **MSSQL:** Microsoft SQL Server is required to be running
  * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
    for the RabbitMQ instance you would like to use.
