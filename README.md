@@ -207,12 +207,14 @@ EvenFlow has several tests that verify that its able to use the systems it
 integrates with correctly.
 
  * **Elasticsearch:** Set an environment variable named `ELASTICSEARCH_URL` with
-   the URL for the Elasticsearch instance you would like to use.
- * **EventStore:** EventStore is automatically downloaded and run during the
-   EventStore integration tests from your `TEMP` directory
+   the URL for the [Elasticsearch](https://www.elastic.co/) instance you would
+   like to use.
+ * **EventStore:** [EventStore](https://geteventstore.com/) is automatically
+   downloaded and run during the EventStore integration tests from your `TEMP`
+   directory
  * **MSSQL:** Microsoft SQL Server is required to be running
  * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
-   for the RabbitMQ instance you would like to use.
+   for the [RabbitMQ](https://www.rabbitmq.com/) instance you would like to use.
 
 There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
 [here](https://github.com/rasmus/Vagrant.Boxes).
