@@ -105,6 +105,7 @@
     <Compile Include="UnitTests\ReadStores\MultipleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\SingleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Snapshots\SnapshotMetadataTests.cs" />
+    <Compile Include="UnitTests\Snapshots\SnapshotUpgradeServiceTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
