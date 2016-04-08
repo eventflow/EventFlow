@@ -25,7 +25,10 @@ want to build the code.
         </a>
       </p>
       </p>
-        [![codecov.io](https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop)](https://codecov.io/github/rasmus/EventFlow?branch=develop) <small>(integration tests excluded)</small>
+        <a href="https://codecov.io/github/rasmus/EventFlow?branch=develop">
+          <img src="https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop" alt="Coverage via Codecov" />
+        </a>
+         <small>(integration tests excluded)</small>
       </p>
     </td>
   </tr>
