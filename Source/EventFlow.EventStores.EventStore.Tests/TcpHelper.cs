@@ -20,34 +20,33 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
 using System;
-using EventFlow.Configuration;
-using EventFlow.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 
-namespace EventFlow.Core.RetryStrategies
+namespace EventFlow.EventStores.EventStore.Tests
 {
-    public class OptimisticConcurrencyRetryStrategy : IOptimisticConcurrencyRetryStrategy
+    public class TcpHelper
     {
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private static readonly Random Random = new Random();
 
-        public OptimisticConcurrencyRetryStrategy(
-            IEventFlowConfiguration eventFlowConfiguration)
+        public static int GetFreePort()
         {
-            _eventFlowConfiguration = eventFlowConfiguration;
-        }
+            var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            var activeTcpListeners = ipGlobalProperties.GetActiveTcpListeners();
+            var ports = new HashSet<int>(activeTcpListeners.Select(p => p.Port));
 
-        public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
-        {
-            if (!(exception is OptimisticConcurrencyException))
+            while (true)
             {
-                return Retry.No;
+                var port = Random.Next(10000, 60000);
+                if (!ports.Contains(port))
+                {
+                    return port;
+                }
             }
-
-            return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions >= currentRetryCount
-                ? Retry.YesAfter(_eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
-                : Retry.No;
         }
     }
 }
