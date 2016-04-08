@@ -2,6 +2,7 @@
 open System
 open Fake 
 open Fake.AssemblyInfoFile
+open Fake.OpenCoverHelper
 
 let releaseNotes = 
     ReadFile "RELEASE_NOTES.md"
@@ -14,8 +15,6 @@ let nugetApikey = getBuildParamOrDefault "nugetApikey" ""
 let dirPackages = "./Build/Packages"
 let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
-let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
-let toolNUnitDir = "./packages/build/NUnit.Runners/tools"
 let toolIlMerge = "./packages/build/ilmerge/tools/ILMerge.exe"
 let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
@@ -38,16 +37,35 @@ Target "BuildApp" (fun _ ->
     )
 
 Target "UnitTest" (fun _ ->
-    fileListUnitTests
-        |> NUnit (fun p -> 
-            {p with
-                DisableShadowCopy = true;
-                Framework = "net-4.0";
-                ToolPath = toolNUnitDir;
+    let assembliesToTest = (" ", (!! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll"))) |> System.String.Join
+    OpenCover
+        (fun p -> { 
+            p with 
+                ExePath = "./packages/test/OpenCover/tools/OpenCover.Console.exe"
+                TestRunnerExePath = "./packages/build/NUnit.Runners/tools/nunit-console.exe"
+                Output = dirReports + "/opencover-results-unit.xml"
                 TimeOut = TimeSpan.FromMinutes 30.0;
-                ToolName = "nunit-console-x86.exe";
-                OutputFile = filePathUnitTestReport})
+                Register = RegisterUser
+                Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
+        })
+        ("/nologo /include:unit /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results-unit.xml " + assembliesToTest)
     )
+
+Target "IntegrationTest" (fun _ ->
+    let assembliesToTest = (" ", (!! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll"))) |> System.String.Join
+    OpenCover
+        (fun p -> { 
+            p with 
+                ExePath = "./packages/test/OpenCover/tools/OpenCover.Console.exe"
+                TestRunnerExePath = "./packages/build/NUnit.Runners/tools/nunit-console.exe"
+                Output = dirReports + "/opencover-results-integration.xml"
+                TimeOut = TimeSpan.FromMinutes 30.0;
+                Register = RegisterUser
+                Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
+        })
+        ("/nologo /include:integration /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results-integration.xml " + assembliesToTest)
+    )
+
 
 Target "CreatePackageEventFlow" (fun _ ->
     let binDir = "Source\\EventFlow\\bin\\" + buildMode + "\\"
@@ -166,6 +184,23 @@ Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
             "Source/EventFlow.EventStores.MsSql/EventFlow.EventStores.MsSql.nuspec"
     )
 
+Target "CreatePackageEventFlowSQLite" (fun _ ->
+    let binDir = "Source/EventFlow.SQLite/bin/"
+    CopyFile binDir (binDir + buildMode + "/EventFlow.SQLite.dll")
+    NuGet (fun p ->
+        {p with
+            OutputPath = dirPackages
+            WorkingDir = "Source/EventFlow.SQLite"
+            Version = nugetVersion
+            ReleaseNotes = toLines releaseNotes.Notes
+            Dependencies = [
+                "EventFlow",  nugetVersionDep
+                "EventFlow.Sql",  nugetVersionDep
+                "System.Data.SQLite.Core",  GetPackageVersion "./packages/" "System.Data.SQLite.Core"]
+            Publish = false })
+            "Source/EventFlow.SQLite/EventFlow.SQLite.nuspec"
+    )
+
 Target "CreatePackageEventFlowEventStoresEventStore" (fun _ ->
     let binDir = "Source/EventFlow.EventStores.EventStore/bin/"
     CopyFile binDir (binDir + buildMode + "/EventFlow.EventStores.EventStore.dll")
@@ -239,12 +274,14 @@ Target "Default" DoNothing
     ==> "SetVersion"
     ==> "BuildApp"
     ==> "UnitTest"
+    ==> "IntegrationTest"
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowRabbitMQ"
     ==> "CreatePackageEventFlowHangfire"
     ==> "CreatePackageEventFlowSql"
     ==> "CreatePackageEventFlowMsSql"
+    ==> "CreatePackageEventFlowSQLite"
     ==> "CreatePackageEventFlowEventStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresMsSql"
     ==> "CreatePackageEventFlowReadStoresElasticsearch"

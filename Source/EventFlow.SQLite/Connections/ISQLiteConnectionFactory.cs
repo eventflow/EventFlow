@@ -21,32 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.EventStores;
-using EventFlow.EventStores.InMemory;
-using EventFlow.TestHelpers;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests
+using EventFlow.Sql.Connections;
+
+namespace EventFlow.SQLite.Connections
 {
-    [TestFixture]
-    [Category(Categories.Scenario)]
-    public class ConfigurationTests
+    public interface ISQLiteConnectionFactory : ISqlConnectionFactory
     {
-        [Test]
-        public void CanResolve()
-        {
-            // Arrange
-            var resolver = EventFlowOptions.New
-                .CreateResolver();
-
-            // Act
-            IEventPersistence eventPersistence = null;
-            Assert.DoesNotThrow(() => eventPersistence = resolver.Resolve<IEventPersistence>());
-
-            // Assert
-            eventPersistence.Should().NotBeNull();
-            eventPersistence.Should().BeAssignableTo<InMemoryEventPersistence>();
-        }
     }
 }

@@ -21,45 +21,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.EventStores;
+using EventFlow.Aggregates;
+using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
-using EventFlow.Jobs;
-using EventFlow.Provided.Jobs;
-using EventFlow.TestHelpers;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Jobs
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    [Category(Categories.Unit)]
-    public class JobsFlowTests
+    public class SubscriberExtensionsTests
     {
         [Test]
-        public async Task Flow()
+        public void AbstractSubscriberIsNotRegistered()
         {
-            using (var resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .CreateResolver(false))
+            // Arrange
+            var registry = new AutofacServiceRegistration();
+            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
+
+            // Act
+            Action act = () => sut.AddSubscribers(new List<Type>
             {
-                // Arrange
-                var testId = ThingyId.New;
-                var pingId = PingId.New;
-                var jobScheduler = resolver.Resolve<IJobScheduler>();
-                var eventStore = resolver.Resolve<IEventStore>();
-                var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), resolver);
+                typeof (AbstractTestSubscriber)
+            });
 
-                // Act
-                await jobScheduler.ScheduleNowAsync(executeCommandJob, CancellationToken.None).ConfigureAwait(false);
-
-                // Assert
-                var testAggregate = await eventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
-                testAggregate.IsNew.Should().BeFalse();
-            }
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
         }
+    }
+
+    public abstract class AbstractTestSubscriber :
+        ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
+    {
+        public abstract Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+            CancellationToken cancellationToken);
     }
 }

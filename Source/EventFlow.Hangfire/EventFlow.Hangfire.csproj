@@ -49,6 +49,10 @@
     <Compile Include="Integration\EventFlowResolverActivator.cs" />
     <Compile Include="Integration\HangfireJobId.cs" />
     <Compile Include="Integration\HangfireJobScheduler.cs" />
+    <Compile Include="Integration\IJobDisplayNameBuilder.cs" />
+    <Compile Include="Integration\IHangfireJobRunner.cs" />
+    <Compile Include="Integration\JobDisplayNameBuilder.cs" />
+    <Compile Include="Integration\HangfireJobRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

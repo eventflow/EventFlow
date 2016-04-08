@@ -23,6 +23,7 @@
 // 
 
 using EventFlow.Configuration;
+using EventFlow.MsSql.Connections;
 using EventFlow.MsSql.RetryStrategies;
 
 namespace EventFlow.MsSql.Extensions
@@ -38,6 +39,7 @@ namespace EventFlow.MsSql.Extensions
                     {
                         f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
                         f.Register<IMsSqlConnection, MsSqlConnection>();
+                        f.Register<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
                         f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
                         f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
                     });

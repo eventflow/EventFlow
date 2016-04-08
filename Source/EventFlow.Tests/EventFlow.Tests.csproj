@@ -40,14 +40,16 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventFlowTests.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
-    <Compile Include="IntegrationTests\ConfigurationTests.cs" />
-    <Compile Include="IntegrationTests\DomainTests.cs" />
+    <Compile Include="IntegrationTests\SeparationTests.cs" />
+    <Compile Include="IntegrationTests\BasicTests.cs" />
     <Compile Include="IntegrationTests\EventStores\FilesEventStoreTests.cs" />
     <Compile Include="IntegrationTests\EventStores\InMemoryEventStoreTests.cs" />
+    <Compile Include="IntegrationTests\Jobs\InstantJobSchedulerTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\InMemoryReadModelStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetMessagesQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\InMemoryThingyGetQueryHandler.cs" />
@@ -63,16 +65,22 @@
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
+    <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
     <Compile Include="UnitTests\Core\RetryDelayTests.cs" />
+    <Compile Include="UnitTests\Core\RetryStrategies\OptimisticConcurrencyRetryStrategyTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
+    <Compile Include="UnitTests\Extensions\CommandHandlerExtensionsTests.cs" />
+    <Compile Include="UnitTests\Extensions\EventUpgraderExtensionsTests.cs" />
+    <Compile Include="UnitTests\Extensions\MetadataProviderExtensionsTests.cs" />
+    <Compile Include="UnitTests\Extensions\QueryHandlerExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
+    <Compile Include="UnitTests\Extensions\SubscriberExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />
     <Compile Include="UnitTests\Jobs\JobDefinitionServiceTests.cs" />
-    <Compile Include="UnitTests\Jobs\JobsFlowTests.cs" />
     <Compile Include="UnitTests\Provided\Specifications\AtLeastSpecificationTests.cs" />
     <Compile Include="UnitTests\Queries\QueryProcessorTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelDomainEventApplierTests.cs" />
@@ -85,7 +93,6 @@
     <Compile Include="UnitTests\Core\LabelTests.cs" />
     <Compile Include="UnitTests\Core\TransientFaultHandlerTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
-    <Compile Include="UnitTests\EventStores\EventStoreTests.cs" />
     <Compile Include="UnitTests\EventStores\EventUpgradeManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelFactoryTests.cs" />
     <Compile Include="UnitTests\ReadStores\ReadModelPopulatorTests.cs" />

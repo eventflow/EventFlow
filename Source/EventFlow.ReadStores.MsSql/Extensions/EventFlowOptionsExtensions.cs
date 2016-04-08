@@ -24,6 +24,7 @@
 
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.Sql.ReadModels;
 
 namespace EventFlow.ReadStores.MsSql.Extensions
 {

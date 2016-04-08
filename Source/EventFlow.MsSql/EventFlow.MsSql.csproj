@@ -44,6 +44,8 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Connections\IMsSqlConnectionFactory.cs" />
+    <Compile Include="Connections\MsSqlConnectionFactory.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
     <Compile Include="IMsSqlConfiguration.cs" />
     <Compile Include="IMsSqlConnection.cs" />
