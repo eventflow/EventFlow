@@ -26,9 +26,9 @@ want to build the code.
       </p>
       </p>
         <a href="https://codecov.io/github/rasmus/EventFlow?branch=develop">
-          <img src="https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop" alt="Coverage via Codecov" />
-        </a>
-         <small>(integration tests excluded)</small>
+          <img src="https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop" />
+        </a><br/>
+        (integration tests excluded)
       </p>
     </td>
   </tr>
