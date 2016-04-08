@@ -20,21 +20,25 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.ComponentModel;
-using EventFlow.Configuration;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
+using EventFlow.Jobs;
 
-namespace EventFlow.Tests.IntegrationTests.EventStores
+namespace EventFlow.Hangfire.Integration
 {
-    [Category(Categories.Integration)]
-    public class InMemoryEventStoreTests : TestSuiteForEventStore
+    public class HangfireJobRunner : IHangfireJobRunner
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        private readonly IJobRunner _jobRunner;
+
+        public HangfireJobRunner(
+            IJobRunner jobRunner)
         {
-            return eventFlowOptions.CreateResolver();
+            _jobRunner = jobRunner;
+        }
+
+        public void Execute(string displayName, string jobName, int version, string job)
+        {
+            _jobRunner.Execute(jobName, version, job);
         }
     }
 }

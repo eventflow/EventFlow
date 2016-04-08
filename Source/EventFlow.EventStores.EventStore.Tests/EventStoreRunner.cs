@@ -1,26 +1,26 @@
 ﻿// The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2016 Rasmus Mikkelsen
 // Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.Collections.Generic;
@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores.EventStore.Tests.Extensions;
+using EventFlow.Extensions;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
@@ -47,6 +48,25 @@ namespace EventFlow.EventStores.EventStore.Tests
             {new Version(3, 3, 1), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.3.1.zip", UriKind.Absolute)}
         };
 
+        public class EventStoreInstance : IDisposable
+        {
+            private readonly IDisposable _processDisposable;
+            public Uri ConnectionStringUri { get; }
+
+            public EventStoreInstance(
+                Uri connectionStringUri,
+                IDisposable processDisposable)
+            {
+                _processDisposable = processDisposable;
+                ConnectionStringUri = connectionStringUri;
+            }
+
+            public void Dispose()
+            {
+                _processDisposable.Dispose();
+            }
+        }
+
         [Test, Explicit("Used to test the EventStore runner")]
         [Timeout(60000)]
         public async Task TestRunner()
@@ -58,45 +78,62 @@ namespace EventFlow.EventStores.EventStore.Tests
             }
         }
 
-        public static async Task<IDisposable> StartAsync()
+        public static async Task<EventStoreInstance> StartAsync()
         {
             var eventStoreVersion = EventStoreVersions.OrderByDescending(kv => kv.Key).First();
             await InstallEventStoreAsync(eventStoreVersion.Key).ConfigureAwait(false);
 
-            var disposable = StartExe(
-                Path.Combine(GetEventStorePath(eventStoreVersion.Key), "EventStore.ClusterNode.exe"),
-                "'admin' user added to $users",
-                "--mem-db=True",
-                "--cluster-size=1");
+            var tcpPort = TcpHelper.GetFreePort();
+            var httpPort = TcpHelper.GetFreePort();
+            var connectionStringUri = new Uri($"tcp://admin:changeit@{IPAddress.Loopback}:{tcpPort}");
 
-            var connectionSettings = ConnectionSettings.Create()
-                .EnableVerboseLogging()
-                .KeepReconnecting()
-                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
-                .Build();
-            using (var eventStoreConnection = EventStoreConnection.Create(connectionSettings, new IPEndPoint(IPAddress.Loopback, 1113)))
+            IDisposable processDisposable = null;
+            try
             {
-                var start = DateTimeOffset.Now;
-                while (true)
-                {
-                    if (start + TimeSpan.FromSeconds(10) < DateTimeOffset.Now)
-                    {
-                        throw new Exception("Failed to connect to EventStore");
-                    }
+                processDisposable = StartExe(
+                    Path.Combine(GetEventStorePath(eventStoreVersion.Key), "EventStore.ClusterNode.exe"),
+                    "'admin' user added to $users",
+                    "--mem-db=True",
+                    "--cluster-size=1",
+                    $"--ext-tcp-port={tcpPort}",
+                    $"--ext-http-port={httpPort}");
 
-                    try
+                var connectionSettings = ConnectionSettings.Create()
+                    .EnableVerboseLogging()
+                    .KeepReconnecting()
+                    .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
+                    .Build();
+                using (var eventStoreConnection = EventStoreConnection.Create(connectionSettings, connectionStringUri))
+                {
+                    var start = DateTimeOffset.Now;
+                    while (true)
                     {
-                        await eventStoreConnection.ConnectAsync().ConfigureAwait(false);
-                        break;
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Failed to connect, retrying");
+                        if (start + TimeSpan.FromSeconds(10) < DateTimeOffset.Now)
+                        {
+                            throw new Exception("Failed to connect to EventStore");
+                        }
+
+                        try
+                        {
+                            await eventStoreConnection.ConnectAsync().ConfigureAwait(false);
+                            break;
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Failed to connect, retrying");
+                        }
                     }
                 }
             }
+            catch (Exception)
+            {
+                processDisposable.DisposeSafe("Failed to dispose EventStore process");
+                throw;
+            }
 
-            return disposable;
+            return new EventStoreInstance(
+                connectionStringUri,
+                processDisposable);
         }
 
         private static IDisposable StartExe(
@@ -105,16 +142,16 @@ namespace EventFlow.EventStores.EventStore.Tests
             params string[] arguments)
         {
             var process = new Process
+            {
+                StartInfo = new ProcessStartInfo(exePath, string.Join(" ", arguments))
                 {
-                    StartInfo = new ProcessStartInfo(exePath, string.Join(" ", arguments))
-                        {
-                            CreateNoWindow = true,
-                            UseShellExecute = false,
-                            RedirectStandardError = true,
-                            RedirectStandardOutput = true,
-                            WorkingDirectory = Path.GetDirectoryName(exePath),
-                    }
-                };
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    WorkingDirectory = Path.GetDirectoryName(exePath),
+                }
+            };
             var exeName = Path.GetFileName(exePath);
             process.OutputDataReceived += (sender, eventArgs) =>
             {

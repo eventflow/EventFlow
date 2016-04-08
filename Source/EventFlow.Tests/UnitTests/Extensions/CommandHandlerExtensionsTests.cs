@@ -22,19 +22,44 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.ComponentModel;
-using EventFlow.Configuration;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
+using EventFlow.Configuration.Registrations;
+using EventFlow.Extensions;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.EventStores
+namespace EventFlow.Tests.UnitTests.Extensions
 {
-    [Category(Categories.Integration)]
-    public class InMemoryEventStoreTests : TestSuiteForEventStore
+    public class CommandHandlerExtensionsTests
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        [Test]
+        public void AbstractCommandHandlerIsNotRegistered()
         {
-            return eventFlowOptions.CreateResolver();
+            // Arrange
+            var registry = new AutofacServiceRegistration();
+            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
+
+            // Act
+            Action act = () => sut.AddCommandHandlers(new List<Type>
+            {
+                typeof (AbstractTestCommandHandler)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
         }
+    }
+
+    public abstract class AbstractTestCommandHandler :
+        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+    {
+        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
+            CancellationToken cancellationToken);
     }
 }

@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -47,10 +48,9 @@ namespace EventFlow.TestHelpers
         public void SetUpIntegrationTest()
         {
             var eventFlowOptions = EventFlowOptions.New
-                .AddEvents(EventFlowTestHelpers.Assembly)
-                .AddCommandHandlers(EventFlowTestHelpers.Assembly);
+                .AddDefaults(EventFlowTestHelpers.Assembly);
 
-            Resolver = CreateRootResolver(eventFlowOptions);
+            Resolver = CreateRootResolver(Options(eventFlowOptions));
 
             EventStore = Resolver.Resolve<IEventStore>();
             CommandBus = Resolver.Resolve<ICommandBus>();
@@ -62,6 +62,11 @@ namespace EventFlow.TestHelpers
         public void TearDownIntegrationTest()
         {
             Resolver?.Dispose();
+        }
+
+        protected virtual IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions;
         }
 
         protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);

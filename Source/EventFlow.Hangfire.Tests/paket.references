@@ -1,5 +1,6 @@
 Hangfire.Core
 Hangfire.SqlServer
+Microsoft.AspNet.WebApi.OwinSelfHost
 Newtonsoft.Json
 Owin
 

@@ -22,19 +22,31 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.ComponentModel;
-using EventFlow.Configuration;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 
-namespace EventFlow.Tests.IntegrationTests.EventStores
+namespace EventFlow.EventStores.EventStore.Tests
 {
-    [Category(Categories.Integration)]
-    public class InMemoryEventStoreTests : TestSuiteForEventStore
+    public class TcpHelper
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        private static readonly Random Random = new Random();
+
+        public static int GetFreePort()
         {
-            return eventFlowOptions.CreateResolver();
+            var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            var activeTcpListeners = ipGlobalProperties.GetActiveTcpListeners();
+            var ports = new HashSet<int>(activeTcpListeners.Select(p => p.Port));
+
+            while (true)
+            {
+                var port = Random.Next(10000, 60000);
+                if (!ports.Contains(port))
+                {
+                    return port;
+                }
+            }
         }
     }
 }

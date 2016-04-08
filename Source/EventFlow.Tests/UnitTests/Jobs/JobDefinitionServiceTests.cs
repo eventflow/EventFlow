@@ -33,7 +33,6 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Jobs
 {
-    [TestFixture]
     [Category(Categories.Unit)]
     public class JobDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<JobDefinitionService, IJob, JobVersionAttribute, JobDefinition>
     {
