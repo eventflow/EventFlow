@@ -24,6 +24,9 @@ want to build the code.
           <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
         </a>
       </p>
+      </p>
+        [![codecov.io](https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop)](https://codecov.io/github/rasmus/EventFlow?branch=develop) <small>(integration tests excluded)</small>
+      </p>
     </td>
   </tr>
 </table>
