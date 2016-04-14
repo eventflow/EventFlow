@@ -37,6 +37,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
+    [Category(Categories.Unit)]
     public class SnapshotUpgradeServiceTests : TestsFor<SnapshotUpgradeService>
     {
         private Mock<IResolver> _resolverMock;
@@ -59,6 +60,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
 
             // Act
             var snapshot = Sut.UpgradeAsync(new ThingySnapshotV1(pingIds), CancellationToken.None).Result;
+
+            // Assert
             snapshot.Should().BeOfType<ThingySnapshot>();
             var thingySnapshot = (ThingySnapshot) snapshot;
             thingySnapshot.PingsReceived.Should().BeEquivalentTo(pingIds);
