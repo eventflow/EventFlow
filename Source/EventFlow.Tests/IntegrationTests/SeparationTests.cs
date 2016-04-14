@@ -37,6 +37,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
+    [Category(Categories.Integration)]
     public class SeparationTests
     {
         [Test]
