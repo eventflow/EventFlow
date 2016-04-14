@@ -73,6 +73,7 @@
     <Compile Include="Suites\TestSuiteForScheduler.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TestsFor.cs" />
+    <Compile Include="TypeWithMissingCategoryLister.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

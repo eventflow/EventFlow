@@ -22,10 +22,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.ComponentModel;
 using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
 {

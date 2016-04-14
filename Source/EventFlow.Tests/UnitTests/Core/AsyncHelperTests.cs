@@ -28,11 +28,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Integration)]
     public class AsyncHelperTests
     {
         [Test]

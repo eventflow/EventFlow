@@ -43,6 +43,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
 {
+    [Category(Categories.Integration)]
     public class Scenarios : Test
     {
         private IRootResolver _resolver;
