@@ -110,6 +110,7 @@
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
     <Compile Include="UnitTests\ValueObjects\ValueObjectTests.cs" />
+    <Compile Include="VerifyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
