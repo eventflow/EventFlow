@@ -38,12 +38,18 @@ namespace EventFlow.Tests
     public class VerifyTests
     {
         private static readonly AppDomainManager AppDomainManager = new AppDomainManager();
+        private static readonly Regex RegexTestAssemblies = new Regex(
+            @".+\\bin\\(debug|release)\\EventFlow[a-z\.]*\.Tests\.dll$",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex RegexTestDirectories = new Regex(
+            @".+\\EventFlow[a-z\.]*\.Tests\\bin\\(debug|release)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         [Test]
         public void VerifyThatAllTestClassesHaveCategoryAssigned()
         {
             var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
-            var projectRoot = GetParentDirectories(codeBase).First(d => Directory.GetFiles(d).Any(f => f.EndsWith("README.md")));
+            var projectRoot = GetParentDirectories(codeBase).First(IsProjectRoot);
             var testAssemblyPaths = GetTestAssembliesFromPath(projectRoot);
             var typesWithMissingCategory = testAssemblyPaths
                 .SelectMany(GetTypesFromAssembly)
@@ -52,20 +58,18 @@ namespace EventFlow.Tests
             typesWithMissingCategory.Should().BeEmpty();
         }
 
-        private static readonly Regex RegexTestAssemblies = new Regex(
-            @".+\\bin\\(debug|release)\\EventFlow[a-z\.]*\.Tests\.dll$",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex RegexTestDirectories = new Regex(
-            @".+\\EventFlow[a-z\.]*\.Tests\\bin\\(debug|release)",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        
         private static IEnumerable<string> GetTestAssembliesFromPath(string path)
         {
             return Directory.EnumerateDirectories(path, "*.*", SearchOption.AllDirectories)
                 .Where(d => RegexTestDirectories.IsMatch(d))
                 .SelectMany(Directory.GetFiles)
                 .Where(f => RegexTestAssemblies.IsMatch(f));
-        } 
+        }
+
+        private static bool IsProjectRoot(string path)
+        {
+            return Directory.GetFiles(path).Any(f => f.EndsWith("README.md"));
+        }
 
         private static IEnumerable<string> GetParentDirectories(string path)
         {
@@ -87,7 +91,10 @@ namespace EventFlow.Tests
                     ShadowCopyFiles = "false",
                     ApplicationBase = Path.GetDirectoryName(path),
                 };
-            var appDomain = AppDomainManager.CreateDomain(Path.GetFileNameWithoutExtension(path), null, appDomainSetup);
+            var appDomain = AppDomainManager.CreateDomain(
+                Path.GetFileNameWithoutExtension(path),
+                null,
+                appDomainSetup);
 
             try
             {
