@@ -30,6 +30,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 using EventFlow.Subscribers;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
@@ -37,6 +38,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class SubscriberExtensionsTests
     {
         [Test]

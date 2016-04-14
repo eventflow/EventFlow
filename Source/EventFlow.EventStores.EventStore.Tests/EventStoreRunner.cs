@@ -34,12 +34,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores.EventStore.Tests.Extensions;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests
 {
+    [Category(Categories.Integration)]
     public class EventStoreRunner
     {
         private static readonly Dictionary<Version, Uri> EventStoreVersions = new Dictionary<Version, Uri>
