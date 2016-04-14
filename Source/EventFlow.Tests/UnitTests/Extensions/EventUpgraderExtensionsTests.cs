@@ -28,12 +28,14 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration.Registrations;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class EventUpgraderExtensionsTests
     {
         [Test]

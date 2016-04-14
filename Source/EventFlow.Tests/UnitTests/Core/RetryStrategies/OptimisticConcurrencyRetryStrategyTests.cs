@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
 {
+    [Category(Categories.Unit)]
     public class OptimisticConcurrencyRetryStrategyTests : TestsFor<OptimisticConcurrencyRetryStrategy>
     {
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
