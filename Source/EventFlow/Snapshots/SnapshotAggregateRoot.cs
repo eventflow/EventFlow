@@ -27,13 +27,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Snapshots
 {
     public abstract class SnapshotAggregateRoot<TAggregate, TIdentity, TSnapshot> : AggregateRoot<TAggregate, TIdentity>,
         ISnapshotAggregateRoot<TIdentity, TSnapshot>

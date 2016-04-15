@@ -61,8 +61,8 @@
     <Compile Include="Aggregates\IAggregateStore.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
-    <Compile Include="Aggregates\ISnapshotAggregateRoot.cs" />
-    <Compile Include="Aggregates\SnapshotAggregateRoot.cs" />
+    <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
+    <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
     <Compile Include="Commands\CommandDefinitionService.cs" />
     <Compile Include="Commands\CommandId.cs" />

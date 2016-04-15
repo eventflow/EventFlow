@@ -22,10 +22,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Snapshots;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Snapshots
 {
     public interface ISnapshotAggregateRoot : IAggregateRoot
     {
