@@ -43,7 +43,82 @@ When using aggregate snapshots there are several important details to remember
 
 ## Upgrading snapshots
 
-As snapshots are persisted to storage
+As an application grows over time, the data required to be stored within a
+snapshots will change. Either because some become obsolete or merely because
+a better way of storing aggregate state is found. If this happens, the snapshots
+persisted in the snapshot store could potentially become useless as aggregates
+are unable to apply them. The easy solution would be to make change-by-addition
+and make sure that the old snapshots can be desterilized into the new version.
+
+EventFlow provides an alternative solution, which is basically allowing
+developers to upgrade snapshots similar to how
+[events are upgraded](./EventUpgrade.md).
+
+Lets say we have an application that has developed three snapshots versions
+over time.
+
+```csharp
+[SnapshotVersion("user", 1)]
+public class UserSnapshotV1 : ISnapshot
+{
+  ...
+}
+
+[SnapshotVersion("user", 2)]
+public class UserSnapshotV1 : ISnapshot
+{
+  ...
+}
+
+[SnapshotVersion("user", 3)]
+public class UserSnapshot : ISnapshot
+{
+  ...
+}
+```
+
+Note how version three of the `UserAggregate` snapshot is called `UserSnapshot`
+and not `UserSnapshotV3`, its basically to help developers tell with snapshot
+version is the current one.
+
+The next step will be to implement upgraders, or mappers, that can upgrade one
+snapshot to another.
+
+```csharp
+public class UserSnapshotV1ToV2Upgrader :
+  ISnapshotUpgrader<UserSnapshotV1, UserSnapshotV2>
+{
+    public Task<UserSnapshotV2> UpgradeAsync(
+      UserSnapshotV1 userSnapshotV1,
+      CancellationToken cancellationToken)
+    {
+      // Map from V1 to V2 and return
+    }
+}
+
+public class UserSnapshotV2ToV3Upgrader :
+  ISnapshotUpgrader<UserSnapshotV2, UserSnapshot>
+{
+    public Task<UserSnapshot> UpgradeAsync(
+      UserSnapshotV2 userSnapshotV2,
+      CancellationToken cancellationToken)
+    {
+      // Map from V2 to V3 and return
+    }
+}
+```
+
+The snapshot types and upgraders then only needs to be registered in EventFlow.
+
+```csharp
+var resolver = EventFlowOptions.New
+  ...
+  .AddSnapshotUpgraders(myAssembly)
+  .AddSnapshots(myAssembly)
+  ...
+  .CreateResolver();
+```
+
 
 ## Snapshot store implementations
 
@@ -74,7 +149,7 @@ var resolver = EventFlowOptions.New
 
 If none of the above stores are adequate, a custom implementation is possible
 by implementing the interface `ISnapshotPersistence`. However, there are
-some rules that the snapshot persistence must follow.
+some rules that the snapshot persistence store _must_ follow.
 
 * Its valid to store snapshots in any order, e.g. first version 3 then 2
 * Its valid to overwrite existing snapshots version, e.g. storing version 3
