@@ -144,12 +144,12 @@ namespace EventFlow.Snapshots
 
         protected virtual Task<ISnapshotMetadata> CreateSnapshotMetadataAsync(CancellationToken cancellationToken)
         {
-            var snapshotMetadata = (ISnapshotMetadata) new SnapshotMetadata(new Dictionary<string, string>
+            var snapshotMetadata = (ISnapshotMetadata) new SnapshotMetadata
                 {
-                    {SnapshotMetadataKeys.AggregateId, Id.Value},
-                    {SnapshotMetadataKeys.AggregateName, Name.Value},
-                    {SnapshotMetadataKeys.AggregateSequenceNumber, Version.ToString()},
-                });
+                    AggregateId = Id.Value,
+                    AggregateName = Name.Value,
+                    AggregateSequenceNumber = Version,
+                };
 
             return Task.FromResult(snapshotMetadata);
         }

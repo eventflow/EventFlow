@@ -130,10 +130,10 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 .Setup(s => s.LoadSnapshotAsync<ThingyAggregate, ThingyId, ThingySnapshot>(It.IsAny<ThingyId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SnapshotContainer(
                         thingySnapshot,
-                        new SnapshotMetadata(new Dictionary<string, string>
+                        new SnapshotMetadata
                             {
-                                { SnapshotMetadataKeys.AggregateSequenceNumber, thingySnapshot.PingsReceived.Count.ToString()}
-                            })));
+                                AggregateSequenceNumber = thingySnapshot.PingsReceived.Count
+                            }));
         }
 
         private IReadOnlyCollection<PingId> Arrange_Pings(int count = 3)

@@ -23,8 +23,10 @@
 //
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using EventFlow.Core;
+using Newtonsoft.Json;
 
 namespace EventFlow.Snapshots
 {
@@ -49,10 +51,39 @@ namespace EventFlow.Snapshots
         {
         }
 
-        public string AggregateId => GetMetadataValue(SnapshotMetadataKeys.AggregateId);
-        public string AggregateName => GetMetadataValue(SnapshotMetadataKeys.AggregateName);
-        public int AggregateSequenceNumber => GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse);
-        public string SnapshotName => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
-        public int SnapshotVersion => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
+        [JsonIgnore]
+        public string AggregateId
+        {
+            get { return GetMetadataValue(SnapshotMetadataKeys.AggregateId); }
+            set { Add(SnapshotMetadataKeys.AggregateId, value); }
+        }
+
+        [JsonIgnore]
+        public string AggregateName
+        {
+            get { return GetMetadataValue(SnapshotMetadataKeys.AggregateName); }
+            set { Add(SnapshotMetadataKeys.AggregateName, value); }
+        }
+
+        [JsonIgnore]
+        public int AggregateSequenceNumber
+        {
+            get { return GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse); }
+            set { Add(SnapshotMetadataKeys.AggregateSequenceNumber, value.ToString(CultureInfo.InvariantCulture)); }
+        }
+
+        [JsonIgnore]
+        public string SnapshotName
+        {
+            get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotName); }
+            set { Add(SnapshotMetadataKeys.SnapshotName, value); }
+        }
+
+        [JsonIgnore]
+        public int SnapshotVersion
+        {
+            get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse); }
+            set { Add(SnapshotMetadataKeys.SnapshotVersion, value.ToString(CultureInfo.InvariantCulture)); }
+        }
     }
 }

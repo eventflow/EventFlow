@@ -48,14 +48,39 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 }.ToJson();
 
             // Act
-            var metadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
+            var snapshotMetadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
 
             // Assert
-            metadata.AggregateId.Should().Be("thingy-42");
-            metadata.AggregateName.Should().Be("thingy");
-            metadata.AggregateSequenceNumber.Should().Be(42);
-            metadata.SnapshotName.Should().Be("thingy");
-            metadata.SnapshotVersion.Should().Be(84);
+            snapshotMetadata.AggregateId.Should().Be("thingy-42");
+            snapshotMetadata.AggregateName.Should().Be("thingy");
+            snapshotMetadata.AggregateSequenceNumber.Should().Be(42);
+            snapshotMetadata.SnapshotName.Should().Be("thingy");
+            snapshotMetadata.SnapshotVersion.Should().Be(84);
+        }
+
+        [Test]
+        public void GettersAndSettersWork()
+        {
+            // Arrange
+            var snapshotMetadata = new SnapshotMetadata
+                {
+                    AggregateId = "thingy-42",
+                    AggregateName = "thingy",
+                    AggregateSequenceNumber = 42,
+                    SnapshotName = "thingy",
+                    SnapshotVersion = 84,
+                };
+
+            // Act
+            var json = JsonConvert.SerializeObject(snapshotMetadata);
+            var deserializedSnapshotMetadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
+
+            // Assert
+            deserializedSnapshotMetadata.AggregateId.Should().Be("thingy-42");
+            deserializedSnapshotMetadata.AggregateName.Should().Be("thingy");
+            deserializedSnapshotMetadata.AggregateSequenceNumber.Should().Be(42);
+            deserializedSnapshotMetadata.SnapshotName.Should().Be("thingy");
+            deserializedSnapshotMetadata.SnapshotVersion.Should().Be(84);
         }
     }
 }
