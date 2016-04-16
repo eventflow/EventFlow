@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -71,8 +70,8 @@ namespace EventFlow.Snapshots
                     {SnapshotMetadataKeys.SnapshotVersion, snapsnotDefinition.Version.ToString()},
                 }));
 
-            var serializedMetadata = JsonConvert.SerializeObject(updatedSnapshotMetadata);
-            var serializedData = JsonConvert.SerializeObject(snapshotContainer.Snapshot);
+            var serializedMetadata = _jsonSerializer.Serialize(updatedSnapshotMetadata);
+            var serializedData = _jsonSerializer.Serialize(snapshotContainer.Snapshot);
 
             return Task.FromResult(new SerializedSnapshot(
                 serializedMetadata,
