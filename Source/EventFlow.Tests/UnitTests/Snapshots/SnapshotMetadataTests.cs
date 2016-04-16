@@ -23,6 +23,7 @@
 //
 
 using EventFlow.Snapshots;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -30,7 +31,8 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
-    public class SnapshotMetadataTests
+    [Category(Categories.Unit)]
+    public class SnapshotMetadataTests : Test
     {
         [Test]
         public void DeserializesCorrectly()
@@ -38,15 +40,19 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             // Arragnge
             var json = new
                 {
+                    aggregate_id = "thingy-42",
+                    aggregate_name = "thingy",
                     aggregate_sequence_number = "42",
                     snapshot_name = "thingy",
-                    snapshot_version = "84"
+                    snapshot_version = "84",
                 }.ToJson();
 
             // Act
             var metadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
 
             // Assert
+            metadata.AggregateId.Should().Be("thingy-42");
+            metadata.AggregateName.Should().Be("thingy");
             metadata.AggregateSequenceNumber.Should().Be(42);
             metadata.SnapshotName.Should().Be("thingy");
             metadata.SnapshotVersion.Should().Be(84);
