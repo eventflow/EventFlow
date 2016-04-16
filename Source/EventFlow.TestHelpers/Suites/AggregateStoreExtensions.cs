@@ -20,27 +20,24 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventStores;
 
-namespace EventFlow.TestHelpers.Extensions
+namespace EventFlow.TestHelpers.Suites
 {
-    public static class EventStoreExtensions
+    public static class AggregateStoreExtensions
     {
-        [Obsolete("Use IAggregateStore.LoadAsync instead")]
-        public static Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
-            this IEventStore eventStore,
+        public static Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
+            this IAggregateStore aggregateStore,
             TIdentity id)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return eventStore.LoadAggregateAsync<TAggregate, TIdentity>(id, CancellationToken.None);
+            return aggregateStore.LoadAsync<TAggregate, TIdentity>(id, CancellationToken.None);
         }
     }
 }

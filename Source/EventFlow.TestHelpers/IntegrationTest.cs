@@ -36,6 +36,8 @@ using EventFlow.Snapshots.Stores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Extensions;
+using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
@@ -84,6 +86,11 @@ namespace EventFlow.TestHelpers
         }
 
         protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
+
+        protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
+        {
+            return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(thingyId);
+        }
 
         protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count = 1)
         {

@@ -23,7 +23,9 @@
 //
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
@@ -56,7 +58,10 @@ namespace EventFlow.Tests.IntegrationTests
                     .ConfigureAwait(false);
 
                 // Assert
-                var aggregate = await resolver2.Resolve<IEventStore>().LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
+                var aggregate = await resolver2.Resolve<IAggregateStore>().LoadAsync<ThingyAggregate, ThingyId>(
+                    thingyId,
+                    CancellationToken.None)
+                    .ConfigureAwait(false);
                 aggregate.IsNew.Should().BeTrue();
             }
         }

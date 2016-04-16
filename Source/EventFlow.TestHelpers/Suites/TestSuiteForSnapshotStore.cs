@@ -195,13 +195,6 @@ namespace EventFlow.TestHelpers.Suites
                 CancellationToken.None);
         }
 
-        protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
-        {
-            return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
-                thingyId,
-                CancellationToken.None);
-        } 
-
         protected async Task<ThingySnapshot> LoadSnapshotAsync(ThingyId thingyId)
         {
             var snapshotContainer = await SnapshotStore.LoadSnapshotAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
