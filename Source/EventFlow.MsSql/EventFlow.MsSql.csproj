@@ -57,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RetryStrategies\IMsSqlErrorRetryStrategy.cs" />
     <Compile Include="RetryStrategies\MsSqlErrorRetryStrategy.cs" />
+    <Compile Include="SnapshotStores\MsSqlSnapshotPersistence.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
@@ -73,6 +74,9 @@
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SnapshotStores\Scripts\0001 - Create EventFlowSnapshots.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
