@@ -108,6 +108,8 @@
     <Compile Include="UnitTests\Snapshots\SnapshotMetadataTests.cs" />
     <Compile Include="UnitTests\Snapshots\SnapshotSerilizerTests.cs" />
     <Compile Include="UnitTests\Snapshots\SnapshotUpgradeServiceTests.cs" />
+    <Compile Include="UnitTests\Snapshots\Strategies\SnapshotEveryFewVersionsStrategyTests.cs" />
+    <Compile Include="UnitTests\Snapshots\Strategies\SnapshotRandomlyStrategyTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />

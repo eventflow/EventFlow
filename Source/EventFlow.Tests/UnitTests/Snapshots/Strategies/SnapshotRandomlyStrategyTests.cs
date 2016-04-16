@@ -24,38 +24,28 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Snapshots;
+using EventFlow.Snapshots.Strategies;
+using EventFlow.TestHelpers;
+using Moq;
+using NUnit.Framework;
 
-namespace EventFlow.Snapshots.Strategies
+namespace EventFlow.Tests.UnitTests.Snapshots.Strategies
 {
-    public class SnapshotEveryFewVersionsStrategy : ISnapshotStrategy
+    [Category(Categories.Unit)]
+    public class SnapshotRandomlyStrategyTests : Test
     {
-        public const int DefautSnapshotAfterVersions = 100;
-
-        public static ISnapshotStrategy Default { get; } = With();
-
-        public static ISnapshotStrategy With(
-            int snapshotAfterVersions = DefautSnapshotAfterVersions)
+        [Test, Repeat(42 /* random picked number that "feels" right */)]
+        public async Task RunItAFewTimesJustToSeeItDoesntBreak()
         {
-            return new SnapshotEveryFewVersionsStrategy(
-                snapshotAfterVersions);
-        }
+            // Arrange
+            var sut = SnapshotRandomlyStrategy.Default;
+            var snapshotAggregateRootMock = new Mock<ISnapshotAggregateRoot>();
 
-        private readonly int _snapshotAfterVersions;
-
-        private SnapshotEveryFewVersionsStrategy(
-            int snapshotAfterVersions)
-        {
-            _snapshotAfterVersions = snapshotAfterVersions;
-        }
-
-        public Task<bool> ShouldCreateSnapshotAsync(
-            ISnapshotAggregateRoot snapshotAggregateRoot,
-            CancellationToken cancellationToken)
-        {
-            var currentSnapshotVersion = snapshotAggregateRoot.SnapshotVersion.GetValueOrDefault();
-            var shouldCreateSnapshot = snapshotAggregateRoot.Version - currentSnapshotVersion >= _snapshotAfterVersions;
-
-            return Task.FromResult(shouldCreateSnapshot);
+            // Act
+            await sut.ShouldCreateSnapshotAsync(
+                snapshotAggregateRootMock.Object,
+                CancellationToken.None);
         }
     }
 }
