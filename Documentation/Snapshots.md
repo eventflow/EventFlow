@@ -8,10 +8,20 @@ thousands of events, some of which needs to go through a rigorous
 
 EventFlow support aggregate snapshots, which is basically a capture of the
 entire aggregate state every few events. So instead of loading the entire
-aggregate event history, the latest snapshot is loaded, applied to the aggregate
-and then the remaining events that wasn't captured in the snapshot.
+aggregate event history, the latest snapshot is loaded, then applied to the
+aggregate and then the remaining events that wasn't captured in the snapshot.
+
+To configure an aggregate root to support snapshots, inherit from
+`SnapshotAggregateRoot<,,>` and define a serializable snapshot type that is
+marked with the `ISnapshot` interface.
 
 ```csharp
+[SnapshotVersion("user", 1)]
+public class UserSnapshot : ISnapshot
+{
+  ...
+}
+
 public class UserAggregate :
   SnapshotAggregateRoot<UserAggregate, UserId, UserSnapshot>
 {
@@ -78,8 +88,12 @@ public class UserSnapshot : ISnapshot
 ```
 
 Note how version three of the `UserAggregate` snapshot is called `UserSnapshot`
-and not `UserSnapshotV3`, its basically to help developers tell with snapshot
+and not `UserSnapshotV3`, its basically to help developers tell which snapshot
 version is the current one.
+
+Remember to add the `[SnapshotVersion]` attribute as it enables control of the
+snapshot definition name. If left out, EventFlow will make a guess, which will
+be tied to the name of the class type.
 
 The next step will be to implement upgraders, or mappers, that can upgrade one
 snapshot to another.
@@ -119,6 +133,9 @@ var resolver = EventFlowOptions.New
   .CreateResolver();
 ```
 
+Now, when ever a snapshot is loaded from the snapshot store, its automatically
+upgraded to the latest version and the aggregate only needs to concern itself
+with the latest version.
 
 ## Snapshot store implementations
 

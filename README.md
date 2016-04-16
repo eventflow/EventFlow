@@ -84,6 +84,10 @@ to the documentation.
   * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
   * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
   * [Microsoft SQL Server](Documentation/ReadStores.md#microsoft-sql-server)
+* [**Snapshots:**](./Documentation/Snapshots.md) Instead of reading the entire
+  event stream every single time, a snapshot can be created every so often that
+  contains the aggregate state. EventFlow supports upgrading existing snapshots,
+  which is useful for long-lived aggregates. Snapshots in EventFlow are opt-in.  
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
