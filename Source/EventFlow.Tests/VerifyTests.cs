@@ -34,7 +34,6 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests
 {
-    [Category(Categories.Integration)]
     public class VerifyTests
     {
         private static readonly AppDomainManager AppDomainManager = new AppDomainManager();
