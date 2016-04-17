@@ -22,16 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Collections.Generic;
-using System.Reflection;
+using EventFlow.Extensions;
+using EventFlow.MsSql.SnapshotStores;
 
-namespace EventFlow.Sql.Migrations
+namespace EventFlow.MsSql.Extensions
 {
-    public interface ISqlDatabaseMigrator
+    public static class EventFlowOptionsSnapshotExtensions
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
+        public static IEventFlowOptions UseMsSqlSnapshotStore(
+            this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .UseSnapshotStore<MsSqlSnapshotPersistence>();
+        }
     }
 }

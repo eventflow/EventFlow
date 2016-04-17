@@ -68,7 +68,7 @@ namespace EventFlow.MsSql.SnapshotStores
             var msSqlSnapshotDataModel = msSqlSnapshotDataModels.Single();
             return new CommittedSnapshot(
                 msSqlSnapshotDataModel.Metadata,
-                msSqlSnapshotDataModel.SnapshotData);
+                msSqlSnapshotDataModel.Data);
         }
 
         public async Task SetSnapshotAsync(
@@ -77,13 +77,15 @@ namespace EventFlow.MsSql.SnapshotStores
             SerializedSnapshot serializedSnapshot,
             CancellationToken cancellationToken)
         {
+            // TODO: proper handling of aggregate type
+
             var msSqlSnapshotDataModel = new MsSqlSnapshotDataModel
                 {
                     AggregateId = identity.Value,
                     AggregateName = aggregateType.PrettyPrint(),
                     AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
                     Metadata = serializedSnapshot.SerializedMetadata,
-                    SnapshotData = serializedSnapshot.SerializedData,
+                    Data = serializedSnapshot.SerializedData,
                 };
 
             try
@@ -92,9 +94,9 @@ namespace EventFlow.MsSql.SnapshotStores
                     Label.Named("set-snapshot"),
                     cancellationToken,
                     @"INSERT INTO [dbo].[EventFlowSnapshots]
-                        (AggregateId, AggregateName, AggregateSequenceNumber, Metadata, SnapshotData)
+                        (AggregateId, AggregateName, AggregateSequenceNumber, Metadata, Data)
                         VALUES
-                        (@AggregateId, @AggregateName, @AggregateSequenceNumber, @Metadata, @SnapshotData)",
+                        (@AggregateId, @AggregateName, @AggregateSequenceNumber, @Metadata, @Data)",
                     msSqlSnapshotDataModel)
                     .ConfigureAwait(false);
             }
@@ -124,15 +126,20 @@ namespace EventFlow.MsSql.SnapshotStores
         {
             // TODO: proper handling of aggregate type
 
-            throw new NotImplementedException();
+            return _msSqlConnection.ExecuteAsync(
+                Label.Named("purge-snapshots-for-aggregate"),
+                cancellationToken,
+                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName",
+                new {AggregateName = aggregateType.PrettyPrint()});
         }
 
         public Task PurgeSnapshotsAsync(
             CancellationToken cancellationToken)
         {
-            // TODO: proper handling of aggregate type
-
-            throw new NotImplementedException();
+            return _msSqlConnection.ExecuteAsync(
+                Label.Named("purge-all-snapshots"),
+                cancellationToken,
+                "DELETE FROM [dbo].[EventFlowSnapshots]");
         }
 
         public class MsSqlSnapshotDataModel
@@ -140,7 +147,7 @@ namespace EventFlow.MsSql.SnapshotStores
             public string AggregateId { get; set; }
             public string AggregateName { get; set; }
             public int AggregateSequenceNumber { get; set; }
-            public string SnapshotData { get; set; }
+            public string Data { get; set; }
             public string Metadata { get; set; }
         }
     }

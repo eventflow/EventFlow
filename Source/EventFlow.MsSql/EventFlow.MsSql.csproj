@@ -47,6 +47,7 @@
     <Compile Include="Connections\IMsSqlConnectionFactory.cs" />
     <Compile Include="Connections\MsSqlConnectionFactory.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsSnapshotExtensions.cs" />
     <Compile Include="IMsSqlConfiguration.cs" />
     <Compile Include="IMsSqlConnection.cs" />
     <Compile Include="IMsSqlDatabaseMigrator.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="RetryStrategies\IMsSqlErrorRetryStrategy.cs" />
     <Compile Include="RetryStrategies\MsSqlErrorRetryStrategy.cs" />
     <Compile Include="SnapshotStores\MsSqlSnapshotPersistence.cs" />
+    <Compile Include="SnapshotStores\EventFlowSnapshotStoresMsSql.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">

@@ -20,18 +20,38 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System.Collections.Generic;
-using System.Reflection;
+using System.IO;
+using System.Linq;
+using EventFlow.Sql.Migrations;
 
-namespace EventFlow.Sql.Migrations
+namespace EventFlow.MsSql.SnapshotStores
 {
-    public interface ISqlDatabaseMigrator
+    public static class EventFlowSnapshotStoresMsSql
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
+        public static IEnumerable<SqlScript> GetSqlScripts()
+        {
+            var assembly = typeof(EventFlowSnapshotStoresMsSql).Assembly;
+            foreach (var manifestResourceName in assembly.GetManifestResourceNames().Where(n => n.StartsWith("EventFlow.MsSql.SnapshotStores.Scripts")))
+            {
+                using (var manifestResourceStream = assembly.GetManifestResourceStream(manifestResourceName))
+                using (var streamReader = new StreamReader(manifestResourceStream))
+                {
+                    var name = manifestResourceName.Replace("EventFlow.MsSql.", string.Empty);
+                    var content = streamReader.ReadToEnd();
+
+                    yield return new SqlScript(
+                        name, 
+                        content);
+                }
+            }
+        }
+
+        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
+        {
+            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+        }
     }
 }
