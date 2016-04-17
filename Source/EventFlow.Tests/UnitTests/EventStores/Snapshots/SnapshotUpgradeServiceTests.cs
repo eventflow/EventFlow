@@ -38,6 +38,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
+    [Category(Categories.Unit)]
     public class SnapshotUpgradeServiceTests : TestsFor<SnapshotUpgradeService>
     {
         private Mock<IResolver> _resolverMock;
@@ -47,10 +48,10 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
         {
             _resolverMock = InjectMock<IResolver>();
             _resolverMock
-                .Setup(r => r.Resolve(typeof (IVersionedTypeUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
+                .Setup(r => r.Resolve(typeof (ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
                 .Returns(() => new ThingySnapshotV1ToV2Upgrader());
             _resolverMock
-                .Setup(r => r.Resolve(typeof(IVersionedTypeUpgrader<ThingySnapshotV2, ThingySnapshot>)))
+                .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>)))
                 .Returns(() => new ThingySnapshotV2ToV3Upgrader());
 
             var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
