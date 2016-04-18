@@ -25,10 +25,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Commands
 {
-    public interface ICommand
+    public interface ICommand : IVersionedType
     {
         Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
         ISourceId GetSourceId();

@@ -57,9 +57,11 @@
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
+    <Compile Include="IntegrationTests\SnapshotStores\InMemorySnapshotStoreTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateStateTests.cs" />
+    <Compile Include="UnitTests\Aggregates\AggregateStoreTests.cs" />
     <Compile Include="UnitTests\Commands\CommandTests.cs" />
     <Compile Include="UnitTests\Commands\DistinctCommandTests.cs" />
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
@@ -72,6 +74,8 @@
     <Compile Include="UnitTests\Core\RetryDelayTests.cs" />
     <Compile Include="UnitTests\Core\RetryStrategies\OptimisticConcurrencyRetryStrategyTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
+    <Compile Include="UnitTests\EventStores\Snapshots\SnapshotSerilizerTests.cs" />
+    <Compile Include="UnitTests\EventStores\Snapshots\SnapshotUpgradeServiceTests.cs" />
     <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\CommandHandlerExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\EventUpgraderExtensionsTests.cs" />
@@ -100,6 +104,12 @@
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestSuite.cs" />
     <Compile Include="UnitTests\ReadStores\MultipleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\SingleAggregateReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\Snapshots\SnapshotAggregateRootTests.cs" />
+    <Compile Include="UnitTests\Snapshots\SnapshotMetadataTests.cs" />
+    <Compile Include="UnitTests\Snapshots\SnapshotSerilizerTests.cs" />
+    <Compile Include="UnitTests\Snapshots\SnapshotUpgradeServiceTests.cs" />
+    <Compile Include="UnitTests\Snapshots\Strategies\SnapshotEveryFewVersionsStrategyTests.cs" />
+    <Compile Include="UnitTests\Snapshots\Strategies\SnapshotRandomlyStrategyTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using System.Reflection;
 
@@ -41,7 +42,9 @@ namespace EventFlow.Extensions
                 .AddMetadataProviders(fromAssembly, predicate)
                 .AddSubscribers(fromAssembly, predicate)
                 .AddEventUpgraders(fromAssembly, predicate)
-                .AddQueryHandlers(fromAssembly, predicate);
+                .AddQueryHandlers(fromAssembly, predicate)
+                .AddSnapshots(fromAssembly, predicate)
+                .AddSnapshotUpgraders(fromAssembly, predicate);
         }
     }
 }

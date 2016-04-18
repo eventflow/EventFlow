@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Aggregates
 {
@@ -47,7 +48,7 @@ namespace EventFlow.Aggregates
 
         public IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
-        public int Version { get; private set; }
+        public int Version { get; protected set; }
         public bool IsNew => Version <= 0;
         public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
 
@@ -126,8 +127,19 @@ namespace EventFlow.Aggregates
             _uncommittedEvents.Add(uncommittedEvent);
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+        public virtual async Task LoadAsync(
             IEventStore eventStore,
+            ISnapshotStore snapshotStore,
+            CancellationToken cancellationToken)
+        {
+            var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
+
+            ApplyEvents(domainEvents);
+        }
+
+        public virtual async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
+            IEventStore eventStore,
+            ISnapshotStore snapshotStore,
             ISourceId sourceId,
             CancellationToken cancellationToken)
         {
