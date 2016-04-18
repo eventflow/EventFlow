@@ -77,8 +77,6 @@ namespace EventFlow.MsSql.SnapshotStores
             SerializedSnapshot serializedSnapshot,
             CancellationToken cancellationToken)
         {
-            // TODO: proper handling of aggregate type
-
             var msSqlSnapshotDataModel = new MsSqlSnapshotDataModel
                 {
                     AggregateId = identity.Value,
