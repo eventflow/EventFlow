@@ -36,7 +36,7 @@ Target "BuildApp" (fun _ ->
     |> Log "AppBuild-Output: "
     )
 
-Target "UnitTest" (fun _ ->
+Target "Test" (fun _ ->
     let assembliesToTest = (" ", (!! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll"))) |> System.String.Join
     OpenCover
         (fun p -> { 
@@ -49,25 +49,8 @@ Target "UnitTest" (fun _ ->
                 OptionalArguments = "-returntargetcode"
                 Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
         })
-        ("/nologo /include:unit /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results-unit.xml " + assembliesToTest)
+        ("/nologo /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results.xml " + assembliesToTest)
     )
-
-Target "IntegrationTest" (fun _ ->
-    let assembliesToTest = (" ", (!! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll"))) |> System.String.Join
-    OpenCover
-        (fun p -> { 
-            p with 
-                ExePath = "./packages/test/OpenCover/tools/OpenCover.Console.exe"
-                TestRunnerExePath = "./packages/build/NUnit.Runners/tools/nunit-console.exe"
-                Output = dirReports + "/opencover-results-integration.xml"
-                TimeOut = TimeSpan.FromMinutes 30.0;
-                Register = RegisterUser
-                OptionalArguments = "-returntargetcode"
-                Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
-        })
-        ("/nologo /include:integration /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results-integration.xml " + assembliesToTest)
-    )
-
 
 Target "CreatePackageEventFlow" (fun _ ->
     let binDir = "Source\\EventFlow\\bin\\" + buildMode + "\\"
@@ -275,8 +258,7 @@ Target "Default" DoNothing
 "Clean"
     ==> "SetVersion"
     ==> "BuildApp"
-    ==> "UnitTest"
-    ==> "IntegrationTest"
+    ==> "Test"
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowRabbitMQ"
