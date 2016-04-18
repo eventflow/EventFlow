@@ -51,6 +51,23 @@ When using aggregate snapshots there are several important details to remember
 * Snapshots must be created in such a way, that the represent the entire
   history up to the point of snapshot creation
 
+
+## Snapshot strategy
+
+When implementing an aggregate root that inherits from `SnapshotAggregateRoot<,,>`,
+you need to pass the base class an implementation of `ISnapshotStrategy`. The
+strategy is used to determine when a snapshot should be created, e.g.
+every 100 events.
+
+EventFlow ships with two that should be enough for most purposes as they can
+be configured.
+
+* `SnapshotEveryFewVersionsStrategy:` Snapshots are created after a predefined
+   number of events, the default is `100`, but another frequency can be specified
+* `SnapshotRandomlyStrategy:` Snapshots are created randomly with a predefined
+  chance, the default is `1%`, but another can be specified
+
+
 ## Upgrading snapshots
 
 As an application grows over time, the data required to be stored within a
@@ -139,7 +156,8 @@ with the latest version.
 
 ## Snapshot store implementations
 
-EventFlow has built-in support for some snapshot stores.
+EventFlow has built-in support for some snapshot stores (more _will_ be
+implemented).
 
 ### Null (or none)
 

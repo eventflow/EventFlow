@@ -46,6 +46,7 @@ Target "UnitTest" (fun _ ->
                 Output = dirReports + "/opencover-results-unit.xml"
                 TimeOut = TimeSpan.FromMinutes 30.0;
                 Register = RegisterUser
+                OptionalArguments = "-returntargetcode"
                 Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
         })
         ("/nologo /include:unit /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results-unit.xml " + assembliesToTest)
@@ -61,6 +62,7 @@ Target "IntegrationTest" (fun _ ->
                 Output = dirReports + "/opencover-results-integration.xml"
                 TimeOut = TimeSpan.FromMinutes 30.0;
                 Register = RegisterUser
+                OptionalArguments = "-returntargetcode"
                 Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
         })
         ("/nologo /include:integration /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results-integration.xml " + assembliesToTest)
