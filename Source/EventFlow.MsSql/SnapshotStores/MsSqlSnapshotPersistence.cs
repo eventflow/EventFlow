@@ -56,8 +56,8 @@ namespace EventFlow.MsSql.SnapshotStores
             var msSqlSnapshotDataModels = await _msSqlConnection.QueryAsync<MsSqlSnapshotDataModel>(
                 Label.Named("fetch-snapshot"),
                 cancellationToken,
-                "SELECT TOP 1 * FROM [dbo].[EventFlowSnapshots] WHERE AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC",
-                new {AggregateId = identity.Value})
+                "SELECT TOP 1 * FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC",
+                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value})
                 .ConfigureAwait(false);
 
             if (!msSqlSnapshotDataModels.Any())
@@ -82,7 +82,7 @@ namespace EventFlow.MsSql.SnapshotStores
             var msSqlSnapshotDataModel = new MsSqlSnapshotDataModel
                 {
                     AggregateId = identity.Value,
-                    AggregateName = aggregateType.PrettyPrint(),
+                    AggregateName = aggregateType.GetAggregateName().Value,
                     AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
                     Metadata = serializedSnapshot.SerializedMetadata,
                     Data = serializedSnapshot.SerializedData,
@@ -111,26 +111,22 @@ namespace EventFlow.MsSql.SnapshotStores
             IIdentity identity,
             CancellationToken cancellationToken)
         {
-            // TODO: proper handling of aggregate type
-
             return _msSqlConnection.ExecuteAsync(
                 Label.Named("delete-snapshots-for-aggregate"),
                 cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateId = @AggregateId",
-                new {AggregateId = identity.Value});
+                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId",
+                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value});
         }
 
         public Task PurgeSnapshotsAsync(
             Type aggregateType,
             CancellationToken cancellationToken)
         {
-            // TODO: proper handling of aggregate type
-
             return _msSqlConnection.ExecuteAsync(
                 Label.Named("purge-snapshots-for-aggregate"),
                 cancellationToken,
                 "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName",
-                new {AggregateName = aggregateType.PrettyPrint()});
+                new {AggregateName = aggregateType.GetAggregateName().Value});
         }
 
         public Task PurgeSnapshotsAsync(

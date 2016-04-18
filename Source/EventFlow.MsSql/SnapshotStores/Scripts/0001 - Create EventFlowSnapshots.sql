@@ -15,6 +15,7 @@ BEGIN
 
 	CREATE UNIQUE NONCLUSTERED INDEX [IX_EventFlowSnapshots_AggregateId_AggregateSequenceNumber] ON [dbo].[EventFlowSnapshots]
 	(
+		[AggregateName] ASC,
 		[AggregateId] ASC,
 		[AggregateSequenceNumber] ASC
 	)
