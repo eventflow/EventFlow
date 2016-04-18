@@ -33,7 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
 {
-    [System.ComponentModel.Category(Categories.Integration)]
+    [Category(Categories.Integration)]
     public class MsSqlSnapshotStoreTests : TestSuiteForSnapshotStore
     {
         private IMsSqlDatabase _testDatabase;
