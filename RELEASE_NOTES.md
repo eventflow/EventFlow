@@ -1,4 +1,8 @@
-### New in 0.29 (not released yet)
+### New in 0.30 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.29.1973 (released 2016-04-19)
 
 * Breaking: `IAggregateRoot` has some breaking changes. If these methods aren't
   used (which is considered the typical case), then the base class
