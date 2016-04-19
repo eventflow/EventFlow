@@ -59,7 +59,7 @@ namespace EventFlow.TestHelpers.Suites
             var id = ThingyId.New;
             
             // Act
-            await PublishPingCommandAsync(id, 5).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id, 5).ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
@@ -86,7 +86,7 @@ namespace EventFlow.TestHelpers.Suites
             // Arrange
             var thingyId = ThingyId.New;
             const int expectedVersion = 5;
-            await PublishPingCommandAsync(thingyId, expectedVersion).ConfigureAwait(false);
+            await PublishPingCommandsAsync(thingyId, expectedVersion).ConfigureAwait(false);
 
             // Act
             var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
@@ -139,7 +139,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             var id = ThingyId.New;
-            await PublishPingCommandAsync(id).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id).ConfigureAwait(false);
 
             // Act
             await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
@@ -154,7 +154,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             var id = ThingyId.New;
-            await PublishPingCommandAsync(id, 2).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id, 2).ConfigureAwait(false);
             await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             
             // Act

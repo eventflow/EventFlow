@@ -51,6 +51,7 @@
     <Compile Include="Extensions\EventFlowOptionsMsSqlEventStoreExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMsSqlExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMsSqlReadStoreExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsSnapshotExtensions.cs" />
     <Compile Include="IMsSqlConfiguration.cs" />
     <Compile Include="IMsSqlConnection.cs" />
     <Compile Include="IMsSqlDatabaseMigrator.cs" />
@@ -68,6 +69,8 @@
     <Compile Include="ReadStores\MssqlReadModelStore.cs" />
     <Compile Include="RetryStrategies\IMsSqlErrorRetryStrategy.cs" />
     <Compile Include="RetryStrategies\MsSqlErrorRetryStrategy.cs" />
+    <Compile Include="SnapshotStores\MsSqlSnapshotPersistence.cs" />
+    <Compile Include="SnapshotStores\EventFlowSnapshotStoresMsSql.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
@@ -90,6 +93,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EventStores\Scripts\0002 - Create eventdatamodel_list_type.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SnapshotStores\Scripts\0001 - Create EventFlowSnapshots.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

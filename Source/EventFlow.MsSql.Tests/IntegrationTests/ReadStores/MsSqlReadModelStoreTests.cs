@@ -76,5 +76,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
         {
             return ReadModelPopulator.PopulateAsync<MsSqlThingyReadModel>(CancellationToken.None);
         }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _testDatabase.DisposeSafe("Failed to delete database");
+        }
     }
 }

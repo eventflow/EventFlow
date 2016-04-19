@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace EventFlow.Sql.Migrations
@@ -30,5 +31,7 @@ namespace EventFlow.Sql.Migrations
     {
         void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
         void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
+        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
+        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
     }
 }

@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Aggregates
 {
@@ -36,10 +37,7 @@ namespace EventFlow.Aggregates
         IEnumerable<IAggregateEvent> UncommittedEvents { get; }
         bool IsNew { get; }
 
-        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
-            IEventStore eventStore,
-            ISourceId sourceId,
-            CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, ISnapshotStore snapshotStore, ISourceId sourceId, CancellationToken cancellationToken);
 
         bool HasSourceId(ISourceId sourceId);
 
@@ -48,6 +46,8 @@ namespace EventFlow.Aggregates
         void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
 
         IIdentity GetIdentity();
+
+        Task LoadAsync(IEventStore eventStore, ISnapshotStore snapshotStore, CancellationToken cancellationToken);
     }
 
     public interface IAggregateRoot<out TIdentity> : IAggregateRoot

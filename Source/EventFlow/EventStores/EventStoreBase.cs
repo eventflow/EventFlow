@@ -28,9 +28,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Entities;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using EventFlow.Snapshots;
 
 namespace EventFlow.EventStores
 {
@@ -39,6 +39,7 @@ namespace EventFlow.EventStores
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IEventPersistence _eventPersistence;
+        private readonly ISnapshotStore _snapshotStore;
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
@@ -49,9 +50,11 @@ namespace EventFlow.EventStores
             IEventJsonSerializer eventJsonSerializer,
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
-            IEventPersistence eventPersistence)
+            IEventPersistence eventPersistence,
+            ISnapshotStore snapshotStore)
         {
             _eventPersistence = eventPersistence;
+            _snapshotStore = snapshotStore;
             _log = log;
             _aggregateFactory = aggregateFactory;
             _eventJsonSerializer = eventJsonSerializer;
@@ -138,17 +141,33 @@ namespace EventFlow.EventStores
             return allEventsPage;
         }
 
-        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+        public Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            return LoadEventsAsync<TAggregate, TIdentity>(
+                id,
+                1,
+                cancellationToken);
+        }
+
+        public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
+
             var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
                 id,
+                fromEventSequenceNumber,
                 cancellationToken)
                 .ConfigureAwait(false);
-            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) committedDomainEvents
+            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
@@ -181,19 +200,8 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateType = typeof (TAggregate);
-
-            _log.Verbose(
-                "Loading aggregate '{0}' with ID '{1}'",
-                aggregateType.Name,
-                id);
-
-            var domainEvents = await LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
             var aggregate = await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
-            aggregate.ApplyEvents(domainEvents);
-
-            _log.Verbose(() => $"Done loading aggregate '{aggregateType.PrettyPrint()}' with ID '{id}' after applying {domainEvents.Count} events");
-
+            await aggregate.LoadAsync(this, _snapshotStore, cancellationToken).ConfigureAwait(false);
             return aggregate;
         }
 

@@ -23,9 +23,11 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DbUp;
+using DbUp.Engine;
 using EventFlow.Logs;
 using EventFlow.Sql.Connections;
 using EventFlow.Sql.Exceptions;
@@ -62,6 +64,30 @@ namespace EventFlow.Sql.Migrations
                 .LogTo(new DbUpUpgradeLog(_log))
                 .Build();
 
+            Upgrade(upgradeEngine);
+        }
+
+        public void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts)
+        {
+            MigrateDatabaseUsingScripts(sqlScripts, _sqlConfiguration.ConnectionString);
+        }
+
+        public void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString)
+        {
+            var dbUpSqlScripts = sqlScripts.Select(s => new DbUp.Engine.SqlScript(s.Name, s.Content));
+            var upgradeEngine = DeployChanges.To
+                .SqlDatabase(connectionString)
+                .WithScripts(dbUpSqlScripts)
+                .WithExecutionTimeout(TimeSpan.FromMinutes(5))
+                .WithTransaction()
+                .LogTo(new DbUpUpgradeLog(_log))
+                .Build();
+
+            Upgrade(upgradeEngine);
+        }
+
+        private void Upgrade(UpgradeEngine upgradeEngine)
+        {
             var scripts = upgradeEngine.GetScriptsToExecute()
                 .Select(s => s.Name)
                 .ToList();

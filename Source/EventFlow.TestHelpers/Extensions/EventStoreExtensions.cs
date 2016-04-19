@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -32,6 +33,7 @@ namespace EventFlow.TestHelpers.Extensions
 {
     public static class EventStoreExtensions
     {
+        [Obsolete("Use IAggregateStore.LoadAsync instead")]
         public static Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             this IEventStore eventStore,
             TIdentity id)

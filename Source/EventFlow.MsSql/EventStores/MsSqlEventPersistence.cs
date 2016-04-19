@@ -96,7 +96,10 @@ namespace EventFlow.MsSql.EventStores
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
@@ -167,14 +170,18 @@ namespace EventFlow.MsSql.EventStores
             return eventDataModels;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
         {
             const string sql = @"
                 SELECT
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
                 FROM EventFlow
                 WHERE
-                    AggregateId = @AggregateId
+                    AggregateId = @AggregateId AND
+                    AggregateSequenceNumber >= @FromEventSequenceNumber
                 ORDER BY
                     AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
@@ -183,7 +190,8 @@ namespace EventFlow.MsSql.EventStores
                 sql,
                 new
                     {
-                        AggregateId = id.Value
+                        AggregateId = id.Value,
+                        FromEventSequenceNumber = fromEventSequenceNumber,
                     })
                 .ConfigureAwait(false);
             return eventDataModels;

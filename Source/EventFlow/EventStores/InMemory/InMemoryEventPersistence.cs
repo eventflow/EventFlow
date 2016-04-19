@@ -91,7 +91,10 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            IIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
@@ -142,13 +145,16 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 List<InMemoryCommittedDomainEvent> committedDomainEvent;
                 return _eventStore.TryGetValue(id.Value, out committedDomainEvent)
-                    ? committedDomainEvent
+                    ? fromEventSequenceNumber <= 1 ? committedDomainEvent : committedDomainEvent.Where(e => e.AggregateSequenceNumber >= fromEventSequenceNumber).ToList()
                     : new List<InMemoryCommittedDomainEvent>();
             }
         }

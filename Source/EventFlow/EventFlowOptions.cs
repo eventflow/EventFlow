@@ -38,6 +38,11 @@ using EventFlow.Logs;
 using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.Snapshots;
+using EventFlow.Snapshots.Stores;
+using EventFlow.Snapshots.Stores.InMemory;
+using EventFlow.Snapshots.Stores.Null;
+using EventFlow.Snapshots.Strategies;
 using EventFlow.Subscribers;
 
 namespace EventFlow
@@ -48,6 +53,7 @@ namespace EventFlow
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
+        private readonly List<Type> _snapshotTypes = new List<Type>(); 
         private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
 
         private EventFlowOptions()
@@ -114,6 +120,19 @@ namespace EventFlow
             return this;
         }
 
+        public IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes)
+        {
+            foreach (var snapshotType in snapshotTypes)
+            {
+                if (!typeof(ISnapshot).IsAssignableFrom(snapshotType))
+                {
+                    throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
+                }
+                _snapshotTypes.Add(snapshotType);
+            }
+            return this;
+        }
+
         public IEventFlowOptions RegisterServices(Action<IServiceRegistration> register)
         {
             register(_lazyRegistrationFactory.Value);
@@ -156,6 +175,12 @@ namespace EventFlow
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
+            serviceRegistration.Register<IAggregateStore, AggregateStore>();
+            serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
+            serviceRegistration.Register<ISnapshotSerilizer, SnapshotSerilizer>();
+            serviceRegistration.Register<ISnapshotPersistence, NullSnapshotPersistence>();
+            serviceRegistration.Register<ISnapshotUpgradeService, SnapshotUpgradeService>();
+            serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
             serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();
             serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
@@ -181,7 +206,8 @@ namespace EventFlow
             serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
-                _aggregateEventTypes),
+                _aggregateEventTypes,
+                _snapshotTypes),
                 Lifetime.Singleton);
         }
 
