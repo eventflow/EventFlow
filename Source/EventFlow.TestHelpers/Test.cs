@@ -64,12 +64,40 @@ namespace EventFlow.TestHelpers
             return Fixture.CreateMany<T>(count).ToList();
         }
 
+        protected T Mock<T>()
+            where T : class
+        {
+            return new Mock<T>().Object;
+        }
+
+        protected T Inject<T>(T instance)
+            where T : class
+        {
+            Fixture.Inject(instance);
+            return instance;
+        }
+
         protected Mock<T> InjectMock<T>()
             where T : class
         {
             var mock = new Mock<T>();
             Fixture.Inject(mock.Object);
             return mock;
+        }
+
+        protected IDomainEvent<ThingyAggregate, ThingyId> ADomainEvent<TAggregateEvent>(int aggregateSequenceNumber = 0)
+            where TAggregateEvent : IAggregateEvent
+        {
+            return ToDomainEvent(A<TAggregateEvent>(), aggregateSequenceNumber);
+        }
+
+        protected IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>> ManyDomainEvents<TAggregateEvent>(
+            int count = 3)
+            where TAggregateEvent : IAggregateEvent
+        {
+            return Enumerable.Range(1, count)
+                .Select(ADomainEvent<TAggregateEvent>)
+                .ToList();
         }
 
         protected IDomainEvent<ThingyAggregate, ThingyId> ToDomainEvent<TAggregateEvent>(

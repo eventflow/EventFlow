@@ -56,6 +56,12 @@
     <Compile Include="Aggregates\Queries\ThingyGetMessagesQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetVersionQuery.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshot.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshotV1.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshotV2.cs" />
+    <Compile Include="Aggregates\Snapshots\ThingySnapshotVersion.cs" />
+    <Compile Include="Aggregates\Snapshots\Upgraders\ThingySnapshotV1ToV2Upgrader.cs" />
+    <Compile Include="Aggregates\Snapshots\Upgraders\ThingySnapshotV2ToV3Upgrader.cs" />
     <Compile Include="Aggregates\Thingy.cs" />
     <Compile Include="Aggregates\ThingyAggregate.cs" />
     <Compile Include="Aggregates\ThingyId.cs" />
@@ -64,14 +70,18 @@
     <Compile Include="EventFlowTestHelpers.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="Extensions\EventStoreExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\QueryProcessorExtensions.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Suites\AggregateStoreExtensions.cs" />
     <Compile Include="Suites\TestSuiteForEventStore.cs" />
     <Compile Include="Suites\TestSuiteForReadModelStore.cs" />
+    <Compile Include="Suites\TestSuiteForSnapshotStore.cs" />
     <Compile Include="Suites\TestSuiteForScheduler.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TestsFor.cs" />
+    <Compile Include="TypeWithMissingCategoryLister.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

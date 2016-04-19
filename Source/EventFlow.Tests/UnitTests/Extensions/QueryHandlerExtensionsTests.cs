@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 using EventFlow.Queries;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
@@ -36,6 +37,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
+    [Category(Categories.Unit)]
     public class QueryHandlerExtensionsTests
     {
         [Test]

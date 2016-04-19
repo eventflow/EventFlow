@@ -24,11 +24,13 @@
 
 using System;
 using EventFlow.Core;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Unit)]
     public class RetryDelayTests
     {
         [Test]

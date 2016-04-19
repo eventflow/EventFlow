@@ -2,6 +2,7 @@
 open System
 open Fake 
 open Fake.AssemblyInfoFile
+open Fake.OpenCoverHelper
 
 let releaseNotes = 
     ReadFile "RELEASE_NOTES.md"
@@ -14,8 +15,6 @@ let nugetApikey = getBuildParamOrDefault "nugetApikey" ""
 let dirPackages = "./Build/Packages"
 let dirReports = "./Build/Reports"
 let filePathUnitTestReport = dirReports + "/NUnit.xml"
-let fileListUnitTests = !! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll")
-let toolNUnitDir = "./packages/build/NUnit.Runners/tools"
 let toolIlMerge = "./packages/build/ilmerge/tools/ILMerge.exe"
 let nugetVersion = buildVersion // + "-alpha"
 let nugetVersionDep = "["+nugetVersion+"]"
@@ -37,16 +36,20 @@ Target "BuildApp" (fun _ ->
     |> Log "AppBuild-Output: "
     )
 
-Target "UnitTest" (fun _ ->
-    fileListUnitTests
-        |> NUnit (fun p -> 
-            {p with
-                DisableShadowCopy = true;
-                Framework = "net-4.0";
-                ToolPath = toolNUnitDir;
+Target "Test" (fun _ ->
+    let assembliesToTest = (" ", (!! ("**/bin/" @@ buildMode @@ "/EventFlow*Tests.dll"))) |> System.String.Join
+    OpenCover
+        (fun p -> { 
+            p with 
+                ExePath = "./packages/test/OpenCover/tools/OpenCover.Console.exe"
+                TestRunnerExePath = "./packages/build/NUnit.Runners/tools/nunit-console.exe"
+                Output = dirReports + "/opencover-results.xml"
                 TimeOut = TimeSpan.FromMinutes 30.0;
-                ToolName = "nunit-console-x86.exe";
-                OutputFile = filePathUnitTestReport})
+                Register = RegisterUser
+                OptionalArguments = "-returntargetcode"
+                Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
+        })
+        ("/nologo /noshadow /framework=net-4.5.1 /result=" + dirReports + "/nunit-results.xml " + assembliesToTest)
     )
 
 Target "CreatePackageEventFlow" (fun _ ->
@@ -255,7 +258,7 @@ Target "Default" DoNothing
 "Clean"
     ==> "SetVersion"
     ==> "BuildApp"
-    ==> "UnitTest"
+    ==> "Test"
     ==> "CreatePackageEventFlow"
     ==> "CreatePackageEventFlowAutofac"
     ==> "CreatePackageEventFlowRabbitMQ"
