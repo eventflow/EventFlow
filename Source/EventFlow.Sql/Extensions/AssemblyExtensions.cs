@@ -22,25 +22,42 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
-using EventFlow.Sql.Extensions;
 using EventFlow.Sql.Migrations;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.Sql.Extensions
 {
-    public static class EventFlowSnapshotStoresMsSql
+    public static class AssemblyExtensions
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).Assembly;
-
-        public static IEnumerable<SqlScript> GetSqlScripts()
+        public static IEnumerable<SqlScript> GetEmbeddedSqlScripts(
+            this Assembly assembly,
+            string startsWith)
         {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
-        }
+            if (string.IsNullOrEmpty(startsWith)) throw new ArgumentNullException(nameof(startsWith));
 
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
-        {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+            var removeFromName = $"{assembly.GetName().Name}.";
+
+            foreach (var manifestResourceName in assembly
+                .GetManifestResourceNames()
+                .Where(n => n.StartsWith(startsWith))
+                .OrderBy(n => n))
+            {
+                using (var manifestResourceStream = assembly.GetManifestResourceStream(manifestResourceName))
+                using (var streamReader = new StreamReader(manifestResourceStream))
+                {
+                    var name = manifestResourceName.Replace(removeFromName, string.Empty);
+                    var content = streamReader.ReadToEnd();
+
+                    yield return new SqlScript(
+                        name,
+                        content);
+                }
+            }
+
         }
     }
 }

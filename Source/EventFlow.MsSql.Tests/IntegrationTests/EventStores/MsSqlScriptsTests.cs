@@ -26,7 +26,6 @@ using System.Linq;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Extensions;
 using Helpz.MsSql;
 using NUnit.Framework;
 
@@ -41,19 +40,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
         public void SqlScriptsAreIdempotent()
         {
             // Arrange
-            var sqlScripts = EventFlowEventStoresMsSql.Assembly
-                .GetManifestResourceNames()
-                .Where(n => n.EndsWith(".sql"))
-                .OrderBy(n => n)
-                .Select(n => EventFlowEventStoresMsSql.Assembly.GetManifestResourceStream(n).ReadToEnd())
-                .ToList();
+            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
 
             // Act
             foreach (var _ in Enumerable.Range(0, 2))
             {
                 foreach (var sqlScript in sqlScripts)
                 {
-                    _msSqlDatabase.Execute(sqlScript);
+                    _msSqlDatabase.Execute(sqlScript.Content);
                 }
             }
         }
