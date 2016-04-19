@@ -24,7 +24,7 @@ want to build the code.
           <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
         </a>
       </p>
-      </p>
+      <p>
         <a href="https://codecov.io/github/rasmus/EventFlow?branch=develop">
           <img src="https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop" />
         </a>
