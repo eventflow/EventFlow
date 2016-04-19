@@ -40,9 +40,7 @@ namespace EventFlow.Aggregates
         where TIdentity : IIdentity
     {
         private static readonly Dictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
-        private static readonly IAggregateName AggregateName = new AggregateName(
-                typeof (TAggregate).GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
-                typeof (TAggregate).Name);
+        private static readonly IAggregateName AggregateName = typeof (TAggregate).GetAggregateName();
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
         private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
 

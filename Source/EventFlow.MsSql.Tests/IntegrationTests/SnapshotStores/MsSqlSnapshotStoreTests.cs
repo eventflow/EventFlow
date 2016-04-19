@@ -22,58 +22,35 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.EventStores.MsSql;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
-using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
-using EventFlow.ReadStores.MsSql.Extensions;
+using EventFlow.MsSql.SnapshotStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
+namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
 {
     [Category(Categories.Integration)]
-    public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
+    public class MsSqlSnapshotStoreTests : TestSuiteForSnapshotStore
     {
         private IMsSqlDatabase _testDatabase;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
 
             var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof (ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseMssqlReadModel<MsSqlThingyReadModel>()
-                .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(
-                    typeof(MsSqlThingyGetQueryHandler),
-                    typeof(MsSqlThingyGetVersionQueryHandler),
-                    typeof(MsSqlThingyGetMessagesQueryHandler))
+                .UseMsSqlSnapshotStore()
                 .CreateResolver();
 
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
-            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
-            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
+            EventFlowSnapshotStoresMsSql.MigrateDatabase(databaseMigrator);
 
             return resolver;
-        }
-
-        protected override Task PurgeTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PurgeAsync<MsSqlThingyReadModel>(CancellationToken.None);
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PopulateAsync<MsSqlThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]

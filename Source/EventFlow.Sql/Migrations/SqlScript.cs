@@ -20,18 +20,26 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Collections.Generic;
-using System.Reflection;
+using System;
 
 namespace EventFlow.Sql.Migrations
 {
-    public interface ISqlDatabaseMigrator
+    public class SqlScript
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
+        public string Name { get; }
+        public string Content { get; }
+
+        public SqlScript(
+            string name,
+            string content)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrEmpty(content)) throw new ArgumentNullException(nameof(content));
+
+            Name = name;
+            Content = content;
+        }
     }
 }

@@ -37,10 +37,14 @@ namespace EventFlow.TestHelpers.Suites
     public abstract class TestSuiteForSnapshotStore : IntegrationTest
     {
         [Test]
-        public void GetSnapshotAsync_NoneExistingSnapshotReturnsNull()
+        public async Task GetSnapshotAsync_NoneExistingSnapshotReturnsNull()
         {
             // Act
-            var committedSnapshot = SnapshotPersistence.GetSnapshotAsync(typeof (ThingyAggregate), ThingyId.New, CancellationToken.None).Result;
+            var committedSnapshot = await SnapshotPersistence.GetSnapshotAsync(
+                typeof (ThingyAggregate),
+                ThingyId.New,
+                CancellationToken.None)
+                .ConfigureAwait(false);
 
             // Assert
             committedSnapshot.Should().BeNull();
@@ -50,7 +54,10 @@ namespace EventFlow.TestHelpers.Suites
         public void DeleteSnapshotAsync_GetSnapshotAsync_NoneExistingSnapshotDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => SnapshotPersistence.DeleteSnapshotAsync(typeof(ThingyAggregate), ThingyId.New, CancellationToken.None).Wait());
+            Assert.DoesNotThrow(() => SnapshotPersistence.DeleteSnapshotAsync(
+                typeof(ThingyAggregate),
+                ThingyId.New,
+                CancellationToken.None).Wait());
         }
 
         [Test]
@@ -151,6 +158,32 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task TheSameSnapshotVersionCanBeSavedMultipleTimes()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var aggregateSequenceNumber = A<int>();
+
+            // Act
+            await StoreSnapshotAsync(thingyId, aggregateSequenceNumber, A<ThingySnapshot>()).ConfigureAwait(false);
+            await StoreSnapshotAsync(thingyId, aggregateSequenceNumber, A<ThingySnapshot>()).ConfigureAwait(false);
+            await StoreSnapshotAsync(thingyId, aggregateSequenceNumber, A<ThingySnapshot>()).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task SnapshotsCanBeSavedOutOfOrder()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            const int aggregateSequenceNumberHigh = 84;
+            const int aggregateSequenceNumberLow = 42;
+
+            // Act
+            await StoreSnapshotAsync(thingyId, aggregateSequenceNumberHigh, A<ThingySnapshot>()).ConfigureAwait(false);
+            await StoreSnapshotAsync(thingyId, aggregateSequenceNumberLow, A<ThingySnapshot>()).ConfigureAwait(false);
+        }
+
+        [Test]
         public async Task OldSnapshotsAreUpgradedToLatestVersionAndAppliedToAggregate()
         {
             // Arrange
@@ -178,11 +211,11 @@ namespace EventFlow.TestHelpers.Suites
             var snapshotDefinition = SnapshotDefinitionService.GetDefinition(typeof (TSnapshot));
             var snapshotMetadata = new SnapshotMetadata
                 {
-                    {SnapshotMetadataKeys.AggregateId, thingyId.Value},
-                    {SnapshotMetadataKeys.AggregateName, "ThingyAggregate"},
-                    {SnapshotMetadataKeys.AggregateSequenceNumber, aggregateSequenceNumber.ToString()},
-                    {SnapshotMetadataKeys.SnapshotName, snapshotDefinition.Name},
-                    {SnapshotMetadataKeys.SnapshotVersion, snapshotDefinition.Version.ToString()},
+                    AggregateId = thingyId.Value,
+                    AggregateName = "ThingyAggregate",
+                    AggregateSequenceNumber = aggregateSequenceNumber,
+                    SnapshotName = snapshotDefinition.Name,
+                    SnapshotVersion = snapshotDefinition.Version,
                 };
 
             return SnapshotPersistence.SetSnapshotAsync(

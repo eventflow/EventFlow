@@ -180,6 +180,44 @@ var resolver = EventFlowOptions.New
   .CreateResolver();
 ```
 
+### Microsoft SQL Server
+
+To use the MSSQL snapshot store you need to install the NuGet package
+`EventFlow.MsSql`.
+
+#### Configuration
+
+Configure the MSSQL connection and snapshot store as shown here.
+
+```csharp
+var rootResolver = EventFlowOptions.New
+  ...
+  .ConfigureMsSql(MsSqlConfiguration.New
+    .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
+  .UseMsSqlSnapshotStore()
+  ...
+  .CreateResolver();
+```
+
+Note that if you already use MSSQL for event- or read model store, you only
+need to invoke the `ConfigureMsSql` extension _once_.  
+
+#### Create and migrate required MSSQL databases
+
+Before you can use the MSSQL snapshot store, the required database and tables
+must be created. The database specified in your MSSQL connection _will not_ be
+automatically created, you have to do this yourself.
+
+To make EventFlow create the required tables, execute the following code.
+
+```csharp
+var msSqlDatabaseMigrator = rootResolver.Resolve<IMsSqlDatabaseMigrator>();
+EventFlowSnapshotStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
+```
+
+You should do this either on application start or preferably upon application
+install or update, e.g., when the web site is installed.
+
 ### Custom
 
 If none of the above stores are adequate, a custom implementation is possible

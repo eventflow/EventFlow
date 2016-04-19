@@ -20,18 +20,28 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
+using EventFlow.MsSql.SnapshotStores;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Sql.Migrations
+namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
 {
-    public interface ISqlDatabaseMigrator
+    [Category(Categories.Integration)]
+    public class EventFlowSnapshotStoresMsSqlTests
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
+        [Test]
+        public void GetSqlScripts()
+        {
+            // Act
+            var sqlScripts = EventFlowSnapshotStoresMsSql.GetSqlScripts().ToDictionary(s => s.Name, s => s);
+
+            // Assert
+            sqlScripts.Should().HaveCount(1);
+            sqlScripts.Should().ContainKey("SnapshotStores.Scripts.0001 - Create EventFlowSnapshots.sql");
+        }
     }
 }

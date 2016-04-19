@@ -11,7 +11,10 @@
   roots. The EventFlow documentation has been updated to include a guide on
   how to get started using snapshots. Snapshots are basically an opt-in optimized
   method for handling long-lived aggregate roots. Snapshot support in EventFlow
-  introduces several new elements, read the documentation to get an overview
+  introduces several new elements, read the documentation to get an overview.
+  Currently EventFlow offers the following snapshot stores
+  - In-memory
+  - Microsoft SQL Server
 * New: The `IAggregateStore` is introduced, which provides a cleaner interface
   for manipulating aggregate roots. The most important method is the
   `UpdateAsync` which allows easy updates to aggregate roots without the need
@@ -22,6 +25,9 @@
 * New: `IEventStore` now supports loading events from a specific version using
   the new overload of `LoadEventsAsync` that takes a `fromEventSequenceNumber`
   argument
+* New: `IMsSqlDatabaseMigrator` now has a overloaded method named
+  `MigrateDatabaseUsingScripts` that takes an `IEnumerable<SqlScript>`
+  enabling specific scripts to be used in a database migration
 * New: Added suport to use EventStore persistence with connection strings
   instead IPs only
 * Obsolete: The following aggregate related methods on `IEventStore` has been

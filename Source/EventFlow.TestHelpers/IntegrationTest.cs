@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +37,6 @@ using EventFlow.Snapshots.Stores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
@@ -94,6 +94,8 @@ namespace EventFlow.TestHelpers
 
         protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count = 1)
         {
+            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
+
             var pingIds = new List<PingId>();
 
             for (var i = 0; i < count; i++)
