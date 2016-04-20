@@ -23,6 +23,8 @@
 // 
 using System;
 using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -48,6 +50,39 @@ namespace EventFlow.Tests.UnitTests.Extensions
 
             // Assert
             prettyPrint.Should().Be(expectedPrettyPrint);
+        }
+
+        [TestCase(typeof(TestAggregateWithOutAttribute), "TestAggregateWithOutAttribute")]
+        [TestCase(typeof(TestAggregateWithAttribute), "BetterNameForAggregate")]
+        public void GetAggregateName(Type aggregateType, string expectedAggregateName)
+        {
+            // Act
+            var aggregateName = aggregateType.GetAggregateName();
+
+            // Assert
+            aggregateName.Value.Should().Be(expectedAggregateName);
+        }
+
+        public class TestId : Identity<TestId>
+        {
+            public TestId(string value) : base(value)
+            {
+            }
+        }
+
+        public class TestAggregateWithOutAttribute : AggregateRoot<TestAggregateWithOutAttribute, TestId>
+        {
+            public TestAggregateWithOutAttribute(TestId id) : base(id)
+            {
+            }
+        }
+
+        [AggregateName("BetterNameForAggregate")]
+        public class TestAggregateWithAttribute : AggregateRoot<TestAggregateWithOutAttribute, TestId>
+        {
+            public TestAggregateWithAttribute(TestId id) : base(id)
+            {
+            }
         }
     }
 }

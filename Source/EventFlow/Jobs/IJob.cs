@@ -24,10 +24,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Jobs
 {
-    public interface IJob
+    public interface IJob : IVersionedType
     {
         Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken);
     }

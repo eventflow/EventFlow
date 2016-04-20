@@ -168,6 +168,7 @@ namespace EventFlow.SQLite.EventStores
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             IIdentity id,
+            int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
             const string sql = @"
@@ -175,7 +176,8 @@ namespace EventFlow.SQLite.EventStores
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
                 FROM EventFlow
                 WHERE
-                    AggregateId = @AggregateId
+                    AggregateId = @AggregateId AND
+                    AggregateSequenceNumber >= @FromEventSequenceNumber
                 ORDER BY
                     AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
@@ -184,7 +186,8 @@ namespace EventFlow.SQLite.EventStores
                 sql,
                 new
                     {
-                        AggregateId = id.Value
+                        AggregateId = id.Value,
+                        FromEventSequenceNumber = fromEventSequenceNumber,
                     })
                 .ConfigureAwait(false);
             return eventDataModels;

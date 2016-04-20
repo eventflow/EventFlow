@@ -23,6 +23,8 @@
 // 
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -32,6 +34,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -43,7 +46,7 @@ namespace EventFlow.Tests.IntegrationTests
         private readonly ThingyId _thingyId = ThingyId.With("thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7");
         private IResolver _resolver;
         private ICommandBus _commandBus;
-        private IEventStore _eventStore;
+        private IAggregateStore _aggregateStore;
 
         [SetUp]
         public void SetUp()
@@ -59,14 +62,14 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver();
 
             _commandBus = _resolver.Resolve<ICommandBus>();
-            _eventStore = _resolver.Resolve<IEventStore>();
+            _aggregateStore = _resolver.Resolve<IAggregateStore>();
         }
 
         [Test]
-        public void ValidateTestAggregate()
+        public async Task ValidateTestAggregate()
         {
             // Act
-            var testAggregate = _eventStore.LoadAggregate<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
+            var testAggregate = await _aggregateStore.LoadAsync<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
 
             // Assert
             testAggregate.Version.Should().Be(2);

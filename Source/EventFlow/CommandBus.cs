@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,7 +33,6 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
-using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -46,20 +46,20 @@ namespace EventFlow
 
         private readonly ILog _log;
         private readonly IResolver _resolver;
-        private readonly IEventStore _eventStore;
+        private readonly IAggregateStore _aggregateStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
-            IEventStore eventStore,
+            IAggregateStore aggregateStore,
             IDomainEventPublisher domainEventPublisher,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _resolver = resolver;
-            _eventStore = eventStore;
+            _aggregateStore = aggregateStore;
             _domainEventPublisher = domainEventPublisher;
             _transientFaultHandler = transientFaultHandler;
         }
@@ -167,22 +167,10 @@ namespace EventFlow
 
             var commandHandler = commandHandlers.Single();
 
-            return _transientFaultHandler.TryAsync(
-                async c =>
-                    {
-                        var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(command.AggregateId, c).ConfigureAwait(false);
-                        if (aggregate.HasSourceId(command.SourceId))
-                        {
-                            throw new DuplicateOperationException(
-                                command.SourceId,
-                                aggregate.Id,
-                                $"Aggregate '{aggregate.GetType().PrettyPrint()}' has already had operation '{command.SourceId}' performed. New source is '{command.GetType().PrettyPrint()}'");
-                        }
-
-                        await commandExecutionDetails.Invoker(commandHandler, aggregate, command, c).ConfigureAwait(false);
-                        return await aggregate.CommitAsync(_eventStore, command.SourceId, c).ConfigureAwait(false);
-                    },
-                Label.Named($"command-execution-{commandType.Name.ToLowerInvariant()}"), 
+            return _aggregateStore.UpdateAsync<TAggregate, TIdentity>(
+                command.AggregateId,
+                command.SourceId,
+                (a, c) => commandExecutionDetails.Invoker(commandHandler, a, command, c),
                 cancellationToken);
         }
 

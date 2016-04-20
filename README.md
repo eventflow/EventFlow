@@ -24,11 +24,10 @@ want to build the code.
           <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
         </a>
       </p>
-      </p>
+      <p>
         <a href="https://codecov.io/github/rasmus/EventFlow?branch=develop">
           <img src="https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop" />
-        </a><br/>
-        (integration tests excluded)
+        </a>
       </p>
     </td>
   </tr>
@@ -84,6 +83,13 @@ to the documentation.
   * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
   * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
   * [Microsoft SQL Server](Documentation/ReadStores.md#microsoft-sql-server)
+* [**Snapshots:**](./Documentation/Snapshots.md) Instead of reading the entire
+  event stream every single time, a snapshot can be created every so often that
+  contains the aggregate state. EventFlow supports upgrading existing snapshots,
+  which is useful for long-lived aggregates. Snapshots in EventFlow are opt-in
+  and EventFlow has support for
+  * [In-memory](./Documentation/Snapshots.md#in-memory) - only for test
+  * [Microsoft SQL Server](./Documentation/Snapshots.md#microsoft-sql-server)  
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
@@ -172,7 +178,7 @@ share it by creating an issue with the link.
  - [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency/)
    by Mike Mogosanu
 * **Why _not_ to implement "unit of work" in DDD**
- - [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx/)
+ - [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
    by Mike Mogosanu
  - [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
    by Mike Mogosanu

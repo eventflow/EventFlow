@@ -76,7 +76,7 @@ namespace EventFlow.TestHelpers.Suites
             var start = DateTimeOffset.Now;
             while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(20))
             {
-                var testAggregate = await EventStore.LoadAggregateAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
+                var testAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                 if (!testAggregate.IsNew)
                 {
                     await AssertJobIsSuccessfullAsync(jobId).ConfigureAwait(false);

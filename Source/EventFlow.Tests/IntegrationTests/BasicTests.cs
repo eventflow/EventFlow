@@ -104,7 +104,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver())
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
-                var eventStore = resolver.Resolve<IEventStore>();
+                var eventStore = resolver.Resolve<IAggregateStore>();
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
                 var id = ThingyId.New;
 
@@ -112,7 +112,7 @@ namespace EventFlow.Tests.IntegrationTests
                 commandBus.Publish(new ThingyDomainErrorAfterFirstCommand(id), CancellationToken.None);
                 commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
                 commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
-                var testAggregate = eventStore.LoadAggregate<ThingyAggregate, ThingyId>(id, CancellationToken.None);
+                var testAggregate = eventStore.Load<ThingyAggregate, ThingyId>(id, CancellationToken.None);
                 var testReadModelFromQuery1 = queryProcessor.Process(
                     new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None);
                 var testReadModelFromQuery2 = queryProcessor.Process(
