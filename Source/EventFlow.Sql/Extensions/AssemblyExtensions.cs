@@ -20,16 +20,44 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
-using EventFlow.Sql.ReadModels;
-using EventFlow.Sql.ReadModels.Attributes;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Sql.Migrations;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.Sql.Extensions
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIgnoreColumnAttribute : SqlReadModelIgnoreColumnAttribute
+    public static class AssemblyExtensions
     {
+        public static IEnumerable<SqlScript> GetEmbeddedSqlScripts(
+            this Assembly assembly,
+            string startsWith)
+        {
+            if (string.IsNullOrEmpty(startsWith)) throw new ArgumentNullException(nameof(startsWith));
+
+            var removeFromName = $"{assembly.GetName().Name}.";
+
+            foreach (var manifestResourceName in assembly
+                .GetManifestResourceNames()
+                .Where(n => n.StartsWith(startsWith))
+                .OrderBy(n => n))
+            {
+                using (var manifestResourceStream = assembly.GetManifestResourceStream(manifestResourceName))
+                using (var streamReader = new StreamReader(manifestResourceStream))
+                {
+                    var name = manifestResourceName.Replace(removeFromName, string.Empty);
+                    var content = streamReader.ReadToEnd();
+
+                    yield return new SqlScript(
+                        name,
+                        content);
+                }
+            }
+
+        }
     }
 }

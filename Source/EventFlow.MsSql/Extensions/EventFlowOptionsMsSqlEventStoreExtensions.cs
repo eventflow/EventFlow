@@ -20,26 +20,18 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-using System.Reflection;
-using System.Runtime.InteropServices;
+//
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("EventFlow.EventStores.MsSql")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow.EventStores.MsSql")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+using EventFlow.Extensions;
+using EventFlow.MsSql.EventStores;
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3637c94b-a350-4ff7-9faa-12ec4fbf7c1e")]
+namespace EventFlow.MsSql.Extensions
+{
+    public static class EventFlowOptionsMsSqlEventStoreExtensions
+    {
+        public static IEventFlowOptions UseMssqlEventStore(this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.UseEventStore<MsSqlEventPersistence>();
+        }
+    }
+}

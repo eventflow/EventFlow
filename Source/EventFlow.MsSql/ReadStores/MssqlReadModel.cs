@@ -21,10 +21,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
 using EventFlow.Extensions;
 
-namespace EventFlow.ReadStores.MsSql
+namespace EventFlow.MsSql.ReadStores
 {
     [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
     public abstract class MssqlReadModel : IMssqlReadModel
