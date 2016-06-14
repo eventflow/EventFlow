@@ -25,11 +25,13 @@ using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Sagas
 {
+    [Category(Categories.Unit)]
     public class SagaFlowTests
     {
         private IRootResolver _resolver;
