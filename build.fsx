@@ -49,7 +49,7 @@ Target "Test" (fun _ ->
                 OptionalArguments = "-returntargetcode"
                 Filter = "+[EventFlow*]* -[*Tests]* -[*TestHelpers]* -[*Shipping*]*"
         })
-        ("--noheader --nocolor --framework=net-4.5.1 --result=" + dirReports + "/nunit-results.xml;format=nunit2 " + assembliesToTest)
+        ("--noheader --nocolor --framework=net-4.5 --result=" + dirReports + "/nunit-results.xml;format=nunit2 " + assembliesToTest)
     )
 
 Target "CreatePackageEventFlow" (fun _ ->
