@@ -57,7 +57,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.SQLite\EventFlow.SQLite.csproj">
       <Project>{cee8e914-b31c-4aaa-b520-cf72560d90fa}</Project>
-      <Name>EventFlow.EventStores.SQLite</Name>
+      <Name>EventFlow.SQLite</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
       <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>

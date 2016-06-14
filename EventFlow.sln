@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{7387D16E-5CC4-464B-85F3-F409543D09BD}"
 	ProjectSection(SolutionItems) = preProject
@@ -79,6 +79,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.SQLite.Tests", "Source\EventFlow.SQLite.Tests\EventFlow.SQLite.Tests.csproj", "{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Sql.Tests", "Source\EventFlow.Sql.Tests\EventFlow.Sql.Tests.csproj", "{36F59228-C7DC-4799-8342-4CAF5C4E95D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{D1F4A985-7897-4B99-92D7-7CE8A6212666}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		build.cmd = build.cmd
+		build.fsx = build.fsx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

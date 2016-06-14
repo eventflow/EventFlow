@@ -42,7 +42,7 @@ Target "Test" (fun _ ->
         (fun p -> { 
             p with 
                 ExePath = "./packages/test/OpenCover/tools/OpenCover.Console.exe"
-                TestRunnerExePath = "./packages/build/NUnit.Runners/tools/nunit-console.exe"
+                TestRunnerExePath = "./packages/build/NUnit.ConsoleRunner/tools/nunit3-console.exe"
                 Output = dirReports + "/opencover-results.xml"
                 TimeOut = TimeSpan.FromMinutes 30.0;
                 Register = RegisterUser
