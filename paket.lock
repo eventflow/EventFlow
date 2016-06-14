@@ -60,6 +60,7 @@ NUGET
     FAKE (4.14.5)
     ilmerge (2.14.1208)
     NUnit.ConsoleRunner (3.2.1)
+    OpenCover (4.6.519)
 
 GROUP Test
 REDIRECTS: ON
@@ -90,7 +91,6 @@ NUGET
     Helpz (0.1.8) - framework: >= net451
     Moq (4.2.1510.2205)
     NUnit (3.2.1)
-    OpenCover (4.6.519)
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
       System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50
