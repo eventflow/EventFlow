@@ -154,8 +154,6 @@ Target "CreatePackageEventFlowMsSql" (fun _ ->
     )
 
 Target "CreatePackageEventFlowEventStoresMsSql" (fun _ ->
-    let binDir = "Source/EventFlow.EventStores.MsSql/bin/"
-    CopyFile binDir (binDir + buildMode + "/EventFlow.EventStores.MsSql.dll")
     NuGet (fun p ->
         {p with
             OutputPath = dirPackages
@@ -203,8 +201,6 @@ Target "CreatePackageEventFlowEventStoresEventStore" (fun _ ->
     )
 
 Target "CreatePackageEventFlowReadStoresMsSql" (fun _ ->
-    let binDir = "Source/EventFlow.ReadStores.MsSql/bin/"
-    CopyFile binDir (binDir + buildMode + "/EventFlow.ReadStores.MsSql.dll")
     NuGet (fun p ->
         {p with
             OutputPath = dirPackages

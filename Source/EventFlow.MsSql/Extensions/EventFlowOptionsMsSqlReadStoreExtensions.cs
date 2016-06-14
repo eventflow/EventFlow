@@ -24,11 +24,13 @@
 
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.MsSql.ReadStores;
+using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
 
-namespace EventFlow.ReadStores.MsSql.Extensions
+namespace EventFlow.MsSql.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class EventFlowOptionsMsSqlReadStoreExtensions
     {
         public static IEventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)

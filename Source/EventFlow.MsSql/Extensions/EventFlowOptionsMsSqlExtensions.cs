@@ -21,25 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using System.Reflection;
-using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("EventFlow.ReadStores.MsSql")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow.ReadStores.MsSql")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+using EventFlow.Configuration;
+using EventFlow.MsSql.Connections;
+using EventFlow.MsSql.RetryStrategies;
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4ddeb9b7-db05-4cc9-86ee-2713a1d2eb53")]
+namespace EventFlow.MsSql.Extensions
+{
+    public static class EventFlowOptionsMsSqlExtensions
+    {
+        public static IEventFlowOptions ConfigureMsSql(
+            this IEventFlowOptions eventFlowOptions,
+            IMsSqlConfiguration msSqlConfiguration)
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
+                        f.Register<IMsSqlConnection, MsSqlConnection>();
+                        f.Register<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
+                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
+                        f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
+                    });
+        }
+    }
+}

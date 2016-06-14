@@ -22,27 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Configuration;
-using EventFlow.MsSql.Connections;
-using EventFlow.MsSql.RetryStrategies;
+using System.IO;
 
-namespace EventFlow.MsSql.Extensions
+namespace EventFlow.TestHelpers.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class StreamExtensions
     {
-        public static IEventFlowOptions ConfigureMsSql(
-            this IEventFlowOptions eventFlowOptions,
-            IMsSqlConfiguration msSqlConfiguration)
+        public static string ReadToEnd(this Stream stream)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                    {
-                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
-                        f.Register<IMsSqlConnection, MsSqlConnection>();
-                        f.Register<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
-                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
-                        f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
-                    });
+            using (var streamReader = new StreamReader(stream))
+            {
+                return streamReader.ReadToEnd();
+            }
         }
     }
 }

@@ -20,11 +20,27 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-namespace EventFlow.ReadStores.MsSql
+//
+
+using System.Collections.Generic;
+using System.Reflection;
+using EventFlow.Sql.Extensions;
+using EventFlow.Sql.Migrations;
+
+namespace EventFlow.MsSql.EventStores
 {
-    public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public static class EventFlowEventStoresMsSql
     {
+        public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
+
+        public static IEnumerable<SqlScript> GetSqlScripts()
+        {
+            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.EventStores.Scripts");
+        }
+
+        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
+        {
+            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+        }
     }
 }
