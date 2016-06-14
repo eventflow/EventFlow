@@ -58,7 +58,7 @@ namespace EventFlow.Sagas
             if (specificSaga == null) throw new ArgumentException($"Saga is not of type '{typeof(ISagaHandles<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
 
             await specificSaga.ProcessAsync(specificDomainEvent, cancellationToken).ConfigureAwait(false);
-            await saga.CommitAsync(_eventStore, domainEvent.Metadata.EventId, cancellationToken).ConfigureAwait(false);
+            await saga.CommitAsync(_eventStore, null /* TODO: Fix */, domainEvent.Metadata.EventId, cancellationToken).ConfigureAwait(false);
             await saga.PublishAsync(_commandBus, cancellationToken).ConfigureAwait(false);
         }
     }

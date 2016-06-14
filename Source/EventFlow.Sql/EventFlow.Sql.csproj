@@ -54,6 +54,7 @@
     <Compile Include="Integrations\DbUpUpgradeLog.cs" />
     <Compile Include="Connections\SqlConfiguration.cs" />
     <Compile Include="Connections\SqlConnection.cs" />
+    <Compile Include="Migrations\SqlScript.cs" />
     <Compile Include="Migrations\SqlDatabaseMigrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadModels\ISqlReadModelStore.cs" />

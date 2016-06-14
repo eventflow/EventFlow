@@ -20,7 +20,9 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,19 +30,13 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
-using EventFlow.EventStores;
-using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
-using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests
 {
@@ -48,56 +44,14 @@ namespace EventFlow.Tests.UnitTests
     [Category(Categories.Unit)]
     public class CommandBusTests : TestsFor<CommandBus>
     {
-        private Mock<IEventStore> _eventStoreMock;
+        private Mock<IAggregateStore> _aggregateStoreMock;
         private Mock<IResolver> _resolverMock;
-        private ThingyAggregate _thingyAggregate;
 
         [SetUp]
         public void SetUp()
         {
-            Fixture.Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
-                new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
-                    Fixture.Create<ILog>(),
-                    new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
-
             _resolverMock = InjectMock<IResolver>();
-            _eventStoreMock = InjectMock<IEventStore>();
-            _thingyAggregate = new ThingyAggregate(ThingyId.New);
-
-            _eventStoreMock
-                .Setup(s => s.LoadAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(_thingyAggregate));
-        }
-
-        [Test]
-        public void RetryForOptimisticConcurrencyExceptionsAreDone()
-        {
-            // Arrange
-            ArrangeCommandHandlerExists<ThingyAggregate, ThingyId, ISourceId, ThingyDomainErrorAfterFirstCommand>();
-            _eventStoreMock
-                .Setup(s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
-                .Throws(new OptimisticConcurrencyException(string.Empty, null));
-
-            // Act
-            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.PublishAsync(new ThingyDomainErrorAfterFirstCommand(ThingyId.New)).ConfigureAwait(false));
-
-            // Assert
-            _eventStoreMock.Verify(
-                s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()),
-                Times.Exactly(6));
-        }
-
-        [Test]
-        public void DuplicateOperationExceptionIsThrowsIfSourceAlreadyApplied()
-        {
-            // Arrange
-            var pingEvent = ToDomainEvent(new ThingyPingEvent(PingId.New));
-            ArrangeWorkingEventStore();
-            ArrangeCommandHandlerExists(new ThingyPingCommandHandler());
-            _thingyAggregate.ApplyEvents(new [] { pingEvent });
-
-            // Act + Assert
-            Assert.Throws<DuplicateOperationException>(async () => await Sut.PublishAsync(new ThingyPingCommand(ThingyId.New, pingEvent.Metadata.SourceId, PingId.New)).ConfigureAwait(false));
+            _aggregateStoreMock = InjectMock<IAggregateStore>();
         }
 
         [Test]
@@ -116,9 +70,10 @@ namespace EventFlow.Tests.UnitTests
 
         private void ArrangeWorkingEventStore()
         {
-            _eventStoreMock
-                .Setup(s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(Many<IDomainEvent<ThingyAggregate, ThingyId>>()));
+            _aggregateStoreMock
+                .Setup(s => s.UpdateAsync(It.IsAny<ThingyId>(), It.IsAny<ISourceId>(), It.IsAny<Func<ThingyAggregate, CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
+                .Callback<ThingyId, ISourceId, Func<ThingyAggregate, CancellationToken, Task>, CancellationToken>((i, s, f, c) => f(A<ThingyAggregate>(), c))
+                .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent>>(Many<IDomainEvent<ThingyAggregate, ThingyId>>()));
         }
 
         private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>(

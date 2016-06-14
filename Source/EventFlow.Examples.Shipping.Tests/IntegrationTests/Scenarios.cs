@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Linq;
 using System.Threading;
@@ -28,7 +29,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.EventStores;
 using EventFlow.Examples.Shipping.Application;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
 using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
@@ -47,7 +47,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
     public class Scenarios : Test
     {
         private IRootResolver _resolver;
-        private IEventStore _eventStore;
+        private IAggregateStore _aggregateStore;
         private ICommandBus _commandBus;
 
         [SetUp]
@@ -57,7 +57,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
                 .ConfigureShippingDomain()
                 .ConfigureShippingQueriesInMemory()
                 .CreateResolver();
-            _eventStore = _resolver.Resolve<IEventStore>();
+            _aggregateStore = _resolver.Resolve<IAggregateStore>();
             _commandBus = _resolver.Resolve<ICommandBus>();
         }
 
@@ -115,9 +115,16 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregate = await _eventStore.LoadAggregateAsync<TAggregate, TIdentity>(id, CancellationToken.None).ConfigureAwait(false);
-            action(aggregate);
-            await aggregate.CommitAsync(_eventStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await _aggregateStore.UpdateAsync<TAggregate, TIdentity>(
+                id,
+                SourceId.New,
+                (a, c) =>
+                    {
+                        action(a);
+                        return Task.FromResult(0);
+                    },
+                CancellationToken.None)
+                .ConfigureAwait(false);
         }
     }
 }

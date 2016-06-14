@@ -24,6 +24,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
+using EventFlow.Aggregates;
 
 namespace EventFlow.Extensions
 {
@@ -65,6 +67,26 @@ namespace EventFlow.Extensions
             return !type.IsConstructedGenericType
                 ? $"{nameParts[0]}<{new string(',', genericArguments.Length - 1)}>"
                 : $"{nameParts[0]}<{string.Join(",", genericArguments.Select(t => PrettyPrintRecursive(t, depth + 1)))}>";
+        }
+
+        private static readonly ConcurrentDictionary<Type, AggregateName> AggregateNames = new ConcurrentDictionary<Type, AggregateName>();
+
+        public static AggregateName GetAggregateName(
+            this Type aggregateType)
+        {
+            return AggregateNames.GetOrAdd(
+                aggregateType,
+                t =>
+                    {
+                        if (!typeof(IAggregateRoot).IsAssignableFrom(aggregateType))
+                        {
+                            throw new ArgumentException($"Type '{aggregateType.PrettyPrint()}' is not an aggregate root");
+                        }
+
+                        return new AggregateName(
+                            t.GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
+                            t.Name);
+                    });
         }
     }
 }

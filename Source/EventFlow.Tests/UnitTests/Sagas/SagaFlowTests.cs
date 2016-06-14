@@ -75,7 +75,10 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _commandBus.Publish(new SagaTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
 
             // Assert
+#pragma warning disable 618
+            // TODO: Fix
             var testAggregate = _eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+#pragma warning restore 618
             testAggregate.As.Should().Be(1);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(1);
@@ -91,7 +94,10 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _commandBus.Publish(new SagaTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
 
             // Assert
+#pragma warning disable 618
+            // TODO: Fix
             var testAggregate = _eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+#pragma warning restore 618
             testAggregate.As.Should().Be(0);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(0);

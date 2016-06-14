@@ -42,7 +42,10 @@ namespace EventFlow.Sagas
 
         public static async Task<ISaga> LoadSagaAsync(IEventStore eventStore, TIdentity identity, CancellationToken cancellationToken)
         {
+#pragma warning disable 618
+            // TODO: Fix
             return await eventStore.LoadAggregateAsync<TSaga, TIdentity>(identity, cancellationToken).ConfigureAwait(false);
+#pragma warning restore 618
         }
 
         protected Saga(TIdentity id) : base(id)

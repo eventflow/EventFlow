@@ -32,5 +32,6 @@ namespace EventFlow.Configuration
         IReadOnlyCollection<Type> Commands { get; }
         IReadOnlyCollection<Type> Events { get; }
         IReadOnlyCollection<Type> Sagas { get; }
+        IReadOnlyCollection<Type> SnapshotTypes { get; }
     }
 }

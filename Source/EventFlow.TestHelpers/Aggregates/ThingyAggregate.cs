@@ -24,26 +24,35 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
+using EventFlow.Snapshots;
+using EventFlow.Snapshots.Strategies;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates
 {
     [AggregateName("Thingy")]
-    public class ThingyAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
+    public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
         IEmit<ThingyDomainErrorAfterFirstEvent>
     {
+        public const int SnapshotEveryVersion = 10;
+
         private readonly List<PingId> _pingsReceived = new List<PingId>();
         private readonly List<ThingyMessage> _messages = new List<ThingyMessage>(); 
 
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
+        public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {}; 
 
-        public ThingyAggregate(ThingyId id) : base(id)
+        public ThingyAggregate(ThingyId id)
+            : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
@@ -77,6 +86,20 @@ namespace EventFlow.TestHelpers.Aggregates
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        protected override Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new ThingySnapshot(
+                PingsReceived,
+                Enumerable.Empty<ThingySnapshotVersion>()));
+        }
+
+        protected override Task LoadSnapshotAsync(ThingySnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
+        {
+            _pingsReceived.AddRange(snapshot.PingsReceived);
+            SnapshotVersions = snapshot.PreviousVersions;
+            return Task.FromResult(0);
         }
     }
 }

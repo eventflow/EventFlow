@@ -36,6 +36,10 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,10 +55,15 @@
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
+    <Compile Include="Aggregates\AggregateStore.cs" />
     <Compile Include="Aggregates\EventId.cs" />
     <Compile Include="Aggregates\IAggregateName.cs" />
+    <Compile Include="Aggregates\IAggregateStore.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
+    <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
     <Compile Include="Commands\CommandDefinitionService.cs" />
     <Compile Include="Commands\CommandId.cs" />
@@ -98,18 +107,24 @@
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Core\AsyncLock.cs" />
     <Compile Include="Core\GuidFactories.cs" />
+    <Compile Include="Core\IMetadataContainer.cs" />
     <Compile Include="Core\IRetryStrategy.cs" />
     <Compile Include="Core\ISourceId.cs" />
     <Compile Include="Core\ITransientFaultHandler.cs" />
     <Compile Include="Core\Label.cs" />
+    <Compile Include="Core\MetadataContainer.cs" />
     <Compile Include="Core\ReflectionHelper.cs" />
     <Compile Include="Core\RetryDelay.cs" />
     <Compile Include="Core\RetryStrategies\IOptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\RetryStrategies\OptimisticConcurrencyRetryStrategy.cs" />
     <Compile Include="Core\SourceId.cs" />
     <Compile Include="Core\TransientFaultHandler.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedType.cs" />
     <Compile Include="Core\VersionedTypes\IVersionedTypeDefinitionService.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedTypeUpgrader.cs" />
+    <Compile Include="Core\VersionedTypes\IVersionedTypeUpgradeService.cs" />
     <Compile Include="Core\VersionedTypes\VersionedTypeAttribute.cs" />
+    <Compile Include="Core\VersionedTypes\VersionedTypeUpgradeService.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="EventFlowOptions.cs" />
@@ -135,7 +150,28 @@
     <Compile Include="EventStores\IEventPersistence.cs" />
     <Compile Include="EventStores\IEventUpgradeManager.cs" />
     <Compile Include="EventStores\IEventUpgrader.cs" />
+    <Compile Include="Snapshots\ISnapshotUpgrader.cs" />
+    <Compile Include="Snapshots\Stores\InMemory\InMemorySnapshotPersistence.cs" />
+    <Compile Include="Snapshots\CommittedSnapshot.cs" />
+    <Compile Include="Snapshots\ISnapshotSerilizer.cs" />
+    <Compile Include="Snapshots\ISnapshotMetadata.cs" />
+    <Compile Include="Snapshots\Stores\ISnapshotPersistence.cs" />
+    <Compile Include="Snapshots\ISnapshotUpgradeService.cs" />
+    <Compile Include="Snapshots\SerializedSnapshot.cs" />
+    <Compile Include="Snapshots\SnapshotContainer.cs" />
+    <Compile Include="Snapshots\SnapshotSerilizer.cs" />
+    <Compile Include="Snapshots\SnapshotMetadata.cs" />
+    <Compile Include="Snapshots\SnapshotMetadataKeys.cs" />
+    <Compile Include="Snapshots\Stores\Null\NullSnapshotPersistence.cs" />
+    <Compile Include="Snapshots\SnapshotStore.cs" />
     <Compile Include="EventStores\ISerializedEvent.cs" />
+    <Compile Include="Snapshots\ISnapshot.cs" />
+    <Compile Include="Snapshots\ISnapshotDefinitionService.cs" />
+    <Compile Include="Snapshots\ISnapshotStore.cs" />
+    <Compile Include="Snapshots\SnapshotDefinition.cs" />
+    <Compile Include="Snapshots\SnapshotUpgradeService.cs" />
+    <Compile Include="Snapshots\SnapshotVersionAttribute.cs" />
+    <Compile Include="Snapshots\SnapshotDefinitionService.cs" />
     <Compile Include="Exceptions\DomainError.cs" />
     <Compile Include="Exceptions\DuplicateOperationException.cs" />
     <Compile Include="Exceptions\MetadataKeyNotFoundException.cs" />
@@ -153,6 +189,7 @@
     <Compile Include="Extensions\EventFlowOptionsEventsExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventStoresExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsEventUpgradersExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsSnapshotExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsJobExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
@@ -213,6 +250,9 @@
     <Compile Include="Sagas\ISagaProcessor.cs" />
     <Compile Include="Sagas\SagaProcessor.cs" />
     <Compile Include="Sagas\SagaTypeDetails.cs" />
+    <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
+    <Compile Include="Snapshots\Strategies\SnapshotEveryFewVersionsStrategy.cs" />
+    <Compile Include="Snapshots\Strategies\SnapshotRandomlyStrategy.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Specification.cs" />
     <Compile Include="Sagas\ISaga.cs" />

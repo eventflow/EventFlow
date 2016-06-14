@@ -22,10 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using EventFlow.Core;
+using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.Aggregates
 {
-    public interface IAggregateEvent
+    public interface IAggregateEvent : IVersionedType
     {
     }
 

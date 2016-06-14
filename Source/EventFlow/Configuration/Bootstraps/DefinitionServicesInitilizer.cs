@@ -28,6 +28,7 @@ using EventFlow.Commands;
 using EventFlow.EventStores;
 using EventFlow.Jobs;
 using EventFlow.Sagas;
+using EventFlow.Snapshots;
 
 namespace EventFlow.Configuration.Bootstraps
 {
@@ -37,6 +38,7 @@ namespace EventFlow.Configuration.Bootstraps
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly ISagaDefinitionService _sagaDefinitionService;
+        private readonly ISnapshotDefinitionService _snapshotDefinitionService;
         private readonly ILoadedVersionedTypes _loadedVersionedTypes;
 
         public DefinitionServicesInitilizer(
@@ -44,13 +46,15 @@ namespace EventFlow.Configuration.Bootstraps
             IEventDefinitionService eventDefinitionService,
             ICommandDefinitionService commandDefinitionService,
             IJobDefinitionService jobDefinitionService,
-            ISagaDefinitionService sagaDefinitionService)
+            ISagaDefinitionService sagaDefinitionService,
+            ISnapshotDefinitionService snapshotDefinitionService)
         {
             _loadedVersionedTypes = loadedVersionedTypes;
             _eventDefinitionService = eventDefinitionService;
             _commandDefinitionService = commandDefinitionService;
             _jobDefinitionService = jobDefinitionService;
             _sagaDefinitionService = sagaDefinitionService;
+            _snapshotDefinitionService = snapshotDefinitionService;
         }
 
         public Task BootAsync(CancellationToken cancellationToken)
@@ -59,6 +63,7 @@ namespace EventFlow.Configuration.Bootstraps
             _eventDefinitionService.Load(_loadedVersionedTypes.Events);
             _jobDefinitionService.Load(_loadedVersionedTypes.Jobs);
             _sagaDefinitionService.LoadSagas(_loadedVersionedTypes.Sagas);
+            _snapshotDefinitionService.Load(_loadedVersionedTypes.SnapshotTypes);
 
             return Task.FromResult(0);
         }
