@@ -32,7 +32,7 @@ group Build
 
 	nuget FAKE 4.14.5
 	nuget ilmerge 2.14.1208
-	nuget NUnit.Runners 2.6.4
+	nuget NUnit.ConsoleRunner ~> 3.0
 
 
 group Test
@@ -45,4 +45,4 @@ group Test
 	nuget Helpz 0.1.8 framework: >= net451
 	nuget Moq 4.2.1510.2205
 	nuget OpenCover
-	nuget NUnit 2.6.4
+	nuget NUnit ~> 3.0

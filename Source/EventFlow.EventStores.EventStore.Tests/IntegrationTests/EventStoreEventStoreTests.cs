@@ -41,13 +41,13 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
     {
         private EventStoreRunner.EventStoreInstance _eventStoreInstance;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _eventStoreInstance = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
             _eventStoreInstance.DisposeSafe("EventStore shutdown");
