@@ -41,7 +41,7 @@ Target "Test" (fun _ ->
     OpenCover
         (fun p -> { 
             p with 
-                ExePath = "./packages/test/OpenCover/tools/OpenCover.Console.exe"
+                ExePath = "./packages/build/OpenCover/tools/OpenCover.Console.exe"
                 TestRunnerExePath = "./packages/build/NUnit.ConsoleRunner/tools/nunit3-console.exe"
                 Output = dirReports + "/opencover-results.xml"
                 TimeOut = TimeSpan.FromMinutes 30.0;
