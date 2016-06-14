@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Sagas
 {
+    [Category(Categories.Unit)]
     public class SagaDefinitionServiceTests : TestsFor<SagaDefinitionService>
     {
         [TestCase(typeof(SagaTestClasses.SagaTestEventA))]
