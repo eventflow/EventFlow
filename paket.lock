@@ -1,4 +1,4 @@
-REDIRECTS: OFF
+REDIRECTS: ON
 NUGET
   remote: https://www.nuget.org/api/v2
     Autofac (3.5.2)
