@@ -47,7 +47,6 @@
     <Compile Include="EventStoreRunner.cs" />
     <Compile Include="IntegrationTests\EventStoreEventStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TcpHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.EventStores.EventStore\EventFlow.EventStores.EventStore.csproj">

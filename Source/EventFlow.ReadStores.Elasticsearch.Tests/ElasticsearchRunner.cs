@@ -24,16 +24,142 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using NUnit.Framework;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests
 {
     public class ElasticsearchRunner : Runner
     {
         protected override string SoftwareName { get; } = "Elasticsearch";
+
         protected override IEnumerable<SoftwareDescription> SoftwareDescriptions { get; } = new[]
             {
-                new SoftwareDescription(new Version(2, 3, 3), new Uri("https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip", UriKind.Absolute)), 
+                new SoftwareDescription(new Version(1, 7, 5), new Uri("https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.5.zip")), 
+                //new SoftwareDescription(new Version(2, 3, 3), new Uri("https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip", UriKind.Absolute))
             };
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class ClusterHealth
+        {
+            public string Status { get; }
+
+            public ClusterHealth(
+                string status)
+            {
+                Status = status;
+            }
+        }
+
+        public class ElasticsearchInstance : IDisposable
+        {
+            private readonly IDisposable _processDisposable;
+
+            public ElasticsearchInstance(
+                Uri uri,
+                IDisposable processDisposable)
+            {
+                Uri = uri;
+                _processDisposable = processDisposable;
+            }
+
+            public Uri Uri { get; }
+
+            public async Task<string> GetStatusAsync()
+            {
+                var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health"));
+                return clusterHealth.Status;
+            }
+
+            public Task WaitForGeenStateAsync()
+            {
+                return WaitHelper.WaitAsync(TimeSpan.FromMinutes(1), async () =>
+                    {
+                        var status = await GetStatusAsync().ConfigureAwait(false);
+                        return status == "green";
+                    });
+            }
+
+            public async Task DeleteEverythingAsync()
+            {
+                await HttpHelper.DeleteAsync(new Uri(Uri, "*")).ConfigureAwait(false);
+                await WaitForGeenStateAsync().ConfigureAwait(false);
+            }
+
+            public void Dispose()
+            {
+                _processDisposable.Dispose();
+            }
+        }
+
+        [Test, Explicit("Used to test the Elasticsearch runner")]
+        [Timeout(60000)]
+        public async Task TestRunner()
+        {
+            using (await StartAsync().ConfigureAwait(false))
+            {
+                // Put Elasticsearch usage here...
+                Thread.Sleep(TimeSpan.FromSeconds(0.5));
+            }
+        }
+
+        public static Task<ElasticsearchInstance> StartAsync()
+        {
+            return new ElasticsearchRunner().InternalStartAsync();
+        }
+
+        private async Task<ElasticsearchInstance> InternalStartAsync()
+        {
+            var softwareDescription = SoftwareDescriptions.OrderByDescending(kv => kv.Version).First();
+            var installPath = await InstallAsync(softwareDescription.Version).ConfigureAwait(false);
+            var version = softwareDescription.Version;
+            installPath = Path.Combine(installPath, $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
+
+            var tcpPort = TcpHelper.GetFreePort();
+            var exePath = Path.Combine(installPath, "bin", "elasticsearch.bat");
+            var nodeName = $"node-{Guid.NewGuid().ToString("N")}";
+
+            var settings = new Dictionary<string, string>
+                {
+                    {"http.port", tcpPort.ToString()},
+                    {"node.name", nodeName},
+                    {"index.number_of_shards", "1"},
+                    {"index.number_of_replicas", "0"},
+                    {"gateway.expected_nodes", "1"},
+                    {"discovery.zen.ping.multicast.enabled", "false"}
+                };
+            var configFilePath = Path.Combine(installPath, "config", "elasticsearch.yml");
+            if (!File.Exists(configFilePath))
+            {
+                throw new ApplicationException($"Could not find config file at '{configFilePath}'");
+            }
+            File.WriteAllLines(configFilePath, settings.Select(kv => $"{kv.Key}: {kv.Value}"));
+
+            IDisposable processDisposable = null;
+            try
+            {
+                processDisposable = StartExe(exePath,
+                    $"[${nodeName}] started");
+
+                var elasticsearchInstance = new ElasticsearchInstance(
+                    new Uri($"http://127.0.0.1:{tcpPort}"),
+                    processDisposable);
+
+                await elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
+                await elasticsearchInstance.DeleteEverythingAsync().ConfigureAwait(false);
+
+                return elasticsearchInstance;
+            }
+            catch (Exception)
+            {
+                processDisposable.DisposeSafe("Failed to dispose Elasticsearch process");
+                throw;
+            }
+        }
     }
 }
