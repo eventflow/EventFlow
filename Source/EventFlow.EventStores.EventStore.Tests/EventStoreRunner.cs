@@ -86,17 +86,18 @@ namespace EventFlow.EventStores.EventStore.Tests
         private async Task<EventStoreInstance> InternalStartAsync()
         {
             var eventStoreVersion = SoftwareDescriptions.OrderByDescending(kv => kv.Version).First();
-            await InstallEventStoreAsync(eventStoreVersion.Version).ConfigureAwait(false);
+            var eventStorePath = await InstallAsync(eventStoreVersion.Version).ConfigureAwait(false);
 
             var tcpPort = TcpHelper.GetFreePort();
             var httpPort = TcpHelper.GetFreePort();
             var connectionStringUri = new Uri($"tcp://admin:changeit@{IPAddress.Loopback}:{tcpPort}");
+            var exePath = Path.Combine(eventStorePath, "EventStore.ClusterNode.exe");
 
             IDisposable processDisposable = null;
             try
             {
                 processDisposable = StartExe(
-                    Path.Combine(GetEventStorePath(eventStoreVersion.Version), "EventStore.ClusterNode.exe"),
+                    exePath,
                     "'admin' user added to $users",
                     "--mem-db=True",
                     "--cluster-size=1",

@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElasticsearchRunner.cs" />
     <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetMessagesQueryHandler.cs" />
     <Compile Include="IntegrationTests\QueryHandlers\ElasticsearchThingyGetVersionQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadModels\ElasticsearchThingyReadModel.cs" />

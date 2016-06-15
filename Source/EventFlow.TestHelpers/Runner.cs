@@ -111,12 +111,12 @@ namespace EventFlow.TestHelpers
                 });
         }
 
-        protected async Task InstallEventStoreAsync(Version version)
+        protected async Task<string> InstallAsync(Version version)
         {
-            if (IsEventStoreInstalled(version))
+            if (IsInstalled(version))
             {
                 Console.WriteLine($"{SoftwareName} v'{version}' is already installed");
-                return;
+                return GetInstallPath(version);
             }
 
             Console.WriteLine($"{SoftwareName} v{version} not installed, installing it");
@@ -128,8 +128,9 @@ namespace EventFlow.TestHelpers
             {
                 var softwareDescription = SoftwareDescriptions.Single(d => d.Version == version);
                 await DownloadFileAsync(softwareDescription.DownloadUri, tempDownload).ConfigureAwait(false);
-                var eventStorePath = GetEventStorePath(version);
-                ExtractZipFile(tempDownload, eventStorePath);
+                var installPath = GetInstallPath(version);
+                ExtractZipFile(tempDownload, installPath);
+                return installPath;
             }
             finally
             {
@@ -152,12 +153,12 @@ namespace EventFlow.TestHelpers
             ZipFile.ExtractToDirectory(zipSourcePath, directoryDestinationPath);
         }
 
-        private bool IsEventStoreInstalled(Version version)
+        private bool IsInstalled(Version version)
         {
-            return Directory.Exists(GetEventStorePath(version));
+            return Directory.Exists(GetInstallPath(version));
         }
 
-        protected string GetEventStorePath(Version version)
+        protected string GetInstallPath(Version version)
         {
             return Path.Combine(
                 Path.GetTempPath(),
