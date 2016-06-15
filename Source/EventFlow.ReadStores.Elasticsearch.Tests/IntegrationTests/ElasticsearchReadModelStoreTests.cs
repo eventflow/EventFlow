@@ -44,6 +44,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
     {
         private IElasticClient _elasticClient;
         private IReadModelDescriptionProvider _readModelDescriptionProvider;
+        private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
 
         public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
         {
@@ -64,21 +65,14 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            // Disable SSL certificate validation
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-
-            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
-            if (string.IsNullOrEmpty(url))
-            {
-                Assert.Inconclusive("The environment variabel named 'ELASTICSEARCH_URL' isn't set. Set it to e.g. 'http://localhost:9200'");
-            }
+            _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
 
             var indexName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
             var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(indexName);
 
             var resolver = eventFlowOptions
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .ConfigureElasticsearch(new Uri(url))
+                .ConfigureElasticsearch(_elasticsearchInstance.Uri)
                 .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
@@ -116,8 +110,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
             {
                 var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
                 var indexName = readModelDescription.IndexName.Value;
-                Console.WriteLine("Deleting test index '{0}'", indexName);
+                Console.WriteLine($"Deleting test index '{indexName}'");
                 _elasticClient.DeleteIndex(indexName);
+                _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
             }
             catch (Exception e)
             {
