@@ -21,15 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
-using EventFlow.Extensions;
 
-namespace EventFlow.EventStores.MsSql.Extensions
+using System;
+using EventFlow.Sql.ReadModels.Attributes;
+
+namespace EventFlow.MsSql.ReadStores.Attributes
 {
-    public static class EventFlowOptionsExtensions
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class MsSqlReadModelIgnoreColumnAttribute : SqlReadModelIgnoreColumnAttribute
     {
-        public static IEventFlowOptions UseMssqlEventStore(this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.UseEventStore<MsSqlEventPersistence>();
-        }
     }
 }

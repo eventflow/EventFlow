@@ -23,13 +23,12 @@
 // 
 
 using System;
-using EventFlow.Sql.ReadModels;
 using EventFlow.Sql.ReadModels.Attributes;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.MsSql.ReadStores.Attributes
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelVersionColumnAttribute : SqlReadModelVersionColumnAttribute
+    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
     {
     }
 }

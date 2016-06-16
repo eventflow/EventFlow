@@ -35,8 +35,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
             this IEventFlowOptions eventFlowOptions,
             params Uri[] uris)
         {
-            var connectionSettings = new ConnectionSettings(new StaticConnectionPool(uris))
+            var connectionSettings = new ConnectionSettings(new SniffingConnectionPool(uris))
                 .ThrowOnElasticsearchServerExceptions()
+                .SniffLifeSpan(TimeSpan.FromMinutes(5))
                 .DisablePing();
 
             return eventFlowOptions

@@ -20,27 +20,47 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
-using System.Reflection;
-using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
+using System.Linq;
+using EventFlow.Extensions;
+using EventFlow.MsSql.EventStores;
+using EventFlow.TestHelpers;
+using Helpz.MsSql;
+using NUnit.Framework;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
 {
-    public static class EventFlowSnapshotStoresMsSql
+    [Category(Categories.Integration)]
+    public class MsSqlScriptsTests
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).Assembly;
+        private IMsSqlDatabase _msSqlDatabase;
 
-        public static IEnumerable<SqlScript> GetSqlScripts()
+        [Test]
+        public void SqlScriptsAreIdempotent()
         {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
+            // Arrange
+            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
+
+            // Act
+            foreach (var _ in Enumerable.Range(0, 2))
+            {
+                foreach (var sqlScript in sqlScripts)
+                {
+                    _msSqlDatabase.Execute(sqlScript.Content);
+                }
+            }
         }
 
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
+        [SetUp]
+        public void SetUp()
         {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+            _msSqlDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+        }
+
+        public void TearDown()
+        {
+            _msSqlDatabase.DisposeSafe("MSSQL database");
         }
     }
 }
