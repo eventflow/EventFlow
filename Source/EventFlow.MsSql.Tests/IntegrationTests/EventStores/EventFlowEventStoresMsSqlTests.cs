@@ -22,19 +22,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Reflection;
-using EventFlow.MsSql;
-using EventFlow.Sql;
+using System.Linq;
+using EventFlow.MsSql.EventStores;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.EventStores.MsSql
+namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
 {
-    public static class EventFlowEventStoresMsSql
+    [Category(Categories.Integration)]
+    public class EventFlowEventStoresMsSqlTests
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
-
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
+        [Test]
+        public void GetSqlScripts()
         {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
+            // Act
+            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToDictionary(s => s.Name, s => s);
+
+            // Assert
+            sqlScripts.Should().HaveCount(2);
+            sqlScripts.Should().ContainKey("EventStores.Scripts.0001 - Create table EventFlow.sql");
+            sqlScripts.Should().ContainKey("EventStores.Scripts.0002 - Create eventdatamodel_list_type.sql");
         }
     }
 }

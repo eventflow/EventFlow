@@ -1,4 +1,18 @@
-### New in 0.29 (not released yet)
+### New in 0.30 (not released yet)
+
+* Breaking: To simplify the EventFlow NuGet package structure, the two NuGet
+  packages `EventFlow.EventStores.MsSql` and `EventFlow.ReadStores.MsSql` have
+  been discontinued and their functionality move to the existing package
+  `EventFlow.MsSql`. The embedded SQL scripts have been made idempotent making
+  the upgrade a simple operation of merely using the new name spaces. To make
+  the upgrade easier, the deprecated NuGet packages will still be uploaded,
+  but will not contain anything
+* Fixed: When configuring Elasticsearch and using the overload of
+  `ConfigureElasticsearch` that takes multiple of URLs, `SniffingConnectionPool`
+  is now used instead of `StaticConnectionPool` and with sniff life span of five
+  minutes
+
+### New in 0.29.1973 (released 2016-04-19)
 
 * Breaking: `IAggregateRoot` has some breaking changes. If these methods aren't
   used (which is considered the typical case), then the base class

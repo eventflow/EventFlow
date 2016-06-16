@@ -24,8 +24,8 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
+using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
-using EventFlow.ReadStores.MsSql.Attributes;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
