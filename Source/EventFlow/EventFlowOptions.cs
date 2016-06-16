@@ -214,6 +214,7 @@ namespace EventFlow
             serviceRegistration.Register<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
+            serviceRegistration.Register<ISagaStore, SagaStore>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaManager, SagaManager>();
             serviceRegistration.RegisterGeneric(typeof(ISagaProcessor<,,,>), typeof(SagaProcessor<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);

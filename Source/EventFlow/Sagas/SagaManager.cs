@@ -39,17 +39,20 @@ namespace EventFlow.Sagas
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IEventStore _eventStore;
+        private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
 
         public SagaManager(
             ILog log,
             IResolver resolver,
             IEventStore eventStore,
+            ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService)
         {
             _log = log;
             _resolver = resolver;
             _eventStore = eventStore;
+            _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
         }
 
@@ -78,7 +81,7 @@ namespace EventFlow.Sagas
 
                 try
                 {
-                    var saga = await details.LoadSagaAsync(_eventStore, sagaId, cancellationToken).ConfigureAwait(false);
+                    var saga = await _sagaStore.LoadAsync(sagaId, details, cancellationToken).ConfigureAwait(false);
                     if (saga.IsNew && !details.IsStartedBy(domainEvent.EventType))
                     {
                         _log.Debug(() => $"Saga '{details.SagaType.PrettyPrint()}' isn't started yet, skipping processing of '{domainEvent.EventType.PrettyPrint()}'");

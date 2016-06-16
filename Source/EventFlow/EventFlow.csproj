@@ -62,6 +62,8 @@
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Sagas\ISagaStore.cs" />
+    <Compile Include="Sagas\SagaStore.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
     <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />

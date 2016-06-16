@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 //
 // Copyright (c) 2015-2016 Rasmus Mikkelsen
 // Copyright (c) 2015-2016 eBay Software Foundation
@@ -22,32 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Sagas
 {
-    public class SagaTypeDetails
+    public interface ISagaStore
     {
-        private readonly ISet<Type> _startedBy;
-
-        public SagaTypeDetails(
-            Type sagaType,
-            Type sagaLocatorType,
-            IEnumerable<Type> startedBy)
-        {
-            _startedBy = new HashSet<Type>(startedBy);
-
-            SagaType = sagaType;
-            SagaLocatorType = sagaLocatorType;
-        }
-
-        public Type SagaType { get; }
-        public Type SagaLocatorType { get; }
-
-        public bool IsStartedBy(Type aggregateEventType)
-        {
-            return _startedBy.Contains(aggregateEventType);
-        }
+        Task<ISaga> LoadAsync(ISagaId sagaId, SagaTypeDetails sagaTypeDetails, CancellationToken cancellationToken);
     }
 }

@@ -20,45 +20,49 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
-    public abstract class Saga<TSaga, TIdentity, TLocator> : AggregateRoot<TSaga, TIdentity>, ISaga<TIdentity, TLocator>
-        where TSaga : Saga<TSaga, TIdentity, TLocator>
-        where TIdentity : ISagaId
-        where TLocator : ISagaLocator
+    public class SagaStore : ISagaStore
     {
-        private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
+        private readonly IAggregateStore _aggregateStore;
 
-        protected Saga(TIdentity id) : base(id)
+        public SagaStore(
+            IAggregateStore aggregateStore)
         {
+            _aggregateStore = aggregateStore;
         }
 
-        protected void Schedule<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
-            ICommand<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity> command)
-            where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
-            where TCommandAggregateIdentity : IIdentity
-            where TCommandSourceIdentity : ISourceId
+        public Task<ISaga> LoadAsync(ISagaId sagaId, SagaTypeDetails sagaTypeDetails, CancellationToken cancellationToken)
         {
-            _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
+            var aggregateRootType = sagaTypeDetails.SagaType.GetInterfaces()
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+
+            if (aggregateRootType == null) throw new ArgumentException($"Saga '{sagaTypeDetails.SagaType.PrettyPrint()}' is not a aggregate root");
+
+            var methodInfo = GetType().GetMethod("LoadAggregateSagaAsync");
+            var identityType = aggregateRootType.GetGenericArguments()[0];
+            var genericMethodInfo = methodInfo.MakeGenericMethod(sagaTypeDetails.SagaType, identityType);
+
+            return (Task<ISaga>) genericMethodInfo.Invoke(this, new object[] {sagaId, cancellationToken});
         }
 
-        public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public async Task<ISaga> LoadAggregateSagaAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>, ISaga
+            where TIdentity : IIdentity
         {
-            foreach (var unpublishedCommand in _unpublishedCommands.ToList())
-            {
-                await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
-                _unpublishedCommands.Remove(unpublishedCommand);
-            }
+            return await _aggregateStore.LoadAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
         }
     }
 }

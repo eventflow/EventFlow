@@ -45,17 +45,17 @@ namespace EventFlow.Tests.UnitTests.Sagas
         {
             _resolver = EventFlowOptions.New
                 .AddAggregateRoots(
-                    typeof (SagaTestClasses.SagaTestAggregate),
-                    typeof (SagaTestClasses.TestSaga))
+                    typeof(SagaTestClasses.SagaTestAggregate),
+                    typeof(SagaTestClasses.TestSaga))
                 .AddSagas(typeof (SagaTestClasses.TestSaga))
                 .AddCommandHandlers(
-                    typeof (SagaTestClasses.SagaTestACommandHandler),
-                    typeof (SagaTestClasses.SagaTestBCommandHandler),
-                    typeof (SagaTestClasses.SagaTestCCommandHandler))
+                    typeof(SagaTestClasses.SagaTestACommandHandler),
+                    typeof(SagaTestClasses.SagaTestBCommandHandler),
+                    typeof(SagaTestClasses.SagaTestCCommandHandler))
                 .AddEvents(
-                    typeof (SagaTestClasses.SagaTestEventA),
-                    typeof (SagaTestClasses.SagaTestEventB),
-                    typeof (SagaTestClasses.SagaTestEventC),
+                    typeof(SagaTestClasses.SagaTestEventA),
+                    typeof(SagaTestClasses.SagaTestEventB),
+                    typeof(SagaTestClasses.SagaTestEventC),
                     typeof(SagaTestClasses.SagaEventA),
                     typeof(SagaTestClasses.SagaEventB),
                     typeof(SagaTestClasses.SagaEventC))
