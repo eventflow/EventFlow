@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -38,20 +37,17 @@ namespace EventFlow.Sagas
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
-        private readonly IEventStore _eventStore;
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
 
         public SagaManager(
             ILog log,
             IResolver resolver,
-            IEventStore eventStore,
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService)
         {
             _log = log;
             _resolver = resolver;
-            _eventStore = eventStore;
             _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
         }

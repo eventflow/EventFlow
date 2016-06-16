@@ -43,7 +43,7 @@ namespace EventFlow.Sagas
         {
         }
 
-        protected void Schedule<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
+        protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
             ICommand<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity> command)
             where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
             where TCommandAggregateIdentity : IIdentity
