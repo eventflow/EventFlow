@@ -1,4 +1,8 @@
-### New in 0.30 (not released yet)
+### New in 0.31 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.30.2019 (released 2016-06-16)
 
 * Breaking: To simplify the EventFlow NuGet package structure, the two NuGet
   packages `EventFlow.EventStores.MsSql` and `EventFlow.ReadStores.MsSql` have
