@@ -90,6 +90,8 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
                 .Index(indexName)
                 .MapFromAttributes());
 
+            _elasticsearchInstance.WaitForGeenStateAsync().Wait(TimeSpan.FromMinutes(1));
+
             return resolver;
         }
 
