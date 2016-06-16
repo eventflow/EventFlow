@@ -7,6 +7,10 @@
   the upgrade a simple operation of merely using the new name spaces. To make
   the upgrade easier, the deprecated NuGet packages will still be uploaded,
   but will not contain anything
+* Fixed: When configuring Elasticsearch and using the overload of
+  `ConfigureElasticsearch` that takes multiple of URLs, `SniffingConnectionPool`
+  is now used instead of `StaticConnectionPool` and with sniff life span of five
+  minutes
 
 ### New in 0.29.1973 (released 2016-04-19)
 
