@@ -115,6 +115,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests
 
         private async Task<ElasticsearchInstance> InternalStartAsync()
         {
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JAVA_HOME")))
+                throw new InvalidOperationException("The 'JAVA_HOME' environment variable is required");
+
             var softwareDescription = SoftwareDescriptions.OrderByDescending(kv => kv.Version).First();
             var installPath = await InstallAsync(softwareDescription.Version).ConfigureAwait(false);
             var version = softwareDescription.Version;
