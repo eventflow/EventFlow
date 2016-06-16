@@ -42,13 +42,13 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
         private EventStoreRunner.EventStoreInstance _eventStoreInstance;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public void OneTimeSetUp()
         {
             _eventStoreInstance = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
         }
 
         [OneTimeTearDown]
-        public void TearDown()
+        public void OneTimeTearDown()
         {
             _eventStoreInstance.DisposeSafe("EventStore shutdown");
         }
