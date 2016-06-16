@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
@@ -36,7 +38,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
     {
         private IRootResolver _resolver;
         private ICommandBus _commandBus;
-        private IEventStore _eventStore;
+        private IAggregateStore _aggregateStore;
 
         [SetUp]
         public void SetUp()
@@ -64,11 +66,11 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 .CreateResolver(false);
 
             _commandBus = _resolver.Resolve<ICommandBus>();
-            _eventStore = _resolver.Resolve<IEventStore>();
+            _aggregateStore = _resolver.Resolve<IAggregateStore>();
         }
 
         [Test]
-        public void StartedByCorrectly()
+        public async Task StartedByCorrectly()
         {
             // Arrange
             var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
@@ -77,17 +79,14 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _commandBus.Publish(new SagaTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
 
             // Assert
-#pragma warning disable 618
-            // TODO: Fix
-            var testAggregate = _eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
-#pragma warning restore 618
+            var testAggregate = await _aggregateStore.LoadAsync<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
             testAggregate.As.Should().Be(1);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(1);
         }
 
         [Test]
-        public void NotStarted()
+        public async Task NotStarted()
         {
             // Arrange
             var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
@@ -96,10 +95,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _commandBus.Publish(new SagaTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
 
             // Assert
-#pragma warning disable 618
-            // TODO: Fix
-            var testAggregate = _eventStore.LoadAggregate<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
-#pragma warning restore 618
+            var testAggregate = await _aggregateStore.LoadAsync<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
             testAggregate.As.Should().Be(0);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(0);
