@@ -1,6 +1,6 @@
 ### New in 0.31 (not released yet)
 
-* New: Added a `ICommandScheduler` enabling easy scheduling of commands
+* New: Added an `ICommandScheduler` for easy scheduling of commands
 
 ### New in 0.30.2019 (released 2016-06-16)
 
