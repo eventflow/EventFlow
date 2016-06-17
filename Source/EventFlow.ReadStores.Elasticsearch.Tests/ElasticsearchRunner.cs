@@ -34,6 +34,7 @@ using NUnit.Framework;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests
 {
+    [Category(Categories.Integration)]
     public class ElasticsearchRunner : Runner
     {
         protected override string SoftwareName { get; } = "Elasticsearch";
