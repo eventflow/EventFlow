@@ -135,7 +135,8 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests
                     {"index.number_of_shards", "1"},
                     {"index.number_of_replicas", "0"},
                     {"gateway.expected_nodes", "1"},
-                    {"discovery.zen.ping.multicast.enabled", "false"}
+                    {"discovery.zen.ping.multicast.enabled", "false"},
+                    {"cluster.routing.allocation.disk.threshold_enabled", "false"}
                 };
             var configFilePath = Path.Combine(installPath, "config", "elasticsearch.yml");
             if (!File.Exists(configFilePath))
