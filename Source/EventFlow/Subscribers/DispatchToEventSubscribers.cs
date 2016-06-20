@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -56,8 +57,12 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
         }
 
-        public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        public async Task DispatchAsync(
+            IEnumerable<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
+            var list = new List<Exception>();
+
             foreach (var domainEvent in domainEvents)
             {
                 var subscriberInfomation = GetSubscriberInfomation(domainEvent.GetType());
@@ -65,11 +70,28 @@ namespace EventFlow.Subscribers
                 var subscriberDispatchTasks = subscribers
                     .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent, cancellationToken))
                     .ToList();
-                await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    list.Add(exception);
+                }
+            }
+
+            if (list.Any())
+            {
+                throw new AggregateException(list).Flatten();
             }
         }
 
-        private async Task DispatchToSubscriberAsync(object handler, SubscriberInfomation subscriberInfomation, IDomainEvent domainEvent, CancellationToken cancellationToken)
+        private async Task DispatchToSubscriberAsync(
+            object handler,
+            SubscriberInfomation subscriberInfomation,
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -83,8 +105,8 @@ namespace EventFlow.Subscribers
             {
                 _log.Error(
                     exception,
-                    "Failed to dispatch to event handler {0}",
-                    handler.GetType().PrettyPrint());
+                    $"Failed to dispatch to event handler '{handler.GetType().PrettyPrint()}' for event '{domainEvent.EventType.PrettyPrint()}' due to unexpected exception!");
+                throw;
             }
         }
 
