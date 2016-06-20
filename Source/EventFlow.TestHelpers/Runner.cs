@@ -28,10 +28,12 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Management;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores.EventStore.Tests.Extensions;
+using EventFlow.Extensions;
 
 namespace EventFlow.TestHelpers
 {
@@ -71,22 +73,22 @@ namespace EventFlow.TestHelpers
                     }
                 };
             var exeName = Path.GetFileName(exePath);
-            process.OutputDataReceived += (sender, eventArgs) =>
+            DataReceivedEventHandler outHandler = (sender, e) =>
                 {
-                    if (string.IsNullOrEmpty(eventArgs.Data))
+                    if (!string.IsNullOrEmpty(e.Data))
                     {
-                        return;
+                        Console.WriteLine($"OUT - {exeName}: {e.Data}");
                     }
-                    Console.WriteLine($"OUT - {exeName}: {eventArgs.Data}");
                 };
-            process.ErrorDataReceived += (sender, eventArgs) =>
+            process.OutputDataReceived += outHandler;
+            DataReceivedEventHandler errHandler = (sender, e) =>
                 {
-                    if (string.IsNullOrEmpty(eventArgs.Data))
+                    if (!string.IsNullOrEmpty(e.Data))
                     {
-                        return;
+                        Console.WriteLine($"ERR - {exeName}: {e.Data}");
                     }
-                    Console.WriteLine($"ERR - {exeName}: {eventArgs.Data}");
                 };
+            process.ErrorDataReceived += errHandler;
             Action<Process> initializeProcess = p =>
                 {
                     Console.WriteLine($"{exeName} START =======================================");
@@ -100,15 +102,40 @@ namespace EventFlow.TestHelpers
                 {
                     try
                     {
-                        process.Kill();
-                        process.WaitForExit(10000);
-                        Console.WriteLine($"{process.ProcessName} KILLED  =======================================");
+                        process.OutputDataReceived -= outHandler;
+                        process.ErrorDataReceived -= errHandler;
+
+                        KillProcessAndChildren(process.Id);
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine($"Failed to kill process: {e.Message}");
                     }
+                    finally
+                    {
+                        process.DisposeSafe("Process");
+                    }
                 });
+        }
+
+        private static void KillProcessAndChildren(int pid)
+        {
+            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
+            var moc = searcher.Get();
+            foreach (var o in moc)
+            {
+                var mo = (ManagementObject) o;
+                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+            }
+            try
+            {
+                var proc = Process.GetProcessById(pid);
+                proc.Kill();
+            }
+            catch (ArgumentException)
+            {
+                // Process already exited.
+            }
         }
 
         protected async Task<string> InstallAsync(Version version)
