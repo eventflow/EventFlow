@@ -23,7 +23,6 @@
 // 
 
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -88,7 +87,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
             _elasticClient.CreateIndex(indexName);
             _elasticClient.Map<ElasticsearchThingyMessageReadModel>(d => d
                 .Index(indexName)
-                .MapFromAttributes());
+                .AutoMap());
 
             _elasticsearchInstance.WaitForGeenStateAsync().Wait(TimeSpan.FromMinutes(1));
 

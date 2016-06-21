@@ -30,18 +30,18 @@ using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
-    [ElasticType(IdProperty = "Id", Name = "message")]
+    [ElasticsearchType(IdProperty = "Id", Name = "message")]
     public class ElasticsearchThingyMessageReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
         public string Id { get; set; }
 
-        [ElasticProperty(
+        [String(
             Name = "ThingyId",
             Index = FieldIndexOption.NotAnalyzed)]
         public string ThingyId { get; set; }
 
-        [ElasticProperty(
+        [String(
             Name = "Message",
             Index = FieldIndexOption.No)]
         public string Message { get; set; }

@@ -41,8 +41,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests
 
         protected override IEnumerable<SoftwareDescription> SoftwareDescriptions { get; } = new[]
             {
-                new SoftwareDescription(new Version(1, 7, 5), new Uri("https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.5.zip")), 
-                //new SoftwareDescription(new Version(2, 3, 3), new Uri("https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip", UriKind.Absolute))
+                new SoftwareDescription(new Version(2, 3, 3), new Uri("https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip", UriKind.Absolute))
             };
 
         // ReSharper disable once ClassNeverInstantiated.Local

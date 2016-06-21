@@ -23,7 +23,7 @@
 //
 
 using System;
-using Elasticsearch.Net.ConnectionPool;
+using Elasticsearch.Net;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using Nest;
@@ -37,7 +37,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
             params Uri[] uris)
         {
             var connectionSettings = new ConnectionSettings(new SniffingConnectionPool(uris))
-                .ThrowOnElasticsearchServerExceptions()
+                .ThrowExceptions()
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
                 .DisablePing();
 

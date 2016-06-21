@@ -53,8 +53,8 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandler
             var indexName = readModelDescription.IndexName.Value;
 
             // Never do this
-            await _elasticClient.FlushAsync(d => d.Index(indexName)).ConfigureAwait(false);
-            await _elasticClient.RefreshAsync(d => d.Index(indexName)).ConfigureAwait(false);
+            await _elasticClient.FlushAsync(indexName).ConfigureAwait(false);
+            await _elasticClient.RefreshAsync(indexName).ConfigureAwait(false);
 
             var searchResponse = await _elasticClient.SearchAsync<ElasticsearchThingyMessageReadModel>(d => d
                 .Index(indexName)

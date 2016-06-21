@@ -49,10 +49,10 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandler
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
             var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
                 query.ThingyId.Value,
-                readModelDescription.IndexName.Value)
+                d => d.Index(readModelDescription.IndexName.Value))
                 .ConfigureAwait(false);
             return getResponse != null && getResponse.Found
-                ? long.Parse(getResponse.Version)
+                ? getResponse.Version
                 : null as long?;
         }
     }

@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +63,7 @@ namespace EventFlow.ReadStores.Elasticsearch
 
             var getResponse = await _elasticClient.GetAsync<TReadModel>(
                 id,
-                readModelDescription.IndexName.Value)
+                d => d.Index(readModelDescription.IndexName.Value))
                 .ConfigureAwait(false);
 
             if (!getResponse.IsValid || !getResponse.Found)
@@ -70,8 +71,7 @@ namespace EventFlow.ReadStores.Elasticsearch
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
-            var version = long.Parse(getResponse.Version);
-            return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, version);
+            return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, getResponse.Version);
         }
 
         public Task DeleteAllAsync(
@@ -81,10 +81,10 @@ namespace EventFlow.ReadStores.Elasticsearch
 
             _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' read models from index '{readModelDescription.IndexName}'");
 
-            return _elasticClient.DeleteByQueryAsync<TReadModel>(d => d
-                .Index(readModelDescription.IndexName.Value)
-                .Type<TReadModel>()
-                .Query(q => q.MatchAll()));
+            return _elasticClient.DeleteByQueryAsync<TReadModel>(
+                readModelDescription.IndexName.Value,
+                Types.Type<TReadModel>(), 
+                d => d.Query(q => q.MatchAll()));
         }
 
         public async Task UpdateAsync(
@@ -105,11 +105,11 @@ namespace EventFlow.ReadStores.Elasticsearch
             {
                 var response = await _elasticClient.GetAsync<TReadModel>(
                     readModelUpdate.ReadModelId,
-                    readModelDescription.IndexName.Value)
+                    d => d.Index(readModelDescription.IndexName.Value))
                     .ConfigureAwait(false);
 
                 var readModelEnvelope = response.Found
-                    ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, long.Parse(response.Version))
+                    ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version)
                     : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
 
                 readModelEnvelope = await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);

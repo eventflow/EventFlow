@@ -29,21 +29,22 @@ using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
-    [ElasticType(IdProperty = "Id", Name = "thingy")]
+    [ElasticsearchType(IdProperty = "Id", Name = "thingy")]
     public class ElasticsearchThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
         public string Id { get; set; }
 
-        [ElasticProperty(
+        [Boolean(
             Name = "DomainErrorAfterFirstReceived",
-            Index = FieldIndexOption.NotAnalyzed)]
+            Index = NonStringIndexOption.NotAnalyzed)]
         public bool DomainErrorAfterFirstReceived { get; set; }
 
-        [ElasticProperty(
+        [Number(
+            NumberType.Integer,
             Name = "PingsReceived",
-            Index = FieldIndexOption.NotAnalyzed)]
+            Index = NonStringIndexOption.NotAnalyzed)]
         public int PingsReceived { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
