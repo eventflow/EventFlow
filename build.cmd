@@ -10,6 +10,6 @@ IF %errorlevel% NEQ 0 (
 	exit /b %errorlevel%
 )
 
-"packages\build\FAKE\tools\Fake.exe" "build.fsx" "nugetApikey=%NUGET_APIKEY%" "buildVersion=%APPVEYOR_BUILD_VERSION%"
+"packages\build\Cake\Cake.exe" build.cs
 
 exit /b %errorlevel%

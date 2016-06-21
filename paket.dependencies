@@ -30,7 +30,7 @@ group Build
 	redirects: off
 	source https://www.nuget.org/api/v2/
 
-	nuget FAKE 4.14.5
+nuget cake
 	nuget ilmerge 2.14.1208
 	nuget NUnit.Runners 2.6.4
 
