@@ -215,9 +215,10 @@ several areas that you could help out with.
 EvenFlow has several tests that verify that its able to use the systems it
 integrates with correctly.
 
- * **Elasticsearch:** Set an environment variable named `ELASTICSEARCH_URL` with
-   the URL for the [Elasticsearch](https://www.elastic.co/) instance you would
-   like to use.
+ * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) is automatically
+   downloaded and run during the Elasticsearch integration tests from your `TEMP`
+   directory. Requires Java to be installed and the `JAVA_HOME` environment
+   variable set
  * **EventStore:** [EventStore](https://geteventstore.com/) is automatically
    downloaded and run during the EventStore integration tests from your `TEMP`
    directory
