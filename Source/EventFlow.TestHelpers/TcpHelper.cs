@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 
-namespace EventFlow.EventStores.EventStore.Tests
+namespace EventFlow.TestHelpers
 {
     public class TcpHelper
     {
