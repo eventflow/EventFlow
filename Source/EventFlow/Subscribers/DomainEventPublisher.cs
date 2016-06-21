@@ -22,36 +22,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 
 namespace EventFlow.Subscribers
 {
     public class DomainEventPublisher : IDomainEventPublisher
     {
-        private readonly ILog _log;
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
-            ILog log,
-            IEventFlowConfiguration eventFlowConfiguration,
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
-            _log = log;
-            _eventFlowConfiguration = eventFlowConfiguration;
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
@@ -74,15 +65,8 @@ namespace EventFlow.Subscribers
                 .Select(s => s.HandleAsync(domainEvents, cancellationToken));
             await Task.WhenAll(handle).ConfigureAwait(false);
 
-            try
-            {
-                // Update subscriptions AFTER read stores have been updated
-                await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception e) when (!_eventFlowConfiguration.ThrowSubscriberExceptions)
-            {
-                _log.Debug(e, "Swallowed ");
-            }
+            // Update subscriptions AFTER read stores have been updated
+            await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
     }
 }

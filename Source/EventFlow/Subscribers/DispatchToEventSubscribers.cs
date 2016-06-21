@@ -40,6 +40,7 @@ namespace EventFlow.Subscribers
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
         private class SubscriberInfomation
         {
@@ -51,18 +52,18 @@ namespace EventFlow.Subscribers
 
         public DispatchToEventSubscribers(
             ILog log,
-            IResolver resolver)
+            IResolver resolver,
+            IEventFlowConfiguration eventFlowConfiguration)
         {
             _log = log;
             _resolver = resolver;
+            _eventFlowConfiguration = eventFlowConfiguration;
         }
 
         public async Task DispatchAsync(
             IEnumerable<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var list = new List<Exception>();
-
             foreach (var domainEvent in domainEvents)
             {
                 var subscriberInfomation = GetSubscriberInfomation(domainEvent.GetType());
@@ -77,13 +78,15 @@ namespace EventFlow.Subscribers
                 }
                 catch (Exception exception)
                 {
-                    list.Add(exception);
-                }
-            }
+                    if (_eventFlowConfiguration.ThrowSubscriberExceptions)
+                    {
+                        throw;
+                    }
 
-            if (list.Any())
-            {
-                throw new AggregateException(list).Flatten();
+                    _log.Error(
+                        exception,
+                        $"Event subscribers of event '{domainEvent.EventType.PrettyPrint()}' threw an unexpected exception!");
+                }
             }
         }
 
@@ -93,21 +96,12 @@ namespace EventFlow.Subscribers
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                _log.Verbose(() => string.Format(
-                    "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                    handler.GetType().PrettyPrint(),
-                    domainEvent.EventType.PrettyPrint()));
-                await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Error(
-                    exception,
-                    $"Failed to dispatch to event handler '{handler.GetType().PrettyPrint()}' for event '{domainEvent.EventType.PrettyPrint()}' due to unexpected exception!");
-                throw;
-            }
+            _log.Verbose(() => string.Format(
+                "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
+                handler.GetType().PrettyPrint(),
+                domainEvent.EventType.PrettyPrint()));
+
+            await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
         }
 
         private static SubscriberInfomation GetSubscriberInfomation(Type domainEventType)
