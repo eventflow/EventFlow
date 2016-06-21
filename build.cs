@@ -52,7 +52,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "eventflow");
+    ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
 });
 
 Task("Package")
