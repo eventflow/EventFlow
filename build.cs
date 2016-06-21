@@ -51,7 +51,7 @@ Task("Clean")
                     DIR_REPORTS,
                 });
 
-            //BuildProject("Clean");
+            BuildProject("Clean");
         });
 
 // =====================================================================================================
@@ -75,7 +75,7 @@ Task("Build")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            //BuildProject("Build");
+            BuildProject("Build");
         });
 
 // =====================================================================================================
@@ -83,7 +83,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            //ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
+            ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
         });
 
 // =====================================================================================================
