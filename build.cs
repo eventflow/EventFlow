@@ -38,6 +38,7 @@ var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.Runners", "tools", "nunit-console.exe");
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "test", "OpenCover", "tools", "OpenCover.Console.exe");
 var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
+var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
 
 
 // =====================================================================================================
@@ -93,6 +94,14 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
+            ExecuteIlMerge(
+                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", CONFIGURATION, "EventFlow.dll"),
+                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", "EventFlow.dll"),
+                new []
+                    {
+                        "Autofac.dll",
+                    });
+
             foreach (var nuspecPath in GetFiles("./**/EventFlow.nuspec"))
             {
                 ExecutePackage(nuspecPath);
@@ -136,6 +145,28 @@ Version GetArgumentVersion()
         : Version.Parse(arg);
 
     return version;
+}
+
+void ExecuteIlMerge(
+    string inputPath,
+    string outputPath,
+    IEnumerable<string> assemblies)
+{
+    var baseDir = System.IO.Path.GetDirectoryName(inputPath);
+    var assemblyPaths = assemblies
+        .Select(a => (FilePath) File(System.IO.Path.Combine(baseDir, a)))
+        .ToList();
+
+    ILMerge(
+        outputPath,
+        inputPath,
+        assemblyPaths,
+        new ILMergeSettings
+            {
+                Internalize = true,
+                ArgumentCustomization = aggs => aggs.Append("/targetplatform:v4 /allowDup /target:library"),
+                ToolPath = TOOL_ILMERGE,
+            });
 }
 
 void ExecuteTest(string files, string reportName)
