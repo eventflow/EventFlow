@@ -24,10 +24,11 @@
 
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
+var VERSION = GetArgumentVersion();
+var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
-var FILE_RELEASENOTES = System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md");
 
 // IMPORTANT DIRECTORIES
 var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
@@ -36,6 +37,8 @@ var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.Runners", "tools", "nunit-console.exe");
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "test", "OpenCover", "tools", "OpenCover.Console.exe");
+var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
+
 
 // =====================================================================================================
 Task("Clean")
@@ -47,7 +50,7 @@ Task("Clean")
                     DIR_REPORTS,
                 });
 
-            BuildProject("Clean");
+            //BuildProject("Clean");
         });
 
 // =====================================================================================================
@@ -71,7 +74,7 @@ Task("Build")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            BuildProject("Build");
+            //BuildProject("Build");
         });
 
 // =====================================================================================================
@@ -79,7 +82,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
+            //ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
         });
 
 // =====================================================================================================
@@ -87,10 +90,13 @@ Task("Package")
     .IsDependentOn("Test")
     .Does(() =>
         {
-            var releaseNotes = ParseReleaseNotes(FILE_RELEASENOTES);
+            Information("Version: {0}", RELEASE_NOTES.Version);
+            Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            Information("Version: {0}", releaseNotes.Version);
-            Information(string.Join(Environment.NewLine, releaseNotes.Notes));
+            foreach (var nuspecPath in GetFiles("./**/EventFlow.nuspec"))
+            {
+                ExecutePackage(nuspecPath);
+            }
         });
 
 // =====================================================================================================
@@ -105,6 +111,31 @@ void BuildProject(string target)
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
         );
+}
+
+void ExecutePackage(
+    FilePath nuspecPath)
+{
+    NuGetPack(
+        nuspecPath,
+        new NuGetPackSettings
+            {
+                ToolPath = TOOL_NUGET,
+                OutputDirectory = DIR_PACKAGES,
+                ReleaseNotes = RELEASE_NOTES.Notes.ToList(),
+                Version = VERSION.ToString(),
+                Verbosity = NuGetVerbosity.Detailed,
+            });
+}
+
+Version GetArgumentVersion()
+{
+    var arg = Argument<string>("buildVersion", "0.0.1");
+    var version = string.IsNullOrEmpty(arg)
+        ? Version.Parse("0.0.1")
+        : Version.Parse(arg);
+
+    return version;
 }
 
 void ExecuteTest(string files, string reportName)

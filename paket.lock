@@ -64,6 +64,7 @@ NUGET
   remote: https://www.nuget.org/api/v2
     Cake (0.13)
     ilmerge (2.14.1208)
+    NuGet.CommandLine (3.4.3)
     NUnit.Runners (2.6.4)
 
 GROUP Test

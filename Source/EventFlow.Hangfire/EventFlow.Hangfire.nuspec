@@ -13,9 +13,6 @@
     <copyright>Copyright (c) 2015-2016 Rasmus Mikkelsen</copyright>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <tags>CQRS ES event sourceing eventstore hangfire job scheduling tasks</tags>
-    <releaseNotes>@releaseNotes@</releaseNotes>
-    @dependencies@
-    @references@
   </metadata>
   <files>
   	<file src="bin\EventFlow.Hangfire.dll" target="lib\net451" />
