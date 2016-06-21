@@ -63,9 +63,9 @@ Task("Version")
                 FILE_SOLUTIONINFO,
                 new AssemblyInfoSettings
                     {
-                        Version = "0.0.1",
-                        FileVersion = "0.0.1",
-                        InformationalVersion = "0.0.1",
+                        Version = VERSION.ToString(),
+                        FileVersion = VERSION.ToString(),
+                        InformationalVersion = VERSION.ToString(),
                         Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year)
                     });
         });
