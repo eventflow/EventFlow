@@ -21,26 +21,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System;
-using EventFlow.Extensions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 
-namespace EventFlow.ReadStores.MsSql
+namespace EventFlow.TestHelpers
 {
-    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
-    public abstract class MssqlReadModel : IMssqlReadModel
+    public class TcpHelper
     {
-        public string AggregateId { get; set; }
-        public DateTimeOffset CreateTime { get; set; }
-        public DateTimeOffset UpdatedTime { get; set; }
-        public int LastAggregateSequenceNumber { get; set; }
+        private static readonly Random Random = new Random();
 
-        public override string ToString()
+        public static int GetFreePort()
         {
-            return string.Format(
-                "Read model '{0}' for '{1} v{2}'",
-                GetType().PrettyPrint(),
-                AggregateId,
-                LastAggregateSequenceNumber);
+            var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            var activeTcpListeners = ipGlobalProperties.GetActiveTcpListeners();
+            var ports = new HashSet<int>(activeTcpListeners.Select(p => p.Port));
+
+            while (true)
+            {
+                var port = Random.Next(10000, 60000);
+                if (!ports.Contains(port))
+                {
+                    return port;
+                }
+            }
         }
     }
 }

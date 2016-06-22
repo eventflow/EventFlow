@@ -23,30 +23,25 @@
 // 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
+using EventFlow.Extensions;
 
-namespace EventFlow.EventStores.EventStore.Tests
+namespace EventFlow.MsSql.ReadStores
 {
-    public class TcpHelper
+    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
+    public abstract class MssqlReadModel : IMssqlReadModel
     {
-        private static readonly Random Random = new Random();
+        public string AggregateId { get; set; }
+        public DateTimeOffset CreateTime { get; set; }
+        public DateTimeOffset UpdatedTime { get; set; }
+        public int LastAggregateSequenceNumber { get; set; }
 
-        public static int GetFreePort()
+        public override string ToString()
         {
-            var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            var activeTcpListeners = ipGlobalProperties.GetActiveTcpListeners();
-            var ports = new HashSet<int>(activeTcpListeners.Select(p => p.Port));
-
-            while (true)
-            {
-                var port = Random.Next(10000, 60000);
-                if (!ports.Contains(port))
-                {
-                    return port;
-                }
-            }
+            return string.Format(
+                "Read model '{0}' for '{1} v{2}'",
+                GetType().PrettyPrint(),
+                AggregateId,
+                LastAggregateSequenceNumber);
         }
     }
 }

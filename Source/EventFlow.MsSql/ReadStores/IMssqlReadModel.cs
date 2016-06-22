@@ -20,27 +20,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
-using System.Reflection;
-using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
+using System;
+using EventFlow.ReadStores;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.MsSql.ReadStores
 {
-    public static class EventFlowSnapshotStoresMsSql
+    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
+    public interface IMssqlReadModel : IReadModel
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).Assembly;
-
-        public static IEnumerable<SqlScript> GetSqlScripts()
-        {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
-        }
-
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
-        {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
-        }
+        string AggregateId { get; set; }
+        DateTimeOffset CreateTime { get; set; }
+        DateTimeOffset UpdatedTime { get; set; }
+        int LastAggregateSequenceNumber { get; set; }
     }
 }

@@ -22,19 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Reflection;
-using EventFlow.MsSql;
-using EventFlow.Sql;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.EventStores.MsSql
+namespace EventFlow.Commands
 {
-    public static class EventFlowEventStoresMsSql
+    public interface ICommandScheduler
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowEventStoresMsSql).Assembly;
-
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
-        {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingEmbeddedScripts(Assembly);
-        }
+        Task ScheduleAsync(ICommand command, DateTimeOffset runAt, CancellationToken cancellationToken);
+        Task ScheduleAsync(ICommand command, TimeSpan delay, CancellationToken cancellationToken);
     }
 }

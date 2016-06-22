@@ -20,27 +20,15 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
-using System.Reflection;
-using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
+using System;
+using EventFlow.Sql.ReadModels.Attributes;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.MsSql.ReadStores.Attributes
 {
-    public static class EventFlowSnapshotStoresMsSql
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class MsSqlReadModelIdentityColumnAttribute : SqlReadModelIdentityColumnAttribute
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).Assembly;
-
-        public static IEnumerable<SqlScript> GetSqlScripts()
-        {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
-        }
-
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
-        {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
-        }
     }
 }

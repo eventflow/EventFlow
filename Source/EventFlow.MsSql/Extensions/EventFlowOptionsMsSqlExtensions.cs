@@ -20,27 +20,29 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
-using System.Reflection;
-using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
+using EventFlow.Configuration;
+using EventFlow.MsSql.Connections;
+using EventFlow.MsSql.RetryStrategies;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.MsSql.Extensions
 {
-    public static class EventFlowSnapshotStoresMsSql
+    public static class EventFlowOptionsMsSqlExtensions
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).Assembly;
-
-        public static IEnumerable<SqlScript> GetSqlScripts()
+        public static IEventFlowOptions ConfigureMsSql(
+            this IEventFlowOptions eventFlowOptions,
+            IMsSqlConfiguration msSqlConfiguration)
         {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
-        }
-
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
-        {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+            return eventFlowOptions
+                .RegisterServices(f =>
+                    {
+                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
+                        f.Register<IMsSqlConnection, MsSqlConnection>();
+                        f.Register<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
+                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
+                        f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
+                    });
         }
     }
 }

@@ -22,14 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System;
-using EventFlow.Sql.ReadModels;
-using EventFlow.Sql.ReadModels.Attributes;
+using System.IO;
 
-namespace EventFlow.ReadStores.MsSql.Attributes
+namespace EventFlow.TestHelpers.Extensions
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelVersionColumnAttribute : SqlReadModelVersionColumnAttribute
+    public static class StreamExtensions
     {
+        public static string ReadToEnd(this Stream stream)
+        {
+            using (var streamReader = new StreamReader(stream))
+            {
+                return streamReader.ReadToEnd();
+            }
+        }
     }
 }
