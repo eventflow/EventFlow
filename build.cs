@@ -24,8 +24,9 @@
 
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
-var VERSION = GetArgumentVersion();
-var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
+var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
+    @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
+    System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
@@ -39,6 +40,11 @@ var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "test", "OpenCover", "tools", "OpenCover.Console.exe");
 var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
+var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
+
+var VERSION = GetArgumentVersion();
+var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
+var NUGET_VERSIONS = GetInstalledNuGetPackages();
 
 
 // =====================================================================================================
@@ -167,6 +173,59 @@ void ExecuteIlMerge(
                 ArgumentCustomization = aggs => aggs.Append("/targetplatform:v4 /allowDup /target:library"),
                 ToolPath = TOOL_ILMERGE,
             });
+}
+
+IReadOnlyDictionary<string, string> GetInstalledNuGetPackages()
+{
+    var nugetPackages = new Dictionary<string, string>();
+    var paketOutput = ExecuteCommand(TOOL_PAKET, "show-installed-packages");
+
+    var match = REGEX_NUGETPARSER.Match(paketOutput);
+    if (!match.Success)
+    {
+        throw new Exception("Unable to read NuGet package versions");
+    }
+
+    do
+    {
+        var package = match.Groups["package"].Value;
+        var version = match.Groups["version"].Value;
+
+        Information("NuGet package '{0}' is version '{1}'", package, version);
+
+        nugetPackages.Add(package, version);
+
+    } while((match = match.NextMatch()) != null && match.Success);
+
+    return nugetPackages;
+}
+
+string ExecuteCommand(string exePath, string arguments = null)
+{
+    Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
+
+    using (var process = new System.Diagnostics.Process())
+    {
+        process.StartInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                FileName = exePath,
+                Arguments = arguments,
+            };
+        process.Start();
+
+        var output = process.StandardOutput.ReadToEnd();
+
+        if (!process.WaitForExit(30000))
+        {
+            throw new Exception("Failed to stop process!");
+        }
+
+        Debug(output);
+
+        return output;
+    }
 }
 
 void ExecuteTest(string files, string reportName)
