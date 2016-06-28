@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing owin</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.Owin.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.Owin.dll" target="lib\net451" />
   </files>
 </package>

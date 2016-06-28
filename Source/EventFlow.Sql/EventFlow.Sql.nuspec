@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing sql</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.Sql.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.Sql.dll" target="lib\net451" />
   </files>
 </package>

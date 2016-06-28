@@ -57,7 +57,7 @@ Task("Clean")
                     DIR_REPORTS,
                 });
 
-            BuildProject("Clean");
+            //BuildProject("Clean");
         });
 
 // =====================================================================================================
@@ -81,7 +81,7 @@ Task("Build")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            BuildProject("Build");
+            //BuildProject("Build");
         });
 
 // =====================================================================================================
@@ -89,7 +89,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
+            //ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
         });
 
 // =====================================================================================================
@@ -108,7 +108,7 @@ Task("Package")
                         "Autofac.dll",
                     });
 
-            foreach (var nuspecPath in GetFiles("./**/EventFlow.nuspec"))
+            foreach (var nuspecPath in GetFiles("./Source/**/*.nuspec"))
             {
                 ExecutePackage(nuspecPath);
             }
@@ -131,6 +131,8 @@ void BuildProject(string target)
 void ExecutePackage(
     FilePath nuspecPath)
 {
+    Information(nuspecPath.ToString());
+
     NuGetPack(
         nuspecPath,
         new NuGetPackSettings

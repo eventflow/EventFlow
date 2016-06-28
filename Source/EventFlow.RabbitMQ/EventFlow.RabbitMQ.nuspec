@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing eventstore rabbitmq</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.RabbitMQ.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.RabbitMQ.dll" target="lib\net451" />
   </files>
 </package>

@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing event store eventstore</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.EventStores.EventStore.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.EventStores.EventStore.dll" target="lib\net451" />
   </files>
 </package>

@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing sqlite eventstore</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.SQLite.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.SQLite.dll" target="lib\net451" />
   </files>
 </package>

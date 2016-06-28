@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing eventstore hangfire job scheduling tasks</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.Hangfire.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.Hangfire.dll" target="lib\net451" />
   </files>
 </package>

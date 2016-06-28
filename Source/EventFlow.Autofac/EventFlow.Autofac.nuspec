@@ -15,6 +15,6 @@
     <tags>CQRS ES event sourceing autofac</tags>
   </metadata>
   <files>
-  	<file src="bin\EventFlow.Autofac.dll" target="lib\net451" />
+  	<file src="bin\Release\EventFlow.Autofac.dll" target="lib\net451" />
   </files>
 </package>
