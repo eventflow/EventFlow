@@ -1,5 +1,7 @@
 ### New in 0.31 (not released yet)
 
+* New: EventFlow can now be configured to throw exceptions thrown by subscribers
+  by `options.Configure(c => c.ThrowSubscriberExceptions = true)`
 * New: Added an `ICommandScheduler` for easy scheduling of commands
 
 ### New in 0.30.2019 (released 2016-06-16)
