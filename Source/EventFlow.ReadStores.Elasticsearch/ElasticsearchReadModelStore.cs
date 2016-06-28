@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
@@ -63,7 +64,11 @@ namespace EventFlow.ReadStores.Elasticsearch
 
             var getResponse = await _elasticClient.GetAsync<TReadModel>(
                 id,
-                d => d.Index(readModelDescription.IndexName.Value))
+                d => d
+                    .RequestConfiguration(c => c
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound))
+                    .Index(readModelDescription.IndexName.Value))
                 .ConfigureAwait(false);
 
             if (!getResponse.IsValid || !getResponse.Found)
@@ -84,7 +89,10 @@ namespace EventFlow.ReadStores.Elasticsearch
             return _elasticClient.DeleteByQueryAsync<TReadModel>(
                 readModelDescription.IndexName.Value,
                 Types.Type<TReadModel>(), 
-                d => d.Query(q => q.MatchAll()));
+                d => d
+                    .RequestConfiguration(c => c
+                        .CancellationToken(cancellationToken))
+                    .Query(q => q.MatchAll()));
         }
 
         public async Task UpdateAsync(
@@ -97,7 +105,11 @@ namespace EventFlow.ReadStores.Elasticsearch
 
             _log.Verbose(() =>
                 {
-                    var readModelIds = readModelUpdates.Select(u => u.ReadModelId).Distinct().OrderBy(i => i).ToList();
+                    var readModelIds = readModelUpdates
+                        .Select(u => u.ReadModelId)
+                        .Distinct()
+                        .OrderBy(i => i)
+                        .ToList();
                     return $"Updating read models of type '{typeof(TReadModel).PrettyPrint()}' with IDs '{string.Join(", ", readModelIds)}' in index '{readModelDescription.IndexName}'";
                 });
 
@@ -105,7 +117,11 @@ namespace EventFlow.ReadStores.Elasticsearch
             {
                 var response = await _elasticClient.GetAsync<TReadModel>(
                     readModelUpdate.ReadModelId,
-                    d => d.Index(readModelDescription.IndexName.Value))
+                    d => d
+                        .RequestConfiguration(c => c
+                            .CancellationToken(cancellationToken)
+                            .AllowedStatusCodes((int)HttpStatusCode.NotFound))
+                        .Index(readModelDescription.IndexName.Value))
                     .ConfigureAwait(false);
 
                 var readModelEnvelope = response.Found
@@ -117,6 +133,8 @@ namespace EventFlow.ReadStores.Elasticsearch
                 await _elasticClient.IndexAsync(
                     readModelEnvelope.ReadModel,
                     d => d
+                        .RequestConfiguration(c => c
+                            .CancellationToken(cancellationToken))
                         .Id(readModelUpdate.ReadModelId)
                         .Index(readModelDescription.IndexName.Value)
                         .Version(readModelEnvelope.Version.GetValueOrDefault())
