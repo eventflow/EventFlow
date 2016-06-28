@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
@@ -39,27 +41,75 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
     {
         private Mock<IResolver> _resolverMock;
+        private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
 
         [SetUp]
         public void SetUp()
         {
             _resolverMock = InjectMock<IResolver>();
+            _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
         }
 
         [Test]
         public async Task SubscribersGetCalled()
         {
             // Arrange
-            var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>>();
-            _resolverMock
-                .Setup(r => r.ResolveAll(It.IsAny<Type>()))
-                .Returns(new object[] {subscriberMock.Object});
+            var subscriberMock = ArrangeSubscriber<ThingyPingEvent>();
 
             // Act
             await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public void SubscriberExceptionIsNotThrownIfNotConfigured()
+        {
+            // Arrange
+            var subscriberMock = ArrangeSubscriber<ThingyPingEvent>();
+            var expectedException = A<Exception>();
+            _eventFlowConfigurationMock
+                .Setup(c => c.ThrowSubscriberExceptions)
+                .Returns(false);
+            subscriberMock
+                .Setup(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()))
+                .Throws(expectedException);
+
+            // Act
+            Assert.DoesNotThrow(() => Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).Wait());
+        }
+
+        [Test]
+        public void SubscriberExceptionIsThrownIfConfigured()
+        {
+            // Arrange
+            var subscriberMock = ArrangeSubscriber<ThingyPingEvent>();
+            var expectedException = A<Exception>();
+            _eventFlowConfigurationMock
+                .Setup(c => c.ThrowSubscriberExceptions)
+                .Returns(true);
+            subscriberMock
+                .Setup(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()))
+                .Throws(expectedException);
+
+            // Act
+            var exception = Assert.Throws<Exception>(() => Sut.DispatchAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
+
+            // Assert
+            exception.Should().BeSameAs(expectedException);
+        }
+
+        private Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeSubscriber<TEvent>()
+            where TEvent : IAggregateEvent<ThingyAggregate, ThingyId>
+        {
+            var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
+
+            _resolverMock
+                .Setup(r => r.ResolveAll(It.IsAny<Type>()))
+                .Returns(new object[] { subscriberMock.Object });
+
+            return subscriberMock;
         }
     }
 }
