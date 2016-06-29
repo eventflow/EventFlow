@@ -42,8 +42,8 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
     public class ElasticsearchReadModelStoreTests : TestSuiteForReadModelStore
     {
         private IElasticClient _elasticClient;
-        private IReadModelDescriptionProvider _readModelDescriptionProvider;
         private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
+        private string _indexName;
 
         public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
         {
@@ -64,44 +64,60 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
+            try
+            {
+                _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
+                _indexName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
 
-            var indexName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
-            var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(indexName);
+                var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_indexName);
 
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .ConfigureElasticsearch(_elasticsearchInstance.Uri)
-                .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
-                .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(
-                    typeof(ElasticsearchThingyGetQueryHandler),
-                    typeof(ElasticsearchThingyGetVersionQueryHandler),
-                    typeof(ElasticsearchThingyGetMessagesQueryHandler))
-                .RegisterServices(sr => sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider))
-                .CreateResolver();
+                var resolver = eventFlowOptions
+                    .RegisterServices(sr =>
+                    {
+                        sr.RegisterType(typeof(ThingyMessageLocator));
+                        sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
+                    })
+                    .ConfigureElasticsearch(_elasticsearchInstance.Uri)
+                    .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
+                    .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
+                    .AddQueryHandlers(
+                        typeof(ElasticsearchThingyGetQueryHandler),
+                        typeof(ElasticsearchThingyGetVersionQueryHandler),
+                        typeof(ElasticsearchThingyGetMessagesQueryHandler))
+                    .CreateResolver();
 
-            _elasticClient = resolver.Resolve<IElasticClient>();
-            _readModelDescriptionProvider = resolver.Resolve<IReadModelDescriptionProvider>();
+                _elasticClient = resolver.Resolve<IElasticClient>();
 
-            _elasticClient.CreateIndex(indexName);
-            _elasticClient.Map<ElasticsearchThingyMessageReadModel>(d => d
-                .Index(indexName)
-                .AutoMap());
+                _elasticClient.CreateIndex(_indexName);
+                _elasticClient.Map<ElasticsearchThingyMessageReadModel>(d => d
+                    .Index(_indexName)
+                    .AutoMap());
 
-            _elasticsearchInstance.WaitForGeenStateAsync().Wait(TimeSpan.FromMinutes(1));
+                _elasticsearchInstance.WaitForGeenStateAsync().Wait(TimeSpan.FromMinutes(1));
 
-            return resolver;
+                return resolver;
+            }
+            catch
+            {
+                _elasticsearchInstance.DisposeSafe("Failed to dispose ES instance");
+                throw;
+            }
         }
 
-        protected override Task PurgeTestAggregateReadModelAsync()
+        protected override async Task PurgeTestAggregateReadModelAsync()
         {
-            return ReadModelPopulator.PurgeAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
+            await ReadModelPopulator.PurgeAsync<ElasticsearchThingyReadModel>(CancellationToken.None).ConfigureAwait(false);
+            await _elasticClient.FlushAsync(_indexName).ConfigureAwait(false);
+            await _elasticClient.RefreshAsync(_indexName).ConfigureAwait(false);
+            await _elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
         }
 
-        protected override Task PopulateTestAggregateReadModelAsync()
+        protected override async Task PopulateTestAggregateReadModelAsync()
         {
-            return ReadModelPopulator.PopulateAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
+            await ReadModelPopulator.PopulateAsync<ElasticsearchThingyReadModel>(CancellationToken.None).ConfigureAwait(false);
+            await _elasticClient.FlushAsync(_indexName).ConfigureAwait(false);
+            await _elasticClient.RefreshAsync(_indexName).ConfigureAwait(false);
+            await _elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
         }
 
         [TearDown]
@@ -109,10 +125,8 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
         {
             try
             {
-                var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
-                var indexName = readModelDescription.IndexName.Value;
-                Console.WriteLine($"Deleting test index '{indexName}'");
-                _elasticClient.DeleteIndex(indexName);
+                Console.WriteLine($"Deleting test index '{_indexName}'");
+                _elasticClient.DeleteIndex(_indexName);
                 _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
             }
             catch (Exception e)

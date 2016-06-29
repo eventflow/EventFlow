@@ -34,6 +34,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
+        [String(Index = FieldIndexOption.NotAnalyzed)]
         public string Id { get; set; }
 
         [Boolean(

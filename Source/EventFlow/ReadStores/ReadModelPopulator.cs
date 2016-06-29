@@ -63,7 +63,9 @@ namespace EventFlow.ReadStores
                 throw new ArgumentException($"Could not find any read stores for read model '{typeof (TReadModel).PrettyPrint()}'");
             }
 
-            var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
+            var deleteTasks = readModelStores
+                .Select(s => s.DeleteAllAsync(cancellationToken))
+                .ToList();
             return Task.WhenAll(deleteTasks);
         }
 

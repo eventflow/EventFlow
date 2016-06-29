@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -141,8 +142,15 @@ namespace EventFlow.TestHelpers.Suites
             var id = ThingyId.New;
             await PublishPingCommandsAsync(id).ConfigureAwait(false);
 
+            try
+            {
+                await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("");
+            }
             // Act
-            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert

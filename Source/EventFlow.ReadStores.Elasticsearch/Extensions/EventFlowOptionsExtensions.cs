@@ -23,6 +23,8 @@
 //
 
 using System;
+using System.Linq;
+using System.Text;
 using Elasticsearch.Net;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
@@ -34,12 +36,29 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
     {
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
+            params string[] uris)
+        {
+            return eventFlowOptions
+                .ConfigureElasticsearch(uris.Select(u => new Uri(u, UriKind.Absolute)).ToArray());
+        }
+
+        public static IEventFlowOptions ConfigureElasticsearch(
+            this IEventFlowOptions eventFlowOptions,
             params Uri[] uris)
         {
             var connectionSettings = new ConnectionSettings(new SniffingConnectionPool(uris))
                 .ThrowExceptions()
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
-                .DisablePing();
+                .DisablePing()
+                .DisableDirectStreaming()
+                .OnRequestCompleted(a =>
+                    {
+                        Console.WriteLine($"{a.HttpMethod} {a.Uri}");
+                        if (a.RequestBodyInBytes != null && a.RequestBodyInBytes.Any())
+                            Console.WriteLine(Encoding.UTF8.GetString(a.RequestBodyInBytes));
+                        if (a.ResponseBodyInBytes != null && a.ResponseBodyInBytes.Any())
+                            Console.WriteLine(Encoding.UTF8.GetString(a.ResponseBodyInBytes));
+                    });
 
             return eventFlowOptions
                 .ConfigureElasticsearch(connectionSettings);
@@ -59,7 +78,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
-                    sr.Register(f => elasticClientFactory());
+                    sr.Register(f => elasticClientFactory(), Lifetime.Singleton);
                     sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
                 });
         }
