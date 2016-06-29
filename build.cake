@@ -135,7 +135,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest("./**/bin/" + CONFIGURATION + "/EventFlow.Tests.dll", "results");
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", "results");
         });
 
 // =====================================================================================================
@@ -241,6 +241,24 @@ void ExecuteIlMerge(
             });
 }
 
+void UploadArtifact(string filePath)
+{
+    if (AppVeyor.IsRunningOnAppVeyor)
+    {
+        AppVeyor.UploadArtifact(filePath);
+    }
+}
+
+void UploadTestResults(string filePath)
+{
+    if (AppVeyor.IsRunningOnAppVeyor)
+    {
+        AppVeyor.UploadTestResults(
+            filePath,
+            AppVeyorTestResultsType.NUnit);
+    }    
+}
+
 IReadOnlyDictionary<string, string> GetInstalledNuGetPackages()
 {
     var nugetPackages = new Dictionary<string, string>();
@@ -325,6 +343,9 @@ void ExecuteTest(string files, string reportName)
         .WithFilter("-[*Tests]*")
         .WithFilter("-[*TestHelpers]*")
         .WithFilter("-[*Shipping*]*"));
+
+    UploadArtifact(nunitOutputPath);
+    UploadTestResults(nunitResultsPath);
 }
 
 RunTarget("Package");
