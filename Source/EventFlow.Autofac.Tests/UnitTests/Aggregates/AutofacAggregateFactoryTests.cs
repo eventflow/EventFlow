@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using EventFlow.Aggregates;
@@ -45,7 +47,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).GetTypeInfo().Assembly)
                 .CreateResolver())
             {
                 var id = ThingyId.New;
@@ -67,7 +69,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             EventFlowOptions.New
                 .UseAutofacContainerBuilder(containerBuilder)
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof (AutofacAggregateFactoryTests).Assembly);
+                .AddAggregateRoots(typeof (AutofacAggregateFactoryTests).GetTypeInfo().Assembly);
 
             using (var container = containerBuilder.Build())
             using (var lifetimeScope = container.BeginLifetimeScope())
@@ -90,7 +92,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             using (var resolver = EventFlowOptions.New
                 .UseAutofacContainerBuilder()
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).GetTypeInfo().Assembly)
                 .CreateResolver())
             {
                 var sut = resolver.Resolve<IAggregateFactory>();

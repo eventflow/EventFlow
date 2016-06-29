@@ -69,7 +69,7 @@ namespace EventFlow.Extensions
             foreach (var metadataProviderType in metadataProviderTypes)
             {
                 var t = metadataProviderType;
-                if (t.IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract) continue;
                 if (!typeof (IMetadataProvider).IsAssignableFrom(t))
                 {
                     throw new ArgumentException($"Type '{metadataProviderType.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");

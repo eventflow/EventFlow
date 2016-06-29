@@ -45,7 +45,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var commandTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(ICommand).IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ICommand).IsAssignableFrom(t))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddCommands(commandTypes);
         }

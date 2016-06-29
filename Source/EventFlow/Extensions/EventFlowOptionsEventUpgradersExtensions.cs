@@ -81,7 +81,7 @@ namespace EventFlow.Extensions
             foreach (var eventUpgraderType in eventUpgraderTypes)
             {
                 var t = eventUpgraderType;
-                if (t.IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract) continue;
                 var eventUpgraderForAggregateType = t
                     .GetInterfaces()
                     .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEventUpgrader<,>));

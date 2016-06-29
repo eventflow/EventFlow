@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
@@ -48,7 +49,7 @@ namespace EventFlow.Tests
         [Test]
         public void VerifyThatAllTestClassesHaveCategoryAssigned()
         {
-            var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
+            var codeBase = ReflectionHelper.GetCodeBase(GetType().GetTypeInfo().Assembly);
             var projectRoot = GetParentDirectories(codeBase).First(IsProjectRoot);
             var testAssemblyPaths = GetTestAssembliesFromPath(projectRoot);
             var typesWithMissingCategory = testAssemblyPaths
