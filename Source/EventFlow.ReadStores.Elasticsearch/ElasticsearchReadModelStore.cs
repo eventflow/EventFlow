@@ -91,7 +91,8 @@ namespace EventFlow.ReadStores.Elasticsearch
                 Types.Type<TReadModel>(), 
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken))
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound))
                     .Query(q => q.MatchAll()));
         }
 
