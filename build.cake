@@ -41,6 +41,7 @@ var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "test", "Op
 var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
+var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
 
 var VERSION = GetArgumentVersion();
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
@@ -111,6 +112,8 @@ Task("Version")
     .IsDependentOn("Clean")
     .Does(() =>
         {
+
+
             CreateAssemblyInfo(
                 FILE_SOLUTIONINFO,
                 new AssemblyInfoSettings
@@ -118,7 +121,8 @@ Task("Version")
                         Version = VERSION.ToString(),
                         FileVersion = VERSION.ToString(),
                         InformationalVersion = VERSION.ToString(),
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year)
+                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year),
+                        Description = GetSha(),
                     });
         });
 
@@ -217,6 +221,13 @@ Version GetArgumentVersion()
         : Version.Parse(arg);
 
     return version;
+}
+
+string GetSha()
+{
+    return AppVeyor.IsRunningOnAppVeyor
+        ? string.Format("git sha: {0}", GitVersion(new GitVersionSettings { ToolPath = TOOL_GITVERSION, }).Sha)
+        : "developer build";
 }
 
 void ExecuteIlMerge(

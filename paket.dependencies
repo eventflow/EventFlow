@@ -31,6 +31,7 @@ group Build
 	source https://www.nuget.org/api/v2/
 
 	nuget cake
+	nuget GitVersion.CommandLine
 	nuget ilmerge 2.14.1208
 	nuget NuGet.CommandLine
 	nuget NUnit.Runners 2.6.4

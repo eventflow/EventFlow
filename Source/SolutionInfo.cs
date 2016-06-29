@@ -5,6 +5,7 @@
 //------------------------------------------------------------------------------
 using System.Reflection;
 
+[assembly: AssemblyDescription("developer build")]
 [assembly: AssemblyVersion("0.0.1")]
 [assembly: AssemblyFileVersion("0.0.1")]
 [assembly: AssemblyInformationalVersion("0.0.1")]
