@@ -46,6 +46,52 @@ var VERSION = GetArgumentVersion();
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 var NUGET_VERSIONS = GetInstalledNuGetPackages();
 
+var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
+    {"EventFlow", new []{
+        "Newtonsoft.Json",
+        }},
+    {"EventFlow.Autofac", new []{
+        "EventFlow",
+        "Autofac",
+    }},
+    {"EventFlow.RabbitMQ", new []{
+        "EventFlow",
+        "RabbitMQ.Client"
+    }},
+    {"EventFlow.Hangfire", new []{
+        "EventFlow",
+        "HangFire.Core",
+        }},
+    {"EventFlow.Sql", new []{
+        "EventFlow",
+        "Dapper",
+        }},
+    {"EventFlow.MsSql", new []{
+        "EventFlow",
+        "EventFlow.Sql",
+        "Dapper",
+        }},
+    {"EventFlow.SQLite", new []{
+        "EventFlow",
+        "EventFlow.Sql",
+        "System.Data.SQLite.Core",
+        }},
+    {"EventFlow.EventStores.EventStore", new []{
+        "EventFlow",
+        "EventStore.Client",
+        }},
+    {"EventFlow.ReadStores.Elasticsearch", new []{
+        "EventFlow",
+        "NEST",
+        "Elasticsearch.Net",
+        "Elasticsearch.Net.JsonNET",
+        }},
+    {"EventFlow.Owin", new []{
+        "EventFlow",
+        "Owin",
+        "Microsoft.Owin",
+        }},
+    };
 
 // =====================================================================================================
 Task("Clean")
@@ -132,6 +178,10 @@ void ExecutePackage(
     FilePath nuspecPath)
 {
     Information(nuspecPath.ToString());
+    var packageId = System.IO.Path.GetFileNameWithoutExtension(nuspecPath.ToString());
+    var dependencies = NUGET_DEPENDENCIES[packageId]
+        .Select(GetNuSpecDependency)
+        .ToList();
 
     NuGetPack(
         nuspecPath,
@@ -142,7 +192,21 @@ void ExecutePackage(
                 ReleaseNotes = RELEASE_NOTES.Notes.ToList(),
                 Version = VERSION.ToString(),
                 Verbosity = NuGetVerbosity.Detailed,
+                Dependencies = dependencies,
             });
+}
+
+private NuSpecDependency GetNuSpecDependency(string packageId)
+{
+    Information("Finding version for package: {0}", packageId);
+
+    return new NuSpecDependency
+        {
+            Id = packageId,
+            Version = packageId.StartsWith("EventFlow")
+                ? string.Format("[{0}]", RELEASE_NOTES.Version)
+                : NUGET_VERSIONS[packageId]
+        };
 }
 
 Version GetArgumentVersion()
