@@ -336,7 +336,7 @@ void ExecuteTest(string files, string reportName)
                 new NUnitSettings
                     {
                         ShadowCopy = false,
-                        Timeout = 30000,
+                        Timeout = 600000,
                         NoLogo = true,
                         Framework = "net-4.5.1",
                         ToolPath = TOOL_NUNIT,
