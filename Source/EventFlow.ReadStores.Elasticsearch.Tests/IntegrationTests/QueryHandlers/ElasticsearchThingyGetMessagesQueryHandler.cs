@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
@@ -53,10 +54,25 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandler
             var indexName = readModelDescription.IndexName.Value;
 
             // Never do this
-            await _elasticClient.FlushAsync(indexName).ConfigureAwait(false);
-            await _elasticClient.RefreshAsync(indexName).ConfigureAwait(false);
+            await _elasticClient.FlushAsync(
+                indexName,
+                d => d
+                    .RequestConfiguration(c => c
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                .ConfigureAwait(false);
+            await _elasticClient.RefreshAsync(
+                indexName,
+                d => d
+                    .RequestConfiguration(c => c
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                .ConfigureAwait(false);
 
             var searchResponse = await _elasticClient.SearchAsync<ElasticsearchThingyMessageReadModel>(d => d
+                .RequestConfiguration(c => c
+                    .CancellationToken(cancellationToken)
+                    .AllowedStatusCodes((int)HttpStatusCode.NotFound))
                 .Index(indexName)
                 .Query(q => q.Term(m => m.ThingyId, query.ThingyId.Value)))
                 .ConfigureAwait(false);

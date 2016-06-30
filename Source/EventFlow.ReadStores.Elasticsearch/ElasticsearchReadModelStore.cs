@@ -79,20 +79,20 @@ namespace EventFlow.ReadStores.Elasticsearch
             return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, getResponse.Version);
         }
 
-        public Task DeleteAllAsync(
+        public async Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' read models from index '{readModelDescription.IndexName}'");
+            _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' by DELETING INDEX '{readModelDescription.IndexName}'!");
 
-            return _elasticClient.DeleteByQueryAsync<TReadModel>(
+            await _elasticClient.DeleteIndexAsync(
                 readModelDescription.IndexName.Value,
-                Types.Type<TReadModel>(), 
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken))
-                    .Query(q => q.QueryString(qs => qs.Query("*"))));
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                .ConfigureAwait(false);
         }
 
         public async Task UpdateAsync(

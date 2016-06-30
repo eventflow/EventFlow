@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using EventFlow.Extensions;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch
@@ -40,9 +41,10 @@ namespace EventFlow.ReadStores.Elasticsearch
                 t =>
                     {
                         var elasticType = t.GetCustomAttribute<ElasticsearchTypeAttribute>();
-                        return new ReadModelDescription(new IndexName(elasticType == null
-                            ? "eventflow"
-                            : elasticType.Name));
+                        var indexName = elasticType == null
+                            ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
+                            : elasticType.Name;
+                        return new ReadModelDescription(new IndexName(indexName));
                     });
         }
     }

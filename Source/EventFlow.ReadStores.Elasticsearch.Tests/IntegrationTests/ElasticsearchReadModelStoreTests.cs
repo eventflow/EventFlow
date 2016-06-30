@@ -23,6 +23,7 @@
 // 
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -104,20 +105,14 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
             }
         }
 
-        protected override async Task PurgeTestAggregateReadModelAsync()
+        protected override Task PurgeTestAggregateReadModelAsync()
         {
-            await ReadModelPopulator.PurgeAsync<ElasticsearchThingyReadModel>(CancellationToken.None).ConfigureAwait(false);
-            await _elasticClient.FlushAsync(_indexName).ConfigureAwait(false);
-            await _elasticClient.RefreshAsync(_indexName).ConfigureAwait(false);
-            await _elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
+            return ReadModelPopulator.PurgeAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
         }
 
-        protected override async Task PopulateTestAggregateReadModelAsync()
+        protected override Task PopulateTestAggregateReadModelAsync()
         {
-            await ReadModelPopulator.PopulateAsync<ElasticsearchThingyReadModel>(CancellationToken.None).ConfigureAwait(false);
-            await _elasticClient.FlushAsync(_indexName).ConfigureAwait(false);
-            await _elasticClient.RefreshAsync(_indexName).ConfigureAwait(false);
-            await _elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
+            return ReadModelPopulator.PopulateAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]
@@ -126,7 +121,9 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
             try
             {
                 Console.WriteLine($"Deleting test index '{_indexName}'");
-                _elasticClient.DeleteIndex(_indexName);
+                _elasticClient.DeleteIndex(
+                    _indexName,
+                    r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
                 _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
             }
             catch (Exception e)
