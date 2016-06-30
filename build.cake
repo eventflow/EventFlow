@@ -112,8 +112,6 @@ Task("Version")
     .IsDependentOn("Clean")
     .Does(() =>
         {
-
-
             CreateAssemblyInfo(
                 FILE_SOLUTIONINFO,
                 new AssemblyInfoSettings
@@ -256,7 +254,13 @@ void UploadArtifact(string filePath)
 {
     if (AppVeyor.IsRunningOnAppVeyor)
     {
+        Information("Uploading artifact: {0}", filePath);
+
         AppVeyor.UploadArtifact(filePath);
+    }
+    else
+    {
+        Information("Not on AppVeyor, skipping artifact upload of: {0}", filePath);
     }
 }
 
@@ -264,10 +268,16 @@ void UploadTestResults(string filePath)
 {
     if (AppVeyor.IsRunningOnAppVeyor)
     {
+        Information("Uploading test results: {0}", filePath);
+
         AppVeyor.UploadTestResults(
             filePath,
             AppVeyorTestResultsType.NUnit);
     }    
+    else
+    {
+        Information("Not on AppVeyor, skipping test result upload of: {0}", filePath);
+    }
 }
 
 IReadOnlyDictionary<string, string> GetInstalledNuGetPackages()
