@@ -1,4 +1,8 @@
-### New in 0.31 (not released yet)
+### New in 0.32 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.31.2106 (released 2016-06-30)
 
 * New: EventFlow can now be configured to throw exceptions thrown by subscribers
   by `options.Configure(c => c.ThrowSubscriberExceptions = true)`
