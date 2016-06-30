@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
@@ -40,9 +41,7 @@ using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
-using EventFlow.Snapshots.Stores.InMemory;
 using EventFlow.Snapshots.Stores.Null;
-using EventFlow.Snapshots.Strategies;
 using EventFlow.Subscribers;
 
 namespace EventFlow
@@ -72,6 +71,12 @@ namespace EventFlow
         {
             _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
             _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
+            return this;
+        }
+
+        public IEventFlowOptions ConfigureThrowSubscriberExceptions(bool shouldThrow)
+        {
+            _eventFlowConfiguration.ThrowSubscriberExceptions = shouldThrow;
             return this;
         }
 
