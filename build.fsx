@@ -226,8 +226,7 @@ Target "CreatePackageEventFlowReadStoresElasticsearch" (fun _ ->
             Dependencies = [
                 "EventFlow",  nugetVersionDep
                 "NEST",  GetPackageVersion "./packages/" "NEST"
-                "Elasticsearch.Net",  GetPackageVersion "./packages/" "Elasticsearch.Net"
-                "Elasticsearch.Net.JsonNET",  GetPackageVersion "./packages/" "Elasticsearch.Net.JsonNET"]
+                "Elasticsearch.Net",  GetPackageVersion "./packages/" "Elasticsearch.Net"]
             Publish = false })
             "Source/EventFlow.ReadStores.Elasticsearch/EventFlow.ReadStores.Elasticsearch.nuspec"
     )
