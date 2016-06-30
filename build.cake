@@ -206,7 +206,7 @@ private NuSpecDependency GetNuSpecDependency(string packageId)
         {
             Id = packageId,
             Version = packageId.StartsWith("EventFlow")
-                ? string.Format("[{0}]", RELEASE_NOTES.Version)
+                ? string.Format("[{0}]", VERSION)
                 : NUGET_VERSIONS[packageId]
         };
 }
