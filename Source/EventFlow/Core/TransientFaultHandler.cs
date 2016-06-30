@@ -54,6 +54,18 @@ namespace EventFlow.Core
             configureStrategy(_retryStrategy);
         }
 
+        public Task TryAsync(Func<CancellationToken, Task> action, Label label, CancellationToken cancellationToken)
+        {
+            return TryAsync(
+                async c =>
+                    {
+                        await action(c).ConfigureAwait(false);
+                        return 0;
+                    },
+                label,
+                cancellationToken);
+        }
+
         public async Task<T> TryAsync<T>(Func<CancellationToken, Task<T>> action, Label label, CancellationToken cancellationToken)
         {
             if (_retryStrategy == null)

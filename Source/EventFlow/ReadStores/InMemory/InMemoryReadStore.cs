@@ -70,7 +70,7 @@ namespace EventFlow.ReadStores.InMemory
             }
         }
 
-        public async override Task DeleteAllAsync(
+        public override async Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))

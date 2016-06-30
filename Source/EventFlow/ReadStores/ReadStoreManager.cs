@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -48,6 +51,7 @@ namespace EventFlow.ReadStores
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
+        protected ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> TransientFaultHandler { get; }
 
         protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
         protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
@@ -73,16 +77,18 @@ namespace EventFlow.ReadStores
             IResolver resolver,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
-            IReadModelFactory<TReadModel> readModelFactory)
+            IReadModelFactory<TReadModel> readModelFactory,
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             Log = log;
             Resolver = resolver;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
             ReadModelFactory = readModelFactory;
+            TransientFaultHandler = transientFaultHandler;
         }
 
-        public async Task UpdateReadStoresAsync(
+        public Task UpdateReadStoresAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
@@ -96,7 +102,7 @@ namespace EventFlow.ReadStores
                     ReadModelType.PrettyPrint(),
                     string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
                     ));
-                return;
+                return Task.FromResult(0);
             }
 
             Log.Verbose(() => string.Format(
@@ -115,15 +121,17 @@ namespace EventFlow.ReadStores
                     typeof(TReadModel).PrettyPrint(),
                     typeof(TReadModelStore).PrettyPrint(),
                     string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
-                return;
+                return Task.FromResult(0);
             }
 
-            await ReadModelStore.UpdateAsync(
-                readModelUpdates,
-                readModelContext,
-                UpdateAsync,
-                cancellationToken)
-                .ConfigureAwait(false);
+            return TransientFaultHandler.TryAsync(
+                c => ReadModelStore.UpdateAsync(
+                    readModelUpdates,
+                    readModelContext,
+                    UpdateAsync,
+                    c),
+                Label.Named("ss"),
+                cancellationToken);
         }
 
         protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
