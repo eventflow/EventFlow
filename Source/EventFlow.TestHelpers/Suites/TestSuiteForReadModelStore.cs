@@ -142,8 +142,8 @@ namespace EventFlow.TestHelpers.Suites
             var id = ThingyId.New;
             await PublishPingCommandsAsync(id).ConfigureAwait(false);
 
-            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             // Act
+            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
