@@ -49,16 +49,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
             var connectionSettings = new ConnectionSettings(new SniffingConnectionPool(uris))
                 .ThrowExceptions()
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
-                .DisablePing()
-                .DisableDirectStreaming()
-                .OnRequestCompleted(a =>
-                    {
-                        Console.WriteLine($"{a.HttpMethod} {a.Uri}");
-                        if (a.RequestBodyInBytes != null && a.RequestBodyInBytes.Any())
-                            Console.WriteLine(Encoding.UTF8.GetString(a.RequestBodyInBytes));
-                        if (a.ResponseBodyInBytes != null && a.ResponseBodyInBytes.Any())
-                            Console.WriteLine(Encoding.UTF8.GetString(a.ResponseBodyInBytes));
-                    });
+                .DisablePing();
 
             return eventFlowOptions
                 .ConfigureElasticsearch(connectionSettings);
