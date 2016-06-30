@@ -340,7 +340,7 @@ void ExecuteTest(string files, string reportName)
                         NoLogo = true,
                         Framework = "net-4.5.1",
                         ToolPath = TOOL_NUNIT,
-                        OutputFile = nunitOutputPath,
+                        //OutputFile = nunitOutputPath,
                         ResultsFile = nunitResultsPath,
                     });
         },
@@ -355,7 +355,7 @@ void ExecuteTest(string files, string reportName)
         .WithFilter("-[*TestHelpers]*")
         .WithFilter("-[*Shipping*]*"));
 
-    UploadArtifact(nunitOutputPath);
+    //UploadArtifact(nunitOutputPath);
     UploadTestResults(nunitResultsPath);
 }
 
