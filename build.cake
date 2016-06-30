@@ -92,6 +92,16 @@ var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
         "Owin",
         "Microsoft.Owin",
         }},
+
+    // Deprecated packages
+    {"EventFlow.EventStores.MsSql", new []{
+        "EventFlow",
+        "EventFlow.MsSql",
+        }},
+    {"EventFlow.ReadStores.MsSql", new []{
+        "EventFlow",
+        "EventFlow.MsSql",
+        }},
     };
 
 // =====================================================================================================
