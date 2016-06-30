@@ -23,14 +23,14 @@
 //
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Commands
 {
-    public interface IEventFlowConfiguration
+    public interface ICommandScheduler
     {
-        int PopulateReadModelEventPageSize { get; }
-        int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; }
-        TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; }
-        bool ThrowSubscriberExceptions { get; }
+        Task ScheduleAsync(ICommand command, DateTimeOffset runAt, CancellationToken cancellationToken);
+        Task ScheduleAsync(ICommand command, TimeSpan delay, CancellationToken cancellationToken);
     }
 }

@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace EventFlow.Subscribers
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
         private class SubscriberInfomation
         {
@@ -50,13 +52,17 @@ namespace EventFlow.Subscribers
 
         public DispatchToEventSubscribers(
             ILog log,
-            IResolver resolver)
+            IResolver resolver,
+            IEventFlowConfiguration eventFlowConfiguration)
         {
             _log = log;
             _resolver = resolver;
+            _eventFlowConfiguration = eventFlowConfiguration;
         }
 
-        public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        public async Task DispatchAsync(
+            IEnumerable<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
             foreach (var domainEvent in domainEvents)
             {
@@ -65,27 +71,37 @@ namespace EventFlow.Subscribers
                 var subscriberDispatchTasks = subscribers
                     .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent, cancellationToken))
                     .ToList();
-                await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    if (_eventFlowConfiguration.ThrowSubscriberExceptions)
+                    {
+                        throw;
+                    }
+
+                    _log.Error(
+                        exception,
+                        $"Event subscribers of event '{domainEvent.EventType.PrettyPrint()}' threw an unexpected exception!");
+                }
             }
         }
 
-        private async Task DispatchToSubscriberAsync(object handler, SubscriberInfomation subscriberInfomation, IDomainEvent domainEvent, CancellationToken cancellationToken)
+        private async Task DispatchToSubscriberAsync(
+            object handler,
+            SubscriberInfomation subscriberInfomation,
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken)
         {
-            try
-            {
-                _log.Verbose(() => string.Format(
-                    "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                    handler.GetType().PrettyPrint(),
-                    domainEvent.EventType.PrettyPrint()));
-                await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Error(
-                    exception,
-                    "Failed to dispatch to event handler {0}",
-                    handler.GetType().PrettyPrint());
-            }
+            _log.Verbose(() => string.Format(
+                "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
+                handler.GetType().PrettyPrint(),
+                domainEvent.EventType.PrettyPrint()));
+
+            await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
         }
 
         private static SubscriberInfomation GetSubscriberInfomation(Type domainEventType)
