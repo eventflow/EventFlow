@@ -22,23 +22,45 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Reflection;
-using System.Runtime.InteropServices;
+using NUnit.Framework;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using Nest;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("EventFlow.MsSql")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow.MsSql")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace EventFlow.ReadStores.Elasticsearch.Tests.UnitTests
+{
+    [Category(Categories.Unit)]
+    public class ReadModelDescriptionProviderTests : TestsFor<ReadModelDescriptionProvider>
+    {
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class TestReadModelA : IReadModel
+        {
+        }
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+        // ReSharper disable once ClassNeverInstantiated.Local
+        [ElasticsearchType(Name = "SomeThingFancy")]
+        private class TestReadModelB : IReadModel
+        {
+        }
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("771d43a6-7ab8-4a88-916c-2678cad138f8")]
+        [Test]
+        public void ReadModelIndexIsCorrectWithoutAttribute()
+        {
+            // Act
+            var readModelDescription = Sut.GetReadModelDescription<TestReadModelA>();
+
+            // Assert
+            readModelDescription.IndexName.Value.Should().Be("eventflow-testreadmodela");
+        }
+
+        [Test]
+        public void ReadModelIndexIsCorrectWithAttribute()
+        {
+            // Act
+            var readModelDescription = Sut.GetReadModelDescription<TestReadModelB>();
+
+            // Assert
+            readModelDescription.IndexName.Value.Should().Be("SomeThingFancy");
+        }
+    }
+}

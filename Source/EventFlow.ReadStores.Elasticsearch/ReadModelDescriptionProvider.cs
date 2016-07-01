@@ -20,10 +20,12 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using EventFlow.Extensions;
 using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch
@@ -37,12 +39,13 @@ namespace EventFlow.ReadStores.Elasticsearch
             return IndexNames.GetOrAdd(
                 typeof (TReadModel),
                 t =>
-                {
-                    var elasticType = t.GetCustomAttribute<ElasticTypeAttribute>();
-                    return new ReadModelDescription(new IndexName(elasticType == null
-                        ? "eventflow"
-                        : elasticType.Name));
-                });
+                    {
+                        var elasticType = t.GetCustomAttribute<ElasticsearchTypeAttribute>();
+                        var indexName = elasticType == null
+                            ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
+                            : elasticType.Name;
+                        return new ReadModelDescription(new IndexName(indexName));
+                    });
         }
     }
 }

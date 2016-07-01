@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
@@ -49,10 +50,15 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandler
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
             var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
                 query.ThingyId.Value,
-                readModelDescription.IndexName.Value)
+                d => d
+                    .RequestConfiguration(c => c
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound))
+                    .Index(readModelDescription.IndexName.Value))
                 .ConfigureAwait(false);
+
             return getResponse != null && getResponse.Found
-                ? long.Parse(getResponse.Version)
+                ? getResponse.Version
                 : null as long?;
         }
     }
