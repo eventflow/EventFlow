@@ -61,6 +61,10 @@
     <Compile Include="Aggregates\IAggregateStore.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="Core\Cache\Cache.cs" />
+    <Compile Include="Core\Cache\ICache.cs" />
+    <Compile Include="Core\Cache\IInMemoryCache.cs" />
+    <Compile Include="Core\Cache\InMemoryCache.cs" />
     <Compile Include="Core\DisposableAction.cs" />
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />

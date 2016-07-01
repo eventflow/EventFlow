@@ -1,19 +1,19 @@
 ﻿// The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2016 Rasmus Mikkelsen
 // Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -22,28 +22,26 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Core.Cache
 {
-    public static class StringExtensions
+    public interface ICache
     {
-        private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
-        private static readonly SHA256Managed Sha256Managed = new SHA256Managed();
+        Task<T> GetOrAddAsync<T>(
+            string key,
+            DateTimeOffset expirationTime,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken)
+            where T : class;
 
-        public static string ToSlug(this string str)
-        {
-            return RegexToSlug.Replace(str, "-$0").ToLowerInvariant();
-        }
-
-        public static string Sha256(this string str)
-        {
-            var bytes = Encoding.Unicode.GetBytes(str);
-            var hash = Sha256Managed.ComputeHash(bytes);
-            return hash.Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}")).ToString();
-        }
+        Task<T> GetOrAddAsync<T>(
+            string key,
+            TimeSpan slidingExpiration,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken)
+            where T : class;
     }
 }

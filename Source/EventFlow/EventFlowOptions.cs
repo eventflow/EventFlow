@@ -30,6 +30,7 @@ using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
+using EventFlow.Core.Cache;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -221,6 +222,8 @@ namespace EventFlow
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaStore, SagaStore>();
             serviceRegistration.Register<ISagaManager, SagaManager>();
+            serviceRegistration.Register<ICache>(r => r.Resolver.Resolve<IInMemoryCache>());
+            serviceRegistration.Register<IInMemoryCache, InMemoryCache>(Lifetime.Singleton);
             serviceRegistration.RegisterGeneric(typeof(ISagaProcessor<,,,>), typeof(SagaProcessor<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));

@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Core.Cache;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
@@ -35,25 +36,53 @@ namespace EventFlow.Sagas
     public class SagaStore : ISagaStore
     {
         private readonly IAggregateStore _aggregateStore;
+        private readonly IInMemoryCache _inMemoryCache;
 
         public SagaStore(
-            IAggregateStore aggregateStore)
+            IAggregateStore aggregateStore,
+            IInMemoryCache inMemoryCache)
         {
             _aggregateStore = aggregateStore;
+            _inMemoryCache = inMemoryCache;
         }
 
-        public Task<ISaga> LoadAsync(ISagaId sagaId, SagaTypeDetails sagaTypeDetails, CancellationToken cancellationToken)
+        public async Task<ISaga> LoadAsync(ISagaId sagaId, SagaTypeDetails sagaTypeDetails, CancellationToken cancellationToken)
         {
-            var aggregateRootType = sagaTypeDetails.SagaType.GetInterfaces()
-                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+            var loadAggregateSagaAsync = await GetCacheItemAsync(
+                sagaTypeDetails.SagaType,
+                cancellationToken)
+                .ConfigureAwait(false);
+            var saga = await loadAggregateSagaAsync(
+                sagaId,
+                cancellationToken)
+                .ConfigureAwait(false);
 
-            if (aggregateRootType == null) throw new ArgumentException($"Saga '{sagaTypeDetails.SagaType.PrettyPrint()}' is not a aggregate root");
+            return saga;
+        }
 
-            var methodInfo = GetType().GetMethod("LoadAggregateSagaAsync");
-            var identityType = aggregateRootType.GetGenericArguments()[0];
-            var genericMethodInfo = methodInfo.MakeGenericMethod(sagaTypeDetails.SagaType, identityType);
+        private async Task<Func<ISagaId, CancellationToken, Task<ISaga>>> GetCacheItemAsync(Type sagaType, CancellationToken cancellationToken)
+        {
+            var value = await _inMemoryCache.GetOrAddAsync(
+                sagaType.GetCacheKey(),
+                TimeSpan.FromHours(1),
+                _ =>
+                    {
+                        var aggregateRootType = sagaType
+                            .GetInterfaces()
+                            .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
 
-            return (Task<ISaga>) genericMethodInfo.Invoke(this, new object[] {sagaId, cancellationToken});
+                        if (aggregateRootType == null)
+                            throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
+
+                        var methodInfo = GetType().GetMethod(nameof(LoadAggregateSagaAsync));
+                        var identityType = aggregateRootType.GetGenericArguments()[0];
+                        var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
+                        return Task.FromResult<Func<ISagaId, CancellationToken, Task<ISaga>>>((i, c) => (Task<ISaga>)genericMethodInfo.Invoke(this, new object[] { i, c }));
+                    },
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            return value;
         }
 
         public async Task<ISaga> LoadAggregateSagaAsync<TAggregate, TIdentity>(

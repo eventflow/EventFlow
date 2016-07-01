@@ -68,6 +68,12 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _aggregateStore = _resolver.Resolve<IAggregateStore>();
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _resolver.Dispose();
+        }
+
         [Test]
         public async Task StartedByCorrectly()
         {

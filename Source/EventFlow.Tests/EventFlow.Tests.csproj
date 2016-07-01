@@ -68,6 +68,7 @@
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
+    <Compile Include="UnitTests\Core\Cache\InMemoryCacheTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
@@ -115,7 +116,7 @@
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
     <Compile Include="UnitTests\Sagas\SagaDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Sagas\SagaFlowTests.cs" />
-    <Compile Include="UnitTests\Sagas\SagaTestClasses.cs" />    
+    <Compile Include="UnitTests\Sagas\SagaTestClasses.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
