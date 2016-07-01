@@ -92,6 +92,8 @@ to the documentation.
   and EventFlow has support for
   * [In-memory](./Documentation/Snapshots.md#in-memory) - only for test
   * [Microsoft SQL Server](./Documentation/Snapshots.md#microsoft-sql-server)  
+* [**Sagas:**](./Documentation/Sagas.md) Also known as _process managers_,
+  coordinates and routes messages between bounded contexts and aggregates
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
@@ -267,4 +269,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
