@@ -52,8 +52,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="CopyRuntimeDependencies" AssemblyFile="..\..\.paket\paket.exe" />
-  <Target Name="AfterBuild">
-    <CopyRuntimeDependencies OutputPath="$(OutputPath)" ProjectsWithRuntimeLibs="Test#System.Collections;Test#System.Diagnostics.Contracts;Test#System.Diagnostics.Debug;Test#System.Globalization;Test#System.IO;Test#System.Linq.Expressions;Test#System.Private.Uri;Test#System.Reflection;Test#System.Reflection.Extensions;Test#System.Reflection.Primitives;Test#System.Reflection.TypeExtensions;Test#System.Resources.ResourceManager;Test#System.Runtime;Test#System.Runtime.Extensions;Test#System.Runtime.Handles;Test#System.Runtime.InteropServices;Test#System.Runtime.WindowsRuntime;Test#System.Text.Encoding;Test#System.Text.Encoding.Extensions;Test#System.Threading;Test#System.Threading.Tasks" />
+  <Target Name="AfterBuild" Condition="Exists('..\..\.paket\paket.exe')">
+    <CopyRuntimeDependencies OutputPath="$(OutDir)" TargetFramework="$(TargetFrameworkIdentifier) - $(TargetFrameworkVersion)" ProjectsWithRuntimeLibs="Test#System.Collections;Test#System.Diagnostics.Contracts;Test#System.Diagnostics.Debug;Test#System.Globalization;Test#System.IO;Test#System.Linq.Expressions;Test#System.Private.Uri;Test#System.Reflection;Test#System.Reflection.Extensions;Test#System.Reflection.Primitives;Test#System.Reflection.TypeExtensions;Test#System.Resources.ResourceManager;Test#System.Runtime;Test#System.Runtime.Extensions;Test#System.Runtime.Handles;Test#System.Runtime.InteropServices;Test#System.Runtime.WindowsRuntime;Test#System.Text.Encoding;Test#System.Text.Encoding.Extensions;Test#System.Threading;Test#System.Threading.Tasks" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -173,7 +173,7 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETStandard' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v1.2' Or $(TargetFrameworkVersion) == 'v1.3' Or $(TargetFrameworkVersion) == 'v1.4' Or $(TargetFrameworkVersion) == 'v1.5')) Or ($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2'))">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2')">
       <ItemGroup>
         <Reference Include="Ploeh.AutoFixture.AutoMoq">
           <HintPath>..\..\packages\test\AutoFixture.AutoMoq\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
@@ -370,6 +370,11 @@
     </When>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0')">
       <ItemGroup>
+        <Reference Include="NUnit.System.Linq">
+          <HintPath>..\..\packages\test\NUnit\lib\net20\NUnit.System.Linq.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
         <Reference Include="nunit.framework">
           <HintPath>..\..\packages\test\NUnit\lib\net20\nunit.framework.dll</HintPath>
           <Private>True</Private>

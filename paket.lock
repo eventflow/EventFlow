@@ -62,19 +62,11 @@ GROUP Build
 REDIRECTS: OFF
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.14.5)
+    Cake (0.13)
+    GitVersion.CommandLine (3.5.4)
     ilmerge (2.14.1208)
-    NUnit.Console (3.2.1)
-      NUnit.ConsoleRunner (3.2.1)
-      NUnit.Extension.NUnitProjectLoader (3.2.1)
-      NUnit.Extension.NUnitV2Driver (3.2.1)
-      NUnit.Extension.NUnitV2ResultWriter (3.2.1)
-      NUnit.Extension.VSProjectLoader (3.2.1)
-    NUnit.ConsoleRunner (3.2.1)
-    NUnit.Extension.NUnitProjectLoader (3.2.1)
-    NUnit.Extension.NUnitV2Driver (3.2.1)
-    NUnit.Extension.NUnitV2ResultWriter (3.2.1)
-    NUnit.Extension.VSProjectLoader (3.2.1)
+    NuGet.CommandLine (3.4.3)
+    NUnit.Runners (2.6.4)
     OpenCover (4.6.519)
 
 GROUP Test
@@ -82,7 +74,7 @@ REDIRECTS: ON
 NUGET
   remote: https://www.nuget.org/api/v2
     AutoFixture (3.38.1)
-    AutoFixture.AutoMoq (3.31.1)
+    AutoFixture.AutoMoq (3.31.1) - framework: >= net451
       AutoFixture (>= 3.31.1)
       Moq (>= 4.1.1308.2120)
     FluentAssertions (4.2.1)
@@ -102,9 +94,9 @@ NUGET
       System.Threading (>= 4.0.10) - framework: dnxcore50
       System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
       System.Xml.XDocument (>= 4.0.10) - framework: dnxcore50
-    Helpz (0.1.8)
+    Helpz (0.1.8) - framework: >= net451
     Moq (4.2.1510.2205)
-    NUnit (3.2.1)
+    NUnit (3.4.1)
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
       System.Resources.ResourceManager (>= 4.0) - framework: dnxcore50

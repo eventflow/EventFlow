@@ -18,8 +18,8 @@ nuget Microsoft.AspNet.WebApi.Core 5.2.3
 nuget Microsoft.AspNet.WebApi.Owin 5.2.3
 nuget Microsoft.AspNet.WebApi.OwinSelfHost 5.2.3
 nuget Microsoft.Owin 3.0.1
-nuget Microsoft.Owin.Host.HttpListener
-nuget Microsoft.Owin.Hosting 3.0.1
+nuget Microsoft.Owin.Host.HttpListener 3.0.1
+nuget Microsoft.Owin.Hosting 3.0.1 
 nuget NEST 1.7.1
 nuget Newtonsoft.Json 7.0.1
 nuget Owin 1.0
@@ -30,18 +30,20 @@ group Build
 	redirects: off
 	source https://www.nuget.org/api/v2/
 
-	nuget FAKE 4.14.5
+	nuget cake
+	nuget GitVersion.CommandLine
 	nuget ilmerge 2.14.1208
+	nuget NuGet.CommandLine
+	nuget NUnit.Runners 2.6.4
 	nuget OpenCover
-	nuget NUnit.Console ~> 3.0
 
 group Test
 	redirects: on
 	source https://www.nuget.org/api/v2/
 	
 	nuget AutoFixture 3.38.1
-	nuget AutoFixture.AutoMoq 3.31.1
+	nuget AutoFixture.AutoMoq 3.31.1 framework: >= net451
 	nuget FluentAssertions 4.2.1
-	nuget Helpz 0.1.8
+	nuget Helpz 0.1.8 framework: >= net451
 	nuget Moq 4.2.1510.2205
 	nuget NUnit ~> 3.0

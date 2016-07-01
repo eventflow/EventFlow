@@ -13,8 +13,5 @@
     <copyright>Copyright (c) 2015-2016 Rasmus Mikkelsen</copyright>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <tags></tags>
-    <releaseNotes>@releaseNotes@</releaseNotes>
-    @dependencies@
-    @references@
   </metadata>
 </package>

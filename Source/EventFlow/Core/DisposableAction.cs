@@ -1,19 +1,19 @@
 ﻿// The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2016 Rasmus Mikkelsen
 // Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -22,23 +22,26 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System;
+using System.Threading;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("EventFlow.MsSql")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow.MsSql")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace EventFlow.Core
+{
+    public sealed class DisposableAction : IDisposable
+    {
+        public static readonly DisposableAction Empty = new DisposableAction(null);
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+        private Action _disposeAction;
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("771d43a6-7ab8-4a88-916c-2678cad138f8")]
+        public DisposableAction(Action disposeAction)
+        {
+            _disposeAction = disposeAction;
+        }
+
+        public void Dispose()
+        {
+            var continuation = Interlocked.Exchange(ref _disposeAction, null);
+            continuation?.Invoke();
+        }
+    }
+}

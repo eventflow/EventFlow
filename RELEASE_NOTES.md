@@ -1,4 +1,14 @@
-### New in 0.30 (not released yet)
+### New in 0.32 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.31.2106 (released 2016-06-30)
+
+* New: EventFlow can now be configured to throw exceptions thrown by subscribers
+  by `options.Configure(c => c.ThrowSubscriberExceptions = true)`
+* New: Added an `ICommandScheduler` for easy scheduling of commands
+
+### New in 0.30.2019 (released 2016-06-16)
 
 * Breaking: To simplify the EventFlow NuGet package structure, the two NuGet
   packages `EventFlow.EventStores.MsSql` and `EventFlow.ReadStores.MsSql` have
@@ -7,6 +17,10 @@
   the upgrade a simple operation of merely using the new name spaces. To make
   the upgrade easier, the deprecated NuGet packages will still be uploaded,
   but will not contain anything
+* Fixed: When configuring Elasticsearch and using the overload of
+  `ConfigureElasticsearch` that takes multiple of URLs, `SniffingConnectionPool`
+  is now used instead of `StaticConnectionPool` and with sniff life span of five
+  minutes
 
 ### New in 0.29.1973 (released 2016-04-19)
 
