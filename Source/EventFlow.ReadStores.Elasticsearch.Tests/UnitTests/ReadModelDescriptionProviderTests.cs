@@ -29,6 +29,7 @@ using Nest;
 
 namespace EventFlow.ReadStores.Elasticsearch.Tests.UnitTests
 {
+    [Category(Categories.Unit)]
     public class ReadModelDescriptionProviderTests : TestsFor<ReadModelDescriptionProvider>
     {
         // ReSharper disable once ClassNeverInstantiated.Local
