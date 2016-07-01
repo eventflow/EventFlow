@@ -363,7 +363,8 @@ void ExecuteTest(string files, string reportName)
                         ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
                         Results = nunitResultsPath,
-                        ResultFormat = "nunit2"
+                        ResultFormat = "nunit2",
+                        DisposeRunners = true
                     });
         },
     new FilePath(openCoverReportPath),
