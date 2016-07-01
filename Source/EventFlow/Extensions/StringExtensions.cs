@@ -39,11 +39,13 @@ namespace EventFlow.Extensions
             return RegexToSlug.Replace(str, "-$0").ToLowerInvariant();
         }
 
-        public static string Sha256(this string str)
+        public static string ToSha256(this string str)
         {
-            var bytes = Encoding.Unicode.GetBytes(str);
+            var bytes = Encoding.UTF8.GetBytes(str);
             var hash = Sha256Managed.ComputeHash(bytes);
-            return hash.Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}")).ToString();
+            return hash
+                .Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}"))
+                .ToString();
         }
     }
 }
