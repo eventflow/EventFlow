@@ -22,11 +22,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Sagas;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSagasExtensions
     {
+        public static IEventFlowOptions AddSagas(
+            this IEventFlowOptions eventFlowOptions,
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
+        {
+            predicate = predicate ?? (t => true);
+            var sagaTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(ISaga).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+
+            return eventFlowOptions.AddSagas(sagaTypes);
+        }
+
         public static IEventFlowOptions AddSagas(
             this IEventFlowOptions eventFlowOptions,
             params Type[] sagaTypes)

@@ -44,7 +44,8 @@ namespace EventFlow.Extensions
                 .AddEventUpgraders(fromAssembly, predicate)
                 .AddQueryHandlers(fromAssembly, predicate)
                 .AddSnapshots(fromAssembly, predicate)
-                .AddSnapshotUpgraders(fromAssembly, predicate);
+                .AddSnapshotUpgraders(fromAssembly, predicate)
+                .AddSagas(fromAssembly, predicate);
         }
     }
 }
