@@ -34,7 +34,7 @@ group Build
 	nuget GitVersion.CommandLine
 	nuget ilmerge 2.14.1208
 	nuget NuGet.CommandLine
-	nuget NUnit.Runners 2.6.4
+	nuget NUnit.Runners ~> 3.0
 	nuget OpenCover
 
 group Test
