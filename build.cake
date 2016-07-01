@@ -85,7 +85,6 @@ var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
         "EventFlow",
         "NEST",
         "Elasticsearch.Net",
-        "Elasticsearch.Net.JsonNET",
         }},
     {"EventFlow.Owin", new []{
         "EventFlow",

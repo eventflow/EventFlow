@@ -23,7 +23,9 @@
 //
 
 using System;
-using Elasticsearch.Net.ConnectionPool;
+using System.Linq;
+using System.Text;
+using Elasticsearch.Net;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using Nest;
@@ -34,10 +36,18 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
     {
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
+            params string[] uris)
+        {
+            return eventFlowOptions
+                .ConfigureElasticsearch(uris.Select(u => new Uri(u, UriKind.Absolute)).ToArray());
+        }
+
+        public static IEventFlowOptions ConfigureElasticsearch(
+            this IEventFlowOptions eventFlowOptions,
             params Uri[] uris)
         {
             var connectionSettings = new ConnectionSettings(new SniffingConnectionPool(uris))
-                .ThrowOnElasticsearchServerExceptions()
+                .ThrowExceptions()
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
                 .DisablePing();
 
@@ -59,7 +69,7 @@ namespace EventFlow.ReadStores.Elasticsearch.Extensions
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
-                    sr.Register(f => elasticClientFactory());
+                    sr.Register(f => elasticClientFactory(), Lifetime.Singleton);
                     sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
                 });
         }
