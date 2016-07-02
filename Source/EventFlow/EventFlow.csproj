@@ -260,8 +260,8 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
-    <Compile Include="Sagas\ISagaProcessor.cs" />
-    <Compile Include="Sagas\SagaProcessor.cs" />
+    <Compile Include="Sagas\ISagaInvoker.cs" />
+    <Compile Include="Sagas\SagaInvoker.cs" />
     <Compile Include="Sagas\SagaDetails.cs" />
     <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
     <Compile Include="Snapshots\Strategies\SnapshotEveryFewVersionsStrategy.cs" />

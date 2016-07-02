@@ -94,7 +94,7 @@ namespace EventFlow.Sagas
                         continue;
                     }
 
-                    var sagaProcessorType = typeof (ISagaProcessor<,,,>).MakeGenericType(
+                    var sagaProcessorType = typeof (ISagaInvoker<,,,>).MakeGenericType(
                         domainEvent.AggregateType,
                         domainEvent.IdentityType,
                         domainEvent.EventType,

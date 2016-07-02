@@ -34,7 +34,7 @@ namespace EventFlow.Sagas
         Task ProcessAsync(ISaga saga, IDomainEvent domainEvent, CancellationToken cancellationToken);
     }
 
-    public interface ISagaProcessor<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaProcessor
+    public interface ISagaInvoker<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaProcessor
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>

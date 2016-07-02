@@ -31,7 +31,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
-    public class SagaProcessor<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaProcessor<TAggregate, TIdentity, TAggregateEvent, TSaga>
+    public class SagaInvoker<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaInvoker<TAggregate, TIdentity, TAggregateEvent, TSaga>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
