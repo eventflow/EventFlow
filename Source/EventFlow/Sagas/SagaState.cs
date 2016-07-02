@@ -22,15 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace EventFlow.Sagas
 {
-    public interface ISaga
+    public enum SagaState
     {
-        SagaState State { get; }
-
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
+        New,
+        Running
     }
 }

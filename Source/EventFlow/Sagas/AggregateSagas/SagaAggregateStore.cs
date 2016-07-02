@@ -32,7 +32,7 @@ using EventFlow.Core;
 using EventFlow.Core.Cache;
 using EventFlow.Extensions;
 
-namespace EventFlow.Sagas
+namespace EventFlow.Sagas.AggregateSagas
 {
     public class SagaAggregateStore : ISagaStore
     {

@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Sagas;
+using EventFlow.Sagas.AggregateSagas;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Tests.UnitTests.Sagas
@@ -40,7 +41,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
             }
         }
 
-        public class TestSaga : Saga<TestSaga, TestSagaId, TestSagaLocator>,
+        public class TestSaga : AggregateSaga<TestSaga, TestSagaId, TestSagaLocator>,
             ISagaIsStartedBy<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA>,
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB>,
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC>

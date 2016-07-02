@@ -36,6 +36,8 @@ namespace EventFlow.Sagas
             Exception exception,
             CancellationToken cancellationToken)
         {
+            // The default handler cannot handle anything!
+
             return Task.FromResult(false);
         }
     }

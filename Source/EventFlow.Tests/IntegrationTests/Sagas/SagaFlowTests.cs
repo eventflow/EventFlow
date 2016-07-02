@@ -27,10 +27,11 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.Tests.UnitTests.Sagas;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Sagas
+namespace EventFlow.Tests.IntegrationTests.Sagas
 {
     [Category(Categories.Unit)]
     public class SagaFlowTests

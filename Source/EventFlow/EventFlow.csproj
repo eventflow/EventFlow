@@ -69,10 +69,12 @@
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Sagas\ISaga.cs" />
     <Compile Include="Sagas\ISagaErrorHandler.cs" />
     <Compile Include="Sagas\ISagaStore.cs" />
-    <Compile Include="Sagas\SagaAggregateStore.cs" />
+    <Compile Include="Sagas\AggregateSagas\SagaAggregateStore.cs" />
     <Compile Include="Sagas\SagaErrorHandler.cs" />
+    <Compile Include="Sagas\SagaState.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
     <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
@@ -266,14 +268,14 @@
     <Compile Include="Snapshots\Strategies\SnapshotRandomlyStrategy.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Specification.cs" />
-    <Compile Include="Sagas\ISaga.cs" />
+    <Compile Include="Sagas\AggregateSagas\IAggregateSaga.cs" />
     <Compile Include="Sagas\ISagaDefinitionService.cs" />
     <Compile Include="Sagas\ISagaId.cs" />
     <Compile Include="Sagas\ISagaLocator.cs" />
     <Compile Include="Sagas\IDispatchToSagas.cs" />
     <Compile Include="Sagas\ISagaHandles.cs" />
     <Compile Include="Sagas\ISagaIsStartedBy.cs" />
-    <Compile Include="Sagas\Saga.cs" />
+    <Compile Include="Sagas\AggregateSagas\AggregateSaga.cs" />
     <Compile Include="Sagas\SagaDefinitionService.cs" />
     <Compile Include="Sagas\SagaId.cs" />
     <Compile Include="Sagas\DispatchToSagas.cs" />
@@ -327,6 +329,7 @@
     <None Include="EventFlow.nuspec" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

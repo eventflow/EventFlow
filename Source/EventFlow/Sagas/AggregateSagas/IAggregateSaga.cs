@@ -22,15 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.Sagas
+namespace EventFlow.Sagas.AggregateSagas
 {
-    public interface ISaga
+    public interface IAggregateSaga<out TIdentity, TLocator> : ISaga, IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TLocator : ISagaLocator
     {
-        SagaState State { get; }
-
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
     }
 }

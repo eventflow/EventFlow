@@ -87,7 +87,8 @@ namespace EventFlow.Sagas
                         cancellationToken)
                         .ConfigureAwait(false);
 
-                    if (saga.IsNew && !details.IsStartedBy(domainEvent.EventType))
+                    if (saga.State == SagaState.New &&
+                        !details.IsStartedBy(domainEvent.EventType))
                     {
                         _log.Debug(() => $"Saga '{details.SagaType.PrettyPrint()}' isn't started yet, skipping processing of '{domainEvent.EventType.PrettyPrint()}'");
                         continue;

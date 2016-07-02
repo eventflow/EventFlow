@@ -30,16 +30,16 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 
-namespace EventFlow.Sagas
+namespace EventFlow.Sagas.AggregateSagas
 {
-    public abstract class Saga<TSaga, TIdentity, TLocator> : AggregateRoot<TSaga, TIdentity>, ISaga<TIdentity, TLocator>
-        where TSaga : Saga<TSaga, TIdentity, TLocator>
+    public abstract class AggregateSaga<TSaga, TIdentity, TLocator> : AggregateRoot<TSaga, TIdentity>, IAggregateSaga<TIdentity, TLocator>
+        where TSaga : AggregateSaga<TSaga, TIdentity, TLocator>
         where TIdentity : ISagaId
         where TLocator : ISagaLocator
     {
         private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
 
-        protected Saga(TIdentity id) : base(id)
+        protected AggregateSaga(TIdentity id) : base(id)
         {
         }
 
@@ -51,6 +51,10 @@ namespace EventFlow.Sagas
         {
             _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
         }
+
+        public SagaState State => IsNew
+            ? SagaState.New
+            : SagaState.Running;
 
         public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {

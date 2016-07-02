@@ -41,6 +41,7 @@ using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
+using EventFlow.Sagas.AggregateSagas;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;

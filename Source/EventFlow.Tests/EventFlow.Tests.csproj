@@ -115,7 +115,7 @@
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
     <Compile Include="UnitTests\Sagas\SagaDefinitionServiceTests.cs" />
-    <Compile Include="UnitTests\Sagas\SagaFlowTests.cs" />
+    <Compile Include="IntegrationTests\Sagas\SagaFlowTests.cs" />
     <Compile Include="UnitTests\Sagas\SagaTestClasses.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
