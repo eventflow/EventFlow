@@ -36,18 +36,18 @@ namespace EventFlow.Subscribers
     public class DomainEventPublisher : IDomainEventPublisher
     {
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
-        private readonly ISagaManager _sagaManager;
+        private readonly IDispatchToSagas _dispatchToSagas;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
-            ISagaManager sagaManager,
+            IDispatchToSagas dispatchToSagas,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
-            _sagaManager = sagaManager;
+            _dispatchToSagas = dispatchToSagas;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -73,7 +73,7 @@ namespace EventFlow.Subscribers
             await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
 
             // Update sagas
-            await _sagaManager.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+            await _dispatchToSagas.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
     }
 }

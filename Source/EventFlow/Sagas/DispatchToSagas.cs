@@ -33,14 +33,14 @@ using EventFlow.Logs;
 
 namespace EventFlow.Sagas
 {
-    public class SagaManager : ISagaManager
+    public class DispatchToSagas : IDispatchToSagas
     {
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
 
-        public SagaManager(
+        public DispatchToSagas(
             ILog log,
             IResolver resolver,
             ISagaStore sagaStore,
@@ -67,6 +67,7 @@ namespace EventFlow.Sagas
             CancellationToken cancellationToken)
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaTypeDetails(domainEvent.EventType);
+            var commandBus = _resolver.Resolve<ICommandBus>();
 
             foreach (var details in sagaTypeDetails)
             {
@@ -77,7 +78,12 @@ namespace EventFlow.Sagas
 
                 try
                 {
-                    var saga = await _sagaStore.LoadAsync(sagaId, details, cancellationToken).ConfigureAwait(false);
+                    var saga = await _sagaStore.LoadAsync(
+                        sagaId,
+                        details,
+                        cancellationToken)
+                        .ConfigureAwait(false);
+
                     if (saga.IsNew && !details.IsStartedBy(domainEvent.EventType))
                     {
                         _log.Debug(() => $"Saga '{details.SagaType.PrettyPrint()}' isn't started yet, skipping processing of '{domainEvent.EventType.PrettyPrint()}'");
@@ -91,7 +97,19 @@ namespace EventFlow.Sagas
                         details.SagaType);
                     var sagaProcessor = (ISagaProcessor) _resolver.Resolve(sagaProcessorType);
 
-                    await sagaProcessor.ProcessAsync(saga, domainEvent, cancellationToken).ConfigureAwait(false);
+                    await sagaProcessor.ProcessAsync(
+                        saga,
+                        domainEvent,
+                        cancellationToken)
+                        .ConfigureAwait(false);
+
+                    await _sagaStore.StoreAsync(
+                        saga,
+                        domainEvent.Metadata.EventId,
+                        cancellationToken)
+                        .ConfigureAwait(false);
+
+                    await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

@@ -27,7 +27,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventStores;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
@@ -38,28 +37,20 @@ namespace EventFlow.Sagas
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         where TSaga : ISaga
     {
-        private readonly ICommandBus _commandBus;
-        private readonly IEventStore _eventStore;
-
-        public SagaProcessor(
-            ICommandBus commandBus,
-            IEventStore eventStore)
-        {
-            _commandBus = commandBus;
-            _eventStore = eventStore;
-        }
-
-        public async Task ProcessAsync(ISaga saga, IDomainEvent domainEvent, CancellationToken cancellationToken)
+        public async Task ProcessAsync(
+            ISaga saga,
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken)
         {
             var specificDomainEvent = domainEvent as IDomainEvent<TAggregate, TIdentity, TAggregateEvent>;
             var specificSaga = saga as ISagaHandles<TAggregate, TIdentity, TAggregateEvent>;
 
-            if (specificDomainEvent == null) throw new ArgumentException($"Domain event is not of type '{typeof(IDomainEvent<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
-            if (specificSaga == null) throw new ArgumentException($"Saga is not of type '{typeof(ISagaHandles<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
+            if (specificDomainEvent == null)
+                throw new ArgumentException($"Domain event is not of type '{typeof(IDomainEvent<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
+            if (specificSaga == null)
+                throw new ArgumentException($"Saga is not of type '{typeof(ISagaHandles<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
 
-            await specificSaga.ProcessAsync(specificDomainEvent, cancellationToken).ConfigureAwait(false);
-            await saga.CommitAsync(_eventStore, null /* TODO: Fix */, domainEvent.Metadata.EventId, cancellationToken).ConfigureAwait(false);
-            await saga.PublishAsync(_commandBus, cancellationToken).ConfigureAwait(false);
+            await specificSaga.HandleAsync(specificDomainEvent, cancellationToken).ConfigureAwait(false);
         }
     }
 }

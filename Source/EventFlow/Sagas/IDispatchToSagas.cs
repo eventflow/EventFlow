@@ -28,7 +28,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaManager
+    public interface IDispatchToSagas
     {
         Task ProcessAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,

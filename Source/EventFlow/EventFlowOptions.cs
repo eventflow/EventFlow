@@ -220,8 +220,8 @@ namespace EventFlow
             serviceRegistration.Register<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
-            serviceRegistration.Register<ISagaStore, SagaStore>();
-            serviceRegistration.Register<ISagaManager, SagaManager>();
+            serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
+            serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
             serviceRegistration.Register<ICache>(r => r.Resolver.Resolve<IInMemoryCache>());
             serviceRegistration.Register<IInMemoryCache, InMemoryCache>(Lifetime.Singleton);
             serviceRegistration.RegisterGeneric(typeof(ISagaProcessor<,,,>), typeof(SagaProcessor<,,,>));

@@ -24,11 +24,20 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
     public interface ISagaStore
     {
-        Task<ISaga> LoadAsync(ISagaId sagaId, SagaTypeDetails sagaTypeDetails, CancellationToken cancellationToken);
+        Task<ISaga> LoadAsync(
+            ISagaId sagaId,
+            SagaTypeDetails sagaTypeDetails,
+            CancellationToken cancellationToken);
+
+        Task StoreAsync(
+            ISaga saga,
+            ISourceId sourceId,
+            CancellationToken cancellationToken);
     }
 }

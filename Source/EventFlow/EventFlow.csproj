@@ -70,7 +70,7 @@
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Sagas\ISagaStore.cs" />
-    <Compile Include="Sagas\SagaStore.cs" />
+    <Compile Include="Sagas\SagaAggregateStore.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
     <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
@@ -268,13 +268,13 @@
     <Compile Include="Sagas\ISagaDefinitionService.cs" />
     <Compile Include="Sagas\ISagaId.cs" />
     <Compile Include="Sagas\ISagaLocator.cs" />
-    <Compile Include="Sagas\ISagaManager.cs" />
+    <Compile Include="Sagas\IDispatchToSagas.cs" />
     <Compile Include="Sagas\ISagaHandles.cs" />
     <Compile Include="Sagas\ISagaIsStartedBy.cs" />
     <Compile Include="Sagas\Saga.cs" />
     <Compile Include="Sagas\SagaDefinitionService.cs" />
     <Compile Include="Sagas\SagaId.cs" />
-    <Compile Include="Sagas\SagaManager.cs" />
+    <Compile Include="Sagas\DispatchToSagas.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />

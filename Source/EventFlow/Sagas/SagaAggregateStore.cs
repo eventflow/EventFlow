@@ -23,6 +23,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,12 +34,12 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
-    public class SagaStore : ISagaStore
+    public class SagaAggregateStore : ISagaStore
     {
         private readonly IAggregateStore _aggregateStore;
         private readonly IInMemoryCache _inMemoryCache;
 
-        public SagaStore(
+        public SagaAggregateStore(
             IAggregateStore aggregateStore,
             IInMemoryCache inMemoryCache)
         {
@@ -46,9 +47,12 @@ namespace EventFlow.Sagas
             _inMemoryCache = inMemoryCache;
         }
 
-        public async Task<ISaga> LoadAsync(ISagaId sagaId, SagaTypeDetails sagaTypeDetails, CancellationToken cancellationToken)
+        public async Task<ISaga> LoadAsync(
+            ISagaId sagaId,
+            SagaTypeDetails sagaTypeDetails,
+            CancellationToken cancellationToken)
         {
-            var loadAggregateSagaAsync = await GetCacheItemAsync(
+            var loadAggregateSagaAsync = await GetLoadAsync(
                 sagaTypeDetails.SagaType,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -60,10 +64,24 @@ namespace EventFlow.Sagas
             return saga;
         }
 
-        private async Task<Func<ISagaId, CancellationToken, Task<ISaga>>> GetCacheItemAsync(Type sagaType, CancellationToken cancellationToken)
+        public async Task StoreAsync(
+            ISaga saga,
+            ISourceId sourceId,
+            CancellationToken cancellationToken)
+        {
+            var storeAggregateSagaAsync = await GetStoreAsync(
+                saga.GetType(),
+                cancellationToken)
+                .ConfigureAwait(false);
+            await storeAggregateSagaAsync(saga, sourceId, cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task<Func<ISagaId, CancellationToken, Task<ISaga>>> GetLoadAsync(
+            Type sagaType,
+            CancellationToken cancellationToken)
         {
             var value = await _inMemoryCache.GetOrAddAsync(
-                $"sagastore:{sagaType.GetCacheKey()}",
+                $"sagastore-load:{sagaType.GetCacheKey()}",
                 TimeSpan.FromHours(1),
                 _ =>
                     {
@@ -85,6 +103,35 @@ namespace EventFlow.Sagas
             return value;
         }
 
+        private async Task<Func<ISaga, ISourceId, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetStoreAsync(
+            Type sagaType,
+            CancellationToken cancellationToken)
+        {
+            var value = await _inMemoryCache.GetOrAddAsync(
+                $"sagastore-store:{sagaType.GetCacheKey()}",
+                TimeSpan.FromHours(1),
+                _ =>
+                    {
+                        var aggregateRootType = sagaType
+                            .GetInterfaces()
+                            .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+
+                        if (aggregateRootType == null)
+                            throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
+
+                        var methodInfo = GetType().GetMethod(nameof(StoreAggregateSagaAsync));
+                        var identityType = aggregateRootType.GetGenericArguments()[0];
+                        var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
+
+                        return Task.FromResult<Func<ISaga, ISourceId, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
+                            (i, s, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { i, s, c }));
+                    },
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            return value;
+        }
+
         public async Task<ISaga> LoadAggregateSagaAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -92,6 +139,16 @@ namespace EventFlow.Sagas
             where TIdentity : IIdentity
         {
             return await _aggregateStore.LoadAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
+        }
+
+        public async Task<IReadOnlyCollection<IDomainEvent>>  StoreAggregateSagaAsync<TAggregate, TIdentity>(
+            TAggregate aggregate,
+            ISourceId sourceId,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>, ISaga
+            where TIdentity : IIdentity
+        {
+            return await _aggregateStore.StoreAsync<TAggregate, TIdentity>(aggregate, sourceId, cancellationToken).ConfigureAwait(false);
         }
     }
 }

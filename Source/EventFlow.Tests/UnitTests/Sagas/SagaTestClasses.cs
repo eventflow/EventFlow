@@ -49,21 +49,21 @@ namespace EventFlow.Tests.UnitTests.Sagas
             {
             }
 
-            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA> domainEvent, CancellationToken cancellationToken)
             {
                 Publish(new SagaTestBCommand(domainEvent.AggregateIdentity));
                 Emit(new SagaEventA());
                 return Task.FromResult(0);
             }
 
-            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB> domainEvent, CancellationToken cancellationToken)
             {
                 Publish(new SagaTestCCommand(domainEvent.AggregateIdentity));
                 Emit(new SagaEventB());
                 return Task.FromResult(0);
             }
 
-            public Task ProcessAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC> domainEvent, CancellationToken cancellationToken)
+            public Task HandleAsync(IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC> domainEvent, CancellationToken cancellationToken)
             {
                 Emit(new SagaEventC());
                 return Task.FromResult(0);
