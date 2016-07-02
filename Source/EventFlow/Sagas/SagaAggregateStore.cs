@@ -49,11 +49,11 @@ namespace EventFlow.Sagas
 
         public async Task<ISaga> LoadAsync(
             ISagaId sagaId,
-            SagaTypeDetails sagaTypeDetails,
+            SagaDetails sagaDetails,
             CancellationToken cancellationToken)
         {
             var loadAggregateSagaAsync = await GetLoadAsync(
-                sagaTypeDetails.SagaType,
+                sagaDetails.SagaType,
                 cancellationToken)
                 .ConfigureAwait(false);
             var saga = await loadAggregateSagaAsync(

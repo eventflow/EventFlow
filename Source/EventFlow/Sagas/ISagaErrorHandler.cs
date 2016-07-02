@@ -20,16 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 using System;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaDefinitionService
+    public interface ISagaErrorHandler
     {
-        void LoadSagas(params Type[] sagaTypes);
-        void LoadSagas(IEnumerable<Type> sagaTypes);
-        IEnumerable<SagaDetails> GetSagaDetails(Type aggregateEventType);
+        Task<bool> HandleAsync(
+            ISagaId sagaId,
+            SagaDetails sagaDetails,
+            Exception exception,
+            CancellationToken cancellationToken);
     }
 }

@@ -27,11 +27,11 @@ using System.Collections.Generic;
 
 namespace EventFlow.Sagas
 {
-    public class SagaTypeDetails
+    public class SagaDetails
     {
         private readonly ISet<Type> _startedBy;
 
-        public SagaTypeDetails(
+        public SagaDetails(
             Type sagaType,
             Type sagaLocatorType,
             IEnumerable<Type> startedBy)

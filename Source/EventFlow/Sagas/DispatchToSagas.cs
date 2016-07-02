@@ -39,17 +39,20 @@ namespace EventFlow.Sagas
         private readonly IResolver _resolver;
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
+        private readonly ISagaErrorHandler _sagaErrorHandler;
 
         public DispatchToSagas(
             ILog log,
             IResolver resolver,
             ISagaStore sagaStore,
-            ISagaDefinitionService sagaDefinitionService)
+            ISagaDefinitionService sagaDefinitionService,
+            ISagaErrorHandler sagaErrorHandler)
         {
             _log = log;
             _resolver = resolver;
             _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
+            _sagaErrorHandler = sagaErrorHandler;
         }
 
         public async Task ProcessAsync(
@@ -66,7 +69,7 @@ namespace EventFlow.Sagas
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
-            var sagaTypeDetails = _sagaDefinitionService.GetSagaTypeDetails(domainEvent.EventType);
+            var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
             var commandBus = _resolver.Resolve<ICommandBus>();
 
             foreach (var details in sagaTypeDetails)
@@ -113,7 +116,19 @@ namespace EventFlow.Sagas
                 }
                 catch (Exception e)
                 {
+                    var handled = await _sagaErrorHandler.HandleAsync(
+                        sagaId,
+                        details,
+                        e,
+                        cancellationToken)
+                        .ConfigureAwait(false);
+                    if (handled)
+                    {
+                        continue;
+                    }
+
                     _log.Error(e, $"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'");
+                    throw;
                 }
             }
         }

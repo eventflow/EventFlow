@@ -32,7 +32,7 @@ namespace EventFlow.Sagas
 {
     public class SagaDefinitionService : ISagaDefinitionService
     {
-        private readonly ConcurrentDictionary<Type, List<SagaTypeDetails>> _sagaTypeDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaTypeDetails>>();
+        private readonly ConcurrentDictionary<Type, List<SagaDetails>> _sagaDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaDetails>>();
 
         public void LoadSagas(params Type[] sagaTypes)
         {
@@ -62,24 +62,24 @@ namespace EventFlow.Sagas
                     .Select(i => i.GetGenericArguments()[2]);
                 var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<,>));
 
-                var sagaTypeDetails = new SagaTypeDetails(
+                var sagaTypeDetails = new SagaDetails(
                     sagaType,
                     sagaInterfaceType.GetGenericArguments()[1],
                     sagaStartedByTypes);
 
                 foreach (var aggregateEventType in aggregateEventTypes)
                 {
-                    _sagaTypeDetailsByAggregateEvent[aggregateEventType] = new List<SagaTypeDetails>(new [] { sagaTypeDetails });
+                    _sagaDetailsByAggregateEvent[aggregateEventType] = new List<SagaDetails>(new [] { sagaTypeDetails });
                 }
             }
         }
 
-        public IEnumerable<SagaTypeDetails> GetSagaTypeDetails(Type aggregateEventType)
+        public IEnumerable<SagaDetails> GetSagaDetails(Type aggregateEventType)
         {
-            List<SagaTypeDetails> sagaTypeDetails;
-            return _sagaTypeDetailsByAggregateEvent.TryGetValue(aggregateEventType, out sagaTypeDetails)
-                ? sagaTypeDetails
-                : Enumerable.Empty<SagaTypeDetails>();
+            List<SagaDetails> sagaDetails;
+            return _sagaDetailsByAggregateEvent.TryGetValue(aggregateEventType, out sagaDetails)
+                ? sagaDetails
+                : Enumerable.Empty<SagaDetails>();
         }
     }
 }

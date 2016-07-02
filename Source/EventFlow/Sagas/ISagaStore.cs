@@ -32,7 +32,7 @@ namespace EventFlow.Sagas
     {
         Task<ISaga> LoadAsync(
             ISagaId sagaId,
-            SagaTypeDetails sagaTypeDetails,
+            SagaDetails sagaDetails,
             CancellationToken cancellationToken);
 
         Task StoreAsync(

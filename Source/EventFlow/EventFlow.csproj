@@ -69,8 +69,10 @@
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Sagas\ISagaErrorHandler.cs" />
     <Compile Include="Sagas\ISagaStore.cs" />
     <Compile Include="Sagas\SagaAggregateStore.cs" />
+    <Compile Include="Sagas\SagaErrorHandler.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
     <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
@@ -258,7 +260,7 @@
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
     <Compile Include="Sagas\ISagaProcessor.cs" />
     <Compile Include="Sagas\SagaProcessor.cs" />
-    <Compile Include="Sagas\SagaTypeDetails.cs" />
+    <Compile Include="Sagas\SagaDetails.cs" />
     <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
     <Compile Include="Snapshots\Strategies\SnapshotEveryFewVersionsStrategy.cs" />
     <Compile Include="Snapshots\Strategies\SnapshotRandomlyStrategy.cs" />

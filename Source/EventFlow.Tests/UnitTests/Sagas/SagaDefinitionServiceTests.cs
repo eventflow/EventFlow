@@ -42,7 +42,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
             Sut.LoadSagas(typeof(SagaTestClasses.TestSaga));
 
             // Act
-            var sagaTypeDetails = Sut.GetSagaTypeDetails(aggregateEventType);
+            var sagaTypeDetails = Sut.GetSagaDetails(aggregateEventType);
 
             // Assert
             sagaTypeDetails.Should().HaveCount(1);
