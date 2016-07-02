@@ -20,47 +20,47 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using NUnit.Framework;
-using EventFlow.TestHelpers;
-using FluentAssertions;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.Events;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.UnitTests
+namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
-    [Category(Categories.Unit)]
-    public class ReadModelDescriptionProviderTests : TestsFor<ReadModelDescriptionProvider>
+    [ElasticsearchType(IdProperty = "Id", Name = "message")]
+    public class ElasticsearchThingyMessageReadModel : IReadModel,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class TestReadModelA : IReadModel
+        public string Id { get; set; }
+
+        [String(
+            Name = "ThingyId",
+            Index = FieldIndexOption.NotAnalyzed)]
+        public string ThingyId { get; set; }
+
+        [String(
+            Name = "Message",
+            Index = FieldIndexOption.No)]
+        public string Message { get; set; }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
         {
+            ThingyId = domainEvent.AggregateIdentity.Value;
+
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+            Id = thingyMessage.Id.Value;
+            Message = thingyMessage.Message;
         }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
-        [ElasticsearchType(Name = "SomeThingFancy")]
-        private class TestReadModelB : IReadModel
+        public ThingyMessage ToThingyMessage()
         {
-        }
-
-        [Test]
-        public void ReadModelIndexIsCorrectWithoutAttribute()
-        {
-            // Act
-            var readModelDescription = Sut.GetReadModelDescription<TestReadModelA>();
-
-            // Assert
-            readModelDescription.IndexName.Value.Should().Be("eventflow-testreadmodela");
-        }
-
-        [Test]
-        public void ReadModelIndexIsCorrectWithAttribute()
-        {
-            // Act
-            var readModelDescription = Sut.GetReadModelDescription<TestReadModelB>();
-
-            // Assert
-            readModelDescription.IndexName.Value.Should().Be("SomeThingFancy");
+            return new ThingyMessage(
+                ThingyMessageId.With(Id),
+                Message);
         }
     }
 }

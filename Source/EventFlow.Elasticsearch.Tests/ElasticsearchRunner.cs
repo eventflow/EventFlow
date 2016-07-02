@@ -32,7 +32,7 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using NUnit.Framework;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests
+namespace EventFlow.Elasticsearch.Tests
 {
     [Category(Categories.Integration)]
     public class ElasticsearchRunner : Runner

@@ -23,11 +23,12 @@
 // 
 
 using EventFlow.Aggregates;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels
+namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
     [ElasticsearchType(IdProperty = "Id", Name = "thingy")]
     public class ElasticsearchThingyReadModel : IReadModel,
