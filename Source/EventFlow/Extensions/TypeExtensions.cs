@@ -55,7 +55,7 @@ namespace EventFlow.Extensions
         {
             return TypeCacheKeys.GetOrAdd(
                 type,
-                t => $"{t.PrettyPrint()}:{t.GetHashCode()}");
+                t => $"{t.PrettyPrint()}[hash: {t.GetHashCode()}]");
         }
 
         private static string PrettyPrintRecursive(Type type, int depth)

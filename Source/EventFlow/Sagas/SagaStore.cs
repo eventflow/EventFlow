@@ -63,7 +63,7 @@ namespace EventFlow.Sagas
         private async Task<Func<ISagaId, CancellationToken, Task<ISaga>>> GetCacheItemAsync(Type sagaType, CancellationToken cancellationToken)
         {
             var value = await _inMemoryCache.GetOrAddAsync(
-                sagaType.GetCacheKey(),
+                $"sagastore:{sagaType.GetCacheKey()}",
                 TimeSpan.FromHours(1),
                 _ =>
                     {
