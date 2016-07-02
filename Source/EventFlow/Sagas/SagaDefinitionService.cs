@@ -27,7 +27,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Extensions;
-using EventFlow.Sagas.AggregateSagas;
 
 namespace EventFlow.Sagas
 {
@@ -61,11 +60,11 @@ namespace EventFlow.Sagas
                     .ToList();
                 var aggregateEventTypes = sagaHandlesTypes
                     .Select(i => i.GetGenericArguments()[2]);
-                var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateSaga<,>));
+                var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
 
                 var sagaTypeDetails = new SagaDetails(
                     sagaType,
-                    sagaInterfaceType.GetGenericArguments()[1],
+                    sagaInterfaceType.GetGenericArguments()[0],
                     sagaStartedByTypes);
 
                 foreach (var aggregateEventType in aggregateEventTypes)

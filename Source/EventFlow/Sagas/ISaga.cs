@@ -33,4 +33,9 @@ namespace EventFlow.Sagas
 
         Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
     }
+
+    public interface ISaga<TLocator> : ISaga
+         where TLocator : ISagaLocator
+    {
+    }
 }
