@@ -65,6 +65,7 @@
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="Extensions\EventStoreExtensions.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
     <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
