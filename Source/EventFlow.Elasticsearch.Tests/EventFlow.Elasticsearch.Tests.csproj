@@ -56,7 +56,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Elasticsearch\EventFlow.Elasticsearch.csproj">
       <Project>{404c6099-e82f-4433-8505-5479d76660cd}</Project>
-      <Name>EventFlow.ReadStores.Elasticsearch</Name>
+      <Name>EventFlow.Elasticsearch</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>

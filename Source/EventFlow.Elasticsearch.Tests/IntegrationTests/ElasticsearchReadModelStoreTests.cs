@@ -27,6 +27,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Elasticsearch.Extensions;
 using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
@@ -77,10 +78,10 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
                 var resolver = eventFlowOptions
                     .RegisterServices(sr =>
-                    {
-                        sr.RegisterType(typeof(ThingyMessageLocator));
-                        sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
-                    })
+                        {
+                            sr.RegisterType(typeof(ThingyMessageLocator));
+                            sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
+                        })
                     .ConfigureElasticsearch(_elasticsearchInstance.Uri)
                     .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                     .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
