@@ -83,6 +83,11 @@ namespace EventFlow.TestHelpers.Aggregates
             Emit(new ThingyPingEvent(pingId));
         }
 
+        public void RequestSagaStart()
+        {
+            Emit(new ThingySagaStartRequestedEvent());
+        }
+
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;

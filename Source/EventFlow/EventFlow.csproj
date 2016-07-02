@@ -70,9 +70,11 @@
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Sagas\ISaga.cs" />
+    <Compile Include="Sagas\ISagaContext.cs" />
     <Compile Include="Sagas\ISagaErrorHandler.cs" />
     <Compile Include="Sagas\ISagaStore.cs" />
     <Compile Include="Sagas\AggregateSagas\SagaAggregateStore.cs" />
+    <Compile Include="Sagas\SagaContext.cs" />
     <Compile Include="Sagas\SagaErrorHandler.cs" />
     <Compile Include="Sagas\SagaState.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />

@@ -99,11 +99,12 @@ namespace EventFlow.Sagas
                         domainEvent.IdentityType,
                         domainEvent.EventType,
                         details.SagaType);
-                    var sagaProcessor = (ISagaProcessor) _resolver.Resolve(sagaProcessorType);
+                    var sagaProcessor = (ISagaInvoker) _resolver.Resolve(sagaProcessorType);
 
                     await sagaProcessor.ProcessAsync(
                         saga,
                         domainEvent,
+                        SagaContext.Empty,
                         cancellationToken)
                         .ConfigureAwait(false);
 

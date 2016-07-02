@@ -33,6 +33,9 @@ namespace EventFlow.Sagas
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TAggregateEvent> domainEvent, CancellationToken cancellationToken);
+        Task HandleAsync(
+            IDomainEvent<TAggregate, TIdentity, TAggregateEvent> domainEvent,
+            ISagaContext sagaContext,
+            CancellationToken cancellationToken);
     }
 }

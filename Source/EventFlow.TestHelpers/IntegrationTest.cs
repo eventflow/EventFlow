@@ -32,6 +32,7 @@ using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.Sagas;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.TestHelpers.Aggregates;
@@ -53,6 +54,7 @@ namespace EventFlow.TestHelpers
         protected IEventPersistence EventPersistence { get; private set; }
         protected IQueryProcessor QueryProcessor { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
+        protected ISagaStore SagaStore { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
 
         [SetUp]
@@ -72,6 +74,7 @@ namespace EventFlow.TestHelpers
             CommandBus = Resolver.Resolve<ICommandBus>();
             QueryProcessor = Resolver.Resolve<IQueryProcessor>();
             ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
+            SagaStore = Resolver.Resolve<ISagaStore>();
         }
 
         [TearDown]

@@ -20,29 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaInvoker
-    {
-        Task ProcessAsync(
-            ISaga saga,
-            IDomainEvent domainEvent,
-            ISagaContext sagaContext,
-            CancellationToken cancellationToken);
-    }
-
-    public interface ISagaInvoker<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaInvoker
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-        where TSaga : ISaga
+    public interface ISagaContext
     {
     }
 }

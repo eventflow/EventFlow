@@ -1,19 +1,19 @@
 ﻿// The MIT License (MIT)
-//
+// 
 // Copyright (c) 2015-2016 Rasmus Mikkelsen
 // Copyright (c) 2015-2016 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -24,25 +24,23 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.Commands;
 
-namespace EventFlow.Sagas
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public interface ISagaInvoker
+    public class ThingyRequestSagaStartCommand : Command<ThingyAggregate, ThingyId>
     {
-        Task ProcessAsync(
-            ISaga saga,
-            IDomainEvent domainEvent,
-            ISagaContext sagaContext,
-            CancellationToken cancellationToken);
+        public ThingyRequestSagaStartCommand(ThingyId aggregateId) : base(aggregateId)
+        {
+        }
     }
 
-    public interface ISagaInvoker<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaInvoker
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
-        where TSaga : ISaga
+    public class ThingyRequestSagaStartCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyRequestSagaStartCommand>
     {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyRequestSagaStartCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.RequestSagaStart();
+            return Task.FromResult(0);
+        }
     }
 }

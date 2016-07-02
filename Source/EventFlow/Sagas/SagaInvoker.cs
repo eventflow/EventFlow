@@ -37,9 +37,10 @@ namespace EventFlow.Sagas
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         where TSaga : ISaga
     {
-        public async Task ProcessAsync(
+        public Task ProcessAsync(
             ISaga saga,
             IDomainEvent domainEvent,
+            ISagaContext sagaContext,
             CancellationToken cancellationToken)
         {
             var specificDomainEvent = domainEvent as IDomainEvent<TAggregate, TIdentity, TAggregateEvent>;
@@ -50,7 +51,7 @@ namespace EventFlow.Sagas
             if (specificSaga == null)
                 throw new ArgumentException($"Saga is not of type '{typeof(ISagaHandles<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
 
-            await specificSaga.HandleAsync(specificDomainEvent, cancellationToken).ConfigureAwait(false);
+            return specificSaga.HandleAsync(specificDomainEvent, sagaContext, cancellationToken);
         }
     }
 }
