@@ -16,6 +16,11 @@
   - `Elasticsearch.Net.JsonNET` removed
   - `NEST` v2.3.3 (up from v1.7.1)
   - `Newtonsoft.Json` v8.0.3 (up from v7.0.1)
+* Breaking: Several non-async methods have been moved from the following
+  interfaces to extension methods and a few additional overloads have
+  been created
+  - `IEventStore`
+  - `ICommandBus`
 
 ### New in 0.31.2106 (released 2016-06-30)
 
