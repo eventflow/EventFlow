@@ -7,8 +7,8 @@
     <ProjectGuid>{404C6099-E82F-4433-8505-5479D76660CD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.ReadStores.Elasticsearch</RootNamespace>
-    <AssemblyName>EventFlow.ReadStores.Elasticsearch</AssemblyName>
+    <RootNamespace>EventFlow.Elasticsearch</RootNamespace>
+    <AssemblyName>EventFlow.Elasticsearch</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -46,14 +46,14 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="ElasticsearchReadModelStore.cs" />
+    <Compile Include="ReadStores\ElasticsearchReadModelStore.cs" />
     <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="IReadModelDescriptionProvider.cs" />
-    <Compile Include="IElasticsearchReadModelStore.cs" />
-    <Compile Include="IndexName.cs" />
+    <Compile Include="ReadStores\IReadModelDescriptionProvider.cs" />
+    <Compile Include="ReadStores\IElasticsearchReadModelStore.cs" />
+    <Compile Include="ValueObjects\IndexName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadModelDescription.cs" />
-    <Compile Include="ReadModelDescriptionProvider.cs" />
+    <Compile Include="ValueObjects\ReadModelDescription.cs" />
+    <Compile Include="ReadStores\ReadModelDescriptionProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">
@@ -62,7 +62,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.ReadStores.Elasticsearch.nuspec" />
+    <None Include="EventFlow.Elasticsearch.nuspec" />
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>

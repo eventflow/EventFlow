@@ -2,6 +2,7 @@
 
 * Breaking: This release contains several breaking changes related to
   Elasticsearch read models
+  - Elasticsearch NuGet package has been renamed to `EventFlow.Elasticsearch`
   - Upgraded Elasticsearch dependencies to version 2.3.3
   - Purging all read models from Elasticsearch for a specific type now
     **deletes the index** instead of doing a _delete by query_. Make sure to

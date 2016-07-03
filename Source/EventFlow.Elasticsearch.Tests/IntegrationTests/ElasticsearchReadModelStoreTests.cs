@@ -27,17 +27,21 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Elasticsearch.Extensions;
+using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
+using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
+using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
-using EventFlow.ReadStores.Elasticsearch.Extensions;
-using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
-using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Nest;
 using NUnit.Framework;
+using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
+namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
     public class ElasticsearchReadModelStoreTests : TestSuiteForReadModelStore
@@ -74,10 +78,10 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests
 
                 var resolver = eventFlowOptions
                     .RegisterServices(sr =>
-                    {
-                        sr.RegisterType(typeof(ThingyMessageLocator));
-                        sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
-                    })
+                        {
+                            sr.RegisterType(typeof(ThingyMessageLocator));
+                            sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
+                        })
                     .ConfigureElasticsearch(_elasticsearchInstance.Uri)
                     .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                     .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()

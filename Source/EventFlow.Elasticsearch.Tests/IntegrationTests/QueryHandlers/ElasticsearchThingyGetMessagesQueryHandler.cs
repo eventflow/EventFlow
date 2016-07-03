@@ -22,22 +22,26 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.Queries;
-using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers
+namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
-    public class ElasticsearchThingyGetVersionQueryHandler : IQueryHandler<ThingyGetVersionQuery, long?>
+    public class ElasticsearchThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
         private readonly IElasticClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
-        public ElasticsearchThingyGetVersionQueryHandler(
+        public ElasticsearchThingyGetMessagesQueryHandler(
             IElasticClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider)
         {
@@ -45,21 +49,38 @@ namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandler
             _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
-        public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query, CancellationToken cancellationToken)
         {
-            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyReadModel>();
-            var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
-                query.ThingyId.Value,
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyMessageReadModel>();
+            var indexName = readModelDescription.IndexName.Value;
+
+            // Never do this
+            await _elasticClient.FlushAsync(
+                indexName,
                 d => d
                     .RequestConfiguration(c => c
                         .CancellationToken(cancellationToken)
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                    .Index(readModelDescription.IndexName.Value))
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                .ConfigureAwait(false);
+            await _elasticClient.RefreshAsync(
+                indexName,
+                d => d
+                    .RequestConfiguration(c => c
+                        .CancellationToken(cancellationToken)
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
                 .ConfigureAwait(false);
 
-            return getResponse != null && getResponse.Found
-                ? getResponse.Version
-                : null as long?;
+            var searchResponse = await _elasticClient.SearchAsync<ElasticsearchThingyMessageReadModel>(d => d
+                .RequestConfiguration(c => c
+                    .CancellationToken(cancellationToken)
+                    .AllowedStatusCodes((int)HttpStatusCode.NotFound))
+                .Index(indexName)
+                .Query(q => q.Term(m => m.ThingyId, query.ThingyId.Value)))
+                .ConfigureAwait(false);
+
+            return searchResponse.Documents
+                .Select(d => d.ToThingyMessage())
+                .ToList();
         }
     }
 }
