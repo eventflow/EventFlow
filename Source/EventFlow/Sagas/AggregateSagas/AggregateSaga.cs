@@ -39,8 +39,15 @@ namespace EventFlow.Sagas.AggregateSagas
     {
         private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
 
+        private bool _isCompleted;
+
         protected AggregateSaga(TIdentity id) : base(id)
         {
+        }
+
+        protected void Complete()
+        {
+            _isCompleted = true;
         }
 
         protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
@@ -52,9 +59,9 @@ namespace EventFlow.Sagas.AggregateSagas
             _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
         }
 
-        public SagaState State => IsNew
-            ? SagaState.New
-            : SagaState.Running;
+        public SagaState State => _isCompleted
+            ? SagaState.Completed
+            : IsNew ? SagaState.New : SagaState.Running;
 
         public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {

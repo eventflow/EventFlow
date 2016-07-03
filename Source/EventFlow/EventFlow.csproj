@@ -279,7 +279,6 @@
     <Compile Include="Sagas\ISagaIsStartedBy.cs" />
     <Compile Include="Sagas\AggregateSagas\AggregateSaga.cs" />
     <Compile Include="Sagas\SagaDefinitionService.cs" />
-    <Compile Include="Sagas\SagaId.cs" />
     <Compile Include="Sagas\DispatchToSagas.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />

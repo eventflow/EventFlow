@@ -27,6 +27,7 @@ namespace EventFlow.Sagas
     public enum SagaState
     {
         New,
-        Running
+        Running,
+        Completed,
     }
 }

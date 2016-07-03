@@ -25,5 +25,6 @@ namespace EventFlow.Sagas
 {
     public interface ISagaContext
     {
+        // Empty for now
     }
 }
