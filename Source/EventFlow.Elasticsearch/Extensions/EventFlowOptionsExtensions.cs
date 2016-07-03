@@ -24,13 +24,14 @@
 
 using System;
 using System.Linq;
-using System.Text;
 using Elasticsearch.Net;
 using EventFlow.Configuration;
+using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch.Extensions
+namespace EventFlow.Elasticsearch.Extensions
 {
     public static class EventFlowOptionsExtensions
     {

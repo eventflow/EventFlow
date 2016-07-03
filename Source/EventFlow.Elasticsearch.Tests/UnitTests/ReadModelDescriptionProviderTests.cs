@@ -22,20 +22,47 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
+using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using Nest;
+using NUnit.Framework;
 
-namespace EventFlow.ReadStores.Elasticsearch
+namespace EventFlow.Elasticsearch.Tests.UnitTests
 {
-    public class ReadModelDescription
+    [Category(Categories.Unit)]
+    public class ReadModelDescriptionProviderTests : TestsFor<ReadModelDescriptionProvider>
     {
-        public ReadModelDescription(
-            IndexName indexName)
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class TestReadModelA : IReadModel
         {
-            if (indexName == null) throw new ArgumentNullException(nameof(indexName));
-
-            IndexName = indexName;
         }
 
-        public IndexName IndexName { get; }
+        // ReSharper disable once ClassNeverInstantiated.Local
+        [ElasticsearchType(Name = "SomeThingFancy")]
+        private class TestReadModelB : IReadModel
+        {
+        }
+
+        [Test]
+        public void ReadModelIndexIsCorrectWithoutAttribute()
+        {
+            // Act
+            var readModelDescription = Sut.GetReadModelDescription<TestReadModelA>();
+
+            // Assert
+            readModelDescription.IndexName.Value.Should().Be("eventflow-testreadmodela");
+        }
+
+        [Test]
+        public void ReadModelIndexIsCorrectWithAttribute()
+        {
+            // Act
+            var readModelDescription = Sut.GetReadModelDescription<TestReadModelB>();
+
+            // Assert
+            readModelDescription.IndexName.Value.Should().Be("SomeThingFancy");
+        }
     }
 }
