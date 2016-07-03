@@ -32,9 +32,10 @@ using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using EventFlow.ReadStores;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch
+namespace EventFlow.Elasticsearch.ReadStores
 {
     public class ElasticsearchReadModelStore<TReadModel> :
         IElasticsearchReadModelStore<TReadModel>

@@ -28,10 +28,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EventFlow.ReadStores.Elasticsearch")]
+[assembly: AssemblyTitle("EventFlow.Elasticsearch")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventFlow.ReadStores.Elasticsearch")]
+[assembly: AssemblyProduct("EventFlow.Elasticsearch")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

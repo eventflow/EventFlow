@@ -20,19 +20,35 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
-using EventFlow.ValueObjects;
+using System.Collections.Concurrent;
+using System.Reflection;
+using EventFlow.Elasticsearch.ValueObjects;
+using EventFlow.Extensions;
+using EventFlow.ReadStores;
+using Nest;
+using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
 
-namespace EventFlow.ReadStores.Elasticsearch
+namespace EventFlow.Elasticsearch.ReadStores
 {
-    public class IndexName : SingleValueObject<string>
+    public class ReadModelDescriptionProvider : IReadModelDescriptionProvider
     {
-        public IndexName(string value)
-            : base(value)
+        private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames = new ConcurrentDictionary<Type, ReadModelDescription>();
+
+        public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+            return IndexNames.GetOrAdd(
+                typeof (TReadModel),
+                t =>
+                    {
+                        var elasticType = t.GetCustomAttribute<ElasticsearchTypeAttribute>();
+                        var indexName = elasticType == null
+                            ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
+                            : elasticType.Name;
+                        return new ReadModelDescription(new IndexName(indexName));
+                    });
         }
     }
 }

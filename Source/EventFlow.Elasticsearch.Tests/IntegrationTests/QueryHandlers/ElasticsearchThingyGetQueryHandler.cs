@@ -25,13 +25,14 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.Queries;
-using EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Nest;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.QueryHandlers
+namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
     public class ElasticsearchThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {

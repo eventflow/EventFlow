@@ -20,12 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-namespace EventFlow.ReadStores.Elasticsearch
+using EventFlow.Elasticsearch.ValueObjects;
+using EventFlow.ReadStores;
+
+namespace EventFlow.Elasticsearch.ReadStores
 {
-    public interface IElasticsearchReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+    public interface IReadModelDescriptionProvider
     {
+        ReadModelDescription GetReadModelDescription<TReadModel>()
+            where TReadModel : IReadModel;
     }
 }

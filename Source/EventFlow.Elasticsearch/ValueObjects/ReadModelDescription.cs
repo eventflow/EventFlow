@@ -20,46 +20,29 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using EventFlow.Aggregates;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Entities;
-using EventFlow.TestHelpers.Aggregates.Events;
-using Nest;
+using System;
+using System.Collections.Generic;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.ReadStores.Elasticsearch.Tests.IntegrationTests.ReadModels
+namespace EventFlow.Elasticsearch.ValueObjects
 {
-    [ElasticsearchType(IdProperty = "Id", Name = "message")]
-    public class ElasticsearchThingyMessageReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
+    public class ReadModelDescription : ValueObject
     {
-        public string Id { get; set; }
-
-        [String(
-            Name = "ThingyId",
-            Index = FieldIndexOption.NotAnalyzed)]
-        public string ThingyId { get; set; }
-
-        [String(
-            Name = "Message",
-            Index = FieldIndexOption.No)]
-        public string Message { get; set; }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
+        public ReadModelDescription(
+            IndexName indexName)
         {
-            ThingyId = domainEvent.AggregateIdentity.Value;
+            if (indexName == null) throw new ArgumentNullException(nameof(indexName));
 
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            Id = thingyMessage.Id.Value;
-            Message = thingyMessage.Message;
+            IndexName = indexName;
         }
 
-        public ThingyMessage ToThingyMessage()
+        public IndexName IndexName { get; }
+
+        protected override IEnumerable<object> GetEqualityComponents()
         {
-            return new ThingyMessage(
-                ThingyMessageId.With(Id),
-                Message);
+            yield return IndexName;
         }
     }
 }

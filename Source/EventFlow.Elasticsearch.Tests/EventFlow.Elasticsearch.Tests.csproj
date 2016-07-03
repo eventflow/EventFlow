@@ -7,8 +7,8 @@
     <ProjectGuid>{D4D7E41C-1473-4449-A128-CA4383783E6C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.ReadStores.Elasticsearch.Tests</RootNamespace>
-    <AssemblyName>EventFlow.ReadStores.Elasticsearch.Tests</AssemblyName>
+    <RootNamespace>EventFlow.Elasticsearch.Tests</RootNamespace>
+    <AssemblyName>EventFlow.Elasticsearch.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -54,9 +54,9 @@
     <Compile Include="UnitTests\ReadModelDescriptionProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.ReadStores.Elasticsearch\EventFlow.ReadStores.Elasticsearch.csproj">
+    <ProjectReference Include="..\EventFlow.Elasticsearch\EventFlow.Elasticsearch.csproj">
       <Project>{404c6099-e82f-4433-8505-5479d76660cd}</Project>
-      <Name>EventFlow.ReadStores.Elasticsearch</Name>
+      <Name>EventFlow.Elasticsearch</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
