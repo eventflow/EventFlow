@@ -1,4 +1,8 @@
-### New in 0.32 (not released yet)
+### New in 0.33 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.32.2163 (released 2016-07-04)
 
 * Breaking: This release contains several breaking changes related to
   Elasticsearch read models
