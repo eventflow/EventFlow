@@ -115,23 +115,6 @@ namespace EventFlow
             return command.SourceId;
         }
 
-        public ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-        {
-            ISourceId sourceId = null;
-
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(PublishAsync(command, cancellationToken), id => sourceId = id);
-            }
-
-            return sourceId;
-        }
-
         private Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity>(
             ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)

@@ -21,22 +21,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
- 
+
 using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 
-namespace EventFlow
+namespace EventFlow.Extensions
 {
-    public interface ICommandBus
+    public static class CommandBusExtensions
     {
-        Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
+        public static ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
+            this ICommandBus commandBus,
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
+        {
+            return commandBus.Publish(command, CancellationToken.None);
+        }
+
+        public static ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
+            this ICommandBus commandBus,
             ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
+            where TSourceIdentity : ISourceId
+        {
+            ISourceId sourceId = null;
+
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(commandBus.PublishAsync(command, cancellationToken), id => sourceId = id);
+            }
+
+            return sourceId;
+        }
     }
 }

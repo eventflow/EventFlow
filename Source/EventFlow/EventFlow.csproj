@@ -77,6 +77,8 @@
     <Compile Include="Sagas\SagaContext.cs" />
     <Compile Include="Sagas\SagaErrorHandler.cs" />
     <Compile Include="Sagas\SagaState.cs" />
+    <Compile Include="Extensions\CommandBusExtensions.cs" />
+    <Compile Include="Extensions\EventStoreExtensions.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
     <Compile Include="Snapshots\SnapshotAggregateRoot.cs" />
     <Compile Include="Commands\CommandDefinition.cs" />
