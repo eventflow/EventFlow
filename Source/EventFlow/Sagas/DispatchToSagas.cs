@@ -84,19 +84,23 @@ namespace EventFlow.Sagas
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
 
-                await _transientFaultHandler.TryAsync(
-                    c => ProcessSagaAsync(domainEvent, sagaId, details, commandBus, c),
+                var saga = await _transientFaultHandler.TryAsync(
+                    c => ProcessSagaAsync(domainEvent, sagaId, details, c),
                     Label.Named("invoke-saga"),
                     cancellationToken)
                     .ConfigureAwait(false);
+
+                if (saga != null)
+                {
+                    await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
-        private async Task ProcessSagaAsync(
+        private async Task<ISaga> ProcessSagaAsync(
             IDomainEvent domainEvent,
             ISagaId sagaId,
             SagaDetails details,
-            ICommandBus commandBus,
             CancellationToken cancellationToken)
         {
             try
@@ -114,7 +118,7 @@ namespace EventFlow.Sagas
                         details.SagaType.PrettyPrint(),
                         sagaId,
                         domainEvent.EventType.PrettyPrint()));
-                    return;
+                    return null;
                 }
 
                 if (saga.State == SagaState.New && !details.IsStartedBy(domainEvent.EventType))
@@ -124,7 +128,7 @@ namespace EventFlow.Sagas
                         details.SagaType.PrettyPrint(),
                         sagaId,
                         domainEvent.EventType.PrettyPrint()));
-                    return;
+                    return null;
                 }
 
                 var sagaInvokerType = typeof(ISagaInvoker<,,,>).MakeGenericType(
@@ -147,7 +151,7 @@ namespace EventFlow.Sagas
                     cancellationToken)
                     .ConfigureAwait(false);
 
-                await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
+                return saga;
             }
             catch (Exception e)
             {
@@ -159,7 +163,7 @@ namespace EventFlow.Sagas
                     .ConfigureAwait(false);
                 if (handled)
                 {
-                    return;
+                    return null;
                 }
 
                 _log.Error(e, $"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'");
