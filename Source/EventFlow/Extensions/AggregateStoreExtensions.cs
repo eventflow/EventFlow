@@ -35,6 +35,15 @@ namespace EventFlow.Extensions
     {
         public static TAggregate Load<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
+            TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return aggregateStore.Load<TAggregate, TIdentity>(id, CancellationToken.None);
+        }
+
+        public static TAggregate Load<TAggregate, TIdentity>(
+            this IAggregateStore aggregateStore,
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -54,6 +63,25 @@ namespace EventFlow.Extensions
             this IAggregateStore aggregateStore,
             TIdentity id,
             ISourceId sourceId,
+            Action<TAggregate> updateAggregate)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return aggregateStore.Update<TAggregate, TIdentity>(
+                id,
+                sourceId,
+                (a, c) =>
+                    {
+                        updateAggregate(a);
+                        return Task.FromResult(0);
+                    },
+                CancellationToken.None);
+        }
+
+        public static IReadOnlyCollection<IDomainEvent> Update<TAggregate, TIdentity>(
+            this IAggregateStore aggregateStore,
+            TIdentity id,
+            ISourceId sourceId,
             Func<TAggregate, CancellationToken, Task> updateAggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -67,6 +95,16 @@ namespace EventFlow.Extensions
             }
 
             return domainEvents;
+        }
+
+        public static IReadOnlyCollection<IDomainEvent> Store<TAggregate, TIdentity>(
+            this IAggregateStore aggregateStore,
+            TAggregate aggregate,
+            ISourceId sourceId)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            return aggregateStore.Store<TAggregate, TIdentity>(aggregate, sourceId, CancellationToken.None);
         }
 
         public static IReadOnlyCollection<IDomainEvent> Store<TAggregate, TIdentity>(

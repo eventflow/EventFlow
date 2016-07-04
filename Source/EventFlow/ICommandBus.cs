@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+ 
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -34,13 +35,6 @@ namespace EventFlow
         Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
             ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
-
-        ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
-		    ICommand<TAggregate, TIdentity, TSourceIdentity> command,
-			CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TSourceIdentity : ISourceId;

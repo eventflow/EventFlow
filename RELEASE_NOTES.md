@@ -1,4 +1,28 @@
-### New in 0.31 (not released yet)
+### New in 0.32 (not released yet)
+
+* Breaking: This release contains several breaking changes related to
+  Elasticsearch read models
+  - Elasticsearch NuGet package has been renamed to `EventFlow.Elasticsearch`
+  - Upgraded Elasticsearch dependencies to version 2.3.3
+  - Purging all read models from Elasticsearch for a specific type now
+    **deletes the index** instead of doing a _delete by query_. Make sure to
+    create a separate index for each read model. Delete by query has been
+    [moved to a plugin in Elasticsearch 2.x](https://www.elastic.co/blog/core-delete-by-query-is-a-plugin) and
+    deleting the entire index is now recommended    
+  - The default index for a read model is now `eventflow-[lower case type name]`,
+    e.g. `eventflow-thingyreadmodel`, instead of merely `eventflow`
+* Breaking: The following NuGet dependencies have been updated
+  - `Elasticsearch.Net` v2.3.3 (up from v1.7.1)
+  - `Elasticsearch.Net.JsonNET` removed
+  - `NEST` v2.3.3 (up from v1.7.1)
+  - `Newtonsoft.Json` v8.0.3 (up from v7.0.1)
+* Breaking: Several non-async methods have been moved from the following
+  interfaces to extension methods and a few additional overloads have
+  been created
+  - `IEventStore`
+  - `ICommandBus`
+
+### New in 0.31.2106 (released 2016-06-30)
 
 * New: EventFlow can now be configured to throw exceptions thrown by subscribers
   by `options.Configure(c => c.ThrowSubscriberExceptions = true)`

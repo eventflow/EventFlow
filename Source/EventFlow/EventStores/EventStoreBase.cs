@@ -131,16 +131,6 @@ namespace EventFlow.EventStores
             return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
         }
 
-        public AllEventsPage LoadAllEvents(GlobalPosition globalPosition, int pageSize, CancellationToken cancellationToken)
-        {
-            AllEventsPage allEventsPage = null;
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(LoadAllEventsAsync(globalPosition, pageSize, cancellationToken), p => allEventsPage = p);
-            }
-            return allEventsPage;
-        }
-
         public Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -181,19 +171,6 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
-        public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity
-        {
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents = null;
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken), d => domainEvents = d);
-            }
-            return domainEvents;
-        }
-
         public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -202,20 +179,6 @@ namespace EventFlow.EventStores
         {
             var aggregate = await _aggregateFactory.CreateNewAggregateAsync<TAggregate, TIdentity>(id).ConfigureAwait(false);
             await aggregate.LoadAsync(this, _snapshotStore, cancellationToken).ConfigureAwait(false);
-            return aggregate;
-        }
-
-        public virtual TAggregate LoadAggregate<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            var aggregate = default(TAggregate);
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(LoadAggregateAsync<TAggregate, TIdentity>(id, cancellationToken), r => aggregate = r);
-            }
             return aggregate;
         }
 

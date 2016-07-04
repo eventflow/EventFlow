@@ -46,11 +46,6 @@ namespace EventFlow.EventStores
             int pageSize,
             CancellationToken cancellationToken);
 
-        AllEventsPage LoadAllEvents(
-            GlobalPosition globalPosition,
-            int pageSize,
-            CancellationToken cancellationToken);
-
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
@@ -64,21 +59,8 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
-
         [Obsolete("Use IAggregateStore.LoadAsync instead")]
         Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
-
-        [Obsolete("Use IAggregateStore.Load instead")]
-        TAggregate LoadAggregate<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>

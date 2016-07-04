@@ -165,6 +165,10 @@ Elasticsearch configurations.
 Make sure to create any mapping the read model requires in Elasticsearch
 _before_ using the read model in EventFlow.
 
+If EventFlow is requested to _purge_ a specific read model, it does it by
+deleting the index. Thus make sure to create one separate index per read
+model.
+
 If you want to control the index a specific read model is stored in, create
 create an implementation of `IReadModelDescriptionProvider` and register it
 in the [EventFlow IoC](./Customize.md).
