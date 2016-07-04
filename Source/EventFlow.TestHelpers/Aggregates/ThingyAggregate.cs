@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
+using EventFlow.Sagas;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
 using EventFlow.TestHelpers.Aggregates.Entities;
@@ -39,7 +40,9 @@ namespace EventFlow.TestHelpers.Aggregates
 {
     [AggregateName("Thingy")]
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
-        IEmit<ThingyDomainErrorAfterFirstEvent>
+        IEmit<ThingyDomainErrorAfterFirstEvent>,
+        IEmit<ThingySagaStartRequestedEvent>,
+        IEmit<ThingySagaCompleteRequestedEvent>
     {
         public const int SnapshotEveryVersion = 10;
 
@@ -49,7 +52,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
-        public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {}; 
+        public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
 
         public ThingyAggregate(ThingyId id)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
@@ -88,9 +91,24 @@ namespace EventFlow.TestHelpers.Aggregates
             Emit(new ThingySagaStartRequestedEvent());
         }
 
+        public void RequestSagaComplete()
+        {
+            Emit(new ThingySagaCompleteRequestedEvent());
+        }
+
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(ThingySagaStartRequestedEvent aggregateEvent)
+        {
+            // We don't do anything, used to test saga event processing
+        }
+
+        public void Apply(ThingySagaCompleteRequestedEvent aggregateEvent)
+        {
+            // We don't do anything, used to test saga event processing
         }
 
         protected override Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)

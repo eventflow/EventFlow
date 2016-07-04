@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Sagas;
@@ -49,6 +50,44 @@ namespace EventFlow.Extensions
             params Type[] sagaTypes)
         {
             return eventFlowOptions.AddSagas(sagaTypes);
+        }
+
+        public static IEventFlowOptions AddSagaLocators(
+            this IEventFlowOptions eventFlowOptions,
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
+        {
+            predicate = predicate ?? (t => true);
+            var sagaTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(ISagaLocator).IsAssignableFrom(t))
+                .Where(t => predicate(t));
+
+            return eventFlowOptions.AddSagaLocators(sagaTypes);
+        }
+
+        public static IEventFlowOptions AddSagaLocators(
+            this IEventFlowOptions eventFlowOptions,
+            params Type[] sagaLocatorTypes)
+        {
+            return eventFlowOptions.AddSagaLocators((IEnumerable<Type>)sagaLocatorTypes);
+        }
+
+        public static IEventFlowOptions AddSagaLocators(
+            this IEventFlowOptions eventFlowOptions,
+            IEnumerable<Type> sagaLocatorTypes)
+        {
+            return eventFlowOptions.RegisterServices(sr =>
+                {
+                    foreach (var sagaLocatorType in sagaLocatorTypes)
+                    {
+                        if (!typeof(ISagaLocator).IsAssignableFrom(sagaLocatorType))
+                        {
+                            throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
+                        }
+                        sr.RegisterType(sagaLocatorType);
+                    }
+                });
         }
     }
 }

@@ -20,33 +20,27 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System;
-using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.Extensions
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public static class EventFlowOptionsDefaultExtensions
+    public class ThingyRequestSagaCompleteCommand : Command<ThingyAggregate, ThingyId>
     {
-        public static IEventFlowOptions AddDefaults(
-            this IEventFlowOptions eventFlowOptions,
-            Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+        public ThingyRequestSagaCompleteCommand(ThingyId aggregateId) : base(aggregateId)
         {
-            return eventFlowOptions
-                .AddEvents(fromAssembly, predicate)
-                .AddJobs(fromAssembly, predicate)
-                .AddCommands(fromAssembly, predicate)
-                .AddCommandHandlers(fromAssembly, predicate)
-                .AddMetadataProviders(fromAssembly, predicate)
-                .AddSubscribers(fromAssembly, predicate)
-                .AddEventUpgraders(fromAssembly, predicate)
-                .AddQueryHandlers(fromAssembly, predicate)
-                .AddSnapshots(fromAssembly, predicate)
-                .AddSnapshotUpgraders(fromAssembly, predicate)
-                .AddSagas(fromAssembly, predicate)
-                .AddSagaLocators(fromAssembly, predicate);
+        }
+    }
+
+    public class ThingyRequestSagaCompleteCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyRequestSagaCompleteCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyRequestSagaCompleteCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.RequestSagaComplete();
+            return Task.FromResult(0);
         }
     }
 }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -77,10 +78,10 @@ namespace EventFlow.Sagas
             var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
             var commandBus = _resolver.Resolve<ICommandBus>();
 
+            _log.Verbose(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
+
             foreach (var details in sagaTypeDetails)
             {
-                _log.Verbose(() => $"Executing saga '{details.SagaType.PrettyPrint()}'");
-
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
 
@@ -105,6 +106,7 @@ namespace EventFlow.Sagas
         {
             try
             {
+                _log.Verbose(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
                 var saga = await _sagaStore.LoadAsync(
                     sagaId,
                     details,

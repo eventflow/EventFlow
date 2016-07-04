@@ -22,10 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace EventFlow.TestHelpers.Suites
-{
-    public abstract class TestSuiteForSagaStore : IntegrationTest
-    {
+using EventFlow.Aggregates;
 
+namespace EventFlow.TestHelpers.Aggregates.Sagas.Events
+{
+    public class ThingySagaCompletedEvent : AggregateEvent<ThingySaga, ThingySagaId>
+    {
     }
 }

@@ -22,29 +22,85 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Exceptions;
 using EventFlow.Sagas;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Sagas
 {
     public class ThingySaga : AggregateSaga<ThingySaga, ThingySagaId, ThingySagaLocator>,
-        ISagaIsStartedBy<ThingyAggregate, ThingyId, ThingySagaStartRequestedEvent>
+        ISagaIsStartedBy<ThingyAggregate, ThingyId, ThingySagaStartRequestedEvent>,
+        ISagaHandles<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        ISagaHandles<ThingyAggregate, ThingyId, ThingySagaCompleteRequestedEvent>,
+        IEmit<ThingySagaStartedEvent>,
+        IEmit<ThingySagaPingReceivedEvent>,
+        IEmit<ThingySagaCompletedEvent>
     {
+        public IReadOnlyCollection<PingId> PingIdsSinceStarted => _pingIdsSinceStarted;
+        private readonly List<PingId> _pingIdsSinceStarted = new List<PingId>();
+
         public ThingySaga(
             ThingySagaId id)
             : base(id)
         {
         }
 
-        public Task HandleAsync(IDomainEvent<ThingyAggregate, ThingyId, ThingySagaStartRequestedEvent> domainEvent, ISagaContext sagaContext, CancellationToken cancellationToken)
+        public Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingySagaStartRequestedEvent> domainEvent,
+            ISagaContext sagaContext,
+            CancellationToken cancellationToken)
         {
+            // This check is redundant! We do it to verify EventFlow works correctly
+            if (State != SagaState.New) throw DomainError.With("Saga must be new!");
+
             Emit(new ThingySagaStartedEvent());
             return Task.FromResult(0);
+        }
+
+        public Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+            ISagaContext sagaContext,
+            CancellationToken cancellationToken)
+        {
+            // This check is redundant! We do it to verify EventFlow works correctly
+            if (State != SagaState.Running) throw DomainError.With("Saga must be running!");
+
+            Emit(new ThingySagaPingReceivedEvent(domainEvent.AggregateEvent.PingId));
+            return Task.FromResult(0);
+        }
+
+        public Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingySagaCompleteRequestedEvent> domainEvent,
+            ISagaContext sagaContext,
+            CancellationToken cancellationToken)
+        {
+            // This check is redundant! We do it to verify EventFlow works correctly
+            if (State != SagaState.Running) throw DomainError.With("Saga must be running!");
+
+            Emit(new ThingySagaCompletedEvent());
+            return Task.FromResult(0);
+        }
+
+        public void Apply(ThingySagaStartedEvent aggregateEvent)
+        {
+            // Doesn't do anything, just starts the saga
+        }
+
+        public void Apply(ThingySagaPingReceivedEvent aggregateEvent)
+        {
+            _pingIdsSinceStarted.Add(aggregateEvent.PingId);
+        }
+
+        public void Apply(ThingySagaCompletedEvent aggregateEvent)
+        {
+            Complete();
         }
     }
 }

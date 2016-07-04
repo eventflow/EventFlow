@@ -22,16 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using EventFlow.Configuration;
-using EventFlow.TestHelpers.Suites;
+using EventFlow.Aggregates;
 
-namespace EventFlow.Tests.IntegrationTests.Sagas
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    public class AggregateSagaStoreTests : TestSuiteForSagaStore
+    public class ThingySagaCompleteRequestedEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.CreateResolver();
-        }
     }
 }

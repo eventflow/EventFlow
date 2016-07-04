@@ -50,6 +50,7 @@
     <Compile Include="Aggregates\Commands\ThingyDomainErrorAfterFirstCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyMultiplePingsCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyPingCommand.cs" />
+    <Compile Include="Aggregates\Commands\ThingyRequestSagaCompleteCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyRequestSagaStartCommand.cs" />
     <Compile Include="Aggregates\Entities\ThingyMessage.cs" />
     <Compile Include="Aggregates\Entities\ThingyMessageId.cs" />
@@ -57,10 +58,13 @@
     <Compile Include="Aggregates\Events\ThingyDomainErrorAfterFirstEvent.cs" />
     <Compile Include="Aggregates\Events\ThingyMessageAddedEvent.cs" />
     <Compile Include="Aggregates\Events\ThingyPingEvent.cs" />
+    <Compile Include="Aggregates\Events\ThingySagaCompleteRequestedEvent.cs" />
     <Compile Include="Aggregates\Events\ThingySagaStartRequestedEvent.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetMessagesQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetQuery.cs" />
     <Compile Include="Aggregates\Queries\ThingyGetVersionQuery.cs" />
+    <Compile Include="Aggregates\Sagas\Events\ThingySagaPingReceivedEvent.cs" />
+    <Compile Include="Aggregates\Sagas\Events\ThingySagaCompletedEvent.cs" />
     <Compile Include="Aggregates\Sagas\Events\ThingySagaStartedEvent.cs" />
     <Compile Include="Aggregates\Sagas\ThingySaga.cs" />
     <Compile Include="Aggregates\Sagas\ThingySagaId.cs" />
@@ -90,7 +94,6 @@
     <Compile Include="Suites\AggregateStoreExtensions.cs" />
     <Compile Include="Suites\TestSuiteForEventStore.cs" />
     <Compile Include="Suites\TestSuiteForReadModelStore.cs" />
-    <Compile Include="Suites\TestSuiteForSagaStore.cs" />
     <Compile Include="Suites\TestSuiteForSnapshotStore.cs" />
     <Compile Include="Suites\TestSuiteForScheduler.cs" />
     <Compile Include="TcpHelper.cs" />
