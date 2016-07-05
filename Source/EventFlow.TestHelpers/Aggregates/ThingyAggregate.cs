@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Exceptions;
-using EventFlow.Sagas;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
 using EventFlow.TestHelpers.Aggregates.Entities;
@@ -40,9 +39,7 @@ namespace EventFlow.TestHelpers.Aggregates
 {
     [AggregateName("Thingy")]
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
-        IEmit<ThingyDomainErrorAfterFirstEvent>,
-        IEmit<ThingySagaStartRequestedEvent>,
-        IEmit<ThingySagaCompleteRequestedEvent>
+        IEmit<ThingyDomainErrorAfterFirstEvent>
     {
         public const int SnapshotEveryVersion = 10;
 
@@ -59,6 +56,8 @@ namespace EventFlow.TestHelpers.Aggregates
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
+            Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
+            Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
         }
 
         public void DomainErrorAfterFirst()
@@ -99,16 +98,6 @@ namespace EventFlow.TestHelpers.Aggregates
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
-        }
-
-        public void Apply(ThingySagaStartRequestedEvent aggregateEvent)
-        {
-            // We don't do anything, used to test saga event processing
-        }
-
-        public void Apply(ThingySagaCompleteRequestedEvent aggregateEvent)
-        {
-            // We don't do anything, used to test saga event processing
         }
 
         protected override Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
