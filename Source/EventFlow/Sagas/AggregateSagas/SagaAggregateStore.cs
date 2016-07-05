@@ -47,41 +47,44 @@ namespace EventFlow.Sagas.AggregateSagas
             _inMemoryCache = inMemoryCache;
         }
 
-        public async Task<ISaga> LoadAsync(
+        public async Task<TSaga> UpdateAsync<TSaga>(
             ISagaId sagaId,
             SagaDetails sagaDetails,
+            ISourceId sourceId,
+            Func<TSaga, CancellationToken, Task> updateSaga,
             CancellationToken cancellationToken)
+            where TSaga : ISaga
         {
-            var loadAggregateSagaAsync = await GetLoadAsync(
+            var saga = default(TSaga);
+
+            var storeAggregateSagaAsync = await GetUpdateAsync(
                 sagaDetails.SagaType,
                 cancellationToken)
                 .ConfigureAwait(false);
-            var saga = await loadAggregateSagaAsync(
+
+            var domainEvents = await storeAggregateSagaAsync(
                 sagaId,
+                sourceId,
+                async (s, c) =>
+                    {
+                        var specificSaga = (TSaga)s;
+                        await updateSaga(specificSaga, c).ConfigureAwait(false);
+                        saga = specificSaga;
+                    },
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            return saga;
+            return domainEvents.Any()
+                ? saga
+                : default(TSaga);
         }
 
-        public async Task StoreAsync(
-            ISaga saga,
-            ISourceId sourceId,
-            CancellationToken cancellationToken)
-        {
-            var storeAggregateSagaAsync = await GetStoreAsync(
-                saga.GetType(),
-                cancellationToken)
-                .ConfigureAwait(false);
-            await storeAggregateSagaAsync(saga, sourceId, cancellationToken).ConfigureAwait(false);
-        }
-
-        private async Task<Func<ISagaId, CancellationToken, Task<ISaga>>> GetLoadAsync(
+        private async Task<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetUpdateAsync(
             Type sagaType,
             CancellationToken cancellationToken)
         {
             var value = await _inMemoryCache.GetOrAddAsync(
-                $"sagastore-load:{sagaType.GetCacheKey()}",
+                $"sagastore-update:{sagaType.GetCacheKey()}",
                 TimeSpan.FromHours(1),
                 _ =>
                     {
@@ -92,10 +95,11 @@ namespace EventFlow.Sagas.AggregateSagas
                         if (aggregateRootType == null)
                             throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
 
-                        var methodInfo = GetType().GetMethod(nameof(LoadAggregateSagaAsync));
+                        var methodInfo = GetType().GetMethod(nameof(UpdateAggregateAsync));
                         var identityType = aggregateRootType.GetGenericArguments()[0];
                         var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
-                        return Task.FromResult<Func<ISagaId, CancellationToken, Task<ISaga>>>((i, c) => (Task<ISaga>)genericMethodInfo.Invoke(this, new object[] { i, c }));
+                        return Task.FromResult<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
+                            (id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { id, sid, u, c }));
                     },
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -103,52 +107,20 @@ namespace EventFlow.Sagas.AggregateSagas
             return value;
         }
 
-        private async Task<Func<ISaga, ISourceId, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetStoreAsync(
-            Type sagaType,
-            CancellationToken cancellationToken)
-        {
-            var value = await _inMemoryCache.GetOrAddAsync(
-                $"sagastore-store:{sagaType.GetCacheKey()}",
-                TimeSpan.FromHours(1),
-                _ =>
-                    {
-                        var aggregateRootType = sagaType
-                            .GetInterfaces()
-                            .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
-
-                        if (aggregateRootType == null)
-                            throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
-
-                        var methodInfo = GetType().GetMethod(nameof(StoreAggregateSagaAsync));
-                        var identityType = aggregateRootType.GetGenericArguments()[0];
-                        var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
-
-                        return Task.FromResult<Func<ISaga, ISourceId, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
-                            (i, s, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { i, s, c }));
-                    },
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            return value;
-        }
-
-        public async Task<ISaga> LoadAggregateSagaAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<IDomainEvent>> UpdateAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>, ISaga
-            where TIdentity : IIdentity
-        {
-            return await _aggregateStore.LoadAsync<TAggregate, TIdentity>(id, cancellationToken).ConfigureAwait(false);
-        }
-
-        public async Task<IReadOnlyCollection<IDomainEvent>>  StoreAggregateSagaAsync<TAggregate, TIdentity>(
-            TAggregate aggregate,
             ISourceId sourceId,
+            Func<TAggregate, CancellationToken, Task> updateAggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>, ISaga
             where TIdentity : IIdentity
         {
-            return await _aggregateStore.StoreAsync<TAggregate, TIdentity>(aggregate, sourceId, cancellationToken).ConfigureAwait(false);
+            return await _aggregateStore.UpdateAsync(
+                id,
+                sourceId,
+                updateAggregate,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -30,14 +31,12 @@ namespace EventFlow.Sagas
 {
     public interface ISagaStore
     {
-        Task<ISaga> LoadAsync(
+        Task<TSaga> UpdateAsync<TSaga>(
             ISagaId sagaId,
             SagaDetails sagaDetails,
-            CancellationToken cancellationToken);
-
-        Task StoreAsync(
-            ISaga saga,
             ISourceId sourceId,
-            CancellationToken cancellationToken);
+            Func<TSaga, CancellationToken, Task> updateSaga,
+            CancellationToken cancellationToken)
+            where TSaga : ISaga;
     }
 }

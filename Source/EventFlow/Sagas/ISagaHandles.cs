@@ -28,7 +28,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaHandles<TAggregate, in TIdentity, in TAggregateEvent>
+    public interface ISagaHandles<TAggregate, in TIdentity, in TAggregateEvent> : ISaga
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity

@@ -73,6 +73,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             if (State != SagaState.Running) throw DomainError.With("Saga must be running!");
 
             Emit(new ThingySagaPingReceivedEvent(domainEvent.AggregateEvent.PingId));
+
             return Task.FromResult(0);
         }
 
@@ -85,6 +86,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             if (State != SagaState.Running) throw DomainError.With("Saga must be running!");
 
             Emit(new ThingySagaCompletedEvent());
+
             return Task.FromResult(0);
         }
 
