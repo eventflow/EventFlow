@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -30,6 +31,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Sagas;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -42,7 +44,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         public async Task InitialSagaStateIsNew()
         {
             // Act
-            var thingySaga = await GetThingSagaAsync(A<ThingyId>()).ConfigureAwait(false);
+            var thingySaga = await LoadSagaAsync(A<ThingyId>()).ConfigureAwait(false);
 
             // Assert
             thingySaga.State.Should().Be(SagaState.New);
@@ -58,7 +60,35 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             await PublishPingCommandsAsync(thingyId).ConfigureAwait(false);
 
             // Assert
-            var thingySaga = await GetThingSagaAsync(thingyId).ConfigureAwait(false);
+            var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
+            thingySaga.State.Should().Be(SagaState.New);
+        }
+
+        [Test]
+        public async Task PublishingEventWithoutStartingDoesntPublishToMainAggregate()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+
+            // Act
+            await PublishPingCommandsAsync(thingyId).ConfigureAwait(false);
+
+            // Assert
+            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+            thingyAggregate.Messages.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task PublishingCompleteEventWithoutStartingSagaLeavesItNew()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+
+            // Act
+            await CommandBus.PublishAsync(new ThingyRequestSagaCompleteCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
             thingySaga.State.Should().Be(SagaState.New);
         }
 
@@ -71,8 +101,8 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             // Act
             await CommandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
 
-            // Act
-            var thingySaga = await GetThingSagaAsync(thingyId).ConfigureAwait(false);
+            // Assert
+            var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
             thingySaga.State.Should().Be(SagaState.Running);
         }
 
@@ -86,12 +116,41 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             await CommandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
             await CommandBus.PublishAsync(new ThingyRequestSagaCompleteCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
 
-            // Act
-            var thingySaga = await GetThingSagaAsync(thingyId).ConfigureAwait(false);
+            // Assert
+            var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
             thingySaga.State.Should().Be(SagaState.Completed);
         }
 
-        private Task<ThingySaga> GetThingSagaAsync(ThingyId thingyId)
+        [Test]
+        public async Task PublishingStartAndCompleteWithPingsResultInCorrectMessages()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+
+            // Act
+            var pingsWithNewSaga = await PublishPingCommandsAsync(thingyId, 3).ConfigureAwait(false);
+            await CommandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
+            var pingsWithRunningSaga = await PublishPingCommandsAsync(thingyId, 3).ConfigureAwait(false);
+            await CommandBus.PublishAsync(new ThingyRequestSagaCompleteCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
+            var pingsWithCompletedSaga = await PublishPingCommandsAsync(thingyId, 3).ConfigureAwait(false);
+
+            // Assert - saga
+            var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
+            thingySaga.State.Should().Be(SagaState.Completed);
+            thingySaga.PingIdsSinceStarted.ShouldAllBeEquivalentTo(pingsWithRunningSaga);
+
+            // Assert - aggregate
+            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+            thingyAggregate.PingsReceived.ShouldAllBeEquivalentTo(
+                pingsWithNewSaga.Concat(pingsWithRunningSaga).Concat(pingsWithCompletedSaga));
+            var receivedSagaPingIds = thingyAggregate.Messages
+                .Select(m => PingId.With(m.Message))
+                .ToList();
+            receivedSagaPingIds.Should().HaveCount(3);
+            receivedSagaPingIds.ShouldAllBeEquivalentTo(pingsWithRunningSaga);
+        }
+
+        private Task<ThingySaga> LoadSagaAsync(ThingyId thingyId)
         {
             // This is specified in the ThingySagaLocator
             var expectedThingySagaId = new ThingySagaId($"saga-{thingyId.Value}");

@@ -28,5 +28,11 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas.Events
 {
     public class ThingySagaStartedEvent : AggregateEvent<ThingySaga, ThingySagaId>
     {
+        public ThingySagaStartedEvent(ThingyId thingyId)
+        {
+            ThingyId = thingyId;
+        }
+
+        public ThingyId ThingyId { get; }
     }
 }

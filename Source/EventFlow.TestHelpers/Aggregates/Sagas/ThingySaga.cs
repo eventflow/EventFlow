@@ -29,6 +29,8 @@ using EventFlow.Aggregates;
 using EventFlow.Exceptions;
 using EventFlow.Sagas;
 using EventFlow.Sagas.AggregateSagas;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
@@ -45,6 +47,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
     {
         public IReadOnlyCollection<PingId> PingIdsSinceStarted => _pingIdsSinceStarted;
         private readonly List<PingId> _pingIdsSinceStarted = new List<PingId>();
+        private ThingyId _thingyId;
 
         public ThingySaga(
             ThingySagaId id)
@@ -60,7 +63,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             // This check is redundant! We do it to verify EventFlow works correctly
             if (State != SagaState.New) throw DomainError.With("Saga must be new!");
 
-            Emit(new ThingySagaStartedEvent());
+            Emit(new ThingySagaStartedEvent(domainEvent.AggregateIdentity));
             return Task.FromResult(0);
         }
 
@@ -72,7 +75,10 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             // This check is redundant! We do it to verify EventFlow works correctly
             if (State != SagaState.Running) throw DomainError.With("Saga must be running!");
 
-            Emit(new ThingySagaPingReceivedEvent(domainEvent.AggregateEvent.PingId));
+            var pingId = domainEvent.AggregateEvent.PingId;
+
+            Emit(new ThingySagaPingReceivedEvent(pingId));
+            Publish(new ThingyAddMessageCommand(_thingyId, new ThingyMessage(ThingyMessageId.New, pingId.Value)));
 
             return Task.FromResult(0);
         }
@@ -92,7 +98,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
 
         public void Apply(ThingySagaStartedEvent aggregateEvent)
         {
-            // Doesn't do anything, just starts the saga
+            _thingyId = aggregateEvent.ThingyId;
         }
 
         public void Apply(ThingySagaPingReceivedEvent aggregateEvent)
