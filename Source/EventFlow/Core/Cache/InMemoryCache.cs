@@ -54,6 +54,7 @@ namespace EventFlow.Core.Cache
                 key,
                 value,
                 absoluteExpiration);
+
             return Task.FromResult(0);
         }
 
@@ -70,6 +71,7 @@ namespace EventFlow.Core.Cache
                 {
                     SlidingExpiration = slidingExpiration,
                 });
+
             return Task.FromResult(0);
         }
 
@@ -78,6 +80,7 @@ namespace EventFlow.Core.Cache
             CancellationToken cancellationToken)
         {
             var value = _memoryCache.Get(key) as T;
+
             return Task.FromResult(value);
         }
     }

@@ -148,14 +148,14 @@ namespace EventFlow.Sagas
                 return Task.FromResult(0);
             }
 
-            var sagaInvokerType = typeof(ISagaInvoker<,,,>).MakeGenericType(
+            var sagaUpdaterType = typeof(ISagaUpdater<,,,>).MakeGenericType(
                 domainEvent.AggregateType,
                 domainEvent.IdentityType,
                 domainEvent.EventType,
                 details.SagaType);
-            var sagaInvoker = (ISagaInvoker)_resolver.Resolve(sagaInvokerType);
+            var sagaUpdater = (ISagaUpdater)_resolver.Resolve(sagaUpdaterType);
 
-            return sagaInvoker.ProcessAsync(
+            return sagaUpdater.ProcessAsync(
                 saga,
                 domainEvent,
                 SagaContext.Empty,

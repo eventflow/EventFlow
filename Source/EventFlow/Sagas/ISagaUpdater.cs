@@ -29,7 +29,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaInvoker
+    public interface ISagaUpdater
     {
         Task ProcessAsync(
             ISaga saga,
@@ -38,7 +38,7 @@ namespace EventFlow.Sagas
             CancellationToken cancellationToken);
     }
 
-    public interface ISagaInvoker<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaInvoker
+    public interface ISagaUpdater<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaUpdater
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>

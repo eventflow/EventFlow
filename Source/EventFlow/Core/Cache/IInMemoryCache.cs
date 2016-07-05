@@ -22,9 +22,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace EventFlow.Core.Cache
 {
-    public interface IInMemoryCache : ICache
+    /// <summary>
+    /// Cache for run-time objects that cannot be serialized and must remain in memory.
+    /// </summary>
+    public interface IInMemoryCache
     {
+        Task<T> GetOrAddAsync<T>(
+            string key,
+            DateTimeOffset expirationTime,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken)
+            where T : class;
+
+        Task<T> GetOrAddAsync<T>(
+            string key,
+            TimeSpan slidingExpiration,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken)
+            where T : class;
     }
 }

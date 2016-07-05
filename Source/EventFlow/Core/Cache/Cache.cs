@@ -30,7 +30,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.Core.Cache
 {
-    public abstract class Cache : ICache
+    public abstract class Cache
     {
         protected ILog Log { get; }
 

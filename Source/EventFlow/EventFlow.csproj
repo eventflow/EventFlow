@@ -62,7 +62,6 @@
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Core\Cache\Cache.cs" />
-    <Compile Include="Core\Cache\ICache.cs" />
     <Compile Include="Core\Cache\IInMemoryCache.cs" />
     <Compile Include="Core\Cache\InMemoryCache.cs" />
     <Compile Include="Core\DisposableAction.cs" />
@@ -264,8 +263,8 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
-    <Compile Include="Sagas\ISagaInvoker.cs" />
-    <Compile Include="Sagas\SagaInvoker.cs" />
+    <Compile Include="Sagas\ISagaUpdater.cs" />
+    <Compile Include="Sagas\SagaUpdater.cs" />
     <Compile Include="Sagas\SagaDetails.cs" />
     <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
     <Compile Include="Snapshots\Strategies\SnapshotEveryFewVersionsStrategy.cs" />

@@ -25,23 +25,33 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
+using EventFlow.Extensions;
 
-namespace EventFlow.Core.Cache
+namespace EventFlow.Sagas
 {
-    public interface ICache
+    public class SagaUpdater<TAggregate, TIdentity, TAggregateEvent, TSaga> : ISagaUpdater<TAggregate, TIdentity, TAggregateEvent, TSaga>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
+        where TSaga : ISaga
     {
-        Task<T> GetOrAddAsync<T>(
-            string key,
-            DateTimeOffset expirationTime,
-            Func<CancellationToken, Task<T>> factory,
+        public Task ProcessAsync(
+            ISaga saga,
+            IDomainEvent domainEvent,
+            ISagaContext sagaContext,
             CancellationToken cancellationToken)
-            where T : class;
+        {
+            var specificDomainEvent = domainEvent as IDomainEvent<TAggregate, TIdentity, TAggregateEvent>;
+            var specificSaga = saga as ISagaHandles<TAggregate, TIdentity, TAggregateEvent>;
 
-        Task<T> GetOrAddAsync<T>(
-            string key,
-            TimeSpan slidingExpiration,
-            Func<CancellationToken, Task<T>> factory,
-            CancellationToken cancellationToken)
-            where T : class;
+            if (specificDomainEvent == null)
+                throw new ArgumentException($"Domain event is not of type '{typeof(IDomainEvent<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
+            if (specificSaga == null)
+                throw new ArgumentException($"Saga is not of type '{typeof(ISagaHandles<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
+
+            return specificSaga.HandleAsync(specificDomainEvent, sagaContext, cancellationToken);
+        }
     }
 }
