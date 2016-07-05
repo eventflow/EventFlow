@@ -35,6 +35,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
+    [Category(Categories.Integration)]
     public class AggregateSagaTests : IntegrationTest
     {
         [Test]
