@@ -49,8 +49,6 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
 
-            using (File.Create(_databasePath)) { }
-
             var resolver = eventFlowOptions
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))

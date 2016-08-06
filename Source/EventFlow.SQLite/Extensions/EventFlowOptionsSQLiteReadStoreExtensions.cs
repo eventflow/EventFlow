@@ -26,36 +26,12 @@ using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
-using EventFlow.SQLite.Connections;
-using EventFlow.SQLite.EventStores;
 using EventFlow.SQLite.ReadStores;
-using EventFlow.SQLite.RetryStrategies;
 
 namespace EventFlow.SQLite.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class EventFlowOptionsSQLiteReadStoreExtensions
     {
-        public static IEventFlowOptions ConfigureSQLite(
-            this IEventFlowOptions eventFlowOptions,
-            ISQLiteConfiguration sqLiteConfiguration)
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<ISQLiteConnection, SQLiteConnection>();
-                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
-                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
-                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
-                });
-        }
-
-        public static IEventFlowOptions UseSQLiteEventStore(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions
-                .UseEventStore<SQLiteEventPersistence>();
-        }
-
         public static IEventFlowOptions UseSQLiteReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
             where TReadModel : class, IReadModel, new()
