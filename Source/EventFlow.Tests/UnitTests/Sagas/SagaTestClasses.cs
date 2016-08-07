@@ -21,13 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Sagas;
-using EventFlow.Sagas.AggregateSagas;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Tests.UnitTests.Sagas
@@ -41,13 +43,51 @@ namespace EventFlow.Tests.UnitTests.Sagas
             }
         }
 
-        public class TestSaga : AggregateSaga<TestSaga, TestSagaId, TestSagaLocator>,
+        public class InMemorySagaStore : ISagaStore
+        {
+            private readonly Dictionary<ISagaId, object> _sagas = new Dictionary<ISagaId, object>();
+            private readonly AsyncLock _asyncLock = new AsyncLock();
+
+            public async Task<TSaga> UpdateAsync<TSaga>(
+                ISagaId sagaId,
+                SagaDetails sagaDetails,
+                ISourceId sourceId,
+                Func<TSaga, CancellationToken, Task> updateSaga,
+                CancellationToken cancellationToken)
+                where TSaga : ISaga
+            {
+                using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    object obj;
+                    if (!_sagas.TryGetValue(sagaId, out obj))
+                    {
+                        obj = Activator.CreateInstance(sagaDetails.SagaType, new object[] {sagaId});
+                        _sagas[sagaId] = obj;
+                    }
+
+                    var saga = (TSaga) obj;
+
+                    await updateSaga(saga, cancellationToken).ConfigureAwait(false);
+
+                    return saga;
+                }
+            }
+        }
+
+        public class TestSaga : ISaga<TestSagaLocator>,
             ISagaIsStartedBy<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA>,
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB>,
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC>
         {
-            public TestSaga(TestSagaId id) : base(id)
+            private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
+
+            public TestSagaId Id { get; }
+            public SagaState State { get; private set; }
+
+            public TestSaga(TestSagaId id)
             {
+                Id = id;
+                State = SagaState.New;
             }
 
             public Task HandleAsync(
@@ -56,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 CancellationToken cancellationToken)
             {
                 Publish(new SagaTestBCommand(domainEvent.AggregateIdentity));
-                Emit(new SagaEventA());
+                State = SagaState.Running;
                 return Task.FromResult(0);
             }
 
@@ -66,7 +106,6 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 CancellationToken cancellationToken)
             {
                 Publish(new SagaTestCCommand(domainEvent.AggregateIdentity));
-                Emit(new SagaEventB());
                 return Task.FromResult(0);
             }
 
@@ -75,18 +114,27 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 ISagaContext sagaContext,
                 CancellationToken cancellationToken)
             {
-                Emit(new SagaEventC());
                 return Task.FromResult(0);
             }
 
-            public void Apply(SagaEventA e) { }
-            public void Apply(SagaEventB e) { }
-            public void Apply(SagaEventC e) { }
-        }
+            public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+            {
+                foreach (var unpublishedCommand in _unpublishedCommands.ToList())
+                {
+                    _unpublishedCommands.Remove(unpublishedCommand);
+                    await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                }
+            }
 
-        public class SagaEventA : AggregateEvent<TestSaga, TestSagaId> { }
-        public class SagaEventB : AggregateEvent<TestSaga, TestSagaId> { }
-        public class SagaEventC : AggregateEvent<TestSaga, TestSagaId> { }
+            protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
+                ICommand<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity> command)
+                where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
+                where TCommandAggregateIdentity : IIdentity
+                where TCommandSourceIdentity : ISourceId
+            {
+                _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
+            }
+        }
 
         public class TestSagaLocator : ISagaLocator
         {

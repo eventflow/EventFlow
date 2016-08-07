@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Sagas;
 using FluentAssertions;
@@ -34,7 +35,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
     [Category(Categories.Unit)]
-    public class SagaFlowTests
+    public class AlternativeSagaStoreTests
     {
         private IRootResolver _resolver;
         private ICommandBus _commandBus;
@@ -45,8 +46,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             _resolver = EventFlowOptions.New
                 .AddAggregateRoots(
-                    typeof(SagaTestClasses.SagaTestAggregate),
-                    typeof(SagaTestClasses.TestSaga))
+                    typeof(SagaTestClasses.SagaTestAggregate))
                 .AddSagas(typeof (SagaTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(SagaTestClasses.SagaTestACommandHandler),
@@ -55,13 +55,11 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 .AddEvents(
                     typeof(SagaTestClasses.SagaTestEventA),
                     typeof(SagaTestClasses.SagaTestEventB),
-                    typeof(SagaTestClasses.SagaTestEventC),
-                    typeof(SagaTestClasses.SagaEventA),
-                    typeof(SagaTestClasses.SagaEventB),
-                    typeof(SagaTestClasses.SagaEventC))
+                    typeof(SagaTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
                     {
                         sr.RegisterType(typeof (SagaTestClasses.TestSagaLocator));
+                        sr.Register<ISagaStore, SagaTestClasses.InMemorySagaStore>(Lifetime.Singleton);
                     })
                 .CreateResolver(false);
 
