@@ -1,6 +1,8 @@
 ### New in 0.33 (not released yet)
 
-* _Nothing yet_
+* Fixed: Correct NuGet package project URL
+  - Old: https://github.com/rasmus/EventFlow
+  - New: https://github.com/eventflow/EventFlow
 
 ### New in 0.32.2163 (released 2016-07-04)
 
