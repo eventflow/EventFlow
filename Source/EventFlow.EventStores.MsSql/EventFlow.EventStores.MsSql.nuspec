@@ -7,7 +7,7 @@
     <authors>rasmus</authors>
     <description>Deprecated MSSQL event store package for EventFlow. All content has been moved to EventFlow.MsSql and this package will discontinue.</description>
     <language>en-US</language>
-    <iconUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/icon-256.png</iconUrl>
+    <iconUrl>https://media.githubusercontent.com/media/eventflow/EventFlow/develop/icon-256.png</iconUrl>
     <projectUrl>https://github.com/eventflow/EventFlow</projectUrl>
     <licenseUrl>https://raw.githubusercontent.com/rasmus/EventFlow/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2015-2016 Rasmus Mikkelsen</copyright>
