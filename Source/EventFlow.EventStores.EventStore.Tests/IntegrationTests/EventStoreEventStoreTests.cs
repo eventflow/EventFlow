@@ -44,7 +44,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
         [TestFixtureSetUp]
         public void SetUp()
         {
-            _eventStoreInstance = EventStoreRunner.StartAsync().Result; // TODO: Argh, remove .Result
+            _eventStoreInstance = EventStoreRunner.StartAsync().Result;
         }
 
         [TestFixtureTearDown]
