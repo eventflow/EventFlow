@@ -27,8 +27,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Management;
 using EventFlow.Core;
-using EventFlow.EventStores.EventStore.Tests.Extensions;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers.Extensions;
 
 namespace EventFlow.TestHelpers
 {
@@ -55,7 +55,7 @@ namespace EventFlow.TestHelpers
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                         {
-                            Console.WriteLine($"OUT - {exeName}: {e.Data}");
+                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:ttt")} OUT - {exeName}: {e.Data}");
                         }
                 };
             process.OutputDataReceived += outHandler;
@@ -63,7 +63,7 @@ namespace EventFlow.TestHelpers
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                         {
-                            Console.WriteLine($"ERR - {exeName}: {e.Data}");
+                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:ttt")} ERR - {exeName}: {e.Data}");
                         }
                 };
             process.ErrorDataReceived += errHandler;
