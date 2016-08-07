@@ -76,7 +76,6 @@
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Extensions\QueryProcessorExtensions.cs" />
-    <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="HttpHelper.cs" />
     <Compile Include="Installer\InstalledSoftware.cs" />
     <Compile Include="IntegrationTest.cs" />
