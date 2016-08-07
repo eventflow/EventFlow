@@ -23,31 +23,13 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Threading;
+using EventFlow.Logs;
 
-namespace EventFlow.TestHelpers.Extensions
+namespace EventFlow.TestHelpers
 {
-    internal static class ProcessExtensions
+    public static class LogHelper
     {
-        public static bool WaitForOutput(
-            this Process process,
-            string output,
-            Action<Process> initialize)
-        {
-            var autoResetEvent = new AutoResetEvent(false);
-            DataReceivedEventHandler handler = (sender, args) =>
-                {
-                    if (args.Data.Contains(output))
-                    {
-                        autoResetEvent.Set();
-                    }
-                };
-            process.OutputDataReceived += handler;
-            initialize(process);
-            var foundOutput = autoResetEvent.WaitOne(TimeSpan.FromSeconds(30));
-            process.OutputDataReceived -= handler;
-            return foundOutput;
-        }
+        private static readonly Lazy<ILog> LazyLog = new Lazy<ILog>(() => new ConsoleLog());
+        public static ILog Log => LazyLog.Value;
     }
 }
