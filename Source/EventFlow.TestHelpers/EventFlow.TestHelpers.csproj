@@ -79,6 +79,7 @@
     <Compile Include="HttpHelper.cs" />
     <Compile Include="Installer\InstalledSoftware.cs" />
     <Compile Include="IntegrationTest.cs" />
+    <Compile Include="LogHelper.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Installer\InstallHelper.cs" />

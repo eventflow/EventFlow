@@ -35,14 +35,14 @@ namespace EventFlow.TestHelpers
 
         public static async Task<string> GetAsync(Uri uri)
         {
-            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} GET {uri}");
+            LogHelper.Log.Information($"GET {uri}");
 
             using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (content.Length < 1024)
                 {
-                    Console.WriteLine(content);
+                    LogHelper.Log.Information($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
                 }
 
                 return content;
@@ -51,14 +51,14 @@ namespace EventFlow.TestHelpers
 
         public static async Task DeleteAsync(Uri uri)
         {
-            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} DELETE {uri}");
+            LogHelper.Log.Information($"DELETE {uri}");
 
             using (var httpResponseMessage = await HttpClient.DeleteAsync(uri).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (content.Length < 1024)
                 {
-                    Console.WriteLine(content);
+                    LogHelper.Log.Information($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
                 }
 
                 httpResponseMessage.EnsureSuccessStatusCode();

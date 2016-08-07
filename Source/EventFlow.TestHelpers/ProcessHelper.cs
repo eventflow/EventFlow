@@ -39,6 +39,14 @@ namespace EventFlow.TestHelpers
             string initializationDone,
             params string[] arguments)
         {
+            if (string.IsNullOrEmpty(exePath)) throw new ArgumentNullException(nameof(exePath));
+            if (string.IsNullOrEmpty(initializationDone)) throw new ArgumentNullException(nameof(initializationDone));
+
+            var workingDirectory = Path.GetDirectoryName(exePath);
+            if (string.IsNullOrEmpty(workingDirectory)) throw new ArgumentException($"Could not find directory for '{exePath}'", nameof(exePath));
+
+            LogHelper.Log.Information($"Starting process: '{exePath}' {string.Join(" ", arguments)}");
+
             var process = new Process
                 {
                     StartInfo = new ProcessStartInfo(exePath, string.Join(" ", arguments))
@@ -47,29 +55,29 @@ namespace EventFlow.TestHelpers
                             UseShellExecute = false,
                             RedirectStandardError = true,
                             RedirectStandardOutput = true,
-                            WorkingDirectory = Path.GetDirectoryName(exePath),
+                            WorkingDirectory = workingDirectory,
                         }
                 };
             var exeName = Path.GetFileName(exePath);
             DataReceivedEventHandler outHandler = (sender, e) =>
                 {
                     if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} OUT - {exeName}: {e.Data}");
-                        }
+                    {
+                        LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
+                    }
                 };
             process.OutputDataReceived += outHandler;
             DataReceivedEventHandler errHandler = (sender, e) =>
                 {
                     if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} ERR - {exeName}: {e.Data}");
-                        }
+                    {
+                        LogHelper.Log.Error($"ERR - {exeName}: {e.Data}");
+                    }
                 };
             process.ErrorDataReceived += errHandler;
             Action<Process> initializeProcess = p =>
                 {
-                    Console.WriteLine($"{exeName} START =======================================");
+                    LogHelper.Log.Information($"{exeName} START =======================================");
                     p.Start();
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
@@ -87,7 +95,7 @@ namespace EventFlow.TestHelpers
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Failed to kill process: {e.Message}");
+                        LogHelper.Log.Error($"Failed to kill process: {e.Message}");
                     }
                     finally
                     {
@@ -100,13 +108,17 @@ namespace EventFlow.TestHelpers
         {
             var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
             var moc = searcher.Get();
+
             foreach (var o in moc)
             {
                 var mo = (ManagementObject)o;
                 KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
             }
+
             try
             {
+                LogHelper.Log.Information($"Killing process {pid}");
+
                 var proc = Process.GetProcessById(pid);
                 proc.Kill();
             }
