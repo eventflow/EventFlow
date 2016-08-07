@@ -55,7 +55,7 @@ namespace EventFlow.TestHelpers
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                         {
-                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:ttt")} OUT - {exeName}: {e.Data}");
+                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} OUT - {exeName}: {e.Data}");
                         }
                 };
             process.OutputDataReceived += outHandler;
@@ -63,7 +63,7 @@ namespace EventFlow.TestHelpers
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                         {
-                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:ttt")} ERR - {exeName}: {e.Data}");
+                            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} ERR - {exeName}: {e.Data}");
                         }
                 };
             process.ErrorDataReceived += errHandler;

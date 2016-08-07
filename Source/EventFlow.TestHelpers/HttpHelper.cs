@@ -35,7 +35,7 @@ namespace EventFlow.TestHelpers
 
         public static async Task<string> GetAsync(Uri uri)
         {
-            Console.WriteLine($"GET {uri}");
+            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} GET {uri}");
 
             using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
             {
@@ -51,7 +51,7 @@ namespace EventFlow.TestHelpers
 
         public static async Task DeleteAsync(Uri uri)
         {
-            Console.WriteLine($"DELETE {uri}");
+            Console.WriteLine($"{DateTimeOffset.Now.ToString("HH:mm:ss:fff")} DELETE {uri}");
 
             using (var httpResponseMessage = await HttpClient.DeleteAsync(uri).ConfigureAwait(false))
             {
