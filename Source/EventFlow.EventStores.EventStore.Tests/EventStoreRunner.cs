@@ -23,9 +23,7 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,15 +36,12 @@ using NUnit.Framework;
 namespace EventFlow.EventStores.EventStore.Tests
 {
     [Category(Categories.Integration)]
-    public class EventStoreRunner : Runner
+    public class EventStoreRunner
     {
-        protected override IEnumerable<SoftwareDescription> SoftwareDescriptions { get; } = new[]
-            {
-                new SoftwareDescription(new Version(3, 3, 1), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.3.1.zip", UriKind.Absolute)),
-                new SoftwareDescription(new Version(3, 4, 0), new Uri("http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.4.0.zip", UriKind.Absolute)),
-            };
-
-        protected override string SoftwareName { get; } = "EventStore";
+        private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
+            "eventstore",
+            new Version(3, 4, 0),
+            "http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.4.0.zip");
 
         public class EventStoreInstance : IDisposable
         {
@@ -78,25 +73,19 @@ namespace EventFlow.EventStores.EventStore.Tests
             }
         }
 
-        public static Task<EventStoreInstance> StartAsync()
+        public static async Task<EventStoreInstance> StartAsync()
         {
-            return new EventStoreRunner().InternalStartAsync();
-        }
-
-        private async Task<EventStoreInstance> InternalStartAsync()
-        {
-            var eventStoreVersion = SoftwareDescriptions.OrderByDescending(kv => kv.Version).First();
-            var eventStorePath = await InstallAsync(eventStoreVersion.Version).ConfigureAwait(false);
+            var installedSoftware = await Runner.InstallAsync(SoftwareDescription).ConfigureAwait(false);
 
             var tcpPort = TcpHelper.GetFreePort();
             var httpPort = TcpHelper.GetFreePort();
             var connectionStringUri = new Uri($"tcp://admin:changeit@{IPAddress.Loopback}:{tcpPort}");
-            var exePath = Path.Combine(eventStorePath, "EventStore.ClusterNode.exe");
+            var exePath = Path.Combine(installedSoftware.InstallPath, "EventStore.ClusterNode.exe");
 
             IDisposable processDisposable = null;
             try
             {
-                processDisposable = StartExe(
+                processDisposable = ProcessHelper.StartExe(
                     exePath,
                     "'admin' user added to $users",
                     "--mem-db=True",

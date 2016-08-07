@@ -23,141 +23,35 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Management;
 using System.Net.Http;
 using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores.EventStore.Tests.Extensions;
-using EventFlow.Extensions;
 
 namespace EventFlow.TestHelpers
 {
-    public abstract class Runner
+    public class Runner
     {
-        protected class SoftwareDescription
+        public static async Task<InstalledSoftware> InstallAsync(SoftwareDescription softwareDescription)
         {
-            public Version Version { get; }
-            public Uri DownloadUri { get; }
+            var installPath = GetInstallPath(softwareDescription);
 
-            public SoftwareDescription(
-                Version version,
-                Uri downloadUri)
+            if (IsInstalled(softwareDescription))
             {
-                Version = version;
-                DownloadUri = downloadUri;
-            }
-        }
-
-        protected abstract string SoftwareName { get; }
-        protected abstract IEnumerable<SoftwareDescription> SoftwareDescriptions { get; }
-
-        protected static IDisposable StartExe(
-            string exePath,
-            string initializationDone,
-            params string[] arguments)
-        {
-            var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo(exePath, string.Join(" ", arguments))
-                    {
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        RedirectStandardError = true,
-                        RedirectStandardOutput = true,
-                        WorkingDirectory = Path.GetDirectoryName(exePath),
-                    }
-                };
-            var exeName = Path.GetFileName(exePath);
-            DataReceivedEventHandler outHandler = (sender, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        Console.WriteLine($"OUT - {exeName}: {e.Data}");
-                    }
-                };
-            process.OutputDataReceived += outHandler;
-            DataReceivedEventHandler errHandler = (sender, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        Console.WriteLine($"ERR - {exeName}: {e.Data}");
-                    }
-                };
-            process.ErrorDataReceived += errHandler;
-            Action<Process> initializeProcess = p =>
-                {
-                    Console.WriteLine($"{exeName} START =======================================");
-                    p.Start();
-                    p.BeginOutputReadLine();
-                    p.BeginErrorReadLine();
-                };
-            process.WaitForOutput(initializationDone, initializeProcess);
-
-            return new DisposableAction(() =>
-                {
-                    try
-                    {
-                        process.OutputDataReceived -= outHandler;
-                        process.ErrorDataReceived -= errHandler;
-
-                        KillProcessAndChildren(process.Id);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Failed to kill process: {e.Message}");
-                    }
-                    finally
-                    {
-                        process.DisposeSafe("Process");
-                    }
-                });
-        }
-
-        private static void KillProcessAndChildren(int pid)
-        {
-            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-            var moc = searcher.Get();
-            foreach (var o in moc)
-            {
-                var mo = (ManagementObject) o;
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
-            try
-            {
-                var proc = Process.GetProcessById(pid);
-                proc.Kill();
-            }
-            catch (ArgumentException)
-            {
-                // Process already exited.
-            }
-        }
-
-        protected async Task<string> InstallAsync(Version version)
-        {
-            if (IsInstalled(version))
-            {
-                Console.WriteLine($"{SoftwareName} v'{version}' is already installed");
-                return GetInstallPath(version);
+                Console.WriteLine($"{softwareDescription}' is already installed");
+                return new InstalledSoftware(softwareDescription, installPath);
             }
 
-            Console.WriteLine($"{SoftwareName} v{version} not installed, installing it");
+            Console.WriteLine($"{softwareDescription} not installed, installing it");
 
             var tempDownload = Path.Combine(
                 Path.GetTempPath(),
-                $"{SoftwareName}-v{version}-{Guid.NewGuid().ToString("N")}.zip");
+                $"{softwareDescription.ShortName}-v{softwareDescription.Version}-{Guid.NewGuid().ToString("N")}.zip");
             try
             {
-                var softwareDescription = SoftwareDescriptions.Single(d => d.Version == version);
                 await DownloadFileAsync(softwareDescription.DownloadUri, tempDownload).ConfigureAwait(false);
-                var installPath = GetInstallPath(version);
                 ExtractZipFile(tempDownload, installPath);
-                return installPath;
+                return new InstalledSoftware(softwareDescription, installPath);
             }
             finally
             {
@@ -180,16 +74,16 @@ namespace EventFlow.TestHelpers
             ZipFile.ExtractToDirectory(zipSourcePath, directoryDestinationPath);
         }
 
-        private bool IsInstalled(Version version)
+        private static bool IsInstalled(SoftwareDescription softwareDescription)
         {
-            return Directory.Exists(GetInstallPath(version));
+            return Directory.Exists(GetInstallPath(softwareDescription));
         }
 
-        protected string GetInstallPath(Version version)
+        private static string GetInstallPath(SoftwareDescription softwareDescription)
         {
             return Path.Combine(
                 Path.GetTempPath(),
-                $"eventflow-{SoftwareName}-v{version}");
+                $"eventflow-{softwareDescription.ShortName}-v{softwareDescription.Version}");
         }
 
         private static async Task DownloadFileAsync(Uri sourceUri, string destinationPath)

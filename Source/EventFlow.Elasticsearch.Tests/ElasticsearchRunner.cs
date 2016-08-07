@@ -35,14 +35,12 @@ using NUnit.Framework;
 namespace EventFlow.Elasticsearch.Tests
 {
     [Category(Categories.Integration)]
-    public class ElasticsearchRunner : Runner
+    public class ElasticsearchRunner
     {
-        protected override string SoftwareName { get; } = "Elasticsearch";
-
-        protected override IEnumerable<SoftwareDescription> SoftwareDescriptions { get; } = new[]
-            {
-                new SoftwareDescription(new Version(2, 3, 3), new Uri("https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip", UriKind.Absolute))
-            };
+        private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
+            "elasticsearch",
+            new Version(2, 3, 3),
+            "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip");
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class ClusterHealth
@@ -108,20 +106,14 @@ namespace EventFlow.Elasticsearch.Tests
             }
         }
 
-        public static Task<ElasticsearchInstance> StartAsync()
-        {
-            return new ElasticsearchRunner().InternalStartAsync();
-        }
-
-        private async Task<ElasticsearchInstance> InternalStartAsync()
+        public static async Task<ElasticsearchInstance> StartAsync()
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JAVA_HOME")))
                 throw new InvalidOperationException("The 'JAVA_HOME' environment variable is required");
 
-            var softwareDescription = SoftwareDescriptions.OrderByDescending(kv => kv.Version).First();
-            var installPath = await InstallAsync(softwareDescription.Version).ConfigureAwait(false);
-            var version = softwareDescription.Version;
-            installPath = Path.Combine(installPath, $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
+            var installedSoftware = await Runner.InstallAsync(SoftwareDescription).ConfigureAwait(false);
+            var version = SoftwareDescription.Version;
+            var installPath = Path.Combine(installedSoftware.InstallPath, $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
 
             var tcpPort = TcpHelper.GetFreePort();
             var exePath = Path.Combine(installPath, "bin", "elasticsearch.bat");
@@ -147,7 +139,7 @@ namespace EventFlow.Elasticsearch.Tests
             IDisposable processDisposable = null;
             try
             {
-                processDisposable = StartExe(exePath,
+                processDisposable = ProcessHelper.StartExe(exePath,
                     $"[${nodeName}] started");
 
                 var elasticsearchInstance = new ElasticsearchInstance(
