@@ -24,7 +24,7 @@
 
 using System;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.TestHelpers.Installer
 {
     public class SoftwareDescription
     {

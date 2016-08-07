@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Installer;
 using NUnit.Framework;
 
 namespace EventFlow.Elasticsearch.Tests
@@ -111,7 +112,7 @@ namespace EventFlow.Elasticsearch.Tests
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JAVA_HOME")))
                 throw new InvalidOperationException("The 'JAVA_HOME' environment variable is required");
 
-            var installedSoftware = await Runner.InstallAsync(SoftwareDescription).ConfigureAwait(false);
+            var installedSoftware = await InstallHelper.InstallAsync(SoftwareDescription).ConfigureAwait(false);
             var version = SoftwareDescription.Version;
             var installPath = Path.Combine(installedSoftware.InstallPath, $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
 

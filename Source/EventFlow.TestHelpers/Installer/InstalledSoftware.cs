@@ -22,7 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace EventFlow.TestHelpers
+using System;
+
+namespace EventFlow.TestHelpers.Installer
 {
     public class InstalledSoftware
     {
@@ -30,6 +32,9 @@ namespace EventFlow.TestHelpers
             SoftwareDescription description,
             string installPath)
         {
+            if (description == null) throw new ArgumentNullException(nameof(description));
+            if (string.IsNullOrEmpty(installPath)) throw new ArgumentNullException(nameof(installPath));
+
             Description = description;
             InstallPath = installPath;
         }

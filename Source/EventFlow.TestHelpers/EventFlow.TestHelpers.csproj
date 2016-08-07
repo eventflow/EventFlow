@@ -78,12 +78,12 @@
     <Compile Include="Extensions\QueryProcessorExtensions.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="HttpHelper.cs" />
-    <Compile Include="InstalledSoftware.cs" />
+    <Compile Include="Installer\InstalledSoftware.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Runner.cs" />
-    <Compile Include="SoftwareDescription.cs" />
+    <Compile Include="Installer\InstallHelper.cs" />
+    <Compile Include="Installer\SoftwareDescription.cs" />
     <Compile Include="Suites\AggregateStoreExtensions.cs" />
     <Compile Include="Suites\TestSuiteForEventStore.cs" />
     <Compile Include="Suites\TestSuiteForReadModelStore.cs" />

@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Installer;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
@@ -75,7 +76,7 @@ namespace EventFlow.EventStores.EventStore.Tests
 
         public static async Task<EventStoreInstance> StartAsync()
         {
-            var installedSoftware = await Runner.InstallAsync(SoftwareDescription).ConfigureAwait(false);
+            var installedSoftware = await InstallHelper.InstallAsync(SoftwareDescription).ConfigureAwait(false);
 
             var tcpPort = TcpHelper.GetFreePort();
             var httpPort = TcpHelper.GetFreePort();

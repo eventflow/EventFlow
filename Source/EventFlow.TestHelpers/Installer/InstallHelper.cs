@@ -28,15 +28,16 @@ using System.IO.Compression;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace EventFlow.TestHelpers
+namespace EventFlow.TestHelpers.Installer
 {
-    public class Runner
+    public class InstallHelper
     {
         public static async Task<InstalledSoftware> InstallAsync(SoftwareDescription softwareDescription)
         {
             var installPath = GetInstallPath(softwareDescription);
+            var isInstalled = Directory.Exists(installPath);
 
-            if (IsInstalled(softwareDescription))
+            if (isInstalled)
             {
                 Console.WriteLine($"{softwareDescription}' is already installed");
                 return new InstalledSoftware(softwareDescription, installPath);
@@ -47,6 +48,7 @@ namespace EventFlow.TestHelpers
             var tempDownload = Path.Combine(
                 Path.GetTempPath(),
                 $"{softwareDescription.ShortName}-v{softwareDescription.Version}-{Guid.NewGuid().ToString("N")}.zip");
+
             try
             {
                 await DownloadFileAsync(softwareDescription.DownloadUri, tempDownload).ConfigureAwait(false);
@@ -72,11 +74,6 @@ namespace EventFlow.TestHelpers
             }
 
             ZipFile.ExtractToDirectory(zipSourcePath, directoryDestinationPath);
-        }
-
-        private static bool IsInstalled(SoftwareDescription softwareDescription)
-        {
-            return Directory.Exists(GetInstallPath(softwareDescription));
         }
 
         private static string GetInstallPath(SoftwareDescription softwareDescription)
