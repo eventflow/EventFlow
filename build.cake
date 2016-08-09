@@ -65,7 +65,7 @@ var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
         }},
     {"EventFlow.Sql", new []{
         "EventFlow",
-        "DbUp",
+        "dbup",
         "Dapper",
         }},
     {"EventFlow.MsSql", new []{
