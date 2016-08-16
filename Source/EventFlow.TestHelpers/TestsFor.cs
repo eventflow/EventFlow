@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -30,7 +31,7 @@ namespace EventFlow.TestHelpers
     public abstract class TestsFor<TSut> : Test
     {
         private Lazy<TSut> _lazySut; 
-        protected TSut Sut { get { return _lazySut.Value; } }
+        protected TSut Sut => _lazySut.Value;
 
         [SetUp]
         public void SetUpTestsFor()

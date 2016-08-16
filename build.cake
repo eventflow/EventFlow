@@ -65,6 +65,7 @@ var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
         }},
     {"EventFlow.Sql", new []{
         "EventFlow",
+        "dbup",
         "Dapper",
         }},
     {"EventFlow.MsSql", new []{
@@ -81,11 +82,10 @@ var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
         "EventFlow",
         "EventStore.Client",
         }},
-    {"EventFlow.ReadStores.Elasticsearch", new []{
+    {"EventFlow.Elasticsearch", new []{
         "EventFlow",
         "NEST",
         "Elasticsearch.Net",
-        "Elasticsearch.Net.JsonNET",
         }},
     {"EventFlow.Owin", new []{
         "EventFlow",
