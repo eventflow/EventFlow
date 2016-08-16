@@ -46,7 +46,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
         }
 
         [Test]
-        public void GetDefinition_WithValidNameAndVersion_ReturnsCorrectAnswer_Cases(VersionTypeTestCase testCase)
+        public void GetDefinition_WithValidNameAndVersion_ReturnsCorrectAnswer_Cases()
         {
             // TODO: Redesign this, NUnit 3 enforces TestCaseSource(...) to reference static
             foreach (var versionTypeTestCase in GetTestCases())
