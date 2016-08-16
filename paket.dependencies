@@ -1,4 +1,5 @@
 redirects: on
+framework: <= net451
 source https://www.nuget.org/api/v2/
 
 nuget Autofac 3.5.2
@@ -6,9 +7,8 @@ nuget Autofac.Owin 3.1.0
 nuget Autofac.WebApi2 3.4.0
 nuget Autofac.WebApi2.Owin 3.2.0
 nuget Dapper 1.42
-nuget dbup 3.3.0
-nuget Elasticsearch.Net 1.7.1
-nuget Elasticsearch.Net.JsonNET 1.7.1
+nuget dbup 3.3.5
+nuget Elasticsearch.Net ~> 2.0
 nuget EventStore.Client 3.4.0
 nuget Hangfire.Core 1.5.3
 nuget Hangfire.SqlServer 1.5.3
@@ -20,25 +20,27 @@ nuget Microsoft.AspNet.WebApi.OwinSelfHost 5.2.3
 nuget Microsoft.Owin 3.0.1
 nuget Microsoft.Owin.Host.HttpListener 3.0.1
 nuget Microsoft.Owin.Hosting 3.0.1 
-nuget NEST 1.7.1
-nuget Newtonsoft.Json 7.0.1
+nuget NEST ~> 2.0
+nuget Newtonsoft.Json ~> 8.0.0
 nuget Owin 1.0
 nuget RabbitMQ.Client 3.6.0
 nuget System.Data.SQLite.Core 1.0.99
 
 group Build
 	redirects: off
+	framework: <= net451
 	source https://www.nuget.org/api/v2/
 
 	nuget cake
 	nuget GitVersion.CommandLine
 	nuget ilmerge 2.14.1208
 	nuget NuGet.CommandLine
-	nuget NUnit.Runners 2.6.4
-
+	nuget NUnit.Runners ~> 3.0
+	nuget OpenCover
 
 group Test
 	redirects: on
+	framework: <= net451
 	source https://www.nuget.org/api/v2/
 	
 	nuget AutoFixture 3.38.1
@@ -46,5 +48,4 @@ group Test
 	nuget FluentAssertions 4.2.1
 	nuget Helpz 0.1.8 framework: >= net451
 	nuget Moq 4.2.1510.2205
-	nuget OpenCover
-	nuget NUnit 2.6.4
+	nuget NUnit ~> 3.0

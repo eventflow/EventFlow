@@ -26,9 +26,9 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace EventFlow.EventStores.EventStore.Tests.Extensions
+namespace EventFlow.TestHelpers.Extensions
 {
-    public static class ProcessExtensions
+    internal static class ProcessExtensions
     {
         public static bool WaitForOutput(
             this Process process,
