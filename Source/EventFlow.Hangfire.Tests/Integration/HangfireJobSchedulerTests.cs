@@ -49,8 +49,8 @@ namespace EventFlow.Hangfire.Tests.Integration
         private BackgroundJobServer _backgroundJobServer;
         private EventFlowResolverActivator _eventFlowResolverActivator;
 
-        [TestFixtureSetUp]
-        public void FixtureSetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _msSqlDatabase = MsSqlHelpz.CreateDatabase("hangfire");
 
@@ -71,8 +71,8 @@ namespace EventFlow.Hangfire.Tests.Integration
             _backgroundJobServer = new BackgroundJobServer(backgroundJobServerOptions);
         }
 
-        [TestFixtureTearDown]
-        public void FixtureTearDown()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             _backgroundJobServer.DisposeSafe("Hangfire backgroung job server");
             _webApp.DisposeSafe("Web APP");
