@@ -1,4 +1,8 @@
-### New in 0.33 (not released yet)
+### New in 0.34 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.33.2190 (released 2016-08-16)
 
 * Fixed: Fixed regression in `v0.32.2163` by adding NuGet package reference
   `DbUp` to `EventFlow.Sql`. The package was previously ILMerged.
