@@ -8,75 +8,108 @@ provides a simple saga system.
 * **Saga locator**
 * **Zero or more aggregates**
 
-In this example we will create a basic password reset flow.
+This example is based on the chapter "A Saga on Sagas" from the
+[CQRS Journey](https://msdn.microsoft.com/en-us/library/jj591569.aspx) by
+Microsoft, in which we want to model the process of placing an order.
 
-1. `UserAggregate` `PasswordResetRequestedEvent`
-1. _saga reacts and sends an email_
-1. ``
+1. User sends command `PlaceOrder` to the `OrderAggregate`
+1. `OrderAggregate` emits an `OrderCreated` event
+1. `OrderSaga` handles `OrderCreated` by sending a `MakeReservation` command
+   to the `ReservationAggregate`
+1. `ReservationAggregate` emits a `SeatsReserved` event
+1. `OrderSaga` handles `SeatsReserved` by sending a `MakePayment` command
+   to the `PaymentAggregate`
+1. `PaymentAggregate` emits a `PaymentAccepted` event
+1. `OrderSaga` handles `PaymentAccepted` by emitting a `OrderConfirmed` event
+   with all the details, which via subscribers updates the user, the
+   `OrderAggregate` and the `ReservationAggregate`
 
-First we need to define the _identity_ of our saga.
+Next we need an `ISagaLocator` which basically maps domain events to a saga
+identity allowing EventFlow to find it in its store.
+
+In our case we will add the order ID to event metadata of all events related to
+a specific order.
 
 ```csharp
-// You could inherit from Identity<> instead of SingleValueObject<>
-public class PasswordResetSagaId : SingleValueObject<string>, ISagaId
-{
-  public PasswordResetSagaId(string value) : base(value) { }
-}
-```
-
-Next we need to `ISagaLocator` to tell EventFlow how to translate a given
-domain event to a saga identity.
-
-For the sake of simplicity we will add the user email to event metadata of all
-events from the user aggregate.
-
-```csharp
-public class PasswordResetSagaLocator : ISagaLocator
+public class OrderSagaLocator : ISagaLocator
 {
   public Task<ISagaId> LocateSagaAsync(
     IDomainEvent domainEvent,
     CancellationToken cancellationToken)
   {
-    var userEmail = domainEvent.Metadata["useremail"];
-    var passwordResetSagaId = new PasswordResetSagaId($"passreset-{userEmail}");
+    var orderId = domainEvent.Metadata["order-id"];
+    var orderSagaId = new OrderSagaId($"ordersaga-{orderId}");
 
-    return Task.FromResult<ISagaId>(passwordResetSagaId);
+    return Task.FromResult<ISagaId>(orderSagaId);
   }
 }
 ```
 
-How you locate a saga based on a domain event, varies from application to
-application.
-
-Next we define the saga itself.
+Alternatively the order identity could be added to every domain event emitted
+from the `OrderAggregate`, `ReservationAggregate` and `PaymentAggregate`
+aggregates that the `OrderSaga` subscribes to, but this would depend on whether
+or not the order identity is part of the ubiquitous language for your domain.
 
 ```csharp
-public class PasswordResetSaga
-  : Saga<PasswordResetSaga, PasswordResetSagaId, PasswordResetSagaLocator>,
-    ISagaIsStartedBy<UserAggregate, UserId, PasswordResetRequestedEvent>
+public class OrderSaga
+  : AggregateSaga<OrderSaga, OrderSagaId, OrderSagaLocator>,
+    ISagaIsStartedBy<OrderAggregate, OrderId, OrderCreated>
 {
-  private int? _verificationCode;
-
-  public Task ProcessAsync(
-    IDomainEvent<UserAggregate, UserId, PasswordResetRequestedEvent> domainEvent,
-    CancellationToken cancellationToken)
-    {
-      // Do super secret password reset verification code calculation
-      var verificationCode = 1234;
-
-      // Emits an event for this saga
-      Emit(new ResetVerificationCodeAssignedEvent(verificationCode));
-
-      // Schedules a command to be sent given that the saga aggregate is
-      // committed successfully to the event store
-      Publish(new SendPasswordResetCommand(
-        domainEvent.AggregateEvent.UserId,
-        verificationCode));
-    }
-
-  public void Apply(ResetVerificationCodeAssignedEvent e)
+  public Task HandleAsync(
+      IDomainEvent<OrderAggregate, OrderId, OrderCreated> domainEvent,
+      ISagaContext sagaContext,
+      CancellationToken cancellationToken)
   {
-    _verificationCode = e.VerificationCode;
+    // Update saga state with useful details.
+    Emit(new OrderStarted(/*...*/));
+
+    // Make the reservation
+    Publish(new MakeReservation(/*...*/));
+  }
+
+  public void Apply(OrderStarted e)
+  {
+    // Update our aggregate state with relevant order details
   }
 }
 ```
+
+The next few events and commands are omitted, but at last the `PaymentAggregate`
+emits its `PaymentAccepted` event and the saga completes and emit the final
+`OrderConfirmed` event.
+
+```csharp
+public class OrderSaga
+  : AggregateSaga<OrderSaga, OrderSagaId, OrderSagaLocator>,
+    ...
+    ISagaHandles<PaymentAggregate, PaymentId, PaymentAccepted>
+{
+
+  ...
+
+  public Task HandleAsync(
+      IDomainEvent<PaymentAggregate, PaymentId, PaymentAccepted> domainEvent,
+      ISagaContext sagaContext,
+      CancellationToken cancellationToken)
+  {
+    Emit(new OrderConfirmed(/*...*/))
+  }
+
+  public void Apply(OrderConfirmed e)
+  {
+    // As this is the last event, we complete the saga by calling Complete()
+    Complete();
+  }
+}
+```
+
+**NOTE:** An `AggregateSaga<,,>` is only considered in its `running` state if
+there has been an event and it hasn't been marked as completed (by invoking the
+`protected` `Complete()` method on the `AggregateSaga<,,>`).
+
+
+## Alternative saga store
+
+By default EventFlow is configured to use event sourcing and aggregate roots
+for storage of sagas. However, you can implement your own storage system by
+implementing `ISagaStore` and registering it.
