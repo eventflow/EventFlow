@@ -1,4 +1,5 @@
 redirects: on
+framework: <= net451
 source https://www.nuget.org/api/v2/
 
 nuget Autofac 3.5.2
@@ -6,7 +7,7 @@ nuget Autofac.Owin 3.1.0
 nuget Autofac.WebApi2 3.4.0
 nuget Autofac.WebApi2.Owin 3.2.0
 nuget Dapper 1.42
-nuget dbup 3.3.0
+nuget dbup 3.3.5
 nuget Elasticsearch.Net ~> 2.0
 nuget EventStore.Client 3.4.0
 nuget Hangfire.Core 1.5.3
