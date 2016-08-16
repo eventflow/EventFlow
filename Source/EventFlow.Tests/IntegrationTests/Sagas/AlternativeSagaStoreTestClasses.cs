@@ -32,9 +32,9 @@ using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
 
-namespace EventFlow.Tests.UnitTests.Sagas
+namespace EventFlow.Tests.IntegrationTests.Sagas
 {
-    public class SagaTestClasses
+    public class AlternativeSagaStoreTestClasses
     {
         public class TestSagaId : SingleValueObject<string>, ISagaId
         {

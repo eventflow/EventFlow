@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
-namespace EventFlow.Core.Cache
+namespace EventFlow.Core.Caching
 {
     public abstract class Cache
     {
@@ -87,13 +87,14 @@ namespace EventFlow.Core.Cache
             }
             catch (Exception e)
             {
-                Log.Warning(e, $"Failed to get '{key}' from '{GetType().PrettyPrint()}' cache");
+                Log.Warning(e, $"Failed to get '{key}' from '{GetType().PrettyPrint()}' cache due to unexpected exception");
             }
 
             value = await factory(cancellationToken).ConfigureAwait(false);
             if (value == null)
             {
-                throw new InvalidOperationException($"Cache factory method for key '{key}' in cache '{GetType().PrettyPrint()}' must not return 'null'");
+                throw new InvalidOperationException(
+                    $"Cache factory method for key '{key}' of type '{typeof(T).PrettyPrint()}' in cache '{GetType().PrettyPrint()}' must not return 'null'");
             }
 
             try
@@ -102,7 +103,7 @@ namespace EventFlow.Core.Cache
             }
             catch (Exception e)
             {
-                Log.Warning(e, $"Failed to set '{key}' in '{GetType().PrettyPrint()}' cache");
+                Log.Warning(e, $"Failed to set '{key}' in '{GetType().PrettyPrint()}' cache due to unexpected exception");
             }
 
             return value;

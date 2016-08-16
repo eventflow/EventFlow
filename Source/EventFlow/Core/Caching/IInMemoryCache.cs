@@ -26,7 +26,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EventFlow.Core.Cache
+namespace EventFlow.Core.Caching
 {
     /// <summary>
     /// Cache for run-time objects that cannot be serialized and must remain in memory.

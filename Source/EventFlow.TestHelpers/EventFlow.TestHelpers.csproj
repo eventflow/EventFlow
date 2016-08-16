@@ -95,6 +95,7 @@
     <Compile Include="Installer\InstallHelper.cs" />
     <Compile Include="Installer\SoftwareDescription.cs" />
     <Compile Include="Suites\AggregateStoreExtensions.cs" />
+    <Compile Include="Suites\InMemoryCacheTests.cs" />
     <Compile Include="Suites\TestSuiteForEventStore.cs" />
     <Compile Include="Suites\TestSuiteForReadModelStore.cs" />
     <Compile Include="Suites\TestSuiteForSnapshotStore.cs" />

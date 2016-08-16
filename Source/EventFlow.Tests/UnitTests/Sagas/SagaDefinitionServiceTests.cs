@@ -25,6 +25,8 @@ using System;
 using System.Linq;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Sagas;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -33,20 +35,33 @@ namespace EventFlow.Tests.UnitTests.Sagas
     [Category(Categories.Unit)]
     public class SagaDefinitionServiceTests : TestsFor<SagaDefinitionService>
     {
-        [TestCase(typeof(SagaTestClasses.SagaTestEventA))]
-        [TestCase(typeof(SagaTestClasses.SagaTestEventB))]
-        [TestCase(typeof(SagaTestClasses.SagaTestEventC))]
-        public void GetSagaTypeDetails(Type aggregateEventType)
+        [TestCase(typeof(ThingySagaStartRequestedEvent))]
+        [TestCase(typeof(ThingySagaCompleteRequestedEvent))]
+        public void GetSagaTypeDetails_WithSubscribedAggregateEvents(Type aggregateEventType)
         {
             // Arrange
-            Sut.LoadSagas(typeof(SagaTestClasses.TestSaga));
+            Sut.LoadSagas(typeof(ThingySaga));
 
             // Act
-            var sagaTypeDetails = Sut.GetSagaDetails(aggregateEventType);
+            var sagaTypeDetails = Sut.GetSagaDetails(aggregateEventType).ToList();
 
             // Assert
             sagaTypeDetails.Should().HaveCount(1);
-            sagaTypeDetails.Single().SagaType.Should().Be(typeof (SagaTestClasses.TestSaga));
+            sagaTypeDetails.Single().SagaType.Should().Be(typeof(ThingySaga));
+        }
+
+        [TestCase(typeof(ThingyDomainErrorAfterFirstEvent))]
+        [TestCase(typeof(ThingyMessageAddedEvent))]
+        public void GetSagaTypeDetails_WithUnknownAggregateEvents(Type aggregateEventType)
+        {
+            // Arrange
+            Sut.LoadSagas(typeof(ThingySaga));
+
+            // Act
+            var sagaTypeDetails = Sut.GetSagaDetails(aggregateEventType).ToList();
+
+            // Assert
+            sagaTypeDetails.Should().BeEmpty();
         }
     }
 }

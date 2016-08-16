@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Logs;
 
-namespace EventFlow.Core.Cache
+namespace EventFlow.Core.Caching
 {
     public class InMemoryCache : Cache, IInMemoryCache, IDisposable
     {

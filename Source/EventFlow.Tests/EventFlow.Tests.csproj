@@ -118,7 +118,7 @@
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
     <Compile Include="UnitTests\Sagas\SagaDefinitionServiceTests.cs" />
     <Compile Include="IntegrationTests\Sagas\AlternativeSagaStoreTests.cs" />
-    <Compile Include="UnitTests\Sagas\SagaTestClasses.cs" />
+    <Compile Include="IntegrationTests\Sagas\AlternativeSagaStoreTestClasses.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />

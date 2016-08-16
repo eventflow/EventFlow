@@ -46,20 +46,20 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             _resolver = EventFlowOptions.New
                 .AddAggregateRoots(
-                    typeof(SagaTestClasses.SagaTestAggregate))
-                .AddSagas(typeof (SagaTestClasses.TestSaga))
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestAggregate))
+                .AddSagas(typeof (AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
-                    typeof(SagaTestClasses.SagaTestACommandHandler),
-                    typeof(SagaTestClasses.SagaTestBCommandHandler),
-                    typeof(SagaTestClasses.SagaTestCCommandHandler))
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestBCommandHandler),
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestCCommandHandler))
                 .AddEvents(
-                    typeof(SagaTestClasses.SagaTestEventA),
-                    typeof(SagaTestClasses.SagaTestEventB),
-                    typeof(SagaTestClasses.SagaTestEventC))
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestEventA),
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestEventB),
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
                     {
-                        sr.RegisterType(typeof (SagaTestClasses.TestSagaLocator));
-                        sr.Register<ISagaStore, SagaTestClasses.InMemorySagaStore>(Lifetime.Singleton);
+                        sr.RegisterType(typeof (AlternativeSagaStoreTestClasses.TestSagaLocator));
+                        sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
                     })
                 .CreateResolver(false);
 
@@ -77,13 +77,13 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         public async Task StartedByCorrectly()
         {
             // Arrange
-            var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
+            var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.New;
 
             // Act
-            _commandBus.Publish(new SagaTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
+            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
 
             // Assert
-            var testAggregate = await _aggregateStore.LoadAsync<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+            var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
             testAggregate.As.Should().Be(1);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(1);
@@ -93,13 +93,13 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         public async Task NotStarted()
         {
             // Arrange
-            var aggregateId = SagaTestClasses.SagaTestAggregateId.New;
+            var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.New;
 
             // Act
-            _commandBus.Publish(new SagaTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
 
             // Assert
-            var testAggregate = await _aggregateStore.LoadAsync<SagaTestClasses.SagaTestAggregate, SagaTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+            var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
             testAggregate.As.Should().Be(0);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(0);

@@ -22,75 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core.Cache;
+using EventFlow.Core.Caching;
 using EventFlow.TestHelpers;
-using FluentAssertions;
-using Moq;
+using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core.Cache
 {
     [Category(Categories.Unit)]
-    public class InMemoryCacheTests : TestsFor<InMemoryCache>
+    public class InMemoryCacheTests : TestSuiteForInMemoryCache<InMemoryCache>
     {
-        [Test]
-        public async Task InvokesFactoryAndReturnsValue()
-        {
-            // Arrange
-            var value = A<object>();
-            var factory = CreateFactoryMethod(value);
-
-            // Act
-            var cacheValue = await Sut.GetOrAddAsync(
-                A<string>(),
-                DateTimeOffset.Now.AddDays(1),
-                factory.Object,
-                CancellationToken.None)
-                .ConfigureAwait(false);
-
-            // Assert
-            cacheValue.Should().BeSameAs(value);
-            factory.Verify(m => m(It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Test]
-        public void FaultyFactoryMethodThrowsException()
-        {
-            // Arrange
-            var exception = A<Exception>();
-            var faultyFactory = CreateFaultyFactoryMethod<object>(exception);
-
-            // Act
-            var thrownException = Assert.Throws<Exception>(() => Sut.GetOrAddAsync(
-                A<string>(),
-                DateTimeOffset.Now.AddDays(1),
-                faultyFactory.Object,
-                CancellationToken.None).GetAwaiter().GetResult());
-
-            // Assert
-            faultyFactory.Verify(m => m(It.IsAny<CancellationToken>()), Times.Once);
-            thrownException.Should().BeSameAs(exception);
-        }
-
-        private static Mock<Func<CancellationToken, Task<T>>> CreateFactoryMethod<T>(T value)
-        {
-            var mock = new Mock<Func<CancellationToken, Task<T>>>();
-            mock
-                .Setup(m => m(It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(value));
-            return mock;
-        }
-
-        private static Mock<Func<CancellationToken, Task<T>>> CreateFaultyFactoryMethod<T>(Exception exception)
-        {
-            var mock = new Mock<Func<CancellationToken, Task<T>>>();
-            mock
-                .Setup(m => m(It.IsAny<CancellationToken>()))
-                .Returns(() => { throw exception; });
-            return mock;
-        }
     }
 }

@@ -29,7 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Core.Cache;
+using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas.AggregateSagas
