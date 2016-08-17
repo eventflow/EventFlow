@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,28 +45,28 @@ namespace EventFlow.Core
             var nameReplace = new Regex("Id$");
             Name = nameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
             ValueValidation = new Regex(
-                @"^[a-z0-9]+\-[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$",
+                @"^[a-z0-9]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
                 RegexOptions.Compiled);
         }
 
-        public static T New => BuildWith(Guid.NewGuid());
+        public static T New => With(Guid.NewGuid());
 
         public static T NewDeterministic(Guid namespaceId, string name)
         {
             var guid = GuidFactories.Deterministic.Create(namespaceId, name);
-            return BuildWith(guid);
+            return With(guid);
         }
 
         public static T NewDeterministic(Guid namespaceId, byte[] nameBytes)
         {
             var guid = GuidFactories.Deterministic.Create(namespaceId, nameBytes);
-            return BuildWith(guid);
+            return With(guid);
         }
 
         public static T NewComb()
         {
             var guid = GuidFactories.Comb.Create();
-            return BuildWith(guid);
+            return With(guid);
         }
 
         public static T With(string value)
@@ -84,7 +85,7 @@ namespace EventFlow.Core
             }
         }
 
-        private static T BuildWith(Guid guid)
+        public static T With(Guid guid)
         {
             var value = $"{Name}-{guid.ToString("D")}";
             return With(value);
@@ -116,10 +117,14 @@ namespace EventFlow.Core
             var validationErrors = Validate(value).ToList();
             if (validationErrors.Any())
             {
-                throw new ArgumentException(string.Format(
-                    "Aggregate ID is invalid: {0}",
-                    string.Join(", ", validationErrors)));
+                throw new ArgumentException($"Aggregate ID is invalid: {string.Join(", ", validationErrors)}");
             }
+
+            _lazyGuid = new Lazy<Guid>(() => Guid.Parse(ValueValidation.Match(Value).Groups["guid"].Value));
         }
+
+        private readonly Lazy<Guid> _lazyGuid;
+
+        public Guid GetGuid() => _lazyGuid.Value;
     }
 }

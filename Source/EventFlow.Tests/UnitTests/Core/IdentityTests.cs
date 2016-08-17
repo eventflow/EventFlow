@@ -47,10 +47,20 @@ namespace EventFlow.Tests.UnitTests.Core
             ThingyId.IsValid(testId.Value).Should().BeTrue();
         }
 
-        [Test]
-        public void WithValidValue()
+        [TestCase("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb", "da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
+        public void WithValidValue(string value, string expectedGuidValue)
         {
-            Assert.DoesNotThrow(() => ThingyId.With("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb"));
+            // Arrange
+            ThingyId thingyId = null;
+            var expectedGuid = Guid.Parse(expectedGuidValue);
+
+            // Act
+            Assert.DoesNotThrow(() => thingyId = ThingyId.With(value));
+
+            // Assert
+            thingyId.Should().NotBeNull();
+            thingyId.Value.Should().Be(value);
+            thingyId.GetGuid().Should().Be(expectedGuid);
         }
 
         [Test]
