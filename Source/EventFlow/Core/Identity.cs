@@ -100,16 +100,16 @@ namespace EventFlow.Core
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return $"Aggregate ID of type '{typeof (T).PrettyPrint()}' is null or empty";
+                yield return $"Identity of type '{typeof (T).PrettyPrint()}' is null or empty";
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' contains leading and/or traling spaces";
+                yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' does not start with '{Name}'";
+                yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))
-                yield return $"Aggregate ID '{value}' of type '{typeof (T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
+                yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)
@@ -117,7 +117,7 @@ namespace EventFlow.Core
             var validationErrors = Validate(value).ToList();
             if (validationErrors.Any())
             {
-                throw new ArgumentException($"Aggregate ID is invalid: {string.Join(", ", validationErrors)}");
+                throw new ArgumentException($"Identity is invalid: {string.Join(", ", validationErrors)}");
             }
 
             _lazyGuid = new Lazy<Guid>(() => Guid.Parse(ValueValidation.Match(Value).Groups["guid"].Value));

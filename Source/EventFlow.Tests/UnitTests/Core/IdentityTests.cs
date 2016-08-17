@@ -85,12 +85,13 @@ namespace EventFlow.Tests.UnitTests.Core
 
         [TestCase("da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
         [TestCase("thingy-769077C6-F84D-46E3-AD2E-828A576AAAF3")]
+        [TestCase("funny-da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
         [TestCase(null)]
         [TestCase("")]
         public void CannotCreateBadIds(string badIdValue)
         {
             // Act
-            Assert.Throws<ArgumentException>(() => ThingyId.With(badIdValue));
+            Assert.Throws<ArgumentException>(() => ThingyId.With(badIdValue)).Message.Should().Contain("Identity is invalid:");
         }
     }
 }
