@@ -31,6 +31,7 @@ using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Sagas;
 using Moq;
 using NUnit.Framework;
 
@@ -41,7 +42,6 @@ namespace EventFlow.Tests.UnitTests.Sagas
     {
         private Mock<IResolver> _resolverMock;
         private Mock<ISagaStore> _sagaStoreMock;
-        private Mock<ISagaErrorHandler> _sagaErrorHandlerMock;
         private Mock<ISagaDefinitionService> _sagaDefinitionServiceMock;
         private Mock<ISagaUpdater> _sagaUpdaterMock;
         private Mock<ISagaLocator> _sagaLocatorMock;
@@ -49,27 +49,24 @@ namespace EventFlow.Tests.UnitTests.Sagas
         [SetUp]
         public void SetUp()
         {
-            var locatorType = A<Type>();
-
-            var sagaType = typeof(ISaga);
+            var sagaType = typeof(ThingySaga);
 
             _resolverMock = InjectMock<IResolver>();
             _sagaStoreMock = InjectMock<ISagaStore>();
-            _sagaErrorHandlerMock = InjectMock<ISagaErrorHandler>();
             _sagaDefinitionServiceMock = InjectMock<ISagaDefinitionService>();
 
             _sagaUpdaterMock = new Mock<ISagaUpdater>();
             _sagaLocatorMock = new Mock<ISagaLocator>();
 
             _resolverMock
-                .Setup(r => r.Resolve(locatorType))
+                .Setup(r => r.Resolve(It.Is<Type>(t => typeof(ISagaLocator).IsAssignableFrom(t))))
                 .Returns(_sagaLocatorMock.Object);
             _resolverMock
                 .Setup(r => r.Resolve(It.Is<Type>(t => typeof(ISagaUpdater).IsAssignableFrom(t))))
                 .Returns(_sagaUpdaterMock.Object);
             _sagaDefinitionServiceMock
                 .Setup(d => d.GetSagaDetails(It.IsAny<Type>()))
-                .Returns(new[] {new SagaDetails(sagaType, locatorType, Many<Type>()),});
+                .Returns(new[] {SagaDetails.From(sagaType),});
         }
 
         [Test]

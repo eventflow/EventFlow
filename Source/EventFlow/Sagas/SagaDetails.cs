@@ -24,26 +24,68 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
     public class SagaDetails
     {
+        public static SagaDetails From<T>()
+            where T : ISaga
+        {
+            return From(typeof(T));
+        }
+
+        public static SagaDetails From(Type sagaType)
+        {
+            if (!typeof(ISaga).IsAssignableFrom(sagaType))
+            {
+                throw new ArgumentException(
+                    $"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}",
+                    nameof(sagaType));
+            }
+
+            var sagaInterfaces = sagaType.GetInterfaces();
+            var sagaHandlesTypes = sagaInterfaces
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaHandles<,,>))
+                .ToList();
+            var sagaStartedByTypes = sagaInterfaces
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaIsStartedBy<,,>))
+                .Select(i => i.GetGenericArguments()[2])
+                .ToList();
+            var aggregateEventTypes = sagaHandlesTypes
+                .Select(i => i.GetGenericArguments()[2])
+                .ToList();
+            var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
+
+            var sagaTypeDetails = new SagaDetails(
+                sagaType,
+                sagaInterfaceType.GetGenericArguments()[0],
+                sagaStartedByTypes,
+                aggregateEventTypes);
+
+            return sagaTypeDetails;
+        }
+
         private readonly ISet<Type> _startedBy;
 
-        public SagaDetails(
+        private SagaDetails(
             Type sagaType,
             Type sagaLocatorType,
-            IEnumerable<Type> startedBy)
+            IEnumerable<Type> startedBy,
+            IReadOnlyCollection<Type> aggregateEventTypes)
         {
             _startedBy = new HashSet<Type>(startedBy);
 
             SagaType = sagaType;
             SagaLocatorType = sagaLocatorType;
+            AggregateEventTypes = aggregateEventTypes;
         }
 
         public Type SagaType { get; }
         public Type SagaLocatorType { get; }
+        public IReadOnlyCollection<Type> AggregateEventTypes { get; }
 
         public bool IsStartedBy(Type aggregateEventType)
         {

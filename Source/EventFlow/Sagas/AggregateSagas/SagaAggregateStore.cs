@@ -90,7 +90,7 @@ namespace EventFlow.Sagas.AggregateSagas
                     {
                         var aggregateRootType = sagaType
                             .GetInterfaces()
-                            .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
 
                         if (aggregateRootType == null)
                             throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");

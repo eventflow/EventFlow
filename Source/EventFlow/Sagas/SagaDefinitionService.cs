@@ -26,7 +26,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
@@ -43,33 +42,15 @@ namespace EventFlow.Sagas
         {
             foreach (var sagaType in sagaTypes)
             {
-                if (!typeof (ISaga).IsAssignableFrom(sagaType))
+                var sagaDetails = SagaDetails.From(sagaType);
+
+                foreach (var aggregateEventType in sagaDetails.AggregateEventTypes)
                 {
-                    throw new ArgumentException(
-                        $"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}",
-                        nameof(sagaTypes));
-                }
+                    var sagaDetailsList = _sagaDetailsByAggregateEvent.GetOrAdd(
+                        aggregateEventType,
+                        new List<SagaDetails>());
 
-                var sagaInterfaces = sagaType.GetInterfaces();
-                var sagaHandlesTypes = sagaInterfaces
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISagaHandles<,,>))
-                    .ToList();
-                var sagaStartedByTypes = sagaInterfaces
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISagaIsStartedBy<,,>))
-                    .Select(i => i.GetGenericArguments()[2])
-                    .ToList();
-                var aggregateEventTypes = sagaHandlesTypes
-                    .Select(i => i.GetGenericArguments()[2]);
-                var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
-
-                var sagaTypeDetails = new SagaDetails(
-                    sagaType,
-                    sagaInterfaceType.GetGenericArguments()[0],
-                    sagaStartedByTypes);
-
-                foreach (var aggregateEventType in aggregateEventTypes)
-                {
-                    _sagaDetailsByAggregateEvent[aggregateEventType] = new List<SagaDetails>(new [] { sagaTypeDetails });
+                    sagaDetailsList.Add(sagaDetails);
                 }
             }
         }
