@@ -74,6 +74,12 @@ public class OrderSaga
 }
 ```
 
+**Important:** Even though the method for publishing commands is named
+`Publish`, the commands are only published to the command bus __after__ the
+aggregate has been successfully committed to the event store (just like events).
+If an unexpected exception is throw by this command publish, it should be
+handled by a custom implementation of `ISagaErrorHandler`.
+
 The next few events and commands are omitted, but at last the `PaymentAggregate`
 emits its `PaymentAccepted` event and the saga completes and emit the final
 `OrderConfirmed` event.
