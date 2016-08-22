@@ -24,7 +24,8 @@ public class TestId : Identity<TestId>
  - `New`: Uses the standard `Guid.NewGuid()`
  - `NewDeterministic(...)`: Creates a name-based `Guid` using the algorithm from
    [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt) §4.3, which allows
-   identities to be generated based on known data, e.g. an user e-mail
+   identities to be generated based on known data, e.g. an user e-mail, i.e.,
+   it always returns the same identity for the same arguments
  - `NewComb()`: Creates a sequential `Guid` that can be used to e.g. avoid
    database fragmentation
 - A `string` can be tested to see if its a valid identity using the static
@@ -38,10 +39,23 @@ significant if you serialize the identity type.
 Here's some examples on we can use our newly created `TestId`
 
 ```csharp
+// Uses the default Guid.NewGuid()
 var testId = TestId.New
 ```
 
 ```csharp
-// Uses the default Guid.NewGuid()
-var testId = TestId.New
+// Create a namespace, put this in a constant somewhere
+var emailNamespace = Guid.Parse("769077C6-F84D-46E3-AD2E-828A576AAAF3");
+
+// Creates an identity with the value "test-9181a444-af25-567e-a866-c263b6f6119a"
+var testId = TestId.NewDeterministic(emailNamespace, "test@example.com");
 ```
+
+```csharp
+// Creates a new identity every time, but an identity when used in e.g.
+// database indexes, minimizes fragmentation
+var testId = TestId.NewComb()
+```
+
+**Note:** Be sure to read the section about [value objects](./ValueObjects.md)
+as the `Identity<>` is basically a value object.
