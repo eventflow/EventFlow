@@ -1,5 +1,9 @@
 ### New in 0.34 (not released yet)
 
+* **New core feature:** EventFlow now support sagas, also known as process
+  managers. The use of sagas is opt-in. Currently EventFlow only supports sagas
+  based on aggregate roots, but its possible to implement a custom saga store.
+  Consult the documentation for details on how to get started using sagas
 * New: Added `Identity<>.With(Guid)` which allows identities to be created
   based on a specific `Guid`
 * New: Added `Identity<>.GetGuid()` which returns the internal `Guid`
