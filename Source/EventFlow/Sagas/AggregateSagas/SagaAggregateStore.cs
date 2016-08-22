@@ -85,7 +85,7 @@ namespace EventFlow.Sagas.AggregateSagas
         {
             var value = await _inMemoryCache.GetOrAddAsync(
                 $"sagastore-update:{sagaType.GetCacheKey()}",
-                TimeSpan.FromHours(1),
+                TimeSpan.FromDays(1),
                 _ =>
                     {
                         var aggregateRootType = sagaType
