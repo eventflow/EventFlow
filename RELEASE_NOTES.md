@@ -1,6 +1,8 @@
 ### New in 0.34 (not released yet)
 
-* _Nothing yet_
+* New: Added `Identity<>.With(Guid)` which allows identities to be created
+  based on a specific `Guid`
+* New: Added `Identity<>.GetGuid()` which returns the internal `Guid`
 
 ### New in 0.33.2190 (released 2016-08-16)
 
