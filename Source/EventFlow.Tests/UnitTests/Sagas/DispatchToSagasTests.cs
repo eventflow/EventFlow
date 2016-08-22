@@ -32,6 +32,7 @@ using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
@@ -43,6 +44,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
         private Mock<IResolver> _resolverMock;
         private Mock<ISagaStore> _sagaStoreMock;
         private Mock<ISagaDefinitionService> _sagaDefinitionServiceMock;
+        private Mock<ISagaErrorHandler> _sagaErrorHandlerMock;
         private Mock<ISagaUpdater> _sagaUpdaterMock;
         private Mock<ISagaLocator> _sagaLocatorMock;
 
@@ -54,6 +56,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _resolverMock = InjectMock<IResolver>();
             _sagaStoreMock = InjectMock<ISagaStore>();
             _sagaDefinitionServiceMock = InjectMock<ISagaDefinitionService>();
+            _sagaErrorHandlerMock = InjectMock<ISagaErrorHandler>();
 
             _sagaUpdaterMock = new Mock<ISagaUpdater>();
             _sagaLocatorMock = new Mock<ISagaLocator>();
@@ -84,6 +87,72 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _sagaUpdaterMock.Verify(
                 u => u.ProcessAsync(sagaMock.Object, It.IsAny<IDomainEvent>(), It.IsAny<ISagaContext>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(domainEventCount));
+        }
+
+        [Test]
+        public async Task SagaErrorHandlerIsInvokedCorrectly()
+        {
+            // Arrange
+            const int domainEventCount = 1;
+            Arrange_Working_ErrorHandler();
+            var expectedException = Arrange_Faulty_SagaStore();
+            var domainEvents = ManyDomainEvents<ThingyPingEvent>(domainEventCount);
+
+            // Act
+            await Sut.ProcessAsync(domainEvents, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            _sagaErrorHandlerMock.Verify(
+                m => m.HandleAsync(
+                    It.IsAny<ISagaId>(),
+                    It.IsAny<SagaDetails>(),
+                    expectedException,
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public void UnhandledSagaErrorIsThrown()
+        {
+            // Arrange
+            const int domainEventCount = 1;
+            Arrange_Working_ErrorHandler(false);
+            var expectedException = Arrange_Faulty_SagaStore();
+            var domainEvents = ManyDomainEvents<ThingyPingEvent>(domainEventCount);
+
+            // Act
+            var thrownException = Assert.ThrowsAsync<Exception>(
+                async () => await Sut.ProcessAsync(domainEvents, CancellationToken.None).ConfigureAwait(false));
+
+            // Assert
+            thrownException.Should().BeSameAs(expectedException);
+        }
+
+        private Exception Arrange_Faulty_SagaStore()
+        {
+            var exception = A<Exception>();
+
+            _sagaStoreMock
+                .Setup(s => s.UpdateAsync(
+                    It.IsAny<ISagaId>(),
+                    It.IsAny<SagaDetails>(),
+                    It.IsAny<ISourceId>(),
+                    It.IsAny<Func<ISaga, CancellationToken, Task>>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(exception);
+
+            return exception;
+        }
+
+        private void Arrange_Working_ErrorHandler(bool handlesIt = true)
+        {
+            _sagaErrorHandlerMock
+                .Setup(m => m.HandleAsync(
+                    It.IsAny<ISagaId>(),
+                    It.IsAny<SagaDetails>(),
+                    It.IsAny<Exception>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(handlesIt);
         }
 
         private Mock<ISaga> Arrange_Woking_SagaStore(SagaState sagaState = SagaState.New)
