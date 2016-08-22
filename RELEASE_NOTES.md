@@ -4,6 +4,10 @@
   managers. The use of sagas is opt-in. Currently EventFlow only supports sagas
   based on aggregate roots, but its possible to implement a custom saga store.
   Consult the documentation for details on how to get started using sagas
+* New: Added `IInMemoryCache` for which the default implementation is a simple
+  wrapper for the .NET built-in `MemoryCache`. EventFlow relies on extensive use
+  of reflection and the internal parts of EventFlow will move to this
+  implementation to allow better control of EventFlow memory usage 
 * New: Added `Identity<>.With(Guid)` which allows identities to be created
   based on a specific `Guid`
 * New: Added `Identity<>.GetGuid()` which returns the internal `Guid`
