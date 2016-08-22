@@ -48,6 +48,7 @@ namespace EventFlow.Tests.UnitTests.Core
         }
 
         [TestCase("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb", "da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
+        [TestCase("thingy-00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000000")]
         public void WithValidValue(string value, string expectedGuidValue)
         {
             // Arrange
@@ -61,6 +62,19 @@ namespace EventFlow.Tests.UnitTests.Core
             thingyId.Should().NotBeNull();
             thingyId.Value.Should().Be(value);
             thingyId.GetGuid().Should().Be(expectedGuid);
+        }
+
+        [Test]
+        public void InputOutput()
+        {
+            // Arrange
+            var guid = Guid.NewGuid();
+
+            // Act
+            var thingyId = ThingyId.With(guid);
+
+            // Assert
+            thingyId.GetGuid().Should().Be(guid);
         }
 
         [Test]
