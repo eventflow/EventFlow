@@ -50,6 +50,14 @@ namespace EventFlow.Extensions
                 });
         }
 
+        private static readonly ConcurrentDictionary<Type, string> TypeCacheKeys = new ConcurrentDictionary<Type, string>();
+        public static string GetCacheKey(this Type type)
+        {
+            return TypeCacheKeys.GetOrAdd(
+                type,
+                t => $"{t.PrettyPrint()}[hash: {t.GetHashCode()}]");
+        }
+
         private static string PrettyPrintRecursive(Type type, int depth)
         {
             if (depth > 3)

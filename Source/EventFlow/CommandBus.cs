@@ -32,7 +32,6 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -48,20 +47,17 @@ namespace EventFlow
         private readonly IResolver _resolver;
         private readonly IAggregateStore _aggregateStore;
         private readonly IDomainEventPublisher _domainEventPublisher;
-        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
             IAggregateStore aggregateStore,
-            IDomainEventPublisher domainEventPublisher,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            IDomainEventPublisher domainEventPublisher)
         {
             _log = log;
             _resolver = resolver;
             _aggregateStore = aggregateStore;
             _domainEventPublisher = domainEventPublisher;
-            _transientFaultHandler = transientFaultHandler;
         }
 
         public async Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(

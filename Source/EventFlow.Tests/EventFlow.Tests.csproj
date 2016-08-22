@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="EventFlowTests.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
+    <Compile Include="IntegrationTests\Sagas\AggregateSagaTests.cs" />
     <Compile Include="IntegrationTests\SeparationTests.cs" />
     <Compile Include="IntegrationTests\BasicTests.cs" />
     <Compile Include="IntegrationTests\EventStores\FilesEventStoreTests.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
+    <Compile Include="UnitTests\Core\Cache\InMemoryCacheTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
     <Compile Include="UnitTests\Core\IdentityTests.cs" />
     <Compile Include="UnitTests\Core\ReflectionHelperTests.cs" />
@@ -104,6 +106,8 @@
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestSuite.cs" />
     <Compile Include="UnitTests\ReadStores\MultipleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\SingleAggregateReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\Sagas\AggregateSagas\SagaAggregateStoreTests.cs" />
+    <Compile Include="UnitTests\Sagas\DispatchToSagasTests.cs" />
     <Compile Include="UnitTests\Snapshots\SnapshotAggregateRootTests.cs" />
     <Compile Include="UnitTests\Snapshots\SnapshotMetadataTests.cs" />
     <Compile Include="UnitTests\Snapshots\SnapshotSerilizerTests.cs" />
@@ -113,6 +117,9 @@
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
+    <Compile Include="UnitTests\Sagas\SagaDefinitionServiceTests.cs" />
+    <Compile Include="IntegrationTests\Sagas\AlternativeSagaStoreTests.cs" />
+    <Compile Include="IntegrationTests\Sagas\AlternativeSagaStoreTestClasses.cs" />
     <Compile Include="UnitTests\Subscribers\DispatchToEventSubscribersTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />

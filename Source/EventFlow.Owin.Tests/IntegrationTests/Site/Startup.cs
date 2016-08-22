@@ -37,7 +37,6 @@ using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
 using EventFlow.Owin.Middlewares;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Commands;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
@@ -91,10 +90,8 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
 
             var container = EventFlowOptions.New
                 .UseAutofacContainerBuilder(containerBuilder)
-                .AddEvents(EventFlowTestHelpers.Assembly)
-                .AddCommandHandlers(EventFlowTestHelpers.Assembly)
+                .AddDefaults(EventFlowTestHelpers.Assembly)
                 .AddOwinMetadataProviders()
-                .AddCommands(new [] {typeof(ThingyPingCommand)})
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
                 .CreateContainer(false);
