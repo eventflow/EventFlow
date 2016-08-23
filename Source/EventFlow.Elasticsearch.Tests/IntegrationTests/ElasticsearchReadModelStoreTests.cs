@@ -50,13 +50,13 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
         private string _indexName;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void FixtureSetUp()
         {
             _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void FixtureTearDown()
         {
             _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");

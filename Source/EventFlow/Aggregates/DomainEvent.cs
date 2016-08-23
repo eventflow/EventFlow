@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using EventFlow.Core;
 using EventFlow.Extensions;
@@ -33,6 +34,7 @@ namespace EventFlow.Aggregates
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
         public Type AggregateType => typeof (TAggregate);
+        public Type IdentityType => typeof (TIdentity);
         public Type EventType => typeof (TAggregateEvent);
 
         public int AggregateSequenceNumber { get; }

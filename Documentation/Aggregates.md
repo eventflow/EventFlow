@@ -14,18 +14,11 @@ public class TestId : Identity<TestId>
 }
 ```
 
-The `Identity<>` value object provides generic functionality to create and
-validate aggregate root IDs.
-
-- IDs follow the form `{class without "Id"}-{guid}` e.g.
-  `test-c93fdb8c-5c9a-4134-bbcd-87c0644ca34f` for the above `TestId`
-- IDs can be generated using the static `New` property
-- IDs can be validated using the static `bool IsValid(string)` method
-- ID validation errors (if any) can be gathered using the static
-  `IEnumerable<string> Validate(string)` method
-
-Note that its important to _name_ the constructor argument `value` as
-its significant if you serialize the ID.
+The [`Identity<>`](./Documentation/Identity.md) value object provides generic
+functionality to create and validate aggregate root IDs. Please read the
+documentation regarding the bundled `Identity<>` type as it provides several
+useful features, e.g. several different schemes for ID generation, one
+that minimizes MSSQL database fragmentation.
 
 Next, to create a new aggregate, simply inherit from `AggregateRoot<,>` like
 this, making sure to pass test aggregate own type as the first generic

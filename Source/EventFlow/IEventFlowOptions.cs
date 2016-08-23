@@ -36,6 +36,7 @@ namespace EventFlow
         IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
         IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);
         IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
+        IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes);
         IEventFlowOptions RegisterServices(Action<IServiceRegistration> register);
         IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration);
         IEventFlowOptions RegisterModule<TModule>() where TModule : IModule, new();

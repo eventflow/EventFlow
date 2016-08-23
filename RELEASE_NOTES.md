@@ -1,4 +1,21 @@
-### New in 0.33 (not released yet)
+### New in 0.34 (not released yet)
+
+* **New core feature:** EventFlow now support sagas, also known as process
+  managers. The use of sagas is opt-in. Currently EventFlow only supports sagas
+  based on aggregate roots, but its possible to implement a custom saga store.
+  Consult the documentation for details on how to get started using sagas
+* New: Added `IMemoryCache` for which the default implementation is a thin
+  wrapper for the .NET built-in `MemoryCache`. EventFlow relies on extensive use
+  of reflection and the internal parts of EventFlow will move to this
+  implementation for caching internal reflection results to allow better control
+  of EventFlow memory usage. Invoke the `UsePermanentMemoryCache()` extension
+  method on `IEventFlowOptions` to have EventFlow use the previous cache
+  behavior using `ConcurrentDictionary<,,>` based in-memory cache
+* New: Added `Identity<>.With(Guid)` which allows identities to be created
+  based on a specific `Guid`
+* New: Added `Identity<>.GetGuid()` which returns the internal `Guid`
+
+### New in 0.33.2190 (released 2016-08-16)
 
 * Fixed: Fixed regression in `v0.32.2163` by adding NuGet package reference
   `DbUp` to `EventFlow.Sql`. The package was previously ILMerged.

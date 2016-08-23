@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,17 +34,20 @@ namespace EventFlow.Configuration
             IEnumerable<Type> jobTypes,
             IEnumerable<Type> commandTypes,
             IEnumerable<Type> eventTypes,
+            IEnumerable<Type> sagaTypes,
             IEnumerable<Type> snapshotTypes)
         {
             Jobs = jobTypes.ToList();
             Commands = commandTypes.ToList();
             Events = eventTypes.ToList();
+            Sagas = sagaTypes.ToList();
             SnapshotTypes = snapshotTypes.ToList();
         }
 
         public IReadOnlyCollection<Type> Jobs { get; }
         public IReadOnlyCollection<Type> Commands { get; }
         public IReadOnlyCollection<Type> Events { get; }
+        public IReadOnlyCollection<Type> Sagas { get; }
         public IReadOnlyCollection<Type> SnapshotTypes { get; }
     }
 }

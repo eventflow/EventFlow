@@ -26,6 +26,9 @@ public class UserId : Identity<UserId>
 }
 ```
 
+**Note:** Be sure to read the read the section about the
+[`Identity<>`](./Identity.md) class to get details on how to use it.
+
 Next, let us start by creating a aggregate to represent our users.
 
 ```csharp

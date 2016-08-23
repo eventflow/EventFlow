@@ -72,7 +72,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Arrange_EventStore_StoreAsync_ThrowsOptimisticConcurrencyException();
 
             // Act
-            Assert.Throws<OptimisticConcurrencyException>(async () => await Sut.UpdateAsync<ThingyAggregate, ThingyId>(A<ThingyId>(), A<ISourceId>(), NoOperationAsync, CancellationToken.None).ConfigureAwait(false));
+            Assert.ThrowsAsync<OptimisticConcurrencyException>(async () => await Sut.UpdateAsync<ThingyAggregate, ThingyId>(A<ThingyId>(), A<ISourceId>(), NoOperationAsync, CancellationToken.None).ConfigureAwait(false));
 
             // Assert
             _eventStoreMock.Verify(
@@ -89,14 +89,14 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Arrange_EventStore_LoadEventsAsync_ReturnsEvents(domainEvents);
 
             // Act
-            Assert.Throws<DuplicateOperationException>(async () => await Sut.UpdateAsync<ThingyAggregate, ThingyId>(A<ThingyId>(), sourceId, NoOperationAsync, CancellationToken.None).ConfigureAwait(false));
+            Assert.ThrowsAsync<DuplicateOperationException>(async () => await Sut.UpdateAsync<ThingyAggregate, ThingyId>(A<ThingyId>(), sourceId, NoOperationAsync, CancellationToken.None).ConfigureAwait(false));
         }
 
         private void Arrange_EventStore_StoreAsync_ThrowsOptimisticConcurrencyException()
         {
             _eventStoreMock
                 .Setup(s => s.StoreAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(), It.IsAny<ISourceId>(), It.IsAny<CancellationToken>()))
-                .Throws(new OptimisticConcurrencyException(string.Empty, null));
+                .ThrowsAsync(new OptimisticConcurrencyException(string.Empty, null));
         }
 
         private void Arrange_EventStore_LoadEventsAsync_ReturnsEvents(params IDomainEvent<ThingyAggregate, ThingyId>[] domainEvents)

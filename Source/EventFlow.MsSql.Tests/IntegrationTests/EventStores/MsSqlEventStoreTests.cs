@@ -26,7 +26,6 @@ using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
-using EventFlow.Sql;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using Helpz.MsSql;

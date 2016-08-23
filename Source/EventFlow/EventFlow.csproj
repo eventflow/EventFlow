@@ -61,10 +61,24 @@
     <Compile Include="Aggregates\IAggregateStore.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="Core\Caching\Cache.cs" />
+    <Compile Include="Core\Caching\CacheKey.cs" />
+    <Compile Include="Core\Caching\DictionaryMemoryCache.cs" />
+    <Compile Include="Core\Caching\IMemoryCache.cs" />
+    <Compile Include="Core\Caching\MemoryCache.cs" />
     <Compile Include="Core\DisposableAction.cs" />
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
+    <Compile Include="Sagas\ISaga.cs" />
+    <Compile Include="Sagas\ISagaContext.cs" />
+    <Compile Include="Sagas\ISagaErrorHandler.cs" />
+    <Compile Include="Sagas\ISagaStore.cs" />
+    <Compile Include="Sagas\AggregateSagas\SagaAggregateStore.cs" />
+    <Compile Include="Sagas\SagaContext.cs" />
+    <Compile Include="Sagas\SagaErrorHandler.cs" />
+    <Compile Include="Sagas\SagaState.cs" />
     <Compile Include="Extensions\CommandBusExtensions.cs" />
     <Compile Include="Extensions\EventStoreExtensions.cs" />
     <Compile Include="Snapshots\ISnapshotAggregateRoot.cs" />
@@ -198,6 +212,7 @@
     <Compile Include="Extensions\EventFlowOptionsJobExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMetadataProvidersExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsReadStoresExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsSagasExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsSubscriberExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsQueriesExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
@@ -251,11 +266,24 @@
     <Compile Include="ReadStores\ReadModelUpdate.cs" />
     <Compile Include="ReadStores\ReadStoreManager.cs" />
     <Compile Include="ReadStores\SingleAggregateReadStoreManager.cs" />
+    <Compile Include="Sagas\ISagaUpdater.cs" />
+    <Compile Include="Sagas\SagaUpdater.cs" />
+    <Compile Include="Sagas\SagaDetails.cs" />
     <Compile Include="Snapshots\Strategies\ISnapshotStrategy.cs" />
     <Compile Include="Snapshots\Strategies\SnapshotEveryFewVersionsStrategy.cs" />
     <Compile Include="Snapshots\Strategies\SnapshotRandomlyStrategy.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Specification.cs" />
+    <Compile Include="Sagas\AggregateSagas\IAggregateSaga.cs" />
+    <Compile Include="Sagas\ISagaDefinitionService.cs" />
+    <Compile Include="Sagas\ISagaId.cs" />
+    <Compile Include="Sagas\ISagaLocator.cs" />
+    <Compile Include="Sagas\IDispatchToSagas.cs" />
+    <Compile Include="Sagas\ISagaHandles.cs" />
+    <Compile Include="Sagas\ISagaIsStartedBy.cs" />
+    <Compile Include="Sagas\AggregateSagas\AggregateSaga.cs" />
+    <Compile Include="Sagas\SagaDefinitionService.cs" />
+    <Compile Include="Sagas\DispatchToSagas.cs" />
     <Compile Include="Subscribers\DispatchToEventSubscribers.cs" />
     <Compile Include="Aggregates\DomainEvent.cs" />
     <Compile Include="EventStores\EventStoreBase.cs" />
@@ -306,6 +334,7 @@
     <None Include="EventFlow.nuspec" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
