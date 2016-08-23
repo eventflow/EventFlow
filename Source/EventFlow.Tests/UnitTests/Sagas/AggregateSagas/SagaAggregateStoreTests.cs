@@ -44,7 +44,7 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
         [SetUp]
         public void SetUp()
         {
-            Inject<IInMemoryCache>(A<InMemoryCache>());
+            Inject<IMemoryCache>(A<MemoryCache>());
         }
 
         [Test]

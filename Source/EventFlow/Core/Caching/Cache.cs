@@ -41,37 +41,37 @@ namespace EventFlow.Core.Caching
         }
 
         public Task<T> GetOrAddAsync<T>(
-            string key,
+            CacheKey cacheKey,
             TimeSpan slidingExpiration,
             Func<CancellationToken, Task<T>> factory,
             CancellationToken cancellationToken)
             where T : class
         {
             return GetOrAddAsync(
-                key,
+                cacheKey,
                 factory,
                 (k,v,c) => SetAsync(k, slidingExpiration, v, c),
                 cancellationToken);
         }
 
         public Task<T> GetOrAddAsync<T>(
-            string key,
+            CacheKey cacheKey,
             DateTimeOffset expirationTime,
             Func<CancellationToken, Task<T>> factory,
             CancellationToken cancellationToken)
             where T : class
         {
             return GetOrAddAsync(
-                key,
+                cacheKey,
                 factory,
                 (k, v, c) => SetAsync(k, expirationTime, v, c),
                 cancellationToken);
         }
 
         private async Task<T> GetOrAddAsync<T>(
-            string key,
+            CacheKey cacheKey,
             Func<CancellationToken, Task<T>> factory,
-            Func<string,T,CancellationToken,Task> setter,
+            Func<CacheKey,T,CancellationToken,Task> setter,
             CancellationToken cancellationToken)
             where T : class
         {
@@ -79,7 +79,7 @@ namespace EventFlow.Core.Caching
 
             try
             {
-                value = await GetAsync<T>(key, cancellationToken).ConfigureAwait(false);
+                value = await GetAsync<T>(cacheKey, cancellationToken).ConfigureAwait(false);
                 if (value != null)
                 {
                     return value;
@@ -87,44 +87,44 @@ namespace EventFlow.Core.Caching
             }
             catch (Exception e)
             {
-                Log.Warning(e, $"Failed to get '{key}' from '{GetType().PrettyPrint()}' cache due to unexpected exception");
+                Log.Warning(e, $"Failed to get '{cacheKey}' from '{GetType().PrettyPrint()}' cache due to unexpected exception");
             }
 
             value = await factory(cancellationToken).ConfigureAwait(false);
             if (value == null)
             {
                 throw new InvalidOperationException(
-                    $"Cache factory method for key '{key}' of type '{typeof(T).PrettyPrint()}' in cache '{GetType().PrettyPrint()}' must not return 'null'");
+                    $"Cache factory method for key '{cacheKey}' of type '{typeof(T).PrettyPrint()}' in cache '{GetType().PrettyPrint()}' must not return 'null'");
             }
 
             try
             {
-                await setter(key, value, cancellationToken).ConfigureAwait(false);
+                await setter(cacheKey, value, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                Log.Warning(e, $"Failed to set '{key}' in '{GetType().PrettyPrint()}' cache due to unexpected exception");
+                Log.Warning(e, $"Failed to set '{cacheKey}' in '{GetType().PrettyPrint()}' cache due to unexpected exception");
             }
 
             return value;
         }
 
         protected abstract Task SetAsync<T>(
-            string key,
+            CacheKey cacheKey,
             DateTimeOffset absoluteExpiration,
             T value,
             CancellationToken cancellationToken)
             where T : class;
 
         protected abstract Task SetAsync<T>(
-            string key,
+            CacheKey cacheKey,
             TimeSpan slidingExpiration,
             T value,
             CancellationToken cancellationToken)
             where T : class;
 
         protected abstract Task<T> GetAsync<T>(
-            string key,
+            CacheKey cacheKey,
             CancellationToken cancellationToken)
             where T : class;
     }

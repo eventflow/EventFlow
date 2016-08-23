@@ -31,17 +31,17 @@ namespace EventFlow.Core.Caching
     /// <summary>
     /// Cache for run-time objects that cannot be serialized and must remain in memory.
     /// </summary>
-    public interface IInMemoryCache
+    public interface IMemoryCache
     {
         Task<T> GetOrAddAsync<T>(
-            string key,
+            CacheKey cacheKey,
             DateTimeOffset expirationTime,
             Func<CancellationToken, Task<T>> factory,
             CancellationToken cancellationToken)
             where T : class;
 
         Task<T> GetOrAddAsync<T>(
-            string key,
+            CacheKey cacheKey,
             TimeSpan slidingExpiration,
             Func<CancellationToken, Task<T>> factory,
             CancellationToken cancellationToken)

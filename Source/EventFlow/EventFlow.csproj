@@ -62,8 +62,10 @@
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
     <Compile Include="Core\Caching\Cache.cs" />
-    <Compile Include="Core\Caching\IInMemoryCache.cs" />
-    <Compile Include="Core\Caching\InMemoryCache.cs" />
+    <Compile Include="Core\Caching\CacheKey.cs" />
+    <Compile Include="Core\Caching\DictionaryMemoryCache.cs" />
+    <Compile Include="Core\Caching\IMemoryCache.cs" />
+    <Compile Include="Core\Caching\MemoryCache.cs" />
     <Compile Include="Core\DisposableAction.cs" />
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />

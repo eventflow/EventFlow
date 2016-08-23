@@ -33,7 +33,7 @@ using NUnit.Framework;
 namespace EventFlow.TestHelpers.Suites
 {
     public abstract class TestSuiteForInMemoryCache<TSut> : TestsFor<TSut>
-        where TSut : IInMemoryCache
+        where TSut : IMemoryCache
     {
         [Test]
         public async Task InvokesFactoryAndReturnsValue()
@@ -44,7 +44,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             var cacheValue = await Sut.GetOrAddAsync(
-                A<string>(),
+                A<CacheKey>(),
                 DateTimeOffset.Now.AddDays(1),
                 factory.Object,
                 CancellationToken.None)
@@ -64,7 +64,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             var thrownException = Assert.Throws<Exception>(() => Sut.GetOrAddAsync(
-                A<string>(),
+                A<CacheKey>(),
                 DateTimeOffset.Now.AddDays(1),
                 faultyFactory.Object,
                 CancellationToken.None).GetAwaiter().GetResult());
@@ -82,7 +82,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             var thrownException = Assert.Throws<InvalidOperationException>(() => Sut.GetOrAddAsync(
-                A<string>(),
+                A<CacheKey>(),
                 DateTimeOffset.Now.AddDays(1),
                 factory.Object,
                 CancellationToken.None).GetAwaiter().GetResult());
