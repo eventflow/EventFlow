@@ -7,7 +7,10 @@
 * New: Added `IMemoryCache` for which the default implementation is a thin
   wrapper for the .NET built-in `MemoryCache`. EventFlow relies on extensive use
   of reflection and the internal parts of EventFlow will move to this
-  implementation to allow better control of EventFlow memory usage
+  implementation for caching internal reflection results to allow better control
+  of EventFlow memory usage. Invoke the `UsePermanentMemoryCache()` extension
+  method on `IEventFlowOptions` to have EventFlow use the previous cache
+  behavior using `ConcurrentDictionary<,,>` based in-memory cache
 * New: Added `Identity<>.With(Guid)` which allows identities to be created
   based on a specific `Guid`
 * New: Added `Identity<>.GetGuid()` which returns the internal `Guid`

@@ -75,6 +75,9 @@ namespace EventFlow.Core.Caching
             CancellationToken cancellationToken)
             where T : class
         {
+            if (cacheKey == null) throw new ArgumentNullException(nameof(cacheKey));
+            if (factory == null) throw new ArgumentNullException(nameof(factory));
+
             T value;
 
             try
