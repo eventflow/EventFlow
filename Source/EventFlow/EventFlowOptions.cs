@@ -224,7 +224,7 @@ namespace EventFlow
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
-            serviceRegistration.Register<IInMemoryCache, InMemoryCache>(Lifetime.Singleton);
+            serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
             serviceRegistration.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));

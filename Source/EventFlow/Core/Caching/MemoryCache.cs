@@ -30,11 +30,16 @@ using EventFlow.Logs;
 
 namespace EventFlow.Core.Caching
 {
-    public class InMemoryCache : Cache, IInMemoryCache, IDisposable
+    public class MemoryCache : Cache, IMemoryCache, IDisposable
     {
-        private readonly MemoryCache _memoryCache = new MemoryCache($"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}");
+        private readonly System.Runtime.Caching.MemoryCache _memoryCache = new System.Runtime.Caching.MemoryCache(GenerateKey());
 
-        public InMemoryCache(ILog log)
+        private static string GenerateKey()
+        {
+            return $"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}";
+        }
+
+        public MemoryCache(ILog log)
             : base(log)
         {
         }
@@ -45,13 +50,13 @@ namespace EventFlow.Core.Caching
         }
 
         protected override Task SetAsync<T>(
-            string key,
+            CacheKey cacheKey,
             DateTimeOffset absoluteExpiration,
             T value,
             CancellationToken cancellationToken)
         {
             _memoryCache.Set(
-                key,
+                cacheKey.Value,
                 value,
                 absoluteExpiration);
 
@@ -59,13 +64,13 @@ namespace EventFlow.Core.Caching
         }
 
         protected override Task SetAsync<T>(
-            string key,
+            CacheKey cacheKey,
             TimeSpan slidingExpiration,
             T value,
             CancellationToken cancellationToken)
         {
             _memoryCache.Set(
-                key,
+                cacheKey.Value,
                 value,
                 new CacheItemPolicy
                 {
@@ -76,10 +81,10 @@ namespace EventFlow.Core.Caching
         }
 
         protected override Task<T> GetAsync<T>(
-            string key,
+            CacheKey cacheKey,
             CancellationToken cancellationToken)
         {
-            var value = _memoryCache.Get(key) as T;
+            var value = _memoryCache.Get(cacheKey.Value) as T;
 
             return Task.FromResult(value);
         }

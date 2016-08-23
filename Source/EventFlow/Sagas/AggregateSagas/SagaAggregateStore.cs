@@ -37,14 +37,14 @@ namespace EventFlow.Sagas.AggregateSagas
     public class SagaAggregateStore : ISagaStore
     {
         private readonly IAggregateStore _aggregateStore;
-        private readonly IInMemoryCache _inMemoryCache;
+        private readonly IMemoryCache _memoryCache;
 
         public SagaAggregateStore(
             IAggregateStore aggregateStore,
-            IInMemoryCache inMemoryCache)
+            IMemoryCache memoryCache)
         {
             _aggregateStore = aggregateStore;
-            _inMemoryCache = inMemoryCache;
+            _memoryCache = memoryCache;
         }
 
         public async Task<TSaga> UpdateAsync<TSaga>(
@@ -83,24 +83,24 @@ namespace EventFlow.Sagas.AggregateSagas
             Type sagaType,
             CancellationToken cancellationToken)
         {
-            var value = await _inMemoryCache.GetOrAddAsync(
-                $"sagastore-update:{sagaType.GetCacheKey()}",
+            var value = await _memoryCache.GetOrAddAsync(
+                new CacheKey($"sagastore-update:{sagaType.GetCacheKey()}"),
                 TimeSpan.FromDays(1),
                 _ =>
-                    {
-                        var aggregateRootType = sagaType
-                            .GetInterfaces()
-                            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                {
+                    var aggregateRootType = sagaType
+                        .GetInterfaces()
+                        .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
 
-                        if (aggregateRootType == null)
-                            throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
+                    if (aggregateRootType == null)
+                        throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
 
-                        var methodInfo = GetType().GetMethod(nameof(UpdateAggregateAsync));
-                        var identityType = aggregateRootType.GetGenericArguments()[0];
-                        var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
-                        return Task.FromResult<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
-                            (id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { id, sid, u, c }));
-                    },
+                    var methodInfo = GetType().GetMethod(nameof(UpdateAggregateAsync));
+                    var identityType = aggregateRootType.GetGenericArguments()[0];
+                    var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
+                    return Task.FromResult<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
+                        (id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { id, sid, u, c }));
+                },
                 cancellationToken)
                 .ConfigureAwait(false);
 

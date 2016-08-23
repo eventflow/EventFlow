@@ -22,15 +22,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using EventFlow.Core.Caching;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
+using System;
+using EventFlow.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow.Tests.UnitTests.Core.Cache
+namespace EventFlow.Core.Caching
 {
-    [Category(Categories.Unit)]
-    public class InMemoryCacheTests : TestSuiteForInMemoryCache<MemoryCache>
+    [JsonConverter(typeof(SingleValueObjectConverter))]
+    public class CacheKey : SingleValueObject<string>
     {
+        public static int MaxLength = 128;
+
+        public CacheKey(string value) : base(value)
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentNullException(nameof(value));
+            if (value.Length > MaxLength)
+                throw new ArgumentOutOfRangeException(nameof(value), value, $"Cache keys can maximum be '{MaxLength}' in length");
+        }
     }
 }
