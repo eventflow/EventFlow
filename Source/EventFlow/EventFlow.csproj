@@ -70,6 +70,7 @@
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
+    <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
     <Compile Include="Sagas\ISaga.cs" />
     <Compile Include="Sagas\ISagaContext.cs" />
     <Compile Include="Sagas\ISagaErrorHandler.cs" />
