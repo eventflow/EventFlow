@@ -23,6 +23,7 @@
 //
 
 using System;
+using EventFlow.Extensions;
 using EventFlow.ValueObjects;
 using Newtonsoft.Json;
 
@@ -32,6 +33,16 @@ namespace EventFlow.Core.Caching
     public class CacheKey : SingleValueObject<string>
     {
         public static int MaxLength = 128;
+
+        public static CacheKey With(string key)
+        {
+            return new CacheKey(key);
+        }
+
+        public static CacheKey With(Type ownerType, string key)
+        {
+            return With($"{ownerType.GetCacheKey()}:{key}");
+        }
 
         public CacheKey(string value) : base(value)
         {

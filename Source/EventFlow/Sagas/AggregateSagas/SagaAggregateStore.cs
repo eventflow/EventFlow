@@ -84,7 +84,7 @@ namespace EventFlow.Sagas.AggregateSagas
             CancellationToken cancellationToken)
         {
             var value = await _memoryCache.GetOrAddAsync(
-                new CacheKey($"sagastore-update:{sagaType.GetCacheKey()}"),
+                CacheKey.With(GetType(), sagaType.GetCacheKey()), 
                 TimeSpan.FromDays(1),
                 _ =>
                 {
