@@ -21,8 +21,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
+
 using System.Collections.Generic;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
@@ -40,6 +43,20 @@ namespace EventFlow.Extensions
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                });
+        }
+
+        public static IEventFlowOptions UseReadStoreFor<TAggregate, TIdentity, TReadStore, TReadModel>(
+            this IEventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TReadStore : class, IReadModelStore<TReadModel>
+            where TReadModel : class, IReadModel, new()
+        {
+            return eventFlowOptions.RegisterServices(f =>
+                {
+                    f.Register<IReadStoreManager, AggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
                     f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
@@ -62,13 +79,19 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
-                .RegisterServices(f =>
-                    {
-                        f.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
-                        f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
-                    })
+                .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel>();
+        }
+
+        public static IEventFlowOptions UseInMemoryReadStoreFor<TAggregate, TIdentity, TReadModel>(
+            this IEventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TReadModel : class, IReadModel, new()
+        {
+            return eventFlowOptions
+                .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
+                .UseReadStoreFor<TAggregate, TIdentity, IInMemoryReadStore<TReadModel>, TReadModel>();
         }
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
@@ -77,13 +100,15 @@ namespace EventFlow.Extensions
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
-                .RegisterServices(f =>
-                    {
-                        f.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
-                        f.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
-                    })
+                .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel, TReadModelLocator>();
+        }
+
+        private static void RegisterInMemoryReadStore<TReadModel>(IServiceRegistration serviceRegistration) where TReadModel : class, IReadModel, new()
+        {
+            serviceRegistration.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
+            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
+            serviceRegistration.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
         }
     }
 }
