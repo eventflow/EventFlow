@@ -20,14 +20,15 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -43,22 +44,22 @@ namespace EventFlow.Queries
 
         private readonly ILog _log;
         private readonly IResolver _resolver;
-        private readonly ConcurrentDictionary<Type, CacheItem> _cacheItems = new ConcurrentDictionary<Type, CacheItem>(); 
+        private readonly IMemoryCache _memoryCache;
 
         public QueryProcessor(
             ILog log,
-            IResolver resolver)
+            IResolver resolver,
+            IMemoryCache memoryCache)
         {
             _log = log;
             _resolver = resolver;
+            _memoryCache = memoryCache;
         }
 
         public async Task<TResult> ProcessAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
         {
             var queryType = query.GetType();
-            var cacheItem = _cacheItems.GetOrAdd(
-                queryType,
-                CreateCacheItem);
+            var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
 
             var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
             _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
@@ -78,21 +79,28 @@ namespace EventFlow.Queries
             return result;
         }
 
-        private static CacheItem CreateCacheItem(Type queryType)
+        private Task<CacheItem> GetCacheItemAsync(Type queryType, CancellationToken cancellationToken)
         {
-            var queryInterfaceType = queryType
-                .GetInterfaces()
-                .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IQuery<>));
-            var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
-            var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
-                queryHandlerType,
-                "ExecuteQueryAsync",
-                queryType, typeof(CancellationToken));
-            return new CacheItem
-                {
-                    QueryHandlerType = queryHandlerType,
-                    HandlerFunc = invokeExecuteQueryAsync
-            };
+            return _memoryCache.GetOrAddAsync(
+                CacheKey.With(GetType(), queryType.GetCacheKey()),
+                TimeSpan.FromDays(1),
+                _ =>
+                    {
+                        var queryInterfaceType = queryType
+                            .GetInterfaces()
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
+                        var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
+                        var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
+                            queryHandlerType,
+                            "ExecuteQueryAsync",
+                            queryType, typeof(CancellationToken));
+                        return Task.FromResult(new CacheItem
+                            {
+                                QueryHandlerType = queryHandlerType,
+                                HandlerFunc = invokeExecuteQueryAsync
+                            });
+                    },
+                cancellationToken);
         }
     }
 }

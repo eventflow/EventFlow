@@ -32,7 +32,7 @@ namespace EventFlow.Core.Caching
     [JsonConverter(typeof(SingleValueObjectConverter))]
     public class CacheKey : SingleValueObject<string>
     {
-        public static int MaxLength = 128;
+        public static int MaxLength = 256;
 
         public static CacheKey With(string key)
         {

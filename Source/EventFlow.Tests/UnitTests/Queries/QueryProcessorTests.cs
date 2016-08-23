@@ -25,6 +25,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Core.Caching;
+using EventFlow.Logs;
 using EventFlow.Queries;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -44,6 +46,8 @@ namespace EventFlow.Tests.UnitTests.Queries
         [SetUp]
         public void SetUp()
         {
+            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+
             _resolverMock = InjectMock<IResolver>();
             _queryHandlerMock = new Mock<IQueryHandler<IQuery<int>, int>>();
 
