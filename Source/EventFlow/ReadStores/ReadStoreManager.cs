@@ -130,7 +130,7 @@ namespace EventFlow.ReadStores
                     readModelContext,
                     UpdateAsync,
                     c),
-                Label.Named("ss"),
+                Label.Named("updatereadmodel"),
                 cancellationToken);
         }
 
