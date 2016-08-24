@@ -52,8 +52,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             // Arrange
             var events = new[]
                 {
-                    ToDomainEvent(A<ThingyPingEvent>()),
-                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>())
+                    ToDomainEvent(A<ThingyPingEvent>(), 1),
+                    ToDomainEvent(A<ThingyDomainErrorAfterFirstEvent>(), 2)
                 };
 
             // Act

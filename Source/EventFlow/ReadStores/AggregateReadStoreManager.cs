@@ -97,7 +97,12 @@ namespace EventFlow.ReadStores
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, missingEvents, readModelContext, cancellationToken).ConfigureAwait(false);
+            await ReadModelDomainEventApplier.UpdateReadModelAsync(
+                readModel,
+                missingEvents,
+                readModelContext,
+                cancellationToken)
+                .ConfigureAwait(false);
 
             version = domainEvents.Max(e => e.AggregateSequenceNumber);
 

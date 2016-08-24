@@ -105,6 +105,7 @@
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestReadModel.cs" />
     <Compile Include="UnitTests\ReadStores\ReadStoreManagerTestSuite.cs" />
     <Compile Include="UnitTests\ReadStores\MultipleAggregateReadStoreManagerTests.cs" />
+    <Compile Include="UnitTests\ReadStores\AggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\ReadStores\SingleAggregateReadStoreManagerTests.cs" />
     <Compile Include="UnitTests\Sagas\AggregateSagas\SagaAggregateStoreTests.cs" />
     <Compile Include="UnitTests\Sagas\DispatchToSagasTests.cs" />
