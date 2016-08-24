@@ -1,4 +1,8 @@
-### New in 0.34 (not released yet)
+### New in 0.35 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.34.2221 (released 2016-08-23)
 
 * **New core feature:** EventFlow now support sagas, also known as process
   managers. The use of sagas is opt-in. Currently EventFlow only supports sagas
