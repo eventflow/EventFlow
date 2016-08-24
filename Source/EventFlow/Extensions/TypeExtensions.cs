@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -48,6 +49,14 @@ namespace EventFlow.Extensions
                         return t.Name;
                     }
                 });
+        }
+
+        private static readonly ConcurrentDictionary<Type, string> TypeCacheKeys = new ConcurrentDictionary<Type, string>();
+        public static string GetCacheKey(this Type type)
+        {
+            return TypeCacheKeys.GetOrAdd(
+                type,
+                t => $"{t.PrettyPrint()}[hash: {t.GetHashCode()}]");
         }
 
         private static string PrettyPrintRecursive(Type type, int depth)

@@ -24,13 +24,11 @@ want to build the code.
           <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
         </a>
       </p>
-      <!--
       <p>
-        <a href="https://codecov.io/github/rasmus/EventFlow?branch=develop">
-          <img src="https://codecov.io/github/rasmus/EventFlow/coverage.svg?branch=develop" />
+        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop">
+          <img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" />
         </a>
       </p>
-      -->
     </td>
   </tr>
 </table>
@@ -92,6 +90,8 @@ to the documentation.
   and EventFlow has support for
   * [In-memory](./Documentation/Snapshots.md#in-memory) - only for test
   * [Microsoft SQL Server](./Documentation/Snapshots.md#microsoft-sql-server)  
+* [**Sagas:**](./Documentation/Sagas.md) Also known as _process managers_,
+  coordinates and routes messages between bounded contexts and aggregates
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,

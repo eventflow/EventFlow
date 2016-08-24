@@ -49,13 +49,15 @@ namespace EventFlow.TestHelpers.Aggregates
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
-        public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {}; 
+        public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
 
         public ThingyAggregate(ThingyId id)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
+            Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
+            Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
         }
 
         public void DomainErrorAfterFirst()
@@ -81,6 +83,16 @@ namespace EventFlow.TestHelpers.Aggregates
         public void Ping(PingId pingId)
         {
             Emit(new ThingyPingEvent(pingId));
+        }
+
+        public void RequestSagaStart()
+        {
+            Emit(new ThingySagaStartRequestedEvent());
+        }
+
+        public void RequestSagaComplete()
+        {
+            Emit(new ThingySagaCompleteRequestedEvent());
         }
 
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
