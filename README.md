@@ -153,13 +153,17 @@ public async Task Example()
     simpleReadModel.MagicNumber.Should().Be(42);
   }
 }
+```
 
+```csharp
 // Represents the aggregate identity (ID)
 public class SimpleId : Identity<SimpleId>
 {
   public SimpleId(string value) : base(value) { }
 }
+```
 
+```csharp
 // The aggregate root
 public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
   IEmit<SimpleEvent>
@@ -185,7 +189,9 @@ public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
     _magicNumber = aggregateEvent.MagicNumber;
   }
 }
+```
 
+```csharp
 // A basic event containing some information
 public class SimpleEvent : AggregateEvent<SimpleAggrenate, SimpleId>
 {
@@ -196,7 +202,9 @@ public class SimpleEvent : AggregateEvent<SimpleAggrenate, SimpleId>
 
   public int MagicNumber { get; }
 }
+```
 
+```csharp
 // Command for update magic number
 public class SimpleCommand : Command<SimpleAggrenate, SimpleId>
 {
@@ -210,7 +218,9 @@ public class SimpleCommand : Command<SimpleAggrenate, SimpleId>
 
   public int MagicNumber { get; }
 }
+```
 
+```csharp
 // Command handler for our command
 public class SimpleCommandHandler : CommandHandler<SimpleAggrenate, SimpleId, SimpleCommand>
 {
@@ -223,7 +233,9 @@ public class SimpleCommandHandler : CommandHandler<SimpleAggrenate, SimpleId, Si
     return Task.FromResult(0);
   }
 }
+```
 
+```csharp
 // Read model for our aggregate
 public class SimpleReadModel : IReadModel,
   IAmReadModelFor<SimpleAggrenate, SimpleId, SimpleEvent>
