@@ -51,8 +51,9 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 
 ### Examples
 
-* **[Simple](#simple-example):** Shows the key concepts of EventFlow in a few
-  lines of code
+* **[Complete](#complete-example):** Shows a complete example on how to use
+  EventFlow with in-memory event store and read models in a relatively few lines
+  of code
 * **Shipping:** To get a more complete example of how EventFlow _could_ be used,
   have a look at the shipping example found here in the code base. The example
   is based on the shipping example from the book "Domain-Driven Design -
@@ -113,37 +114,132 @@ to the documentation.
   EventFlow can be swapped with a custom implementation through the embedded
   IoC container.
 
-## Simple example
-Here's an example on how to use the in-memory event store (default)
-and a in-memory read model store.
+## Complete example
+Here's a complete example on how to use the default in-memory event store
+along with an in-memory read model.
 
 ```csharp
-using (var resolver = EventFlowOptions.New
-    .AddEvents(typeof (TestAggregate).Assembly)
-    .AddCommandHandlers(typeof (TestAggregate).Assembly)
-    .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
-    .CreateResolver())
+[Test]
+public async Task Example()
 {
-  var commandBus = resolver.Resolve<ICommandBus>();
-  var eventStore = resolver.Resolve<IEventStore>();
-  var readModelStore = resolver.Resolve<IInMemoryReadModelStore<
-    TestAggregate,
-    TestReadModel>>();
-  var id = TestId.New;
+  // We wire up EventFlow with all of our classes. Instead of adding events,
+  // commands, etc. explicitly, we could have used the the simpler
+  // AddDefaults(Assembly) instead. See each of the referenced classes below
+  using (var resolver = EventFlowOptions.New
+    .AddEvents(typeof(SimpleEvent))
+    .AddCommands(typeof(SimpleCommand))
+    .AddCommandHandlers(typeof(SimpleCommandHandler))
+    .UseInMemoryReadStoreFor<SimpleReadModel>()
+    .CreateResolver())
+  {
+    // Create a new identity for our aggregate root
+    var simpleId = SimpleId.New;
 
-  // Publish a command
-  await commandBus.PublishAsync(new PingCommand(id));
+    // Resolve the command bus and use it to publish a command
+    var commandBus = resolver.Resolve<ICommandBus>();
+    await commandBus.PublishAsync(
+      new SimpleCommand(simpleId, 42), CancellationToken.None)
+      .ConfigureAwait(false);
 
-  // Load aggregate
-  var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate>(id);
+    // Resolve the query handler and use the built-in query for fetching
+    // read models by identity to get our read model representing the
+    // state of our aggregate root
+    var queryProcessor = resolver.Resolve<IQueryProcessor>();
+    var simpleReadModel = await queryProcessor.ProcessAsync(
+      new ReadModelByIdQuery<SimpleReadModel>(simpleId), CancellationToken.None)
+      .ConfigureAwait(false);
 
-  // Get read model from in-memory read store
-  var testReadModel = await readModelStore.GetAsync(id);
+    // Verify that the read model has the expected magic number
+    simpleReadModel.MagicNumber.Should().Be(42);
+  }
 }
-```
 
-Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in
-the above example to ease reading.
+// Represents the aggregate identity (ID)
+public class SimpleId : Identity<SimpleId>
+{
+  public SimpleId(string value) : base(value) { }
+}
+
+// The aggregate root
+public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
+  IEmit<SimpleEvent>
+{
+  private int? _magicNumber;
+
+  public SimpleAggrenate(SimpleId id) : base(id) { }
+
+  // Method invoked by our command
+  public void SetMagicNumer(int magicNumber)
+  {
+    if (_magicNumber.HasValue)
+      throw DomainError.With("Magic number already set");
+
+    Emit(new SimpleEvent(magicNumber));
+  }
+
+  // We apply the event as part of the event sourcing system. EventFlow
+  // provides several different methods for doing this, e.g. state objects,
+  // the Apply method is merely the simplest
+  public void Apply(SimpleEvent aggregateEvent)
+  {
+    _magicNumber = aggregateEvent.MagicNumber;
+  }
+}
+
+// A basic event containing some information
+public class SimpleEvent : AggregateEvent<SimpleAggrenate, SimpleId>
+{
+  public SimpleEvent(int magicNumber)
+  {
+      MagicNumber = magicNumber;
+  }
+
+  public int MagicNumber { get; }
+}
+
+// Command for update magic number
+public class SimpleCommand : Command<SimpleAggrenate, SimpleId>
+{
+  public SimpleCommand(
+    SimpleId aggregateId,
+    int magicNumber)
+    : base(aggregateId)
+  {
+    MagicNumber = magicNumber;
+  }
+
+  public int MagicNumber { get; }
+}
+
+// Command handler for our command
+public class SimpleCommandHandler : CommandHandler<SimpleAggrenate, SimpleId, SimpleCommand>
+{
+  public override Task ExecuteAsync(
+    SimpleAggrenate aggregate,
+    SimpleCommand command,
+    CancellationToken cancellationToken)
+  {
+    aggregate.SetMagicNumer(command.MagicNumber);
+    return Task.FromResult(0);
+  }
+}
+
+// Read model for our aggregate
+public class SimpleReadModel : IReadModel,
+  IAmReadModelFor<SimpleAggrenate, SimpleId, SimpleEvent>
+{
+  public int MagicNumber { get; private set; }
+
+  public void Apply(
+    IReadModelContext context,
+    IDomainEvent<SimpleAggrenate, SimpleId, SimpleEvent> domainEvent)
+  {
+    MagicNumber = domainEvent.AggregateEvent.MagicNumber;
+  }
+}```
+
+**Note:** The above example is part of the EventFlow test suite, so checkout
+the code and give it a go.
 
 ## State of EventFlow
 

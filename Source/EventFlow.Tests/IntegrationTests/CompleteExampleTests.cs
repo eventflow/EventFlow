@@ -41,6 +41,9 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task Example()
         {
+            // We wire up EventFlow with all of our classes. Instead of adding events,
+            // commands, etc. explicitly, we could have used the the simpler
+            // AddDefaults(Assembly) instead. See each of the referenced classes below
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof(SimpleEvent))
                 .AddCommands(typeof(SimpleCommand))
@@ -48,23 +51,29 @@ namespace EventFlow.Tests.IntegrationTests
                 .UseInMemoryReadStoreFor<SimpleReadModel>()
                 .CreateResolver())
             {
+                // Create a new identity for our aggregate root
                 var simpleId = SimpleId.New;
-                var commandBus = resolver.Resolve<ICommandBus>();
-                var queryProcessor = resolver.Resolve<IQueryProcessor>();
 
+                // Resolve the command bus and use it to publish a command
+                var commandBus = resolver.Resolve<ICommandBus>();
                 await commandBus.PublishAsync(
                     new SimpleCommand(simpleId, 42), CancellationToken.None)
                     .ConfigureAwait(false);
 
+                // Resolve the query handler and use the built-in query for fetching
+                // read models by identity to get our read model representing the
+                // state of our aggregate root
+                var queryProcessor = resolver.Resolve<IQueryProcessor>();
                 var simpleReadModel = await queryProcessor.ProcessAsync(
                     new ReadModelByIdQuery<SimpleReadModel>(simpleId), CancellationToken.None)
                     .ConfigureAwait(false);
 
+                // Verify that the read model has the expected magic number
                 simpleReadModel.MagicNumber.Should().Be(42);
             }
         }
 
-        // Represents the aggregate ID
+        // Represents the aggregate identity (ID)
         public class SimpleId : Identity<SimpleId>
         {
             public SimpleId(string value) : base(value) { }
@@ -78,6 +87,7 @@ namespace EventFlow.Tests.IntegrationTests
 
             public SimpleAggrenate(SimpleId id) : base(id) { }
 
+            // Method invoked by our command
             public void SetMagicNumer(int magicNumber)
             {
                 if (_magicNumber.HasValue)
@@ -86,6 +96,9 @@ namespace EventFlow.Tests.IntegrationTests
                 Emit(new SimpleEvent(magicNumber));
             }
 
+            // We apply the event as part of the event sourcing system. EventFlow
+            // provides several different methods for doing this, e.g. state objects,
+            // the Apply method is merely the simplest
             public void Apply(SimpleEvent aggregateEvent)
             {
                 _magicNumber = aggregateEvent.MagicNumber;
