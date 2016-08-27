@@ -236,7 +236,8 @@ public class SimpleReadModel : IReadModel,
   {
     MagicNumber = domainEvent.AggregateEvent.MagicNumber;
   }
-}```
+}
+```
 
 **Note:** The above example is part of the EventFlow test suite, so checkout
 the code and give it a go.
