@@ -31,11 +31,13 @@ using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
+    [Category(Categories.Integration)]
     public class CompleteExampleTests
     {
         [Test]
