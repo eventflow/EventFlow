@@ -118,59 +118,63 @@ to the documentation.
 Here's a complete example on how to use the default in-memory event store
 along with an in-memory read model.
 
+The example consists of the following classes, each shown below
+
+- `ExampleAggregate`: The aggregate root
+- `ExampleId`: Value object representing the identity of the aggregate root
+- `ExampleEvent`: Event emitted by the aggregate root
+- `ExampleCommand`: Value object defining a command that can be published to the
+  aggregate root
+- `ExampleCommandHandler`: Command handler which EventFlow resolves using its IoC
+  container and defines how the command specific is applied to the aggregate root
+- `ExampleReadModel`: In-memory read model providing easy access to the current
+  state
+
 ```csharp
 [Test]
 public async Task Example()
 {
   // We wire up EventFlow with all of our classes. Instead of adding events,
   // commands, etc. explicitly, we could have used the the simpler
-  // AddDefaults(Assembly) instead. See each of the referenced classes below
+  // AddDefaults(Assembly) instead.
   using (var resolver = EventFlowOptions.New
-    .AddEvents(typeof(SimpleEvent))
-    .AddCommands(typeof(SimpleCommand))
-    .AddCommandHandlers(typeof(SimpleCommandHandler))
-    .UseInMemoryReadStoreFor<SimpleReadModel>()
+    .AddEvents(typeof(ExampleEvent))
+    .AddCommands(typeof(ExampleCommand))
+    .AddCommandHandlers(typeof(ExampleCommandHandler))
+    .UseInMemoryReadStoreFor<ExampleReadModel>()
     .CreateResolver())
   {
     // Create a new identity for our aggregate root
-    var simpleId = SimpleId.New;
+    var exampleId = ExampleId.New;
 
     // Resolve the command bus and use it to publish a command
     var commandBus = resolver.Resolve<ICommandBus>();
     await commandBus.PublishAsync(
-      new SimpleCommand(simpleId, 42), CancellationToken.None)
+      new ExampleCommand(exampleId, 42), CancellationToken.None)
       .ConfigureAwait(false);
 
     // Resolve the query handler and use the built-in query for fetching
     // read models by identity to get our read model representing the
     // state of our aggregate root
     var queryProcessor = resolver.Resolve<IQueryProcessor>();
-    var simpleReadModel = await queryProcessor.ProcessAsync(
-      new ReadModelByIdQuery<SimpleReadModel>(simpleId), CancellationToken.None)
+    var exampleReadModel = await queryProcessor.ProcessAsync(
+      new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None)
       .ConfigureAwait(false);
 
     // Verify that the read model has the expected magic number
-    simpleReadModel.MagicNumber.Should().Be(42);
+    exampleReadModel.MagicNumber.Should().Be(42);
   }
 }
 ```
 
 ```csharp
-// Represents the aggregate identity (ID)
-public class SimpleId : Identity<SimpleId>
-{
-  public SimpleId(string value) : base(value) { }
-}
-```
-
-```csharp
 // The aggregate root
-public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
-  IEmit<SimpleEvent>
+public class ExampleAggrenate : AggregateRoot<ExampleAggrenate, ExampleId>,
+  IEmit<ExampleEvent>
 {
   private int? _magicNumber;
 
-  public SimpleAggrenate(SimpleId id) : base(id) { }
+  public ExampleAggrenate(ExampleId id) : base(id) { }
 
   // Method invoked by our command
   public void SetMagicNumer(int magicNumber)
@@ -178,13 +182,13 @@ public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
     if (_magicNumber.HasValue)
       throw DomainError.With("Magic number already set");
 
-    Emit(new SimpleEvent(magicNumber));
+    Emit(new ExampleEvent(magicNumber));
   }
 
   // We apply the event as part of the event sourcing system. EventFlow
   // provides several different methods for doing this, e.g. state objects,
   // the Apply method is merely the simplest
-  public void Apply(SimpleEvent aggregateEvent)
+  public void Apply(ExampleEvent aggregateEvent)
   {
     _magicNumber = aggregateEvent.MagicNumber;
   }
@@ -192,10 +196,18 @@ public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
 ```
 
 ```csharp
-// A basic event containing some information
-public class SimpleEvent : AggregateEvent<SimpleAggrenate, SimpleId>
+// Represents the aggregate identity (ID)
+public class ExampleId : Identity<ExampleId>
 {
-  public SimpleEvent(int magicNumber)
+  public ExampleId(string value) : base(value) { }
+}
+```
+
+```csharp
+// A basic event containing some information
+public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
+{
+  public ExampleEvent(int magicNumber)
   {
       MagicNumber = magicNumber;
   }
@@ -206,10 +218,10 @@ public class SimpleEvent : AggregateEvent<SimpleAggrenate, SimpleId>
 
 ```csharp
 // Command for update magic number
-public class SimpleCommand : Command<SimpleAggrenate, SimpleId>
+public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
 {
-  public SimpleCommand(
-    SimpleId aggregateId,
+  public ExampleCommand(
+    ExampleId aggregateId,
     int magicNumber)
     : base(aggregateId)
   {
@@ -222,11 +234,12 @@ public class SimpleCommand : Command<SimpleAggrenate, SimpleId>
 
 ```csharp
 // Command handler for our command
-public class SimpleCommandHandler : CommandHandler<SimpleAggrenate, SimpleId, SimpleCommand>
+public class ExampleCommandHandler
+  : CommandHandler<ExampleAggrenate, ExampleId, ExampleCommand>
 {
   public override Task ExecuteAsync(
-    SimpleAggrenate aggregate,
-    SimpleCommand command,
+    ExampleAggrenate aggregate,
+    ExampleCommand command,
     CancellationToken cancellationToken)
   {
     aggregate.SetMagicNumer(command.MagicNumber);
@@ -237,14 +250,14 @@ public class SimpleCommandHandler : CommandHandler<SimpleAggrenate, SimpleId, Si
 
 ```csharp
 // Read model for our aggregate
-public class SimpleReadModel : IReadModel,
-  IAmReadModelFor<SimpleAggrenate, SimpleId, SimpleEvent>
+public class ExampleReadModel : IReadModel,
+  IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
 {
   public int MagicNumber { get; private set; }
 
   public void Apply(
     IReadModelContext context,
-    IDomainEvent<SimpleAggrenate, SimpleId, SimpleEvent> domainEvent)
+    IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent)
   {
     MagicNumber = domainEvent.AggregateEvent.MagicNumber;
   }

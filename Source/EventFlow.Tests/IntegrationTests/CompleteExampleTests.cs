@@ -43,21 +43,21 @@ namespace EventFlow.Tests.IntegrationTests
         {
             // We wire up EventFlow with all of our classes. Instead of adding events,
             // commands, etc. explicitly, we could have used the the simpler
-            // AddDefaults(Assembly) instead. See each of the referenced classes below
+            // AddDefaults(Assembly) instead.
             using (var resolver = EventFlowOptions.New
-                .AddEvents(typeof(SimpleEvent))
-                .AddCommands(typeof(SimpleCommand))
-                .AddCommandHandlers(typeof(SimpleCommandHandler))
-                .UseInMemoryReadStoreFor<SimpleReadModel>()
+                .AddEvents(typeof(ExampleEvent))
+                .AddCommands(typeof(ExampleCommand))
+                .AddCommandHandlers(typeof(ExampleCommandHandler))
+                .UseInMemoryReadStoreFor<ExampleReadModel>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
-                var simpleId = SimpleId.New;
+                var simpleId = ExampleId.New;
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
                 await commandBus.PublishAsync(
-                    new SimpleCommand(simpleId, 42), CancellationToken.None)
+                    new ExampleCommand(simpleId, 42), CancellationToken.None)
                     .ConfigureAwait(false);
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -65,7 +65,7 @@ namespace EventFlow.Tests.IntegrationTests
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
                 var simpleReadModel = await queryProcessor.ProcessAsync(
-                    new ReadModelByIdQuery<SimpleReadModel>(simpleId), CancellationToken.None)
+                    new ReadModelByIdQuery<ExampleReadModel>(simpleId), CancellationToken.None)
                     .ConfigureAwait(false);
 
                 // Verify that the read model has the expected magic number
@@ -74,18 +74,18 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         // Represents the aggregate identity (ID)
-        public class SimpleId : Identity<SimpleId>
+        public class ExampleId : Identity<ExampleId>
         {
-            public SimpleId(string value) : base(value) { }
+            public ExampleId(string value) : base(value) { }
         }
 
         // The aggregate root
-        public class SimpleAggrenate : AggregateRoot<SimpleAggrenate, SimpleId>,
-            IEmit<SimpleEvent>
+        public class ExampleAggrenate : AggregateRoot<ExampleAggrenate, ExampleId>,
+            IEmit<ExampleEvent>
         {
             private int? _magicNumber;
 
-            public SimpleAggrenate(SimpleId id) : base(id) { }
+            public ExampleAggrenate(ExampleId id) : base(id) { }
 
             // Method invoked by our command
             public void SetMagicNumer(int magicNumber)
@@ -93,22 +93,22 @@ namespace EventFlow.Tests.IntegrationTests
                 if (_magicNumber.HasValue)
                     throw DomainError.With("Magic number already set");
 
-                Emit(new SimpleEvent(magicNumber));
+                Emit(new ExampleEvent(magicNumber));
             }
 
             // We apply the event as part of the event sourcing system. EventFlow
             // provides several different methods for doing this, e.g. state objects,
             // the Apply method is merely the simplest
-            public void Apply(SimpleEvent aggregateEvent)
+            public void Apply(ExampleEvent aggregateEvent)
             {
                 _magicNumber = aggregateEvent.MagicNumber;
             }
         }
 
         // A basic event containing some information
-        public class SimpleEvent : AggregateEvent<SimpleAggrenate, SimpleId>
+        public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
         {
-            public SimpleEvent(int magicNumber)
+            public ExampleEvent(int magicNumber)
             {
                 MagicNumber = magicNumber;
             }
@@ -117,10 +117,10 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         // Command for update magic number
-        public class SimpleCommand : Command<SimpleAggrenate, SimpleId>
+        public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
         {
-            public SimpleCommand(
-                SimpleId aggregateId,
+            public ExampleCommand(
+                ExampleId aggregateId,
                 int magicNumber)
                 : base(aggregateId)
             {
@@ -131,11 +131,11 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         // Command handler for our command
-        public class SimpleCommandHandler : CommandHandler<SimpleAggrenate, SimpleId, SimpleCommand>
+        public class ExampleCommandHandler : CommandHandler<ExampleAggrenate, ExampleId, ExampleCommand>
         {
             public override Task ExecuteAsync(
-                SimpleAggrenate aggregate, 
-                SimpleCommand command,
+                ExampleAggrenate aggregate, 
+                ExampleCommand command,
                 CancellationToken cancellationToken)
             {
                 aggregate.SetMagicNumer(command.MagicNumber);
@@ -144,14 +144,14 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         // Read model for our aggregate
-        public class SimpleReadModel : IReadModel,
-            IAmReadModelFor<SimpleAggrenate, SimpleId, SimpleEvent>
+        public class ExampleReadModel : IReadModel,
+            IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
         {
             public int MagicNumber { get; private set; }
 
             public void Apply(
                 IReadModelContext context,
-                IDomainEvent<SimpleAggrenate, SimpleId, SimpleEvent> domainEvent)
+                IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent)
             {
                 MagicNumber = domainEvent.AggregateEvent.MagicNumber;
             }
