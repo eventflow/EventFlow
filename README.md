@@ -130,6 +130,9 @@ The example consists of the following classes, each shown below
 - `ExampleReadModel`: In-memory read model providing easy access to the current
   state
 
+**Note:** This example is part of the EventFlow test suite, so checkout the
+code and give it a go.
+
 ```csharp
 [Test]
 public async Task Example()
@@ -264,8 +267,6 @@ public class ExampleReadModel : IReadModel,
 }
 ```
 
-**Note:** The above example is part of the EventFlow test suite, so checkout
-the code and give it a go.
 
 ## State of EventFlow
 
