@@ -35,7 +35,6 @@ using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
-using EventFlow.Subscribers;
 
 namespace EventFlow
 {
@@ -44,20 +43,17 @@ namespace EventFlow
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IAggregateStore _aggregateStore;
-        private readonly IDomainEventPublisher _domainEventPublisher;
         private readonly IMemoryCache _memoryCache;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
             IAggregateStore aggregateStore,
-            IDomainEventPublisher domainEventPublisher,
             IMemoryCache memoryCache)
         {
             _log = log;
             _resolver = resolver;
             _aggregateStore = aggregateStore;
-            _domainEventPublisher = domainEventPublisher;
             _memoryCache = memoryCache;
         }
 
@@ -90,22 +86,18 @@ namespace EventFlow
                 throw;
             }
 
-            if (!domainEvents.Any())
-            {
-                _log.Verbose(() => string.Format(
+            _log.Verbose(() => domainEvents.Any()
+                ? string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
-                    typeof(TAggregate).PrettyPrint()));
-                return command.SourceId;
-            }
-
-            _log.Verbose(() => string.Format(
-                "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
-                command.GetType().PrettyPrint(),
-                command.SourceId,
-                typeof(TAggregate),
-                string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
+                    typeof(TAggregate).PrettyPrint())
+                : string.Format(
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
+                    command.GetType().PrettyPrint(),
+                    command.SourceId,
+                    typeof(TAggregate),
+                    string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
             return command.SourceId;
         }
