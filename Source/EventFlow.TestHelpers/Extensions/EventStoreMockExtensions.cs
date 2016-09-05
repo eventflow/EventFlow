@@ -26,16 +26,30 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
+using EventFlow.TestHelpers.Aggregates;
+using Moq;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.TestHelpers.Extensions
 {
-    public interface IReadModelDomainEventApplier
+    public static class EventStoreMockExtensions
     {
-        Task<bool> UpdateReadModelAsync<TReadModel>(
-            TReadModel readModel,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            IReadModelContext readModelContext,
-            CancellationToken cancellationToken)
-            where TReadModel : IReadModel;
+        public static void Arrange_LoadEventsAsync(
+            this Mock<IEventStore> eventStoreMock,
+            params IDomainEvent<ThingyAggregate, ThingyId>[] domainEvents)
+        {
+            eventStoreMock
+                .Setup(s => s.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
+
+            eventStoreMock
+                .Setup(s => s.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
+        }
     }
 }

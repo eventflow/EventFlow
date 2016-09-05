@@ -108,6 +108,15 @@ namespace EventFlow.TestHelpers
             int aggregateSequenceNumber = 0)
             where TAggregateEvent : IAggregateEvent
         {
+            return ToDomainEvent(A<ThingyId>(), aggregateEvent, aggregateSequenceNumber);
+        }
+
+        protected IDomainEvent<ThingyAggregate, ThingyId> ToDomainEvent<TAggregateEvent>(
+            ThingyId thingyId,
+            TAggregateEvent aggregateEvent,
+            int aggregateSequenceNumber = 0)
+            where TAggregateEvent : IAggregateEvent
+        {
             var metadata = new Metadata
                 {
                     Timestamp = A<DateTimeOffset>(),
@@ -122,7 +131,7 @@ namespace EventFlow.TestHelpers
             return DomainEventFactory.Create<ThingyAggregate, ThingyId>(
                 aggregateEvent,
                 metadata,
-                A<ThingyId>(),
+                thingyId,
                 aggregateSequenceNumber);
         }
 
