@@ -1,6 +1,9 @@
 ### New in 0.35 (not released yet)
 
-* _Nothing yet_
+* Breaking: Domain event publishing has been moved from `CommandBus` to
+  `AggregateStore`. If you do not use `IAggregateStore` directly in your
+  code base (which is unlikely), there's no change in behavior
+* Fixed: Domain events emitted from aggregate sagas are now published
 
 ### New in 0.34.2221 (released 2016-08-23)
 
