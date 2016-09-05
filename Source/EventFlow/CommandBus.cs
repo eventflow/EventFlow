@@ -107,12 +107,6 @@ namespace EventFlow
                 typeof(TAggregate),
                 string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
 
-            await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                command.AggregateId,
-                domainEvents,
-                cancellationToken)
-                .ConfigureAwait(false);
-
             return command.SourceId;
         }
 
