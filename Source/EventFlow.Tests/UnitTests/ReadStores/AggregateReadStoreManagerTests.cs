@@ -22,10 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Extensions;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
@@ -44,6 +51,60 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         public void SetUp()
         {
             _eventStoreMock = InjectMock<IEventStore>();
+        }
+
+        [Test]
+        public async Task EventsAreApplied()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var emittedEvents = new[]
+                {
+                    ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
+                };
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+                thingyId.Value,
+                A<ReadStoreManagerTestReadModel>(),
+                2));
+
+            // Act
+            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            AppliedDomainEvents.Should().HaveCount(emittedEvents.Length);
+            AppliedDomainEvents.ShouldAllBeEquivalentTo(emittedEvents);
+        }
+
+        [Test]
+        public async Task StoredEventsAreAppliedOfThereAreMissingEvents()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var emittedEvents = new[]
+                {
+                    ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
+                    ToDomainEvent(thingyId, A<ThingyPingEvent>(), 4),
+                };
+            var missingEvents = new[]
+                {
+                    ToDomainEvent(thingyId, A<ThingyPingEvent>(), 2)
+                };
+            var storedEvents = Enumerable.Empty<IDomainEvent<ThingyAggregate, ThingyId>>()
+                .Concat(missingEvents)
+                .Concat(emittedEvents)
+                .ToArray();
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+                thingyId.Value,
+                A<ReadStoreManagerTestReadModel>(),
+                1));
+            _eventStoreMock.Arrange_LoadEventsAsync(storedEvents);
+
+            // Act
+            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            AppliedDomainEvents.Should().HaveCount(storedEvents.Length);
+            AppliedDomainEvents.ShouldAllBeEquivalentTo(storedEvents);
         }
     }
 }

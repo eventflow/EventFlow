@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -60,6 +61,8 @@ namespace EventFlow.ReadStores
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
+            if (!domainEvents.Any()) throw new ArgumentException("No domain events");
+
             var expectedVersion = domainEvents.Min(d => d.AggregateSequenceNumber) - 1;
             var version = readModelEnvelope.Version.GetValueOrDefault();
 
@@ -86,8 +89,6 @@ namespace EventFlow.ReadStores
             {
                 readModel = readModelEnvelope.ReadModel;
             }
-
-            // TODO: Clean!
 
             // Apply ALL events
             var identity = domainEvents.Cast<IDomainEvent<TAggregate, TIdentity>>().First().AggregateIdentity;
