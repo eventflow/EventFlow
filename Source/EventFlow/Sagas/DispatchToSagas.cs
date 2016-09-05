@@ -60,18 +60,23 @@ namespace EventFlow.Sagas
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
+            var commandBus = _resolver.Resolve<ICommandBus>();
             foreach (var domainEvent in domainEvents)
             {
-                await ProcessAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+                await ProcessAsync(
+                    commandBus,
+                    domainEvent,
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
         private async Task ProcessAsync(
+            ICommandBus commandBus,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
-            var commandBus = _resolver.Resolve<ICommandBus>();
 
             _log.Verbose(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
 
