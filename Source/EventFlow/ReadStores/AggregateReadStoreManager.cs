@@ -31,6 +31,8 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -64,9 +66,9 @@ namespace EventFlow.ReadStores
             if (!domainEvents.Any()) throw new ArgumentException("No domain events");
 
             var expectedVersion = domainEvents.Min(d => d.AggregateSequenceNumber) - 1;
-            var version = readModelEnvelope.Version.GetValueOrDefault();
+            var version = readModelEnvelope.Version;
 
-            if (expectedVersion == version)
+            if (!version.HasValue || expectedVersion == version)
             {
                 return await base.UpdateAsync(
                     readModelContext,
@@ -74,6 +76,11 @@ namespace EventFlow.ReadStores
                     readModelEnvelope,
                     cancellationToken)
                     .ConfigureAwait(false);
+            }
+            if (expectedVersion < version.Value)
+            {
+                throw new OptimisticConcurrencyException(
+                    $"Read model '{readModelEnvelope.ReadModelId}' ({typeof(TReadModel).PrettyPrint()}) is already updated ({expectedVersion} < {version.Value})");
             }
 
             TReadModel readModel;
@@ -94,7 +101,7 @@ namespace EventFlow.ReadStores
             var identity = domainEvents.Cast<IDomainEvent<TAggregate, TIdentity>>().First().AggregateIdentity;
             var missingEvents = await _eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 identity,
-                (int) version,
+                (int) version.Value,
                 cancellationToken)
                 .ConfigureAwait(false);
 
@@ -107,7 +114,7 @@ namespace EventFlow.ReadStores
 
             version = domainEvents.Max(e => e.AggregateSequenceNumber);
 
-            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, version);
+            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, version.Value);
         }
     }
 }
