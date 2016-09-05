@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -50,6 +51,10 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         public async Task ReadStoreIsUpdatedWithRelevantEvents()
         {
             // Arrange
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+                A<string>(),
+                A<ReadStoreManagerTestReadModel>(),
+                A<long>()));
             var events = new[]
                 {
                     ToDomainEvent(A<ThingyPingEvent>(), 1),
@@ -64,9 +69,50 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 s => s.UpdateAsync(
                     It.Is<IReadOnlyCollection<ReadModelUpdate>>(l => l.Count == 1),
                     It.IsAny<IReadModelContext>(),
-                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<ReadStoreManagerTestReadModel>, CancellationToken, Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                    It.IsAny<Func<
+                        IReadModelContext,
+                        IReadOnlyCollection<IDomainEvent>,
+                        ReadModelEnvelope<ReadStoreManagerTestReadModel>,
+                        CancellationToken,
+                        Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
+        }
+
+        protected void Arrange_ReadModelStore_UpdateAsync(params ReadModelEnvelope<ReadStoreManagerTestReadModel>[] readModelEnvelopes)
+        {
+            ReadModelStoreMock
+                .Setup(m => m.UpdateAsync(
+                    It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
+                    It.IsAny<IReadModelContext>(),
+                    It.IsAny<Func<
+                        IReadModelContext,
+                        IReadOnlyCollection<IDomainEvent>,
+                        ReadModelEnvelope<ReadStoreManagerTestReadModel>,
+                        CancellationToken,
+                        Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback<
+                    IReadOnlyCollection<ReadModelUpdate>,
+                    IReadModelContext,
+                    Func<
+                        IReadModelContext,
+                        IReadOnlyCollection<IDomainEvent>,
+                        ReadModelEnvelope<ReadStoreManagerTestReadModel>,
+                        CancellationToken,
+                        Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>,
+                        CancellationToken>((u, c, f, _) =>
+                            {
+                                foreach (var readModelEnvelope in readModelEnvelopes)
+                                {
+                                    f(
+                                        c,
+                                        u.SelectMany(ud => ud.DomainEvents).ToList(),
+                                        readModelEnvelope,
+                                        CancellationToken.None);
+                                }
+                            })
+                .Returns(Task.FromResult(0));
         }
     }
 }
