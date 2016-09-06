@@ -1,4 +1,8 @@
-### New in 0.35 (not released yet)
+### New in 0.36 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.35.2247 (released 2016-09-06)
 
 * Fixed: `IAggregateStore.UpdateAsync` and `StoreAsync` now publishes committed
   events as expected. This basically means that its now possible to circumvent the
