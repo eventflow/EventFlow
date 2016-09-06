@@ -71,7 +71,7 @@ namespace EventFlow.Aggregates
             return aggregate;
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> UpdateAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<IDomainEvent>> UpdateAsync<TAggregate, TIdentity>(
             TIdentity id,
             ISourceId sourceId,
             Func<TAggregate, CancellationToken, Task> updateAggregate,
@@ -79,7 +79,7 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return _transientFaultHandler.TryAsync(
+            var domainEvents = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
                     var aggregate = await LoadAsync<TAggregate, TIdentity>(id, c).ConfigureAwait(false);
@@ -93,10 +93,28 @@ namespace EventFlow.Aggregates
 
                     await updateAggregate(aggregate, c).ConfigureAwait(false);
 
-                    return await StoreAsync<TAggregate, TIdentity>(aggregate, sourceId, c).ConfigureAwait(false);
+                    return await aggregate.CommitAsync(
+                        _eventStore,
+                        _snapshotStore,
+                        sourceId,
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 },
                 Label.Named("aggregate-update"),
-                cancellationToken);
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            if (domainEvents.Any())
+            {
+                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
+                    id,
+                    domainEvents,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return domainEvents;
         }
 
         public async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
