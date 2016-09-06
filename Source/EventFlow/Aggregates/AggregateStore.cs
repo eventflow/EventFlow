@@ -24,30 +24,36 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Snapshots;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Aggregates
 {
     public class AggregateStore : IAggregateStore
     {
+        private readonly IResolver _resolver;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public AggregateStore(
+            IResolver resolver,
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
+            _resolver = resolver;
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
@@ -65,7 +71,7 @@ namespace EventFlow.Aggregates
             return aggregate;
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> UpdateAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<IDomainEvent>> UpdateAsync<TAggregate, TIdentity>(
             TIdentity id,
             ISourceId sourceId,
             Func<TAggregate, CancellationToken, Task> updateAggregate,
@@ -73,7 +79,7 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return _transientFaultHandler.TryAsync(
+            var domainEvents = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
                     var aggregate = await LoadAsync<TAggregate, TIdentity>(id, c).ConfigureAwait(false);
@@ -87,20 +93,55 @@ namespace EventFlow.Aggregates
 
                     await updateAggregate(aggregate, c).ConfigureAwait(false);
 
-                    return await StoreAsync<TAggregate, TIdentity>(aggregate, sourceId, c).ConfigureAwait(false);
+                    return await aggregate.CommitAsync(
+                        _eventStore,
+                        _snapshotStore,
+                        sourceId,
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 },
                 Label.Named("aggregate-update"),
-                cancellationToken);
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            if (domainEvents.Any())
+            {
+                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
+                    id,
+                    domainEvents,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return domainEvents;
         }
 
-        public Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
             TAggregate aggregate,
             ISourceId sourceId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return aggregate.CommitAsync(_eventStore, _snapshotStore, sourceId, cancellationToken);
+            var domainEvents = await aggregate.CommitAsync(
+                _eventStore,
+                _snapshotStore,
+                sourceId,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            if (domainEvents.Any())
+            {
+                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
+                    aggregate.Id,
+                    domainEvents,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return domainEvents;
         }
     }
 }

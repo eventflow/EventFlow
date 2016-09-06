@@ -1,4 +1,12 @@
-### New in 0.34 (not released yet)
+### New in 0.35 (not released yet)
+
+* Fixed: `IAggregateStore.UpdateAsync` and `StoreAsync` now publishes committed
+  events as expected. This basically means that its now possible to circumvent the
+  command and command handler pattern and use the `IAggregateStore.UpdateAsync`
+  directly to modify an aggregate root
+* Fixed: Domain events emitted from aggregate sagas are now published
+
+### New in 0.34.2221 (released 2016-08-23)
 
 * **New core feature:** EventFlow now support sagas, also known as process
   managers. The use of sagas is opt-in. Currently EventFlow only supports sagas

@@ -25,14 +25,18 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Sagas;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Sagas;
+using EventFlow.TestHelpers.Aggregates.Sagas.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
@@ -40,6 +44,8 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
     [Category(Categories.Integration)]
     public class AggregateSagaTests : IntegrationTest
     {
+        private Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>> _thingySagaStartedSubscriber;
+
         [Test]
         public async Task InitialSagaStateIsNew()
         {
@@ -122,6 +128,21 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         }
 
         [Test]
+        public async Task AggregateSagaEventsArePublishedToSubscribers()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+
+            // Act
+            await CommandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            _thingySagaStartedSubscriber.Verify(
+                s => s.HandleAsync(It.IsAny<IDomainEvent<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>(), It.IsAny<CancellationToken>()),
+                Times.Once());
+        }
+
+        [Test]
         public async Task PublishingStartAndCompleteWithPingsResultInCorrectMessages()
         {
             // Arrange
@@ -162,7 +183,14 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.CreateResolver();
+            _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();
+            _thingySagaStartedSubscriber
+                .Setup(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(0));
+
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register(_ => _thingySagaStartedSubscriber.Object))
+                .CreateResolver();
         }
     }
 }
