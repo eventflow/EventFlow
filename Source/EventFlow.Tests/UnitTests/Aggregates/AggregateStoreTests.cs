@@ -118,6 +118,35 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         }
 
         [Test]
+        public void UpdateAsync_EventsArePublishedOnce_IfPublisherThrowsOptimisticConcurrencyException()
+        {
+            // Arrange
+            _eventStoreMock.Arrange_LoadEventsAsync();
+            Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
+            Arrange_DomainEventPublisher_PublishAsync_ThrowsOptimisticConcurrencyException();
+
+            // Sut
+            Assert.ThrowsAsync<OptimisticConcurrencyException>(async () => await Sut.UpdateAsync<ThingyAggregate, ThingyId>(
+                A<ThingyId>(),
+                A<SourceId>(),
+                (a, c) =>
+                    {
+                        a.Ping(A<PingId>());
+                        return Task.FromResult(0);
+                    },
+                CancellationToken.None)
+                .ConfigureAwait(false));
+
+            // Assert
+            _domainEventPublisherMock.Verify(
+                m => m.PublishAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<IReadOnlyCollection<IDomainEvent>>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
         public async Task UpdateAsync_EventsCommittedAndPublished()
         {
             // Arrange
@@ -172,6 +201,16 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                     It.IsAny<ISourceId>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new OptimisticConcurrencyException(string.Empty, null));
+        }
+
+        private void Arrange_DomainEventPublisher_PublishAsync_ThrowsOptimisticConcurrencyException()
+        {
+            _domainEventPublisherMock
+                .Setup(m => m.PublishAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<IReadOnlyCollection<IDomainEvent>>(),
+                    It.IsAny<CancellationToken>()))
+                .Throws(new OptimisticConcurrencyException(string.Empty, null));
         }
 
         private static Task NoOperationAsync(ThingyAggregate thingyAggregate, CancellationToken cancellationToken)

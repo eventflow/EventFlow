@@ -1,8 +1,9 @@
 ### New in 0.35 (not released yet)
 
-* Breaking: Domain event publishing has been moved from `CommandBus` to
-  `AggregateStore`. If you do not use `IAggregateStore` directly in your
-  code base (which is unlikely), there's no change in behavior
+* Fixed: `IAggregateStore.UpdateAsync` and `StoreAsync` now publishes committed
+  events as expected. This basically means that its now possible to circumvent the
+  command and command handler pattern and use the `IAggregateStore.UpdateAsync`
+  directly to modify an aggregate root
 * Fixed: Domain events emitted from aggregate sagas are now published
 
 ### New in 0.34.2221 (released 2016-08-23)
