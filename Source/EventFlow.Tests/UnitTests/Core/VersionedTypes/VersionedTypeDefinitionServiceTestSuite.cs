@@ -45,7 +45,16 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             public string Name { get; set; }
         }
 
-        [TestCaseSource(nameof(GetTestCases))]
+        [Test]
+        public void GetDefinition_WithValidNameAndVersion_ReturnsCorrectAnswer_Cases()
+        {
+            // TODO: Redesign this, NUnit 3 enforces TestCaseSource(...) to reference static
+            foreach (var versionTypeTestCase in GetTestCases())
+            {
+                GetDefinition_WithValidNameAndVersion_ReturnsCorrectAnswer(versionTypeTestCase);
+            }
+        }
+
         public void GetDefinition_WithValidNameAndVersion_ReturnsCorrectAnswer(VersionTypeTestCase testCase)
         {
             // Arrange
@@ -60,8 +69,17 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             eventDefinition.Type.Should().Be(testCase.Type);
         }
 
-        [TestCaseSource(nameof(GetTestCases))]
-        public void GetDefinition_WithValidType_ReturnsCorrectAnswer(VersionTypeTestCase testCase)
+        [Test]
+        public void GetDefinition_WithValidType_ReturnsCorrectAnswer_Cases()
+        {
+            // TODO: Redesign this, NUnit 3 enforces TestCaseSource(...) to reference static
+            foreach (var versionTypeTestCase in GetTestCases())
+            {
+                GetDefinition_WithValidType_ReturnsCorrectAnswer(versionTypeTestCase);
+            }
+        }
+
+        private void GetDefinition_WithValidType_ReturnsCorrectAnswer(VersionTypeTestCase testCase)
         {
             // Arrange
             Arrange_LoadAllTestTypes();

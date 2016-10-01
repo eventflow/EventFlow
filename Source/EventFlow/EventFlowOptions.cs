@@ -30,6 +30,7 @@ using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
+using EventFlow.Core.Caching;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -39,6 +40,8 @@ using EventFlow.Logs;
 using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.Sagas;
+using EventFlow.Sagas.AggregateSagas;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;
@@ -49,6 +52,7 @@ namespace EventFlow
     public class EventFlowOptions : IEventFlowOptions
     {
         private readonly List<Type> _aggregateEventTypes = new List<Type>();
+        private readonly List<Type> _sagaTypes = new List<Type>(); 
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
@@ -95,6 +99,19 @@ namespace EventFlow
                     throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
+            }
+            return this;
+        }
+
+        public IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes)
+        {
+            foreach (var sagaType in sagaTypes)
+            {
+                if (!typeof(ISaga).IsAssignableFrom(sagaType))
+                {
+                    throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
+                }
+                _sagaTypes.Add(sagaType);
             }
             return this;
         }
@@ -203,6 +220,12 @@ namespace EventFlow
             serviceRegistration.Register<ICommandDefinitionService, CommandDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
+            serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
+            serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
+            serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
+            serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
+            serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
+            serviceRegistration.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             serviceRegistration.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
@@ -212,6 +235,7 @@ namespace EventFlow
                 _jobTypes,
                 _commandTypes,
                 _aggregateEventTypes,
+                _sagaTypes,
                 _snapshotTypes),
                 Lifetime.Singleton);
         }

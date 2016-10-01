@@ -27,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core.Caching;
+using EventFlow.Logs;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -46,6 +48,8 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         [SetUp]
         public void SetUp()
         {
+            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+
             _resolverMock = InjectMock<IResolver>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
         }

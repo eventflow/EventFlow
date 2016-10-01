@@ -50,6 +50,18 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
         private string _indexName;
 
+        [OneTimeSetUp]
+        public void FixtureSetUp()
+        {
+            _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
+        }
+
+        [OneTimeTearDown]
+        public void FixtureTearDown()
+        {
+            _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
+        }
+
         public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
         {
             private readonly string _indexName;
@@ -71,7 +83,6 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         {
             try
             {
-                _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
                 _indexName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
 
                 var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_indexName);
@@ -128,7 +139,6 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                 _elasticClient.DeleteIndex(
                     _indexName,
                     r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
-                _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
             }
             catch (Exception e)
             {

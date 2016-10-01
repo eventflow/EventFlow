@@ -36,8 +36,8 @@ var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
 var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
 
 // TOOLS
-var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.Runners", "tools", "nunit-console.exe");
-var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "test", "OpenCover", "tools", "OpenCover.Console.exe");
+var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
+var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
 var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
@@ -65,6 +65,7 @@ var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
         }},
     {"EventFlow.Sql", new []{
         "EventFlow",
+        "dbup",
         "Dapper",
         }},
     {"EventFlow.MsSql", new []{
@@ -350,17 +351,20 @@ void ExecuteTest(string files, string reportName)
 
     OpenCover(tool =>
         {
-            tool.NUnit(
+            tool.NUnit3(
                 files,
-                new NUnitSettings
+                new NUnit3Settings
                     {
                         ShadowCopy = false,
                         Timeout = 600000,
-                        NoLogo = true,
-                        Framework = "net-4.5.1",
+                        NoHeader = true,
+                        NoColor = true,
+                        Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
-                        ResultsFile = nunitResultsPath,
+                        Results = nunitResultsPath,
+                        ResultFormat = "nunit2",
+                        DisposeRunners = true
                     });
         },
     new FilePath(openCoverReportPath),

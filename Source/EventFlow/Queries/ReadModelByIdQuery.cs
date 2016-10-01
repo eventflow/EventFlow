@@ -24,6 +24,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.ReadStores;
 
 namespace EventFlow.Queries
@@ -32,6 +33,11 @@ namespace EventFlow.Queries
         where TReadModel : class, IReadModel, new()
     {
         public string Id { get; }
+
+        public ReadModelByIdQuery(IIdentity identity)
+            : this(identity.Value)
+        {
+        }
 
         public ReadModelByIdQuery(string id)
         {

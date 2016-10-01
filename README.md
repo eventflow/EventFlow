@@ -51,8 +51,9 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 
 ### Examples
 
-* **[Simple](#simple-example):** Shows the key concepts of EventFlow in a few
-  lines of code
+* **[Complete](#complete-example):** Shows a complete example on how to use
+  EventFlow with in-memory event store and read models in a relatively few lines
+  of code
 * **Shipping:** To get a more complete example of how EventFlow _could_ be used,
   have a look at the shipping example found here in the code base. The example
   is based on the shipping example from the book "Domain-Driven Design -
@@ -90,6 +91,8 @@ to the documentation.
   and EventFlow has support for
   * [In-memory](./Documentation/Snapshots.md#in-memory) - only for test
   * [Microsoft SQL Server](./Documentation/Snapshots.md#microsoft-sql-server)  
+* [**Sagas:**](./Documentation/Sagas.md) Also known as _process managers_,
+  coordinates and routes messages between bounded contexts and aggregates
 * [**Queries:**](./Documentation/Queries.md) Value objects that represent
   a query without specifying how its executed, that is let to a query handler
 * [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
@@ -111,37 +114,159 @@ to the documentation.
   EventFlow can be swapped with a custom implementation through the embedded
   IoC container.
 
-## Simple example
-Here's an example on how to use the in-memory event store (default)
-and a in-memory read model store.
+## Complete example
+Here's a complete example on how to use the default in-memory event store
+along with an in-memory read model.
+
+The example consists of the following classes, each shown below
+
+- `ExampleAggregate`: The aggregate root
+- `ExampleId`: Value object representing the identity of the aggregate root
+- `ExampleEvent`: Event emitted by the aggregate root
+- `ExampleCommand`: Value object defining a command that can be published to the
+  aggregate root
+- `ExampleCommandHandler`: Command handler which EventFlow resolves using its IoC
+  container and defines how the command specific is applied to the aggregate root
+- `ExampleReadModel`: In-memory read model providing easy access to the current
+  state
+
+**Note:** This example is part of the EventFlow test suite, so checkout the
+code and give it a go.
 
 ```csharp
-using (var resolver = EventFlowOptions.New
-    .AddEvents(typeof (TestAggregate).Assembly)
-    .AddCommandHandlers(typeof (TestAggregate).Assembly)
-    .UseInMemoryReadStoreFor<TestAggregate, TestReadModel>()
-    .CreateResolver())
+[Test]
+public async Task Example()
 {
-  var commandBus = resolver.Resolve<ICommandBus>();
-  var eventStore = resolver.Resolve<IEventStore>();
-  var readModelStore = resolver.Resolve<IInMemoryReadModelStore<
-    TestAggregate,
-    TestReadModel>>();
-  var id = TestId.New;
+  // We wire up EventFlow with all of our classes. Instead of adding events,
+  // commands, etc. explicitly, we could have used the the simpler
+  // AddDefaults(Assembly) instead.
+  using (var resolver = EventFlowOptions.New
+    .AddEvents(typeof(ExampleEvent))
+    .AddCommands(typeof(ExampleCommand))
+    .AddCommandHandlers(typeof(ExampleCommandHandler))
+    .UseInMemoryReadStoreFor<ExampleReadModel>()
+    .CreateResolver())
+  {
+    // Create a new identity for our aggregate root
+    var exampleId = ExampleId.New;
 
-  // Publish a command
-  await commandBus.PublishAsync(new PingCommand(id));
+    // Resolve the command bus and use it to publish a command
+    var commandBus = resolver.Resolve<ICommandBus>();
+    await commandBus.PublishAsync(
+      new ExampleCommand(exampleId, 42), CancellationToken.None)
+      .ConfigureAwait(false);
 
-  // Load aggregate
-  var testAggregate = await eventStore.LoadAggregateAsync<TestAggregate>(id);
+    // Resolve the query handler and use the built-in query for fetching
+    // read models by identity to get our read model representing the
+    // state of our aggregate root
+    var queryProcessor = resolver.Resolve<IQueryProcessor>();
+    var exampleReadModel = await queryProcessor.ProcessAsync(
+      new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None)
+      .ConfigureAwait(false);
 
-  // Get read model from in-memory read store
-  var testReadModel = await readModelStore.GetAsync(id);
+    // Verify that the read model has the expected magic number
+    exampleReadModel.MagicNumber.Should().Be(42);
+  }
 }
 ```
 
-Note: `.ConfigureAwait(false)` and use of `CancellationToken` is omitted in
-the above example to ease reading.
+```csharp
+// The aggregate root
+public class ExampleAggrenate : AggregateRoot<ExampleAggrenate, ExampleId>,
+  IEmit<ExampleEvent>
+{
+  private int? _magicNumber;
+
+  public ExampleAggrenate(ExampleId id) : base(id) { }
+
+  // Method invoked by our command
+  public void SetMagicNumer(int magicNumber)
+  {
+    if (_magicNumber.HasValue)
+      throw DomainError.With("Magic number already set");
+
+    Emit(new ExampleEvent(magicNumber));
+  }
+
+  // We apply the event as part of the event sourcing system. EventFlow
+  // provides several different methods for doing this, e.g. state objects,
+  // the Apply method is merely the simplest
+  public void Apply(ExampleEvent aggregateEvent)
+  {
+    _magicNumber = aggregateEvent.MagicNumber;
+  }
+}
+```
+
+```csharp
+// Represents the aggregate identity (ID)
+public class ExampleId : Identity<ExampleId>
+{
+  public ExampleId(string value) : base(value) { }
+}
+```
+
+```csharp
+// A basic event containing some information
+public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
+{
+  public ExampleEvent(int magicNumber)
+  {
+      MagicNumber = magicNumber;
+  }
+
+  public int MagicNumber { get; }
+}
+```
+
+```csharp
+// Command for update magic number
+public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
+{
+  public ExampleCommand(
+    ExampleId aggregateId,
+    int magicNumber)
+    : base(aggregateId)
+  {
+    MagicNumber = magicNumber;
+  }
+
+  public int MagicNumber { get; }
+}
+```
+
+```csharp
+// Command handler for our command
+public class ExampleCommandHandler
+  : CommandHandler<ExampleAggrenate, ExampleId, ExampleCommand>
+{
+  public override Task ExecuteAsync(
+    ExampleAggrenate aggregate,
+    ExampleCommand command,
+    CancellationToken cancellationToken)
+  {
+    aggregate.SetMagicNumer(command.MagicNumber);
+    return Task.FromResult(0);
+  }
+}
+```
+
+```csharp
+// Read model for our aggregate
+public class ExampleReadModel : IReadModel,
+  IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
+{
+  public int MagicNumber { get; private set; }
+
+  public void Apply(
+    IReadModelContext context,
+    IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent)
+  {
+    MagicNumber = domainEvent.AggregateEvent.MagicNumber;
+  }
+}
+```
+
 
 ## State of EventFlow
 
@@ -265,4 +390,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-

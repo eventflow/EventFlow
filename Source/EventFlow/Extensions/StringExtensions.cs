@@ -20,7 +20,11 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace EventFlow.Extensions
@@ -28,10 +32,20 @@ namespace EventFlow.Extensions
     public static class StringExtensions
     {
         private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
+        private static readonly SHA256Managed Sha256Managed = new SHA256Managed();
 
         public static string ToSlug(this string str)
         {
             return RegexToSlug.Replace(str, "-$0").ToLowerInvariant();
+        }
+
+        public static string ToSha256(this string str)
+        {
+            var bytes = Encoding.UTF8.GetBytes(str);
+            var hash = Sha256Managed.ComputeHash(bytes);
+            return hash
+                .Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}"))
+                .ToString();
         }
     }
 }

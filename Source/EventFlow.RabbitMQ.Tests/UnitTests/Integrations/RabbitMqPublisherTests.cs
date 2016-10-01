@@ -115,7 +115,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
             var rabbitMqMessages = Fixture.CreateMany<RabbitMqMessage>().ToList();
 
             // Act
-            Assert.Throws<InvalidOperationException>(
+            Assert.ThrowsAsync<InvalidOperationException>(
                 async () => await Sut.PublishAsync(rabbitMqMessages, CancellationToken.None));
 
             // Assert

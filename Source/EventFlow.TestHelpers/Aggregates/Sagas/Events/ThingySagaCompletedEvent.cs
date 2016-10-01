@@ -20,20 +20,13 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.IO;
+using EventFlow.Aggregates;
 
-namespace EventFlow.TestHelpers.Extensions
+namespace EventFlow.TestHelpers.Aggregates.Sagas.Events
 {
-    public static class StreamExtensions
+    public class ThingySagaCompletedEvent : AggregateEvent<ThingySaga, ThingySagaId>
     {
-        public static string ReadToEnd(this Stream stream)
-        {
-            using (var streamReader = new StreamReader(stream))
-            {
-                return streamReader.ReadToEnd();
-            }
-        }
     }
 }
