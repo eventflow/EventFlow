@@ -30,12 +30,15 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.SQLite.Connections;
+using EventFlow.SQLite.EventStores;
 using EventFlow.SQLite.Extensions;
+using EventFlow.SQLite.Migrations;
 using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
+using Helpz.SQLite;
 using NUnit.Framework;
 
 namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
@@ -43,15 +46,18 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
     [Category(Categories.Integration)]
     public class SQLiteReadStoreTests : TestSuiteForReadModelStore
     {
-        private string _databasePath;
+        private ISQLiteDatabase _testDatabase;
+        private SQLiteConnectionString _sqliteConnectionString;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
+            _sqliteConnectionString = SQLiteHelpz.CreateLabeledConnectionString(Guid.NewGuid()
+                .ToString("N"));
+            _testDatabase = new SQLiteDatabase(_sqliteConnectionString);
 
             var resolver = eventFlowOptions
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
+                .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString(_sqliteConnectionString.Value))
                 .UseSQLiteReadModel<SQLiteThingyReadModel>()
                 .UseSQLiteReadModel<SQLiteThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
@@ -60,25 +66,9 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
                     typeof(SQLiteThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
-            var connection = resolver.Resolve<ISQLiteConnection>();
-            const string sqlThingyAggregate = @"
-                CREATE TABLE [ReadModel-ThingyAggregate](
-	                [Id] [INTEGER] PRIMARY KEY ASC,
-                    [AggregateId] [nvarchar](64) NOT NULL,
-                    [Version] INTEGER,
-	                [PingsReceived] [int] NOT NULL,
-	                [DomainErrorAfterFirstReceived] [bit] NOT NULL
-                )";
-            const string sqlThingyMessage = @"
-                CREATE TABLE [ReadModel-ThingyMessage](
-	                [Id] [INTEGER] PRIMARY KEY ASC,
-	                [ThingyId] [nvarchar](64) NOT NULL,
-                    [Version] INTEGER,
-	                [MessageId] [nvarchar](64) NOT NULL,
-	                [Message] [nvarchar](512) NOT NULL
-                )";
-            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyAggregate, null).Wait();
-            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyMessage, null).Wait();
+            var databaseMigrator = resolver.Resolve<ISQLiteDatabaseMigrator>();
+            EventFlowEventStoresSQLite.MigrateDatabase(databaseMigrator);
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
             return resolver;
         }
@@ -96,11 +86,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
         [TearDown]
         public void TearDown()
         {
-            if (!string.IsNullOrEmpty(_databasePath) &&
-                File.Exists(_databasePath))
-            {
-                File.Delete(_databasePath);
-            }
+            _testDatabase.Dispose();
         }
     }
 }

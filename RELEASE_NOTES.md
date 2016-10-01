@@ -1,6 +1,16 @@
 ### New in 0.36 (not released yet)
 
-* _Nothing yet_
+* New: `EventFlow.SQLite` now uses an `ISQLiteDatabaseMigrator` implementation 
+  to manage the creation of `EventFlow` SQL schemas when using SQLite. The 
+  behaviour and implementation is now on par with `EventFlow.MsSql` and you can 
+  use embedded resource `SQLite` scripts and the `ISQLiteDatabaseMigrator` 
+  implemenation to generate database schemas for `SQLite` read models too.
+* New: The following Nuget dependencies have been added
+  - `Helpz.SQLite` v0.2.64
+* Breaking: The following Nuget dependencies have been updated
+  - `dbup-sqlite` v3.3.5 (up from v3.3.4)
+  - `Helpz` v0.2.64 (up from v0.1.8)
+  - `System.Data.SQLite.Core` v1.0.103 (up from v1.0.102)
 
 ### New in 0.35.2247 (released 2016-09-06)
 

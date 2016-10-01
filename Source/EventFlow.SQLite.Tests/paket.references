@@ -6,5 +6,6 @@ group Test
 	AutoFixture
 	AutoFixture.AutoMoq
 	FluentAssertions
+	Helpz.SQLite
 	Moq
 	NUnit

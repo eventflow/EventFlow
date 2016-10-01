@@ -36,23 +36,25 @@ using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 using EventFlow.SQLite.Migrations;
 using EventFlow.SQLite.EventStores;
+using Helpz.SQLite;
 
 namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
 {
     [Category(Categories.Integration)]
     public class SQLiteEventStoreTests : TestSuiteForEventStore
     {
-        private string _databasePath;
+        private ISQLiteDatabase _testDatabase;
+        private SQLiteConnectionString _sqliteConnectionString;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
-
-            using (File.Create(_databasePath)){ }
+            _sqliteConnectionString = SQLiteHelpz.CreateLabeledConnectionString(Guid.NewGuid()
+                .ToString("N"));
+            _testDatabase = new SQLiteDatabase(_sqliteConnectionString);
 
             var resolver = eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
+                .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString(_sqliteConnectionString.Value))
                 .UseSQLiteEventStore()
                 .CreateResolver();
             
@@ -66,11 +68,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
         [TearDown]
         public void TearDown()
         {
-            if (!string.IsNullOrEmpty(_databasePath) &&
-                File.Exists(_databasePath))
-            {
-                File.Delete(_databasePath);
-            }
+            _testDatabase.Dispose();
         }
     }
 }
