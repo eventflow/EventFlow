@@ -20,11 +20,13 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
@@ -60,7 +62,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         }
 
         [Test, Timeout(10000)]
-        public void Scenario()
+        public async Task Scenario()
         {
             using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] { "#" }))
             using (var resolver = BuildResolver())
@@ -69,7 +71,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
                 var pingId = PingId.New;
-                commandBus.Publish(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None);
+                await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
 
                 var rabbitMqMessage = consumer.GetMessages().Single();
                 rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
@@ -83,40 +85,33 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        [Test, Timeout(20000)]
-        public void PublisherPerformance()
+        [Test, Timeout(60000)]
+        public async Task PublisherPerformance()
         {
             var exchange = new Exchange("eventflow");
             var routingKey = new RoutingKey("performance");
             var exceptions = new ConcurrentBag<Exception>();
-            const int threadCount = 100;
+            int taskCount;
+            int _;
+            ThreadPool.GetMaxThreads(out taskCount, out _);
             const int messagesPrThread = 200;
 
             using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] {"#"}))
             using (var resolver = BuildResolver(o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
             {
                 var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
-                var threads = Enumerable.Range(0, threadCount)
-                    .Select(_ =>
-                        {
-                            var thread = new Thread(o => SendMessages(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions));
-                            thread.Start();
-                            return thread;
-                        })
-                    .ToList();
+                var tasks = Enumerable.Range(0, taskCount)
+                    .Select(i => Task.Run(() => SendMessagesAsync(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions)));
 
-                foreach (var thread in threads)
-                {
-                    thread.Join();
-                }
+                await Task.WhenAll(tasks).ConfigureAwait(false);
 
-                var rabbitMqMessages = consumer.GetMessages(threadCount * messagesPrThread);
-                rabbitMqMessages.Should().HaveCount(threadCount*messagesPrThread);
+                var rabbitMqMessages = consumer.GetMessages(taskCount * messagesPrThread);
+                rabbitMqMessages.Should().HaveCount(taskCount*messagesPrThread);
                 exceptions.Should().BeEmpty();
             }
         }
 
-        private static void SendMessages(
+        private static async Task SendMessagesAsync(
             IRabbitMqPublisher rabbitMqPublisher,
             int count,
             Exchange exchange,
@@ -135,7 +130,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                         exchange,
                         routingKey,
                         new MessageId(Guid.NewGuid().ToString("D")));
-                    rabbitMqPublisher.PublishAsync(CancellationToken.None, rabbitMqMessage).Wait();
+                    await rabbitMqPublisher.PublishAsync(CancellationToken.None, rabbitMqMessage).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
