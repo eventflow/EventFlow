@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Category(Categories.Unit)]
     public class TaskRunnerTests : TestsFor<TaskRunner>
     {
         private Mock<ILog> _logMock;
