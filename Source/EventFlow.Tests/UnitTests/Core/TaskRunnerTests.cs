@@ -67,16 +67,43 @@ namespace EventFlow.Tests.UnitTests.Core
             Sut.Run(
                 A<Label>(),
                 async c =>
-                {
-                    await Task.Delay(10, c).ConfigureAwait(false);
-                    hasRun = true;
-                    autoResetEvent.Set();
-                },
+                    {
+                        await Task.Delay(10, c).ConfigureAwait(false);
+                        hasRun = true;
+                        autoResetEvent.Set();
+                    },
                 CancellationToken.None);
 
             // Assert
             autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
             hasRun.Should().BeTrue();
+        }
+
+        [Test]
+        public void ErrorIsLoggedOnExceptionWithCorrectException()
+        {
+            // Arrange
+            var autoResetEvent = new AutoResetEvent(false);
+            var expectedException = A<Exception>();
+            _logMock
+                .Setup(m => m.Error(expectedException, It.IsAny<string>(), It.IsAny<object[]>()))
+                .Callback(() => autoResetEvent.Set())
+                .Verifiable();
+
+            // Act
+            Sut.Run(
+                A<Label>(),
+                c =>
+                    {
+                        throw expectedException;
+                    },
+                CancellationToken.None);
+
+            // Assert
+            autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
+
+            // Assert
+            _logMock.Verify();
         }
 
         [Test]
