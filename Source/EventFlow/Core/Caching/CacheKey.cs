@@ -34,14 +34,14 @@ namespace EventFlow.Core.Caching
     {
         public static int MaxLength = 256;
 
-        public static CacheKey With(string key)
+        public static CacheKey With(params string[] keys)
         {
-            return new CacheKey(key);
+            return new CacheKey(string.Join("-", keys));
         }
 
-        public static CacheKey With(Type ownerType, string key)
+        public static CacheKey With(Type ownerType, params string[] keys)
         {
-            return With($"{ownerType.GetCacheKey()}:{key}");
+            return With($"{ownerType.GetCacheKey()}:{string.Join("-", keys)}");
         }
 
         public CacheKey(string value) : base(value)

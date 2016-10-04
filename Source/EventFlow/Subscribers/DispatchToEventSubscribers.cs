@@ -23,6 +23,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -115,10 +116,8 @@ namespace EventFlow.Subscribers
 
             foreach (var subscriber in subscribers)
             {
-                _log.Verbose(() => string.Format(
-                    "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                    subscriber.GetType().PrettyPrint(),
-                    domainEvent.EventType.PrettyPrint()));
+                _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
+                                   $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
 
                 try
                 {
@@ -132,13 +131,15 @@ namespace EventFlow.Subscribers
             }
         }
 
+        private readonly ConcurrentDictionary<string, SubscriberInfomation> _test = new ConcurrentDictionary<string, SubscriberInfomation>();
+
         private Task<SubscriberInfomation> GetSubscriberInfomationAsync(
             Type domainEventType,
             Type subscriberType,
             CancellationToken cancellationToken)
         {
             return _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), domainEventType.GetCacheKey()),
+                CacheKey.With(GetType(), domainEventType.GetCacheKey(), subscriberType.GetCacheKey()),
                 TimeSpan.FromDays(1), 
                 _ =>
                     {
@@ -149,7 +150,7 @@ namespace EventFlow.Subscribers
 
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);
                         var invokeHandleAsync = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, CancellationToken, Task>>(handlerType, "HandleAsync");
-
+                        
                         return Task.FromResult(new SubscriberInfomation
                             {
                                 SubscriberType = handlerType,
