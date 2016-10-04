@@ -69,6 +69,8 @@
     <Compile Include="Core\DisposableAction.cs" />
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
+    <Compile Include="Core\ITaskRunner.cs" />
+    <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
     <Compile Include="Sagas\ISaga.cs" />
@@ -317,6 +319,7 @@
     <Compile Include="EventStores\IEventJsonSerializer.cs" />
     <Compile Include="EventStores\IEventStore.cs" />
     <Compile Include="Subscribers\IDomainEventPublisher.cs" />
+    <Compile Include="Subscribers\ISubscribeAsynchronousTo.cs" />
     <Compile Include="Subscribers\ISubscribeSynchronousTo.cs" />
     <Compile Include="ReadStores\IReadModelContext.cs" />
     <Compile Include="EventStores\IUncommittedEvent.cs" />
@@ -334,7 +337,6 @@
     <None Include="EventFlow.nuspec" />
     <None Include="paket.references" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

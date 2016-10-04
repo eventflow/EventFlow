@@ -1,6 +1,13 @@
 ### New in 0.36 (not released yet)
 
-* _Nothing yet_
+* New: Added `ISubscribeAsynchronousTo<,,>` as an alternative to the existing
+  `ISubscribeSynchronousTo<,,>`, which allow domain event subscribers to be
+  executed using the new `ITaskRunner`.
+* New: Added `ITaskRunner` for which the default implementation is mere a thin
+  wrapper around `Task.Run(...)` with some logging added. Implemting this
+  interface allows control of how EventFlows runs tasks. Please note that
+  EventFlow will only use `ITaskRunner` in very limited cases, e.g. if
+  there's implantations of `ISubscribeAsynchronousTo<,,>`
 
 ### New in 0.35.2247 (released 2016-09-06)
 

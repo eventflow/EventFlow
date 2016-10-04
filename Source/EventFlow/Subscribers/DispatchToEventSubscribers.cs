@@ -23,6 +23,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -38,10 +39,14 @@ namespace EventFlow.Subscribers
 {
     public class DispatchToEventSubscribers : IDispatchToEventSubscribers
     {
+        private static readonly Type SubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
+        private static readonly Type SubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
+
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IMemoryCache _memoryCache;
+        private readonly ITaskRunner _taskRunner;
 
         private class SubscriberInfomation
         {
@@ -53,62 +58,88 @@ namespace EventFlow.Subscribers
             ILog log,
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            ITaskRunner taskRunner)
         {
             _log = log;
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _memoryCache = memoryCache;
+            _taskRunner = taskRunner;
         }
 
         public async Task DispatchAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            DispatchToAsynchronousSubscribers(domainEvents, cancellationToken);
+            await DispatchToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+        }
+
+        private void DispatchToAsynchronousSubscribers(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            _taskRunner.Run(
+                Label.Named("publish-to-asynchronous-subscribers"),
+                c => Task.WhenAll(domainEvents.Select(d => DispatchToSubscribersAsync(d, SubscribeAsynchronousToType, true, c))),
+                cancellationToken);
+        }
+
+        private async Task DispatchToSynchronousSubscribersAsync(
             IEnumerable<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
             foreach (var domainEvent in domainEvents)
             {
-                var subscriberInfomation = await GetSubscriberInfomationAsync(domainEvent.GetType(), cancellationToken).ConfigureAwait(false);
-                var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
-                var subscriberDispatchTasks = subscribers
-                    .Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent, cancellationToken))
-                    .ToList();
+                await DispatchToSubscribersAsync(
+                        domainEvent,
+                        SubscribeSynchronousToType,
+                        !_eventFlowConfiguration.ThrowSubscriberExceptions,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        private async Task DispatchToSubscribersAsync(
+            IDomainEvent domainEvent,
+            Type subscriberType,
+            bool swallowException,
+            CancellationToken cancellationToken)
+        {
+            var subscriberInfomation = await GetSubscriberInfomationAsync(
+                    domainEvent.GetType(),
+                    subscriberType,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
+
+            foreach (var subscriber in subscribers)
+            {
+                _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
+                                   $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
 
                 try
                 {
-                    await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
+                    await subscriberInfomation.HandleMethod(subscriber, domainEvent, cancellationToken).ConfigureAwait(false);
                 }
-                catch (Exception exception)
+                catch (Exception e) when (swallowException)
                 {
-                    if (_eventFlowConfiguration.ThrowSubscriberExceptions)
-                    {
-                        throw;
-                    }
-
-                    _log.Error(
-                        exception,
-                        $"Event subscribers of event '{domainEvent.EventType.PrettyPrint()}' threw an unexpected exception!");
+                    _log.Error(e, $"Subscriber '{subscriberInfomation.SubscriberType.PrettyPrint()}' threw " +
+                                  $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
                 }
             }
         }
 
-        private async Task DispatchToSubscriberAsync(
-            object handler,
-            SubscriberInfomation subscriberInfomation,
-            IDomainEvent domainEvent,
+        private readonly ConcurrentDictionary<string, SubscriberInfomation> _test = new ConcurrentDictionary<string, SubscriberInfomation>();
+
+        private Task<SubscriberInfomation> GetSubscriberInfomationAsync(
+            Type domainEventType,
+            Type subscriberType,
             CancellationToken cancellationToken)
         {
-            _log.Verbose(() => string.Format(
-                "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                handler.GetType().PrettyPrint(),
-                domainEvent.EventType.PrettyPrint()));
-
-            await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
-        }
-
-        private Task<SubscriberInfomation> GetSubscriberInfomationAsync(Type domainEventType, CancellationToken cancellationToken)
-        {
             return _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), domainEventType.GetCacheKey()),
+                CacheKey.With(GetType(), domainEventType.GetCacheKey(), subscriberType.GetCacheKey()),
                 TimeSpan.FromDays(1), 
                 _ =>
                     {
@@ -117,9 +148,9 @@ namespace EventFlow.Subscribers
                             .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IDomainEvent<,,>))
                             .GetGenericArguments();
 
-                        var handlerType = typeof(ISubscribeSynchronousTo<,,>).MakeGenericType(arguments[0], arguments[1], arguments[2]);
+                        var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);
                         var invokeHandleAsync = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, CancellationToken, Task>>(handlerType, "HandleAsync");
-
+                        
                         return Task.FromResult(new SubscriberInfomation
                             {
                                 SubscriberType = handlerType,

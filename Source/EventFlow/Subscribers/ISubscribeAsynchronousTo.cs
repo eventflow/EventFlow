@@ -22,17 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Subscribers
 {
-    public interface IDispatchToEventSubscribers
+    public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        Task DispatchAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
     }
 }
