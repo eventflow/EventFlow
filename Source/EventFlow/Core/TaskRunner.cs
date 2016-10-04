@@ -42,7 +42,9 @@ namespace EventFlow.Core
 
         public void Run(Label label, Func<CancellationToken, Task> taskFactory, CancellationToken cancellationToken)
         {
-            Task.Run(() => RunAsync(label, taskFactory, cancellationToken), cancellationToken);
+            Task.Run(
+                () => RunAsync(label, taskFactory, cancellationToken),
+                CancellationToken.None /* no mistake */);
         }
 
         private async Task RunAsync(Label label, Func<CancellationToken, Task> taskFactory, CancellationToken cancellationToken)

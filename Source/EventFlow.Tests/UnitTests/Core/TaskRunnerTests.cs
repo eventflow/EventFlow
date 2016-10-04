@@ -22,12 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
@@ -52,6 +54,68 @@ namespace EventFlow.Tests.UnitTests.Core
 
             // Assert
             _logMock.VerifyNoErrorsLogged();
+        }
+
+        [Test]
+        public void TaskIsInvoked()
+        {
+            // Arrange
+            var autoResetEvent = new AutoResetEvent(false);
+            var hasRun = false;
+
+            // Act
+            Sut.Run(
+                A<Label>(),
+                async c =>
+                {
+                    await Task.Delay(10, c).ConfigureAwait(false);
+                    hasRun = true;
+                    autoResetEvent.Set();
+                },
+                CancellationToken.None);
+
+            // Assert
+            autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
+            hasRun.Should().BeTrue();
+        }
+
+        [Test]
+        public void CancellationTokenIsPassed()
+        {
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                // Arrange
+                var autoResetEvent = new AutoResetEvent(false);
+                var wasCancelled = false;
+
+                // Act
+                Sut.Run(
+                    A<Label>(),
+                    async c =>
+                        {
+                            try
+                            {
+                                while (true)
+                                {
+                                    await Task.Delay(100, c).ConfigureAwait(false);
+                                }
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                wasCancelled = true;
+                            }
+                            finally
+                            {
+                                autoResetEvent.Set();
+                            }
+                        },
+                    cancellationTokenSource.Token);
+
+                // Assert
+                cancellationTokenSource.Cancel();
+                autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
+                wasCancelled.Should().BeTrue();
+            }
         }
 
         [SetUp]
