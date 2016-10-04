@@ -27,12 +27,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Logs;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -44,14 +46,17 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     {
         private Mock<IResolver> _resolverMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
+        private Mock<ILog> _logMock;
 
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
-
+            _logMock = InjectMock<ILog>();
             _resolverMock = InjectMock<IResolver>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
+
+            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+            Inject<ITaskRunner>(new TaskRunner(_logMock.Object));
         }
 
         [Test]
@@ -65,6 +70,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _logMock.VerifyNoErrorsLogged();
         }
 
         [Test]
@@ -82,6 +88,11 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Act
             Assert.DoesNotThrow(() => Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).Wait());
+
+            // Assert
+            _logMock.Verify(
+                m => m.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()),
+                Times.Once);
         }
 
         [Test]
@@ -102,6 +113,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Assert
             exception.Should().BeSameAs(expectedException);
+            _logMock.VerifyNoErrorsLogged();
         }
 
         private Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeSubscriber<TEvent>()
@@ -110,7 +122,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
 
             _resolverMock
-                .Setup(r => r.ResolveAll(It.IsAny<Type>()))
+                .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>))))
                 .Returns(new object[] { subscriberMock.Object });
 
             return subscriberMock;

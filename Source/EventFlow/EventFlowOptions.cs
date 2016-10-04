@@ -208,6 +208,7 @@ namespace EventFlow
             serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IQueryProcessor, QueryProcessor>(Lifetime.Singleton);
             serviceRegistration.Register<IJsonSerializer, JsonSerializer>();
+            serviceRegistration.Register<ITaskRunner, TaskRunner>();
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);

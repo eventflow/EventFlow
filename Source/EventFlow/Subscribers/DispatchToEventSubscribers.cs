@@ -39,11 +39,13 @@ namespace EventFlow.Subscribers
     public class DispatchToEventSubscribers : IDispatchToEventSubscribers
     {
         private static readonly Type SubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
+        private static readonly Type SubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
 
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IMemoryCache _memoryCache;
+        private readonly ITaskRunner _taskRunner;
 
         private class SubscriberInfomation
         {
@@ -55,18 +57,29 @@ namespace EventFlow.Subscribers
             ILog log,
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            ITaskRunner taskRunner)
         {
             _log = log;
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _memoryCache = memoryCache;
+            _taskRunner = taskRunner;
         }
 
         public async Task DispatchAsync(
-            IEnumerable<IDomainEvent> domainEvents,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
+            _taskRunner.Run(
+                Label.Named("publish-to-asynchronous-subscribers"),
+                c => Task.WhenAll(domainEvents.Select(async d =>
+                    {
+                        var tasks = await DispatchToSubscribersAsync(d, SubscribeAsynchronousToType,c).ConfigureAwait(false);
+                        await Task.WhenAll(tasks).ConfigureAwait(false);
+                    })),
+                cancellationToken);
+
             foreach (var domainEvent in domainEvents)
             {
                 try
