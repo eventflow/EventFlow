@@ -319,6 +319,7 @@
     <Compile Include="EventStores\IEventJsonSerializer.cs" />
     <Compile Include="EventStores\IEventStore.cs" />
     <Compile Include="Subscribers\IDomainEventPublisher.cs" />
+    <Compile Include="Subscribers\ISubscribeAsynchronousTo.cs" />
     <Compile Include="Subscribers\ISubscribeSynchronousTo.cs" />
     <Compile Include="ReadStores\IReadModelContext.cs" />
     <Compile Include="EventStores\IUncommittedEvent.cs" />
