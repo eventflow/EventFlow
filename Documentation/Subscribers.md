@@ -69,6 +69,14 @@ using (var resolver = EventFlowOptions.New
 
 ## Asynchronous subscribers
 
+Asynchronous subscribers in EventFlow are executed using the `ITaskRunner`
+which is basically a thin wrapper around `Task.Run(...)` and thus any
+number of asynchronous subscribers might still be running when a
+`ICommandBus.PublishAsync(...)` returns.
+
+There are _no_ guaranteed order between subscribers or even the order of which
+emitted domain events are handled.
+
 The `ISubscribeAsynchronousTo<,,>` is shown here and is, besides its name,
 identical to its synchronous counterpart.
 
