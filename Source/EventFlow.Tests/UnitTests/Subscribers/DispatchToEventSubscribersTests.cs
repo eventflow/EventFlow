@@ -74,6 +74,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         }
 
         [Test]
+        [Repeat(500)]
         public void SubscriberExceptionIsNotThrownIfNotConfigured()
         {
             // Arrange
@@ -87,11 +88,11 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Throws(expectedException);
 
             // Act
-            Assert.DoesNotThrow(() => Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).Wait());
+            Assert.DoesNotThrowAsync(async () => await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false));
 
             // Assert
             _logMock.Verify(
-                m => m.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()),
+                m => m.Error(expectedException, It.IsAny<string>(), It.IsAny<object[]>()),
                 Times.Once);
         }
 

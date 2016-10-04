@@ -71,66 +71,65 @@ namespace EventFlow.Subscribers
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
+            DispatchToAsynchronousSubscribers(domainEvents, cancellationToken);
+            await DispatchToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+        }
+
+        private void DispatchToAsynchronousSubscribers(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
             _taskRunner.Run(
                 Label.Named("publish-to-asynchronous-subscribers"),
-                c => Task.WhenAll(domainEvents.Select(async d =>
-                    {
-                        var tasks = await DispatchToSubscribersAsync(d, SubscribeAsynchronousToType,c).ConfigureAwait(false);
-                        await Task.WhenAll(tasks).ConfigureAwait(false);
-                    })),
+                c => Task.WhenAll(domainEvents.Select(d => DispatchToSubscribersAsync(d, SubscribeAsynchronousToType, true, c))),
                 cancellationToken);
+        }
 
+        private async Task DispatchToSynchronousSubscribersAsync(
+            IEnumerable<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
             foreach (var domainEvent in domainEvents)
             {
-                try
-                {
-                    var subscriberDispatchTasks = await DispatchToSubscribersAsync(
+                await DispatchToSubscribersAsync(
                         domainEvent,
                         SubscribeSynchronousToType,
+                        !_eventFlowConfiguration.ThrowSubscriberExceptions,
                         cancellationToken)
-                        .ConfigureAwait(false);
-                    await Task.WhenAll(subscriberDispatchTasks).ConfigureAwait(false);
-                }
-                catch (Exception exception)
-                {
-                    if (_eventFlowConfiguration.ThrowSubscriberExceptions)
-                    {
-                        throw;
-                    }
-
-                    _log.Error(
-                        exception,
-                        $"Event subscribers of event '{domainEvent.EventType.PrettyPrint()}' threw an unexpected exception!");
-                }
+                    .ConfigureAwait(false);
             }
         }
 
-        private async Task<IEnumerable<Task>> DispatchToSubscribersAsync(
+        private async Task DispatchToSubscribersAsync(
             IDomainEvent domainEvent,
             Type subscriberType,
+            bool swallowException,
             CancellationToken cancellationToken)
         {
             var subscriberInfomation = await GetSubscriberInfomationAsync(
-                domainEvent.GetType(),
-                subscriberType,
-                cancellationToken)
+                    domainEvent.GetType(),
+                    subscriberType,
+                    cancellationToken)
                 .ConfigureAwait(false);
             var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
-            return subscribers.Select(s => DispatchToSubscriberAsync(s, subscriberInfomation, domainEvent, cancellationToken));
-        }
 
-        private async Task DispatchToSubscriberAsync(
-            object handler,
-            SubscriberInfomation subscriberInfomation,
-            IDomainEvent domainEvent,
-            CancellationToken cancellationToken)
-        {
-            _log.Verbose(() => string.Format(
-                "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
-                handler.GetType().PrettyPrint(),
-                domainEvent.EventType.PrettyPrint()));
+            foreach (var subscriber in subscribers)
+            {
+                _log.Verbose(() => string.Format(
+                    "Calling HandleAsync on handler '{0}' for aggregate event '{1}'",
+                    subscriber.GetType().PrettyPrint(),
+                    domainEvent.EventType.PrettyPrint()));
 
-            await subscriberInfomation.HandleMethod(handler, domainEvent, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await subscriberInfomation.HandleMethod(subscriber, domainEvent, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception e) when (swallowException)
+                {
+                    _log.Error(e, $"Subscriber '{subscriberInfomation.SubscriberType.PrettyPrint()}' threw " +
+                                  $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
+                }
+            }
         }
 
         private Task<SubscriberInfomation> GetSubscriberInfomationAsync(
