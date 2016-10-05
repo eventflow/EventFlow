@@ -142,6 +142,10 @@ You should also create a `int` column that has the `MsSqlReadModelVersionColumn`
 attribute to tell EventFlow which column is used to store the read model version
 in.
 
+**NOTE:** EventFlow expect the read model to exist, and thus any maintenance of
+the database schema for the read models must be handled before EventFlow is
+initialized. Or, at least before the read models are used in EventFlow.
+
 ### Elasticsearch
 
 To configure the [Elasticsearch](https://www.elastic.co/products/elasticsearch)

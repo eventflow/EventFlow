@@ -22,17 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Collections.Generic;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
-namespace EventFlow.Subscribers
+namespace EventFlow.Core
 {
-    public interface IDispatchToEventSubscribers
+    public interface ITaskRunner
     {
-        Task DispatchAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+        void Run(Label label, Func<CancellationToken, Task> taskFactory, CancellationToken cancellationToken);
     }
 }

@@ -20,19 +20,24 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using System;
+using EventFlow.Logs;
+using Moq;
 
-namespace EventFlow.Subscribers
+namespace EventFlow.TestHelpers.Extensions
 {
-    public interface IDispatchToEventSubscribers
+    public static class MockLogExtensions
     {
-        Task DispatchAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+        public static void VerifyNoErrorsLogged(this Mock<ILog> logMock)
+        {
+            logMock.Verify(
+                m => m.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()),
+                Times.Never);
+            logMock.Verify(
+                m => m.Error(It.IsAny<string>(), It.IsAny<object[]>()),
+                Times.Never);
+        }
     }
 }

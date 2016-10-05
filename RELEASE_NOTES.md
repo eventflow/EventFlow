@@ -1,5 +1,13 @@
 ### New in 0.36 (not released yet)
 
+* New: Added `ISubscribeAsynchronousTo<,,>` as an alternative to the existing
+  `ISubscribeSynchronousTo<,,>`, which allow domain event subscribers to be
+  executed using the new `ITaskRunner`.
+* New: Added `ITaskRunner` for which the default implementation is mere a thin
+  wrapper around `Task.Run(...)` with some logging added. Implemting this
+  interface allows control of how EventFlows runs tasks. Please note that
+  EventFlow will only use `ITaskRunner` in very limited cases, e.g. if
+  there's implantations of `ISubscribeAsynchronousTo<,,>`
 * New: `EventFlow.SQLite` now uses an `ISQLiteDatabaseMigrator` implementation 
   to manage the creation of `EventFlow` SQL schemas when using SQLite. The 
   behaviour and implementation is now on par with `EventFlow.MsSql` and you can 

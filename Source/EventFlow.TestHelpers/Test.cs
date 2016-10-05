@@ -52,7 +52,7 @@ namespace EventFlow.TestHelpers
             Fixture.Customize<ThingyId>(x => x.FromFactory(() => ThingyId.New));
             Fixture.Customize<ThingyMessageId>(x => x.FromFactory(() => ThingyMessageId.New));
             Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
-            Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named($"label-{Guid.NewGuid().ToString("D")}")));
+            Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named($"label-{Guid.NewGuid():D}")));
 
             DomainEventFactory = new DomainEventFactory();
         }
