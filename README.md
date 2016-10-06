@@ -78,6 +78,9 @@ to the documentation.
  * Files - only for test
  * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
+* [**Subscribers:**](./Documentation/Subscribers.md) Listeners that act on
+  specific domain events. Useful if an specific action needs to be triggered
+  after a domain event has been committed.
 * [**Read models:**](./Documentation/ReadStores.md) Denormalized representation
   of aggregate events optimized for reading fast. Currently there is support for
   these read model storage types.
@@ -390,3 +393,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
