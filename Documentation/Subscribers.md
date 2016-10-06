@@ -54,7 +54,7 @@ certainty when using synchronous subscribers.
 **IMPORTANT:** By default any exceptions thrown by a subscriber are
 __swallowed__ by EventFlow after it has been logged as an error. Depending on
 the application this might be the preferred behavior, but in some cases it isn't.
-If subscriber exception are to be throw, and thus allowing them to be caught in
+If subscriber exception should be thrown, and thus allowing them to be caught in
 e.g. command handlers, the behaivor can be disabled by setting the
 `ThrowSubscriberExceptions` to `true` like illustrated here.
 
