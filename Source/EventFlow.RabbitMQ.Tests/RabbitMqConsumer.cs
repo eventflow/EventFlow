@@ -41,7 +41,7 @@ namespace EventFlow.RabbitMQ.Tests
         private readonly EventingBasicConsumer _eventingBasicConsumer;
         private readonly BlockingCollection<BasicDeliverEventArgs> _receivedMessages = new BlockingCollection<BasicDeliverEventArgs>(); 
 
-        public RabbitMqConsumer(Uri uri, string exchange, IEnumerable<string> routingKeys)
+        public RabbitMqConsumer(Uri uri, Exchange exchange, IEnumerable<string> routingKeys)
         {
             var connectionFactory = new ConnectionFactory
                 {
@@ -50,7 +50,7 @@ namespace EventFlow.RabbitMQ.Tests
             _connection = connectionFactory.CreateConnection();
             _model = _connection.CreateModel();
 
-            _model.ExchangeDeclare(exchange, ExchangeType.Topic, false);
+            _model.ExchangeDeclare(exchange.Value, ExchangeType.Topic, false);
 
             var queueName = $"test-{Guid.NewGuid():N}";
             _model.QueueDeclare(
@@ -64,7 +64,7 @@ namespace EventFlow.RabbitMQ.Tests
             {
                 _model.QueueBind(
                     queueName,
-                    exchange,
+                    exchange.Value,
                     routingKey,
                     null);
             }

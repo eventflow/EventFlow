@@ -64,8 +64,9 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         [Test, Timeout(10000)]
         public async Task Scenario()
         {
-            using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] { "#" }))
-            using (var resolver = BuildResolver())
+            var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
+            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
+            using (var resolver = BuildResolver(exchange))
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
@@ -74,7 +75,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
 
                 var rabbitMqMessage = consumer.GetMessages(TimeSpan.FromMinutes(1)).Single();
-                rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
+                rabbitMqMessage.Exchange.Value.Should().Be(exchange.Value);
                 rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
 
                 var pingEvent = (IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)eventJsonSerializer.Deserialize(
@@ -88,14 +89,15 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         [Test, Timeout(60000)]
         public async Task PublisherPerformance()
         {
-            var exchange = new Exchange("eventflow");
+            var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
             var routingKey = new RoutingKey("performance");
             var exceptions = new ConcurrentBag<Exception>();
             const int taskCount = 100;
             const int messagesPrThread = 200;
+            const int totalMessageCount = taskCount*messagesPrThread;
 
-            using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] {"#"}))
-            using (var resolver = BuildResolver(o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
+            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] {"#"}))
+            using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
             {
                 var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
                 var tasks = Enumerable.Range(0, taskCount)
@@ -103,8 +105,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
-                var rabbitMqMessages = consumer.GetMessages(TimeSpan.FromMinutes(1), taskCount * messagesPrThread);
-                rabbitMqMessages.Should().HaveCount(taskCount*messagesPrThread);
+                var rabbitMqMessages = consumer.GetMessages(TimeSpan.FromMinutes(1), totalMessageCount);
+                rabbitMqMessages.Should().HaveCount(totalMessageCount);
                 exceptions.Should().BeEmpty();
             }
         }
@@ -137,12 +139,12 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        private IRootResolver BuildResolver(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        private IRootResolver BuildResolver(Exchange exchange, Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
             configure = configure ?? (e => e);
 
             return configure(EventFlowOptions.New
-                .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false))
+                .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
                 .AddDefaults(EventFlowTestHelpers.Assembly))
                 .CreateResolver(false);
         }
