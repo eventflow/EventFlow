@@ -73,7 +73,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var pingId = PingId.New;
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
 
-                var rabbitMqMessage = consumer.GetMessages().Single();
+                var rabbitMqMessage = consumer.GetMessages(TimeSpan.FromMinutes(1)).Single();
                 rabbitMqMessage.Exchange.Value.Should().Be("eventflow");
                 rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
 
@@ -91,9 +91,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var exchange = new Exchange("eventflow");
             var routingKey = new RoutingKey("performance");
             var exceptions = new ConcurrentBag<Exception>();
-            int taskCount;
-            int _;
-            ThreadPool.GetMaxThreads(out taskCount, out _);
+            const int taskCount = 100;
             const int messagesPrThread = 200;
 
             using (var consumer = new RabbitMqConsumer(_uri, "eventflow", new[] {"#"}))
@@ -105,7 +103,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
-                var rabbitMqMessages = consumer.GetMessages(taskCount * messagesPrThread);
+                var rabbitMqMessages = consumer.GetMessages(TimeSpan.FromMinutes(1), taskCount * messagesPrThread);
                 rabbitMqMessages.Should().HaveCount(taskCount*messagesPrThread);
                 exceptions.Should().BeEmpty();
             }
@@ -144,7 +142,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             configure = configure ?? (e => e);
 
             return configure(EventFlowOptions.New
-                .PublishToRabbitMq(RabbitMqConfiguration.With(_uri))
+                .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false))
                 .AddDefaults(EventFlowTestHelpers.Assembly))
                 .CreateResolver(false);
         }

@@ -20,12 +20,14 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using EventFlow.RabbitMQ.Integrations;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -37,8 +39,7 @@ namespace EventFlow.RabbitMQ.Tests
         private readonly IConnection _connection;
         private readonly IModel _model;
         private readonly EventingBasicConsumer _eventingBasicConsumer;
-        private readonly List<BasicDeliverEventArgs> _receivedMessages = new List<BasicDeliverEventArgs>(); 
-        private readonly AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
+        private readonly BlockingCollection<BasicDeliverEventArgs> _receivedMessages = new BlockingCollection<BasicDeliverEventArgs>(); 
 
         public RabbitMqConsumer(Uri uri, string exchange, IEnumerable<string> routingKeys)
         {
@@ -51,7 +52,7 @@ namespace EventFlow.RabbitMQ.Tests
 
             _model.ExchangeDeclare(exchange, ExchangeType.Topic, false);
 
-            var queueName = string.Format("test-{0}", Guid.NewGuid());
+            var queueName = $"test-{Guid.NewGuid():N}";
             _model.QueueDeclare(
                 queueName,
                 false,
@@ -76,28 +77,31 @@ namespace EventFlow.RabbitMQ.Tests
 
         private void OnReceived(object sender, BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            lock (_receivedMessages)
-            {
-                _receivedMessages.Add(basicDeliverEventArgs);
-                _autoResetEvent.Set();
-            }
+            _receivedMessages.Add(basicDeliverEventArgs);
         }
 
-        public IReadOnlyCollection<RabbitMqMessage> GetMessages(int count = 1)
+        public IReadOnlyCollection<RabbitMqMessage> GetMessages(TimeSpan timeout, int count = 1)
         {
-            while (true)
+            var rabbitMqMessages = new List<RabbitMqMessage>();
+            var stopwatch = Stopwatch.StartNew();
+
+            while (rabbitMqMessages.Count < count)
             {
-                _autoResetEvent.WaitOne();
-                lock (_receivedMessages)
+                if (stopwatch.Elapsed >= timeout)
                 {
-                    if (_receivedMessages.Count >= count)
-                    {
-                        var basicDeliverEventArgses =_receivedMessages.GetRange(0, count);
-                        _receivedMessages.RemoveRange(0, count);
-                        return basicDeliverEventArgses.Select(CreateRabbitMqMessage).ToList();
-                    }
+                    throw new TimeoutException($"Timedout after {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
                 }
+
+                BasicDeliverEventArgs basicDeliverEventArgs;
+                if (!_receivedMessages.TryTake(out basicDeliverEventArgs, TimeSpan.FromMilliseconds(100)))
+                {
+                    continue;
+                }
+
+                rabbitMqMessages.Add(CreateRabbitMqMessage(basicDeliverEventArgs));
             }
+
+            return rabbitMqMessages;
         }
 
         private static RabbitMqMessage CreateRabbitMqMessage(BasicDeliverEventArgs basicDeliverEventArgs)
@@ -119,6 +123,7 @@ namespace EventFlow.RabbitMQ.Tests
             _eventingBasicConsumer.Received -= OnReceived;
             _model.Dispose();
             _connection.Dispose();
+            _receivedMessages.Dispose();
         }
     }
 }
