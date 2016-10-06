@@ -1,8 +1,3 @@
-.. EventFlow documentation master file, created by
-   sphinx-quickstart on Thu Oct  6 16:27:26 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to EventFlow's documentation!
 =====================================
 
@@ -11,12 +6,37 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   GettingStarted
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Basics
+
+   Commands
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Working with events
+
+   Metadata
+   EventUpgrade
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Additional reading
+
+   ValueObjects
+   FAQ
+   DoesAndDonts
+   Customize
+
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
-
