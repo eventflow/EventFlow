@@ -1,4 +1,0 @@
-[submodule "Documentation/_templates/sphinx_rtd_theme"]
-	path = Documentation/_templates/sphinx_rtd_theme
-	url = https://github.com/snide/sphinx_rtd_theme
-	branch = master
