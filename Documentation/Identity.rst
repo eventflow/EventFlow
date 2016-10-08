@@ -1,3 +1,5 @@
+.. _identity:
+
 Identity
 ========
 
@@ -62,6 +64,6 @@ Here's some examples on we can use our newly created ``TestId``
     // database indexes, minimizes fragmentation
     var testId = TestId.NewComb()
 
-**Note:** Be sure to read the section about `value
-objects <./ValueObjects.md>`__ as the ``Identity<>`` is basically a
+**Note:** Be sure to read the section about
+:ref:`value objects <value-objects>` as the ``Identity<>`` is basically a
 value object.

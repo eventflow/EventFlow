@@ -1,3 +1,5 @@
+.. _commands:
+
 Commands
 ========
 
@@ -11,8 +13,8 @@ passwords.
 
     public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
     {
-      public Password NewPassword { get; private set; }
-      public Password OldPassword { get; private set; }
+      public Password NewPassword { get; }
+      public Password OldPassword { get; }
 
       public UserUpdatePasswordCommand(
         UserId id,
@@ -27,7 +29,7 @@ passwords.
 
 Note that the ``Password`` class is merely a value object created to
 hold the password and do basic validation. Read the article regarding
-`value objects <./ValueObjects.md>`__ for more information. Also, you
+:ref:`value objects <value-objects>` for more information. Also, you
 don't have to use the default EventFlow ``Command<,>`` implementation,
 you can create your own, it merely have to implement the ``ICommand<,>``
 interface.
@@ -83,8 +85,8 @@ like the example blow.
 
     public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
     {
-      public Password NewPassword { get; private set; }
-      public Password OldPassword { get; private set; }
+      public Password NewPassword { get; }
+      public Password OldPassword { get; }
 
       public UserCreateCommand(
         UserId id,
@@ -125,8 +127,8 @@ deterministic GUID to be used as an ``ISourceId``.
     public class UserUpdatePasswordCommand :
       DistinctCommand<UserAggregate, UserId>
     {
-      public Password NewPassword { get; private set; }
-      public Password OldPassword { get; private set; }
+      public Password NewPassword { get; }
+      public Password OldPassword { get; }
 
       public UserUpdatePasswordCommand(
         UserId id,
@@ -148,6 +150,5 @@ deterministic GUID to be used as an ``ISourceId``.
 The ``GetBytes()`` merely returns the ``Encoding.UTF8.GetBytes(...)`` of
 the password.
 
-Its important that you don't use the ``GetHashCode()``, as the
-implementation is different for e.g. ``string`` on 32 bit and 64 bit
-.NET.
+**IMPORTANT:** Don't use the ``GetHashCode()``, as the implementation
+is different for e.g. ``string`` on 32 bit and 64 bit .NET.

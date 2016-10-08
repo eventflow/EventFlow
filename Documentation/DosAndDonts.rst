@@ -1,4 +1,4 @@
-Does and Don'ts
+Do's and don'ts
 ===============
 
 Whenever creating an application that uses CQRS+ES there are several

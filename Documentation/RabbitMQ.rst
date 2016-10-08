@@ -3,9 +3,8 @@
 RabbitMQ
 ========
 
-Enabling EventFlow RabbitMQ_ integration is done by installing the
-NuGet package ``EventFlow.RabbitMQ`` and add this to your EventFlow
-setup.
+To setup EventFlow RabbitMQ_ integration, install the NuGet package
+``EventFlow.RabbitMQ`` and add this to your EventFlow setup.
 
 .. code-block:: c#
 

@@ -1,3 +1,5 @@
+.. _value-objects:
+
 Event serialization and value objects
 =====================================
 

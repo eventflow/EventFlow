@@ -27,7 +27,7 @@ started.
     }
 
 **Note:** Be sure to read the read the section about the
-```Identity<>`` <./Identity.md>`__ class to get details on how to use
+:ref:`Identity\<\> <identity>` class to get details on how to use
 it.
 
 Next, let us start by creating a aggregate to represent our users.
@@ -49,8 +49,8 @@ Create event
 
     public class UserCreatedEvent : AggregateEvent<UserAggregate, UserId>
     {
-      public string Username { get; private set; }
-      public string Password { get; private set; }
+      public string Username { get; }
+      public string Password { get; }
 
       public UserCreatedEvent(
         string username,
@@ -78,8 +78,8 @@ We also create the ``Apply(UserCreatedEvent e)`` method than applies the
 event to the aggregate root.
 
 Note that there are alternatives to applying events using ``Apply(...)``
-methods, have a look at the `aggregate
-documentation <./Aggregates.md>`__ for further details.
+methods, have a look at the :ref:`aggregate documentation <aggregates>`
+for further details.
 
 .. code-block:: c#
 
@@ -129,8 +129,8 @@ command handler, and thus we first create the command.
 
     public class UserCreateCommand : Command<UserAggregate, UserId>
     {
-      public string Username { get; private set; }
-      public string Password { get; private set; }
+      public string Username { get; }
+      public string Password { get; }
 
       public UserCreateCommand(
         UserId id,
@@ -144,7 +144,7 @@ command handler, and thus we first create the command.
     }
 
 Note that you can read the article regarding
-`commands <./Commands.md>`__ for more details, e.g. on ensuring
+:ref:`commands <commands>` for more details, e.g. on ensuring
 idempotency in a distributed application.
 
 Create command handler
@@ -192,8 +192,8 @@ Improvements
 
 There are several areas the code can be improved.
 
--  Use `value objects <ValueObjects.md>`__ for e.g. username and
+-  Use :ref:`value objects <value-objects>` for e.g. username and
    password that validate the value, i.e., ensure that the username
    isn't the empty string
 -  If your application need to act on the emitted ``UserCreatedEvent``,
-   create a `subscriber <Subscribers.md>`__
+   create a :ref:`subscriber <subscribers>`

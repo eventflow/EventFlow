@@ -1,22 +1,31 @@
+Event stores
+============
+
+By default EventFlow uses a in-memory event store. But EventFlow provides
+support for alternatives.
+
+- :ref:`Microsoft SQL Server <eventstore-mssql>`
+
+
+.. _eventstore-mssql:
+
 MSSQL event store
 =================
 
-To use the MSSQL event store provider you need to install the NuGet
-package ``EventFlow.EventStores.MsSql``.
+See :ref:`MSSQL setup <setup-mssql>` for details on how to get started
+using Microsoft SQL Server in EventFlow.
 
-Configuration
--------------
-
-Configure the MSSQL connection and event store as shown here.
+Configure EventFlow to use MSSQL as event store, simply add the
+``UseMssqlEventStore()`` as shown here.
 
 .. code-block:: c#
 
     IRootResolver rootResolver = EventFlowOptions.New
-      .ConfigureMsSql(MsSqlConfiguration.New
-        .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
+      ...
       .UseMssqlEventStore()
       ...
       .CreateResolver();
+
 
 Create and migrate required MSSQL databases
 -------------------------------------------

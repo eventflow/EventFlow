@@ -1,3 +1,5 @@
+.. _aggregates:
+
 Aggregates
 ==========
 
@@ -15,7 +17,7 @@ EventFlow provides, like this.
       }
     }
 
-The ```Identity<>`` <./Documentation/Identity.md>`__ value object
+The :ref:`Identity\<\> <identity>` value object
 provides generic functionality to create and validate aggregate root
 IDs. Please read the documentation regarding the bundled ``Identity<>``
 type as it provides several useful features, e.g. several different
@@ -53,8 +55,8 @@ on events.
       }
     }
 
-Please make sure to read the section on `value objects and
-events <./ValueObjects.md>`__ for some important notes on creating
+Please make sure to read the section on :ref:`value objects and
+events <value-objects>` for some important notes on creating
 events.
 
 Emitting events

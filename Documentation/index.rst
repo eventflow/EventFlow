@@ -29,6 +29,7 @@ Contents:
    :maxdepth: 2
    :caption: Integration
 
+   MSSQL
    RabbitMQ
 
 
@@ -37,10 +38,9 @@ Contents:
    :caption: Additional reading
 
    Customize
-   Configuration
    ValueObjects
    Snapshots
-   DoesAndDonts
+   DosAndDonts
    FAQ
 
 

@@ -11,7 +11,7 @@ username.
 
     public class GetUserByUsernameQuery : IQuery<User>
     {
-      public string Username { get; private set; }
+      public string Username { get; }
 
       public GetUserByUsernameQuery(string username)
       {
