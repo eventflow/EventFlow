@@ -1,5 +1,7 @@
+.. _subscribers:
+
 Subscribers
-===========
+============
 
 Whenever your application needs to act when a specific event is emitted
 from your domain you create a class that implement one of the following
@@ -20,6 +22,9 @@ instead.
 with the .NET framework keywords ``async``, ``await`` or the Task
 Parallel Library. It refers to how the subscribers are executed. Read
 below for details.
+
+
+.. _subscribers-sync:
 
 Synchronous subscribers
 -----------------------
@@ -76,6 +81,9 @@ like illustrated here.
       ...
     }
 
+
+.. _subscribers-async:
+
 Asynchronous subscribers
 ------------------------
 
@@ -104,3 +112,57 @@ name, identical to its synchronous counterpart.
 
 **NOTE:** Setting ``ThrowSubscriberExceptions = true`` has **no effect**
 on asynchronous subscribers.
+
+Subscribe to every event
+========================
+
+Instead of subscribing to every single domain, you can register an
+implementation of ``ISubscribeSynchronousToAll`` which is defined as
+shown here.
+
+.. code-block:: c#
+
+    public interface ISubscribeSynchronousToAll
+    {
+        Task HandleAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
+    }
+
+Any registered implementations will be notified for every domain event
+emitted.
+
+
+.. _subscribers-rabbitmq:
+
+RabbitMQ
+---------
+
+See :ref:`RabbitMQ setup <setup-rabbitmq>` for details on how to get
+started using RabbitMQ_.
+
+After RabbitMQ has been configured, all domain events are are published
+to a exchange named ``eventflow`` with routing keys in the following
+format.
+
+::
+
+    eventflow.domainevent.[Aggregate name].[Event name].[Event version]
+
+Which will be the following for an event named ``CreateUser`` version
+``1`` for the ``MyUserAggregate``.
+
+::
+
+    eventflow.domainevent.my-user.create-user.1
+
+Note the lowercasing and adding of ``-`` whenever there's a capital
+letter.
+
+All the above is the default behavior, if you don't like it replace e.g.
+the service ``IRabbitMqMessageFactory`` to customize what routing key or
+exchange to use. Have a look at how
+`EventFlow <https://github.com/rasmus/EventFlow>`__ has done its
+implementation to get started.
+
+.. _RabbitMQ: https://www.rabbitmq.com/

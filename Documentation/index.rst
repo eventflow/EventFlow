@@ -13,25 +13,37 @@ Contents:
    :maxdepth: 2
    :caption: Basics
 
+   Identity
+   Aggregates
    Commands
-
+   EventStores
+   ReadStores
+   Subscribers
+   Metadata
+   Queries
+   Sagas
+   Jobs
+   EventUpgrade
 
 .. toctree::
    :maxdepth: 2
-   :caption: Working with events
+   :caption: Integration
 
-   Metadata
-   EventUpgrade
+   RabbitMQ
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Additional reading
 
-   ValueObjects
-   FAQ
-   DoesAndDonts
    Customize
+   Configuration
+   ValueObjects
+   Snapshots
+   DoesAndDonts
+   FAQ
+
+
 
 
 

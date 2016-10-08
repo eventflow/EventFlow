@@ -1,8 +1,9 @@
+.. _setup-rabbitmq:
+
 RabbitMQ
 ========
 
-Configuring EventFlow to publish events to
-`RabbitMQ <http://www.rabbitmq.com/>`__ is simple, just install the
+Enabling EventFlow RabbitMQ_ integration is done by installing the
 NuGet package ``EventFlow.RabbitMQ`` and add this to your EventFlow
 setup.
 
@@ -15,25 +16,8 @@ setup.
       ...
       .CreateResolver();
 
-Events are published to a exchange named ``eventflow`` with routing keys
-in the following format.
+Features provided by ``EventFlow.RabbitMQ``
 
-::
+- :ref:`Publish all domain events <subscribers-rabbitmq>`
 
-    eventflow.domainevent.[Aggregate name].[Event name].[Event version]
-
-Which will be the following for an event named ``CreateUser`` version
-``1`` for the ``MyUserAggregate``.
-
-::
-
-    eventflow.domainevent.my-user.create-user.1
-
-Note the lowercasing and adding of ``-`` whenever there's a capital
-letter.
-
-All the above is the default behavior, if you don't like it replace e.g.
-the service ``IRabbitMqMessageFactory`` to customize what routing key or
-exchange to use. Have a look at how
-`EventFlow <https://github.com/rasmus/EventFlow>`__ has done its
-implementation to get started.
+.. _RabbitMQ: https://www.rabbitmq.com/
