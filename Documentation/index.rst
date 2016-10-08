@@ -16,7 +16,7 @@ Contents:
    Identity
    Aggregates
    Commands
-   EventStores
+   EventStore
    ReadStores
    Subscribers
    Metadata

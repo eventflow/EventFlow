@@ -100,6 +100,9 @@ Read store implementations
 
 EventFlow has built-in support for several different read model stores.
 
+
+.. _read-store-inmemory:
+
 In-memory
 ~~~~~~~~~
 
@@ -119,6 +122,9 @@ your read model as the generic argument.
       .UseInMemoryReadStoreFor<UserNicknameReadModel,UserNicknameReadModelLocator>()
       ...
       .CreateResolver();
+
+
+.. _read-store-mssql:
 
 Microsoft SQL Server
 ~~~~~~~~~~~~~~~~~~~~
@@ -155,6 +161,9 @@ is used to store the read model version in.
 maintenance of the database schema for the read models must be handled
 before EventFlow is initialized. Or, at least before the read models are
 used in EventFlow.
+
+
+.. _read-store-elasticsearch:
 
 Elasticsearch
 ~~~~~~~~~~~~~
