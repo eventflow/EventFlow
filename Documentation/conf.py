@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 #
-# EventFlow documentation build configuration file, created by
-# sphinx-quickstart on Thu Oct  6 16:27:26 2016.
-#
 # This file is execfile()d with the current directory set to its
 # containing dir.
 #
@@ -145,7 +142,7 @@ html_theme = 'sphinx_rtd_theme'
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = None
+# html_logo = '../icon-128.png'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -320,7 +317,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'EventFlow', u'EventFlow Documentation',
-     author, 'EventFlow', 'One line description of project.',
+     author, 'EventFlow', 'Async/await first CQRS+ES and DDD framework for .NET.',
      'Miscellaneous'),
 ]
 
