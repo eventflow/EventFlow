@@ -1,8 +1,12 @@
 ### New in 0.36 (not released yet)
 
+* New: Documentation is now hosted at http://docs.geteventflow.net/ and
+  http://eventflow.readthedocs.io/ and while documentation is still kept
+  along the source code, the documentation files have been converted from
+  markdown to reStructuredText
 * New: Added `ISubscribeAsynchronousTo<,,>` as an alternative to the existing
   `ISubscribeSynchronousTo<,,>`, which allow domain event subscribers to be
-  executed using the new `ITaskRunner`.
+  executed using the new `ITaskRunner`
 * New: Added `ITaskRunner` for which the default implementation is mere a thin
   wrapper around `Task.Run(...)` with some logging added. Implemting this
   interface allows control of how EventFlows runs tasks. Please note that
