@@ -145,7 +145,7 @@ emitted.
 .. _subscribers-rabbitmq:
 
 RabbitMQ
-~~~~~~~~
+^^^^^^^^
 
 See :ref:`RabbitMQ setup <setup-rabbitmq>` for details on how to get
 started using RabbitMQ_.
