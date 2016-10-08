@@ -16,6 +16,9 @@ You have two options for when you want to customize EventFlow
 -  Decorate an implementation
 -  Replace an implementation
 
+
+.. _ioc-decorator:
+
 Decorating implementations
 --------------------------
 

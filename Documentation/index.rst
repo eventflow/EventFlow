@@ -23,6 +23,7 @@ Contents:
    Queries
    Sagas
    Jobs
+   Snapshots
    EventUpgrade
 
 .. toctree::
@@ -39,7 +40,6 @@ Contents:
 
    Customize
    ValueObjects
-   Snapshots
    DosAndDonts
    FAQ
 

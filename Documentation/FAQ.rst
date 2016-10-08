@@ -5,9 +5,9 @@ How can I ensure that only specific users can execute commands?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You should implement a *decorator* for the ``ICommadBus`` that does the
-authentication. Have a look at the
-`decorator <./Customize.md#decorating-implementations>`__ documentation
+authentication. Have a look at the :ref:`decorator <ioc-decorator>` documentation
 to see how this can be achieved.
+
 
 Why isn't there a "global sequence number" on domain events?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21,6 +21,7 @@ this to say on the subject:
     aggregates. Trying to provide those things leads to the dark side. >
     `Greg
     Young <https://groups.yahoo.com/neo/groups/domaindrivendesign/conversations/topics/18453>`__
+
 
 Why doesn't EventFlow have a unit of work concept?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -39,3 +40,10 @@ Short answer, you shouldn't need it. But Mike has a way better answer:
 If your case falls within the 1% case, write an decorator for the
 ``ICommandBus`` that starts a transaction, use MSSQL as event store and
 make sure your read models are stored in MSSQL as well.
+
+
+Why are subscribers are receiving events out of order?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It might be your aggregates are emitting multiple events. Read about
+:ref:`subscribers and out of order events <out-of-order-event-subscribers>`.

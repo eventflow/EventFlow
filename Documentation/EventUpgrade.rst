@@ -1,3 +1,5 @@
+.. _event-upgrade:
+
 Event upgrade
 =============
 

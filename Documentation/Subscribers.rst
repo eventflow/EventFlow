@@ -47,6 +47,11 @@ The ``ISubscribeSynchronousTo<,,>`` is shown here.
         CancellationToken cancellationToken);
     }
 
+.. _out-of-order-event-subscribers:
+
+Out of order events
+^^^^^^^^^^^^^^^^^^^
+
 As synchronous subscribers are by their very nature executed
 synchronously, emitting multiple events from an aggregate and letting
 subscribers publish new commands based on this can however lead to some
@@ -64,13 +69,17 @@ following order ``Event 1``, ``Event 3`` and then ``Event 2``. While
 this *could* occur in a distributed system or executing subscribers on
 different threads, its a certainty when using synchronous subscribers.
 
-**IMPORTANT:** By default any exceptions thrown by a subscriber are
-**swallowed** by EventFlow after it has been logged as an error.
-Depending on the application this might be the preferred behavior, but
-in some cases it isn't. If subscriber exception should be thrown, and
-thus allowing them to be caught in e.g. command handlers, the behaivor
-can be disabled by setting the ``ThrowSubscriberExceptions`` to ``true``
-like illustrated here.
+
+Exceptions swallowed by default
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default any exceptions thrown by a subscriber are **swallowed**
+by EventFlow after it has been logged as an error. Depending on the
+application this might be the preferred behavior, but in some cases
+it isn't. If subscriber exception should be thrown, and thus allowing
+them to be caught in e.g. command handlers, the behaivor can be disabled
+by setting the ``ThrowSubscriberExceptions`` to ``true`` like illustrated
+here.
 
 .. code-block:: c#
 
@@ -114,7 +123,7 @@ name, identical to its synchronous counterpart.
 on asynchronous subscribers.
 
 Subscribe to every event
-========================
+------------------------
 
 Instead of subscribing to every single domain, you can register an
 implementation of ``ISubscribeSynchronousToAll`` which is defined as
@@ -136,7 +145,7 @@ emitted.
 .. _subscribers-rabbitmq:
 
 RabbitMQ
----------
+~~~~~~~~
 
 See :ref:`RabbitMQ setup <setup-rabbitmq>` for details on how to get
 started using RabbitMQ_.

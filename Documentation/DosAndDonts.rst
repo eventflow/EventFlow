@@ -17,7 +17,7 @@ produce clean JSON as it makes it easier to work with and enable you to
 easier deserialize the events in the future.
 
 -  No type information
--  No hints of value objects (see `value objects <ValueObjects.md>`__)
+-  No hints of value objects (see :ref:`value objects <value-objects>`)
 
 Here's an example of good clean event JSON produced from a create user
 event.
@@ -39,5 +39,13 @@ long as these events are in the event source, which in most cases are
 are expensive.
 
 However, you should still clean your code, have a look at how you can
-`upgrade and version your events <./EventUpgrade.md>`__ for details on
+:ref:`upgrade and version your events <event-upgrade>` for details on
 how EventFlow supports you in this.
+
+
+Subscribers and out of order events
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Be very careful if aggregates emits multiple events for a single command,
+subscribers will almost certainly
+:ref:`receive these out of order <out-of-order-event-subscribers>`.

@@ -10,7 +10,7 @@ support for alternatives.
 .. _eventstore-mssql:
 
 MSSQL event store
-=================
+-----------------
 
 See :ref:`MSSQL setup <setup-mssql>` for details on how to get started
 using Microsoft SQL Server in EventFlow.
@@ -28,7 +28,7 @@ Configure EventFlow to use MSSQL as event store, simply add the
 
 
 Create and migrate required MSSQL databases
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before you can use the MSSQL event store, the required database and
 tables must be created. The database specified in your MSSQL connection
