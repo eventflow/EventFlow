@@ -45,7 +45,7 @@ NUGET
       Microsoft.Owin (>= 3.0.1)
       Owin (>= 1.0)
     NEST (2.4.6)
-    Newtonsoft.Json (8.0.3)
+    Newtonsoft.Json (9.0.1)
     Owin (1.0)
     RabbitMQ.Client (3.6)
     System.Data.SQLite.Core (1.0.103)
