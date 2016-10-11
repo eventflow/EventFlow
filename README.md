@@ -351,7 +351,7 @@ several areas that you could help out with.
   * Provide a platform for DDD discussions
 
 ### Integration tests
-EvenFlow has several tests that verify that its able to use the systems it
+EventFlow has several tests that verify that its able to use the systems it
 integrates with correctly.
 
  * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) is automatically
