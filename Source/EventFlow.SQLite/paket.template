@@ -6,5 +6,4 @@ projectUrl https://github.com/eventflow/EventFlow
 requireLicenseAcceptance true
 language en-US
 
-
 tags CQRS ES event sourceing SQLite
