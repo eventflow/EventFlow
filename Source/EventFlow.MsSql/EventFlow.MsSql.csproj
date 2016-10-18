@@ -87,6 +87,7 @@
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>
+    <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EventStores\Scripts\0001 - Create table EventFlow.sql" />

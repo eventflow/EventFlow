@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.Sql")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("Generic SQL support for EventFlow")]

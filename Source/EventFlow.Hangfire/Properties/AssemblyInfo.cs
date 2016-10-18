@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.Hangfire")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("Hangfire job scheduling support for EventFlow")]

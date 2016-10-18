@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.Owin")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("OWIN support for EventFlow")]

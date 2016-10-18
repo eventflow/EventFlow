@@ -27,5 +27,6 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("EventFlow")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("Async/await first CQRS+ES and DDD framework for .NET - http://geteventflow.net/")]
 
 [assembly: InternalsVisibleTo("EventFlow.Tests")]

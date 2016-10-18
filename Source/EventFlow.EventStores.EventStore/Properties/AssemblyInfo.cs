@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.EventStores.EventStore")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("Event Store event store for EventFlow. Download it from https://geteventstore.com/.")]

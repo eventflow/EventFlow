@@ -4,6 +4,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Rasmus Mikkelsen")]
 [assembly: AssemblyProduct("EventFlow")]
@@ -13,4 +14,5 @@ using System.Reflection;
 [assembly: AssemblyCopyright("Copyright (c) Rasmus Mikkelsen 2015 - 2016 (SHA:developer build)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyConfiguration("Release")]
+[assembly: ComVisible(false)]
 

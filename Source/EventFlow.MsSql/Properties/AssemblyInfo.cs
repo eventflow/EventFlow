@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.MsSql")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("MSSQL support for EventFlow")]

@@ -63,6 +63,7 @@
   <ItemGroup>
     <None Include="EventFlow.Autofac.nuspec" />
     <None Include="paket.references" />
+    <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj">

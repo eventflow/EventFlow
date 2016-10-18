@@ -73,6 +73,7 @@
   <ItemGroup>
     <None Include="EventFlow.SQLite.nuspec" />
     <None Include="paket.references" />
+    <None Include="paket.template" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Choose>

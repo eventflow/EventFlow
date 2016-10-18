@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.Autofac")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("Autofac support for EventFlow")]

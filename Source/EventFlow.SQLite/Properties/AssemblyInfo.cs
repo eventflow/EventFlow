@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.SQLite")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("SQLite event store for EventFlow")]

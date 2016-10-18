@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.Elasticsearch")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("Elasticsearch support for EventFlow")]

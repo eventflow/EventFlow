@@ -26,3 +26,4 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("EventFlow.RabbitMQ")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("RabbitMQ integration for EventFlow")]
