@@ -20,9 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Reflection;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
 
-[assembly: AssemblyTitle("EventFlow.RabbitMQ.Tests")]
-[assembly: AssemblyCulture("")]
+namespace EventFlow.Tests
+{
+    [Category(Categories.Integration)]
+    public class VerifyPaketTemplates
+    {
+        [Test]
+        public void T()
+        {
+            var paketTemplateFiles = Helpers.GetProjectFiles("paket.template");
+        }
+    }
+}

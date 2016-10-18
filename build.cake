@@ -71,8 +71,12 @@ Task("Version")
                         Version = VERSION.ToString(),
                         FileVersion = VERSION.ToString(),
                         InformationalVersion = VERSION.ToString(),
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year),
-                        Description = GetSha(),
+                        Company = "Rasmus Mikkelsen",
+                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0} (SHA:{1})", DateTime.Now.Year, GetSha()),
+                        Configuration = CONFIGURATION,
+                        Trademark = "",
+                        Product = "EventFlow",
+                        ComVisible = false,
                     });
         });
 
@@ -110,9 +114,8 @@ Task("Package")
                     });
 
             ExecuteCommand(TOOL_PAKET, string.Format(
-                "pack output \"{0}\" version {1} buildconfig {2} releaseNotes \"{3}\"",
+                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_PACKAGES,
-                VERSION,
                 CONFIGURATION,
                 string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
         });
