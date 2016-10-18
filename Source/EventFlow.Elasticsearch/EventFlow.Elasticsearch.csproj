@@ -62,7 +62,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.Elasticsearch.nuspec" />
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>

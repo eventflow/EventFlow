@@ -71,7 +71,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.SQLite.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

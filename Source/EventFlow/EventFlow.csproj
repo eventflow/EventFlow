@@ -334,7 +334,6 @@
     <Compile Include="ValueObjects\ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

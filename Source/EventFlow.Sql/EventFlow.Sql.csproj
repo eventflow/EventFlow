@@ -67,7 +67,6 @@
     <Compile Include="ReadModels\Attributes\SqlReadModelVersionColumnAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.Sql.nuspec" />
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>

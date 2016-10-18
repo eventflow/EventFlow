@@ -53,7 +53,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.Owin.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

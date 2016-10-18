@@ -55,7 +55,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.EventStores.EventStore.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

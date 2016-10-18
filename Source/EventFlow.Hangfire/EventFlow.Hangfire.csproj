@@ -63,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="EventFlow.Hangfire.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

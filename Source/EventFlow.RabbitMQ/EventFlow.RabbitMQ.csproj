@@ -77,7 +77,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.RabbitMQ.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

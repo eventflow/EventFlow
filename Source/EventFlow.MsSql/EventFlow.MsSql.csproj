@@ -83,7 +83,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EventFlow.MsSql.nuspec" />
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>
