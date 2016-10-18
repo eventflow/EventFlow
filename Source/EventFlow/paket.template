@@ -1,0 +1,23 @@
+﻿type project
+
+title EventFlow - CQRS+ES framework
+iconUrl https://media.githubusercontent.com/media/eventflow/EventFlow/develop/icon-256.png
+licenseUrl https://raw.githubusercontent.com/eventflow/EventFlow/master/LICENSE
+projectUrl https://github.com/eventflow/EventFlow
+authors Rasmus Mikkelsen
+copyright Copyright (c) 2015-2016 Rasmus Mikkelsen
+requireLicenseAcceptance true
+language en-US
+tags CQRS ES event sourceing eventstore
+
+releaseNotes
+	TODO
+
+excludeddependencies
+	Autofac
+	JetBrains.Annotations
+
+files
+	bin/EventFlow.dll ==> lib/net451
+	!bin/Release/EventFlow.dll
+	!bin/Debug/EventFlow.dll

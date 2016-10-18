@@ -21,7 +21,7 @@ nuget Microsoft.Owin 3.0.1
 nuget Microsoft.Owin.Host.HttpListener 3.0.1
 nuget Microsoft.Owin.Hosting 3.0.1 
 nuget NEST ~> 2.0
-nuget Newtonsoft.Json ~> 8.0.0
+nuget Newtonsoft.Json >= 8.0
 nuget Owin 1.0
 nuget RabbitMQ.Client 3.6.0
 nuget System.Data.SQLite.Core 1.0.99
@@ -34,7 +34,6 @@ group Build
 	nuget cake
 	nuget GitVersion.CommandLine
 	nuget ilmerge 2.14.1208
-	nuget NuGet.CommandLine
 	nuget NUnit.Runners ~> 3.0
 	nuget OpenCover
 
