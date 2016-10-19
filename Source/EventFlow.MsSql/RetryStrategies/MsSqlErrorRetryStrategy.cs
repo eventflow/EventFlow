@@ -25,7 +25,7 @@
 using System;
 using System.Data.SqlClient;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.MsSql.RetryStrategies
 {
@@ -58,7 +58,7 @@ namespace EventFlow.MsSql.RetryStrategies
                 case 40501:
                     {
                         var delay = TimeSpan.FromMilliseconds(5000 + 10000 * Random.NextDouble());
-                        _log.Warning(
+                        _log.Warn(
                             "MSSQL server returned error 40501 which means it too busy! Trying to wait {0:0.###} (random between 5 and 15 seconds)",
                             delay.TotalSeconds);
                         return Retry.YesAfter(delay);

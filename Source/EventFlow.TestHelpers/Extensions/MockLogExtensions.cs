@@ -23,7 +23,7 @@
 // 
 
 using System;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using Moq;
 
 namespace EventFlow.TestHelpers.Extensions

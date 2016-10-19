@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
@@ -63,7 +63,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 {
                     return connectionFactory;
                 }
-                _log.Verbose("Creating RabbitMQ connection factory to {0}", uri.Host);
+                _log.Info("Creating RabbitMQ connection factory to {0}", uri.Host);
 
                 connectionFactory = new ConnectionFactory
                     {

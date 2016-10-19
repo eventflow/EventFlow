@@ -24,7 +24,7 @@
 
 using EventFlow.Core;
 using EventFlow.Jobs;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using Hangfire;
 using System;
 using System.Threading;
@@ -89,7 +89,7 @@ namespace EventFlow.Hangfire.Integration
 
             var id = schedule(_backgroundJobClient, jobDefinition, name, json);
 
-            _log.Verbose($"Scheduled job '{id}' with name '{name}' in Hangfire");
+            _log.Info($"Scheduled job '{id}' with name '{name}' in Hangfire");
 
             return new HangfireJobId(id);
         }

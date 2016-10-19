@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 
@@ -135,7 +135,7 @@ namespace EventFlow.EventStores.EventStore
                 {
                     await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
                     var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
-                    _log.Verbose(
+                    _log.Info(
                         "Wrote entity {0} with version {1} ({2},{3})",
                         id,
                         writeResult.NextExpectedVersion - 1,

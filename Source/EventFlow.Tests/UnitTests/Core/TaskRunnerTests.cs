@@ -26,7 +26,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;

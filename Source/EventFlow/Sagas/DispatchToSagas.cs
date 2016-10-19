@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Sagas
 {
@@ -78,7 +78,7 @@ namespace EventFlow.Sagas
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
 
-            _log.Verbose(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
+            _log.Info(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
 
             foreach (var details in sagaTypeDetails)
             {
@@ -101,7 +101,7 @@ namespace EventFlow.Sagas
         {
             try
             {
-                _log.Verbose(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
+                _log.Info(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
 
                 return await _sagaStore.UpdateAsync<ISaga>(
                     sagaId,
@@ -124,7 +124,7 @@ namespace EventFlow.Sagas
                     return null;
                 }
 
-                _log.Error(e, $"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'");
+                _log.ErrorException($"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'", e);
                 throw;
             }
         }

@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -91,7 +91,7 @@ namespace EventFlow.ReadStores
                 .ToList();
             if (!relevantDomainEvents.Any())
             {
-                Log.Verbose(() => string.Format(
+                Log.Info(() => string.Format(
                     "None of these events was relevant for read model '{0}', skipping update: {1}",
                     ReadModelType.PrettyPrint(),
                     string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
@@ -99,7 +99,7 @@ namespace EventFlow.ReadStores
                 return;
             }
 
-            Log.Verbose(() => string.Format(
+            Log.Info(() => string.Format(
                 "Updating read model '{0}' in store '{1}' with these events: {2}",
                 typeof(TReadModel).PrettyPrint(),
                 typeof(TReadModelStore).PrettyPrint(),
@@ -110,7 +110,7 @@ namespace EventFlow.ReadStores
 
             if (!readModelUpdates.Any())
             {
-                Log.Verbose(() => string.Format(
+                Log.Info(() => string.Format(
                     "No read model updates after building for read model '{0}' in store '{1}' with these events: {2}",
                     typeof(TReadModel).PrettyPrint(),
                     typeof(TReadModelStore).PrettyPrint(),

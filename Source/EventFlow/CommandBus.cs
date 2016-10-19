@@ -34,7 +34,7 @@ using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow
 {
@@ -66,7 +66,7 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
+            _log.Info(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
@@ -75,9 +75,9 @@ namespace EventFlow
             }
             catch (Exception exception)
             {
-                _log.Debug(
-                    exception,
+                _log.DebugException(
                     "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
+                    exception,
                     command.GetType().PrettyPrint(),
                     command.SourceId,
                     typeof(TAggregate),
@@ -86,7 +86,7 @@ namespace EventFlow
                 throw;
             }
 
-            _log.Verbose(() => domainEvents.Any()
+            _log.Info(() => domainEvents.Any()
                 ? string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     command.GetType().PrettyPrint(),

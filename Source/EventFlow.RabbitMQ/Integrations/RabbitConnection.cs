@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
@@ -79,7 +79,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 model.DisposeSafe(_log, "Failed to dispose model");
             }
             _connection.DisposeSafe(_log, "Failed to dispose connection");
-            _log.Verbose("Disposing RabbitMQ connection");
+            _log.Info("Disposing RabbitMQ connection");
         }
     }
 }

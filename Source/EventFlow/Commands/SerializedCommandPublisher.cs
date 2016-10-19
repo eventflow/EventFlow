@@ -25,7 +25,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Commands
 {
@@ -54,7 +54,7 @@ namespace EventFlow.Commands
             if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version));
             if (string.IsNullOrEmpty(json)) throw new ArgumentNullException(nameof(json));
 
-            _log.Verbose($"Executing serilized command '{name}' v{version}");
+            _log.Info($"Executing serilized command '{name}' v{version}");
 
             CommandDefinition commandDefinition;
             if (!_commandDefinitionService.TryGetDefinition(name, version, out commandDefinition))

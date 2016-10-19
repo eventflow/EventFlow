@@ -26,7 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;

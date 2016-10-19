@@ -33,7 +33,7 @@ using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Owin.Extensions;
 using EventFlow.Owin.Middlewares;
 using EventFlow.TestHelpers;
@@ -52,7 +52,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
 
         public Task LogAsync(ExceptionLoggerContext context, CancellationToken cancellationToken)
         {
-            _log.Error(context.Exception, "Unhandled exception!");
+            _log.ErrorException("Unhandled exception!", context.Exception);
             return Task.FromResult<object>(null);
         }
     }

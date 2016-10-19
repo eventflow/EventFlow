@@ -27,7 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Jobs
 {
@@ -55,7 +55,7 @@ namespace EventFlow.Jobs
             var jobDefinition = _jobDefinitionService.GetDefinition(job.GetType());
             var json = _jsonSerializer.Serialize(job);
 
-            _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
+            _log.Info(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
 
             // Don't schedule, just execute...
             await _jobRunner.ExecuteAsync(jobDefinition.Name, jobDefinition.Version, json, cancellationToken).ConfigureAwait(false);
@@ -65,13 +65,13 @@ namespace EventFlow.Jobs
 
         public Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
         {
-            _log.Warning($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of at '{runAt}'");
+            _log.Warn($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of at '{runAt}'");
             return ScheduleNowAsync(job, cancellationToken);
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
         {
-            _log.Warning($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of in '{delay}'");
+            _log.Warn($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of in '{delay}'");
             return ScheduleNowAsync(job, cancellationToken);
         }
     }

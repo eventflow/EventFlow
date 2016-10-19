@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using Microsoft.Owin;
 
 namespace EventFlow.Owin.Middlewares
@@ -79,7 +79,7 @@ namespace EventFlow.Owin.Middlewares
 
         private async Task PublishCommandAsync(string name, int version, IOwinContext context)
         {
-            _log.Verbose($"Publishing command '{name}' v{version} from OWIN middleware");
+            _log.Info($"Publishing command '{name}' v{version} from OWIN middleware");
 
             string requestJson;
             using (var streamReader = new StreamReader(context.Request.Body))

@@ -29,7 +29,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Core.VersionedTypes
 {
@@ -86,7 +86,7 @@ namespace EventFlow.Core.VersionedTypes
                     return;
                 }
 
-                _log.Verbose(() =>
+                _log.Info(() =>
                     {
                         var assemblies = definitions
                             .Select(d => d.Type.Assembly.GetName().Name)
@@ -113,7 +113,7 @@ namespace EventFlow.Core.VersionedTypes
 
                     if (versions.ContainsKey(definition.Version))
                     {
-                        _log.Information(
+                        _log.InfoFormat(
                             "Already loaded versioned type '{0}' v{1}, skipping it",
                             definition.Name,
                             definition.Version);
@@ -192,7 +192,7 @@ namespace EventFlow.Core.VersionedTypes
                     nameof(type));
             }
 
-            _log.Verbose(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
+            _log.Info(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
 
             return definition;
         }

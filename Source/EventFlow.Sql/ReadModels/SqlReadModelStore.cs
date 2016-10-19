@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.ReadStores;
 using EventFlow.Sql.Connections;
 using EventFlow.Sql.ReadModels.Attributes;
@@ -153,13 +153,13 @@ namespace EventFlow.Sql.ReadModels
 
             if (readModel == null)
             {
-                Log.Verbose(() => $"Could not find any SQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
+                Log.Info(() => $"Could not find any SQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var readModelVersion = GetVersion(readModel);
 
-            Log.Verbose(() => $"Foud SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
+            Log.Info(() => $"Foud SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
@@ -177,7 +177,7 @@ namespace EventFlow.Sql.ReadModels
                 sql)
                 .ConfigureAwait(false);
 
-            Log.Verbose(
+            Log.Info(
                 "Purge {0} read models of type '{1}'",
                 rowsAffected,
                 readModelName);

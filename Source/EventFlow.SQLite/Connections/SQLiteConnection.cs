@@ -23,7 +23,7 @@
 // 
 
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Sql.Connections;
 using EventFlow.SQLite.RetryStrategies;
 

@@ -28,7 +28,7 @@ using System.Linq;
 using System.Reflection;
 using DbUp;
 using DbUp.Engine;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Sql.Connections;
 using EventFlow.Sql.Exceptions;
 using EventFlow.Sql.Integrations;

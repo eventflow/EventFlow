@@ -30,7 +30,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Queries
 {
@@ -62,7 +62,7 @@ namespace EventFlow.Queries
             var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
 
             var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
-            _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
+            _log.Info(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
 
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
 

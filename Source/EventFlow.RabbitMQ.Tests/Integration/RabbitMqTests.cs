@@ -31,7 +31,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.RabbitMQ.Extensions;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;

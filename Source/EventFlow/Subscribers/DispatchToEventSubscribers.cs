@@ -33,7 +33,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Subscribers
 {
@@ -116,7 +116,7 @@ namespace EventFlow.Subscribers
 
             foreach (var subscriber in subscribers)
             {
-                _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
+                _log.Info(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
                                    $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
 
                 try
@@ -125,8 +125,8 @@ namespace EventFlow.Subscribers
                 }
                 catch (Exception e) when (swallowException)
                 {
-                    _log.Error(e, $"Subscriber '{subscriberInfomation.SubscriberType.PrettyPrint()}' threw " +
-                                  $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
+                    _log.ErrorException( $"Subscriber '{subscriberInfomation.SubscriberType.PrettyPrint()}' threw " +
+                                  $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}", e);
                 }
             }
         }

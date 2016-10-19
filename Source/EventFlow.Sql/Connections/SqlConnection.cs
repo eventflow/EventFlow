@@ -30,7 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Sql.Connections
 {

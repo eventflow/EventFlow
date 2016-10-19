@@ -26,7 +26,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Core.Caching
 {
@@ -90,7 +90,7 @@ namespace EventFlow.Core.Caching
             }
             catch (Exception e)
             {
-                Log.Warning(e, $"Failed to get '{cacheKey}' from '{GetType().PrettyPrint()}' cache due to unexpected exception");
+                Log.WarnException($"Failed to get '{cacheKey}' from '{GetType().PrettyPrint()}' cache due to unexpected exception", e);
             }
 
             value = await factory(cancellationToken).ConfigureAwait(false);
@@ -106,7 +106,7 @@ namespace EventFlow.Core.Caching
             }
             catch (Exception e)
             {
-                Log.Warning(e, $"Failed to set '{cacheKey}' in '{GetType().PrettyPrint()}' cache due to unexpected exception");
+                Log.WarnException( $"Failed to set '{cacheKey}' in '{GetType().PrettyPrint()}' cache due to unexpected exception", e);
             }
 
             return value;

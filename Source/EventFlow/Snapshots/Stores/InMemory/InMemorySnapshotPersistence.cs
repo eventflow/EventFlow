@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Snapshots.Stores.InMemory
 {
@@ -72,7 +72,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Verbose(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+                _log.Info(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
                 Dictionary<string, CommittedSnapshot> snapshots;
                 if (!_snapshots.TryGetValue(aggregateType, out snapshots))
@@ -92,7 +92,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Verbose(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+                _log.Info(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
                 Dictionary<string, CommittedSnapshot> snapshots;
                 if (!_snapshots.TryGetValue(aggregateType, out snapshots))
@@ -110,7 +110,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Warning($"Purging ALL snapshots of type '{aggregateType.PrettyPrint()}'!");
+                _log.Warn($"Purging ALL snapshots of type '{aggregateType.PrettyPrint()}'!");
 
                 _snapshots.Remove(aggregateType);
             }
@@ -121,7 +121,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Warning("Purging ALL snapshots!");
+                _log.Warn("Purging ALL snapshots!");
 
                 _snapshots.Clear();
             }

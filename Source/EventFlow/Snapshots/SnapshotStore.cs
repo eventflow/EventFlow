@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Snapshots.Stores;
 
 namespace EventFlow.Snapshots
@@ -55,7 +55,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            _log.Verbose(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+            _log.Info(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
             var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(
                 typeof (TAggregate),
                 identity,
@@ -63,7 +63,7 @@ namespace EventFlow.Snapshots
                 .ConfigureAwait(false);
             if (committedSnapshot == null)
             {
-                _log.Verbose(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+                _log.Info(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
                 return null;
             }
 

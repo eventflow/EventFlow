@@ -26,7 +26,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Core.Caching
 {

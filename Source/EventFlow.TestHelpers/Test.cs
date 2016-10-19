@@ -28,7 +28,7 @@ using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using Moq;

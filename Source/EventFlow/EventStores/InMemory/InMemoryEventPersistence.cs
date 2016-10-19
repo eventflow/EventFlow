@@ -32,7 +32,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.EventStores.InMemory
 {
@@ -128,7 +128,7 @@ namespace EventFlow.EventStores.InMemory
                                     Metadata = e.SerializedMetadata,
                                     GlobalSequenceNumber = globalCount + i + 1,
                                 };
-                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                            _log.InfoFormat("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
                             return committedDomainEvent;
                         })
                     .ToList();
@@ -169,7 +169,7 @@ namespace EventFlow.EventStores.InMemory
             List<InMemoryCommittedDomainEvent> committedDomainEvents;
             _eventStore.TryRemove(id.Value, out committedDomainEvents);
 
-            _log.Verbose(
+            _log.InfoFormat(
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 committedDomainEvents.Count);

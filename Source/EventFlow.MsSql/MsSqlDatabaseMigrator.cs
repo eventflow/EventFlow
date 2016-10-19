@@ -22,7 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Sql.Migrations;
 
 namespace EventFlow.MsSql
