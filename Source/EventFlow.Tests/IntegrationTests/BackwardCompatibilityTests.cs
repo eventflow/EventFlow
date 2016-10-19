@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -52,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void SetUp()
         {
 
-            var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
+            var codeBase = ReflectionHelper.GetCodeBase(GetType().GetTypeInfo().Assembly);
             var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "TestData", "FilesEventStore"));
 
             _resolver = EventFlowOptions.New

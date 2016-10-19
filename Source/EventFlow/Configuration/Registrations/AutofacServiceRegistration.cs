@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -211,7 +212,7 @@ namespace EventFlow.Configuration.Registrations
                     .Select(b => new
                     {
                         Bootstrap = b,
-                        AssemblyName = b.GetType().Assembly.GetName().Name,
+                        AssemblyName = b.GetType().GetTypeInfo().Assembly.GetName().Name,
                     })
                     .ToList();
                 var eventFlowBootstraps = list
