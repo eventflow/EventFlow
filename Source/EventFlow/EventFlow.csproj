@@ -336,7 +336,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="EventFlow.nuspec" />
-    <None Include="packages.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

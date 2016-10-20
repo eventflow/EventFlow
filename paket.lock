@@ -23,6 +23,7 @@ NUGET
     HangFire.SqlServer (1.5.3)
       HangFire.Core (1.5.3)
     JetBrains.Annotations (10.0)
+    LibLog (4.2.6)
     Microsoft.AspNet.WebApi.Client (5.2.3)
       Newtonsoft.Json (>= 6.0.4)
     Microsoft.AspNet.WebApi.Core (5.2.3)
