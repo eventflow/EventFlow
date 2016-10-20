@@ -54,7 +54,7 @@ namespace EventFlow.Commands
             if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version));
             if (string.IsNullOrEmpty(json)) throw new ArgumentNullException(nameof(json));
 
-            _log.Info($"Executing serilized command '{name}' v{version}");
+            _log.Trace($"Executing serilized command '{name}' v{version}");
 
             CommandDefinition commandDefinition;
             if (!_commandDefinitionService.TryGetDefinition(name, version, out commandDefinition))

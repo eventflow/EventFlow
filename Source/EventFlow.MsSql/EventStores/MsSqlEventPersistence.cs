@@ -118,7 +118,7 @@ namespace EventFlow.MsSql.EventStores
                     })
                 .ToList();
 
-            _log.Info(
+            _log.TraceFormat(
                 "Committing {0} events to MSSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
@@ -148,7 +148,7 @@ namespace EventFlow.MsSql.EventStores
             {
                 if (exception.Number == 2601)
                 {
-                    _log.Info(
+                    _log.TraceFormat(
                         "MSSQL event insert detected an optimistic concurrency exception for entity with ID '{0}'",
                         id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);

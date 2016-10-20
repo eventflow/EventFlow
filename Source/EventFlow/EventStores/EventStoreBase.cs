@@ -79,7 +79,7 @@ namespace EventFlow.EventStores
             }
 
             var aggregateType = typeof (TAggregate);
-            _log.Info(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
+            _log.Trace(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
             var batchId = Guid.NewGuid().ToString();
             var storeMetadata = new[]

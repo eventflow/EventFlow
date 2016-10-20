@@ -55,7 +55,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            _log.Info(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+            _log.Trace(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
             var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(
                 typeof (TAggregate),
                 identity,
@@ -63,7 +63,7 @@ namespace EventFlow.Snapshots
                 .ConfigureAwait(false);
             if (committedSnapshot == null)
             {
-                _log.Info(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+                _log.Trace(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
                 return null;
             }
 

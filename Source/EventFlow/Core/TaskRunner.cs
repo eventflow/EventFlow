@@ -52,12 +52,12 @@ namespace EventFlow.Core
             var taskId = Guid.NewGuid().ToString("N");
             var stopwatch = Stopwatch.StartNew();
 
-            _log.Info($"Starting task '{label}' ({taskId})");
+            _log.Trace($"Starting task '{label}' ({taskId})");
 
             try
             {
                 await taskFactory(cancellationToken).ConfigureAwait(false);
-                _log.Info($"Task '{label}' ({taskId}) completed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds");
+                _log.Trace($"Task '{label}' ({taskId}) completed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds");
             }
             catch (Exception e)
             {

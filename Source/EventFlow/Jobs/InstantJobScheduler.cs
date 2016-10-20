@@ -55,7 +55,7 @@ namespace EventFlow.Jobs
             var jobDefinition = _jobDefinitionService.GetDefinition(job.GetType());
             var json = _jsonSerializer.Serialize(job);
 
-            _log.Info(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
+            _log.Trace(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
 
             // Don't schedule, just execute...
             await _jobRunner.ExecuteAsync(jobDefinition.Name, jobDefinition.Version, json, cancellationToken).ConfigureAwait(false);

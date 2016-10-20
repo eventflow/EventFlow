@@ -153,13 +153,13 @@ namespace EventFlow.Sql.ReadModels
 
             if (readModel == null)
             {
-                Log.Info(() => $"Could not find any SQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
+                Log.Trace(() => $"Could not find any SQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var readModelVersion = GetVersion(readModel);
 
-            Log.Info(() => $"Foud SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
+            Log.Trace(() => $"Found SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
@@ -177,7 +177,7 @@ namespace EventFlow.Sql.ReadModels
                 sql)
                 .ConfigureAwait(false);
 
-            Log.Info(
+            Log.InfoFormat(
                 "Purge {0} read models of type '{1}'",
                 rowsAffected,
                 readModelName);

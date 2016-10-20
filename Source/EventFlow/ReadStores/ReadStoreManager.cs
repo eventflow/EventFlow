@@ -91,7 +91,7 @@ namespace EventFlow.ReadStores
                 .ToList();
             if (!relevantDomainEvents.Any())
             {
-                Log.Info(() => string.Format(
+                Log.Trace(() => string.Format(
                     "None of these events was relevant for read model '{0}', skipping update: {1}",
                     ReadModelType.PrettyPrint(),
                     string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
@@ -99,7 +99,7 @@ namespace EventFlow.ReadStores
                 return;
             }
 
-            Log.Info(() => string.Format(
+            Log.Trace(() => string.Format(
                 "Updating read model '{0}' in store '{1}' with these events: {2}",
                 typeof(TReadModel).PrettyPrint(),
                 typeof(TReadModelStore).PrettyPrint(),

@@ -79,7 +79,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 model.DisposeSafe(_log, "Failed to dispose model");
             }
             _connection.DisposeSafe(_log, "Failed to dispose connection");
-            _log.Info("Disposing RabbitMQ connection");
+            _log.Trace("Disposing RabbitMQ connection");
         }
     }
 }

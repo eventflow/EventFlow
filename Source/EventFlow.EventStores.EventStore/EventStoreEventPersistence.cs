@@ -135,7 +135,7 @@ namespace EventFlow.EventStores.EventStore
                 {
                     await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
                     var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
-                    _log.Info(
+                    _log.TraceFormat(
                         "Wrote entity {0} with version {1} ({2},{3})",
                         id,
                         writeResult.NextExpectedVersion - 1,

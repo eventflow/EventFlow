@@ -63,11 +63,11 @@ namespace EventFlow.Core.VersionedTypes
 
             if (!definitionsWithHigherVersion.Any())
             {
-                _log.Info(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
+                _log.Trace(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
                 return versionedType;
             }
 
-            _log.Info(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
+            _log.Trace(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {

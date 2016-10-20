@@ -119,7 +119,7 @@ namespace EventFlow.SQLite.EventStores
                     })
                 .ToList();
 
-            _log.Info(
+            _log.TraceFormat(
                 "Committing {0} events to MSSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
@@ -205,7 +205,7 @@ namespace EventFlow.SQLite.EventStores
                 new { AggregateId = id.Value })
                 .ConfigureAwait(false);
 
-            _log.Info(
+            _log.TraceFormat(
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);

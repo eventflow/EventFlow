@@ -63,7 +63,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 {
                     return connectionFactory;
                 }
-                _log.Info("Creating RabbitMQ connection factory to {0}", uri.Host);
+                _log.TraceFormat("Creating RabbitMQ connection factory to {0}", uri.Host);
 
                 connectionFactory = new ConnectionFactory
                     {

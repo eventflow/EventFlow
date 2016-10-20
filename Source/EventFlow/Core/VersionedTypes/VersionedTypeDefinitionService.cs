@@ -86,7 +86,7 @@ namespace EventFlow.Core.VersionedTypes
                     return;
                 }
 
-                _log.Info(() =>
+                _log.Trace(() =>
                     {
                         var assemblies = definitions
                             .Select(d => d.Type.Assembly.GetName().Name)
@@ -192,7 +192,7 @@ namespace EventFlow.Core.VersionedTypes
                     nameof(type));
             }
 
-            _log.Info(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
+            _log.Trace(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
 
             return definition;
         }

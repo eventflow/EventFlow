@@ -89,7 +89,7 @@ namespace EventFlow.ReadStores
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
                 .Select(i => i.GetGenericArguments()[2]));
 
-            _log.Info(() => string.Format(
+            _log.Trace(() => string.Format(
                 "Read model '{0}' is interested in these aggregate events: {1}",
                 readModelType.PrettyPrint(),
                 string.Join(", ", aggregateEventTypes.Select(e => e.PrettyPrint()).OrderBy(s => s))));
@@ -100,7 +100,7 @@ namespace EventFlow.ReadStores
 
             while (true)
             {
-                _log.Info(() => string.Format(
+                _log.Trace(() => string.Format(
                     "Loading events starting from {0} and the next {1} for populating '{2}'",
                     currentPosition,
                     _configuration.PopulateReadModelEventPageSize,

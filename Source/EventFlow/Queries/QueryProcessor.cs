@@ -62,7 +62,7 @@ namespace EventFlow.Queries
             var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
 
             var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
-            _log.Info(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
+            _log.Trace(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
 
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
 

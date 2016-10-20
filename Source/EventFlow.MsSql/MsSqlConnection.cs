@@ -51,7 +51,7 @@ namespace EventFlow.MsSql
             string sql,
             IEnumerable<TRow> rows)
         {
-            Log.Info(
+            Log.TraceFormat(
                 "Using optimised table type to insert with SQL: {0}",
                 sql);
             var tableParameter = new TableParameter<TRow>("@rows", rows, new {});

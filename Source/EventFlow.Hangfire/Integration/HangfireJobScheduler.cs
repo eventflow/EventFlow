@@ -89,7 +89,7 @@ namespace EventFlow.Hangfire.Integration
 
             var id = schedule(_backgroundJobClient, jobDefinition, name, json);
 
-            _log.Info($"Scheduled job '{id}' with name '{name}' in Hangfire");
+            _log.Trace($"Scheduled job '{id}' with name '{name}' in Hangfire");
 
             return new HangfireJobId(id);
         }

@@ -78,7 +78,7 @@ namespace EventFlow.Sagas
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
 
-            _log.Info(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
+            _log.Trace(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
 
             foreach (var details in sagaTypeDetails)
             {
@@ -101,7 +101,7 @@ namespace EventFlow.Sagas
         {
             try
             {
-                _log.Info(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
+                _log.Trace(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
 
                 return await _sagaStore.UpdateAsync<ISaga>(
                     sagaId,

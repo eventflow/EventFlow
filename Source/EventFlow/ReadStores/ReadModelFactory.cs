@@ -42,7 +42,7 @@ namespace EventFlow.ReadStores
 
         public Task<TReadModel> CreateAsync(string id, CancellationToken cancellationToken)
         {
-            _log.Info(() => $"Creating new instance of read model type '{typeof(TReadModel).PrettyPrint()}' with ID '{id}'");
+            _log.Trace(() => $"Creating new instance of read model type '{typeof(TReadModel).PrettyPrint()}' with ID '{id}'");
 
             return Task.FromResult(new TReadModel());
         }

@@ -72,7 +72,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Info(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+                _log.Trace(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
                 Dictionary<string, CommittedSnapshot> snapshots;
                 if (!_snapshots.TryGetValue(aggregateType, out snapshots))
@@ -92,7 +92,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Info(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+                _log.Trace(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
                 Dictionary<string, CommittedSnapshot> snapshots;
                 if (!_snapshots.TryGetValue(aggregateType, out snapshots))

@@ -66,7 +66,7 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            _log.Info(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
+            _log.Trace(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
             IReadOnlyCollection<IDomainEvent> domainEvents;
             try
@@ -86,7 +86,7 @@ namespace EventFlow
                 throw;
             }
 
-            _log.Info(() => domainEvents.Any()
+            _log.Trace(() => domainEvents.Any()
                 ? string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     command.GetType().PrettyPrint(),

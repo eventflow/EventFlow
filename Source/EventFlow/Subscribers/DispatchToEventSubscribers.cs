@@ -116,7 +116,7 @@ namespace EventFlow.Subscribers
 
             foreach (var subscriber in subscribers)
             {
-                _log.Info(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
+                _log.Trace(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
                                    $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
 
                 try

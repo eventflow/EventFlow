@@ -23,6 +23,7 @@
 // 
 using System;
 using EventFlow.Logging;
+using EventFlow.Logs;
 
 namespace EventFlow.Extensions
 {

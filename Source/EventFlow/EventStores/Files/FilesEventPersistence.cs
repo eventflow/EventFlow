@@ -160,7 +160,7 @@ namespace EventFlow.EventStores.Files
 
                     using (var streamWriter = File.CreateText(eventPath))
                     {
-                        _log.InfoFormat("Writing file '{0}'", eventPath);
+                        _log.TraceFormat("Writing file '{0}'", eventPath);
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
                     }
 
@@ -169,7 +169,7 @@ namespace EventFlow.EventStores.Files
 
                 using (var streamWriter = File.CreateText(_logFilePath))
                 {
-                    _log.InfoFormat(
+                    _log.TraceFormat(
                         "Writing global sequence number '{0}' to '{1}'",
                         _globalSequenceNumber,
                         _logFilePath);

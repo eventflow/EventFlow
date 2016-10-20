@@ -92,7 +92,7 @@ namespace EventFlow.EventStores
                                 };
                         });
 
-            _log.Info(() => string.Format(
+            _log.Trace(() => string.Format(
                 "Upgrading {0} events and found these event upgraders to use: {1}",
                 domainEventList.Count,
                 string.Join(", ", eventUpgraders.Values.SelectMany(a => a.EventUpgraders.Select(e => e.GetType().PrettyPrint())))));
