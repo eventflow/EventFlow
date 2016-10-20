@@ -1,4 +1,8 @@
-### New in 0.36 (not released yet)
+### New in 0.37 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.36.2315 (released 2016-10-18)
 
 * New: Documentation is now hosted at http://docs.geteventflow.net/ and
   http://eventflow.readthedocs.io/ and while documentation is still kept
