@@ -152,7 +152,9 @@ namespace EventFlow.Logs
 
         bool Logging.ILog.Log(Logging.LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
         {
-            Write((LogLevel)logLevel, exception, messageFunc(), formatParameters);
+            int valueFromEnum = (int)logLevel;
+
+            Write((LogLevel) valueFromEnum, exception, messageFunc(), formatParameters);
             return true;
         }
     }

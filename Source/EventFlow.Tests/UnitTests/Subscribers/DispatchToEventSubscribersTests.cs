@@ -38,6 +38,7 @@ using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using EventFlow.Logging;
 
 namespace EventFlow.Tests.UnitTests.Subscribers
 {
