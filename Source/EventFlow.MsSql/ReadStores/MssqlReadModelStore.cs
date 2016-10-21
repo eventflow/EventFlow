@@ -184,7 +184,7 @@ namespace EventFlow.MsSql.ReadStores
                 sql)
                 .ConfigureAwait(false);
 
-            Log.Info(
+            Log.InfoFormat(
                 "Purge {0} read models of type '{1}'",
                 rowsAffected,
                 readModelName);

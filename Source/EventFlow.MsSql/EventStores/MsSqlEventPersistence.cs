@@ -207,7 +207,7 @@ namespace EventFlow.MsSql.EventStores
                 new {AggregateId = id.Value})
                 .ConfigureAwait(false);
 
-            _log.Info(
+            _log.InfoFormat(
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);

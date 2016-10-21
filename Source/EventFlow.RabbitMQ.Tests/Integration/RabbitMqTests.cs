@@ -97,7 +97,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             const int totalMessageCount = taskCount*messagesPrThread;
 
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] {"#"}))
-            using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
+            using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, Logs.NullLog>())))
             {
                 var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
                 var tasks = Enumerable.Range(0, taskCount)

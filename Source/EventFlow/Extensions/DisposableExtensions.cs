@@ -32,7 +32,7 @@ namespace EventFlow.Extensions
             this IDisposable disposable,
             string message)
         {
-            DisposeSafe(disposable, new ConsoleLog(), message);
+            DisposeSafe(disposable, new Logs.ConsoleLog(), message);
         }
 
         public static void DisposeSafe(

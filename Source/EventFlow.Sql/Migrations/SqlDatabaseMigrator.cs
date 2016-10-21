@@ -92,7 +92,7 @@ namespace EventFlow.Sql.Migrations
                 .Select(s => s.Name)
                 .ToList();
 
-            _log.Information(
+            _log.InfoFormat(
                 "Going to migrate the SQL database by executing these scripts: {0}",
                 string.Join(", ", scripts));
 

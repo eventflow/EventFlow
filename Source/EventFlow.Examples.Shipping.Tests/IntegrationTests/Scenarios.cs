@@ -64,7 +64,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
         [TearDown]
         public void TearDown()
         {
-            _resolver.DisposeSafe(new ConsoleLog(), "");
+            _resolver.DisposeSafe(new Logs.ConsoleLog(), "");
         }
 
         [Test]

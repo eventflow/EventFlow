@@ -29,7 +29,7 @@ namespace EventFlow.TestHelpers
 {
     public static class LogHelper
     {
-        private static readonly Lazy<ILog> LazyLog = new Lazy<ILog>(() => new ConsoleLog());
+        private static readonly Lazy<ILog> LazyLog = new Lazy<ILog>(() => new Logs.ConsoleLog());
         public static ILog Log => LazyLog.Value;
     }
 }

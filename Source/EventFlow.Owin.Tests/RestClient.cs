@@ -34,11 +34,11 @@ namespace EventFlow.Owin.Tests
     public class RestClient
     {
         private readonly HttpClient _httpClient = new HttpClient();
-        private readonly ConsoleLog _log;
+        private readonly Logs.ConsoleLog _log;
 
         public RestClient()
         {
-            _log = new ConsoleLog();
+            _log = new Logs.ConsoleLog();
         }
 
         public Task<string> GetAsync(Uri uri)

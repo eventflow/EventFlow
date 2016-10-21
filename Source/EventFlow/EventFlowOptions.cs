@@ -36,7 +36,7 @@ using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
@@ -193,7 +193,7 @@ namespace EventFlow
             // http://docs.autofac.org/en/latest/register/registration.html
             // Maybe swap around and do after and and .PreserveExistingDefaults()
 
-            serviceRegistration.Register<ILog, ConsoleLog>();
+            serviceRegistration.Register<ILog, Logs.ConsoleLog>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();

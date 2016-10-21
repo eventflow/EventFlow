@@ -23,10 +23,11 @@
 // 
 using System;
 using System.Text;
+using EventFlow.Logging;
 
 namespace EventFlow.Logs
 {
-    public abstract class Log : ILog
+    public abstract class Log : EventFlow.Logging.ILog
     {
         protected enum LogLevel
         {
@@ -147,6 +148,12 @@ namespace EventFlow.Logs
         public void Fatal(Exception exception, string format, params object[] args)
         {
             Write(LogLevel.Fatal, exception, format, args);
+        }
+
+        bool Logging.ILog.Log(Logging.LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
+        {
+            Write((LogLevel)logLevel, exception, messageFunc(), formatParameters);
+            return true;
         }
     }
 }

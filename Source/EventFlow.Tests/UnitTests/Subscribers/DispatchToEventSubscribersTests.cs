@@ -108,7 +108,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Assert
             _logMock.Verify(
-                m => m.Error(expectedException, It.IsAny<string>(), It.IsAny<object[]>()),
+                m => m.ErrorException(It.IsAny<string>(), expectedException, It.IsAny<object[]>()),
                 Times.Once);
         }
 
