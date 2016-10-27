@@ -77,7 +77,7 @@ to the documentation.
   each aggregate
 * [**Command bus and commands:**](http://docs.geteventflow.net/Commands.html)
   Entry point for all command/operation execution.
-* [**Event store:**](http://docs.geteventflow.net/EventStores.html)
+* [**Event store:**](http://docs.geteventflow.net/EventStore.html)
   Storage of the event stream for aggregates. Currently there is support for
   these storage types.
  * In-memory - only for test
