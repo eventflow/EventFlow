@@ -96,6 +96,9 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             // Arrange
             var subscriberMock = ArrangeSynchronousSubscriber<ThingyPingEvent>();
             var expectedException = A<Exception>();
+            _logMock
+                    .Setup(m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), expectedException, It.IsAny<object[]>()))
+                    .Returns((string s, Func<string> f, Exception e, object[] p) => { return true; });
             _eventFlowConfigurationMock
                 .Setup(c => c.ThrowSubscriberExceptions)
                 .Returns(false);
