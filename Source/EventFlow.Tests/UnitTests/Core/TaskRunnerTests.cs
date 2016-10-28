@@ -104,7 +104,7 @@ namespace EventFlow.Tests.UnitTests.Core
             autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
 
             // Assert
-            _logMock.Verify();
+            _logMock.Verify(m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), expectedException, It.IsAny<object[]>()));
         }
 
         [Test]
