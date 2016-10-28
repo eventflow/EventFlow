@@ -86,9 +86,9 @@ namespace EventFlow.Tests.UnitTests.Core
             var autoResetEvent = new AutoResetEvent(false);
             var expectedException = A<Exception>();
             _logMock
-                .Setup(m => m.Log(LogLevel.Error , () => String.Empty, expectedException, It.IsAny<object[]>()))
+                .Setup(m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), expectedException, It.IsAny<object[]>()))
                 .Callback(() => autoResetEvent.Set())
-                .Returns(true)
+                .Returns((string s, Func<string> f, Exception e, object[] p) => { return true; })
                 .Verifiable();
 
             // Act
