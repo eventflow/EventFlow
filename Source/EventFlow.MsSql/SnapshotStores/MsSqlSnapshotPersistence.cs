@@ -29,7 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 

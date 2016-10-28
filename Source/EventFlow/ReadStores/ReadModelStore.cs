@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.ReadStores
 {

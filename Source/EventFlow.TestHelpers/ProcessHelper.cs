@@ -29,6 +29,7 @@ using System.Management;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Extensions;
+using EventFlow.Logging;
 
 namespace EventFlow.TestHelpers
 {
@@ -45,7 +46,7 @@ namespace EventFlow.TestHelpers
             var workingDirectory = Path.GetDirectoryName(exePath);
             if (string.IsNullOrEmpty(workingDirectory)) throw new ArgumentException($"Could not find directory for '{exePath}'", nameof(exePath));
 
-            LogHelper.Log.Information($"Starting process: '{exePath}' {string.Join(" ", arguments)}");
+            LogHelper.Log.Info($"Starting process: '{exePath}' {string.Join(" ", arguments)}");
 
             var process = new Process
                 {
@@ -63,7 +64,7 @@ namespace EventFlow.TestHelpers
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                     {
-                        LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
+                        LogHelper.Log.Info($"OUT - {exeName}: {e.Data}");
                     }
                 };
             process.OutputDataReceived += outHandler;
@@ -77,7 +78,7 @@ namespace EventFlow.TestHelpers
             process.ErrorDataReceived += errHandler;
             Action<Process> initializeProcess = p =>
                 {
-                    LogHelper.Log.Information($"{exeName} START =======================================");
+                    LogHelper.Log.Info($"{exeName} START =======================================");
                     p.Start();
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
@@ -117,7 +118,7 @@ namespace EventFlow.TestHelpers
 
             try
             {
-                LogHelper.Log.Information($"Killing process {pid}");
+                LogHelper.Log.Info($"Killing process {pid}");
 
                 var proc = Process.GetProcessById(pid);
                 proc.Kill();

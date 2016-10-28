@@ -23,7 +23,7 @@
 // 
 using System;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Commands
 {

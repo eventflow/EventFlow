@@ -32,7 +32,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.SQLite.Connections;
 
 namespace EventFlow.SQLite.EventStores
@@ -119,7 +119,7 @@ namespace EventFlow.SQLite.EventStores
                     })
                 .ToList();
 
-            _log.Verbose(
+            _log.TraceFormat(
                 "Committing {0} events to MSSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
@@ -205,7 +205,7 @@ namespace EventFlow.SQLite.EventStores
                 new { AggregateId = id.Value })
                 .ConfigureAwait(false);
 
-            _log.Verbose(
+            _log.TraceFormat(
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);

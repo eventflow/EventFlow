@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Core.VersionedTypes
 {
@@ -63,11 +63,11 @@ namespace EventFlow.Core.VersionedTypes
 
             if (!definitionsWithHigherVersion.Any())
             {
-                _log.Verbose(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
+                _log.Trace(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
                 return versionedType;
             }
 
-            _log.Verbose(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
+            _log.Trace(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {
@@ -91,7 +91,7 @@ namespace EventFlow.Core.VersionedTypes
             TDefinition toDefinition,
             CancellationToken cancellationToken)
         {
-            _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
+            _log.Info($"Upgrading '{fromDefinition}' to '{toDefinition}'");
 
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);

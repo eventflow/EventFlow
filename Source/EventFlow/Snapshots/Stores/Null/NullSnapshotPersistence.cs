@@ -27,7 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Snapshots.Stores.Null
 {
@@ -55,7 +55,7 @@ namespace EventFlow.Snapshots.Stores.Null
             SerializedSnapshot serializedSnapshot,
             CancellationToken cancellationToken)
         {
-            _log.Warning($"Trying to store aggregate snapshot '{aggregateType.PrettyPrint()}' with ID '{identity}' in the NULL store. Configure another store!");
+            _log.WarnFormat($"Trying to store aggregate snapshot '{aggregateType.PrettyPrint()}' with ID '{identity}' in the NULL store. Configure another store!");
 
             return Task.FromResult(0);
         }

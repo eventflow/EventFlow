@@ -29,7 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
@@ -88,7 +88,7 @@ namespace EventFlow.RabbitMQ.Integrations
                         _connections.Remove(uri);
                     }
                 }
-                _log.Error(e, "Failed to publish domain events to RabbitMQ");
+                _log.ErrorException("Failed to publish domain events to RabbitMQ", e);
                 throw;
             }
         }
@@ -114,7 +114,7 @@ namespace EventFlow.RabbitMQ.Integrations
             IModel model,
             IReadOnlyCollection<RabbitMqMessage> messages)
         {
-            _log.Verbose(
+            _log.TraceFormat(
                 "Publishing {0} domain domain events to RabbitMQ host '{1}'",
                 messages.Count,
                 _configuration.Uri.Host);

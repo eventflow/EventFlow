@@ -23,7 +23,7 @@
 // 
 
 using DbUp.Engine.Output;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Sql.Integrations
 {
@@ -38,17 +38,17 @@ namespace EventFlow.Sql.Integrations
 
         public void WriteInformation(string format, params object[] args)
         {
-            _log.Information(format, args);
+            _log.InfoFormat(format, args);
         }
 
         public void WriteError(string format, params object[] args)
         {
-            _log.Error(format, args);
+            _log.ErrorFormat(format, args);
         }
 
         public void WriteWarning(string format, params object[] args)
         {
-            _log.Warning(format, args);
+            _log.WarnFormat(format, args);
         }
     }
 }

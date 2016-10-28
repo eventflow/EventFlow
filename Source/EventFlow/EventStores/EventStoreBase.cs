@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Snapshots;
 
 namespace EventFlow.EventStores
@@ -79,7 +79,7 @@ namespace EventFlow.EventStores
             }
 
             var aggregateType = typeof (TAggregate);
-            _log.Verbose(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
+            _log.Trace(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
             var batchId = Guid.NewGuid().ToString();
             var storeMetadata = new[]

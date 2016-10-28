@@ -26,6 +26,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using EventFlow.Logging;
 
 namespace EventFlow.TestHelpers
 {
@@ -35,14 +36,14 @@ namespace EventFlow.TestHelpers
 
         public static async Task<string> GetAsync(Uri uri)
         {
-            LogHelper.Log.Information($"GET {uri}");
+            LogHelper.Log.Info($"GET {uri}");
 
             using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (content.Length < 1024)
                 {
-                    LogHelper.Log.Information($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
+                    LogHelper.Log.Info($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
                 }
 
                 return content;
@@ -51,14 +52,14 @@ namespace EventFlow.TestHelpers
 
         public static async Task DeleteAsync(Uri uri)
         {
-            LogHelper.Log.Information($"DELETE {uri}");
+            LogHelper.Log.Info($"DELETE {uri}");
 
             using (var httpResponseMessage = await HttpClient.DeleteAsync(uri).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (content.Length < 1024)
                 {
-                    LogHelper.Log.Information($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
+                    LogHelper.Log.Info($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
                 }
 
                 httpResponseMessage.EnsureSuccessStatusCode();

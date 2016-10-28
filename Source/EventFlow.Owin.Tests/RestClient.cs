@@ -26,7 +26,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using Newtonsoft.Json;
 
 namespace EventFlow.Owin.Tests
@@ -34,11 +34,11 @@ namespace EventFlow.Owin.Tests
     public class RestClient
     {
         private readonly HttpClient _httpClient = new HttpClient();
-        private readonly ConsoleLog _log;
+        private readonly Logs.ConsoleLog _log;
 
         public RestClient()
         {
-            _log = new ConsoleLog();
+            _log = new Logs.ConsoleLog();
         }
 
         public Task<string> GetAsync(Uri uri)

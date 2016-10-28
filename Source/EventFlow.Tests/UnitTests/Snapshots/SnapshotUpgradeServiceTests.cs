@@ -25,7 +25,7 @@
 using System.Linq;
 using System.Threading;
 using EventFlow.Configuration;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;

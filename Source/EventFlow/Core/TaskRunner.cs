@@ -26,7 +26,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Core
 {
@@ -52,16 +52,16 @@ namespace EventFlow.Core
             var taskId = Guid.NewGuid().ToString("N");
             var stopwatch = Stopwatch.StartNew();
 
-            _log.Verbose($"Starting task '{label}' ({taskId})");
+            _log.Trace($"Starting task '{label}' ({taskId})");
 
             try
             {
                 await taskFactory(cancellationToken).ConfigureAwait(false);
-                _log.Verbose($"Task '{label}' ({taskId}) completed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds");
+                _log.Trace($"Task '{label}' ({taskId}) completed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds");
             }
             catch (Exception e)
             {
-                _log.Error(e, $"Task '{label}' ({taskId}) failed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds with exception '{e.GetType().Name}': {e.Message}");
+                _log.ErrorException($"Task '{label}' ({taskId}) failed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds with exception '{e.GetType().Name}': {e.Message}", e);
             }
         }
     }

@@ -32,7 +32,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.MsSql.EventStores
 {
@@ -118,7 +118,7 @@ namespace EventFlow.MsSql.EventStores
                     })
                 .ToList();
 
-            _log.Verbose(
+            _log.TraceFormat(
                 "Committing {0} events to MSSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
@@ -148,7 +148,7 @@ namespace EventFlow.MsSql.EventStores
             {
                 if (exception.Number == 2601)
                 {
-                    _log.Verbose(
+                    _log.TraceFormat(
                         "MSSQL event insert detected an optimistic concurrency exception for entity with ID '{0}'",
                         id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
@@ -207,7 +207,7 @@ namespace EventFlow.MsSql.EventStores
                 new {AggregateId = id.Value})
                 .ConfigureAwait(false);
 
-            _log.Verbose(
+            _log.InfoFormat(
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);

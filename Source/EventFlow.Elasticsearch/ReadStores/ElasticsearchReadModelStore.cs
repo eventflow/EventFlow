@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.ReadStores;
 using Nest;
 
@@ -61,7 +61,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from index '{readModelDescription.IndexName}'");
+            _log.Trace(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from index '{readModelDescription.IndexName}'");
 
             var getResponse = await _elasticClient.GetAsync<TReadModel>(
                 id,
@@ -85,7 +85,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' by DELETING INDEX '{readModelDescription.IndexName}'!");
+            _log.Trace($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' by DELETING INDEX '{readModelDescription.IndexName}'!");
 
             await _elasticClient.DeleteIndexAsync(
                 readModelDescription.IndexName.Value,
@@ -104,7 +104,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Verbose(() =>
+            _log.Info(() =>
                 {
                     var readModelIds = readModelUpdates
                         .Select(u => u.ReadModelId)

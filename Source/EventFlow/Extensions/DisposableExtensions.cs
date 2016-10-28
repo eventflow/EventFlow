@@ -22,7 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 using System;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Extensions
 {
@@ -32,7 +32,7 @@ namespace EventFlow.Extensions
             this IDisposable disposable,
             string message)
         {
-            DisposeSafe(disposable, new ConsoleLog(), message);
+            DisposeSafe(disposable, new Logs.ConsoleLog(), message);
         }
 
         public static void DisposeSafe(
@@ -48,7 +48,7 @@ namespace EventFlow.Extensions
             }
             catch (Exception e)
             {
-                log.Warning(e, message);
+                log.WarnException(message, e);
             }
         }
     }

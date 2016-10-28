@@ -36,7 +36,7 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
 using EventFlow.Examples.Shipping.Queries.InMemory;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
@@ -64,7 +64,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
         [TearDown]
         public void TearDown()
         {
-            _resolver.DisposeSafe(new ConsoleLog(), "");
+            _resolver.DisposeSafe(new Logs.ConsoleLog(), "");
         }
 
         [Test]

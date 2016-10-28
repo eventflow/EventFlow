@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Core
 {
@@ -86,7 +86,7 @@ namespace EventFlow.Core
                 try
                 {
                     var result = await action(cancellationToken).ConfigureAwait(false);
-                    _log.Verbose(
+                    _log.TraceFormat(
                         "Finished execution of '{0}' after {1} retries and {2:0.###} seconds",
                         label,
                         currentRetryCount,
@@ -107,7 +107,7 @@ namespace EventFlow.Core
                 currentRetryCount++;
                 if (retry.RetryAfter != TimeSpan.Zero)
                 {
-                    _log.Verbose(
+                    _log.TraceFormat(
                         "Exception {0} with message '{1} 'is transient, retrying action '{2}' after {3:0.###} seconds for retry count {4}",
                         currentException.GetType().PrettyPrint(),
                         currentException.Message,
@@ -118,7 +118,7 @@ namespace EventFlow.Core
                 }
                 else
                 {
-                    _log.Verbose(
+                    _log.InfoFormat(
                         "Exception {0} with message '{1}' is transient, retrying action '{2}' NOW for retry count {3}",
                         currentException.GetType().PrettyPrint(),
                         currentException.Message,

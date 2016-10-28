@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.MsSql.Connections;
 using EventFlow.MsSql.Integrations;
 using EventFlow.MsSql.RetryStrategies;
@@ -51,7 +51,7 @@ namespace EventFlow.MsSql
             string sql,
             IEnumerable<TRow> rows)
         {
-            Log.Verbose(
+            Log.TraceFormat(
                 "Using optimised table type to insert with SQL: {0}",
                 sql);
             var tableParameter = new TableParameter<TRow>("@rows", rows, new {});

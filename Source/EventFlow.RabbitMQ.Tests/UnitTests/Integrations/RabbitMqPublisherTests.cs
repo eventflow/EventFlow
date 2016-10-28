@@ -26,7 +26,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
 using Moq;

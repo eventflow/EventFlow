@@ -31,7 +31,7 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -89,7 +89,7 @@ namespace EventFlow.ReadStores
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
                 .Select(i => i.GetGenericArguments()[2]));
 
-            _log.Verbose(() => string.Format(
+            _log.Trace(() => string.Format(
                 "Read model '{0}' is interested in these aggregate events: {1}",
                 readModelType.PrettyPrint(),
                 string.Join(", ", aggregateEventTypes.Select(e => e.PrettyPrint()).OrderBy(s => s))));
@@ -100,7 +100,7 @@ namespace EventFlow.ReadStores
 
             while (true)
             {
-                _log.Verbose(() => string.Format(
+                _log.Trace(() => string.Format(
                     "Loading events starting from {0} and the next {1} for populating '{2}'",
                     currentPosition,
                     _configuration.PopulateReadModelEventPageSize,
@@ -115,7 +115,7 @@ namespace EventFlow.ReadStores
 
                 if (!allEventsPage.DomainEvents.Any())
                 {
-                    _log.Verbose(() => $"No more events in event store, stopping population of read model '{readModelType.PrettyPrint()}'");
+                    _log.Info(() => $"No more events in event store, stopping population of read model '{readModelType.PrettyPrint()}'");
                     break;
                 }
 
@@ -135,7 +135,7 @@ namespace EventFlow.ReadStores
             }
 
             stopwatch.Stop();
-            _log.Information(
+            _log.InfoFormat(
                 "Population of read model '{0}' took {1:0.###} seconds, in which {2} events was loaded and {3} was relevant",
                 readModelType.PrettyPrint(),
                 stopwatch.Elapsed.TotalSeconds,

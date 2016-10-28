@@ -25,7 +25,7 @@
 using System;
 using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Snapshots
 {

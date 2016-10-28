@@ -61,6 +61,7 @@
     <Compile Include="Aggregates\IAggregateStore.cs" />
     <Compile Include="Aggregates\IApply.cs" />
     <Compile Include="Aggregates\IEventId.cs" />
+    <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
     <Compile Include="Core\Caching\Cache.cs" />
     <Compile Include="Core\Caching\CacheKey.cs" />
     <Compile Include="Core\Caching\DictionaryMemoryCache.cs" />

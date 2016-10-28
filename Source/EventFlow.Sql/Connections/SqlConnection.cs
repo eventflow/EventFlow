@@ -30,7 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 
 namespace EventFlow.Sql.Connections
 {
@@ -98,7 +98,7 @@ namespace EventFlow.Sql.Connections
             IEnumerable<TRow> rows)
             where TRow : class, new()
         {
-            Log.Debug(
+            Log.DebugFormat(
                 "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
                 sql);
 
@@ -123,9 +123,9 @@ namespace EventFlow.Sql.Connections
                         catch (Exception e)
                         {
                             transaction.Rollback();
-                            Log.Debug(
-                                e,
+                            Log.DebugException(   
                                 "Exceptions was thrown while inserting multiple rows within a transaction in '{0}'",
+                                e,
                                 label);
                             throw;
                         }

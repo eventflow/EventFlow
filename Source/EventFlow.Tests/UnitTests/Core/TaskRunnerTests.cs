@@ -26,7 +26,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
@@ -86,8 +86,9 @@ namespace EventFlow.Tests.UnitTests.Core
             var autoResetEvent = new AutoResetEvent(false);
             var expectedException = A<Exception>();
             _logMock
-                .Setup(m => m.Error(expectedException, It.IsAny<string>(), It.IsAny<object[]>()))
+                .Setup(m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), expectedException, It.IsAny<object[]>()))
                 .Callback(() => autoResetEvent.Set())
+                .Returns((string s, Func<string> f, Exception e, object[] p) => { return true; })
                 .Verifiable();
 
             // Act
@@ -103,7 +104,7 @@ namespace EventFlow.Tests.UnitTests.Core
             autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
 
             // Assert
-            _logMock.Verify();
+            _logMock.Verify(m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), expectedException, It.IsAny<object[]>()));
         }
 
         [Test]

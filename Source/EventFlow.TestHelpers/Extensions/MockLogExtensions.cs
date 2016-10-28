@@ -23,7 +23,7 @@
 // 
 
 using System;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using Moq;
 
 namespace EventFlow.TestHelpers.Extensions
@@ -33,10 +33,10 @@ namespace EventFlow.TestHelpers.Extensions
         public static void VerifyNoErrorsLogged(this Mock<ILog> logMock)
         {
             logMock.Verify(
-                m => m.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()),
+                m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), It.IsAny<Exception>(), It.IsAny<object[]>()),
                 Times.Never);
             logMock.Verify(
-                m => m.Error(It.IsAny<string>(), It.IsAny<object[]>()),
+                m => m.Log(LogLevel.Error, It.IsAny<Func<string>>(), null, It.IsAny<object[]>()),
                 Times.Never);
         }
     }

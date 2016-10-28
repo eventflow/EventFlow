@@ -23,7 +23,7 @@
 // 
 
 using NUnit.Framework;
-using EventFlow.Logs;
+using EventFlow.Logging;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
