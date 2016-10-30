@@ -24,7 +24,7 @@ nuget NEST ~> 2.0
 nuget Newtonsoft.Json >= 8.0
 nuget Owin ~> 1.0
 nuget RabbitMQ.Client ~> 3.6.0
-nuget System.Data.SQLite.Core ~> 1.0.99
+nuget System.Data.SQLite.Core >= 1.0.99
 
 group Build
 	redirects: off
