@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Cargos\QueryHandlers\GetCargosQueryHandler.cs" />
     <Compile Include="EventFlowExamplesShippingQueriesInMemory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

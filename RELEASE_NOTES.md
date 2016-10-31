@@ -1,6 +1,12 @@
 ### New in 0.37 (not released yet)
 
-* _Nothing yet_
+* Breaking: Remove the following empty and deprecated MSSQL NuGet packages. If
+  you use any of these packages, then switch to the `EventFlow.MsSql` package
+  - `EventFlow.EventStores.MsSql`
+  - `EventFlow.ReadStores.MsSql`
+* Breaking: EventFlow has switched to Paket templates for NuGet package creation in
+  order to easier mange dependencies and dependencies are now slightly more
+  restrictive
 
 ### New in 0.36.2315 (released 2016-10-18)
 

@@ -20,10 +20,48 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using EventFlow.Core;
 
-[assembly: AssemblyTitle("EventFlow.EventStores.EventStore")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyDescription("Event Store event store for EventFlow. Download it from https://geteventstore.com/.")]
+namespace EventFlow.Tests
+{
+    public static class Helpers
+    {
+        public static string GetProjectRoot()
+        {
+            var codeBase = ReflectionHelper.GetCodeBase(typeof(Helpers).GetTypeInfo().Assembly);
+            return GetParentDirectories(codeBase).First(IsProjectRoot);
+        }
+
+        public static IEnumerable<string> GetProjectFiles(string searchPattern)
+        {
+            return Directory.EnumerateFiles(
+                GetProjectRoot(),
+                searchPattern,
+                SearchOption.AllDirectories);
+        }
+
+        private static IEnumerable<string> GetParentDirectories(string path)
+        {
+            if (!Directory.Exists(path)) throw new ArgumentException($"Directory '{path}' does not exist!");
+
+            var parent = Directory.GetParent(path);
+            while (parent != null)
+            {
+                yield return parent.FullName;
+                parent = parent.Parent;
+            }
+        }
+
+        private static bool IsProjectRoot(string path)
+        {
+            return Directory.GetFiles(path).Any(f => f.EndsWith("README.md"));
+        }
+    }
+}

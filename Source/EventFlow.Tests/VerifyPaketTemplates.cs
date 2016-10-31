@@ -20,10 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Reflection;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
 
-[assembly: AssemblyTitle("EventFlow.EventStores.EventStore")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyDescription("Event Store event store for EventFlow. Download it from https://geteventstore.com/.")]
+namespace EventFlow.Tests
+{
+    [Category(Categories.Integration)]
+    public class VerifyPaketTemplates
+    {
+        [Test]
+        public void T()
+        {
+            var paketTemplateFiles = Helpers.GetProjectFiles("paket.template");
+        }
+    }
+}

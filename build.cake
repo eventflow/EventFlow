@@ -38,71 +38,13 @@ var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
 var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
 
 var VERSION = GetArgumentVersion();
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
-var NUGET_VERSIONS = GetInstalledNuGetPackages();
 
-var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
-    {"EventFlow", new []{
-        "Newtonsoft.Json",
-        }},
-    {"EventFlow.Autofac", new []{
-        "EventFlow",
-        "Autofac",
-    }},
-    {"EventFlow.RabbitMQ", new []{
-        "EventFlow",
-        "RabbitMQ.Client"
-    }},
-    {"EventFlow.Hangfire", new []{
-        "EventFlow",
-        "HangFire.Core",
-        }},
-    {"EventFlow.Sql", new []{
-        "EventFlow",
-        "dbup",
-        "Dapper",
-        }},
-    {"EventFlow.MsSql", new []{
-        "EventFlow",
-        "EventFlow.Sql",
-        "Dapper",
-        }},
-    {"EventFlow.SQLite", new []{
-        "EventFlow",
-        "EventFlow.Sql",
-        "System.Data.SQLite.Core",
-        }},
-    {"EventFlow.EventStores.EventStore", new []{
-        "EventFlow",
-        "EventStore.Client",
-        }},
-    {"EventFlow.Elasticsearch", new []{
-        "EventFlow",
-        "NEST",
-        "Elasticsearch.Net",
-        }},
-    {"EventFlow.Owin", new []{
-        "EventFlow",
-        "Owin",
-        "Microsoft.Owin",
-        }},
-
-    // Deprecated packages
-    {"EventFlow.EventStores.MsSql", new []{
-        "EventFlow",
-        "EventFlow.MsSql",
-        }},
-    {"EventFlow.ReadStores.MsSql", new []{
-        "EventFlow",
-        "EventFlow.MsSql",
-        }},
-    };
 
 // =====================================================================================================
 Task("Clean")
@@ -129,8 +71,12 @@ Task("Version")
                         Version = VERSION.ToString(),
                         FileVersion = VERSION.ToString(),
                         InformationalVersion = VERSION.ToString(),
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year),
-                        Description = GetSha(),
+                        Company = "Rasmus Mikkelsen",
+                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0} (SHA:{1})", DateTime.Now.Year, GetSha()),
+                        Configuration = CONFIGURATION,
+                        Trademark = "",
+                        Product = "EventFlow",
+                        ComVisible = false,
                     });
         });
 
@@ -152,7 +98,8 @@ Task("Test")
 
 // =====================================================================================================
 Task("Package")
-    .IsDependentOn("Test")
+    //.IsDependentOn("Test")
+    .IsDependentOn("Build")
     .Does(() =>
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
@@ -166,10 +113,11 @@ Task("Package")
                         "Autofac.dll",
                     });
 
-            foreach (var nuspecPath in GetFiles("./Source/**/*.nuspec"))
-            {
-                ExecutePackage(nuspecPath);
-            }
+            ExecuteCommand(TOOL_PAKET, string.Format(
+                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
+                DIR_PACKAGES,
+                CONFIGURATION,
+                string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
         });
 
 // =====================================================================================================
@@ -184,41 +132,6 @@ void BuildProject(string target)
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
         );
-}
-
-void ExecutePackage(
-    FilePath nuspecPath)
-{
-    Information(nuspecPath.ToString());
-    var packageId = System.IO.Path.GetFileNameWithoutExtension(nuspecPath.ToString());
-    var dependencies = NUGET_DEPENDENCIES[packageId]
-        .Select(GetNuSpecDependency)
-        .ToList();
-
-    NuGetPack(
-        nuspecPath,
-        new NuGetPackSettings
-            {
-                ToolPath = TOOL_NUGET,
-                OutputDirectory = DIR_PACKAGES,
-                ReleaseNotes = RELEASE_NOTES.Notes.ToList(),
-                Version = VERSION.ToString(),
-                Verbosity = NuGetVerbosity.Detailed,
-                Dependencies = dependencies,
-            });
-}
-
-private NuSpecDependency GetNuSpecDependency(string packageId)
-{
-    Information("Finding version for package: {0}", packageId);
-
-    return new NuSpecDependency
-        {
-            Id = packageId,
-            Version = packageId.StartsWith("EventFlow")
-                ? string.Format("[{0}]", VERSION)
-                : NUGET_VERSIONS[packageId]
-        };
 }
 
 Version GetArgumentVersion()
@@ -288,31 +201,6 @@ void UploadTestResults(string filePath)
     {
         Information("Not on AppVeyor, skipping test result upload of: {0}", filePath);
     }
-}
-
-IReadOnlyDictionary<string, string> GetInstalledNuGetPackages()
-{
-    var nugetPackages = new Dictionary<string, string>();
-    var paketOutput = ExecuteCommand(TOOL_PAKET, "show-installed-packages");
-
-    var match = REGEX_NUGETPARSER.Match(paketOutput);
-    if (!match.Success)
-    {
-        throw new Exception("Unable to read NuGet package versions");
-    }
-
-    do
-    {
-        var package = match.Groups["package"].Value;
-        var version = match.Groups["version"].Value;
-
-        Information("NuGet package '{0}' is version '{1}'", package, version);
-
-        nugetPackages.Add(package, version);
-
-    } while((match = match.NextMatch()) != null && match.Success);
-
-    return nugetPackages;
 }
 
 string ExecuteCommand(string exePath, string arguments = null)
