@@ -3,10 +3,14 @@ init:
 
 version: 0.37.{build}
 
+install:
+  - cmd: pip install -U Sphinx
+  - cmd: install sphinx_rtd_theme
+
 skip_tags: true
 
 build_script:
-  - cmd: build.cmd
+  - cmd: build.cmd All
 
 environment:
   RABBITMQ_URL:

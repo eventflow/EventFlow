@@ -28,12 +28,14 @@ var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
     @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
     System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
-// IMPORTANT FILES
-var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
-
 // IMPORTANT DIRECTORIES
 var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
 var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
+
+// IMPORTANT FILES
+var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
+var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
 
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
@@ -121,6 +123,21 @@ Task("Package")
         });
 
 // =====================================================================================================
+Task("Documentation")
+    .Does(() =>
+        {
+            ExecuteCommand(FILE_DOCUMENTATION_MAKE, "html", DIR_DOCUMENTATION);
+        });
+
+// =====================================================================================================
+Task("All")
+    .IsDependentOn("Package")
+    .IsDependentOn("Documentation")
+    .Does(() =>
+        {
+        });
+
+// =====================================================================================================
 void BuildProject(string target)
 {
     MSBuild(
@@ -203,7 +220,7 @@ void UploadTestResults(string filePath)
     }
 }
 
-string ExecuteCommand(string exePath, string arguments = null)
+string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
 {
     Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
 
@@ -215,6 +232,7 @@ string ExecuteCommand(string exePath, string arguments = null)
                 RedirectStandardOutput = true,
                 FileName = exePath,
                 Arguments = arguments,
+                WorkingDirectory = workingDirectory,
             };
         process.Start();
 
@@ -226,6 +244,11 @@ string ExecuteCommand(string exePath, string arguments = null)
         }
 
         Debug(output);
+
+        if (process.ExitCode != 0)
+        {
+            throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
+        }
 
         return output;
     }
@@ -270,4 +293,4 @@ void ExecuteTest(string files, string reportName)
     UploadTestResults(nunitResultsPath);
 }
 
-RunTarget("Package");
+RunTarget(Argument<string>("target", "Package"));
