@@ -46,7 +46,7 @@ deploy:
     on:
       branch: master
   - provider: GitHub
-    artifact: /.*\.nupkg/
+    artifact: /.*\.(nupkg|zip)/
     auth_token:
       secure: f+y+RL1ETsxIbYKlliZrmXpfr1wvEVNhGGEOYyl2K8ryz02WxXL+kLe7pu53Kc8r
     tag: v$(appveyor_build_version)
