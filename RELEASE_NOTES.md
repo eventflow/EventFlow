@@ -1,5 +1,6 @@
 ### New in 0.37 (not released yet)
 
+* Breaking: Updated Autofac dependency on `EventFlow.Autofac` to 4.x
 * Breaking: Remove the following empty and deprecated MSSQL NuGet packages. If
   you use any of these packages, then switch to the `EventFlow.MsSql` package
   - `EventFlow.EventStores.MsSql`
