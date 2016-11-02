@@ -194,7 +194,7 @@ void UploadTestResults(string filePath)
 
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit);
+            AppVeyorTestResultsType.NUnit3);
     }    
     else
     {
@@ -250,7 +250,6 @@ void ExecuteTest(string files, string reportName)
                         ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
                         Results = nunitResultsPath,
-                        ResultFormat = "nunit2",
                         DisposeRunners = true
                     });
         },
