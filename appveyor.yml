@@ -5,7 +5,7 @@ version: 0.37.{build}
 
 install:
   - cmd: pip install -U Sphinx
-  - cmd: install sphinx_rtd_theme
+  - cmd: pip install sphinx_rtd_theme
 
 skip_tags: true
 
