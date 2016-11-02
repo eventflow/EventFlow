@@ -20,6 +20,7 @@ test: off
 
 artifacts:
   - path: Build\Packages\*.nupkg
+  - path: Build\Documentation\*.zip
 
 cache:
   - packages -> paket.lock
