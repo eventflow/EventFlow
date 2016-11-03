@@ -22,18 +22,31 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+#r "System.IO.Compression.FileSystem"
+
+using System.IO.Compression;
+
+var VERSION = GetArgumentVersion();
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
 var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
     @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
     System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
+// IMPORTANT DIRECTORIES
+var DIR_OUTPUT_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
+var DIR_OUTPUT_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+var DIR_OUTPUT_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Build", "Documentation");
+var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
+var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build");
+var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
+
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
-
-// IMPORTANT DIRECTORIES
-var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
-var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
+var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
+    DIR_OUTPUT_DOCUMENTATION,
+    string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
@@ -42,7 +55,6 @@ var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilm
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
 var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
 
-var VERSION = GetArgumentVersion();
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
 
@@ -52,8 +64,10 @@ Task("Clean")
         {
             CleanDirectories(new []
                 {
-                    DIR_PACKAGES,
-                    DIR_REPORTS,
+                    DIR_OUTPUT_PACKAGES,
+                    DIR_OUTPUT_REPORTS,
+                    DIR_OUTPUT_DOCUMENTATION,
+                    DIR_BUILT_DOCUMENTATION,
                 });
 
             BuildProject("Clean");
@@ -114,9 +128,28 @@ Task("Package")
 
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
-                DIR_PACKAGES,
+                DIR_OUTPUT_PACKAGES,
                 CONFIGURATION,
                 string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
+        });
+
+// =====================================================================================================
+Task("Documentation")
+    .IsDependentOn("Clean")
+    .Does(() =>
+        {
+            ExecuteCommand(FILE_DOCUMENTATION_MAKE, "html", DIR_DOCUMENTATION);
+
+            ZipFile.CreateFromDirectory(DIR_BUILT_HTML_DOCUMENTATION, FILE_OUTPUT_DOCUMENTATION_ZIP);
+        });
+
+// =====================================================================================================
+Task("All")
+    .IsDependentOn("Package")
+    .IsDependentOn("Documentation")
+    .Does(() =>
+        {
+
         });
 
 // =====================================================================================================
@@ -202,7 +235,7 @@ void UploadTestResults(string filePath)
     }
 }
 
-string ExecuteCommand(string exePath, string arguments = null)
+string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
 {
     Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
 
@@ -214,6 +247,7 @@ string ExecuteCommand(string exePath, string arguments = null)
                 RedirectStandardOutput = true,
                 FileName = exePath,
                 Arguments = arguments,
+                WorkingDirectory = workingDirectory,
             };
         process.Start();
 
@@ -226,15 +260,20 @@ string ExecuteCommand(string exePath, string arguments = null)
 
         Debug(output);
 
+        if (process.ExitCode != 0)
+        {
+            throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
+        }
+
         return output;
     }
 }
 
 void ExecuteTest(string files, string reportName)
 {
-    var openCoverReportPath = System.IO.Path.Combine(DIR_REPORTS, "opencover-" + reportName + ".xml");
-    var nunitOutputPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".txt");
-    var nunitResultsPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".xml");
+    var openCoverReportPath = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-" + reportName + ".xml");
+    var nunitOutputPath = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-" + reportName + ".txt");
+    var nunitResultsPath = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-" + reportName + ".xml");
 
     OpenCover(tool =>
         {
@@ -269,4 +308,4 @@ void ExecuteTest(string files, string reportName)
     UploadTestResults(nunitResultsPath);
 }
 
-RunTarget("Package");
+RunTarget(Argument<string>("target", "Package"));
