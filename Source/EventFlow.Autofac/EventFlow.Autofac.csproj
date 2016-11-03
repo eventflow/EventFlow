@@ -83,7 +83,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>
         <Reference Include="Autofac">
-          <HintPath>..\..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
+          <HintPath>..\..\packages\Autofac\lib\net45\Autofac.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
