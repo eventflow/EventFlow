@@ -4,9 +4,6 @@
   you use any of these packages, then switch to the `EventFlow.MsSql` package
   - `EventFlow.EventStores.MsSql`
   - `EventFlow.ReadStores.MsSql`
-* Breaking: EventFlow has switched to Paket templates for NuGet package creation in
-  order to easier mange dependencies and dependencies are now slightly more
-  restrictive
 * New: Documentation is now released in HTML format along with NuGet packages.
   Access the ZIP file from the GitHub releases page
 
