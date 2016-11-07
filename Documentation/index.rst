@@ -1,6 +1,11 @@
 Welcome to EventFlow's documentation!
 =====================================
 
+EventFlow is a basic CQRS+ES framework designed to be easy to use.
+
+Have a look at our :ref:`getting started guide <getting-started>`, the
+:ref:`do’s and don’ts <dos-and-donts>`  and the :ref:`FAQ <faq>`.
+
 Contents:
 
 .. toctree::

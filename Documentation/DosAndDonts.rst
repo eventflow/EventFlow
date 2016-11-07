@@ -1,3 +1,5 @@
+.. _dos-and-donts:
+
 Do's and don'ts
 ===============
 
