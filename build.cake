@@ -24,6 +24,7 @@
 
 #r "System.IO.Compression.FileSystem"
 
+using System.Net;
 using System.IO.Compression;
 
 var VERSION = GetArgumentVersion();
@@ -43,6 +44,8 @@ var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATIO
 
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
+var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
+var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
 var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
 var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
@@ -105,9 +108,10 @@ Task("Build")
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
+    .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", "results");
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -225,9 +229,18 @@ void UploadTestResults(string filePath)
     {
         Information("Uploading test results: {0}", filePath);
 
+        using (var webClient = new WebClient())
+        {
+            webClient.UploadFile(
+                string.Format("https://ci.appveyor.com/api/testresults/nunit3/{0}", Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
+                filePath);
+        }
+        
+        /*
+        // This should work, but doesn't seem to
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit);
+            AppVeyorTestResultsType.NUnit3);*/
     }    
     else
     {
@@ -269,11 +282,8 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string files, string reportName)
+void ExecuteTest(string files, string resultsFile)
 {
-    var openCoverReportPath = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-" + reportName + ".xml");
-    var nunitOutputPath = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-" + reportName + ".txt");
-    var nunitResultsPath = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-" + reportName + ".xml");
 
     OpenCover(tool =>
         {
@@ -288,12 +298,11 @@ void ExecuteTest(string files, string reportName)
                         Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
-                        Results = nunitResultsPath,
-                        ResultFormat = "nunit2",
+                        Results = resultsFile,
                         DisposeRunners = true
                     });
         },
-    new FilePath(openCoverReportPath),
+    new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
             ToolPath = TOOL_OPENCOVER,
@@ -303,9 +312,6 @@ void ExecuteTest(string files, string reportName)
         .WithFilter("-[*Tests]*")
         .WithFilter("-[*TestHelpers]*")
         .WithFilter("-[*Shipping*]*"));
-
-    //UploadArtifact(nunitOutputPath);
-    UploadTestResults(nunitResultsPath);
 }
 
 RunTarget(Argument<string>("target", "Package"));
