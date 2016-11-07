@@ -198,7 +198,7 @@ void UploadTestResults(string filePath)
         using (var webClient = new WebClient())
         {
             webClient.UploadFile(
-                string.Format("https://ci.appveyor.com/api/testresults/nunit3/{0}", Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID"))
+                string.Format("https://ci.appveyor.com/api/testresults/nunit3/{0}", Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
                 filePath);
         }
         
