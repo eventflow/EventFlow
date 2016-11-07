@@ -229,11 +229,25 @@ void UploadTestResults(string filePath)
     {
         Information("Uploading test results: {0}", filePath);
 
-        using (var webClient = new WebClient())
+        try
         {
-            webClient.UploadFile(
-                string.Format("https://ci.appveyor.com/api/testresults/nunit3/{0}", Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
-                filePath);
+            using (var webClient = new WebClient())
+            {
+                webClient.UploadFile(
+                    string.Format(
+                        "https://ci.appveyor.com/api/testresults/nunit3/{0}",
+                        Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
+                    filePath);
+            }
+        }
+        catch (Exception e)
+        {
+            Error(
+                "Failed to upload '{0}' due to {1} - {2}: {3}",
+                filePath,
+                e.Message,
+                e.GetType().Name,
+                e.ToString());
         }
         
         /*
