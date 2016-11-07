@@ -24,6 +24,7 @@
 
 #r "System.IO.Compression.FileSystem"
 
+using System.Net;
 using System.IO.Compression;
 
 var VERSION = GetArgumentVersion();
