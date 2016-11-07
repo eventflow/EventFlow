@@ -156,7 +156,7 @@ command arguments.
 .. code-block:: c#
 
     public class UserCreateCommand :
-      ICommand<UserAggregate, UserId, UserCreateCommand>
+      CommandHandler<UserAggregate, UserId, UserCreateCommand>
     {
       public Task ExecuteAsync(
         UserAggregate aggregate,
