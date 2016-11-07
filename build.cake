@@ -282,7 +282,7 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string files, string reportName)
+void ExecuteTest(string files, string resultsFile)
 {
 
     OpenCover(tool =>
