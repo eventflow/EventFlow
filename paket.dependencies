@@ -2,10 +2,10 @@ redirects: on
 framework: <= net451
 source https://www.nuget.org/api/v2/
 
-nuget Autofac ~> 3.5
-nuget Autofac.Owin ~> 3.1
-nuget Autofac.WebApi2 ~> 3.4
-nuget Autofac.WebApi2.Owin ~> 3.2
+nuget Autofac >= 3.5
+nuget Autofac.Owin >= 3.1
+nuget Autofac.WebApi2 >= 3.4
+nuget Autofac.WebApi2.Owin >= 3.2
 nuget Dapper ~> 1.42
 nuget dbup ~> 3.3
 nuget Elasticsearch.Net ~> 2.0
