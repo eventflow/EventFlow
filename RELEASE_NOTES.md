@@ -7,6 +7,8 @@
 * Breaking: EventFlow has switched to Paket templates for NuGet package creation in
   order to easier mange dependencies and dependencies are now slightly more
   restrictive
+* New: Documentation is now released in HTML format along with NuGet packages.
+  Access the ZIP file from the GitHub releases page
 
 ### New in 0.36.2315 (released 2016-10-18)
 
