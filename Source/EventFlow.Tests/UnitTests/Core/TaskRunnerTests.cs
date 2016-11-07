@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.Core
                 cancellationTokenSource.Cancel();
 
                 // Act
-                Assert.DoesNotThrow(() => Sut.Run(A<Label>(), c => Task.FromResult(0), cancellationTokenSource.Token));
+                Assert.DoesNotThrow(() => Sut.Run(A<Label>(), (r, c) => Task.FromResult(0), cancellationTokenSource.Token));
             }
 
             // Assert
@@ -66,12 +66,12 @@ namespace EventFlow.Tests.UnitTests.Core
             // Act
             Sut.Run(
                 A<Label>(),
-                async c =>
-                    {
-                        await Task.Delay(10, c).ConfigureAwait(false);
-                        hasRun = true;
-                        autoResetEvent.Set();
-                    },
+                async (r, c) =>
+                {
+                    await Task.Delay(10, c).ConfigureAwait(false);
+                    hasRun = true;
+                    autoResetEvent.Set();
+                },
                 CancellationToken.None);
 
             // Assert
@@ -93,10 +93,10 @@ namespace EventFlow.Tests.UnitTests.Core
             // Act
             Sut.Run(
                 A<Label>(),
-                c =>
-                    {
-                        throw expectedException;
-                    },
+                (r, c) =>
+                {
+                    throw expectedException;
+                },
                 CancellationToken.None);
 
             // Assert
@@ -118,24 +118,24 @@ namespace EventFlow.Tests.UnitTests.Core
                 // Act
                 Sut.Run(
                     A<Label>(),
-                    async c =>
+                    async (r, c) =>
+                    {
+                        try
                         {
-                            try
+                            while (true)
                             {
-                                while (true)
-                                {
-                                    await Task.Delay(100, c).ConfigureAwait(false);
-                                }
+                                await Task.Delay(100, c).ConfigureAwait(false);
                             }
-                            catch (OperationCanceledException)
-                            {
-                                wasCancelled = true;
-                            }
-                            finally
-                            {
-                                autoResetEvent.Set();
-                            }
-                        },
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            wasCancelled = true;
+                        }
+                        finally
+                        {
+                            autoResetEvent.Set();
+                        }
+                    },
                     cancellationTokenSource.Token);
 
                 // Assert
