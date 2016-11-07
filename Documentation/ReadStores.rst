@@ -1,10 +1,23 @@
+.. _read-stores:
+
 Read model stores
 =================
 
 In order to create query handlers that perform and enable them search
 across multiple fields, read models or projections are used.
 
-Read models are a flattened views of a subset or all aggregate domain
+To get started you can use the built-in in-memory read model store, but
+EventFlow supports a few others as well.
+
+- :ref:`In-memory <read-store-inmemory>`
+- :ref:`Microsoft SQL Server <read-store-mssql>`
+- :ref:`Elasticsearch <read-store-elasticsearch>`
+
+
+Creating read models
+--------------------
+
+Read models are a flattened view of a subset or all aggregate domain
 events created specifically for efficient queries.
 
 Here's a simple example of how a read model for doing searches for
@@ -27,6 +40,11 @@ event event to get the username and user ID.
         Username = domainEvent.AggregateEvent.Username.Value;
       }
     }
+
+The read model applies all ``UserCreated`` events and thereby merely saves
+the latest value instead of the entire history, which makes it much easier to
+store in an effecient manner.
+
 
 Read model locators
 -------------------
@@ -94,6 +112,7 @@ And then use a read model similar to this that represent each nickname.
 We could then use this nickname read model to query all the nicknames
 for a given user by search for read models that have a specific
 ``UserId``.
+
 
 Read store implementations
 --------------------------
