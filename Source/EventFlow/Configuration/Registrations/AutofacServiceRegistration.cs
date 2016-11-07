@@ -42,8 +42,10 @@ namespace EventFlow.Configuration.Registrations
         public AutofacServiceRegistration(ContainerBuilder containerBuilder)
         {
             _containerBuilder = containerBuilder ?? new ContainerBuilder();
+
             _containerBuilder.RegisterType<AutofacStartable>().As<IStartable>();
-            _containerBuilder.Register(c => new AutofacResolver(c.Resolve<IComponentContext>())).As<IResolver>();
+            _containerBuilder.RegisterType<AutofacResolver>().As<IResolver>();
+            _containerBuilder.RegisterType<AutofacScopeResolver>().As<IScopeResolver>();
             _containerBuilder.Register<IDecoratorService>(_ => _decoratorService).SingleInstance();
         }
 
