@@ -28,15 +28,21 @@ Contents:
    Identity
    Aggregates
    Commands
-   EventStore
-   ReadStores
    Subscribers
    Metadata
    Queries
    Sagas
    Jobs
-   Snapshots
    EventUpgrade
+
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Stores
+
+  EventStore
+  ReadStores
+
 
 .. toctree::
    :maxdepth: 2
@@ -50,6 +56,7 @@ Contents:
    :maxdepth: 2
    :caption: Additional reading
 
+   Snapshots
    Customize
    ValueObjects
    DosAndDonts
