@@ -7,6 +7,11 @@
 * Breaking: EventFlow has switched to Paket templates for NuGet package creation in
   order to easier mange dependencies and dependencies are now slightly more
   restrictive
+* Breaking: `ITaskRunner.Run(...)` has changed signature. The task factory now
+  gets an instance of `IResolver` that is valid for the duration of the task
+  execution
+* Fixed: The resolver scope of `ISubscribeAsynchronousTo<,,>` is now valid for
+  the duration of the domain handling
 * New: Documentation is now released in HTML format along with NuGet packages.
   Access the ZIP file from the GitHub releases page
 
