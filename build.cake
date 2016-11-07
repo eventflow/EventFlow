@@ -28,12 +28,14 @@ var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
     @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
     System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
-// IMPORTANT FILES
-var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
-
 // IMPORTANT DIRECTORIES
 var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
 var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+
+// IMPORTANT FILES
+var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
+var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_REPORTS, "opencover-results.xml");
+var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_REPORTS, "nunit-results.xml");
 
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
@@ -91,9 +93,10 @@ Task("Build")
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
+    .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", "results");
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -192,9 +195,18 @@ void UploadTestResults(string filePath)
     {
         Information("Uploading test results: {0}", filePath);
 
+        using (var webClient = new WebClient())
+        {
+            webClient.UploadFile(
+                string.Format("https://ci.appveyor.com/api/testresults/nunit3/{0}", Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID"))
+                filePath);
+        }
+        
+        /*
+        // This should work, but doesn't seem to
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit3);
+            AppVeyorTestResultsType.NUnit3);*/
     }    
     else
     {
@@ -230,12 +242,8 @@ string ExecuteCommand(string exePath, string arguments = null)
     }
 }
 
-void ExecuteTest(string files, string reportName)
+void ExecuteTest(string files, string resultsFile)
 {
-    var openCoverReportPath = System.IO.Path.Combine(DIR_REPORTS, "opencover-" + reportName + ".xml");
-    var nunitOutputPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".txt");
-    var nunitResultsPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".xml");
-
     OpenCover(tool =>
         {
             tool.NUnit3(
@@ -249,11 +257,11 @@ void ExecuteTest(string files, string reportName)
                         Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
-                        Results = nunitResultsPath,
+                        Results = resultsFile,
                         DisposeRunners = true
                     });
         },
-    new FilePath(openCoverReportPath),
+    new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
             ToolPath = TOOL_OPENCOVER,
@@ -263,9 +271,6 @@ void ExecuteTest(string files, string reportName)
         .WithFilter("-[*Tests]*")
         .WithFilter("-[*TestHelpers]*")
         .WithFilter("-[*Shipping*]*"));
-
-    //UploadArtifact(nunitOutputPath);
-    UploadTestResults(nunitResultsPath);
 }
 
 RunTarget("Package");
