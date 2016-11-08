@@ -49,6 +49,7 @@ on events.
     public class PingEvent : AggregateEvent<TestAggregate, TestId>
     {
       public string Data { get; }
+      
       public PingEvent(string data)
       {
           Data = data;

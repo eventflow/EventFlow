@@ -150,7 +150,7 @@ RabbitMQ
 See :ref:`RabbitMQ setup <setup-rabbitmq>` for details on how to get
 started using RabbitMQ_.
 
-After RabbitMQ has been configured, all domain events are are published
+After RabbitMQ has been configured, all domain events are published
 to a exchange named ``eventflow`` with routing keys in the following
 format.
 

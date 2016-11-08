@@ -51,6 +51,7 @@ one) command handler which is responsible for invoking the aggregate.
         aggregate.UpdatePassword(
           command.OldPassword,
           command.NewPassword);
+          
         return Task.FromResult(0);
       }
     }
