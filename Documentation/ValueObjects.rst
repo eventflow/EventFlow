@@ -79,7 +79,7 @@ and still use the value object in our events.
 .. code:: json
 
     {
-      "Username" : "my-awsome-username"
+      "Username" : "my-awesome-username"
     }
 
 To do this, we use the custom JSON serializer EventFlow has for single
@@ -107,5 +107,6 @@ Using this converter also enables to you replace e.g. raw ``string`` and
 ``int`` properties with value objects on existing events as they will be
 "JSON compatible".
 
-**Note:** Consider applying this to any classes that inherit from
-``Identity<>``.
+.. NOTE::
+
+    Consider applying this to any classes that inherit from ``Identity<>``.

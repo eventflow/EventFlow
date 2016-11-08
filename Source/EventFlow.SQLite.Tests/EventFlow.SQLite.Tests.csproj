@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="IntegrationTests\EventStores\SQLiteEventStoreTests.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\SQLiteThingyGetMessagesQueryHandler.cs" />
     <Compile Include="IntegrationTests\ReadStores\QueryHandlers\SQLiteThingyGetQueryHandler.cs" />

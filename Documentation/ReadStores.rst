@@ -1,15 +1,28 @@
+.. _read-stores:
+
 Read model stores
 =================
 
 In order to create query handlers that perform and enable them search
 across multiple fields, read models or projections are used.
 
-Read models are a flattened views of a subset or all aggregate domain
+To get started you can use the built-in in-memory read model store, but
+EventFlow supports a few others as well.
+
+- :ref:`In-memory <read-store-inmemory>`
+- :ref:`Microsoft SQL Server <read-store-mssql>`
+- :ref:`Elasticsearch <read-store-elasticsearch>`
+
+
+Creating read models
+--------------------
+
+Read models are a flattened view of a subset or all aggregate domain
 events created specifically for efficient queries.
 
 Here's a simple example of how a read model for doing searches for
 usernames could look. The read model handles the ``UserCreated`` domain
-event event to get the username and user ID.
+event to get the username and user ID.
 
 .. code-block:: c#
 
@@ -27,6 +40,11 @@ event event to get the username and user ID.
         Username = domainEvent.AggregateEvent.Username.Value;
       }
     }
+
+The read model applies all ``UserCreated`` events and thereby merely saves
+the latest value instead of the entire history, which makes it much easier to
+store in an efficient manner.
+
 
 Read model locators
 -------------------
@@ -95,6 +113,7 @@ We could then use this nickname read model to query all the nicknames
 for a given user by search for read models that have a specific
 ``UserId``.
 
+
 Read store implementations
 --------------------------
 
@@ -157,10 +176,12 @@ You should also create a ``int`` column that has the
 ``MsSqlReadModelVersionColumn`` attribute to tell EventFlow which column
 is used to store the read model version in.
 
-**NOTE:** EventFlow expect the read model to exist, and thus any
-maintenance of the database schema for the read models must be handled
-before EventFlow is initialized. Or, at least before the read models are
-used in EventFlow.
+.. IMPORTANT::
+
+    EventFlow expect the read model to exist, and thus any
+    maintenance of the database schema for the read models must be handled
+    before EventFlow is initialized. Or, at least before the read models are
+    used in EventFlow.
 
 
 .. _read-store-elasticsearch:
@@ -188,13 +209,16 @@ argument.
 Overloads of ``ConfigureElasticsearch(...)`` is available for
 alternative Elasticsearch configurations.
 
-Make sure to create any mapping the read model requires in Elasticsearch
-*before* using the read model in EventFlow.
+.. IMPORTANT::
+
+    Make sure to create any mapping the read model requires in Elasticsearch
+    *before* using the read model in EventFlow.
+
 
 If EventFlow is requested to *purge* a specific read model, it does it
 by deleting the index. Thus make sure to create one separate index per
 read model.
 
 If you want to control the index a specific read model is stored in,
-create create an implementation of ``IReadModelDescriptionProvider`` and
+create an implementation of ``IReadModelDescriptionProvider`` and
 register it in the `EventFlow IoC <./Customize.md>`__.

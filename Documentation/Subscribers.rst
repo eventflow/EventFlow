@@ -18,10 +18,12 @@ either using ``AddSubscriber(...)``, ``AddSubscribers(...)`` or
 custom IoC container, you can register the implementations using it
 instead.
 
-**NOTE:** The *synchronous* and *asynchronous* here has nothing to do
-with the .NET framework keywords ``async``, ``await`` or the Task
-Parallel Library. It refers to how the subscribers are executed. Read
-below for details.
+.. NOTE::
+
+    The *synchronous* and *asynchronous* here has nothing to do
+    with the .NET framework keywords ``async``, ``await`` or the Task
+    Parallel Library. It refers to how the subscribers are executed. Read
+    below for details.
 
 
 .. _subscribers-sync:
@@ -119,8 +121,11 @@ name, identical to its synchronous counterpart.
         CancellationToken cancellationToken);
     }
 
-**NOTE:** Setting ``ThrowSubscriberExceptions = true`` has **no effect**
-on asynchronous subscribers.
+.. NOTE::
+
+    Setting ``ThrowSubscriberExceptions = true`` has **no effect**
+    on asynchronous subscribers.
+
 
 Subscribe to every event
 ------------------------
@@ -150,7 +155,7 @@ RabbitMQ
 See :ref:`RabbitMQ setup <setup-rabbitmq>` for details on how to get
 started using RabbitMQ_.
 
-After RabbitMQ has been configured, all domain events are are published
+After RabbitMQ has been configured, all domain events are published
 to a exchange named ``eventflow`` with routing keys in the following
 format.
 

@@ -1,3 +1,5 @@
+.. _getting-started:
+
 Getting started
 ===============
 
@@ -26,9 +28,10 @@ started.
       public UserId(string value) : base(value) { }
     }
 
-**Note:** Be sure to read the read the section about the
-:ref:`Identity\<\> <identity>` class to get details on how to use
-it.
+.. NOTE::
+    Be sure to read the read the section about the
+    :ref:`Identity\<\> <identity>` class to get details on how to use
+    it.
 
 Next, let us start by creating a aggregate to represent our users.
 
@@ -61,11 +64,11 @@ Create event
       }
     }
 
-Important notes regarding events
+.. IMPORTANT::
+    Once have aggregates in your production environment that have emitted
+    a event, you should never change it. You can deprecate it, but you
+    should never change the data stored in the event store
 
--  Once have aggregates in your production environment that have emitted
-   a event, you should never change it. You can deprecate it, but you
-   should never change the data stored in the event store
 
 Update aggregate
 ----------------
@@ -143,9 +146,11 @@ command handler, and thus we first create the command.
       }
     }
 
-Note that you can read the article regarding
-:ref:`commands <commands>` for more details, e.g. on ensuring
-idempotency in a distributed application.
+.. NOTE::
+    You should read the article regarding
+    :ref:`commands <commands>` for more details, e.g. on ensuring
+    idempotency in a distributed application.
+
 
 Create command handler
 ----------------------
@@ -156,7 +161,7 @@ command arguments.
 .. code-block:: c#
 
     public class UserCreateCommand :
-      ICommand<UserAggregate, UserId, UserCreateCommand>
+      CommandHandler<UserAggregate, UserId, UserCreateCommand>
     {
       public Task ExecuteAsync(
         UserAggregate aggregate,
@@ -197,3 +202,6 @@ There are several areas the code can be improved.
    isn't the empty string
 -  If your application need to act on the emitted ``UserCreatedEvent``,
    create a :ref:`subscriber <subscribers>`
+-  Setup a persistent event store using e.g.
+   :ref:`Microsoft SQL Server <eventstore-mssql>`
+-  Create :ref:`read models <read-stores>` for efficient querying

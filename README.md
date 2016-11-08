@@ -1,8 +1,5 @@
 # EventFlow
 
-This repository uses [`git lfs`](https://git-lfs.github.com/), install it if you
-want to build the code.
-
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td>
@@ -30,7 +27,7 @@ want to build the code.
         </a>
       </p>
       <p>
-        <a href="http://eventflow.readthedocs.io/?badge=latest">
+        <a href="http://docs.geteventflow.net/?badge=latest">
           <img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" />
         </a>
       </p>
@@ -77,7 +74,7 @@ to the documentation.
   each aggregate
 * [**Command bus and commands:**](http://docs.geteventflow.net/Commands.html)
   Entry point for all command/operation execution.
-* [**Event store:**](http://docs.geteventflow.net/EventStores.html)
+* [**Event store:**](http://docs.geteventflow.net/EventStore.html)
   Storage of the event stream for aggregates. Currently there is support for
   these storage types.
  * In-memory - only for test

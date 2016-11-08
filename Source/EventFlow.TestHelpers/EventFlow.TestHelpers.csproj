@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Aggregates\Commands\ThingyAddMessageCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyImportCommand.cs" />
     <Compile Include="Aggregates\Commands\ThingyNopCommand.cs" />

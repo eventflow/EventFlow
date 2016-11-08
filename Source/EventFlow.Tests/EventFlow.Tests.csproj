@@ -43,7 +43,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="EventFlowTests.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
     <Compile Include="IntegrationTests\Sagas\AggregateSagaTests.cs" />
     <Compile Include="IntegrationTests\SeparationTests.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
     <Compile Include="UnitTests\ValueObjects\ValueObjectTests.cs" />
+    <Compile Include="VerifyPaketTemplates.cs" />
     <Compile Include="VerifyTests.cs" />
   </ItemGroup>
   <ItemGroup>
