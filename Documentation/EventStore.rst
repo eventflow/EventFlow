@@ -1,3 +1,5 @@
+.. _eventstores:
+
 Event stores
 ============
 
