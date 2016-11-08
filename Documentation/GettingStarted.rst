@@ -28,9 +28,10 @@ started.
       public UserId(string value) : base(value) { }
     }
 
-**Note:** Be sure to read the read the section about the
-:ref:`Identity\<\> <identity>` class to get details on how to use
-it.
+.. NOTE::
+    Be sure to read the read the section about the
+    :ref:`Identity\<\> <identity>` class to get details on how to use
+    it.
 
 Next, let us start by creating a aggregate to represent our users.
 
@@ -63,11 +64,11 @@ Create event
       }
     }
 
-Important notes regarding events
+.. IMPORTANT::
+    Once have aggregates in your production environment that have emitted
+    a event, you should never change it. You can deprecate it, but you
+    should never change the data stored in the event store
 
--  Once have aggregates in your production environment that have emitted
-   a event, you should never change it. You can deprecate it, but you
-   should never change the data stored in the event store
 
 Update aggregate
 ----------------
@@ -145,9 +146,11 @@ command handler, and thus we first create the command.
       }
     }
 
-Note that you can read the article regarding
-:ref:`commands <commands>` for more details, e.g. on ensuring
-idempotency in a distributed application.
+.. NOTE::
+    You should read the article regarding
+    :ref:`commands <commands>` for more details, e.g. on ensuring
+    idempotency in a distributed application.
+
 
 Create command handler
 ----------------------

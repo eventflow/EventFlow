@@ -107,5 +107,6 @@ Using this converter also enables to you replace e.g. raw ``string`` and
 ``int`` properties with value objects on existing events as they will be
 "JSON compatible".
 
-**Note:** Consider applying this to any classes that inherit from
-``Identity<>``.
+.. NOTE::
+
+    Consider applying this to any classes that inherit from ``Identity<>``.

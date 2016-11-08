@@ -24,6 +24,7 @@ examples
 In the above example the ``SendEmailCommand`` command will be published
 in seven days.
 
+
 Be careful when using jobs
 --------------------------
 
@@ -37,6 +38,7 @@ When working with jobs, you should be aware of the following
    `value objects <./ValueObjects.md>`__ for more information
 -  If you use the provided ``PublishCommandJob``, make sure that your
    commands serialize properly as well
+
 
 Create your own jobs
 --------------------
@@ -109,5 +111,7 @@ the scheduler like this.
       ...
       .CreateResolver();
 
-Note that the ``UseHangfireJobScheduler()`` doesn't do any Hangfire
-configuration, but merely registers the proper scheduler in EventFlow.
+.. NOTE::
+  
+    The ``UseHangfireJobScheduler()`` doesn't do any Hangfire
+    configuration, but merely registers the proper scheduler in EventFlow.

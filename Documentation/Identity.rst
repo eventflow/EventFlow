@@ -40,8 +40,11 @@ it like this.
 -  Any validation errors can be gathered using the static
    ``IEnumerable<string> Validate(string)`` method
 
-**Note:** Its very important to name the constructor argument ``value``
-as its significant if you serialize the identity type.
+.. IMPORTANT::
+
+    Its very important to name the constructor argument ``value``
+    as it is significant when the identity type is deserialized.
+
 
 Here's some examples on we can use our newly created ``TestId``
 
@@ -64,6 +67,9 @@ Here's some examples on we can use our newly created ``TestId``
     // database indexes, minimizes fragmentation
     var testId = TestId.NewComb()
 
-**Note:** Be sure to read the section about
-:ref:`value objects <value-objects>` as the ``Identity<>`` is basically a
-value object.
+
+.. NOTE::
+
+    Be sure to read the section about
+    :ref:`value objects <value-objects>` as the ``Identity<>`` is basically a
+    value object.

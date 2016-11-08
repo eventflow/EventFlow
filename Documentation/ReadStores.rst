@@ -176,10 +176,12 @@ You should also create a ``int`` column that has the
 ``MsSqlReadModelVersionColumn`` attribute to tell EventFlow which column
 is used to store the read model version in.
 
-**NOTE:** EventFlow expect the read model to exist, and thus any
-maintenance of the database schema for the read models must be handled
-before EventFlow is initialized. Or, at least before the read models are
-used in EventFlow.
+.. IMPORTANT::
+
+    EventFlow expect the read model to exist, and thus any
+    maintenance of the database schema for the read models must be handled
+    before EventFlow is initialized. Or, at least before the read models are
+    used in EventFlow.
 
 
 .. _read-store-elasticsearch:
@@ -207,8 +209,11 @@ argument.
 Overloads of ``ConfigureElasticsearch(...)`` is available for
 alternative Elasticsearch configurations.
 
-Make sure to create any mapping the read model requires in Elasticsearch
-*before* using the read model in EventFlow.
+.. IMPORTANT::
+
+    Make sure to create any mapping the read model requires in Elasticsearch
+    *before* using the read model in EventFlow.
+
 
 If EventFlow is requested to *purge* a specific read model, it does it
 by deleting the index. Thus make sure to create one separate index per

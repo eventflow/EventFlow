@@ -53,13 +53,16 @@ code.
     var msSqlDatabaseMigrator = rootResolver.Resolve<IMsSqlDatabaseMigrator>();
     EventFlowEventStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
 
+
 You should do this either on application start or preferably upon
 application install or update, e.g., when the web site is installed.
 
-**Note:** If you utilize user permission in your application, then you
-need to grant the event writer access to the user defined table type
-``eventdatamodel_list_type``. EventFlow uses this type to pass entire
-batches of events to the database.
+.. IMPORTANT::
+
+    If you utilize user permission in your application, then you
+    need to grant the event writer access to the user defined table type
+    ``eventdatamodel_list_type``. EventFlow uses this type to pass entire
+    batches of events to the database.
 
 
 .. _eventstore-files:
