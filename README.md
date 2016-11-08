@@ -1,8 +1,5 @@
 # EventFlow
 
-This repository uses [`git lfs`](https://git-lfs.github.com/), install it if you
-want to build the code.
-
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td>
@@ -29,15 +26,20 @@ want to build the code.
           <img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" />
         </a>
       </p>
+      <p>
+        <a href="http://eventflow.readthedocs.io/?badge=latest">
+          <img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" />
+        </a>
+      </p>
     </td>
   </tr>
 </table>
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
-Have a look at our [getting started guide](./Documentation/GettingStarted.md),
-the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
-[FAQ](./Documentation/FAQ.md).
+Have a look at our [getting started guide](http://docs.geteventflow.net/GettingStarted.html),
+the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
+[FAQ](http://docs.geteventflow.net/FAQ.html).
 
 ### Features
 
@@ -67,55 +69,61 @@ the [dos and don'ts](./Documentation/DoesAndDonts.md) and the
 Here is a list of the EventFlow concepts. Use the links to navigate
 to the documentation.
 
-* [**Aggregates:**](./Documentation/Aggregates.md) Domains object
-  that guarantees the consistency of changes being made within
+* [**Aggregates:**](http://docs.geteventflow.net/Aggregates.html)
+  Domains object that guarantees the consistency of changes being made within
   each aggregate
-* [**Command bus and commands:**](./Documentation/Commands.md)
+* [**Command bus and commands:**](http://docs.geteventflow.net/Commands.html)
   Entry point for all command/operation execution.
-* **Event store:** Storage of the event stream for aggregates.
-  Currently there is support for these storage types.
+* [**Event store:**](http://docs.geteventflow.net/EventStore.html)
+  Storage of the event stream for aggregates. Currently there is support for
+  these storage types.
  * In-memory - only for test
  * Files - only for test
- * [Microsoft SQL Server](./Documentation/EventStores-MSSQL.md)
+ * Microsoft SQL Server
  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
-* [**Subscribers:**](./Documentation/Subscribers.md) Listeners that act on
-  specific domain events. Useful if an specific action needs to be triggered
-  after a domain event has been committed.
-* [**Read models:**](./Documentation/ReadStores.md) Denormalized representation
-  of aggregate events optimized for reading fast. Currently there is support for
-  these read model storage types.
-  * [Elasticsearch](./Documentation/ReadStores.md#elasticsearch)
-  * [In-memory](./Documentation/ReadStores.md#in-memory) - only for test
-  * [Microsoft SQL Server](Documentation/ReadStores.md#microsoft-sql-server)
-* [**Snapshots:**](./Documentation/Snapshots.md) Instead of reading the entire
-  event stream every single time, a snapshot can be created every so often that
-  contains the aggregate state. EventFlow supports upgrading existing snapshots,
-  which is useful for long-lived aggregates. Snapshots in EventFlow are opt-in
-  and EventFlow has support for
-  * [In-memory](./Documentation/Snapshots.md#in-memory) - only for test
-  * [Microsoft SQL Server](./Documentation/Snapshots.md#microsoft-sql-server)  
-* [**Sagas:**](./Documentation/Sagas.md) Also known as _process managers_,
-  coordinates and routes messages between bounded contexts and aggregates
-* [**Queries:**](./Documentation/Queries.md) Value objects that represent
-  a query without specifying how its executed, that is let to a query handler
-* [**Jobs:**](./Documentation/Jobs.md) Perform scheduled tasks at a later time,
-  e.g. publish a command. EventFlow provides support for these job schedulers
-  * [Hangfire](./Documentation/Jobs.md#hangfire) - [home page](http://hangfire.io/)
-* [**Event upgrade:**](./Documentation/EventUpgrade.md) As events committed to
-  the event store is never changed, EventFlow uses the concept of event
-  upgraders to deprecate events and replace them with new during aggregate load.
+* [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
+  Listeners that act on specific domain events. Useful if an specific action
+  needs to be triggered after a domain event has been committed.
+* [**Read models:**](http://docs.geteventflow.net/ReadStores.html)
+  Denormalized representation  of aggregate events optimized for reading fast.
+  Currently there is support for these read model storage types.
+  * [Elasticsearch](http://docs.geteventflow.net/ReadStores.html#elasticsearch)
+  * [In-memory](http://docs.geteventflow.net/ReadStores.html#in-memory) - only for test
+  * [Microsoft SQL Server](http://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
+* [**Snapshots:**](http://docs.geteventflow.net/Snapshots.html)
+  Instead of reading the entire event stream every single time, a snapshot can
+  be created every so often that contains the aggregate state. EventFlow
+  supports upgrading existing snapshots, which is useful for long-lived
+  aggregates. Snapshots in EventFlow are opt-in and EventFlow has support for
+  * [In-memory](http://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
+  * [Microsoft SQL Server](http://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
+* [**Sagas:**](http://docs.geteventflow.net/Sagas.html)
+  Also known as _process managers_, coordinates and routes messages between
+  bounded contexts and aggregates
+* [**Queries:**](http://docs.geteventflow.net/Queries.html)
+  Value objects that represent a query without specifying how its executed,
+  that is let to a query handler
+* [**Jobs:**](http://docs.geteventflow.net/Jobs.html) Perform scheduled tasks at
+  a later time, e.g. publish a command. EventFlow provides support for these
+  job schedulers
+  * [Hangfire](http://docs.geteventflow.net/Jobs.html#hangfire) - [home page](http://hangfire.io/)
+* [**Event upgrade:**](http://docs.geteventflow.net/EventUpgrade.html)
+  As events committed to the event store is never changed, EventFlow uses the
+  concept of event upgraders to deprecate events and replace them with new
+  during aggregate load.
 * **Event publishing:** Sometimes you want other applications or services to
   consume and act on domains. For this EventFlow supports event publishing.
- * [RabbitMQ](./Documentation/RabbitMQ.md)
-* [**Metadata:**](./Documentation/Metadata.md)
+ * [RabbitMQ](http://docs.geteventflow.net/Subscribers.html#rabbitmq)
+* [**Metadata:**](http://docs.geteventflow.net/Metadata.html)
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.
-* [**Value objects:**](./Documentation/ValueObjects.md) Data containing classes
-  used to validate and hold domain data, e.g. a username or e-mail.
-* [**Customize:**](./Documentation/Customize.md) Almost every single part of
-  EventFlow can be swapped with a custom implementation through the embedded
-  IoC container.
+* [**Value objects:**](http://docs.geteventflow.net/ValueObjects.html)
+  Data containing classes used to validate and hold domain data, e.g. a
+  username or e-mail.
+* [**Customize:**](http://docs.geteventflow.net/Customize.html) Almost every
+  single part of EventFlow can be swapped with a custom implementation through
+  the embedded IoC container.
 
 ## Complete example
 Here's a complete example on how to use the default in-memory event store
@@ -340,7 +348,7 @@ several areas that you could help out with.
   * Provide a platform for DDD discussions
 
 ### Integration tests
-EvenFlow has several tests that verify that its able to use the systems it
+EventFlow has several tests that verify that its able to use the systems it
 integrates with correctly.
 
  * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) is automatically
@@ -373,7 +381,7 @@ The MIT License (MIT)
 
 Copyright (c) 2015-2016 Rasmus Mikkelsen
 Copyright (c) 2015-2016 eBay Software Foundation
-https://github.com/rasmus/EventFlow
+https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -393,4 +401,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-

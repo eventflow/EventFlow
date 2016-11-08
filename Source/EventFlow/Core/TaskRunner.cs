@@ -26,6 +26,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.Logs;
 
 namespace EventFlow.Core
@@ -33,35 +34,50 @@ namespace EventFlow.Core
     public class TaskRunner : ITaskRunner
     {
         private readonly ILog _log;
+        private readonly IResolver _resolver;
 
         public TaskRunner(
-            ILog log)
+            ILog log,
+            IResolver resolver)
         {
             _log = log;
+            _resolver = resolver;
         }
 
-        public void Run(Label label, Func<CancellationToken, Task> taskFactory, CancellationToken cancellationToken)
+        public void Run(
+            Label label,
+            Func<IResolver, CancellationToken, Task> taskFactory,
+            CancellationToken cancellationToken)
         {
+            var scopeResolver = _resolver.Resolve<IScopeResolver>();
+
             Task.Run(
-                () => RunAsync(label, taskFactory, cancellationToken),
+                () => RunAsync(label, scopeResolver, taskFactory, cancellationToken),
                 CancellationToken.None /* no mistake */);
         }
 
-        private async Task RunAsync(Label label, Func<CancellationToken, Task> taskFactory, CancellationToken cancellationToken)
+        private async Task RunAsync(
+            Label label,
+            IScopeResolver scopeResolver,
+            Func<IResolver, CancellationToken, Task> taskFactory,
+            CancellationToken cancellationToken)
         {
-            var taskId = Guid.NewGuid().ToString("N");
-            var stopwatch = Stopwatch.StartNew();
-
-            _log.Verbose($"Starting task '{label}' ({taskId})");
-
-            try
+            using (scopeResolver)
             {
-                await taskFactory(cancellationToken).ConfigureAwait(false);
-                _log.Verbose($"Task '{label}' ({taskId}) completed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds");
-            }
-            catch (Exception e)
-            {
-                _log.Error(e, $"Task '{label}' ({taskId}) failed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds with exception '{e.GetType().Name}': {e.Message}");
+                var taskId = Guid.NewGuid().ToString("N");
+                var stopwatch = Stopwatch.StartNew();
+
+                _log.Verbose($"Starting task '{label}' ({taskId})");
+
+                try
+                {
+                    await taskFactory(scopeResolver, cancellationToken).ConfigureAwait(false);
+                    _log.Verbose($"Task '{label}' ({taskId}) completed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds");
+                }
+                catch (Exception e)
+                {
+                    _log.Error(e, $"Task '{label}' ({taskId}) failed after {stopwatch.Elapsed.TotalSeconds:0.###} seconds with exception '{e.GetType().Name}': {e.Message}");
+                }
             }
         }
     }

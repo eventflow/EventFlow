@@ -1,12 +1,16 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.36.{build}
+version: 0.37.{build}
+
+install:
+  - cmd: pip install -U Sphinx
+  - cmd: pip install sphinx_rtd_theme
 
 skip_tags: true
 
 build_script:
-  - cmd: build.cmd
+  - cmd: build.cmd All
 
 environment:
   RABBITMQ_URL:
@@ -16,6 +20,7 @@ test: off
 
 artifacts:
   - path: Build\Packages\*.nupkg
+  - path: Build\Documentation\*.zip
 
 cache:
   - packages -> paket.lock
@@ -41,7 +46,7 @@ deploy:
     on:
       branch: master
   - provider: GitHub
-    artifact: /.*\.nupkg/
+    artifact: /.*\.(nupkg|zip)/
     auth_token:
       secure: f+y+RL1ETsxIbYKlliZrmXpfr1wvEVNhGGEOYyl2K8ryz02WxXL+kLe7pu53Kc8r
     tag: v$(appveyor_build_version)

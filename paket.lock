@@ -52,10 +52,9 @@ REDIRECTS: OFF
 FRAMEWORK: NET451
 NUGET
   remote: https://www.nuget.org/api/v2
-    Cake (0.13)
+    Cake (0.16.2)
     GitVersion.CommandLine (3.5.4)
     ilmerge (2.14.1208)
-    NuGet.CommandLine (3.4.3)
     NUnit.ConsoleRunner (3.4.1)
     NUnit.Extension.NUnitProjectLoader (3.4.1)
     NUnit.Extension.NUnitV2Driver (3.4.1)

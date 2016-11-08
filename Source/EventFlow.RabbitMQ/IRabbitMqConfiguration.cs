@@ -30,5 +30,6 @@ namespace EventFlow.RabbitMQ
         Uri Uri { get; }
         bool Persistent { get; }
         int ModelsPrConnection { get; }
+        string Exchange { get; }
     }
 }

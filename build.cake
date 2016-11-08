@@ -22,87 +22,44 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+#r "System.IO.Compression.FileSystem"
+
+using System.Net;
+using System.IO.Compression;
+
+var VERSION = GetArgumentVersion();
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
 var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
     @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
     System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
+// IMPORTANT DIRECTORIES
+var DIR_OUTPUT_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
+var DIR_OUTPUT_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+var DIR_OUTPUT_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Build", "Documentation");
+var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
+var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build");
+var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
+
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
-
-// IMPORTANT DIRECTORIES
-var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
-var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
+var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
+var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
+var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
+    DIR_OUTPUT_DOCUMENTATION,
+    string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
 var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
 
-var VERSION = GetArgumentVersion();
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
-var NUGET_VERSIONS = GetInstalledNuGetPackages();
 
-var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
-    {"EventFlow", new []{
-        "Newtonsoft.Json",
-        }},
-    {"EventFlow.Autofac", new []{
-        "EventFlow",
-        "Autofac",
-    }},
-    {"EventFlow.RabbitMQ", new []{
-        "EventFlow",
-        "RabbitMQ.Client"
-    }},
-    {"EventFlow.Hangfire", new []{
-        "EventFlow",
-        "HangFire.Core",
-        }},
-    {"EventFlow.Sql", new []{
-        "EventFlow",
-        "dbup",
-        "Dapper",
-        }},
-    {"EventFlow.MsSql", new []{
-        "EventFlow",
-        "EventFlow.Sql",
-        "Dapper",
-        }},
-    {"EventFlow.SQLite", new []{
-        "EventFlow",
-        "EventFlow.Sql",
-        "System.Data.SQLite.Core",
-        }},
-    {"EventFlow.EventStores.EventStore", new []{
-        "EventFlow",
-        "EventStore.Client",
-        }},
-    {"EventFlow.Elasticsearch", new []{
-        "EventFlow",
-        "NEST",
-        "Elasticsearch.Net",
-        }},
-    {"EventFlow.Owin", new []{
-        "EventFlow",
-        "Owin",
-        "Microsoft.Owin",
-        }},
-
-    // Deprecated packages
-    {"EventFlow.EventStores.MsSql", new []{
-        "EventFlow",
-        "EventFlow.MsSql",
-        }},
-    {"EventFlow.ReadStores.MsSql", new []{
-        "EventFlow",
-        "EventFlow.MsSql",
-        }},
-    };
 
 // =====================================================================================================
 Task("Clean")
@@ -110,8 +67,10 @@ Task("Clean")
         {
             CleanDirectories(new []
                 {
-                    DIR_PACKAGES,
-                    DIR_REPORTS,
+                    DIR_OUTPUT_PACKAGES,
+                    DIR_OUTPUT_REPORTS,
+                    DIR_OUTPUT_DOCUMENTATION,
+                    DIR_BUILT_DOCUMENTATION,
                 });
 
             BuildProject("Clean");
@@ -129,8 +88,12 @@ Task("Version")
                         Version = VERSION.ToString(),
                         FileVersion = VERSION.ToString(),
                         InformationalVersion = VERSION.ToString(),
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year),
-                        Description = GetSha(),
+                        Company = "Rasmus Mikkelsen",
+                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0} (SHA:{1})", DateTime.Now.Year, GetSha()),
+                        Configuration = CONFIGURATION,
+                        Trademark = "",
+                        Product = "EventFlow",
+                        ComVisible = false,
                     });
         });
 
@@ -145,9 +108,10 @@ Task("Build")
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
+    .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", "results");
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -166,10 +130,30 @@ Task("Package")
                         "Autofac.dll",
                     });
 
-            foreach (var nuspecPath in GetFiles("./Source/**/*.nuspec"))
-            {
-                ExecutePackage(nuspecPath);
-            }
+            ExecuteCommand(TOOL_PAKET, string.Format(
+                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
+                DIR_OUTPUT_PACKAGES,
+                CONFIGURATION,
+                string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
+        });
+
+// =====================================================================================================
+Task("Documentation")
+    .IsDependentOn("Clean")
+    .Does(() =>
+        {
+            ExecuteCommand(FILE_DOCUMENTATION_MAKE, "html", DIR_DOCUMENTATION);
+
+            ZipFile.CreateFromDirectory(DIR_BUILT_HTML_DOCUMENTATION, FILE_OUTPUT_DOCUMENTATION_ZIP);
+        });
+
+// =====================================================================================================
+Task("All")
+    .IsDependentOn("Package")
+    .IsDependentOn("Documentation")
+    .Does(() =>
+        {
+
         });
 
 // =====================================================================================================
@@ -184,41 +168,6 @@ void BuildProject(string target)
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
         );
-}
-
-void ExecutePackage(
-    FilePath nuspecPath)
-{
-    Information(nuspecPath.ToString());
-    var packageId = System.IO.Path.GetFileNameWithoutExtension(nuspecPath.ToString());
-    var dependencies = NUGET_DEPENDENCIES[packageId]
-        .Select(GetNuSpecDependency)
-        .ToList();
-
-    NuGetPack(
-        nuspecPath,
-        new NuGetPackSettings
-            {
-                ToolPath = TOOL_NUGET,
-                OutputDirectory = DIR_PACKAGES,
-                ReleaseNotes = RELEASE_NOTES.Notes.ToList(),
-                Version = VERSION.ToString(),
-                Verbosity = NuGetVerbosity.Detailed,
-                Dependencies = dependencies,
-            });
-}
-
-private NuSpecDependency GetNuSpecDependency(string packageId)
-{
-    Information("Finding version for package: {0}", packageId);
-
-    return new NuSpecDependency
-        {
-            Id = packageId,
-            Version = packageId.StartsWith("EventFlow")
-                ? string.Format("[{0}]", VERSION)
-                : NUGET_VERSIONS[packageId]
-        };
 }
 
 Version GetArgumentVersion()
@@ -280,9 +229,32 @@ void UploadTestResults(string filePath)
     {
         Information("Uploading test results: {0}", filePath);
 
+        try
+        {
+            using (var webClient = new WebClient())
+            {
+                webClient.UploadFile(
+                    string.Format(
+                        "https://ci.appveyor.com/api/testresults/nunit3/{0}",
+                        Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
+                    filePath);
+            }
+        }
+        catch (Exception e)
+        {
+            Error(
+                "Failed to upload '{0}' due to {1} - {2}: {3}",
+                filePath,
+                e.Message,
+                e.GetType().Name,
+                e.ToString());
+        }
+        
+        /*
+        // This should work, but doesn't seem to
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit);
+            AppVeyorTestResultsType.NUnit3);*/
     }    
     else
     {
@@ -290,32 +262,7 @@ void UploadTestResults(string filePath)
     }
 }
 
-IReadOnlyDictionary<string, string> GetInstalledNuGetPackages()
-{
-    var nugetPackages = new Dictionary<string, string>();
-    var paketOutput = ExecuteCommand(TOOL_PAKET, "show-installed-packages");
-
-    var match = REGEX_NUGETPARSER.Match(paketOutput);
-    if (!match.Success)
-    {
-        throw new Exception("Unable to read NuGet package versions");
-    }
-
-    do
-    {
-        var package = match.Groups["package"].Value;
-        var version = match.Groups["version"].Value;
-
-        Information("NuGet package '{0}' is version '{1}'", package, version);
-
-        nugetPackages.Add(package, version);
-
-    } while((match = match.NextMatch()) != null && match.Success);
-
-    return nugetPackages;
-}
-
-string ExecuteCommand(string exePath, string arguments = null)
+string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
 {
     Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
 
@@ -327,6 +274,7 @@ string ExecuteCommand(string exePath, string arguments = null)
                 RedirectStandardOutput = true,
                 FileName = exePath,
                 Arguments = arguments,
+                WorkingDirectory = workingDirectory,
             };
         process.Start();
 
@@ -339,15 +287,17 @@ string ExecuteCommand(string exePath, string arguments = null)
 
         Debug(output);
 
+        if (process.ExitCode != 0)
+        {
+            throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
+        }
+
         return output;
     }
 }
 
-void ExecuteTest(string files, string reportName)
+void ExecuteTest(string files, string resultsFile)
 {
-    var openCoverReportPath = System.IO.Path.Combine(DIR_REPORTS, "opencover-" + reportName + ".xml");
-    var nunitOutputPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".txt");
-    var nunitResultsPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".xml");
 
     OpenCover(tool =>
         {
@@ -362,12 +312,11 @@ void ExecuteTest(string files, string reportName)
                         Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
-                        Results = nunitResultsPath,
-                        ResultFormat = "nunit2",
+                        Results = resultsFile,
                         DisposeRunners = true
                     });
         },
-    new FilePath(openCoverReportPath),
+    new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
             ToolPath = TOOL_OPENCOVER,
@@ -377,9 +326,6 @@ void ExecuteTest(string files, string reportName)
         .WithFilter("-[*Tests]*")
         .WithFilter("-[*TestHelpers]*")
         .WithFilter("-[*Shipping*]*"));
-
-    //UploadArtifact(nunitOutputPath);
-    UploadTestResults(nunitResultsPath);
 }
 
-RunTarget("Package");
+RunTarget(Argument<string>("target", "Package"));

@@ -20,7 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 
 namespace EventFlow.RabbitMQ
@@ -30,20 +31,26 @@ namespace EventFlow.RabbitMQ
         public Uri Uri { get; }
         public bool Persistent { get; }
         public int ModelsPrConnection { get; }
+        public string Exchange { get; }
 
         public static IRabbitMqConfiguration With(
             Uri uri,
             bool persistent = true,
-            int modelsPrConnection = 5)
+            int modelsPrConnection = 5,
+            string exchange = "eventflow")
         {
-            return new RabbitMqConfiguration(uri, persistent, modelsPrConnection);
+            return new RabbitMqConfiguration(uri, persistent, modelsPrConnection, exchange);
         }
 
-        private RabbitMqConfiguration(Uri uri, bool persistent, int modelsPrConnection)
+        private RabbitMqConfiguration(Uri uri, bool persistent, int modelsPrConnection, string exchange)
         {
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
+            if (string.IsNullOrEmpty(exchange)) throw new ArgumentNullException(nameof(exchange));
+
             Uri = uri;
             Persistent = persistent;
             ModelsPrConnection = modelsPrConnection;
+            Exchange = exchange;
         }
     }
 }

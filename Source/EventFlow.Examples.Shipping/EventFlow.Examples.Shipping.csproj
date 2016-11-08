@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Application\IScheduleApplicationService.cs" />
     <Compile Include="Application\ScheduleApplicationService.cs" />
     <Compile Include="Domain\Model\CargoModel\Jobs\VerifyCargoItineraryJob.cs" />

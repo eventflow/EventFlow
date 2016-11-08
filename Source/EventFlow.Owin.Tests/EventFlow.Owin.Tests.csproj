@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="IntegrationTests\Site\SiteTests.cs" />
     <Compile Include="IntegrationTests\Site\Startup.cs" />
     <Compile Include="IntegrationTests\Site\ThingyController.cs" />

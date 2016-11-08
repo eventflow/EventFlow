@@ -48,8 +48,7 @@ namespace EventFlow.Tests
         [Test]
         public void VerifyThatAllTestClassesHaveCategoryAssigned()
         {
-            var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
-            var projectRoot = GetParentDirectories(codeBase).First(IsProjectRoot);
+            var projectRoot = Helpers.GetProjectRoot();
             var testAssemblyPaths = GetTestAssembliesFromPath(projectRoot);
             var typesWithMissingCategory = testAssemblyPaths
                 .SelectMany(GetTypesFromAssembly)
@@ -64,23 +63,6 @@ namespace EventFlow.Tests
                 .Where(d => RegexTestDirectories.IsMatch(d))
                 .SelectMany(Directory.GetFiles)
                 .Where(f => RegexTestAssemblies.IsMatch(f));
-        }
-
-        private static bool IsProjectRoot(string path)
-        {
-            return Directory.GetFiles(path).Any(f => f.EndsWith("README.md"));
-        }
-
-        private static IEnumerable<string> GetParentDirectories(string path)
-        {
-            if (!Directory.Exists(path)) throw new ArgumentException($"Directory '{path}' does not exist!");
-
-            var parent = Directory.GetParent(path);
-            while (parent != null)
-            {
-                yield return parent.FullName;
-                parent = parent.Parent;
-            }
         }
 
         private static IReadOnlyCollection<string> GetTypesFromAssembly(string path)

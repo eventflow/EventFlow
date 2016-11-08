@@ -1,8 +1,26 @@
-### New in 0.36 (not released yet)
+### New in 0.37 (not released yet)
 
+* Breaking: Remove the following empty and deprecated MSSQL NuGet packages. If
+  you use any of these packages, then switch to the `EventFlow.MsSql` package
+  - `EventFlow.EventStores.MsSql`
+  - `EventFlow.ReadStores.MsSql`
+* Breaking: `ITaskRunner.Run(...)` has changed signature. The task factory now
+  gets an instance of `IResolver` that is valid for the duration of the task
+  execution
+* Fixed: The resolver scope of `ISubscribeAsynchronousTo<,,>` is now valid for
+  the duration of the domain handling
+* New: Documentation is now released in HTML format along with NuGet packages.
+  Access the ZIP file from the GitHub releases page
+
+### New in 0.36.2315 (released 2016-10-18)
+
+* New: Documentation is now hosted at http://docs.geteventflow.net/ and
+  http://eventflow.readthedocs.io/ and while documentation is still kept
+  along the source code, the documentation files have been converted from
+  markdown to reStructuredText
 * New: Added `ISubscribeAsynchronousTo<,,>` as an alternative to the existing
   `ISubscribeSynchronousTo<,,>`, which allow domain event subscribers to be
-  executed using the new `ITaskRunner`.
+  executed using the new `ITaskRunner`
 * New: Added `ITaskRunner` for which the default implementation is mere a thin
   wrapper around `Task.Run(...)` with some logging added. Implemting this
   interface allows control of how EventFlows runs tasks. Please note that

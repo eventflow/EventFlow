@@ -23,7 +23,6 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -82,7 +81,7 @@ namespace EventFlow.Subscribers
         {
             _taskRunner.Run(
                 Label.Named("publish-to-asynchronous-subscribers"),
-                c => Task.WhenAll(domainEvents.Select(d => DispatchToSubscribersAsync(d, SubscribeAsynchronousToType, true, c))),
+                (r, c) => Task.WhenAll(domainEvents.Select(d => DispatchToSubscribersAsync(d, r, SubscribeAsynchronousToType, true, c))),
                 cancellationToken);
         }
 
@@ -94,6 +93,7 @@ namespace EventFlow.Subscribers
             {
                 await DispatchToSubscribersAsync(
                         domainEvent,
+                        _resolver,
                         SubscribeSynchronousToType,
                         !_eventFlowConfiguration.ThrowSubscriberExceptions,
                         cancellationToken)
@@ -103,6 +103,7 @@ namespace EventFlow.Subscribers
 
         private async Task DispatchToSubscribersAsync(
             IDomainEvent domainEvent,
+            IResolver resolver,
             Type subscriberType,
             bool swallowException,
             CancellationToken cancellationToken)
@@ -112,7 +113,7 @@ namespace EventFlow.Subscribers
                     subscriberType,
                     cancellationToken)
                 .ConfigureAwait(false);
-            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
+            var subscribers = resolver.ResolveAll(subscriberInfomation.SubscriberType);
 
             foreach (var subscriber in subscribers)
             {
@@ -130,8 +131,6 @@ namespace EventFlow.Subscribers
                 }
             }
         }
-
-        private readonly ConcurrentDictionary<string, SubscriberInfomation> _test = new ConcurrentDictionary<string, SubscriberInfomation>();
 
         private Task<SubscriberInfomation> GetSubscriberInfomationAsync(
             Type domainEventType,
