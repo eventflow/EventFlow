@@ -79,7 +79,7 @@ and still use the value object in our events.
 .. code:: json
 
     {
-      "Username" : "my-awsome-username"
+      "Username" : "my-awesome-username"
     }
 
 To do this, we use the custom JSON serializer EventFlow has for single

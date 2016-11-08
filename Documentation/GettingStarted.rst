@@ -201,4 +201,4 @@ There are several areas the code can be improved.
    create a :ref:`subscriber <subscribers>`
 -  Setup a persistent event store using e.g.
    :ref:`Microsoft SQL Server <eventstore-mssql>`
--  Create :ref:`read models <read-stores>` for effecient querying
+-  Create :ref:`read models <read-stores>` for efficient querying

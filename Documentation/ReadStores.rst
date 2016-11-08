@@ -22,7 +22,7 @@ events created specifically for efficient queries.
 
 Here's a simple example of how a read model for doing searches for
 usernames could look. The read model handles the ``UserCreated`` domain
-event event to get the username and user ID.
+event to get the username and user ID.
 
 .. code-block:: c#
 
@@ -43,7 +43,7 @@ event event to get the username and user ID.
 
 The read model applies all ``UserCreated`` events and thereby merely saves
 the latest value instead of the entire history, which makes it much easier to
-store in an effecient manner.
+store in an efficient manner.
 
 
 Read model locators
@@ -215,5 +215,5 @@ by deleting the index. Thus make sure to create one separate index per
 read model.
 
 If you want to control the index a specific read model is stored in,
-create create an implementation of ``IReadModelDescriptionProvider`` and
+create an implementation of ``IReadModelDescriptionProvider`` and
 register it in the `EventFlow IoC <./Customize.md>`__.

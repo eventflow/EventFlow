@@ -27,7 +27,7 @@
         </a>
       </p>
       <p>
-        <a href="http://eventflow.readthedocs.io/?badge=latest">
+        <a href="http://docs.geteventflow.net/?badge=latest">
           <img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" />
         </a>
       </p>
