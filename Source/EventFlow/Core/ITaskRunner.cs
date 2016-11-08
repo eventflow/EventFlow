@@ -25,11 +25,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 
 namespace EventFlow.Core
 {
     public interface ITaskRunner
     {
-        void Run(Label label, Func<CancellationToken, Task> taskFactory, CancellationToken cancellationToken);
+        void Run(Label label, Func<IResolver, CancellationToken, Task> taskFactory, CancellationToken cancellationToken);
     }
 }

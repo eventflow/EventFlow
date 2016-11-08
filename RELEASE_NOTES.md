@@ -4,6 +4,11 @@
   you use any of these packages, then switch to the `EventFlow.MsSql` package
   - `EventFlow.EventStores.MsSql`
   - `EventFlow.ReadStores.MsSql`
+* Breaking: `ITaskRunner.Run(...)` has changed signature. The task factory now
+  gets an instance of `IResolver` that is valid for the duration of the task
+  execution
+* Fixed: The resolver scope of `ISubscribeAsynchronousTo<,,>` is now valid for
+  the duration of the domain handling
 * New: Documentation is now released in HTML format along with NuGet packages.
   Access the ZIP file from the GitHub releases page
 
