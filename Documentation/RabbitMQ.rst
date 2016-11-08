@@ -15,8 +15,10 @@ To setup EventFlow RabbitMQ_ integration, install the NuGet package
       ...
       .CreateResolver();
 
-Features provided by ``EventFlow.RabbitMQ``
+
+After setting up RabbitMQ support in EventFlow, you can continue to configure it.
 
 - :ref:`Publish all domain events <subscribers-rabbitmq>`
+
 
 .. _RabbitMQ: https://www.rabbitmq.com/

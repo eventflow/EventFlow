@@ -25,10 +25,13 @@ implement two upgraders, one upgrade a event from V1 to V2 and then
 another upgrading V2 to V3. EventFlow orders the event upgraders by name
 before starting the event upgrade.
 
-**Be careful** if working with event upgraders that return zero or more
-than one event, as this have an influence on the aggregate version and
-you need to make sure that the aggregate sequence number on upgraded
-events have a valid value.
+.. CAUTION::
+
+    If working with event upgraders that return zero or more
+    than one event, as this have an influence on the aggregate version and
+    you need to make sure that the aggregate sequence number on upgraded
+    events have a valid value.
+
 
 Example - removing a damaged event
 ----------------------------------
