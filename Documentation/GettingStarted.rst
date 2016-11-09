@@ -71,6 +71,40 @@ The above example publishes the ``ExampleCommand`` to the aggregate with the
 been published, the accompanying read model ``ExampleReadModel`` is fetched
 and we verify that the magical number has reached it.
 
+During the execution of the example application, a single event is emitted and
+stored in the in-memory event store. The JSON for the event is shown here.
+
+.. code-block:: json
+
+    {
+      "MagicNumber": 42
+    }
+
+The event data itself is strait forward as its merely the JSON serialization of
+an instance of the type ``ExampleEvent`` with the value we defined. A bit more
+interesting is the meta data that EventFlow stores along the event, which is
+used by the EventFlow event store.
+
+.. code-block:: json
+
+    {
+      "timestamp": "2016-11-09T20:56:28.5019198+01:00",
+      "aggregate_sequence_number": "1",
+      "aggregate_name": "ExampleAggrenate",
+      "aggregate_id": "example-c1d4a2b1-c75b-4c53-ae44-e67ee1ddfd79",
+      "event_id": "event-d5622eaa-d1d3-5f57-8023-4b97fabace90",
+      "timestamp_epoch": "1478721389",
+      "batch_id": "52e9d7e9-3a98-44c5-926a-fc416e20556c",
+      "source_id": "command-69176516-07b7-4142-beaf-dba82586152c",
+      "event_name": "example",
+      "event_version": "1"
+    }
+
+All the built-in meta data is available on each instance of ``IDoamainEvent<,,>``,
+which is accessible from event handlers for e.g. read models or subscribers. It
+also possible create your own :ref:`meta data providers <metadata-providers-custom>`
+or add additional EventFlow built-in providers as needed.
+
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleId.cs
   :linenos:
   :dedent: 4
