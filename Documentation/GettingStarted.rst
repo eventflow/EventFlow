@@ -112,8 +112,8 @@ or add additional EventFlow built-in providers as needed.
   :lines: 29-34
 
 .. NOTE::
-    Be sure to read the read the section about the
-    :ref:`Identity\<\> <identity>` class to get details on how to use it.
+    Be sure to read the read the section about the :ref:`Identity\<\> <identity>`
+    class to get details on how to use it.
 
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleAggrenate.cs
@@ -148,7 +148,7 @@ or add additional EventFlow built-in providers as needed.
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 31-43
+  :lines: 30-43
 
 
 
