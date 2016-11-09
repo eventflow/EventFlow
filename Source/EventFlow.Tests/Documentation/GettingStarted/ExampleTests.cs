@@ -36,7 +36,7 @@ namespace EventFlow.Tests.Documentation.GettingStarted
     public class ExampleTests
     {
         [Test]
-        public async Task Example()
+        public async Task GettingStartedExample()
         {
             // We wire up EventFlow with all of our classes. Instead of adding events,
             // commands, etc. explicitly, we could have used the the simpler
@@ -49,7 +49,7 @@ namespace EventFlow.Tests.Documentation.GettingStarted
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
-                var simpleId = ExampleId.New;
+                var exampleId = ExampleId.New;
 
                 // Define some important value
                 const int magicNumber = 42;
@@ -57,19 +57,21 @@ namespace EventFlow.Tests.Documentation.GettingStarted
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
                 await commandBus.PublishAsync(
-                    new ExampleCommand(simpleId, magicNumber), CancellationToken.None)
+                    new ExampleCommand(exampleId, magicNumber),
+                    CancellationToken.None)
                     .ConfigureAwait(false);
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var simpleReadModel = await queryProcessor.ProcessAsync(
-                    new ReadModelByIdQuery<ExampleReadModel>(simpleId), CancellationToken.None)
+                var exampleReadModel = await queryProcessor.ProcessAsync(
+                    new ReadModelByIdQuery<ExampleReadModel>(exampleId),
+                    CancellationToken.None)
                     .ConfigureAwait(false);
 
                 // Verify that the read model has the expected magic number
-                simpleReadModel.MagicNumber.Should().Be(42);
+                exampleReadModel.MagicNumber.Should().Be(42);
             }
         }
     }

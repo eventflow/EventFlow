@@ -47,20 +47,35 @@ EventFlow is used.
 - :ref:`Sagas <sagas>`
 - :ref:`Metadata providers <metadata-providers>`
 
+To get started, we start with our entire example application which consists of
+one of each of the required parts: aggregate, event, identity, command and a
+command handler.
 
+.. NOTE::
+    The example code provided here is located within the EventFlow code base
+    exactly as shown, so if you would like to debug and step through the
+    entire flow, checkout the code and execute the ``GettingStartedExample``
+    test.
+
+
+All classes create for the example application are prefixed with ``Example``.
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleTests.cs
   :linenos:
   :dedent: 12
   :language: c#
-  :lines: 41-74
+  :lines: 41-76
 
+The above example publishes the ``ExampleCommand`` to the aggregate with the
+``exampleId`` identity with the magical value of ``42``. After the command has
+been published, the accompanying read model ``ExampleReadModel`` is fetched
+and we verify that the magical number has reached it.
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleId.cs
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 29-33
+  :lines: 29-34
 
 .. NOTE::
     Be sure to read the read the section about the
@@ -71,39 +86,51 @@ EventFlow is used.
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 30-54
+  :lines: 30-55
 
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleEvent.cs
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 30-40
+  :lines: 30-41
 
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommand.cs
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 29-41
+  :lines: 29-42
 
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommandHandler.cs
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 31-42
+  :lines: 31-43
 
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleReadModel.cs
   :linenos:
   :dedent: 4
   :language: c#
-  :lines: 31-42
+  :lines: 31-43
 
 
 
 
+Next steps
+----------
+
+Although the implementation in this guide enables you to create a complete
+application, there are several topics that are recommended as next steps.
+
+-  Use :ref:`value objects <value-objects>` to produce cleaner JSON
+-  If your application need to act on an emitted event, create a
+   :ref:`subscriber <subscribers>`
+-  Setup a persistent event store using e.g.
+   :ref:`Microsoft SQL Server <eventstore-mssql>`
+-  Create :ref:`read models <read-stores>` for efficient querying
 
 
 
@@ -297,17 +324,3 @@ by publishing the command.
       password);
 
     await _commandBus.PublishAsync(command, cancellationToken);
-
-Improvements
-------------
-
-There are several areas the code can be improved.
-
--  Use :ref:`value objects <value-objects>` for e.g. username and
-   password that validate the value, i.e., ensure that the username
-   isn't the empty string
--  If your application need to act on the emitted ``UserCreatedEvent``,
-   create a :ref:`subscriber <subscribers>`
--  Setup a persistent event store using e.g.
-   :ref:`Microsoft SQL Server <eventstore-mssql>`
--  Create :ref:`read models <read-stores>` for efficient querying

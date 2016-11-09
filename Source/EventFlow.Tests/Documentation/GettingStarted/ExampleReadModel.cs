@@ -28,7 +28,8 @@ using EventFlow.ReadStores;
 namespace EventFlow.Tests.Documentation.GettingStarted
 {
     /// Read model for our aggregate
-    public class ExampleReadModel : IReadModel,
+    public class ExampleReadModel :
+        IReadModel,
         IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
     {
         public int MagicNumber { get; private set; }

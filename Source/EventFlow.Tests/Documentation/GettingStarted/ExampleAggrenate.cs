@@ -28,7 +28,8 @@ using EventFlow.Exceptions;
 namespace EventFlow.Tests.Documentation.GettingStarted
 {
     /// The aggregate root
-    public class ExampleAggrenate : AggregateRoot<ExampleAggrenate, ExampleId>,
+    public class ExampleAggrenate :
+        AggregateRoot<ExampleAggrenate, ExampleId>,
         IEmit<ExampleEvent>
     {
         private int? _magicNumber;
