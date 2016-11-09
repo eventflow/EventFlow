@@ -1,3 +1,5 @@
+.. _metadata-providers:
+
 Metadata
 ========
 

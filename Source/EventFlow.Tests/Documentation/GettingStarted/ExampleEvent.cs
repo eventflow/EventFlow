@@ -23,10 +23,12 @@
 // 
 
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 
 namespace EventFlow.Tests.Documentation.GettingStarted
 {
     /// A basic event containing some information
+    [EventVersion("example", 1)]
     public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
     {
         public ExampleEvent(int magicNumber)

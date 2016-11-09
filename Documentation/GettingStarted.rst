@@ -3,6 +3,115 @@
 Getting started
 ===============
 
+Initializing EventFlow always start with an ``EventFlowOptions.New`` as this
+performs the initial bootstrap and starts the fluent configuration API. The
+very minimum initialization of EventFlow can be done in a single line, but
+wouldn't serve any purpose as no domain has been configured.
+
+.. code-block:: c#
+
+  var resolver = EventFlowOptions.New.CreateResolver();
+
+
+The above line does configures several important defaults
+
+- In-memory :ref:`event store <eventstores>`
+- Console logger
+- A "null" snapshot store, that merely writes a warning if used
+- And lastly, default implementations of all the internal parts of EventFlow
+
+.. IMPORTANT::
+    Before using EventFlow in a production environment, you should configure an
+    alternative **event store** and another **logger** that sends log messages
+    to your production log store.
+
+
+To start using EventFlow, a domain must be configure which consists of the
+following parts
+
+- :ref:`Aggregate <aggregates>`
+- :ref:`Aggregate identity <identity>`
+- :ref:`Aggregate events <events>`
+- :ref:`Commands and command handlers <commands>` (optional, but highly recommended)
+
+In addition to the above, EventFlow provides several optional features. Whether
+or not these features are utilized, depends on the application in which
+EventFlow is used.
+
+- :ref:`Read models <read-stores>`
+- :ref:`Subscribers <subscribers>`
+- :ref:`Event upgraders <event-upgrade>`
+- :ref:`Queries <queries>`
+- :ref:`Jobs <jobs>`
+- :ref:`Snapshots <snapshots>`
+- :ref:`Sagas <sagas>`
+- :ref:`Metadata providers <metadata-providers>`
+
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleTests.cs
+  :linenos:
+  :dedent: 12
+  :language: c#
+  :lines: 41-74
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleId.cs
+  :linenos:
+  :dedent: 4
+  :language: c#
+  :lines: 29-33
+
+.. NOTE::
+    Be sure to read the read the section about the
+    :ref:`Identity\<\> <identity>` class to get details on how to use it.
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleAggrenate.cs
+  :linenos:
+  :dedent: 4
+  :language: c#
+  :lines: 30-54
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleEvent.cs
+  :linenos:
+  :dedent: 4
+  :language: c#
+  :lines: 30-40
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommand.cs
+  :linenos:
+  :dedent: 4
+  :language: c#
+  :lines: 29-41
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommandHandler.cs
+  :linenos:
+  :dedent: 4
+  :language: c#
+  :lines: 31-42
+
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleReadModel.cs
+  :linenos:
+  :dedent: 4
+  :language: c#
+  :lines: 31-42
+
+
+
+
+
+
+
+
+
+
+
+
 This guide describes how to get started using EventFlow.
 
 Implementation notes
@@ -28,10 +137,6 @@ started.
       public UserId(string value) : base(value) { }
     }
 
-.. NOTE::
-    Be sure to read the read the section about the
-    :ref:`Identity\<\> <identity>` class to get details on how to use
-    it.
 
 Next, let us start by creating a aggregate to represent our users.
 
@@ -65,6 +170,7 @@ Create event
     }
 
 .. IMPORTANT::
+
     Once have aggregates in your production environment that have emitted
     a event, you should never change it. You can deprecate it, but you
     should never change the data stored in the event store

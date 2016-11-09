@@ -51,10 +51,13 @@ namespace EventFlow.Tests.Documentation.GettingStarted
                 // Create a new identity for our aggregate root
                 var simpleId = ExampleId.New;
 
+                // Define some important value
+                const int magicNumber = 42;
+
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
                 await commandBus.PublishAsync(
-                    new ExampleCommand(simpleId, 42), CancellationToken.None)
+                    new ExampleCommand(simpleId, magicNumber), CancellationToken.None)
                     .ConfigureAwait(false);
 
                 // Resolve the query handler and use the built-in query for fetching
