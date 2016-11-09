@@ -6,10 +6,6 @@ using FireSharp;
 using FireSharp.Config;
 using FireSharp.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EventFlow.Firebase.Extensions
 {
@@ -17,12 +13,10 @@ namespace EventFlow.Firebase.Extensions
     {
         public static IEventFlowOptions ConfigureFirebase(
             this IEventFlowOptions eventFlowOptions,
-            string authSecret,
             string basePath)
         {
             IFirebaseConfig config = new FirebaseConfig()
             {
-                AuthSecret = authSecret,
                 BasePath = basePath,
             };
 

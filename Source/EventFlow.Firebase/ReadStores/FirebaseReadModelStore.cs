@@ -11,7 +11,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Firebase.ReadStores
 {
-    public class FirebaseReadModelStore<TReadModel> : IFirebaseReadModelStore<TReadModel> 
+    public class FirebaseReadModelStore<TReadModel> : IFirebaseReadModelStore<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
         private readonly ILog _log;
@@ -28,27 +28,36 @@ namespace EventFlow.Firebase.ReadStores
             _readModelDescriptionProvider = readModelDescriptionProvider;
         }
 
-        public Task DeleteAllAsync(
+        public async Task DeleteAllAsync(
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            await _firebaseClient.DeleteAsync(readModelDescription.NodeName.Value);
         }
 
-        public Task<ReadModelEnvelope<TReadModel>> GetAsync(
-            string id, 
+        public async Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+
+            _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from node '{readModelDescription.NodeName}'");
+
+            var path = $"{readModelDescription.NodeName}/{id}";
+
+            var response = await _firebaseClient.GetAsync(path);
+
+            return ReadModelEnvelope<TReadModel>.With(id, response.ResultAs<TReadModel>());
         }
 
         public async Task UpdateAsync(
             IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContext readModelContext,
             Func<
-                IReadModelContext, 
-                IReadOnlyCollection<IDomainEvent>, 
-                ReadModelEnvelope<TReadModel>, 
-                CancellationToken, 
+                IReadModelContext,
+                IReadOnlyCollection<IDomainEvent>,
+                ReadModelEnvelope<TReadModel>,
+                CancellationToken,
                 Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
@@ -83,11 +92,6 @@ namespace EventFlow.Firebase.ReadStores
                     cancellationToken).ConfigureAwait(false);
 
                 var x = _firebaseClient.SetAsync(path, readModelEnvelope.ReadModel);
-
-                //if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                //    _firebaseClient.Update(path, readModelEnvelope.ReadModel);
-                //else
-                //    _firebaseClient.Push(path, readModelEnvelope.ReadModel);
             }
         }
     }
