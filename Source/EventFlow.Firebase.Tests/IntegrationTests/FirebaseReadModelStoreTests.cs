@@ -19,7 +19,7 @@ namespace EventFlow.Firebase.Tests.IntegrationTests
     [Category("firebase")]
     public class FirebaseReadModelStoreTests : TestSuiteForReadModelStore
     {
-        static readonly string FIREBASE_DATABASE_URL = "https://event-flow-47b18.firebaseio.com/";
+        static readonly string FIREBASE_DATABASE_URL = "https://YOUR_FIREBASE_PROJECT.firebaseio.com/";
 
         private string _rootNodeName;
 
