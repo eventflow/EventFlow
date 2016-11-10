@@ -10,6 +10,7 @@ nuget Dapper ~> 1.42
 nuget dbup ~> 3.3
 nuget Elasticsearch.Net ~> 2.0
 nuget EventStore.Client ~> 3.4
+nuget FireSharp >= 2.0.4
 nuget Hangfire.Core ~> 1.5
 nuget Hangfire.SqlServer ~> 1.5
 nuget JetBrains.Annotations

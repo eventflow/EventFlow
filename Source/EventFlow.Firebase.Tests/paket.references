@@ -1,0 +1,6 @@
+FireSharp
+Newtonsoft.Json
+
+group Test
+	FluentAssertions
+	NUnit
