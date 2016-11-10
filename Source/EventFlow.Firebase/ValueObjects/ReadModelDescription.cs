@@ -6,18 +6,18 @@ namespace EventFlow.Firebase.ValueObjects
 {
     public class ReadModelDescription : ValueObject
     {
-        public ReadModelDescription(NodeName nodeName)
+        public ReadModelDescription(RootNodeName rootNodeName)
         {
-            if (nodeName == null) throw new ArgumentNullException(nameof(nodeName));
+            if (rootNodeName == null) throw new ArgumentNullException(nameof(rootNodeName));
 
-            NodeName = nodeName;
+            RootNodeName = rootNodeName;
         }
 
-        public NodeName NodeName { get; }
+        public RootNodeName RootNodeName { get; }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            yield return NodeName;
+            yield return RootNodeName;
         }
     }
 }

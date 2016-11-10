@@ -21,7 +21,7 @@ namespace EventFlow.Firebase.Tests.UnitTests
             var readModelDescription = Sut.GetReadModelDescription<TestReadModelA>();
 
             // Assert
-            readModelDescription.NodeName.Value.Should().Be("eventflow-testreadmodela");
+            readModelDescription.RootNodeName.Value.Should().Be("eventflow-testreadmodela");
         }
     }
 }

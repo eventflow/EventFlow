@@ -76,7 +76,7 @@
     <Compile Include="ReadStores\IFirebaseReadModelStore.cs" />
     <Compile Include="ReadStores\IReadModelDescriptionProvider.cs" />
     <Compile Include="ReadStores\ReadModelDescriptionProvider.cs" />
-    <Compile Include="ValueObjects\NodeName.cs" />
+    <Compile Include="ValueObjects\RootNodeName.cs" />
     <Compile Include="ValueObjects\ReadModelDescription.cs" />
   </ItemGroup>
   <ItemGroup>

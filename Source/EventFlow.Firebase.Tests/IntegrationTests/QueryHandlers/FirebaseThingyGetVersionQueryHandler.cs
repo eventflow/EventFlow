@@ -24,21 +24,14 @@ namespace EventFlow.Firebase.Tests.IntegrationTests.QueryHandlers
         public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<FirebaseThingyReadModel>();
+            var nodeName = $"{readModelDescription.RootNodeName.Value}/{query.ThingyId.Value}";
 
-            throw new System.NotImplementedException();
+            var getResponse = await _firebaseClient.GetAsync(nodeName);
 
-            //var getResponse = await _firebaseClient.GetAsync<FirebaseThingyReadModel>(
-            //    query.ThingyId.Value,
-            //    d => d
-            //        .RequestConfiguration(c => c
-            //            .CancellationToken(cancellationToken)
-            //            .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-            //        .Index(readModelDescription.IndexName.Value))
-            //    .ConfigureAwait(false);
+            var dyn = getResponse.ResultAs<dynamic>();
+            var version = dyn == null ? null : (long?)dyn._version;
 
-            //return getResponse != null && getResponse.Found
-            //    ? getResponse.Version
-            //    : null as long?;
+            return version;
         }
     }
 }

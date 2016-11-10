@@ -3,9 +3,9 @@ using System;
 
 namespace EventFlow.Firebase.ValueObjects
 {
-    public class NodeName : SingleValueObject<string>
+    public class RootNodeName : SingleValueObject<string>
     {
-        public NodeName(string value) : base(value)
+        public RootNodeName(string value) : base(value)
         {
             if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
         }

@@ -25,21 +25,15 @@ namespace EventFlow.Firebase.Tests.IntegrationTests.QueryHandlers
         public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<FirebaseThingyReadModel>();
+            var nodeName = $"{readModelDescription.RootNodeName.Value}/{query.ThingyId.Value}";
 
-            throw new System.NotImplementedException();
+            var getResponse = await _firebaseClient.GetAsync(nodeName);
 
-            //var getResponse = await _firebaseClient.GetAsync<FirebaseThingyReadModel>(
-            //    query.ThingyId.Value,
-            //    d => d
-            //        .Index(readModelDescription.IndexName.Value)
-            //        .RequestConfiguration(c => c
-            //            .CancellationToken(cancellationToken)
-            //            .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
-            //    .ConfigureAwait(false);
+            var thingyReadModel = getResponse.ResultAs<FirebaseThingyReadModel>();
 
-            //return getResponse != null && getResponse.Found
-            //    ? getResponse.Source.ToThingy()
-            //    : null;
+            return thingyReadModel != null && getResponse.StatusCode == System.Net.HttpStatusCode.OK
+                ? thingyReadModel.ToThingy()
+                : null;
         }
     }
 }

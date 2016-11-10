@@ -9,84 +9,61 @@ using EventFlow.Firebase.Tests.IntegrationTests.ReadModels;
 using EventFlow.Firebase.ValueObjects;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
-using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
-using NodeName = EventFlow.Firebase.ValueObjects.NodeName;
-using FireSharp.Interfaces;
+using RootNodeName = EventFlow.Firebase.ValueObjects.RootNodeName;
 
 namespace EventFlow.Firebase.Tests.IntegrationTests
 {
-    [Category(Categories.Integration)]
+    [Category("firebase")]
     public class FirebaseReadModelStoreTests : TestSuiteForReadModelStore
     {
-        private IFirebaseClient _firebaseClient;
-        private string _nodeName;
+        static readonly string FIREBASE_DATABASE_URL = "https://event-flow-47b18.firebaseio.com/";
+
+        private string _rootNodeName;
 
         public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
         {
-            private readonly string _indexName;
+            private readonly string _rootNodeName;
 
             public TestReadModelDescriptionProvider(
-                string indexName)
+                string nodeName)
             {
-                _indexName = indexName;
+                _rootNodeName = nodeName;
             }
 
             public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
             {
                 return new ReadModelDescription(
-                    new NodeName(_indexName));
+                    new RootNodeName(_rootNodeName));
             }
         }
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            try
-            {
-                _nodeName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
+            _rootNodeName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
 
-                var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_nodeName);
+            var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_rootNodeName);
 
-                var resolver = eventFlowOptions
-                    .RegisterServices(sr =>
-                    {
-                        sr.RegisterType(typeof(ThingyMessageLocator));
-                        sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
-                    })
-                    .ConfigureFirebase(@"https://event-flow-47b18.firebaseio.com/")
-                    .UseFirebaseReadModel<FirebaseThingyReadModel>()
-                    .UseFirebaseReadModel<FirebaseThingyMessageReadModel, ThingyMessageLocator>()
-                    .AddQueryHandlers(
-                        typeof(FirebaseThingyGetQueryHandler),
-                        typeof(FirebaseThingyGetVersionQueryHandler),
-                        typeof(FirebaseThingyGetMessagesQueryHandler))
-                    .CreateResolver();
+            var resolver = eventFlowOptions
+                .RegisterServices(sr =>
+                {
+                    sr.RegisterType(typeof(ThingyMessageLocator));
+                    sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
+                })
+                .ConfigureFirebase(FIREBASE_DATABASE_URL)
+                .UseFirebaseReadModel<FirebaseThingyReadModel>()
+                .UseFirebaseReadModel<FirebaseThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(
+                    typeof(FirebaseThingyGetQueryHandler),
+                    typeof(FirebaseThingyGetVersionQueryHandler),
+                    typeof(FirebaseThingyGetMessagesQueryHandler))
+                .CreateResolver();
 
-                _firebaseClient = resolver.Resolve<IFirebaseClient>();
+            //_firebaseClient = resolver.Resolve<IFirebaseClient>();
 
-                //_firebaseClient.CreateIndex(_nodeName);
-                //_firebaseClient.Map<FirebaseThingyMessageReadModel>(d => d
-                //    .Index(_nodeName)
-                //    .AutoMap());
-
-                //_firebaseInstance.WaitForGeenStateAsync().Wait(TimeSpan.FromMinutes(1));
-
-                return resolver;
-            }
-            catch
-            {
-                //_firebaseInstance.DisposeSafe("Failed to dispose ES instance");
-                throw;
-            }
-        }
-
-        [Test]
-        public void my_test()
-        {
-            Console.WriteLine();
-            PopulateTestAggregateReadModelAsync().GetAwaiter().GetResult();
+            return resolver;
         }
 
         protected override Task PurgeTestAggregateReadModelAsync()
@@ -97,22 +74,6 @@ namespace EventFlow.Firebase.Tests.IntegrationTests
         protected override Task PopulateTestAggregateReadModelAsync()
         {
             return ReadModelPopulator.PopulateAsync<FirebaseThingyReadModel>(CancellationToken.None);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            //try
-            //{
-            //    Console.WriteLine($"Deleting test index '{_nodeName}'");
-            //    _firebaseClient.DeleteIndex(
-            //        _nodeName,
-            //        r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //}
         }
     }
 }

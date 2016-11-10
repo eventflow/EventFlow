@@ -8,6 +8,7 @@ using EventFlow.ReadStores;
 using EventFlow.Logs;
 using FireSharp.Interfaces;
 using EventFlow.Extensions;
+using FireSharp.Response;
 
 namespace EventFlow.Firebase.ReadStores
 {
@@ -32,7 +33,10 @@ namespace EventFlow.Firebase.ReadStores
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-            await _firebaseClient.DeleteAsync(readModelDescription.NodeName.Value);
+
+            _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' by DELETING NODE '{readModelDescription.RootNodeName}'!");
+
+            await _firebaseClient.DeleteAsync(readModelDescription.RootNodeName.Value);
         }
 
         public async Task<ReadModelEnvelope<TReadModel>> GetAsync(
@@ -41,9 +45,9 @@ namespace EventFlow.Firebase.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from node '{readModelDescription.NodeName}'");
+            _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from node '{readModelDescription.RootNodeName}'");
 
-            var path = $"{readModelDescription.NodeName}/{id}";
+            var path = $"{readModelDescription.RootNodeName}/{id}";
 
             var response = await _firebaseClient.GetAsync(path);
 
@@ -70,12 +74,12 @@ namespace EventFlow.Firebase.ReadStores
                     .Distinct()
                     .OrderBy(i => i)
                     .ToList();
-                return $"Updating read models of type '{typeof(TReadModel).PrettyPrint()}' with IDs '{string.Join(", ", readModelIds)}' in node '{readModelDescription.NodeName}'";
+                return $"Updating read models of type '{typeof(TReadModel).PrettyPrint()}' with IDs '{string.Join(", ", readModelIds)}' in node '{readModelDescription.RootNodeName}'";
             });
 
             foreach (var readModelUpdate in readModelUpdates)
             {
-                var path = $"{readModelDescription.NodeName}/{readModelUpdate.ReadModelId}";
+                var path = $"{readModelDescription.RootNodeName}/{readModelUpdate.ReadModelId}";
 
                 var response = await _firebaseClient.GetAsync(path);
 
@@ -91,7 +95,10 @@ namespace EventFlow.Firebase.ReadStores
                     readModelEnvelope,
                     cancellationToken).ConfigureAwait(false);
 
-                var x = _firebaseClient.SetAsync(path, readModelEnvelope.ReadModel);
+                // TODO: Not sure about doing two server calls in order to update the _version?
+
+                SetResponse setResponse = await _firebaseClient.SetAsync(path, readModelEnvelope.ReadModel);
+                var updateVersion = await _firebaseClient.UpdateAsync(path, new { _version = readModelEnvelope.Version });
             }
         }
     }
