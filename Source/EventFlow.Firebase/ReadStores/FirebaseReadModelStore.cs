@@ -85,7 +85,7 @@ namespace EventFlow.Firebase.ReadStores
 
                 var firebaseResult = response.ResultAs<TReadModel>();
 
-                var readModelEnvelope = (response.StatusCode == System.Net.HttpStatusCode.OK)
+                var readModelEnvelope = (firebaseResult != null)
                     ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, firebaseResult)
                     : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
 
