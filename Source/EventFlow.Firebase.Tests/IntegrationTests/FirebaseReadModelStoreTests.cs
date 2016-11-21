@@ -13,10 +13,11 @@ using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 using RootNodeName = EventFlow.Firebase.ValueObjects.RootNodeName;
+using EventFlow.TestHelpers;
 
 namespace EventFlow.Firebase.Tests.IntegrationTests
 {
-    [Category("firebase")]
+    [Category(Categories.Integration)]
     public class FirebaseReadModelStoreTests : TestSuiteForReadModelStore
     {
         static readonly string FIREBASE_DATABASE_URL = "https://event-flow-47b18.firebaseio.com/";
