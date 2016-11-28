@@ -195,3 +195,6 @@ FakesAssemblies/
 
 # FAKE
 /.fake
+
+project.lock.json
+paket.lock
