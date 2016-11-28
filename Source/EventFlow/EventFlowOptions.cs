@@ -46,6 +46,7 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;
 using EventFlow.Subscribers;
+using System.Reflection;
 
 namespace EventFlow
 {
@@ -94,7 +95,7 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof (IAggregateEvent).GetTypeInfo().IsAssignableFrom(aggregateEventType))
                 {
                     throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
                 }
@@ -107,7 +108,7 @@ namespace EventFlow
         {
             foreach (var sagaType in sagaTypes)
             {
-                if (!typeof(ISaga).IsAssignableFrom(sagaType))
+                if (!typeof(ISaga).GetTypeInfo().IsAssignableFrom(sagaType))
                 {
                     throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
                 }
@@ -120,7 +121,7 @@ namespace EventFlow
         {
             foreach (var commandType in commandTypes)
             {
-                if (!typeof (ICommand).IsAssignableFrom(commandType))
+                if (!typeof (ICommand).GetTypeInfo().IsAssignableFrom(commandType))
                 {
                     throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof (ICommand).PrettyPrint()}");
                 }
@@ -133,7 +134,7 @@ namespace EventFlow
         {
             foreach (var jobType in jobTypes)
             {
-                if (!typeof (IJob).IsAssignableFrom(jobType))
+                if (!typeof (IJob).GetTypeInfo().IsAssignableFrom(jobType))
                 {
                     throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
                 }
@@ -146,7 +147,7 @@ namespace EventFlow
         {
             foreach (var snapshotType in snapshotTypes)
             {
-                if (!typeof(ISnapshot).IsAssignableFrom(snapshotType))
+                if (!typeof(ISnapshot).GetTypeInfo().IsAssignableFrom(snapshotType))
                 {
                     throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
                 }

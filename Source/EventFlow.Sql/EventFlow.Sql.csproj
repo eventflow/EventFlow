@@ -73,10 +73,9 @@
     <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
+    <Reference Include="EventFlow">
+      <HintPath>..\EventFlow\bin\$(Configuration)\net451\EventFlow.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -35,6 +35,7 @@ using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using System.Reflection;
 
 namespace EventFlow
 {
@@ -155,9 +156,10 @@ namespace EventFlow
                 _ =>
                     {
                         var commandInterfaceType = commandType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
-                        var commandTypes = commandInterfaceType.GetGenericArguments();
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
+                        var commandTypes = commandInterfaceType.GetTypeInfo().GetGenericArguments();
 
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);

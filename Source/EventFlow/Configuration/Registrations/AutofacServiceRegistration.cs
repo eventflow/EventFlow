@@ -30,6 +30,7 @@ using Autofac;
 using EventFlow.Configuration.Decorators;
 using EventFlow.Core;
 using EventFlow.Extensions;
+using System.Reflection;
 
 namespace EventFlow.Configuration.Registrations
 {
@@ -213,7 +214,7 @@ namespace EventFlow.Configuration.Registrations
                     .Select(b => new
                     {
                         Bootstrap = b,
-                        AssemblyName = b.GetType().Assembly.GetName().Name,
+                        AssemblyName = b.GetType().GetTypeInfo().Assembly.GetName().Name,
                     })
                     .ToList();
                 var eventFlowBootstraps = list

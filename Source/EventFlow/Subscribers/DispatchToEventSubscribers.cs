@@ -33,6 +33,7 @@ using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using System.Reflection;
 
 namespace EventFlow.Subscribers
 {
@@ -143,8 +144,10 @@ namespace EventFlow.Subscribers
                 _ =>
                     {
                         var arguments = domainEventType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IDomainEvent<,,>))
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IDomainEvent<,,>))
+                            .GetTypeInfo()
                             .GetGenericArguments();
 
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);
