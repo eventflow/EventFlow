@@ -30,3 +30,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("Async/await first CQRS+ES and DDD framework for .NET - http://geteventflow.net/")]
 
 [assembly: InternalsVisibleTo("EventFlow.Tests")]
+[assembly: InternalsVisibleTo("EventFlow.Autofac")]

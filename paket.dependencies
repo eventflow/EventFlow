@@ -2,7 +2,7 @@ redirects: on
 framework: <= net451
 source https://www.nuget.org/api/v2/
 
-nuget Autofac >= 3.5
+nuget Autofac >= 4.2
 nuget Autofac.Owin >= 3.1
 nuget Autofac.WebApi2 >= 3.4
 nuget Autofac.WebApi2.Owin >= 3.2

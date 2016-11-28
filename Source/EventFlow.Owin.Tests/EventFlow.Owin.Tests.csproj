@@ -50,10 +50,9 @@
     <Compile Include="RestClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj">
-      <Project>{26f06682-3364-4c22-b9b2-2f2653d0be0d}</Project>
-      <Name>EventFlow.Autofac</Name>
-    </ProjectReference>
+    <Reference Include="EventFlow.Autofac">
+      <HintPath>..\EventFlow.Autofac\bin\$(Configuration)\net451\EventFlow.Autofac.dll</HintPath>
+    </Reference>
     <ProjectReference Include="..\EventFlow.Owin\EventFlow.Owin.csproj">
       <Project>{ee6f7b78-3ef1-488f-b90a-8e7f350b7d51}</Project>
       <Name>EventFlow.Owin</Name>
@@ -86,7 +85,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>
         <Reference Include="Autofac">
-          <HintPath>..\..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
+          <HintPath>..\..\packages\Autofac\lib\net45\Autofac.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
