@@ -151,6 +151,27 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task RePopulateHandlesManyAggregates()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandsAsync(id1, 3).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id2, 5).ConfigureAwait(false);
+
+            // Act
+            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            await PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
+
+            // Assert
+            var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
+            var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+
+            readModel1.PingsReceived.Should().Be(3);
+            readModel2.PingsReceived.Should().Be(5);
+        }
+
+        [Test]
         public async Task PopulateCreatesReadModels()
         {
             // Arrange

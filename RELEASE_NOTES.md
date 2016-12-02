@@ -1,4 +1,8 @@
-### New in 0.37 (not released yet)
+### New in 0.38 (not released yet)
+
+* Fix: Single aggregate read models can now be re-populated again
+
+### New in 0.37.2424 (released 2016-11-08)
 
 * Breaking: Remove the following empty and deprecated MSSQL NuGet packages. If
   you use any of these packages, then switch to the `EventFlow.MsSql` package
