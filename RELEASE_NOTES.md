@@ -1,4 +1,8 @@
-### New in 0.38 (not released yet)
+### New in 0.39 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.38.2454 (released 2016-12-02)
 
 * Fix: Single aggregate read models can now be re-populated again
 
