@@ -89,6 +89,10 @@
   <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\ReadStores\Scripts\0002 - Create table ReadModel-ThingyMessage.sql" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Tools\Scripts\DropEventFlowTestDatabases.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
