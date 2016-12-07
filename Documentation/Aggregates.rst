@@ -87,6 +87,9 @@ uncommitted events.
 Remember not to do any changes to the aggregate with the these methods,
 as the state is only stored through events.
 
+
+.. _aggregates_applying_events:
+
 Applying events
 ---------------
 

@@ -47,9 +47,12 @@ EventFlow is used.
 - :ref:`Sagas <sagas>`
 - :ref:`Metadata providers <metadata-providers>`
 
+Example application
+-------------------
+
 To get started, we start with our entire example application which consists of
-one of each of the required parts: aggregate, event, identity, command and a
-command handler.
+one of each of the required parts: aggregate, event, aggregate identity, command
+and a command handler. After we will go through the individual parts created.
 
 .. NOTE::
     The example code provided here is located within the EventFlow code base
@@ -105,16 +108,31 @@ which is accessible from event handlers for e.g. read models or subscribers. It
 also possible create your own :ref:`meta data providers <metadata-providers-custom>`
 or add additional EventFlow built-in providers as needed.
 
+
+Aggregate identity
+------------------
+
+The aggregate ID is in EventFlow represented as a value objected that inherits
+from the ``IIdentity`` interface. You can provide your own implementation, but
+EventFlow provides a convenient implementation that will suit most needs.  Be
+sure to read the read the section about the :ref:`Identity\<\> <identity>` class
+to get details on how to use it.
+
+For our example application we use the built-in class making the implementation
+very simple.
+
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleId.cs
   :linenos:
   :dedent: 4
   :language: c#
   :lines: 29-34
 
-.. NOTE::
-    Be sure to read the read the section about the :ref:`Identity\<\> <identity>`
-    class to get details on how to use it.
 
+Aggregate
+---------
+
+Now we'll take a look at the ``ExampleAggrenate``. Its rather simple as the
+only thing it can, is apply the magic number once.
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleAggrenate.cs
   :linenos:
@@ -122,6 +140,33 @@ or add additional EventFlow built-in providers as needed.
   :language: c#
   :lines: 30-55
 
+Be sure to read the section on :ref:`aggregates <aggregates>` to get all the
+details right, but for now the most important thing to note, is that the state
+of the aggregate (updating the ``_magicNumber`` variable) happens in the
+``Apply(ExampleEvent)`` method. This is the event sourcing part of EventFlow in
+effect. As state changes are only saved as events, mutating the aggregate state
+must happen in such a way that the state changes are replayed the next the
+aggregate is loaded. EventFlow has a :ref:`set of different approaches <aggregates_applying_events>`
+that you can select from, but in this example we use the `Apply` methods as
+they are the simplest.
+
+The ``ExampleAggrenate`` exposes the ``SetMagicNumer(int)`` method, which
+is used to expose the business rules for changing the magic number. If the
+magic number hasn't been set before, the event ``ExampleEvent`` is emitted
+and the aggregate state is mutated.
+
+.. IMPORTANT::
+    The ``Apply(ExampleEvent)`` is invoked by the ``Emit(...)`` method, so
+    after the event has been emitted, the aggregate state has changed.
+
+
+Event
+-----
+
+Next up is the event which represents some that **has** happend in our domain.
+In this example, its merely that some magic number has been set. Normally
+these events should have a really, really good name and represent something in the
+ubiquitous language for the domain.
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleEvent.cs
   :linenos:
@@ -129,6 +174,20 @@ or add additional EventFlow built-in providers as needed.
   :language: c#
   :lines: 30-41
 
+We have applied the ``[EventVersion("example", 1)]`` to our event, marking it
+as the ``example`` event version ``1``, which directly corresponds to the
+``event_name`` and ``event_version`` from the meta data store along side the
+event mentioned. The information is used by EventFlow to tie name and version to
+a specific .NET type.
+
+.. IMPORTANT::
+    Even though the using the ``EventVersion`` attribute is optional, its
+    **highly recommended**. EventFlow will infer the information if it isn't
+    provided and thus making it vulnerable to e.g. type renames.
+
+
+Command
+-------
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommand.cs
   :linenos:
@@ -137,12 +196,18 @@ or add additional EventFlow built-in providers as needed.
   :lines: 29-42
 
 
+Command handler
+---------------
+
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommandHandler.cs
   :linenos:
   :dedent: 4
   :language: c#
   :lines: 31-43
 
+
+Read model
+----------
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleReadModel.cs
   :linenos:
