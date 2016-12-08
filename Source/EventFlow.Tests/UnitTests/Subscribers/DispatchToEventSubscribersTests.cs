@@ -90,7 +90,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
+            autoResetEvent.WaitOne(TimeSpan.FromSeconds(10)).Should().BeTrue("Failed to invoke asynchronous subscriber");
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
             _logMock.VerifyNoErrorsLogged();
         }
