@@ -17,7 +17,9 @@ The above line does configures several important defaults
 
 - In-memory :ref:`event store <eventstores>`
 - Console logger
-- A "null" snapshot store, that merely writes a warning if used
+- A "null" snapshot store, that merely writes a warning if used (no need to
+  do anything before going to production if you aren't planning to use
+  snapshots)
 - And lastly, default implementations of all the internal parts of EventFlow
 
 .. IMPORTANT::
@@ -189,11 +191,25 @@ a specific .NET type.
 Command
 -------
 
+Commands are the entry point to the domain and if you remember from the example
+application, they are published using the ``ICommandBus`` as shown here.
+
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleTests.cs
+  :linenos:
+  :dedent: 16
+  :language: c#
+  :lines: 57-62
+
+In EventFlow commands are simple value objects that merely how the arguments for
+the command execution. All commands implement the ``ICommand<,>`` interface, but
+EventFlow provides an easy-to-use base class that you can use.
+
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommand.cs
   :linenos:
   :dedent: 4
   :language: c#
   :lines: 29-42
+
 
 
 Command handler
