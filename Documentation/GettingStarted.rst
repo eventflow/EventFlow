@@ -187,6 +187,12 @@ a specific .NET type.
     **highly recommended**. EventFlow will infer the information if it isn't
     provided and thus making it vulnerable to e.g. type renames.
 
+.. IMPORTANT::
+    Once have aggregates in your production environment that have emitted
+    an event, you should never change the .NET implementation. You can deprecate
+    it, but you should never change the type or the data stored in the event
+    store.
+
 
 Command
 -------
@@ -210,10 +216,17 @@ EventFlow provides an easy-to-use base class that you can use.
   :language: c#
   :lines: 29-42
 
+A command doesn't do anything without a command handler. In fact, EventFlow
+will throw an exception if a command doesn't have exactly **one** command
+handler registered.
 
 
 Command handler
 ---------------
+
+The command handler provides the glue between the command, the aggregate and
+the IoC container as it defines how a command is executed. Typically they are
+rather simple, but they could contain more complex logic. How much is up to you.
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleCommandHandler.cs
   :linenos:
@@ -221,9 +234,28 @@ Command handler
   :language: c#
   :lines: 31-43
 
+The ``ExampleCommandHandler`` in our case here merely invokes the
+``SetMagicNumer`` on the aggregate.
+
+.. IMPORTANT::
+    Everything inside the ``ExecuteAsync(...)`` method of a command handler
+    **may** be executed more than once if there's an optimistic concurrency
+    exception, i.e., something else has happened to the aggregate since it
+    as loaded from the event store and its therefor automatically reloaded by
+    EventFlow. It is therefor essential that the command handler doesn't mutate
+    anything other than the aggregate.
+
 
 Read model
 ----------
+
+If you ever need to access the data in your aggregates efficiently, its important
+that :ref:`read models <read-stores>` are used. Loading aggregates from the
+event store takes time and its impossible to query for e.g. aggregates that have
+a specific value in its state.
+
+In our example we merely use the built-in in-memory read model store. Its useful
+in many cases, e.g. executing automated domain tests in an CI build.
 
 .. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleReadModel.cs
   :linenos:
@@ -231,7 +263,13 @@ Read model
   :language: c#
   :lines: 30-43
 
+Notice the ``IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent``
+argument, its merely a wrapper around the specific event we implemented
+earlier. The ``IDomainEvent<,,>`` provides additional information, e.g. any
+meta data store along side the event.
 
+The main difference between the event instance emitted in the aggregate and the
+instance wrapped here, is that the event has been committed to the event store.
 
 
 Next steps
@@ -311,11 +349,6 @@ Create event
       }
     }
 
-.. IMPORTANT::
-
-    Once have aggregates in your production environment that have emitted
-    a event, you should never change it. You can deprecate it, but you
-    should never change the data stored in the event store
 
 
 Update aggregate
