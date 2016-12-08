@@ -49,16 +49,10 @@ namespace EventFlow.ReadStores
         protected override IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
             IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            var readModelIds = domainEvents
-                .Select(e => e.GetIdentity().Value)
-                .Distinct()
+            return domainEvents
+                .GroupBy(d => d.GetIdentity().Value)
+                .Select(g => new ReadModelUpdate(g.Key, g.OrderBy(d => d.AggregateSequenceNumber).ToList()))
                 .ToList();
-            if (readModelIds.Count != 1)
-            {
-                throw new ArgumentException("Only domain events from the same aggregate is allowed");
-            }
-
-            return new[] {new ReadModelUpdate(readModelIds.Single(), domainEvents)};
         }
 
         protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
