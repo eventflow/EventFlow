@@ -20,16 +20,20 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.Commands
 {
-    public abstract class Command<TAggregate, TIdentity, TSourceIdentity> : ICommand<TAggregate, TIdentity, TSourceIdentity>
+    public abstract class Command<TAggregate, TIdentity, TSourceIdentity> :
+        ValueObject,
+        ICommand<TAggregate, TIdentity, TSourceIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TSourceIdentity : ISourceId
@@ -57,7 +61,8 @@ namespace EventFlow.Commands
         }
     }
 
-    public abstract class Command<TAggregate, TIdentity> : Command<TAggregate, TIdentity, ISourceId>,
+    public abstract class Command<TAggregate, TIdentity> :
+        Command<TAggregate, TIdentity, ISourceId>,
         ICommand<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
