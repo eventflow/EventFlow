@@ -27,10 +27,10 @@ before starting the event upgrade.
 
 .. CAUTION::
 
-    If working with event upgraders that return zero or more
+    Be careful when working with event upgraders that return zero or more
     than one event, as this have an influence on the aggregate version and
     you need to make sure that the aggregate sequence number on upgraded
-    events have a valid value.
+    events are valid in regard to the aggregate history.
 
 
 Example - removing a damaged event

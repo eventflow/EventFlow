@@ -46,6 +46,12 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Documentation\GettingStarted\ExampleAggrenate.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleCommand.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleCommandHandler.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleEvent.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleId.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleReadModel.cs" />
     <Compile Include="EventFlowTests.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
@@ -62,7 +68,7 @@
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
-    <Compile Include="IntegrationTests\CompleteExampleTests.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleTests.cs" />
     <Compile Include="IntegrationTests\SnapshotStores\InMemorySnapshotStoreTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
