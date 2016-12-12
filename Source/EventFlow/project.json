@@ -1,0 +1,27 @@
+{
+  "version": "0.38.0-*",
+  "authors": [ "Rasmus Mikkelsen" ],
+  "description": "Async/await first CQRS+ES and DDD framework for .NET - http://geteventflow.net/",
+  "packOptions": {
+    "owners": [ "rasums" ],
+    "tags": [ "CQRS", "ES", "event", "sourceing" ]
+  },
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.1",
+    "Newtonsoft.Json": "9.0.1",
+    "Autofac": "4.2.1",
+    "Microsoft.Extensions.Caching.Memory": "1.1.0",
+    "JetBrains.Annotations": "10.2.1"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "dependencies": {
+        "System.Reflection": "4.3.0"
+      }
+    },
+    "net451": {
+    }
+  }
+}

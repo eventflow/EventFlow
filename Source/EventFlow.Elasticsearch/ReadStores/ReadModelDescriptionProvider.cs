@@ -43,7 +43,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 typeof (TReadModel),
                 t =>
                     {
-                        var elasticType = t.GetCustomAttribute<ElasticsearchTypeAttribute>();
+                        var elasticType = t.GetTypeInfo().GetCustomAttribute<ElasticsearchTypeAttribute>();
                         var indexName = elasticType == null
                             ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
                             : elasticType.Name;

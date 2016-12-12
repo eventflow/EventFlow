@@ -39,7 +39,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var sagaTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(ISaga).IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISaga).GetTypeInfo().IsAssignableFrom(t))
                 .Where(t => predicate(t));
 
             return eventFlowOptions.AddSagas(sagaTypes);
@@ -60,7 +60,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var sagaTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(ISagaLocator).IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISagaLocator).GetTypeInfo().IsAssignableFrom(t))
                 .Where(t => predicate(t));
 
             return eventFlowOptions.AddSagaLocators(sagaTypes);
@@ -81,7 +81,7 @@ namespace EventFlow.Extensions
                 {
                     foreach (var sagaLocatorType in sagaLocatorTypes)
                     {
-                        if (!typeof(ISagaLocator).IsAssignableFrom(sagaLocatorType))
+                        if (!typeof(ISagaLocator).GetTypeInfo().IsAssignableFrom(sagaLocatorType))
                         {
                             throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
                         }

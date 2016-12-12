@@ -49,18 +49,16 @@
     <Compile Include="UnitTests\Aggregates\AutofacAggregateFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj">
-      <Project>{26f06682-3364-4c22-b9b2-2f2653d0be0d}</Project>
-      <Name>EventFlow.Autofac</Name>
-    </ProjectReference>
+    <Reference Include="EventFlow.Autofac">
+      <HintPath>..\EventFlow.Autofac\bin\$(Configuration)\net451\EventFlow.Autofac.dll</HintPath>
+    </Reference>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
       <Name>EventFlow.TestHelpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
+    <Reference Include="EventFlow">
+      <HintPath>..\EventFlow\bin\$(Configuration)\net451\EventFlow.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -81,7 +79,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>
         <Reference Include="Autofac">
-          <HintPath>..\..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
+          <HintPath>..\..\packages\Autofac\lib\net45\Autofac.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

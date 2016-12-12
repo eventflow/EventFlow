@@ -57,22 +57,23 @@
     <Compile Include="UnitTests\ReadModelDescriptionProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Elasticsearch\EventFlow.Elasticsearch.csproj">
-      <Project>{404c6099-e82f-4433-8505-5479d76660cd}</Project>
-      <Name>EventFlow.Elasticsearch</Name>
-    </ProjectReference>
+    <Reference Include="Evenflow.Elastichsearch">
+      <HintPath>..\EventFlow.Elasticsearch\bin\$(Configuration)\net451\EventFlow.Elasticsearch.dll</HintPath>
+    </Reference>
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
       <Name>EventFlow.TestHelpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
+    <Reference Include="EventFlow">
+      <HintPath>..\EventFlow\bin\$(Configuration)\net451\EventFlow.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="paket.references" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

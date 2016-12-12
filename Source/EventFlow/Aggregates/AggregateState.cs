@@ -43,6 +43,7 @@ namespace EventFlow.Aggregates
             var eventApplier = typeof (TEventApplier);
 
             ApplyMethods = eventApplier
+                .GetTypeInfo()
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(mi =>
                     {
@@ -50,7 +51,7 @@ namespace EventFlow.Aggregates
                         var parameters = mi.GetParameters();
                         return
                             parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
+                            aggregateEventType.GetTypeInfo().IsAssignableFrom(parameters[0].ParameterType);
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,

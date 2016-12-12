@@ -31,6 +31,7 @@ using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using System.Reflection;
 
 namespace EventFlow.Queries
 {
@@ -87,9 +88,10 @@ namespace EventFlow.Queries
                 _ =>
                     {
                         var queryInterfaceType = queryType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
-                        var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
+                        var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetTypeInfo().GetGenericArguments()[0]);
                         var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
                             queryHandlerType,
                             "ExecuteQueryAsync",

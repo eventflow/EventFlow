@@ -1,0 +1,23 @@
+﻿{
+  "version": "0.38.0-*",
+  "authors": [ "Rasmus Mikkelsen" ],
+  "description": "Autofac support for EventFlow",
+  "packOptions": {
+    "owners": [ "rasums" ],
+    "tags": [ "CQRS", "ES", "event", "sourceing", "autofac" ]
+  },
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.*",
+    "EventFlow": "0.38.*",
+    "Autofac": "4.2.*"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+    },
+
+    "net451": {
+    }
+  }
+}

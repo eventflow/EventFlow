@@ -23,20 +23,21 @@
 //
 
 using System;
-using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Logs;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EventFlow.Core.Caching
 {
     public class MemoryCache : Cache, IMemoryCache, IDisposable
     {
-        private readonly System.Runtime.Caching.MemoryCache _memoryCache = new System.Runtime.Caching.MemoryCache(GenerateKey());
+        private readonly Microsoft.Extensions.Caching.Memory.IMemoryCache _memoryCache = new Microsoft.Extensions.Caching.Memory.MemoryCache(GenerateKey());
 
-        private static string GenerateKey()
+        private static MemoryCacheOptions GenerateKey()
         {
-            return $"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}";
+            //$"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}";
+            return new MemoryCacheOptions();
         }
 
         public MemoryCache(ILog log)
@@ -69,13 +70,14 @@ namespace EventFlow.Core.Caching
             T value,
             CancellationToken cancellationToken)
         {
-            _memoryCache.Set(
-                cacheKey.Value,
-                value,
-                new CacheItemPolicy
-                {
-                    SlidingExpiration = slidingExpiration,
-                });
+
+            //_memoryCache.Set(
+            //    cacheKey.Value,
+            //    value,
+            //    new CacheItemPolicy
+            //    {
+            //        SlidingExpiration = slidingExpiration,
+            //    });
 
             return Task.FromResult(0);
         }

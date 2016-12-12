@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using System.Reflection;
 
 namespace EventFlow.MetadataProviders
 {
@@ -38,7 +39,7 @@ namespace EventFlow.MetadataProviders
             where TIdentity : IIdentity
         {
             var aggregateEventType = aggregateEvent.GetType();
-            var assembly = aggregateEventType.Assembly;
+            var assembly = aggregateEventType.GetTypeInfo().Assembly;
             var name = assembly.GetName();
 
             yield return new KeyValuePair<string, string>("event_type_assembly_version", name.Version.ToString());

@@ -71,10 +71,9 @@
       <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
       <Name>EventFlow.TestHelpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
+    <Reference Include="EventFlow">
+      <HintPath>..\EventFlow\bin\$(Configuration)\net451\EventFlow.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
