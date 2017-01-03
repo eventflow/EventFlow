@@ -1,3 +1,5 @@
+.. _jobs:
+
 Jobs
 ====
 
@@ -112,6 +114,6 @@ the scheduler like this.
       .CreateResolver();
 
 .. NOTE::
-  
+
     The ``UseHangfireJobScheduler()`` doesn't do any Hangfire
     configuration, but merely registers the proper scheduler in EventFlow.
