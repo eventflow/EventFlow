@@ -49,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\Domain\Model\CardoModel\Speficications\TransportLegsAreConnectedSpecificationTests.cs" />
     <Compile Include="Voyages.cs" />
+    <Compile Include="VoyagesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Examples.Shipping.Queries.InMemory\EventFlow.Examples.Shipping.Queries.InMemory.csproj">
