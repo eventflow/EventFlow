@@ -104,7 +104,7 @@ namespace EventFlow.Core
                 yield break;
             }
 
-            if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
+            if (!string.Equals(value.Trim(), value, StringComparison.OrdinalIgnoreCase))
                 yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
                 yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' does not start with '{Name}'";

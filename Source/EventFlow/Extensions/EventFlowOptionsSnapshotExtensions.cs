@@ -50,7 +50,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var snapshotTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract && typeof(ISnapshot).IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISnapshot).GetTypeInfo().IsAssignableFrom(t))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddSnapshots(snapshotTypes);
         }
@@ -64,8 +64,8 @@ namespace EventFlow.Extensions
 
             var snapshotUpgraderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.IsAbstract)
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>)))
+                .Where(t => !t.GetTypeInfo().IsAbstract)
+                .Where(t => t.GetTypeInfo().GetInterfaces().Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>)))
                 .Where(t => predicate(t));
 
             return eventFlowOptions.AddSnapshotUpgraders(snapshotUpgraderTypes);
@@ -87,8 +87,9 @@ namespace EventFlow.Extensions
                     foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
                     {
                         var interfaceType = snapshotUpgraderType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>));
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>));
                         sr.Register(interfaceType, snapshotUpgraderType);
                     }
                 });

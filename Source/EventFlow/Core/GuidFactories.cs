@@ -113,12 +113,14 @@ namespace EventFlow.Core
                 SwapByteOrder(namespaceBytes);
 
                 // Comput the hash of the name space ID concatenated with the name (step 4)
-                byte[] hash;
+                var hash = new byte[]{};
                 using (var algorithm = SHA1.Create())
                 {
+                    /*
                     algorithm.TransformBlock(namespaceBytes, 0, namespaceBytes.Length, null, 0);
                     algorithm.TransformFinalBlock(nameBytes, 0, nameBytes.Length);
                     hash = algorithm.Hash;
+                    */
                 }
 
                 // Most bytes from the hash are copied straight to the bytes of the new

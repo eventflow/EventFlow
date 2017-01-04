@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -85,9 +86,10 @@ namespace EventFlow.ReadStores
             var readStoreManagers = ResolveReadStoreManager<TReadModel>();
 
             var aggregateEventTypes = new HashSet<Type>(readModelType
+                .GetTypeInfo()
                 .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
-                .Select(i => i.GetGenericArguments()[2]));
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+                .Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
 
             _log.Verbose(() => string.Format(
                 "Read model '{0}' is interested in these aggregate events: {1}",

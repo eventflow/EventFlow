@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
@@ -87,30 +88,32 @@ namespace EventFlow.EventStores
         private static Type GetIdentityType(Type domainEventType)
         {
             var domainEventInterfaceType = domainEventType
+                .GetTypeInfo()
                 .GetInterfaces()
-                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,>));
+                .SingleOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,>));
 
             if (domainEventInterfaceType == null)
             {
                 throw new ArgumentException($"Type '{domainEventType.PrettyPrint()}' is not a '{typeof (IDomainEvent<,>).PrettyPrint()}'");
             }
 
-            var genericArguments = domainEventInterfaceType.GetGenericArguments();
+            var genericArguments = domainEventInterfaceType.GetTypeInfo().GetGenericArguments();
             return genericArguments[1];
         }
 
         private static Type GetDomainEventType(Type aggregateEventType)
         {
             var aggregateEventInterfaceType = aggregateEventType
+                .GetTypeInfo()
                 .GetInterfaces()
-                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>));
+                .SingleOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>));
 
             if (aggregateEventInterfaceType == null)
             {
                 throw new ArgumentException($"Type '{aggregateEventType.PrettyPrint()}' is not a '{typeof (IAggregateEvent<,>).PrettyPrint()}'");
             }
 
-            var genericArguments = aggregateEventInterfaceType.GetGenericArguments();
+            var genericArguments = aggregateEventInterfaceType.GetTypeInfo().GetGenericArguments();
             return typeof(DomainEvent<,,>).MakeGenericType(genericArguments[0], genericArguments[1], aggregateEventType);
         }
     }

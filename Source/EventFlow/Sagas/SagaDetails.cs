@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
@@ -39,29 +40,29 @@ namespace EventFlow.Sagas
 
         public static SagaDetails From(Type sagaType)
         {
-            if (!typeof(ISaga).IsAssignableFrom(sagaType))
+            if (!typeof(ISaga).GetTypeInfo().IsAssignableFrom(sagaType))
             {
                 throw new ArgumentException(
                     $"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}",
                     nameof(sagaType));
             }
 
-            var sagaInterfaces = sagaType.GetInterfaces();
+            var sagaInterfaces = sagaType.GetTypeInfo().GetInterfaces();
             var sagaHandlesTypes = sagaInterfaces
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaHandles<,,>))
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaHandles<,,>))
                 .ToList();
             var sagaStartedByTypes = sagaInterfaces
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaIsStartedBy<,,>))
-                .Select(i => i.GetGenericArguments()[2])
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaIsStartedBy<,,>))
+                .Select(i => i.GetTypeInfo().GetGenericArguments()[2])
                 .ToList();
             var aggregateEventTypes = sagaHandlesTypes
-                .Select(i => i.GetGenericArguments()[2])
+                .Select(i => i.GetTypeInfo().GetGenericArguments()[2])
                 .ToList();
-            var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
+            var sagaInterfaceType = sagaInterfaces.Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
 
             var sagaTypeDetails = new SagaDetails(
                 sagaType,
-                sagaInterfaceType.GetGenericArguments()[0],
+                sagaInterfaceType.GetTypeInfo().GetGenericArguments()[0],
                 sagaStartedByTypes,
                 aggregateEventTypes);
 
