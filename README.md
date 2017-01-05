@@ -7,16 +7,13 @@
     </td>
     <td  width="33%">
       <p>
-        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-          <img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
       </p>
       <p>
-        <a href="https://www.nuget.org/packages/EventFlow/">
-          <img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
+        <a href="https://www.nuget.org/packages/EventFlow/"><img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
       </p>
       <p>
-        <a href="http://docs.geteventflow.net/?badge=latest">
-          <img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
+        <a href="http://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
       </p>
     </td>
     <td  width="33%">
@@ -24,12 +21,10 @@
         <a href="https://www.codefactor.io/repository/github/eventflow/eventflow"><img src="https://www.codefactor.io/repository/github/eventflow/eventflow/badge" /></a>
       </p>
       <p>
-        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow">
-          <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
+        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
-        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop">
-          <img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
+        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
       </p>
     </td>
   </tr>
