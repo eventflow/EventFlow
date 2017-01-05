@@ -12,6 +12,8 @@ skip_tags: true
 build_script:
   - cmd: build.cmd All
 
+image: Visual Studio 2017 RC
+
 environment:
   RABBITMQ_URL:
     secure: W49qXP+4ZjxPTpBev0ZtuiajlgUwK8DyxTugRqcYoYpTDilN8TpqGS6+MGIYqJAFBtOkzyV+ZT2lVDVsKNXpyQArzVwCoMiOoGDNaULf3ujooaqBFC0rXyZpeTPhfI2q
