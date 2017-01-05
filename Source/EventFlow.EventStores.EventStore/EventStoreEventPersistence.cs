@@ -72,7 +72,8 @@ namespace EventFlow.EventStores.EventStore
                 resolvedEvents.AddRange(allEventsSlice.Events.Where(e => !e.OriginalStreamId.StartsWith("$")));
                 nextPosition = allEventsSlice.NextPosition;
 
-            } while (resolvedEvents.Count < pageSize && !allEventsSlice.IsEndOfStream);
+            }
+            while (resolvedEvents.Count < pageSize && !allEventsSlice.IsEndOfStream);
 
             var eventStoreEvents = Map(resolvedEvents);
 
@@ -174,7 +175,8 @@ namespace EventFlow.EventStores.EventStore
                 nextSliceStart = currentSlice.NextEventNumber;
                 streamEvents.AddRange(currentSlice.Events);
 
-            } while (!currentSlice.IsEndOfStream);
+            }
+            while (!currentSlice.IsEndOfStream);
 
             return Map(streamEvents);
         }
