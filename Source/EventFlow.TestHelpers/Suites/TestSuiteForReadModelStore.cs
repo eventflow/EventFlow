@@ -127,6 +127,7 @@ namespace EventFlow.TestHelpers.Suites
                 pingIds,
                 thingyMessages))
                 .ConfigureAwait(false);
+
             var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
             var thingy = await QueryProcessor.ProcessAsync(new ThingyGetQuery(thingyId)).ConfigureAwait(false);
 
