@@ -28,7 +28,6 @@ using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
-using EventFlow.Tests.UnitTests.Sagas;
 using FluentAssertions;
 using NUnit.Framework;
 

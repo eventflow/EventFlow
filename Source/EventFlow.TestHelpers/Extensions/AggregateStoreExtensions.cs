@@ -20,20 +20,23 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using EventFlow.TestHelpers;
-using NUnit.Framework;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.Tests
+namespace EventFlow.TestHelpers.Extensions
 {
-    [Category(Categories.Integration)]
-    public class VerifyPaketTemplates
+    public static class AggregateStoreExtensions
     {
-        [Test]
-        public void T()
+        public static Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
+            this IAggregateStore aggregateStore,
+            TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            var paketTemplateFiles = Helpers.GetProjectFiles("paket.template");
+            return aggregateStore.LoadAsync<TAggregate, TIdentity>(id, CancellationToken.None);
         }
     }
 }
