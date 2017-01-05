@@ -43,7 +43,7 @@ namespace EventFlow.Configuration.Decorators
                         .GetMethods()
                         .Single(mi => mi.IsGenericMethodDefinition && mi.Name == "Decorate");
                     var methodInfo = genericMethodInfo.MakeGenericMethod(t);
-                    return ((o,r) => methodInfo.Invoke(this, new[] {o, r}));
+                    return (o, r) => methodInfo.Invoke(this, new[] {o, r});
                 });
             return decorate(implementation, resolverContext);
         }
