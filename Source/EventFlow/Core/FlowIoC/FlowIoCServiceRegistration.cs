@@ -90,7 +90,6 @@ namespace EventFlow.Core.FlowIoC
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false)
         {
-            throw new NotImplementedException();
         }
 
         public void RegisterIfNotRegistered<TService, TImplementation>(
@@ -98,18 +97,16 @@ namespace EventFlow.Core.FlowIoC
             where TService : class
             where TImplementation : class, TService
         {
-            throw new NotImplementedException();
         }
 
         public void Decorate<TService>(
             Func<IResolverContext, TService, TService> factory)
         {
-            throw new NotImplementedException();
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            throw new NotImplementedException();
+            return new FlowIoCResolver(_registrations);
         }
 
         private void Register(

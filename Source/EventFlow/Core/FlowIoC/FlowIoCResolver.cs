@@ -84,7 +84,6 @@ namespace EventFlow.Core.FlowIoC
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public IScopeResolver BeginScope()
