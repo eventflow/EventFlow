@@ -22,11 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
+using EventFlow.Core.IoC;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
 
-namespace EventFlow.Core.FlowIoC
+namespace EventFlow.Tests.UnitTests.Configuration.Registrations
 {
-    internal interface IFactory
+    [Category(Categories.Unit)]
+    public class FlowIoCServiceRegistrationTests : SuiteServiceRegistrationTests
     {
-        object Create(IResolverContext resolverContext);
+        protected override IServiceRegistration CreateSut()
+        {
+            return new EventFlowIoCServiceRegistration();
+        }
     }
 }

@@ -29,7 +29,7 @@ using System.Reflection;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 
-namespace EventFlow.Core.FlowIoC.Factories
+namespace EventFlow.Core.IoC.Factories
 {
     internal class ConstructorFactory : IFactory
     {

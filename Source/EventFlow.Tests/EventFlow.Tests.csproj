@@ -55,7 +55,6 @@
     <Compile Include="EventFlowTests.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
-    <Compile Include="IntegrationTests\Core\FlowIoC\FlowIoCTests.cs" />
     <Compile Include="IntegrationTests\Sagas\AggregateSagaTests.cs" />
     <Compile Include="IntegrationTests\SeparationTests.cs" />
     <Compile Include="IntegrationTests\BasicTests.cs" />
@@ -80,6 +79,8 @@
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
+    <Compile Include="UnitTests\Configuration\Registrations\AutofacServiceRegistrationTests.cs" />
+    <Compile Include="UnitTests\Configuration\Registrations\FlowIoCServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
     <Compile Include="UnitTests\Core\Cache\InMemoryCacheTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
@@ -108,7 +109,7 @@
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
     <Compile Include="UnitTests\Aggregates\MetadataTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
-    <Compile Include="UnitTests\Configuration\Registrations\AutofacServiceRegistrationTests.cs" />
+    <Compile Include="UnitTests\Configuration\Registrations\SuiteServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\LabelTests.cs" />
     <Compile Include="UnitTests\Core\TransientFaultHandlerTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />

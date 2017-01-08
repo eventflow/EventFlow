@@ -21,16 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core.FlowIoC;
+using EventFlow.Core.IoC;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsFlowIoCExtensions
     {
-        public static IEventFlowOptions UseFlowIoC(this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseEventFlowIoC(this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .UseServiceRegistration(new FlowIoCServiceRegistration());
+                .UseServiceRegistration(new EventFlowIoCServiceRegistration());
         }
     }
 }

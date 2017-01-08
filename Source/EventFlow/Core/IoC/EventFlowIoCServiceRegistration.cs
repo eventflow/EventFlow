@@ -24,14 +24,16 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Configuration;
-using EventFlow.Core.FlowIoC.Factories;
+using EventFlow.Configuration.Decorators;
+using EventFlow.Core.IoC.Factories;
 
-namespace EventFlow.Core.FlowIoC
+namespace EventFlow.Core.IoC
 {
-    public class FlowIoCServiceRegistration : IServiceRegistration
+    internal class EventFlowIoCServiceRegistration : IServiceRegistration
     {
         private readonly object _syncRoot = new object();
         private readonly Dictionary<Type, List<Registration>> _registrations = new Dictionary<Type, List<Registration>>();
+        private readonly DecoratorService _decoratorService = new DecoratorService();
 
         public void Register<TService, TImplementation>(
             Lifetime lifetime = Lifetime.AlwaysUnique,
@@ -97,16 +99,18 @@ namespace EventFlow.Core.FlowIoC
             where TService : class
             where TImplementation : class, TService
         {
+            Register<TService, TImplementation>(lifetime, true);
         }
 
         public void Decorate<TService>(
             Func<IResolverContext, TService, TService> factory)
         {
+            _decoratorService.AddDecorator(factory);
         }
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            return new FlowIoCResolver(_registrations);
+            return new EventFlowIoCResolver(_registrations, true);
         }
 
         private void Register(
@@ -120,9 +124,9 @@ namespace EventFlow.Core.FlowIoC
                 List<Registration> registrations;
                 if (_registrations.TryGetValue(serviceType, out registrations))
                 {
-                    if (!keepDefault)
+                    if (keepDefault)
                     {
-                        registrations.Clear();
+                        return;
                     }
                 }
                 else
@@ -131,7 +135,12 @@ namespace EventFlow.Core.FlowIoC
                     _registrations.Add(serviceType, registrations);
                 }
 
-                registrations.Insert(0, new Registration(lifetime, factory));
+                var registration = new Registration(
+                    serviceType,
+                    lifetime,
+                    factory,
+                    _decoratorService);
+                registrations.Insert(0, registration);
             }
         }
     }

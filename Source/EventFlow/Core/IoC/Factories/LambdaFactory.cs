@@ -23,52 +23,22 @@
 
 using System;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.Core.FlowIoC
+namespace EventFlow.Core.IoC.Factories
 {
-    public class FlowIoCTests
+    internal class LambdaFactory<TService> : IFactory
     {
-        [Test]
-        public void RegisterViaGeneric()
-        {
-            using (var resolver = SetUp(sr => sr.Register<I, C>()))
-            {
-                var i = resolver.Resolve<I>();
+        private readonly Func<IResolverContext, TService> _factory;
 
-                i.Should().BeOfType<C>();
-            }
+        public LambdaFactory(
+            Func<IResolverContext, TService> factory)
+        {
+            _factory = factory;
         }
 
-        [Test]
-        public void RegisterViaTypes()
+        public object Create(IResolverContext resolverContext)
         {
-            using (var resolver = SetUp(sr => sr.Register(typeof(I), typeof(C))))
-            {
-                var i = resolver.Resolve<I>();
-
-                i.Should().BeOfType<C>();
-            }
-        }
-
-        private static IRootResolver SetUp(Action<IServiceRegistration> configure)
-        {
-            var eventFlowOptions = EventFlowOptions.New
-                .UseFlowIoC();
-
-            return eventFlowOptions
-                .RegisterServices(configure)
-                .CreateResolver();
-        }
-
-        public interface I
-        {
-        }
-
-        public class C : I
-        {
+            return _factory(resolverContext);
         }
     }
 }

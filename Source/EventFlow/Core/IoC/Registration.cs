@@ -23,21 +23,28 @@
 
 using System;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Decorators;
 
-namespace EventFlow.Core.FlowIoC
+namespace EventFlow.Core.IoC
 {
     internal class Registration : IDisposable
     {
+        private readonly Type _serviceType;
         private readonly IFactory _factory;
+        private readonly IDecoratorService _decoratorService;
         private readonly Lifetime _lifetime;
         private readonly object _syncRoot = new object();
         private object _singleton;
 
         public Registration(
+            Type serviceType,
             Lifetime lifetime,
-            IFactory factory)
+            IFactory factory,
+            IDecoratorService decoratorService)
         {
+            _serviceType = serviceType;
             _factory = factory;
+            _decoratorService = decoratorService;
             _lifetime = lifetime;
         }
 
@@ -45,7 +52,7 @@ namespace EventFlow.Core.FlowIoC
         {
             if (_lifetime == Lifetime.AlwaysUnique)
             {
-                return _factory.Create(resolverContext);
+                return CreateDecorated(resolverContext);
             }
 
             if (_singleton == null)
@@ -54,7 +61,7 @@ namespace EventFlow.Core.FlowIoC
                 {
                     if (_singleton == null)
                     {
-                        _singleton = _factory.Create(resolverContext);
+                        _singleton = CreateDecorated(resolverContext);
                     }
                 }
             }
@@ -65,6 +72,16 @@ namespace EventFlow.Core.FlowIoC
         public void Dispose()
         {
             (_singleton as IDisposable)?.Dispose();
+        }
+
+        private object CreateDecorated(IResolverContext resolverContext)
+        {
+            var service = _factory.Create(resolverContext);
+            var decoratedService = _decoratorService.Decorate(
+                _serviceType,
+                service,
+                resolverContext);
+            return decoratedService;
         }
     }
 }

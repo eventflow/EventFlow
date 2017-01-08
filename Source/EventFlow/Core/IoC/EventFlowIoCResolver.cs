@@ -28,17 +28,20 @@ using System.Linq;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 
-namespace EventFlow.Core.FlowIoC
+namespace EventFlow.Core.IoC
 {
-    internal class FlowIoCResolver : IRootResolver
+    internal class EventFlowIoCResolver : IRootResolver
     {
         private readonly IReadOnlyDictionary<Type, List<Registration>> _registrations;
+        private readonly bool _dispose;
         private readonly IResolverContext _resolverContext;
 
-        public FlowIoCResolver(
-            IReadOnlyDictionary<Type, List<Registration>> registrations)
+        public EventFlowIoCResolver(
+            IReadOnlyDictionary<Type, List<Registration>> registrations,
+            bool dispose)
         {
             _registrations = registrations;
+            _dispose = dispose;
 
             _resolverContext = new ResolverContext(this);
         }
@@ -84,6 +87,8 @@ namespace EventFlow.Core.FlowIoC
 
         public void Dispose()
         {
+            if (!_dispose) return;
+
             foreach (var registration in _registrations.Values.SelectMany(r => r))
             {
                 registration.Dispose();
@@ -92,7 +97,7 @@ namespace EventFlow.Core.FlowIoC
 
         public IScopeResolver BeginScope()
         {
-            throw new NotImplementedException();
+            return new EventFlowIoCResolver(_registrations, false);
         }
     }
 }
