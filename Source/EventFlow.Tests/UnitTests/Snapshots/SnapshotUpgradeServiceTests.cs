@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System.Linq;
 using System.Threading;
@@ -82,7 +81,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 var snapshotUpgraderInterfaceType = snapshotUpgrader
                     .GetType()
                     .GetInterfaces()
-                    .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>));
+                    .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>));
 
                 _resolverMock
                     .Setup(r => r.Resolve(snapshotUpgraderInterfaceType))

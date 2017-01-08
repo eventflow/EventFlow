@@ -233,7 +233,7 @@ namespace EventFlow.Core
                     if (task != null)
                     {
                         task.Item1(task.Item2);
-                        if (InnerException != null) // method threw an exeption
+                        if (InnerException != null)
                         {
                             throw new AggregateException(
                                 "AsyncBridge.Run method threw an exception.",

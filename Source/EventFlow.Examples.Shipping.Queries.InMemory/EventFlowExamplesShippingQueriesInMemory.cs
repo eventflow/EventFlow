@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Reflection;
 using EventFlow.Examples.Shipping.Queries.InMemory.Cargos;
 using EventFlow.Examples.Shipping.Queries.InMemory.Voyage;
@@ -30,7 +30,7 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory
 {
     public static class EventFlowExamplesShippingQueriesInMemory
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShippingQueriesInMemory).Assembly;
+        public static Assembly Assembly { get; } = typeof(EventFlowExamplesShippingQueriesInMemory).Assembly;
 
         public static IEventFlowOptions ConfigureShippingQueriesInMemory(
             this IEventFlowOptions eventFlowOptions)

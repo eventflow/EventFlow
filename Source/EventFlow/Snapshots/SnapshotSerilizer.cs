@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
@@ -30,7 +29,6 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
-using Newtonsoft.Json;
 
 namespace EventFlow.Snapshots
 {
@@ -60,7 +58,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof (TSnapshot));
+            var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof(TSnapshot));
 
             _log.Verbose(() => $"Building snapshot '{snapsnotDefinition.Name}' v{snapsnotDefinition.Version} for {typeof(TAggregate).PrettyPrint()}");
 

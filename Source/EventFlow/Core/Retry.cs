@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 
 namespace EventFlow.Core
@@ -28,7 +28,7 @@ namespace EventFlow.Core
     public class Retry
     {
         public static Retry Yes { get; } = new Retry(true, TimeSpan.Zero);
-        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
+        public static Retry YesAfter(TimeSpan retryAfter) => new Retry(true, retryAfter);
         public static Retry No { get; } = new Retry(false, TimeSpan.Zero);
 
         public bool ShouldBeRetried { get; }

@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Text.RegularExpressions;
 
@@ -30,7 +30,7 @@ namespace EventFlow.Core
     {
         private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
 
-        public static Label Named(string name) { return new Label(name.ToLowerInvariant()); }
+        public static Label Named(string name) => new Label(name.ToLowerInvariant());
 
         public static Label Named(params string[] parts)
         {

@@ -20,14 +20,12 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using EventFlow.Core;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
@@ -81,8 +79,8 @@ namespace EventFlow.Tests
             try
             {
                 var typeWithMissingCategoryLister = (TypeWithMissingCategoryLister) appDomain.CreateInstanceAndUnwrap(
-                    typeof (TypeWithMissingCategoryLister).Assembly.FullName,
-                    typeof (TypeWithMissingCategoryLister).ToString());
+                    typeof(TypeWithMissingCategoryLister).Assembly.FullName,
+                    typeof(TypeWithMissingCategoryLister).ToString());
                 return typeWithMissingCategoryLister.GetTypesWithoutCategoryAttribute(path);
             }
             finally

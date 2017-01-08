@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Data.SqlClient;
@@ -57,7 +56,7 @@ namespace EventFlow.MsSql.RetryStrategies
                 // The service is currently busy. Retry the request after 10 seconds.
                 case 40501:
                     {
-                        var delay = TimeSpan.FromMilliseconds(5000 + 10000 * Random.NextDouble());
+                        var delay = TimeSpan.FromMilliseconds(5000 + (10000 * Random.NextDouble()));
                         _log.Warning(
                             "MSSQL server returned error 40501 which means it too busy! Trying to wait {0:0.###} (random between 5 and 15 seconds)",
                             delay.TotalSeconds);

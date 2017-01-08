@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using EventFlow.Core;
 using EventFlow.Extensions;
 
@@ -32,7 +32,7 @@ namespace EventFlow.Aggregates
     {
         public override string ToString()
         {
-            return $"{typeof (TAggregate).PrettyPrint()}/{GetType().PrettyPrint()}";
+            return $"{typeof(TAggregate).PrettyPrint()}/{GetType().PrettyPrint()}";
         }
     }
 }

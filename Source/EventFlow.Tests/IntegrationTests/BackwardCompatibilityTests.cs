@@ -20,21 +20,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using NUnit.Framework;
 

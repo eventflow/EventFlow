@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -60,7 +59,7 @@ namespace EventFlow.Core
                 throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
             }
 
-            var genericArguments = typeof (TResult).GetGenericArguments();
+            var genericArguments = typeof(TResult).GetGenericArguments();
             var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();
             var funcArgumentList = genericArguments.Skip(1).Take(methodArgumentList.Count).ToList();
 

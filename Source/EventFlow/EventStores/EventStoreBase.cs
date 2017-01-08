@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,7 +78,7 @@ namespace EventFlow.EventStores
                 return new IDomainEvent<TAggregate, TIdentity>[] {};
             }
 
-            var aggregateType = typeof (TAggregate);
+            var aggregateType = typeof(TAggregate);
             _log.Verbose(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
             var batchId = Guid.NewGuid().ToString();

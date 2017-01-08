@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -92,7 +92,7 @@ namespace EventFlow.EventStores
 
             if (domainEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{domainEventType.PrettyPrint()}' is not a '{typeof (IDomainEvent<,>).PrettyPrint()}'");
+                throw new ArgumentException($"Type '{domainEventType.PrettyPrint()}' is not a '{typeof(IDomainEvent<,>).PrettyPrint()}'");
             }
 
             var genericArguments = domainEventInterfaceType.GetGenericArguments();
@@ -107,7 +107,7 @@ namespace EventFlow.EventStores
 
             if (aggregateEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{aggregateEventType.PrettyPrint()}' is not a '{typeof (IAggregateEvent<,>).PrettyPrint()}'");
+                throw new ArgumentException($"Type '{aggregateEventType.PrettyPrint()}' is not a '{typeof(IAggregateEvent<,>).PrettyPrint()}'");
             }
 
             var genericArguments = aggregateEventInterfaceType.GetGenericArguments();

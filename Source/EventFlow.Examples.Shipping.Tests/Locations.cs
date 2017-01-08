@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -46,7 +46,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
         public static IEnumerable<Location> GetLocations()
         {
-            var fieldInfos = typeof (Locations).GetFields(BindingFlags.Public | BindingFlags.Static);
+            var fieldInfos = typeof(Locations).GetFields(BindingFlags.Public | BindingFlags.Static);
             return fieldInfos.Select(fi => new Location((LocationId) fi.GetValue(null), fi.Name));
         }
     }

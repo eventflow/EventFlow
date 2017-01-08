@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +35,7 @@ namespace EventFlow.TestHelpers
 
         static TypeWithMissingCategoryLister()
         {
-            ValidCategories = new HashSet<string>(typeof (Categories)
+            ValidCategories = new HashSet<string>(typeof(Categories)
                 .GetFields()
                 .Select(f => (string) f.GetValue(null)));
         }

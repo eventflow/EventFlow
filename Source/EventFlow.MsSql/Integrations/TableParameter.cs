@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
@@ -107,7 +106,7 @@ namespace EventFlow.MsSql.Integrations
             var sqlParameter = (SqlParameter)command.CreateParameter();
             sqlParameter.SqlDbType = SqlDbType.Structured;
             sqlParameter.ParameterName = name;
-            sqlParameter.TypeName = $"{typeof (TRow).Name.ToLowerInvariant()}_list_type";
+            sqlParameter.TypeName = $"{typeof(TRow).Name.ToLowerInvariant()}_list_type";
             sqlParameter.Value = sqlDataRecords;
             return sqlParameter;
         }
