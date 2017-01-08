@@ -47,7 +47,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
             var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof (ThingyMessageLocator)))
+                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UseMssqlReadModel<MsSqlThingyReadModel>()
                 .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()

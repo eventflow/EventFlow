@@ -61,7 +61,7 @@ namespace EventFlow.Core
             _end = (_end + 1) % _buffer.Length;
             if (_end == _start)
             {
-                _start = (_start + 1)%_buffer.Length;
+                _start = (_start + 1) % _buffer.Length;
             }
         }
 

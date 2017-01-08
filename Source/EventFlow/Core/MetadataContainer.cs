@@ -30,7 +30,9 @@ namespace EventFlow.Core
 {
     public class MetadataContainer : Dictionary<string, string>
     {
-        public MetadataContainer() { }
+        public MetadataContainer()
+        {
+        }
 
         public MetadataContainer(IDictionary<string, string> keyValuePairs)
             : base(keyValuePairs)

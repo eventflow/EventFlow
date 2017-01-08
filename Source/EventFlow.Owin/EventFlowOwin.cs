@@ -27,6 +27,6 @@ namespace EventFlow.Owin
 {
     public static class EventFlowOwin
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowOwin).Assembly;
+        public static Assembly Assembly { get; } = typeof(EventFlowOwin).Assembly;
     }
 }

@@ -124,7 +124,7 @@ namespace EventFlow.EventStores
                         var aggregateRootInterface = t.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
                         if (aggregateRootInterface == null)
                         {
-                            throw new ArgumentException($"Type '{t.PrettyPrint()}' is not a '{typeof (IAggregateRoot<>).PrettyPrint()}'", nameof(aggregateType));
+                            throw new ArgumentException($"Type '{t.PrettyPrint()}' is not a '{typeof(IAggregateRoot<>).PrettyPrint()}'", nameof(aggregateType));
                         }
 
                         var arguments = aggregateRootInterface.GetGenericArguments();

@@ -143,7 +143,7 @@ namespace EventFlow.Subscribers
                     {
                         var arguments = domainEventType
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IDomainEvent<,,>))
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,,>))
                             .GetGenericArguments();
 
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);

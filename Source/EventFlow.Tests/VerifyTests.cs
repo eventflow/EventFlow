@@ -79,8 +79,8 @@ namespace EventFlow.Tests
             try
             {
                 var typeWithMissingCategoryLister = (TypeWithMissingCategoryLister) appDomain.CreateInstanceAndUnwrap(
-                    typeof (TypeWithMissingCategoryLister).Assembly.FullName,
-                    typeof (TypeWithMissingCategoryLister).ToString());
+                    typeof(TypeWithMissingCategoryLister).Assembly.FullName,
+                    typeof(TypeWithMissingCategoryLister).ToString());
                 return typeWithMissingCategoryLister.GetTypesWithoutCategoryAttribute(path);
             }
             finally

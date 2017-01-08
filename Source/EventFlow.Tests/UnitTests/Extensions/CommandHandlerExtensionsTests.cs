@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             // Act
             Action act = () => sut.AddCommandHandlers(new List<Type>
             {
-                typeof (AbstractTestCommandHandler)
+                typeof(AbstractTestCommandHandler)
             });
 
             // Assert

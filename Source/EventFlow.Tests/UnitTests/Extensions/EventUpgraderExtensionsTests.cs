@@ -47,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             // Act
             Action act = () => sut.AddEventUpgraders(new List<Type>
             {
-                typeof (AbstractTestEventUpgrader)
+                typeof(AbstractTestEventUpgrader)
             });
 
             // Assert

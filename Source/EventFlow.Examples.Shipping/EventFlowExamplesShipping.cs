@@ -31,7 +31,7 @@ namespace EventFlow.Examples.Shipping
 {
     public static class EventFlowExamplesShipping
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShipping).Assembly;
+        public static Assembly Assembly { get; } = typeof(EventFlowExamplesShipping).Assembly;
 
         public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
         {

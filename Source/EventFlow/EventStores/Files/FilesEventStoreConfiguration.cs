@@ -27,7 +27,9 @@ namespace EventFlow.EventStores.Files
     {
         public string StorePath { get; private set; }
 
-        private FilesEventStoreConfiguration() { }
+        private FilesEventStoreConfiguration()
+        {
+        }
 
         public static IFilesEventStoreConfiguration Create(string storePath)
         {

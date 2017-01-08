@@ -46,7 +46,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             _resolver = EventFlowOptions.New
                 .AddAggregateRoots(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestAggregate))
-                .AddSagas(typeof (AlternativeSagaStoreTestClasses.TestSaga))
+                .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),
                     typeof(AlternativeSagaStoreTestClasses.SagaTestBCommandHandler),
@@ -57,7 +57,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
                     {
-                        sr.RegisterType(typeof (AlternativeSagaStoreTestClasses.TestSagaLocator));
+                        sr.RegisterType(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
                         sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
                     })
                 .CreateResolver(false);

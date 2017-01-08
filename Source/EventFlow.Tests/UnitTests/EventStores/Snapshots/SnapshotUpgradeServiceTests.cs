@@ -46,7 +46,7 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
         {
             _resolverMock = InjectMock<IResolver>();
             _resolverMock
-                .Setup(r => r.Resolve(typeof (ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
+                .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
                 .Returns(() => new ThingySnapshotV1ToV2Upgrader());
             _resolverMock
                 .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>)))

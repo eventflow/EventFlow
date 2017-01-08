@@ -32,7 +32,7 @@ namespace EventFlow.Aggregates
     {
         public override string ToString()
         {
-            return $"{typeof (TAggregate).PrettyPrint()}/{GetType().PrettyPrint()}";
+            return $"{typeof(TAggregate).PrettyPrint()}/{GetType().PrettyPrint()}";
         }
     }
 }

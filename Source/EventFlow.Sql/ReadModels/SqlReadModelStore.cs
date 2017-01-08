@@ -53,7 +53,7 @@ namespace EventFlow.Sql.ReadModels
 
         static SqlReadModelStore()
         {
-            var propertyInfos = typeof (TReadModel)
+            var propertyInfos = typeof(TReadModel)
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             var versionPropertyInfo = propertyInfos
@@ -138,7 +138,7 @@ namespace EventFlow.Sql.ReadModels
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
         {
-            var readModelType = typeof (TReadModel);
+            var readModelType = typeof(TReadModel);
             var readModelNameLowerCased = readModelType.Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(

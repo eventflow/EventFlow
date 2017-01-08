@@ -58,7 +58,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof (TSnapshot));
+            var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof(TSnapshot));
 
             _log.Verbose(() => $"Building snapshot '{snapsnotDefinition.Name}' v{snapsnotDefinition.Version} for {typeof(TAggregate).PrettyPrint()}");
 

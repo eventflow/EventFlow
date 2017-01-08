@@ -49,7 +49,7 @@ namespace EventFlow.Core.Caching
             return GetOrAddAsync(
                 cacheKey,
                 factory,
-                (k,v,c) => SetAsync(k, slidingExpiration, v, c),
+                (k, v, c) => SetAsync(k, slidingExpiration, v, c),
                 cancellationToken);
         }
 
@@ -70,7 +70,7 @@ namespace EventFlow.Core.Caching
         private async Task<T> GetOrAddAsync<T>(
             CacheKey cacheKey,
             Func<CancellationToken, Task<T>> factory,
-            Func<CacheKey,T,CancellationToken,Task> setter,
+            Func<CacheKey, T, CancellationToken, Task> setter,
             CancellationToken cancellationToken)
             where T : class
         {

@@ -29,6 +29,8 @@ namespace EventFlow.MsSql
     {
         public static MsSqlConfiguration New => new MsSqlConfiguration();
 
-        private MsSqlConfiguration() { }
+        private MsSqlConfiguration()
+        {
+        }
     }
 }

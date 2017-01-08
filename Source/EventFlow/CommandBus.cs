@@ -155,7 +155,7 @@ namespace EventFlow
                     {
                         var commandInterfaceType = commandType
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommand<,,>));
                         var commandTypes = commandInterfaceType.GetGenericArguments();
 
                         var commandHandlerType = typeof(ICommandHandler<,,,>)

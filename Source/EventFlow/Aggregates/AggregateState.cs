@@ -39,8 +39,8 @@ namespace EventFlow.Aggregates
 
         static AggregateState()
         {
-            var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
-            var eventApplier = typeof (TEventApplier);
+            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
+            var eventApplier = typeof(TEventApplier);
 
             ApplyMethods = eventApplier
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -63,7 +63,7 @@ namespace EventFlow.Aggregates
             if (me == null)
             {
                 throw new InvalidOperationException(
-                    $"Event applier of type '{GetType().PrettyPrint()}' has a wrong generic argument '{typeof (TEventApplier).PrettyPrint()}'");
+                    $"Event applier of type '{GetType().PrettyPrint()}' has a wrong generic argument '{typeof(TEventApplier).PrettyPrint()}'");
             }
         }
 

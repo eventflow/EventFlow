@@ -39,7 +39,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
         {
             return IndexNames.GetOrAdd(
-                typeof (TReadModel),
+                typeof(TReadModel),
                 t =>
                     {
                         var elasticType = t.GetCustomAttribute<ElasticsearchTypeAttribute>();

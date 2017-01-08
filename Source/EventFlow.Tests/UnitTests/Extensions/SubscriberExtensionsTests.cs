@@ -50,7 +50,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             // Act
             Action act = () => sut.AddSubscribers(new List<Type>
             {
-                typeof (AbstractTestSubscriber)
+                typeof(AbstractTestSubscriber)
             });
 
             // Assert

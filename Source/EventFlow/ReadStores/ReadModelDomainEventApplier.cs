@@ -56,7 +56,7 @@ namespace EventFlow.ReadStores
                         {
                             var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
 
-                            var methodSignature = new[] {typeof (IReadModelContext), domainEventType};
+                            var methodSignature = new[] {typeof(IReadModelContext), domainEventType};
                             var methodInfo = readModelType.GetMethod("Apply", methodSignature);
 
                             return methodInfo == null

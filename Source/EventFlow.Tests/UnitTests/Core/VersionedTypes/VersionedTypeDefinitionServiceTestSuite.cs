@@ -209,7 +209,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
         public void Load_CalledWithInvalidType_ThrowsException()
         {
             // Act + Assert
-            Assert.Throws<ArgumentException>(() => Sut.Load(typeof (object)));
+            Assert.Throws<ArgumentException>(() => Sut.Load(typeof(object)));
         }
 
         [Test]

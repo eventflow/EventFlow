@@ -79,7 +79,7 @@ namespace EventFlow.Extensions
                 var subscribeTos = t
                     .GetInterfaces()
                     .Where(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISubscribeSynchronousTo<,,>)) ||
+                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
                         i == typeof(ISubscribeSynchronousToAll))
                     .ToList();
                 if (!subscribeTos.Any())

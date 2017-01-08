@@ -28,7 +28,7 @@ namespace EventFlow.Core
     public class Retry
     {
         public static Retry Yes { get; } = new Retry(true, TimeSpan.Zero);
-        public static Retry YesAfter(TimeSpan retryAfter) { return new Retry(true, retryAfter); }
+        public static Retry YesAfter(TimeSpan retryAfter) => new Retry(true, retryAfter);
         public static Retry No { get; } = new Retry(false, TimeSpan.Zero);
 
         public bool ShouldBeRetried { get; }

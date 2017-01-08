@@ -32,9 +32,9 @@ namespace EventFlow.Aggregates
         where TIdentity : IIdentity
         where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        public Type AggregateType => typeof (TAggregate);
-        public Type IdentityType => typeof (TIdentity);
-        public Type EventType => typeof (TAggregateEvent);
+        public Type AggregateType => typeof(TAggregate);
+        public Type IdentityType => typeof(TIdentity);
+        public Type EventType => typeof(TAggregateEvent);
 
         public int AggregateSequenceNumber { get; }
         public TAggregateEvent AggregateEvent { get; }

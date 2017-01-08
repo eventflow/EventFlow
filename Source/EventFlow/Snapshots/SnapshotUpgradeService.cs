@@ -42,7 +42,7 @@ namespace EventFlow.Snapshots
 
         protected override Type CreateUpgraderType(Type fromType, Type toType)
         {
-            return typeof (ISnapshotUpgrader<,>).MakeGenericType(fromType, toType);
+            return typeof(ISnapshotUpgrader<,>).MakeGenericType(fromType, toType);
         }
     }
 }

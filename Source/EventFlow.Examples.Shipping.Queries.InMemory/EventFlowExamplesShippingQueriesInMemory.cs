@@ -30,7 +30,7 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory
 {
     public static class EventFlowExamplesShippingQueriesInMemory
     {
-        public static Assembly Assembly { get; } = typeof (EventFlowExamplesShippingQueriesInMemory).Assembly;
+        public static Assembly Assembly { get; } = typeof(EventFlowExamplesShippingQueriesInMemory).Assembly;
 
         public static IEventFlowOptions ConfigureShippingQueriesInMemory(
             this IEventFlowOptions eventFlowOptions)

@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             // Act
             Action act = () => sut.AddQueryHandlers(new List<Type>
             {
-                typeof (AbstractTestQueryHandler)
+                typeof(AbstractTestQueryHandler)
             });
 
             // Assert

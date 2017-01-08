@@ -55,7 +55,7 @@ namespace EventFlow.Snapshots
         {
             _log.Verbose(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
             var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(
-                typeof (TAggregate),
+                typeof(TAggregate),
                 identity,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -87,7 +87,7 @@ namespace EventFlow.Snapshots
                 .ConfigureAwait(false);
 
             await _snapshotPersistence.SetSnapshotAsync(
-                typeof (TAggregate),
+                typeof(TAggregate),
                 identity,
                 serializedSnapshot,
                 cancellationToken)

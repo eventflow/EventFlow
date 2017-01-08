@@ -48,7 +48,7 @@ namespace EventFlow.Configuration
         public void Register<TModule>(TModule module)
             where TModule : IModule
         {
-            var moduleType = typeof (TModule);
+            var moduleType = typeof(TModule);
             if (_modules.ContainsKey(moduleType))
             {
                 throw new ArgumentException($"Module '{moduleType.PrettyPrint()}' has already been registered");
@@ -64,7 +64,7 @@ namespace EventFlow.Configuration
             TModule module;
             if (!TryGetModule(out module))
             {
-                throw new ArgumentException($"Module '{typeof (TModule).PrettyPrint()}' is not registered");
+                throw new ArgumentException($"Module '{typeof(TModule).PrettyPrint()}' is not registered");
             }
 
             return module;
@@ -73,7 +73,7 @@ namespace EventFlow.Configuration
         public bool TryGetModule<TModule>(out TModule module)
             where TModule : IModule
         {
-            var moduleType = typeof (TModule);
+            var moduleType = typeof(TModule);
             IModule iModule;
             if (!_modules.TryGetValue(moduleType, out iModule))
             {

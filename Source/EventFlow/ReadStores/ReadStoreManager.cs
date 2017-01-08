@@ -49,14 +49,14 @@ namespace EventFlow.ReadStores
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
 
-        protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
-        protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
+        protected ISet<Type> GetAggregateTypes() => AggregateTypes;
+        protected ISet<Type> GetDomainEventTypes() => AggregateEventTypes;
 
         static ReadStoreManager()
         {
             var iAmReadModelForInterfaceTypes = ReadModelType
                 .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAmReadModelFor<,,>))
                 .ToList();
             if (!iAmReadModelForInterfaceTypes.Any())
             {

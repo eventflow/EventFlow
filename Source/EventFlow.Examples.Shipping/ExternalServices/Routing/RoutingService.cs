@@ -190,13 +190,13 @@ namespace EventFlow.Examples.Shipping.ExternalServices.Routing
                     Distance + distance,
                     currentTime,
                     Directions.Concat(new[] {node}),
-                    CarrierMovements.Concat(new [] { carrierMovement}));
+                    CarrierMovements.Concat(new [] { carrierMovement }));
             }
         }
 
         public class Graph
         {
-            public Dictionary<string, Node> Nodes = new Dictionary<string, Node>();
+            public Dictionary<string, Node> Nodes { get; } = new Dictionary<string, Node>();
 
             public void Add(CarrierMovement carrierMovement)
             {

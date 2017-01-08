@@ -84,7 +84,7 @@ namespace EventFlow.Extensions
                 if (t.IsAbstract) continue;
                 var eventUpgraderForAggregateType = t
                     .GetInterfaces()
-                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEventUpgrader<,>));
+                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>));
                 if (eventUpgraderForAggregateType == null)
                 {
                     throw new ArgumentException($"Type '{eventUpgraderType.Name}' does not have the '{typeof(IEventUpgrader<,>).PrettyPrint()}' interface");

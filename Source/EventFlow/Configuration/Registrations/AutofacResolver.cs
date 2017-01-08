@@ -61,7 +61,7 @@ namespace EventFlow.Configuration.Registrations
 
         public IEnumerable<object> ResolveAll(Type serviceType)
         {
-            var enumerableType = typeof (IEnumerable<>).MakeGenericType(serviceType);
+            var enumerableType = typeof(IEnumerable<>).MakeGenericType(serviceType);
             return ((IEnumerable) _componentContext.Resolve(enumerableType)).OfType<object>().ToList();
         }
 
@@ -77,7 +77,7 @@ namespace EventFlow.Configuration.Registrations
         public bool HasRegistrationFor<T>()
             where T : class
         {
-            var serviceType = typeof (T);
+            var serviceType = typeof(T);
             return GetRegisteredServices().Any(t => serviceType == t);
         }
     }

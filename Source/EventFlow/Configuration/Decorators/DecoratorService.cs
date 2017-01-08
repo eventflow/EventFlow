@@ -51,7 +51,7 @@ namespace EventFlow.Configuration.Decorators
         public TService Decorate<TService>(TService implementation, IResolverContext resolverContext)
         {
             List<Func<object, IResolverContext, object>> decorators;
-            return !_decorators.TryGetValue(typeof (TService), out decorators)
+            return !_decorators.TryGetValue(typeof(TService), out decorators)
                 ? implementation
                 : decorators.Aggregate(implementation, (current, decorator) => (TService) decorator(current, resolverContext));
         }
@@ -59,7 +59,7 @@ namespace EventFlow.Configuration.Decorators
         public void AddDecorator<TService>(Func<IResolverContext, TService, TService> factory)
         {
             var decorators = _decorators.GetOrAdd(
-                typeof (TService),
+                typeof(TService),
                 new List<Func<object, IResolverContext, object>>());
             decorators.Add((s, c) => factory(c, (TService) s));
         }

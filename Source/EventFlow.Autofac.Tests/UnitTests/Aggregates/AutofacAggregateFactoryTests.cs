@@ -67,7 +67,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             EventFlowOptions.New
                 .UseAutofacContainerBuilder(containerBuilder)
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof (AutofacAggregateFactoryTests).Assembly);
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly);
 
             using (var container = containerBuilder.Build())
             using (var lifetimeScope = container.BeginLifetimeScope())
@@ -123,7 +123,6 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
             }
         }
-
 
         public class Pinger
         {

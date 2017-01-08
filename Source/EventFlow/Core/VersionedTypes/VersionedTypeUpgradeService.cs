@@ -93,7 +93,7 @@ namespace EventFlow.Core.VersionedTypes
             _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
 
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
-            var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
+            var versionedTypeUpgraderType = typeof(IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgrader = _resolver.Resolve(upgraderType);
 
             var methodInfo = versionedTypeUpgraderType.GetMethod("UpgradeAsync");

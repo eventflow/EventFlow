@@ -60,7 +60,7 @@ namespace EventFlow.ReadStores
             var readModelStores = _resolver.Resolve<IEnumerable<IReadModelStore<TReadModel>>>().ToList();
             if (!readModelStores.Any())
             {
-                throw new ArgumentException($"Could not find any read stores for read model '{typeof (TReadModel).PrettyPrint()}'");
+                throw new ArgumentException($"Could not find any read stores for read model '{typeof(TReadModel).PrettyPrint()}'");
             }
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
@@ -81,12 +81,12 @@ namespace EventFlow.ReadStores
             where TReadModel : class, IReadModel, new()
         {
             var stopwatch = Stopwatch.StartNew();
-            var readModelType = typeof (TReadModel);
+            var readModelType = typeof(TReadModel);
             var readStoreManagers = ResolveReadStoreManager<TReadModel>();
 
             var aggregateEventTypes = new HashSet<Type>(readModelType
                 .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAmReadModelFor<,,>))
                 .Select(i => i.GetGenericArguments()[2]));
 
             _log.Verbose(() => string.Format(
@@ -162,7 +162,7 @@ namespace EventFlow.ReadStores
 
             if (!readStoreManagers.Any())
             {
-                throw new ArgumentException($"Did not find any read store managers for read model type '{typeof (TReadModel).PrettyPrint()}'");
+                throw new ArgumentException($"Did not find any read store managers for read model type '{typeof(TReadModel).PrettyPrint()}'");
             }
 
             return readStoreManagers;

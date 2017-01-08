@@ -42,7 +42,7 @@ namespace EventFlow.Core
         static Identity()
         {
             var nameReplace = new Regex("Id$");
-            Name = nameReplace.Replace(typeof (T).Name, string.Empty).ToLowerInvariant();
+            Name = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant();
             ValueValidation = new Regex(
                 @"^[a-z0-9]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
                 RegexOptions.Compiled);
@@ -99,16 +99,16 @@ namespace EventFlow.Core
         {
             if (string.IsNullOrEmpty(value))
             {
-                yield return $"Identity of type '{typeof (T).PrettyPrint()}' is null or empty";
+                yield return $"Identity of type '{typeof(T).PrettyPrint()}' is null or empty";
                 yield break;
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.InvariantCulture))
-                yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' contains leading and/or traling spaces";
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' contains leading and/or traling spaces";
             if (!value.StartsWith(Name))
-                yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' does not start with '{Name}'";
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not start with '{Name}'";
             if (!ValueValidation.IsMatch(value))
-                yield return $"Identity '{value}' of type '{typeof (T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)

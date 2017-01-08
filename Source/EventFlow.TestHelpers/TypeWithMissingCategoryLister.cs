@@ -35,7 +35,7 @@ namespace EventFlow.TestHelpers
 
         static TypeWithMissingCategoryLister()
         {
-            ValidCategories = new HashSet<string>(typeof (Categories)
+            ValidCategories = new HashSet<string>(typeof(Categories)
                 .GetFields()
                 .Select(f => (string) f.GetValue(null)));
         }

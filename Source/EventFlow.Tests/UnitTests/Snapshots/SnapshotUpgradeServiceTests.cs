@@ -81,7 +81,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 var snapshotUpgraderInterfaceType = snapshotUpgrader
                     .GetType()
                     .GetInterfaces()
-                    .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>));
+                    .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>));
 
                 _resolverMock
                     .Setup(r => r.Resolve(snapshotUpgraderInterfaceType))

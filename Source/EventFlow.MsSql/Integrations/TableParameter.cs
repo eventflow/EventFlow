@@ -106,7 +106,7 @@ namespace EventFlow.MsSql.Integrations
             var sqlParameter = (SqlParameter)command.CreateParameter();
             sqlParameter.SqlDbType = SqlDbType.Structured;
             sqlParameter.ParameterName = name;
-            sqlParameter.TypeName = $"{typeof (TRow).Name.ToLowerInvariant()}_list_type";
+            sqlParameter.TypeName = $"{typeof(TRow).Name.ToLowerInvariant()}_list_type";
             sqlParameter.Value = sqlDataRecords;
             return sqlParameter;
         }

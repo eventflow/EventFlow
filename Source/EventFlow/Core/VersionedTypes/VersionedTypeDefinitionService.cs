@@ -65,7 +65,7 @@ namespace EventFlow.Core.VersionedTypes
             }
 
             var invalidTypes = types
-                .Where(t => !typeof (TTypeCheck)
+                .Where(t => !typeof(TTypeCheck)
                 .IsAssignableFrom(t))
                 .ToList();
             if (invalidTypes.Any())

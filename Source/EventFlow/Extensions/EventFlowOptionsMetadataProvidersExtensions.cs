@@ -57,7 +57,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var metadataProviderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => typeof (IMetadataProvider).IsAssignableFrom(t))
+                .Where(t => typeof(IMetadataProvider).IsAssignableFrom(t))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
         }
@@ -70,12 +70,12 @@ namespace EventFlow.Extensions
             {
                 var t = metadataProviderType;
                 if (t.IsAbstract) continue;
-                if (!typeof (IMetadataProvider).IsAssignableFrom(t))
+                if (!typeof(IMetadataProvider).IsAssignableFrom(t))
                 {
                     throw new ArgumentException($"Type '{metadataProviderType.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(typeof (IMetadataProvider), t));
+                eventFlowOptions.RegisterServices(sr => sr.Register(typeof(IMetadataProvider), t));
             }
             return eventFlowOptions;
         }

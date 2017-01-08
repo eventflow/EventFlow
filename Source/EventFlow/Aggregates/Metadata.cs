@@ -116,7 +116,10 @@ namespace EventFlow.Aggregates
             set { Add(MetadataKeys.AggregateName, value); }
         }
 
-        public Metadata() { }
+        public Metadata()
+        {
+            // Empty
+        }
 
         public Metadata(IDictionary<string, string> keyValuePairs)
             : base(keyValuePairs)

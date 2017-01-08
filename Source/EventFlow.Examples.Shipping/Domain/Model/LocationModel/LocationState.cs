@@ -31,7 +31,6 @@ namespace EventFlow.Examples.Shipping.Domain.Model.LocationModel
     {
         public string Name { get; private set; }
 
-
         public void Apply(LocationCreatedEvent aggregateEvent)
         {
             Name = aggregateEvent.Name;

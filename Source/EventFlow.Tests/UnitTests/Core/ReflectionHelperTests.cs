@@ -36,7 +36,7 @@ namespace EventFlow.Tests.UnitTests.Core
         public void CompileMethodInvocation()
         {
             // Act
-            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof (Calculator), "Add", typeof(int), typeof(int));
+            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof(Calculator), "Add", typeof(int), typeof(int));
             var result = caller(new Calculator(), 1, 2);
 
             // Assert

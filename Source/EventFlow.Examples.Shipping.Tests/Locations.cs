@@ -46,7 +46,7 @@ namespace EventFlow.Examples.Shipping.Tests
 
         public static IEnumerable<Location> GetLocations()
         {
-            var fieldInfos = typeof (Locations).GetFields(BindingFlags.Public | BindingFlags.Static);
+            var fieldInfos = typeof(Locations).GetFields(BindingFlags.Public | BindingFlags.Static);
             return fieldInfos.Select(fi => new Location((LocationId) fi.GetValue(null), fi.Name));
         }
     }

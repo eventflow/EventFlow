@@ -92,7 +92,7 @@ namespace EventFlow.EventStores
 
             if (domainEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{domainEventType.PrettyPrint()}' is not a '{typeof (IDomainEvent<,>).PrettyPrint()}'");
+                throw new ArgumentException($"Type '{domainEventType.PrettyPrint()}' is not a '{typeof(IDomainEvent<,>).PrettyPrint()}'");
             }
 
             var genericArguments = domainEventInterfaceType.GetGenericArguments();
@@ -107,7 +107,7 @@ namespace EventFlow.EventStores
 
             if (aggregateEventInterfaceType == null)
             {
-                throw new ArgumentException($"Type '{aggregateEventType.PrettyPrint()}' is not a '{typeof (IAggregateEvent<,>).PrettyPrint()}'");
+                throw new ArgumentException($"Type '{aggregateEventType.PrettyPrint()}' is not a '{typeof(IAggregateEvent<,>).PrettyPrint()}'");
             }
 
             var genericArguments = aggregateEventInterfaceType.GetGenericArguments();
