@@ -36,7 +36,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseResolverAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>());
+            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, ResolverAggregateRootFactory>());
         }
 
         public static IEventFlowOptions AddAggregateRoots(

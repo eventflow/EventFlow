@@ -51,7 +51,7 @@ namespace EventFlow.Autofac.Extensions
             this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>(Lifetime.Singleton));
+                .RegisterServices(f => f.Register<IAggregateFactory, ResolverAggregateRootFactory>(Lifetime.Singleton));
         }
 
         public static IContainer CreateContainer(

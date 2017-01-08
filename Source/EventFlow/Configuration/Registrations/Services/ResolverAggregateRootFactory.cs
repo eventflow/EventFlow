@@ -21,28 +21,49 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using Autofac;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
 namespace EventFlow.Configuration.Registrations.Services
 {
-    internal class AutofacAggregateRootFactory : IAggregateFactory
+    internal class ResolverAggregateRootFactory : IAggregateFactory
     {
-        private readonly AutofacResolver _resolver;
+        private readonly IResolver _resolver;
 
-        public AutofacAggregateRootFactory(IResolver resolver)
+        public ResolverAggregateRootFactory(
+            IResolver resolver)
         {
-            _resolver = (AutofacResolver)resolver;
+            _resolver = resolver;
         }
 
         public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregate = _resolver.Resolve<TAggregate>(new TypedParameter(typeof(TIdentity), id));
-            return Task.FromResult(aggregate);
+            var constructorInfo = typeof(TAggregate)
+                .GetTypeInfo()
+                .GetConstructors()
+                .Single();
+            var parameterInfos = constructorInfo.GetParameters();
+            var parameters = new object[parameterInfos.Length];
+            var identityType = typeof(TIdentity);
+
+            foreach (var parameterInfo in parameterInfos)
+            {
+                if (parameterInfo.ParameterType == identityType)
+                {
+                    parameters[parameterInfo.Position] = id;
+                }
+                else
+                {
+                    parameters[parameterInfo.Position] = _resolver.Resolve(parameterInfo.ParameterType);
+                }
+            }
+
+            return Task.FromResult((TAggregate)constructorInfo.Invoke(parameters));
         }
     }
 }

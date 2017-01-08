@@ -116,6 +116,17 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             Assert_Decorator(Sut);
         }
 
+        [Test]
+        public void ResolverIsResolvable()
+        {
+            // Act
+            var resolver = Sut.CreateResolver(true).Resolve<IResolver>();
+
+            // Assert
+            resolver.Should().NotBeNull();
+            resolver.Should().BeAssignableTo<IResolver>();
+        }
+
         public static void Assert_Decorator(IServiceRegistration serviceRegistration)
         {
             // The order should be like this (like unwrapping a present with the order of

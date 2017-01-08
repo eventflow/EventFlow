@@ -56,6 +56,11 @@ namespace EventFlow.Core.IoC
             List<Registration> registrations;
             if (!_registrations.TryGetValue(serviceType, out registrations))
             {
+                if (serviceType == typeof(IResolver))
+                {
+                    return this;
+                }
+
                 throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} is not registered");
             }
 

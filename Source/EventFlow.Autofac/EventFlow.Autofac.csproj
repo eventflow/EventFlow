@@ -51,8 +51,8 @@
     <Compile Include="..\EventFlow\Configuration\Registrations\AutofacServiceRegistration.cs">
       <Link>Registrations\AutofacServiceRegistration.cs</Link>
     </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\Services\AutofacAggregateRootFactory.cs">
-      <Link>Registrations\Services\AutofacAggregateRootFactory.cs</Link>
+    <Compile Include="..\EventFlow\Configuration\Registrations\Services\ResolverAggregateRootFactory.cs">
+      <Link>Registrations\Services\ResolverAggregateRootFactory.cs</Link>
     </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>

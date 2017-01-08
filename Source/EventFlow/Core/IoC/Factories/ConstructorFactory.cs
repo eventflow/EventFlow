@@ -33,14 +33,11 @@ namespace EventFlow.Core.IoC.Factories
 {
     internal class ConstructorFactory : IFactory
     {
-        private readonly Type _type;
         private readonly ConstructorInfo _constructorInfo;
         private readonly IReadOnlyCollection<ParameterInfo> _parameterInfos;
 
         public ConstructorFactory(Type type)
         {
-            _type = type;
-
             var constructorInfos = type
                 .GetTypeInfo()
                 .GetConstructors();

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.Queries;
@@ -83,15 +84,14 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        [Test]
-        public void BasicFlow()
+        [TestCaseSource(nameof(TestCases))]
+        public void BasicFlow(IEventFlowOptions eventFlowOptions)
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = eventFlowOptions
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .RegisterServices(f => f.Register<IPingReadModelLocator, PingReadModelLocator>())
-                .UseResolverAggregateRootFactory()
                 .AddAggregateRoots(EventFlowTestHelpers.Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
@@ -124,6 +124,14 @@ namespace EventFlow.Tests.IntegrationTests
                 testReadModelFromQuery1.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModelFromQuery2.Should().NotBeNull();
             }
+        }
+
+        public static IEnumerable<IEventFlowOptions> TestCases()
+        {
+            yield return EventFlowOptions.New
+                .UseServiceRegistration(new AutofacServiceRegistration());
+            yield return EventFlowOptions.New
+                .UseEventFlowIoC();
         }
     }
 }
