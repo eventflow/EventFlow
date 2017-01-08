@@ -21,11 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Configuration;
 
 namespace EventFlow.Core.FlowIoC
 {
-    internal class Registration
+    internal class Registration : IDisposable
     {
         private readonly IFactory _factory;
         private readonly Lifetime _lifetime;
@@ -59,6 +60,11 @@ namespace EventFlow.Core.FlowIoC
             }
 
             return _singleton;
+        }
+
+        public void Dispose()
+        {
+            (_singleton as IDisposable)?.Dispose();
         }
     }
 }

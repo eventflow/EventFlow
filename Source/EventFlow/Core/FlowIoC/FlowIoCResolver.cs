@@ -84,6 +84,10 @@ namespace EventFlow.Core.FlowIoC
 
         public void Dispose()
         {
+            foreach (var registration in _registrations.Values.SelectMany(r => r))
+            {
+                registration.Dispose();
+            }
         }
 
         public IScopeResolver BeginScope()

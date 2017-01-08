@@ -32,9 +32,20 @@ namespace EventFlow.Tests.IntegrationTests.Core.FlowIoC
     public class FlowIoCTests
     {
         [Test]
-        public void T()
+        public void RegisterViaGeneric()
         {
             using (var resolver = SetUp(sr => sr.Register<I, C>()))
+            {
+                var i = resolver.Resolve<I>();
+
+                i.Should().BeOfType<C>();
+            }
+        }
+
+        [Test]
+        public void RegisterViaTypes()
+        {
+            using (var resolver = SetUp(sr => sr.Register(typeof(I), typeof(C))))
             {
                 var i = resolver.Resolve<I>();
 
