@@ -56,7 +56,19 @@ namespace EventFlow.Core.IoC.Factories
             var parameters = new object[_parameterInfos.Count];
             foreach (var parameterInfo in _parameterInfos)
             {
-                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
+                var enumerableType = parameterInfo.ParameterType
+                    .GetTypeInfo()
+                    .GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType && i.IsInterface && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+                if (enumerableType == null)
+                {
+                    parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
+                }
+                else
+                {
+                    throw new NotImplementedException("TODO");
+                }
             }
 
             return _constructorInfo.Invoke(parameters);
