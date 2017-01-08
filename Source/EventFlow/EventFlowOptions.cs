@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -94,9 +93,9 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
                 {
-                    throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
+                    throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof(IAggregateEvent).PrettyPrint()}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
             }
@@ -120,9 +119,9 @@ namespace EventFlow
         {
             foreach (var commandType in commandTypes)
             {
-                if (!typeof (ICommand).IsAssignableFrom(commandType))
+                if (!typeof(ICommand).IsAssignableFrom(commandType))
                 {
-                    throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof (ICommand).PrettyPrint()}");
+                    throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof(ICommand).PrettyPrint()}");
                 }
                 _commandTypes.Add(commandType);
             }
@@ -133,9 +132,9 @@ namespace EventFlow
         {
             foreach (var jobType in jobTypes)
             {
-                if (!typeof (IJob).IsAssignableFrom(jobType))
+                if (!typeof(IJob).IsAssignableFrom(jobType))
                 {
-                    throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
+                    throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof(IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
             }

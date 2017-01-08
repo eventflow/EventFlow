@@ -20,14 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 namespace EventFlow.EventStores.Files
 {
     public class FilesEventStoreConfiguration : IFilesEventStoreConfiguration
     {
         public string StorePath { get; private set; }
 
-        private FilesEventStoreConfiguration() { }
+        private FilesEventStoreConfiguration()
+        {
+        }
 
         public static IFilesEventStoreConfiguration Create(string storePath)
         {

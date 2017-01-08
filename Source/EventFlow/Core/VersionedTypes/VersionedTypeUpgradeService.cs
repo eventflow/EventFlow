@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Linq;
@@ -94,7 +93,7 @@ namespace EventFlow.Core.VersionedTypes
             _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
 
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
-            var versionedTypeUpgraderType = typeof (IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
+            var versionedTypeUpgraderType = typeof(IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgrader = _resolver.Resolve(upgraderType);
 
             var methodInfo = versionedTypeUpgraderType.GetMethod("UpgradeAsync");

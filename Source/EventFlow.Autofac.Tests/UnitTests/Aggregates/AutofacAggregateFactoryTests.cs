@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Threading.Tasks;
 using Autofac;
 using EventFlow.Aggregates;
@@ -67,7 +67,7 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
             EventFlowOptions.New
                 .UseAutofacContainerBuilder(containerBuilder)
                 .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof (AutofacAggregateFactoryTests).Assembly);
+                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly);
 
             using (var container = containerBuilder.Build())
             using (var lifetimeScope = container.BeginLifetimeScope())
@@ -123,7 +123,6 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
                 aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
             }
         }
-
 
         public class Pinger
         {

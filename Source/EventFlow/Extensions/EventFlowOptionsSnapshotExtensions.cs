@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -65,7 +64,7 @@ namespace EventFlow.Extensions
             var snapshotUpgraderTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.IsAbstract)
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>)))
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>)))
                 .Where(t => predicate(t));
 
             return eventFlowOptions.AddSnapshotUpgraders(snapshotUpgraderTypes);
@@ -88,7 +87,7 @@ namespace EventFlow.Extensions
                     {
                         var interfaceType = snapshotUpgraderType
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ISnapshotUpgrader<,>));
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>));
                         sr.Register(interfaceType, snapshotUpgraderType);
                     }
                 });

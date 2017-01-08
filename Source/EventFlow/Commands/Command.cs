@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Threading;
@@ -68,7 +67,9 @@ namespace EventFlow.Commands
         where TIdentity : IIdentity
     {
         protected Command(TIdentity aggregateId)
-            : this(aggregateId, CommandId.New) { }
+            : this(aggregateId, CommandId.New)
+        {
+        }
 
         protected Command(TIdentity aggregateId, ISourceId sourceId)
             : base(aggregateId, sourceId)

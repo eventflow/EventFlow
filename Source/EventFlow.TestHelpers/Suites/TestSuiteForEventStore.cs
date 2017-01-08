@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -78,8 +77,8 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.Should().NotBeNull();
             pingEvent.AggregateIdentity.Should().Be(id);
             pingEvent.AggregateSequenceNumber.Should().Be(1);
-            pingEvent.AggregateType.Should().Be(typeof (ThingyAggregate));
-            pingEvent.EventType.Should().Be(typeof (ThingyPingEvent));
+            pingEvent.AggregateType.Should().Be(typeof(ThingyAggregate));
+            pingEvent.EventType.Should().Be(typeof(ThingyPingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
             pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
@@ -340,7 +339,7 @@ namespace EventFlow.TestHelpers.Suites
             }
             catch (Exception e)
             {
-                wasCorrectException = e.GetType() == typeof (TException);
+                wasCorrectException = e.GetType() == typeof(TException);
                 if (!wasCorrectException)
                 {
                     throw;

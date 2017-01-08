@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,7 +40,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Act
             var committedSnapshot = await SnapshotPersistence.GetSnapshotAsync(
-                typeof (ThingyAggregate),
+                typeof(ThingyAggregate),
                 ThingyId.New,
                 CancellationToken.None)
                 .ConfigureAwait(false);
@@ -208,7 +207,7 @@ namespace EventFlow.TestHelpers.Suites
             TSnapshot snapshot)
             where TSnapshot : ISnapshot
         {
-            var snapshotDefinition = SnapshotDefinitionService.GetDefinition(typeof (TSnapshot));
+            var snapshotDefinition = SnapshotDefinitionService.GetDefinition(typeof(TSnapshot));
             var snapshotMetadata = new SnapshotMetadata
                 {
                     AggregateId = thingyId.Value,

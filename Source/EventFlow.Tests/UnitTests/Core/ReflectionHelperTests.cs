@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using EventFlow.Core;
@@ -37,7 +36,7 @@ namespace EventFlow.Tests.UnitTests.Core
         public void CompileMethodInvocation()
         {
             // Act
-            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof (Calculator), "Add", typeof(int), typeof(int));
+            var caller = ReflectionHelper.CompileMethodInvocation<Func<Calculator, int, int, int>>(typeof(Calculator), "Add", typeof(int), typeof(int));
             var result = caller(new Calculator(), 1, 2);
 
             // Assert

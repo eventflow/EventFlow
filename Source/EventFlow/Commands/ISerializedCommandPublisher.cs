@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -29,6 +29,10 @@ namespace EventFlow.Commands
 {
     public interface ISerializedCommandPublisher
     {
-        Task<ISourceId> PublishSerilizedCommandAsync(string name, int version, string json, CancellationToken cancellationToken);
+        Task<ISourceId> PublishSerilizedCommandAsync(
+            string name,
+            int version,
+            string json,
+            CancellationToken cancellationToken);
     }
 }

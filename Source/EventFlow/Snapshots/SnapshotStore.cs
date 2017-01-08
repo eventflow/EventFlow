@@ -20,11 +20,9 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -57,7 +55,7 @@ namespace EventFlow.Snapshots
         {
             _log.Verbose(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
             var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(
-                typeof (TAggregate),
+                typeof(TAggregate),
                 identity,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -89,7 +87,7 @@ namespace EventFlow.Snapshots
                 .ConfigureAwait(false);
 
             await _snapshotPersistence.SetSnapshotAsync(
-                typeof (TAggregate),
+                typeof(TAggregate),
                 identity,
                 serializedSnapshot,
                 cancellationToken)
