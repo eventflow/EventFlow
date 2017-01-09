@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 
@@ -61,10 +62,31 @@ namespace EventFlow.Core.IoC
                     return this;
                 }
 
+                var typeInfo = serviceType.GetTypeInfo();
+
+                if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    var genericMethodInfo = GetType()
+                        .GetTypeInfo()
+                        .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+                        .Single(mi => mi.Name == nameof(ResolveEnumerable));
+                    var genericArgument = typeInfo.GenericTypeArguments.Single();
+                    var methodInfo = genericMethodInfo.MakeGenericMethod(genericArgument);
+
+                    return methodInfo.Invoke(null, new object[] { _resolverContext, genericArgument });
+                }
+
                 throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} is not registered");
             }
 
             return registrations.First().Create(_resolverContext);
+        }
+
+        private static IEnumerable<T> ResolveEnumerable<T>(IResolverContext resolverContext, Type serviceType)
+        {
+            return resolverContext.Resolver
+                .ResolveAll(serviceType)
+                .Select(s => (T)s);
         }
 
         public IEnumerable<object> ResolveAll(Type serviceType)

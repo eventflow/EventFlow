@@ -36,15 +36,15 @@ namespace EventFlow.Core.IoC.Factories
         private readonly ConstructorInfo _constructorInfo;
         private readonly IReadOnlyCollection<ParameterInfo> _parameterInfos;
 
-        public ConstructorFactory(Type type)
+        public ConstructorFactory(Type serviceType)
         {
-            var constructorInfos = type
+            var constructorInfos = serviceType
                 .GetTypeInfo()
                 .GetConstructors();
 
             if (constructorInfos.Length > 1)
             {
-                throw new ConfigurationErrorsException($"Type {type.PrettyPrint()} has more than one constructor");
+                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
             }
 
             _constructorInfo = constructorInfos.Single();
@@ -56,19 +56,7 @@ namespace EventFlow.Core.IoC.Factories
             var parameters = new object[_parameterInfos.Count];
             foreach (var parameterInfo in _parameterInfos)
             {
-                var enumerableType = parameterInfo.ParameterType
-                    .GetTypeInfo()
-                    .GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.IsInterface && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-
-                if (enumerableType == null)
-                {
-                    parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
-                }
-                else
-                {
-                    throw new NotImplementedException("TODO");
-                }
+                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
             }
 
             return _constructorInfo.Invoke(parameters);

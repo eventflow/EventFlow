@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -43,6 +45,30 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             public IMagicInterface Inner { get; }
             public MagicClassDecorator2(IMagicInterface magicInterface) { Inner = magicInterface; }
         }
+
+        private interface I
+        {
+        }
+
+        private class A : I
+        {
+        }
+
+        private class B : I
+        {
+        }
+
+        private class C
+        {
+            public IEnumerable<I> Is { get; }
+
+            public C(
+                IEnumerable<I> nested)
+            {
+                Is = nested;
+            }
+        }
+
         // ReSharper enable ClassNeverInstantiated.Local
 
         [Test]
@@ -73,6 +99,24 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
 
             // Assert
             Assert_Service();
+        }
+
+        [Test]
+        public void Enumerable()
+        {
+            // Arrange
+            Sut.RegisterType(typeof(C));
+            Sut.Register<I, A>();
+            Sut.Register<I, B>();
+
+            // Act
+            var resolver = Sut.CreateResolver(false);
+
+            // Assert
+            var c = resolver.Resolve<C>();
+            var nested = c.Is.ToList();
+            nested[0].Should().BeOfType<B>();
+            nested[1].Should().BeOfType<A>();
         }
 
         private void Assert_Service()
