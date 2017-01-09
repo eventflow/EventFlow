@@ -3,7 +3,7 @@
 // Copyright (c) 2013 Tom Jacques (https://github.com/tejacques/AsyncBridge)
 // Copyright (c) 2015-2017 Rasmus Mikkelsen
 // Copyright (c) 2015-2017 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
