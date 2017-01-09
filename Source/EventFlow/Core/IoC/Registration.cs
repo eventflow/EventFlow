@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
 
@@ -48,11 +50,11 @@ namespace EventFlow.Core.IoC
             _lifetime = lifetime;
         }
 
-        public object Create(IResolverContext resolverContext)
+        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
             if (_lifetime == Lifetime.AlwaysUnique)
             {
-                return CreateDecorated(resolverContext);
+                return CreateDecorated(resolverContext, genericTypeArguments);
             }
 
             if (_singleton == null)
@@ -61,7 +63,7 @@ namespace EventFlow.Core.IoC
                 {
                     if (_singleton == null)
                     {
-                        _singleton = CreateDecorated(resolverContext);
+                        _singleton = CreateDecorated(resolverContext, genericTypeArguments);
                     }
                 }
             }
@@ -74,11 +76,15 @@ namespace EventFlow.Core.IoC
             (_singleton as IDisposable)?.Dispose();
         }
 
-        private object CreateDecorated(IResolverContext resolverContext)
+        private object CreateDecorated(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
-            var service = _factory.Create(resolverContext);
+            var serviceType = genericTypeArguments.Any() && _serviceType.IsGenericType
+                ? _serviceType.MakeGenericType(genericTypeArguments)
+                : _serviceType;
+
+            var service = _factory.Create(resolverContext, genericTypeArguments);
             var decoratedService = _decoratorService.Decorate(
-                _serviceType,
+                serviceType,
                 service,
                 resolverContext);
             return decoratedService;

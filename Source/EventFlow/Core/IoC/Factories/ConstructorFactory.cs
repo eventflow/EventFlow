@@ -51,7 +51,7 @@ namespace EventFlow.Core.IoC.Factories
             _parameterInfos = _constructorInfo.GetParameters();
         }
 
-        public object Create(IResolverContext resolverContext)
+        public object Create(IResolverContext resolverContext, IEnumerable<Type> genericTypeArguments)
         {
             var parameters = new object[_parameterInfos.Count];
             foreach (var parameterInfo in _parameterInfos)

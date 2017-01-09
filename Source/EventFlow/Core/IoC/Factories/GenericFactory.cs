@@ -23,12 +23,45 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 
-namespace EventFlow.Core.IoC
+namespace EventFlow.Core.IoC.Factories
 {
-    internal interface IFactory
+    internal class GenericFactory : IFactory
     {
-        object Create(IResolverContext resolverContext, IEnumerable<Type> genericTypeArguments);
+        private readonly Type _serviceType;
+
+        public GenericFactory(Type serviceType)
+        {
+            var constructorInfos = serviceType
+                .GetTypeInfo()
+                .GetConstructors();
+
+            if (constructorInfos.Length > 1)
+            {
+                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
+            }
+
+            _serviceType = serviceType;
+        }
+
+        public object Create(IResolverContext resolverContext, IEnumerable<Type> genericTypeArguments)
+        {
+            var genericType = _serviceType.MakeGenericType(genericTypeArguments.ToArray());
+            var constructorInfo = genericType.GetConstructors().Single();
+            var parameterInfos = constructorInfo.GetParameters();
+
+            var parameters = new object[parameterInfos.Length];
+            foreach (var parameterInfo in parameterInfos)
+            {
+                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
+            }
+
+            return constructorInfo.Invoke(parameters);
+        }
     }
 }

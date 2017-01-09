@@ -92,6 +92,11 @@ namespace EventFlow.Core.IoC
             Lifetime lifetime = Lifetime.AlwaysUnique,
             bool keepDefault = false)
         {
+            Register(
+                serviceType,
+                new GenericFactory(implementationType),
+                lifetime,
+                keepDefault);
         }
 
         public void RegisterIfNotRegistered<TService, TImplementation>(

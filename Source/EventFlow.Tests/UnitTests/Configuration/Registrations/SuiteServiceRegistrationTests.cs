@@ -68,7 +68,6 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
                 Is = nested;
             }
         }
-
         // ReSharper enable ClassNeverInstantiated.Local
 
         [Test]

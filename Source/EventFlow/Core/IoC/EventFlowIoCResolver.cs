@@ -36,6 +36,7 @@ namespace EventFlow.Core.IoC
         private readonly IReadOnlyDictionary<Type, List<Registration>> _registrations;
         private readonly bool _dispose;
         private readonly IResolverContext _resolverContext;
+        private readonly Type[] _emptyTypeArray = {};
 
         public EventFlowIoCResolver(
             IReadOnlyDictionary<Type, List<Registration>> registrations,
@@ -55,14 +56,21 @@ namespace EventFlow.Core.IoC
         public object Resolve(Type serviceType)
         {
             List<Registration> registrations;
+            var genericArguments = _emptyTypeArray;
+            var typeInfo = serviceType.GetTypeInfo();
+
+            if (serviceType.IsGenericType && typeInfo.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+            {
+                genericArguments = typeInfo.GetGenericArguments();
+                serviceType = typeInfo.GetGenericTypeDefinition();
+            }
+
             if (!_registrations.TryGetValue(serviceType, out registrations))
             {
                 if (serviceType == typeof(IResolver))
                 {
                     return this;
                 }
-
-                var typeInfo = serviceType.GetTypeInfo();
 
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
@@ -79,7 +87,7 @@ namespace EventFlow.Core.IoC
                 throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} is not registered");
             }
 
-            return registrations.First().Create(_resolverContext);
+            return registrations.First().Create(_resolverContext, genericArguments);
         }
 
         private static IEnumerable<T> ResolveEnumerable<T>(IResolverContext resolverContext, Type serviceType)
@@ -98,7 +106,7 @@ namespace EventFlow.Core.IoC
             }
 
             return registrations
-                .Select(r => r.Create(_resolverContext));
+                .Select(r => r.Create(_resolverContext, _emptyTypeArray));
         }
 
         public IEnumerable<Type> GetRegisteredServices()
