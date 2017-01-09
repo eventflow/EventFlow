@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2013 Tom Jacques (https://github.com/tejacques/AsyncBridge)
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining
