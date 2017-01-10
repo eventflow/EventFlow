@@ -109,7 +109,6 @@
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
     <Compile Include="UnitTests\Aggregates\MetadataTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
-    <Compile Include="UnitTests\Configuration\Registrations\SuiteServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\LabelTests.cs" />
     <Compile Include="UnitTests\Core\TransientFaultHandlerTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />

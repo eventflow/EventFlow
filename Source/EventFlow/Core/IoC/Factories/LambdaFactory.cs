@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using EventFlow.Configuration;
 
 namespace EventFlow.Core.IoC.Factories
@@ -37,7 +36,7 @@ namespace EventFlow.Core.IoC.Factories
             _factory = factory;
         }
 
-        public object Create(IResolverContext resolverContext, IEnumerable<Type> genericTypeArguments)
+        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
             return _factory(resolverContext);
         }

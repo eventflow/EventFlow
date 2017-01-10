@@ -22,13 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using EventFlow.Configuration;
 
 namespace EventFlow.Core.IoC
 {
     internal interface IFactory
     {
-        object Create(IResolverContext resolverContext, IEnumerable<Type> genericTypeArguments);
+        object Create(IResolverContext resolverContext, Type[] genericTypeArguments);
     }
 }

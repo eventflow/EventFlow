@@ -24,12 +24,13 @@
 using EventFlow.Configuration;
 using EventFlow.Core.IoC;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Configuration.Registrations
 {
     [Category(Categories.Unit)]
-    public class FlowIoCServiceRegistrationTests : SuiteServiceRegistrationTests
+    public class FlowIoCServiceRegistrationTests : TestSuiteForServiceRegistration
     {
         protected override IServiceRegistration CreateSut()
         {

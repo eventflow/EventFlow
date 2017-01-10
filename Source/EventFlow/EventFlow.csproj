@@ -76,6 +76,7 @@
     <Compile Include="Core\IoC\EventFlowIoCServiceRegistration.cs" />
     <Compile Include="Core\IoC\IFactory.cs" />
     <Compile Include="Core\IoC\Registration.cs" />
+    <Compile Include="Core\IoC\ServiceRegistration.cs" />
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />

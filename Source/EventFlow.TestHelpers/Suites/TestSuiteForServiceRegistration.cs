@@ -21,16 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using EventFlow.Configuration;
-using EventFlow.TestHelpers;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Configuration.Registrations
+namespace EventFlow.TestHelpers.Suites
 {
-    public abstract class SuiteServiceRegistrationTests : TestsFor<IServiceRegistration>
+    public abstract class TestSuiteForServiceRegistration : TestsFor<IServiceRegistration>
     {
         // ReSharper disable ClassNeverInstantiated.Local
         private interface IMagicInterface { }
@@ -127,6 +129,31 @@ namespace EventFlow.Tests.UnitTests.Configuration.Registrations
             // Assert
             magicInterface.Should().NotBeNull();
             magicInterface.Should().BeAssignableTo<MagicClass>();
+        }
+
+        [Test]
+        public void ResolvesScopeResolver()
+        {
+            // Act
+            var resolver = Sut.CreateResolver(true);
+            var scopeResolver = resolver.Resolve<IScopeResolver>();
+
+            // Assert
+            scopeResolver.Should().NotBeNull();
+        }
+
+        [Test]
+        public void InvokesBootstraps()
+        {
+            // Arrange
+            var bootstrapMock = new Mock<IBootstrap>();
+
+            // Act
+            Sut.Register(c => bootstrapMock.Object);
+            Sut.CreateResolver(true);
+
+            // Assert
+            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]

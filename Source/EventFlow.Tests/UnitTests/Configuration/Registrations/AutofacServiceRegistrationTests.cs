@@ -25,11 +25,12 @@ using System.ComponentModel;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Registrations;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
 
 namespace EventFlow.Tests.UnitTests.Configuration.Registrations
 {
     [Category(Categories.Unit)]
-    public class AutofacServiceRegistrationTests : SuiteServiceRegistrationTests
+    public class AutofacServiceRegistrationTests : TestSuiteForServiceRegistration
     {
         protected override IServiceRegistration CreateSut()
         {

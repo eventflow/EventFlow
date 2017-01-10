@@ -85,7 +85,7 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [TestCaseSource(nameof(TestCases))]
-        public void BasicFlow(IEventFlowOptions eventFlowOptions)
+        public async Task BasicFlow(IEventFlowOptions eventFlowOptions)
         {
             // Arrange
             using (var resolver = eventFlowOptions
@@ -107,16 +107,19 @@ namespace EventFlow.Tests.IntegrationTests
                 var id = ThingyId.New;
 
                 // Act
-                commandBus.Publish(new ThingyDomainErrorAfterFirstCommand(id), CancellationToken.None);
-                commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
-                commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
-                var testAggregate = eventStore.Load<ThingyAggregate, ThingyId>(id, CancellationToken.None);
-                var testReadModelFromQuery1 = queryProcessor.Process(
-                    new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None);
-                var testReadModelFromQuery2 = queryProcessor.Process(
-                    new InMemoryQuery<InMemoryThingyReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
-                var pingReadModels = queryProcessor.Process(
-                    new InMemoryQuery<PingReadModel>(m => true), CancellationToken.None);
+                await commandBus.PublishAsync(new ThingyDomainErrorAfterFirstCommand(id), CancellationToken.None).ConfigureAwait(false);
+                await commandBus.PublishAsync(new ThingyPingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+                await commandBus.PublishAsync(new ThingyPingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+                var testAggregate = await eventStore.LoadAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None).ConfigureAwait(false);
+                var testReadModelFromQuery1 = await queryProcessor.ProcessAsync(
+                    new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None)
+                    .ConfigureAwait(false);
+                var testReadModelFromQuery2 = await queryProcessor.ProcessAsync(
+                    new InMemoryQuery<InMemoryThingyReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None)
+                    .ConfigureAwait(false);
+                var pingReadModels = await queryProcessor.ProcessAsync(
+                    new InMemoryQuery<PingReadModel>(m => true), CancellationToken.None)
+                    .ConfigureAwait(false);
 
                 // Assert
                 pingReadModels.Should().HaveCount(2);

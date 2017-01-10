@@ -21,46 +21,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Configuration;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
 
-namespace EventFlow.Core.IoC.Factories
+namespace EventFlow.Core.IoC
 {
-    internal class GenericFactory : IFactory
+    public abstract class ServiceRegistration
     {
-        private readonly Type _serviceType;
-
-        public GenericFactory(Type serviceType)
+        protected static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
         {
-            var constructorInfos = serviceType
-                .GetTypeInfo()
-                .GetConstructors();
-
-            if (constructorInfos.Length > 1)
-            {
-                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
-            }
-
-            _serviceType = serviceType;
-        }
-
-        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
-        {
-            var genericType = _serviceType.MakeGenericType(genericTypeArguments);
-            var constructorInfo = genericType.GetConstructors().Single();
-            var parameterInfos = constructorInfo.GetParameters();
-
-            var parameters = new object[parameterInfos.Length];
-            foreach (var parameterInfo in parameterInfos)
-            {
-                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
-            }
-
-            return constructorInfo.Invoke(parameters);
+            var list = bootstraps
+                .Select(b => new
+                    {
+                        Bootstrap = b,
+                        AssemblyName = b.GetType().Assembly.GetName().Name,
+                    })
+                .ToList();
+            var eventFlowBootstraps = list
+                .Where(a => a.AssemblyName.StartsWith("EventFlow"))
+                .OrderBy(a => a.AssemblyName)
+                .Select(a => a.Bootstrap);
+            var otherBootstraps = list
+                .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
+                .OrderBy(a => a.AssemblyName)
+                .Select(a => a.Bootstrap);
+            return eventFlowBootstraps.Concat(otherBootstraps).ToList();
         }
     }
 }

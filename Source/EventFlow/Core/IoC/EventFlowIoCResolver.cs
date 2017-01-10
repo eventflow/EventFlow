@@ -59,10 +59,13 @@ namespace EventFlow.Core.IoC
             var genericArguments = _emptyTypeArray;
             var typeInfo = serviceType.GetTypeInfo();
 
-            if (serviceType.IsGenericType && typeInfo.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+            if (serviceType.IsGenericType &&
+                !_registrations.ContainsKey(serviceType) &&
+                typeInfo.GetGenericTypeDefinition() != typeof(IEnumerable<>))
             {
                 genericArguments = typeInfo.GetGenericArguments();
                 serviceType = typeInfo.GetGenericTypeDefinition();
+                typeInfo = serviceType.GetTypeInfo();
             }
 
             if (!_registrations.TryGetValue(serviceType, out registrations))
@@ -70,6 +73,11 @@ namespace EventFlow.Core.IoC
                 if (serviceType == typeof(IResolver))
                 {
                     return this;
+                }
+
+                if (serviceType == typeof(IScopeResolver))
+                {
+                    return BeginScope();
                 }
 
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
@@ -100,13 +108,10 @@ namespace EventFlow.Core.IoC
         public IEnumerable<object> ResolveAll(Type serviceType)
         {
             List<Registration> registrations;
-            if (!_registrations.TryGetValue(serviceType, out registrations))
-            {
-                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} is not registered");
-            }
 
-            return registrations
-                .Select(r => r.Create(_resolverContext, _emptyTypeArray));
+            return _registrations.TryGetValue(serviceType, out registrations)
+                ? registrations.Select(r => r.Create(_resolverContext, _emptyTypeArray))
+                : Enumerable.Empty<object>();
         }
 
         public IEnumerable<Type> GetRegisteredServices()
