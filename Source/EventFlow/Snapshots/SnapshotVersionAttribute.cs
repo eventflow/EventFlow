@@ -2,7 +2,7 @@
 // 
 // Copyright (c) 2015 Rasmus Mikkelsen
 // Copyright (c) 2015 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
