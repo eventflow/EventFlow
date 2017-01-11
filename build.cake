@@ -116,25 +116,20 @@ Task("Test")
 
 // =====================================================================================================
 Task("Package")
-    .IsDependentOn("Test")
+    //.IsDependentOn("Test")
+    .IsDependentOn("Build")
     .Does(() =>
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
-
-            ExecuteIlMerge(
-                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", CONFIGURATION, "EventFlow.dll"),
-                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", "EventFlow.dll"),
-                new []
-                    {
-                        "Autofac.dll",
-                    });
 
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_OUTPUT_PACKAGES,
                 CONFIGURATION,
                 string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
+
+            BuildProject("pack", @"Source\EventFlow\EventFlow.csproj");
         });
 
 // =====================================================================================================
@@ -157,16 +152,17 @@ Task("All")
         });
 
 // =====================================================================================================
-void BuildProject(string target)
+void BuildProject(string target, string path = null)
 {
     MSBuild(
-        "EventFlow.sln",
+        path ?? "EventFlow.sln",
          s => s
             .WithTarget(target)
             .SetConfiguration(CONFIGURATION)
             .SetMSBuildPlatform(MSBuildPlatform.Automatic)
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
+            .UseToolVersion(MSBuildToolVersion.VS2017)
         );
 }
 

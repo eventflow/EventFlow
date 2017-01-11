@@ -30,8 +30,9 @@ group Build
 	redirects: off
 	framework: <= net451
 	source https://www.nuget.org/api/v2/
+	source https://www.myget.org/F/cake/api/v3/index.json
 
-	nuget cake
+	nuget cake prerelease
 	nuget GitVersion.CommandLine
 	nuget ilmerge 2.14.1208
 	nuget NUnit.Runners ~> 3.0

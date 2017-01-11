@@ -51,8 +51,9 @@ GROUP Build
 REDIRECTS: OFF
 FRAMEWORK: NET451
 NUGET
+  remote: https://www.myget.org/F/cake
+    Cake (0.18.0-alpha0063)
   remote: https://www.nuget.org/api/v2
-    Cake (0.16.2)
     GitVersion.CommandLine (3.5.4)
     ilmerge (2.14.1208)
     NUnit.ConsoleRunner (3.4.1)
