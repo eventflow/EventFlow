@@ -25,9 +25,9 @@ using System;
 using System.Threading.Tasks;
 using EventFlow.Core;
 
-namespace EventFlow.Aggregates
+namespace EventFlow.Aggregates.Factories
 {
-    public class AggregateFactory : IAggregateFactory
+    public class ActivatorAggregateFactory : IAggregateFactory
     {
         public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
             where TAggregate : IAggregateRoot<TIdentity>

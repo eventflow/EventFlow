@@ -51,7 +51,7 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
-    <Compile Include="Aggregates\AggregateFactory.cs" />
+    <Compile Include="Aggregates\Factories\ActivatorAggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
@@ -126,7 +126,7 @@
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Lifetime.cs" />
-    <Compile Include="Configuration\Factories\ResolverAggregateRootFactory.cs" />
+    <Compile Include="Aggregates\Factories\ResolverAggregateRootFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />

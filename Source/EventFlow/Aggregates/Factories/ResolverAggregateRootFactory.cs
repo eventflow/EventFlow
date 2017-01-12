@@ -24,10 +24,10 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 
-namespace EventFlow.Configuration.Factories
+namespace EventFlow.Aggregates.Factories
 {
     public class ResolverAggregateRootFactory : IAggregateFactory
     {
