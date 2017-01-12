@@ -25,9 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Autofac;
 using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations.Services;
+using EventFlow.Configuration.Factories;
 
 namespace EventFlow.Extensions
 {
@@ -48,7 +47,7 @@ namespace EventFlow.Extensions
             var aggregateRootTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.IsAbstract)
-                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>)))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
         }
@@ -67,7 +66,7 @@ namespace EventFlow.Extensions
             var aggregateRootTypeList = aggregateRootTypes.ToList();
 
             var invalidTypes = aggregateRootTypeList
-                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
+                .Where(t => t.IsAbstract || !t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>)))
                 .ToList();
             if (invalidTypes.Any())
             {

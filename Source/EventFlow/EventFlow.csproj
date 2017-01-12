@@ -80,7 +80,6 @@
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
-    <Compile Include="Extensions\EventFlowOptionsFlowIoCExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
     <Compile Include="Sagas\ISaga.cs" />
     <Compile Include="Sagas\ISagaContext.cs" />
@@ -127,12 +126,8 @@
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Lifetime.cs" />
-    <Compile Include="Configuration\Registrations\Services\ResolverAggregateRootFactory.cs" />
+    <Compile Include="Configuration\Factories\ResolverAggregateRootFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
-    <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
-    <Compile Include="Configuration\Registrations\AutofacResolver.cs" />
-    <Compile Include="Configuration\Registrations\AutofacRootResolver.cs" />
-    <Compile Include="Configuration\Registrations\AutofacScopeResolver.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Core\AsyncLock.cs" />
@@ -355,17 +350,6 @@
   </Target>
   -->
   <Import Project="..\..\.paket\paket.targets" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Autofac">
-          <HintPath>..\..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>

@@ -21,44 +21,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using FluentAssertions;
-using NUnit.Framework;
+using Autofac;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Autofac.Registrations
 {
-    [Category(Categories.Unit)]
-    public class MetadataProviderExtensionsTests
+    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        [Test]
-        public void AbstractMetadataProviderIsNotRegistered()
+        private readonly ILifetimeScope _lifetimeScope;
+
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddMetadataProviders(new List<Type>
-            {
-                typeof(AbstractTestSubscriber)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            _lifetimeScope = lifetimeScope.BeginLifetimeScope();
         }
-    }
 
-    public abstract class AbstractTestMetadataProvider : IMetadataProvider
-    {
-        public abstract IEnumerable<KeyValuePair<string, string>> ProvideMetadata
-            <TAggregate, TIdentity>(TIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity;
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public virtual void Dispose()
+        {
+            _lifetimeScope.Dispose();
+        }
     }
 }

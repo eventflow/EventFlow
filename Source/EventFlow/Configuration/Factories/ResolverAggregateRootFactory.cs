@@ -27,9 +27,9 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
-namespace EventFlow.Configuration.Registrations.Services
+namespace EventFlow.Configuration.Factories
 {
-    internal class ResolverAggregateRootFactory : IAggregateFactory
+    public class ResolverAggregateRootFactory : IAggregateFactory
     {
         private readonly IResolver _resolver;
 

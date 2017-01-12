@@ -27,9 +27,9 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
+using EventFlow.Core.IoC;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -56,17 +56,17 @@ namespace EventFlow
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
         private readonly List<Type> _snapshotTypes = new List<Type>(); 
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new EventFlowIoCServiceRegistration());
 
         private EventFlowOptions()
         {
-            UseServiceRegistration(new AutofacServiceRegistration());
+            UseServiceRegistration(new EventFlowIoCServiceRegistration());
 
             ModuleRegistration = new ModuleRegistration(this);
             ModuleRegistration.Register<ProvidedJobsModule>();
         }
 
-        public static EventFlowOptions New => new EventFlowOptions();
+        public static IEventFlowOptions New => new EventFlowOptions();
 
         public IModuleRegistration ModuleRegistration { get; }
 

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -21,16 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core.IoC;
+using Autofac;
+using EventFlow.Configuration;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Autofac.Registrations
 {
-    public static class EventFlowOptionsFlowIoCExtensions
+    internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
-        public static IEventFlowOptions UseEventFlowIoC(this IEventFlowOptions eventFlowOptions)
+        public IContainer Container { get; }
+
+        public AutofacRootResolver(IContainer container)
+            : base(container)
         {
-            return eventFlowOptions
-                .UseServiceRegistration(new EventFlowIoCServiceRegistration());
+            Container = container;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Container.Dispose();
         }
     }
 }

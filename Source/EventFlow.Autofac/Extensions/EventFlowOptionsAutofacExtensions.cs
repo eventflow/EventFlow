@@ -24,9 +24,9 @@
 using System;
 using Autofac;
 using EventFlow.Aggregates;
+using EventFlow.Autofac.Registrations;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Configuration.Registrations.Services;
+using EventFlow.Configuration.Factories;
 
 namespace EventFlow.Autofac.Extensions
 {
@@ -47,6 +47,7 @@ namespace EventFlow.Autofac.Extensions
                 .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder));
         }
 
+        [Obsolete("Simply use UseResolverAggregateRootFactory() as its the same implementation")]
         public static IEventFlowOptions UseAutofacAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {

@@ -27,12 +27,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
 using EventFlow.Core;
 using EventFlow.Core.IoC;
 using EventFlow.Extensions;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Autofac.Registrations
 {
     internal class AutofacServiceRegistration : ServiceRegistration, IServiceRegistration
     {

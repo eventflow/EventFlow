@@ -21,10 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Configuration;
+using EventFlow.Core;
+using EventFlow.EventStores;
+using EventFlow.Extensions;
+using EventFlow.Queries;
+using EventFlow.Subscribers;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -196,6 +209,22 @@ namespace EventFlow.TestHelpers.Suites
             resolver.Should().BeAssignableTo<IResolver>();
         }
 
+        [Test]
+        public void AbstractMetadataProviderIsNotRegistered()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New.UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddMetadataProviders(new List<Type>
+            {
+                typeof(AbstractTestSubscriber)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
+        }
+
         public static void Assert_Decorator(IServiceRegistration serviceRegistration)
         {
             // The order should be like this (like unwrapping a present with the order of
@@ -221,6 +250,195 @@ namespace EventFlow.TestHelpers.Suites
             magicClassDecorator2.Inner.Should().BeAssignableTo<MagicClassDecorator1>();
             var magicClassDecorator1 = (MagicClassDecorator1)magicClassDecorator2.Inner;
             magicClassDecorator1.Inner.Should().BeAssignableTo<MagicClass>();
+        }
+
+        [Test]
+        public void AbstractSubscriberIsNotRegistered()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New.UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddSubscribers(new List<Type>
+            {
+                typeof(AbstractTestSubscriber)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
+        }
+
+        public abstract class AbstractTestSubscriber :
+            ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public abstract Task HandleAsync(
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken);
+        }
+
+        public abstract class AbstractTestMetadataProvider : IMetadataProvider
+        {
+            public abstract IEnumerable<KeyValuePair<string, string>> ProvideMetadata
+                <TAggregate, TIdentity>(TIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
+                where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity;
+        }
+
+        [Test]
+        public void AbstractCommandHandlerIsNotRegistered()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New.UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddCommandHandlers(new List<Type>
+            {
+                typeof(AbstractTestCommandHandler)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
+        }
+
+        public abstract class AbstractTestCommandHandler :
+            ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+        {
+            public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
+                CancellationToken cancellationToken);
+        }
+
+        [Test]
+        public void AbstractAggregateRootImplementationIsNotSelected()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New
+                .UseServiceRegistration(Sut);
+
+            // Act
+            sut.AddAggregateRoots(typeof(TestSuiteForServiceRegistration).Assembly);
+
+            // Assert
+            var resolver = sut.CreateResolver(false);
+            resolver.HasRegistrationFor<AbstractTestAggregate>().Should().Be(false);
+        }
+
+        [Test]
+        public void ClosedIAggregateRootImplementationIsSelected()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New
+                .UseServiceRegistration(Sut);
+
+            // Act
+            sut.AddAggregateRoots(EventFlowTestHelpers.Assembly);
+
+            // Assert
+            var resolver = sut.CreateResolver(false);
+            resolver.HasRegistrationFor<ThingyAggregate>().Should().Be(true);
+        }
+
+        [Test]
+        public void AbstractAggregateRootImplementationIsRejected()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New
+                .UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(AbstractTestAggregate) });
+
+            // Assert
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void NonIAggregateRootImplementationIsRejected()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New
+                .UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(ThingyId) });
+
+            // Assert
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void ClosedIAggregateRootImplementationIsAccepted()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New
+                .UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddAggregateRoots(new List<Type> { typeof(LocalTestAggregate) });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void AbstractEventUpgraderIsNotRegistered()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New.UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddEventUpgraders(new List<Type>
+            {
+                typeof(AbstractTestEventUpgrader)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
+        }
+
+        public abstract class AbstractTestEventUpgrader : IEventUpgrader<ThingyAggregate, ThingyId>
+        {
+            public abstract IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
+                IDomainEvent<ThingyAggregate, ThingyId> domainEvent);
+        }
+
+        [Test]
+        public void AbstractQueryHandlerIsNotRegistered()
+        {
+            // Arrange
+            var sut = EventFlowOptions.New.UseServiceRegistration(Sut);
+
+            // Act
+            Action act = () => sut.AddQueryHandlers(new List<Type>
+            {
+                typeof(AbstractTestQueryHandler)
+            });
+
+            // Assert
+            act.ShouldNotThrow<ArgumentException>();
+        }
+
+        public abstract class AbstractTestQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
+        {
+            public abstract Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query,
+                CancellationToken cancellationToken);
+        }
+    }
+
+    public abstract class AbstractTestAggregate : AggregateRoot<ThingyAggregate, ThingyId>,
+    IEmit<ThingyDomainErrorAfterFirstEvent>
+    {
+        protected AbstractTestAggregate(ThingyId id) : base(id)
+        {
+        }
+
+        public void Apply(ThingyDomainErrorAfterFirstEvent aggregateEvent)
+        {
+        }
+    }
+
+    public class LocalTestAggregate : AbstractTestAggregate
+    {
+        public LocalTestAggregate(ThingyId id) : base(id)
+        {
         }
     }
 }

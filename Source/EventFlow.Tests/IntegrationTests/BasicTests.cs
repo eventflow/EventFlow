@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.Queries;
@@ -131,10 +130,7 @@ namespace EventFlow.Tests.IntegrationTests
 
         public static IEnumerable<IEventFlowOptions> TestCases()
         {
-            yield return EventFlowOptions.New
-                .UseServiceRegistration(new AutofacServiceRegistration());
-            yield return EventFlowOptions.New
-                .UseEventFlowIoC();
+            yield return EventFlowOptions.New;
         }
     }
 }

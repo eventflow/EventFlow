@@ -79,7 +79,6 @@
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
-    <Compile Include="UnitTests\Configuration\Registrations\AutofacServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Configuration\Registrations\FlowIoCServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
     <Compile Include="UnitTests\Core\Cache\InMemoryCacheTests.cs" />
@@ -92,13 +91,7 @@
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotSerilizerTests.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotUpgradeServiceTests.cs" />
-    <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\CommandHandlerExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\EventUpgraderExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\MetadataProviderExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\QueryHandlerExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\SubscriberExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />
     <Compile Include="UnitTests\Jobs\JobDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Provided\Specifications\AtLeastSpecificationTests.cs" />
