@@ -91,7 +91,6 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .RegisterServices(f => f.Register<IPingReadModelLocator, PingReadModelLocator>())
-                .AddAggregateRoots(EventFlowTestHelpers.Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()

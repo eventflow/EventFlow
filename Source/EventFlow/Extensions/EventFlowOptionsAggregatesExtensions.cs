@@ -23,64 +23,42 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using EventFlow.Aggregates;
-using EventFlow.Aggregates.Factories;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsAggregatesExtensions
     {
+        [Obsolete("Resolver aggregate factory is the default, simply remove this call")]
         public static IEventFlowOptions UseResolverAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, ResolverAggregateRootFactory>());
+            return eventFlowOptions;
         }
 
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
         public static IEventFlowOptions AddAggregateRoots(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
-            predicate = predicate ?? (t => true);
-            var aggregateRootTypes = fromAssembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract)
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>)))
-                .Where(t => predicate(t));
-            return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
+            return eventFlowOptions;
         }
 
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
         public static IEventFlowOptions AddAggregateRoots(
             this IEventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
-            return eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
+            return eventFlowOptions;
         }
 
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
         public static IEventFlowOptions AddAggregateRoots(
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
-            var aggregateRootTypeList = aggregateRootTypes.ToList();
-
-            var invalidTypes = aggregateRootTypeList
-                .Where(t => t.IsAbstract || !t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>)))
-                .ToList();
-            if (invalidTypes.Any())
-            {
-                var names = string.Join(", ", invalidTypes.Select(t => t.PrettyPrint()));
-                throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
-            }
-
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    foreach (var t in aggregateRootTypeList)
-                    {
-                        sr.RegisterType(t);
-                    }
-                });
+            return eventFlowOptions;
         }
     }
 }

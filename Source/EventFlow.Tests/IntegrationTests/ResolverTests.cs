@@ -23,7 +23,6 @@
 
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
@@ -50,9 +49,7 @@ namespace EventFlow.Tests.IntegrationTests
         public async Task ResolverAggregatesFactoryCanResolve()
         {
             using (var resolver = EventFlowOptions.New
-                .AddAggregateRoots(typeof(ServiceDependentAggregate))
                 .RegisterServices(sr => sr.RegisterType(typeof(Service)))
-                .UseResolverAggregateRootFactory()
                 .CreateResolver())
             {
                 // Arrange

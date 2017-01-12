@@ -70,10 +70,12 @@
     <Compile Include="IntegrationTests\ResolverTests.cs" />
     <Compile Include="Documentation\GettingStarted\ExampleTests.cs" />
     <Compile Include="IntegrationTests\SnapshotStores\InMemorySnapshotStoreTests.cs" />
+    <Compile Include="UnitTests\Aggregates\AggregateFactoryTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateStateTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateStoreTests.cs" />
+    <Compile Include="IntegrationTests\Aggregates\AggregateFactoryTests.cs" />
     <Compile Include="UnitTests\Commands\CommandTests.cs" />
     <Compile Include="UnitTests\Commands\DistinctCommandTests.cs" />
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />

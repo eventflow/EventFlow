@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Aggregates.Factories;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
@@ -214,7 +213,7 @@ namespace EventFlow
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
             serviceRegistration.Register<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton);
-            serviceRegistration.Register<IAggregateFactory, ActivatorAggregateFactory>();
+            serviceRegistration.Register<IAggregateFactory, AggregateFactory>();
             serviceRegistration.Register<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
             serviceRegistration.Register<IDomainEventPublisher, DomainEventPublisher>();
             serviceRegistration.Register<ISerializedCommandPublisher, SerializedCommandPublisher>();
