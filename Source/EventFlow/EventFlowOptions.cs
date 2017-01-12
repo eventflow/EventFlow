@@ -56,7 +56,7 @@ namespace EventFlow
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
         private readonly List<Type> _snapshotTypes = new List<Type>(); 
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new EventFlowIoCServiceRegistration());
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory;
 
         private EventFlowOptions()
         {
@@ -189,9 +189,6 @@ namespace EventFlow
 
         private void RegisterDefaults(IServiceRegistration serviceRegistration)
         {
-            // http://docs.autofac.org/en/latest/register/registration.html
-            // Maybe swap around and do after and and .PreserveExistingDefaults()
-
             serviceRegistration.Register<ILog, ConsoleLog>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
