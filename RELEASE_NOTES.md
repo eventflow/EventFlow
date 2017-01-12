@@ -1,6 +1,19 @@
 ### New in 0.39 (not released yet)
 
-* New: `Command<,,>` now inherits from `ValueObject` 
+* Breaking: `IEventFlowOptions.AddDefaults(...)` now also scans for any
+  aggregate roots
+* New: Autofac is no longer IL merged into the `EventFlow` core NuGet package.
+  This is both in preparation for .NET Core and to simplify the build process.
+  EventFlow now ships with a custom IoC container by default. The Autofac based
+  IoC container is still available via the `EventFlow.Autofac` and will
+  continue to be supported as it is recommended production use
+* New: An IoC container based aggregate root factory is not the default
+  aggregate factory. The old implementation merely invoked a constructor
+  with the aggregate ID as argument. The new default also checks if any
+  additional services are required for the constructor
+* New: `Command<,,>` now inherits from `ValueObject`
+* Obsolete: `UseResolverAggregateRootFactory()` and `UseResolverAggregateRootFactory()`
+  are marked as obsolete as this is now the default
 
 ### New in 0.38.2454 (released 2016-12-02)
 
