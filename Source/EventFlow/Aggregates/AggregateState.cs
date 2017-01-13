@@ -23,8 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using EventFlow.Core;
 using EventFlow.Extensions;
 
@@ -35,26 +33,11 @@ namespace EventFlow.Aggregates
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        private static readonly Dictionary<Type, Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>> ApplyMethods; 
+        private static readonly IReadOnlyDictionary<Type, Action<TEventApplier, IAggregateEvent>> ApplyMethods; 
 
         static AggregateState()
         {
-            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
-            var eventApplier = typeof(TEventApplier);
-
-            ApplyMethods = eventApplier
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(mi =>
-                    {
-                        if (mi.Name != "Apply") return false;
-                        var parameters = mi.GetParameters();
-                        return
-                            parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
-                    })
-                .ToDictionary(
-                    mi => mi.GetParameters()[0].ParameterType,
-                    mi => ReflectionHelper.CompileMethodInvocation<Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>>(eventApplier, "Apply", mi.GetParameters()[0].ParameterType));
+            ApplyMethods = typeof(TEventApplier).GetAggregateEventApplyMethods<TAggregate, TIdentity, TEventApplier>();
         }
 
         protected AggregateState()
@@ -72,7 +55,7 @@ namespace EventFlow.Aggregates
             IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
             var aggregateEventType = aggregateEvent.GetType();
-            Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>> applier;
+            Action<TEventApplier, IAggregateEvent> applier;
 
             if (!ApplyMethods.TryGetValue(aggregateEventType, out applier))
             {
