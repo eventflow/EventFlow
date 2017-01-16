@@ -60,16 +60,22 @@ namespace EventFlow.TestHelpers.Suites
             public MagicClassDecorator2(IMagicInterface magicInterface) { Inner = magicInterface; }
         }
 
-        private interface I
+        public interface I : IDisposable
         {
         }
 
         private class A : I
         {
+            public void Dispose()
+            {
+            }
         }
 
         private class B : I
         {
+            public void Dispose()
+            {
+            }
         }
 
         private class C
@@ -210,6 +216,24 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public void DisposedIsInvoked()
+        {
+            // Arrange
+            var iMock = new Mock<I>();
+            Sut.Register(_ => iMock.Object, Lifetime.Singleton);
+
+            // Act
+            using (var resolver = Sut.CreateResolver(false))
+            {
+                resolver.Resolve<I>().Should().BeSameAs(iMock.Object);
+                resolver.Resolve<I>().Should().BeSameAs(iMock.Object);
+            }
+
+            // Assert
+            iMock.Verify(i => i.Dispose(), Times.Once);
         }
 
         [Test]
