@@ -22,8 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using Autofac;
+using EventFlow.Configuration;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Autofac.Registrations
 {
     internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {

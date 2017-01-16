@@ -22,30 +22,24 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading.Tasks;
-using Autofac;
 using EventFlow.Aggregates;
-using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
+namespace EventFlow.Tests.IntegrationTests.Aggregates
 {
     [TestFixture]
     [Category(Categories.Integration)]
-    public class AutofacAggregateFactoryTests
+    public class AggregateFactoryTests
     {
         [Test]
         public async Task CreatesNewAggregateWithIdParameter()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
-                .UseAutofacContainerBuilder()
-                .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
                 var id = ThingyId.New;
@@ -60,37 +54,10 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         }
 
         [Test]
-        public async Task ExternalContainerBuild()
-        {
-            // Arrange
-            var containerBuilder = new ContainerBuilder();
-            EventFlowOptions.New
-                .UseAutofacContainerBuilder(containerBuilder)
-                .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly);
-
-            using (var container = containerBuilder.Build())
-            using (var lifetimeScope = container.BeginLifetimeScope())
-            {
-                var id = ThingyId.New;
-                var sut = lifetimeScope.Resolve<IAggregateFactory>();
-
-                // Act
-                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
-
-                // Assert
-                aggregateWithIdParameter.Id.Should().Be(id);
-            }
-        }
-
-        [Test]
         public async Task CreatesNewAggregateWithIdAndInterfaceParameters()
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
-                .UseAutofacContainerBuilder()
-                .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .CreateResolver())
             {
                 var sut = resolver.Resolve<IAggregateFactory>();
@@ -108,9 +75,6 @@ namespace EventFlow.Autofac.Tests.UnitTests.Aggregates
         {
             // Arrange
             using (var resolver = EventFlowOptions.New
-                .UseAutofacContainerBuilder()
-                .UseAutofacAggregateRootFactory()
-                .AddAggregateRoots(typeof(AutofacAggregateFactoryTests).Assembly)
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
                 .CreateResolver())
             {

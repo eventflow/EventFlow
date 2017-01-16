@@ -21,48 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Extensions;
-using EventFlow.Subscribers;
+using EventFlow.Autofac.Registrations;
+using EventFlow.Configuration;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
-using FluentAssertions;
+using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Autofac.Tests.UnitTests
 {
     [Category(Categories.Unit)]
-    public class SubscriberExtensionsTests
+    public class AutofacServiceRegistrationTests : TestSuiteForServiceRegistration
     {
-        [Test]
-        public void AbstractSubscriberIsNotRegistered()
+        protected override IServiceRegistration CreateSut()
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddSubscribers(new List<Type>
-            {
-                typeof(AbstractTestSubscriber)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            return new AutofacServiceRegistration();
         }
-    }
-
-    public abstract class AbstractTestSubscriber :
-        ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
-    {
-        public abstract Task HandleAsync(
-            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
-            CancellationToken cancellationToken);
     }
 }

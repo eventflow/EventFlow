@@ -55,7 +55,6 @@ NUGET
     Cake (0.18.0-alpha0063)
   remote: https://www.nuget.org/api/v2
     GitVersion.CommandLine (3.5.4)
-    ilmerge (2.14.1208)
     NUnit.ConsoleRunner (3.4.1)
     NUnit.Extension.NUnitProjectLoader (3.4.1)
     NUnit.Extension.NUnitV2Driver (3.4.1)

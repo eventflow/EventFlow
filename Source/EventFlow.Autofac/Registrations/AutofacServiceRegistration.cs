@@ -24,17 +24,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
 using EventFlow.Core;
+using EventFlow.Core.IoC;
 using EventFlow.Extensions;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacServiceRegistration : IServiceRegistration
+    internal class AutofacServiceRegistration : ServiceRegistration, IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly DecoratorService _decoratorService = new DecoratorService();
@@ -206,26 +207,6 @@ namespace EventFlow.Configuration.Registrations
             private Task StartAsync(CancellationToken cancellationToken)
             {
                 return Task.WhenAll(_bootstraps.Select(b => b.BootAsync(cancellationToken)));
-            }
-
-            private static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
-            {
-                var list = bootstraps
-                    .Select(b => new
-                    {
-                        Bootstrap = b,
-                        AssemblyName = b.GetType().GetTypeInfo().Assembly.GetName().Name,
-                    })
-                    .ToList();
-                var eventFlowBootstraps = list
-                    .Where(a => a.AssemblyName.StartsWith("EventFlow"))
-                    .OrderBy(a => a.AssemblyName)
-                    .Select(a => a.Bootstrap);
-                var otherBootstraps = list
-                    .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
-                    .OrderBy(a => a.AssemblyName)
-                    .Select(a => a.Bootstrap);
-                return eventFlowBootstraps.Concat(otherBootstraps).ToList();
             }
         }
     }

@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -38,7 +37,7 @@ namespace EventFlow.Aggregates
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
-        private static readonly Dictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
+        private static readonly IReadOnlyDictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
         private static readonly IAggregateName AggregateName = typeof(TAggregate).GetAggregateName();
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
         private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
@@ -51,23 +50,7 @@ namespace EventFlow.Aggregates
 
         static AggregateRoot()
         {
-            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
-            var aggregateType = typeof(TAggregate);
-
-            ApplyMethods = typeof(TAggregate)
-                .GetTypeInfo()
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(mi =>
-                    {
-                        if (mi.Name != "Apply") return false;
-                        var parameters = mi.GetParameters();
-                        return
-                            parameters.Length == 1 &&
-                            aggregateEventType.GetTypeInfo().IsAssignableFrom(parameters[0].ParameterType);
-                    })
-                .ToDictionary(
-                    mi => mi.GetParameters()[0].ParameterType,
-                    mi => ReflectionHelper.CompileMethodInvocation<Action<TAggregate, IAggregateEvent>>(aggregateType, "Apply", mi.GetParameters()[0].ParameterType));
+            ApplyMethods = typeof(TAggregate).GetAggregateEventApplyMethods<TAggregate, TIdentity, TAggregate>();
         }
 
         protected AggregateRoot(TIdentity id)

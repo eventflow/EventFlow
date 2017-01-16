@@ -23,9 +23,11 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Extensions
 {
@@ -95,6 +97,28 @@ namespace EventFlow.Extensions
                             t.GetTypeInfo().GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                             t.Name);
                     });
+        }
+
+        internal static IReadOnlyDictionary<Type, Action<T, IAggregateEvent>> GetAggregateEventApplyMethods<TAggregate, TIdentity, T>(this Type type)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
+
+            return type
+                .GetTypeInfo()
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(mi =>
+                    {
+                        if (mi.Name != "Apply") return false;
+                        var parameters = mi.GetParameters();
+                        return
+                            parameters.Length == 1 &&
+                            aggregateEventType.GetTypeInfo().IsAssignableFrom(parameters[0].ParameterType);
+                    })
+                .ToDictionary(
+                    mi => mi.GetParameters()[0].ParameterType,
+                    mi => ReflectionHelper.CompileMethodInvocation<Action<T, IAggregateEvent>>(type, "Apply", mi.GetParameters()[0].ParameterType));
         }
     }
 }

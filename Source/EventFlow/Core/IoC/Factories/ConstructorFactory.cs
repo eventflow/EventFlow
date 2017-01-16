@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
-// https://github.com/eventflow/EventFlow
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
+// https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -24,35 +24,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Core.IoC.Factories
 {
-    public static class ResolverExtensions
+    internal class ConstructorFactory : IFactory
     {
-        public static void ValidateRegistrations(
-            this IResolver resolver)
+        private readonly ConstructorInfo _constructorInfo;
+        private readonly IReadOnlyCollection<ParameterInfo> _parameterInfos;
+
+        public ConstructorFactory(Type serviceType)
         {
-            var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices())
+            var constructorInfos = serviceType
+                .GetTypeInfo()
+                .GetConstructors();
+
+            if (constructorInfos.Length > 1)
             {
-                try
-                {
-                    resolver.Resolve(type);
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
-                }
+                throw new InvalidOperationException($"Type {serviceType.PrettyPrint()} has more than one constructor");
             }
 
-            if (!exceptions.Any())
+            _constructorInfo = constructorInfos.Single();
+            _parameterInfos = _constructorInfo.GetParameters();
+        }
+
+        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
+        {
+            var parameters = new object[_parameterInfos.Count];
+            foreach (var parameterInfo in _parameterInfos)
             {
-                return;
+                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
             }
 
-            var message = string.Join(", ", exceptions.Select(e => e.Message));
-            throw new AggregateException(message, exceptions);
+            return _constructorInfo.Invoke(parameters);
         }
     }
 }

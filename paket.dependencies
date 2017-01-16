@@ -34,7 +34,6 @@ group Build
 
 	nuget cake prerelease
 	nuget GitVersion.CommandLine
-	nuget ilmerge 2.14.1208
 	nuget NUnit.Runners ~> 3.0
 	nuget OpenCover
 

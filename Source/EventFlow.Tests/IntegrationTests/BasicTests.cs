@@ -83,16 +83,14 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        [Test]
-        public void BasicFlow()
+        [TestCaseSource(nameof(TestCases))]
+        public async Task BasicFlow(IEventFlowOptions eventFlowOptions)
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = eventFlowOptions
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .RegisterServices(f => f.Register<IPingReadModelLocator, PingReadModelLocator>())
-                .UseResolverAggregateRootFactory()
-                .AddAggregateRoots(EventFlowTestHelpers.Assembly)
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
@@ -107,16 +105,19 @@ namespace EventFlow.Tests.IntegrationTests
                 var id = ThingyId.New;
 
                 // Act
-                commandBus.Publish(new ThingyDomainErrorAfterFirstCommand(id), CancellationToken.None);
-                commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
-                commandBus.Publish(new ThingyPingCommand(id, PingId.New), CancellationToken.None);
-                var testAggregate = eventStore.Load<ThingyAggregate, ThingyId>(id, CancellationToken.None);
-                var testReadModelFromQuery1 = queryProcessor.Process(
-                    new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None);
-                var testReadModelFromQuery2 = queryProcessor.Process(
-                    new InMemoryQuery<InMemoryThingyReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None);
-                var pingReadModels = queryProcessor.Process(
-                    new InMemoryQuery<PingReadModel>(m => true), CancellationToken.None);
+                await commandBus.PublishAsync(new ThingyDomainErrorAfterFirstCommand(id), CancellationToken.None).ConfigureAwait(false);
+                await commandBus.PublishAsync(new ThingyPingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+                await commandBus.PublishAsync(new ThingyPingCommand(id, PingId.New), CancellationToken.None).ConfigureAwait(false);
+                var testAggregate = await eventStore.LoadAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None).ConfigureAwait(false);
+                var testReadModelFromQuery1 = await queryProcessor.ProcessAsync(
+                    new ReadModelByIdQuery<InMemoryThingyReadModel>(id.Value), CancellationToken.None)
+                    .ConfigureAwait(false);
+                var testReadModelFromQuery2 = await queryProcessor.ProcessAsync(
+                    new InMemoryQuery<InMemoryThingyReadModel>(rm => rm.DomainErrorAfterFirstReceived), CancellationToken.None)
+                    .ConfigureAwait(false);
+                var pingReadModels = await queryProcessor.ProcessAsync(
+                    new InMemoryQuery<PingReadModel>(m => true), CancellationToken.None)
+                    .ConfigureAwait(false);
 
                 // Assert
                 pingReadModels.Should().HaveCount(2);
@@ -124,6 +125,11 @@ namespace EventFlow.Tests.IntegrationTests
                 testReadModelFromQuery1.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModelFromQuery2.Should().NotBeNull();
             }
+        }
+
+        public static IEnumerable<IEventFlowOptions> TestCases()
+        {
+            yield return EventFlowOptions.New;
         }
     }
 }
