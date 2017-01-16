@@ -22,43 +22,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using FluentAssertions;
-using NUnit.Framework;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Core.IoC.Factories
 {
-    [Category(Categories.Unit)]
-    public class MetadataProviderExtensionsTests
+    internal class LambdaFactory<TService> : IFactory
     {
-        [Test]
-        public void AbstractMetadataProviderIsNotRegistered()
+        private readonly Func<IResolverContext, TService> _factory;
+
+        public LambdaFactory(
+            Func<IResolverContext, TService> factory)
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddMetadataProviders(new List<Type>
-            {
-                typeof(AbstractTestSubscriber)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            _factory = factory;
         }
-    }
 
-    public abstract class AbstractTestMetadataProvider : IMetadataProvider
-    {
-        public abstract IEnumerable<KeyValuePair<string, string>> ProvideMetadata
-            <TAggregate, TIdentity>(TIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity;
+        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
+        {
+            return _factory(resolverContext);
+        }
     }
 }

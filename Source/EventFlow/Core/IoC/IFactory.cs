@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
-// https://github.com/eventflow/EventFlow
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
+// https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -21,28 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
-using Autofac;
-using EventFlow.Aggregates;
-using EventFlow.Core;
+using System;
+using EventFlow.Configuration;
 
-namespace EventFlow.Configuration.Registrations.Services
+namespace EventFlow.Core.IoC
 {
-    internal class AutofacAggregateRootFactory : IAggregateFactory
+    internal interface IFactory
     {
-        private readonly AutofacResolver _resolver;
-
-        public AutofacAggregateRootFactory(IResolver resolver)
-        {
-            _resolver = (AutofacResolver)resolver;
-        }
-
-        public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            var aggregate = _resolver.Resolve<TAggregate>(new TypedParameter(typeof(TIdentity), id));
-            return Task.FromResult(aggregate);
-        }
+        object Create(IResolverContext resolverContext, Type[] genericTypeArguments);
     }
 }

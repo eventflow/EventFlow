@@ -9,10 +9,4 @@ language en-US
 tags CQRS ES event sourceing
 
 excludeddependencies
-	Autofac
 	JetBrains.Annotations
-
-files
-	bin/EventFlow.dll ==> lib/net451
-	!bin/Release/EventFlow.dll
-	!bin/Debug/EventFlow.dll

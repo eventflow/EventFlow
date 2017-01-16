@@ -20,29 +20,26 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 using Autofac;
+using EventFlow.Configuration;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
+    internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
-        private readonly ILifetimeScope _lifetimeScope;
+        public IContainer Container { get; }
 
-        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
-            : base(lifetimeScope)
+        public AutofacRootResolver(IContainer container)
+            : base(container)
         {
-            _lifetimeScope = lifetimeScope.BeginLifetimeScope();
+            Container = container;
         }
 
-        public IScopeResolver BeginScope()
+        public override void Dispose()
         {
-            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
-        }
-
-        public virtual void Dispose()
-        {
-            _lifetimeScope.Dispose();
+            base.Dispose();
+            Container.Dispose();
         }
     }
 }

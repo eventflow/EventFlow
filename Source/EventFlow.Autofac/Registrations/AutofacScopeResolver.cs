@@ -21,46 +21,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
-using FluentAssertions;
-using NUnit.Framework;
+using Autofac;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Autofac.Registrations
 {
-    [Category(Categories.Unit)]
-    public class CommandHandlerExtensionsTests
+    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        [Test]
-        public void AbstractCommandHandlerIsNotRegistered()
+        private readonly ILifetimeScope _lifetimeScope;
+
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddCommandHandlers(new List<Type>
-            {
-                typeof(AbstractTestCommandHandler)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            _lifetimeScope = lifetimeScope.BeginLifetimeScope();
         }
-    }
 
-    public abstract class AbstractTestCommandHandler :
-        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
-    {
-        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
-            CancellationToken cancellationToken);
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public virtual void Dispose()
+        {
+            _lifetimeScope.Dispose();
+        }
     }
 }

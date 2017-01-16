@@ -23,10 +23,7 @@
 
 using System;
 using Autofac;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Configuration.Registrations.Services;
+using EventFlow.Autofac.Registrations;
 
 namespace EventFlow.Autofac.Extensions
 {
@@ -47,11 +44,11 @@ namespace EventFlow.Autofac.Extensions
                 .UseServiceRegistration(new AutofacServiceRegistration(containerBuilder));
         }
 
+        [Obsolete("Resolver aggregate factory is the default, simply remove this call")]
         public static IEventFlowOptions UseAutofacAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions
-                .RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>(Lifetime.Singleton));
+            return eventFlowOptions;
         }
 
         public static IContainer CreateContainer(

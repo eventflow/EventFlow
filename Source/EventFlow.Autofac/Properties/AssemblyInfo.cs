@@ -23,7 +23,10 @@
 //
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("EventFlow.Autofac")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDescription("Autofac support for EventFlow")]
+
+[assembly: InternalsVisibleTo("EventFlow.Autofac.Tests")]
