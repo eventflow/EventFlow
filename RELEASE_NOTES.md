@@ -1,4 +1,33 @@
-### New in 0.37 (not released yet)
+### New in 0.40 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.39.2553 (released 2017-01-16)
+
+* New: Autofac is no longer IL merged into the `EventFlow` core NuGet package.
+  This is both in preparation for .NET Core and to simplify the build process.
+  EventFlow now ships with a custom IoC container by default. The Autofac based
+  IoC container is still available via the `EventFlow.Autofac` and will
+  continue to be supported as it is recommended for production use
+* New: An IoC container based aggregate root factory is now the default
+  aggregate factory. The old implementation merely invoked a constructor
+  with the aggregate ID as argument. The new default also checks if any
+  additional services are required for the constructor making the distinction
+  between the two obsolete
+* New: `Command<,,>` now inherits from `ValueObject`
+* Obsolete: `UseResolverAggregateRootFactory()` and `UseAutofacAggregateRootFactory()`
+  are marked as obsolete as this is now the default. The current implementation
+  of these methods does nothing
+* Obsolete: All `IEventFlowOptions.AddAggregateRoots(...)` overloads are obsolete,
+  the aggregate factory no longer has any need for the aggregate types to be
+  registered with the container. The current implementation of the method does
+  nothing
+
+### New in 0.38.2454 (released 2016-12-02)
+
+* Fix: Single aggregate read models can now be re-populated again
+
+### New in 0.37.2424 (released 2016-11-08)
 
 * Breaking: Remove the following empty and deprecated MSSQL NuGet packages. If
   you use any of these packages, then switch to the `EventFlow.MsSql` package

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,68 +20,45 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using Autofac;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations.Services;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsAggregatesExtensions
     {
+        [Obsolete("Resolver aggregate factory is the default, simply remove this call")]
         public static IEventFlowOptions UseResolverAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IAggregateFactory, AutofacAggregateRootFactory>());
+            return eventFlowOptions;
         }
 
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
         public static IEventFlowOptions AddAggregateRoots(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
-            predicate = predicate ?? (t => true);
-            var aggregateRootTypes = fromAssembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract)
-                .Where(t => t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
-                .Where(t => predicate(t));
-            return eventFlowOptions.AddAggregateRoots(aggregateRootTypes);
+            return eventFlowOptions;
         }
 
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
         public static IEventFlowOptions AddAggregateRoots(
             this IEventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
-            return eventFlowOptions.AddAggregateRoots((IEnumerable<Type>)aggregateRootTypes);
+            return eventFlowOptions;
         }
 
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
         public static IEventFlowOptions AddAggregateRoots(
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
-            var aggregateRootTypeList = aggregateRootTypes.ToList();
-
-            var invalidTypes = aggregateRootTypeList
-                .Where(t => t.IsAbstract || !t.IsClosedTypeOf(typeof(IAggregateRoot<>)))
-                .ToList();
-            if (invalidTypes.Any())
-            {
-                var names = string.Join(", ", invalidTypes.Select(t => t.PrettyPrint()));
-                throw new ArgumentException($"Type(s) '{names}' do not implement IAggregateRoot<TIdentity>");
-            }
-
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    foreach (var t in aggregateRootTypeList)
-                    {
-                        sr.RegisterType(t);
-                    }
-                });
+            return eventFlowOptions;
         }
     }
 }

@@ -38,6 +38,9 @@ type as the first generic argument and the identity as the second.
       }
     }
 
+
+.. _events:
+
 Events
 ------
 
@@ -49,6 +52,7 @@ on events.
     public class PingEvent : AggregateEvent<TestAggregate, TestId>
     {
       public string Data { get; }
+
       public PingEvent(string data)
       {
           Data = data;
@@ -81,8 +85,10 @@ uncommitted events.
     }
 
 Remember not to do any changes to the aggregate with the these methods,
-as as state are only stored through events and how they are applied to
-the aggregate root.
+as the state is only stored through events.
+
+
+.. _aggregates_applying_events:
 
 Applying events
 ---------------
@@ -104,5 +110,5 @@ but will expose public ``Apply`` methods.
 -  Register a specific handler for a event using the protected
    ``Register<SomeEvent>(e => Handler(e))`` from within the constructor
 -  Register an event applier using
-   ``Register(IEventApplier eventApplier)``, which could be a e.g state
+   ``Register(IEventApplier eventApplier)``, which could be a e.g. state
    object

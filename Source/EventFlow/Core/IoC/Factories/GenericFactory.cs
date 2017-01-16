@@ -20,45 +20,47 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
-using EventFlow.EventStores;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Core.IoC.Factories
 {
-    [Category(Categories.Unit)]
-    public class EventUpgraderExtensionsTests
+    internal class GenericFactory : IFactory
     {
-        [Test]
-        public void AbstractEventUpgraderIsNotRegistered()
+        private readonly Type _serviceType;
+
+        public GenericFactory(Type serviceType)
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
+            var constructorInfos = serviceType
+                .GetTypeInfo()
+                .GetConstructors();
 
-            // Act
-            Action act = () => sut.AddEventUpgraders(new List<Type>
+            if (constructorInfos.Length > 1)
             {
-                typeof (AbstractTestEventUpgrader)
-            });
+                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
+            }
 
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            _serviceType = serviceType;
         }
-    }
 
-    public abstract class AbstractTestEventUpgrader : IEventUpgrader<ThingyAggregate, ThingyId>
-    {
-        public abstract IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
-            IDomainEvent<ThingyAggregate, ThingyId> domainEvent);
+        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
+        {
+            var genericType = _serviceType.MakeGenericType(genericTypeArguments);
+            var constructorInfo = genericType.GetConstructors().Single();
+            var parameterInfos = constructorInfo.GetParameters();
+
+            var parameters = new object[parameterInfos.Length];
+            foreach (var parameterInfo in parameterInfos)
+            {
+                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
+            }
+
+            return constructorInfo.Invoke(parameters);
+        }
     }
 }

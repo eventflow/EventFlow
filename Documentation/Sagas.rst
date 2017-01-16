@@ -1,3 +1,5 @@
+.. _sagas:
+
 Sagas
 =====
 
@@ -77,12 +79,15 @@ the ubiquitous language for your domain.
       }
     }
 
-**Important:** Even though the method for publishing commands is named
-``Publish``, the commands are only published to the command bus
-**after** the aggregate has been successfully committed to the event
-store (just like events). If an unexpected exception is throw by this
-command publish, it should be handled by a custom implementation of
-``ISagaErrorHandler``.
+.. IMPORTANT::
+
+    Even though the method for publishing commands is named
+    ``Publish``, the commands are only published to the command bus
+    **after** the aggregate has been successfully committed to the event
+    store (just like events). If an unexpected exception is throw by this
+    command publish, it should be handled by a custom implementation of
+    ``ISagaErrorHandler``.
+
 
 The next few events and commands are omitted, but at last the
 ``PaymentAggregate`` emits its ``PaymentAccepted`` event and the saga
@@ -113,10 +118,13 @@ completes and emit the final ``OrderConfirmed`` event.
       }
     }
 
-**NOTE:** An ``AggregateSaga<,,>`` is only considered in its ``running``
-state if there has been an event and it hasn't been marked as completed
-(by invoking the ``protected`` ``Complete()`` method on the
-``AggregateSaga<,,>``).
+.. NOTE::
+
+    An ``AggregateSaga<,,>`` is only considered in its ``running``
+    state if there has been an event and it hasn't been marked as completed
+    (by invoking the ``protected`` ``Complete()`` method on the
+    ``AggregateSaga<,,>``).
+
 
 Alternative saga store
 ----------------------

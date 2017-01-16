@@ -51,6 +51,7 @@ one) command handler which is responsible for invoking the aggregate.
         aggregate.UpdatePassword(
           command.OldPassword,
           command.NewPassword);
+
         return Task.FromResult(0);
       }
     }
@@ -150,5 +151,7 @@ deterministic GUID to be used as an ``ISourceId``.
 The ``GetBytes()`` merely returns the ``Encoding.UTF8.GetBytes(...)`` of
 the password.
 
-**IMPORTANT:** Don't use the ``GetHashCode()``, as the implementation
-is different for e.g. ``string`` on 32 bit and 64 bit .NET.
+.. CAUTION::
+
+    Don't use the ``GetHashCode()``, as the implementation
+    is different for e.g. ``string`` on 32 bit and 64 bit .NET.

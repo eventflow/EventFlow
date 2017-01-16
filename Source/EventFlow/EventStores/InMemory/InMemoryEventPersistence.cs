@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -33,13 +33,17 @@ using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Newtonsoft.Json;
 
 namespace EventFlow.EventStores.InMemory
 {
     public class InMemoryEventPersistence : IEventPersistence, IDisposable
     {
         private readonly ILog _log;
-        private readonly ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>> _eventStore = new ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>>();
+
+        private readonly ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>> _eventStore =
+            new ConcurrentDictionary<string, List<InMemoryCommittedDomainEvent>>();
+
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
@@ -54,12 +58,27 @@ namespace EventFlow.EventStores.InMemory
             public override string ToString()
             {
                 return new StringBuilder()
-                    .AppendLineFormat("{0} v{1} ==================================", AggregateName, AggregateSequenceNumber)
-                    .AppendLine(Metadata)
+                    .AppendLineFormat("{0} v{1} ==================================", AggregateName,
+                        AggregateSequenceNumber)
+                    .AppendLine(PrettifyJson(Metadata))
                     .AppendLine("---------------------------------")
-                    .AppendLine(Data)
+                    .AppendLine(PrettifyJson(Data))
                     .Append("---------------------------------")
                     .ToString();
+            }
+
+            private static string PrettifyJson(string json)
+            {
+                try
+                {
+                    var obj = JsonConvert.DeserializeObject(json);
+                    var prettyJson = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                    return prettyJson;
+                }
+                catch (Exception)
+                {
+                    return json;
+                }
             }
         }
 

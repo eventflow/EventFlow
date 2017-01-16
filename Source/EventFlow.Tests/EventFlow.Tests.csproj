@@ -46,6 +46,12 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Documentation\GettingStarted\ExampleAggrenate.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleCommand.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleCommandHandler.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleEvent.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleId.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleReadModel.cs" />
     <Compile Include="EventFlowTests.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
@@ -62,17 +68,20 @@
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyMessageReadModel.cs" />
     <Compile Include="IntegrationTests\ReadStores\ReadModels\InMemoryThingyReadModel.cs" />
     <Compile Include="IntegrationTests\ResolverTests.cs" />
-    <Compile Include="IntegrationTests\CompleteExampleTests.cs" />
+    <Compile Include="Documentation\GettingStarted\ExampleTests.cs" />
     <Compile Include="IntegrationTests\SnapshotStores\InMemorySnapshotStoreTests.cs" />
+    <Compile Include="UnitTests\Aggregates\AggregateFactoryTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootNameTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateRootApplyEventTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateStateTests.cs" />
     <Compile Include="UnitTests\Aggregates\AggregateStoreTests.cs" />
+    <Compile Include="IntegrationTests\Aggregates\AggregateFactoryTests.cs" />
     <Compile Include="UnitTests\Commands\CommandTests.cs" />
     <Compile Include="UnitTests\Commands\DistinctCommandTests.cs" />
     <Compile Include="UnitTests\Commands\CommandDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\Decorators\DecoratorServiceTests.cs" />
     <Compile Include="UnitTests\Configuration\ModuleRegistrationTests.cs" />
+    <Compile Include="UnitTests\Configuration\Registrations\FlowIoCServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\AsyncHelperTests.cs" />
     <Compile Include="UnitTests\Core\Cache\InMemoryCacheTests.cs" />
     <Compile Include="UnitTests\Core\CircularBufferTests.cs" />
@@ -84,13 +93,7 @@
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotSerilizerTests.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotUpgradeServiceTests.cs" />
-    <Compile Include="UnitTests\Extensions\AggregatesExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\CommandHandlerExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\EventUpgraderExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\MetadataProviderExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\QueryHandlerExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />
-    <Compile Include="UnitTests\Extensions\SubscriberExtensionsTests.cs" />
     <Compile Include="UnitTests\Extensions\TypeExtensionsTests.cs" />
     <Compile Include="UnitTests\Jobs\JobDefinitionServiceTests.cs" />
     <Compile Include="UnitTests\Provided\Specifications\AtLeastSpecificationTests.cs" />
@@ -101,7 +104,6 @@
     <Compile Include="UnitTests\Aggregates\AggregateRootTests.cs" />
     <Compile Include="UnitTests\Aggregates\MetadataTests.cs" />
     <Compile Include="UnitTests\CommandBusTests.cs" />
-    <Compile Include="UnitTests\Configuration\Registrations\AutofacServiceRegistrationTests.cs" />
     <Compile Include="UnitTests\Core\LabelTests.cs" />
     <Compile Include="UnitTests\Core\TransientFaultHandlerTests.cs" />
     <Compile Include="UnitTests\EventStores\EventDefinitionServiceTests.cs" />
@@ -131,7 +133,6 @@
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectConverterTests.cs" />
     <Compile Include="UnitTests\ValueObjects\SingleValueObjectTests.cs" />
     <Compile Include="UnitTests\ValueObjects\ValueObjectTests.cs" />
-    <Compile Include="VerifyPaketTemplates.cs" />
     <Compile Include="VerifyTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -22,7 +22,7 @@ events created specifically for efficient queries.
 
 Here's a simple example of how a read model for doing searches for
 usernames could look. The read model handles the ``UserCreated`` domain
-event event to get the username and user ID.
+event to get the username and user ID.
 
 .. code-block:: c#
 
@@ -43,7 +43,7 @@ event event to get the username and user ID.
 
 The read model applies all ``UserCreated`` events and thereby merely saves
 the latest value instead of the entire history, which makes it much easier to
-store in an effecient manner.
+store in an efficient manner.
 
 
 Read model locators
@@ -176,10 +176,12 @@ You should also create a ``int`` column that has the
 ``MsSqlReadModelVersionColumn`` attribute to tell EventFlow which column
 is used to store the read model version in.
 
-**NOTE:** EventFlow expect the read model to exist, and thus any
-maintenance of the database schema for the read models must be handled
-before EventFlow is initialized. Or, at least before the read models are
-used in EventFlow.
+.. IMPORTANT::
+
+    EventFlow expect the read model to exist, and thus any
+    maintenance of the database schema for the read models must be handled
+    before EventFlow is initialized. Or, at least before the read models are
+    used in EventFlow.
 
 
 .. _read-store-elasticsearch:
@@ -207,13 +209,16 @@ argument.
 Overloads of ``ConfigureElasticsearch(...)`` is available for
 alternative Elasticsearch configurations.
 
-Make sure to create any mapping the read model requires in Elasticsearch
-*before* using the read model in EventFlow.
+.. IMPORTANT::
+
+    Make sure to create any mapping the read model requires in Elasticsearch
+    *before* using the read model in EventFlow.
+
 
 If EventFlow is requested to *purge* a specific read model, it does it
 by deleting the index. Thus make sure to create one separate index per
 read model.
 
 If you want to control the index a specific read model is stored in,
-create create an implementation of ``IReadModelDescriptionProvider`` and
+create an implementation of ``IReadModelDescriptionProvider`` and
 register it in the `EventFlow IoC <./Customize.md>`__.

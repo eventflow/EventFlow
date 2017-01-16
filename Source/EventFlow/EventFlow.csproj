@@ -51,7 +51,6 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Aggregates\AggregateEvent.cs" />
-    <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Aggregates\AggregateName.cs" />
     <Compile Include="Aggregates\AggregateNameAttribute.cs" />
     <Compile Include="Aggregates\AggregateState.cs" />
@@ -69,6 +68,14 @@
     <Compile Include="Core\DisposableAction.cs" />
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
+    <Compile Include="Core\IoC\Factories\ConstructorFactory.cs" />
+    <Compile Include="Core\IoC\Factories\GenericFactory.cs" />
+    <Compile Include="Core\IoC\Factories\LambdaFactory.cs" />
+    <Compile Include="Core\IoC\EventFlowIoCResolver.cs" />
+    <Compile Include="Core\IoC\EventFlowIoCServiceRegistration.cs" />
+    <Compile Include="Core\IoC\IFactory.cs" />
+    <Compile Include="Core\IoC\Registration.cs" />
+    <Compile Include="Core\IoC\ServiceRegistration.cs" />
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
@@ -119,12 +126,8 @@
     <Compile Include="Configuration\IResolverContext.cs" />
     <Compile Include="Configuration\IServiceRegistration.cs" />
     <Compile Include="Configuration\Lifetime.cs" />
-    <Compile Include="Configuration\Registrations\Services\AutofacAggregateRootFactory.cs" />
+    <Compile Include="Aggregates\AggregateFactory.cs" />
     <Compile Include="Configuration\ResolverContext.cs" />
-    <Compile Include="Configuration\Registrations\AutofacServiceRegistration.cs" />
-    <Compile Include="Configuration\Registrations\AutofacResolver.cs" />
-    <Compile Include="Configuration\Registrations\AutofacRootResolver.cs" />
-    <Compile Include="Configuration\Registrations\AutofacScopeResolver.cs" />
     <Compile Include="Configuration\IRootResolver.cs" />
     <Compile Include="Configuration\IScopeResolver.cs" />
     <Compile Include="Core\AsyncLock.cs" />
@@ -347,17 +350,6 @@
   </Target>
   -->
   <Import Project="..\..\.paket\paket.targets" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Autofac">
-          <HintPath>..\..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>
