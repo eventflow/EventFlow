@@ -169,6 +169,36 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public void AlwaysUnique()
+        {
+            // Arrange
+            Sut.Register<I, A>();
+
+            // Act
+            var resolver = Sut.CreateResolver(true);
+            var i1 = resolver.Resolve<I>();
+            var i2 = resolver.Resolve<I>();
+
+            // Assert
+            i1.Should().NotBeSameAs(i2);
+        }
+
+        [Test]
+        public void Singletons()
+        {
+            // Arrange
+            Sut.Register<I, A>(Lifetime.Singleton);
+
+            // Act
+            var resolver = Sut.CreateResolver(true);
+            var i1 = resolver.Resolve<I>();
+            var i2 = resolver.Resolve<I>();
+
+            // Assert
+            i1.Should().BeSameAs(i2);
+        }
+
+        [Test]
         public void InvokesBootstraps()
         {
             // Arrange
