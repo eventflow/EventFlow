@@ -2,7 +2,7 @@ rem @echo off
 
 IF EXIST ".paket\paket.exe" GOTO has-packet
 
-".paket\paket.bootstrapper.exe"
+".paket\paket.bootstrapper.exe" "4.0.0-alpha045"
 IF %errorlevel% NEQ 0 (
 	exit /b %errorlevel%
 )
