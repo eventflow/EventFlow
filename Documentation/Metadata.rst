@@ -1,3 +1,5 @@
+.. _metadata-providers:
+
 Metadata
 ========
 
@@ -15,6 +17,9 @@ Out of the box these metadata keys are added to each aggregate event.
    from the aggregate.
 -  ``aggregate_sequence_number`` - The version the aggregate was after
    the event was emitted, e.g. ``1`` for the very first event emitted.
+
+
+.. _metadata-providers-custom:
 
 Custom metadata provider
 ------------------------

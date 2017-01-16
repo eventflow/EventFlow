@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -48,7 +46,7 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
         {
             _resolverMock = InjectMock<IResolver>();
             _resolverMock
-                .Setup(r => r.Resolve(typeof (ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
+                .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
                 .Returns(() => new ThingySnapshotV1ToV2Upgrader());
             _resolverMock
                 .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>)))

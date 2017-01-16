@@ -63,7 +63,7 @@ look like this.
 
     {
       "Username" : {
-        "Value": "my-awsome-username",
+        "Value": "my-awesome-username",
       }
     }
 

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Concurrent;
@@ -47,7 +46,7 @@ namespace EventFlow.Sql.ReadModels
         public string CreateInsertSql<TReadModel>()
             where TReadModel : IReadModel
         {
-            var readModelType = typeof (TReadModel);
+            var readModelType = typeof(TReadModel);
             string sql;
             if (_insertSqls.TryGetValue(readModelType, out sql))
             {
@@ -67,7 +66,7 @@ namespace EventFlow.Sql.ReadModels
         public string CreateSelectSql<TReadModel>()
             where TReadModel : IReadModel
         {
-            var readModelType = typeof (TReadModel);
+            var readModelType = typeof(TReadModel);
             string sql;
             if (_selectSqls.TryGetValue(readModelType, out sql))
             {
@@ -86,7 +85,7 @@ namespace EventFlow.Sql.ReadModels
         public string CreateUpdateSql<TReadModel>()
             where TReadModel : IReadModel
         {
-            var readModelType = typeof (TReadModel);
+            var readModelType = typeof(TReadModel);
             string sql;
             if (_updateSqls.TryGetValue(readModelType, out sql))
             {
@@ -108,14 +107,14 @@ namespace EventFlow.Sql.ReadModels
             where TReadModel : IReadModel
         {
             return _purgeSqls.GetOrCreate(
-                typeof (TReadModel),
+                typeof(TReadModel),
                 t => $"DELETE FROM {GetTableName(t)}");
         }
 
         protected IEnumerable<string> GetInsertColumns<TReadModel>()
             where TReadModel : IReadModel
         {
-            return GetPropertyInfos(typeof (TReadModel))
+            return GetPropertyInfos(typeof(TReadModel))
                 .Select(p => p.Name);
         }
 
@@ -130,7 +129,7 @@ namespace EventFlow.Sql.ReadModels
         public string GetTableName<TReadModel>()
             where TReadModel : IReadModel
         {
-            return GetTableName(typeof (TReadModel));
+            return GetTableName(typeof(TReadModel));
         }
 
         protected virtual string GetTableName(Type readModelType)
@@ -149,7 +148,7 @@ namespace EventFlow.Sql.ReadModels
         private string GetIdentityColumn<TReadModel>()
         {
             return IdentityColumns.GetOrAdd(
-                typeof (TReadModel),
+                typeof(TReadModel),
                 t =>
                 {
                     var propertyInfo = GetPropertyInfos(t).SingleOrDefault(pi => pi.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute));

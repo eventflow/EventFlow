@@ -1,8 +1,8 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,24 +20,37 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
+using EventFlow.Exceptions;
 
-namespace EventFlow.TestHelpers.Suites
+namespace EventFlow.Tests.Documentation.GettingStarted
 {
-    public static class AggregateStoreExtensions
+    /// The aggregate root
+    public class ExampleAggrenate :
+        AggregateRoot<ExampleAggrenate, ExampleId>,
+        IEmit<ExampleEvent>
     {
-        public static Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
-            this IAggregateStore aggregateStore,
-            TIdentity id)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        private int? _magicNumber;
+
+        public ExampleAggrenate(ExampleId id) : base(id) { }
+
+        // Method invoked by our command
+        public void SetMagicNumer(int magicNumber)
         {
-            return aggregateStore.LoadAsync<TAggregate, TIdentity>(id, CancellationToken.None);
+            if (_magicNumber.HasValue)
+                throw DomainError.With("Magic number already set");
+
+            Emit(new ExampleEvent(magicNumber));
+        }
+
+        // We apply the event as part of the event sourcing system. EventFlow
+        // provides several different methods for doing this, e.g. state objects,
+        // the Apply method is merely the simplest
+        public void Apply(ExampleEvent aggregateEvent)
+        {
+            _magicNumber = aggregateEvent.MagicNumber;
         }
     }
 }

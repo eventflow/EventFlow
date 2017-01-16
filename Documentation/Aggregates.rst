@@ -38,6 +38,9 @@ type as the first generic argument and the identity as the second.
       }
     }
 
+
+.. _events:
+
 Events
 ------
 
@@ -49,7 +52,7 @@ on events.
     public class PingEvent : AggregateEvent<TestAggregate, TestId>
     {
       public string Data { get; }
-      
+
       public PingEvent(string data)
       {
           Data = data;
@@ -83,6 +86,9 @@ uncommitted events.
 
 Remember not to do any changes to the aggregate with the these methods,
 as the state is only stored through events.
+
+
+.. _aggregates_applying_events:
 
 Applying events
 ---------------

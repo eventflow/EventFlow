@@ -39,26 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacResolver.cs">
-      <Link>Registrations\AutofacResolver.cs</Link>
-    </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacRootResolver.cs">
-      <Link>Registrations\AutofacRootResolver.cs</Link>
-    </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacScopeResolver.cs">
-      <Link>Registrations\AutofacScopeResolver.cs</Link>
-    </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\AutofacServiceRegistration.cs">
-      <Link>Registrations\AutofacServiceRegistration.cs</Link>
-    </Compile>
-    <Compile Include="..\EventFlow\Configuration\Registrations\Services\AutofacAggregateRootFactory.cs">
-      <Link>Registrations\Services\AutofacAggregateRootFactory.cs</Link>
-    </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Extensions\EventFlowOptionsAutofacExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Registrations\AutofacResolver.cs" />
+    <Compile Include="Registrations\AutofacRootResolver.cs" />
+    <Compile Include="Registrations\AutofacScopeResolver.cs" />
+    <Compile Include="Registrations\AutofacServiceRegistration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -39,8 +37,8 @@ namespace EventFlow.Aggregates
         where TAggregate : AggregateRoot<TAggregate, TIdentity>
         where TIdentity : IIdentity
     {
-        private static readonly Dictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
-        private static readonly IAggregateName AggregateName = typeof (TAggregate).GetAggregateName();
+        private static readonly IReadOnlyDictionary<Type, Action<TAggregate, IAggregateEvent>> ApplyMethods;
+        private static readonly IAggregateName AggregateName = typeof(TAggregate).GetAggregateName();
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
         private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
 
@@ -52,22 +50,7 @@ namespace EventFlow.Aggregates
 
         static AggregateRoot()
         {
-            var aggregateEventType = typeof(IAggregateEvent<TAggregate, TIdentity>);
-            var aggregateType = typeof(TAggregate);
-
-            ApplyMethods = typeof(TAggregate)
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(mi =>
-                    {
-                        if (mi.Name != "Apply") return false;
-                        var parameters = mi.GetParameters();
-                        return
-                            parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
-                    })
-                .ToDictionary(
-                    mi => mi.GetParameters()[0].ParameterType,
-                    mi => ReflectionHelper.CompileMethodInvocation<Action<TAggregate, IAggregateEvent>>(aggregateType, "Apply", mi.GetParameters()[0].ParameterType));
+            ApplyMethods = typeof(TAggregate).GetAggregateEventApplyMethods<TAggregate, TIdentity, TAggregate>();
         }
 
         protected AggregateRoot(TIdentity id)
@@ -76,7 +59,7 @@ namespace EventFlow.Aggregates
             if ((this as TAggregate) == null)
             {
                 throw new InvalidOperationException(
-                    $"Aggregate '{GetType().PrettyPrint()}' specifies '{typeof (TAggregate).PrettyPrint()}' as generic argument, it should be its own type");
+                    $"Aggregate '{GetType().PrettyPrint()}' specifies '{typeof(TAggregate).PrettyPrint()}' as generic argument, it should be its own type");
             }
 
             Id = id;
@@ -197,7 +180,10 @@ namespace EventFlow.Aggregates
             {
                 _eventHandlers[eventType](aggregateEvent);
             }
-            else if (_eventAppliers.Any(ea => ea.Apply((TAggregate)this, aggregateEvent))) { }
+            else if (_eventAppliers.Any(ea => ea.Apply((TAggregate) this, aggregateEvent)))
+            {
+                // Already done
+            }
             else
             {
                 Action<TAggregate, IAggregateEvent> applyMethod;
@@ -217,7 +203,7 @@ namespace EventFlow.Aggregates
         protected void Register<TAggregateEvent>(Action<TAggregateEvent> handler)
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            var eventType = typeof (TAggregateEvent);
+            var eventType = typeof(TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))
             {
                 throw new ArgumentException($"There's already a event handler registered for the aggregate event '{eventType.PrettyPrint()}'");

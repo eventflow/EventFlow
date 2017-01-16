@@ -2,34 +2,29 @@
 
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
-    <td>
+    <td width="33%">
       <img src="./icon-128.png" />
     </td>
-    <td>
+    <td  width="33%">
       <p>
-        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-          <img src="https://badges.gitter.im/Join%20Chat.svg" />
-        </a>
+        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
       </p>
       <p>
-        <a href="https://www.nuget.org/packages/EventFlow/">
-          <img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" />
-        </a>
+        <a href="https://www.nuget.org/packages/EventFlow/"><img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
       </p>
       <p>
-        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow">
-          <img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" />
-        </a>
+        <a href="http://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
+      </p>
+    </td>
+    <td  width="33%">
+      <p>
+        <a href="https://www.codefactor.io/repository/github/eventflow/eventflow"><img src="https://www.codefactor.io/repository/github/eventflow/eventflow/badge" /></a>
       </p>
       <p>
-        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop">
-          <img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" />
-        </a>
+        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
-        <a href="http://docs.geteventflow.net/?badge=latest">
-          <img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" />
-        </a>
+        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
       </p>
     </td>
   </tr>
@@ -311,7 +306,7 @@ share it by creating an issue with the link.
  - [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
    by Gabriel Schenker
 * **Eventual consistency**
- - [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency/)
+ - [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
    by Mike Mogosanu
 * **Why _not_ to implement "unit of work" in DDD**
  - [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
@@ -379,8 +374,8 @@ category.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2016 Rasmus Mikkelsen
-Copyright (c) 2015-2016 eBay Software Foundation
+Copyright (c) 2015-2017 Rasmus Mikkelsen
+Copyright (c) 2015-2017 eBay Software Foundation
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

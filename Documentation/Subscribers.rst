@@ -103,8 +103,9 @@ Asynchronous subscribers in EventFlow are executed using the
 ``Task.Run(...)`` and thus any number of asynchronous subscribers might
 still be running when a ``ICommandBus.PublishAsync(...)`` returns.
 
-There are *no* guaranteed order between subscribers or even the order of
-which emitted domain events are handled.
+.. IMPORTANT::
+    There are **no guaranteed order** between subscribers or even the order of
+    which emitted domain events are handled.
 
 The ``ISubscribeAsynchronousTo<,,>`` is shown here and is, besides its
 name, identical to its synchronous counterpart.

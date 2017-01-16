@@ -20,50 +20,46 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.Subscribers;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
-using FluentAssertions;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Core.IoC.Factories
 {
-    [Category(Categories.Unit)]
-    public class SubscriberExtensionsTests
+    internal class ConstructorFactory : IFactory
     {
-        [Test]
-        public void AbstractSubscriberIsNotRegistered()
+        private readonly ConstructorInfo _constructorInfo;
+        private readonly IReadOnlyCollection<ParameterInfo> _parameterInfos;
+
+        public ConstructorFactory(Type serviceType)
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
+            var constructorInfos = serviceType
+                .GetTypeInfo()
+                .GetConstructors();
 
-            // Act
-            Action act = () => sut.AddSubscribers(new List<Type>
+            if (constructorInfos.Length > 1)
             {
-                typeof (AbstractTestSubscriber)
-            });
+                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
+            }
 
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            _constructorInfo = constructorInfos.Single();
+            _parameterInfos = _constructorInfo.GetParameters();
         }
-    }
 
-    public abstract class AbstractTestSubscriber :
-        ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
-    {
-        public abstract Task HandleAsync(
-            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
-            CancellationToken cancellationToken);
+        public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
+        {
+            var parameters = new object[_parameterInfos.Count];
+            foreach (var parameterInfo in _parameterInfos)
+            {
+                parameters[parameterInfo.Position] = resolverContext.Resolver.Resolve(parameterInfo.ParameterType);
+            }
+
+            return _constructorInfo.Invoke(parameters);
+        }
     }
 }

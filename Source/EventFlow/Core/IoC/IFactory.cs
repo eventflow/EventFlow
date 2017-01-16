@@ -20,48 +20,14 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
-using FluentAssertions;
-using NUnit.Framework;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Core.IoC
 {
-    [Category(Categories.Unit)]
-    public class CommandHandlerExtensionsTests
+    internal interface IFactory
     {
-        [Test]
-        public void AbstractCommandHandlerIsNotRegistered()
-        {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddCommandHandlers(new List<Type>
-            {
-                typeof (AbstractTestCommandHandler)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
-        }
-    }
-
-    public abstract class AbstractTestCommandHandler :
-        ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
-    {
-        public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
-            CancellationToken cancellationToken);
+        object Create(IResolverContext resolverContext, Type[] genericTypeArguments);
     }
 }

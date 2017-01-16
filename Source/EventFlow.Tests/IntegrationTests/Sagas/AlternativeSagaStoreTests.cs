@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -28,7 +28,6 @@ using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
-using EventFlow.Tests.UnitTests.Sagas;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -45,9 +44,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         public void SetUp()
         {
             _resolver = EventFlowOptions.New
-                .AddAggregateRoots(
-                    typeof(AlternativeSagaStoreTestClasses.SagaTestAggregate))
-                .AddSagas(typeof (AlternativeSagaStoreTestClasses.TestSaga))
+                .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),
                     typeof(AlternativeSagaStoreTestClasses.SagaTestBCommandHandler),
@@ -58,7 +55,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
                     {
-                        sr.RegisterType(typeof (AlternativeSagaStoreTestClasses.TestSagaLocator));
+                        sr.RegisterType(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
                         sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
                     })
                 .CreateResolver(false);
