@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -82,14 +83,9 @@ namespace EventFlow.Core.IoC
 
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
-                    var genericMethodInfo = GetType()
-                        .GetTypeInfo()
-                        .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-                        .Single(mi => mi.Name == nameof(ResolveEnumerable));
-                    var genericArgument = typeInfo.GenericTypeArguments.Single();
-                    var methodInfo = genericMethodInfo.MakeGenericMethod(genericArgument);
-
-                    return methodInfo.Invoke(null, new object[] { _resolverContext, genericArgument });
+                    return EnumerableResolvers
+                        .GetOrAdd(serviceType, t => new EnumerableResolver(t))
+                        .Create(_resolverContext);
                 }
 
                 throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} is not registered");
@@ -98,12 +94,6 @@ namespace EventFlow.Core.IoC
             return registrations.First().Create(_resolverContext, genericArguments);
         }
 
-        private static IEnumerable<T> ResolveEnumerable<T>(IResolverContext resolverContext, Type serviceType)
-        {
-            return resolverContext.Resolver
-                .ResolveAll(serviceType)
-                .Select(s => (T)s);
-        }
 
         public IEnumerable<object> ResolveAll(Type serviceType)
         {
@@ -139,6 +129,38 @@ namespace EventFlow.Core.IoC
         public IScopeResolver BeginScope()
         {
             return new EventFlowIoCResolver(_registrations, false);
+        }
+
+        private static readonly ConcurrentDictionary<Type, EnumerableResolver> EnumerableResolvers = new ConcurrentDictionary<Type, EnumerableResolver>();
+
+        private class EnumerableResolver
+        {
+            private readonly Type _genericArgument;
+            private readonly MethodInfo _methodInfo;
+
+            public EnumerableResolver(
+                Type typeInfo)
+            {
+                var genericMethodInfo = GetType()
+                    .GetTypeInfo()
+                    .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+                    .Single(mi => mi.Name == nameof(ResolveEnumerable));
+
+                _genericArgument = typeInfo.GenericTypeArguments.Single();
+                _methodInfo = genericMethodInfo.MakeGenericMethod(_genericArgument);
+            }
+
+            private static IEnumerable<T> ResolveEnumerable<T>(IResolverContext resolverContext, Type serviceType)
+            {
+                return resolverContext.Resolver
+                    .ResolveAll(serviceType)
+                    .Select(s => (T)s);
+            }
+
+            public object Create(IResolverContext resolverContext)
+            {
+                return _methodInfo.Invoke(null, new object[] { resolverContext, _genericArgument });
+            }
         }
     }
 }

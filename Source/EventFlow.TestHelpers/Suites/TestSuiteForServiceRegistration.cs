@@ -115,7 +115,7 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
-        public void Enumerable()
+        public void EnumerableTypesAreResolved()
         {
             // Arrange
             Sut.RegisterType(typeof(C));
@@ -130,6 +130,20 @@ namespace EventFlow.TestHelpers.Suites
             var nested = c.Is.ToList();
             nested[0].Should().BeOfType<B>();
             nested[1].Should().BeOfType<A>();
+        }
+
+        [Test]
+        public void EmptyEnumerableTypesAreEmpty()
+        {
+            // Arrange
+            Sut.RegisterType(typeof(C));
+
+            // Act
+            var resolver = Sut.CreateResolver(false);
+
+            // Assert
+            var c = resolver.Resolve<C>();
+            c.Is.Should().BeEmpty();
         }
 
         private void Assert_Service()
