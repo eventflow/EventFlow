@@ -1,0 +1,110 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v1.0",
+    "signature": "4bc084c4aa235e3b5760a404fab9f87822632c58"
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v1.0": {
+      "paketrestoretask/1.0.0": {
+        "dependencies": {
+          "Microsoft.Build.Framework": "14.3.0-prerelease02",
+          "Microsoft.Build.Tasks.Core": "14.3.0-prerelease02",
+          "Microsoft.Build.Utilities.Core": "14.3.0-prerelease02",
+          "Microsoft.NET.Sdk": "1.0.0-alpha-20161019-1"
+        },
+        "runtime": {
+          "PaketRestoreTask.dll": {}
+        }
+      },
+      "microsoft.build.framework/14.3.0-prerelease02": {},
+      "microsoft.build.tasks.core/14.3.0-prerelease02": {
+        "dependencies": {
+          "Microsoft.Build.Framework": "14.3.0-prerelease02",
+          "Microsoft.Build.Utilities.Core": "14.3.0-prerelease02"
+        }
+      },
+      "microsoft.build.utilities.core/14.3.0-prerelease02": {
+        "dependencies": {
+          "Microsoft.Build.Framework": "14.3.0-prerelease02",
+          "System.Collections.Specialized": "4.0.1"
+        }
+      },
+      "microsoft.net.sdk/1.0.0-alpha-20161019-1": {
+        "dependencies": {
+          "NuGet.Build.Tasks.Pack": "3.6.0-rc-1984"
+        }
+      },
+      "nuget.build.tasks.pack/3.6.0-rc-1984": {},
+      "system.collections.nongeneric/4.0.1": {
+        "runtime": {
+          "lib/netstandard1.3/System.Collections.NonGeneric.dll": {}
+        }
+      },
+      "system.collections.specialized/4.0.1": {
+        "dependencies": {
+          "System.Collections.NonGeneric": "4.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Collections.Specialized.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "paketrestoretask/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.build.framework/14.3.0-prerelease02": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-CfdwrqSEDw0AwKkpwtX/TCBzanschsOrbVezh8MIWw0cqMiZw9qf84+Zo0seT1J9KTLyZvZZ6g58wBiENaaE7w==",
+      "path": "microsoft.build.framework/14.3.0-prerelease02",
+      "hashPath": "microsoft.build.framework.14.3.0-prerelease02.nupkg.sha512"
+    },
+    "microsoft.build.tasks.core/14.3.0-prerelease02": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YTWNhYpTIuCC/2HCNPcSD+yOtBIvlf2jDC+QNUnRKRAgslg913euBVx36TyZ00x1gJ6L35EobOOH/YkMqLarpg==",
+      "path": "microsoft.build.tasks.core/14.3.0-prerelease02",
+      "hashPath": "microsoft.build.tasks.core.14.3.0-prerelease02.nupkg.sha512"
+    },
+    "microsoft.build.utilities.core/14.3.0-prerelease02": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-A2XERwPRwrYTGjkOwW19p6+0M6euhJPIBxT3741bUACY3N3P22IOQdz1VygThLpovl/tU2jGCBzCPiwWPCqCdA==",
+      "path": "microsoft.build.utilities.core/14.3.0-prerelease02",
+      "hashPath": "microsoft.build.utilities.core.14.3.0-prerelease02.nupkg.sha512"
+    },
+    "microsoft.net.sdk/1.0.0-alpha-20161019-1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RozsUJziqKro+8bRU6RxiDXD4/rldrBr57Vjl1/acH9u8rxdQqueOZl+lrrtYHSJ7zO3C5aj8oSfB24CWvL3eA==",
+      "path": "microsoft.net.sdk/1.0.0-alpha-20161019-1",
+      "hashPath": "microsoft.net.sdk.1.0.0-alpha-20161019-1.nupkg.sha512"
+    },
+    "nuget.build.tasks.pack/3.6.0-rc-1984": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-gEF8smuszJ7jFWskbgrt5ASK+67ZDNvmxh5y0xH0P+4ysAKdnAw8WGH6l26rj+G/Bh0TFC9+UQqgpnU7Oi+pBQ==",
+      "path": "nuget.build.tasks.pack/3.6.0-rc-1984",
+      "hashPath": "nuget.build.tasks.pack.3.6.0-rc-1984.nupkg.sha512"
+    },
+    "system.collections.nongeneric/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hMxFT2RhhlffyCdKLDXjx8WEC5JfCvNozAZxCablAuFRH74SCV4AgzE8yJCh/73bFnEoZgJ9MJmkjQ0dJmnKqA==",
+      "path": "system.collections.nongeneric/4.0.1",
+      "hashPath": "system.collections.nongeneric.4.0.1.nupkg.sha512"
+    },
+    "system.collections.specialized/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/HKQyVP0yH1I0YtK7KJL/28snxHNH/bi+0lgk/+MbURF6ULhAE31MDI+NZDerNWu264YbxklXCCygISgm+HMug==",
+      "path": "system.collections.specialized/4.0.1",
+      "hashPath": "system.collections.specialized.4.0.1.nupkg.sha512"
+    }
+  }
+}
