@@ -34,8 +34,7 @@ namespace EventFlow.Extensions
             this IResolver resolver)
         {
             var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices()
-                .Where(t => !t.IsGenericTypeDefinition))
+            foreach (var type in resolver.GetRegisteredServices())
             {
                 try
                 {

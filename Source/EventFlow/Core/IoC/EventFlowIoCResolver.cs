@@ -116,7 +116,8 @@ namespace EventFlow.Core.IoC
 
         public IEnumerable<Type> GetRegisteredServices()
         {
-            return _registrations.Keys;
+            return _registrations.Keys
+                .Where(t => !t.IsGenericTypeDefinition);
         }
 
         public bool HasRegistrationFor<T>()
