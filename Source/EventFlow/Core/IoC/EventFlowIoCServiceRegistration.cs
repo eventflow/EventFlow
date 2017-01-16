@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
 using EventFlow.Core.IoC.Factories;
+using EventFlow.Extensions;
 
 namespace EventFlow.Core.IoC
 {
@@ -119,6 +120,10 @@ namespace EventFlow.Core.IoC
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             var resolver = new EventFlowIoCResolver(_registrations, true);
+            if (validateRegistrations)
+            {
+                resolver.ValidateRegistrations();
+            }
 
             var bootstraps = OrderBootstraps(resolver.ResolveAll(typeof(IBootstrap)).Select(i => (IBootstrap) i));
 

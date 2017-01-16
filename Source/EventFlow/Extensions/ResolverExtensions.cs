@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
 
 namespace EventFlow.Extensions
@@ -36,7 +35,7 @@ namespace EventFlow.Extensions
         {
             var exceptions = new List<Exception>();
             foreach (var type in resolver.GetRegisteredServices()
-                .Where(t => !t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>))))
+                .Where(t => !t.IsGenericTypeDefinition))
             {
                 try
                 {
