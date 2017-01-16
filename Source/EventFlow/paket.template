@@ -1,0 +1,17 @@
+type project
+
+iconUrl https://media.githubusercontent.com/media/eventflow/EventFlow/develop/icon-256.png
+licenseUrl https://raw.githubusercontent.com/eventflow/EventFlow/master/LICENSE
+projectUrl https://github.com/eventflow/EventFlow
+requireLicenseAcceptance true
+language en-US
+
+tags CQRS ES event sourceing
+
+excludeddependencies
+	Autofac
+	JetBrains.Annotations
+
+files
+	bin/Release/net451/EventFlow.dll ==> lib/net451
+	bin/Release/netstandard1.6/EventFlow.dll ==> lib/netstandard1.6

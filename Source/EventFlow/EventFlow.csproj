@@ -1,20 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
-
-    <PackageId>EventFlow</PackageId>
-    <Authors>rasmus</Authors>
-
-    <Description>Awesome application logging utility</Description>
-    <PackageVersion>1.0.0</PackageVersion>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>First release</PackageReleaseNotes>
-    <Copyright>Copyright 2016 (c) Contoso Corporation. All rights reserved.</Copyright>
-    <PackageTags>logger logging logs</PackageTags>
-    <!--
-
-    -->
   </PropertyGroup>
+  
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
