@@ -101,6 +101,7 @@ Task("Build")
     .IsDependentOn("Version")
     .Does(() =>
         {
+            BuildProject("Restore");
             BuildProject("Build");
         });
 
