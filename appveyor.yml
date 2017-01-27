@@ -16,7 +16,7 @@ image: Visual Studio 2015
 
 environment:
   RABBITMQ_URL:
-    secure: W49qXP+4ZjxPTpBev0ZtuiajlgUwK8DyxTugRqcYoYpTDilN8TpqGS6+MGIYqJAFBtOkzyV+ZT2lVDVsKNXpyQArzVwCoMiOoGDNaULf3ujooaqBFC0rXyZpeTPhfI2q
+    secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
 
 test: off
 

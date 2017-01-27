@@ -91,7 +91,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
             var routingKey = new RoutingKey("performance");
             var exceptions = new ConcurrentBag<Exception>();
-            const int taskCount = 100;
+            const int taskCount = 10;
             const int messagesPrThread = 200;
             const int totalMessageCount = taskCount*messagesPrThread;
 
