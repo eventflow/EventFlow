@@ -93,9 +93,9 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var exceptions = new ConcurrentBag<Exception>();
             const int taskCount = 10;
             const int messagesPrThread = 200;
-            const int totalMessageCount = taskCount*messagesPrThread;
+            const int totalMessageCount = taskCount * messagesPrThread;
 
-            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] {"#"}))
+            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
             using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
             {
                 var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
