@@ -61,31 +61,3 @@ Registering new implementations
 The more drastic step is to completely replace an implementation. For
 this you use the ``Register(...)`` and related methods on
 ``IServiceRegistration`` instead of the ``Decorate(...)`` method.
-
-A example of a service that you might be interested in creating your own
-custom implementation of is ``IAggregateFactory`` which handles all
-aggregate creation, enabling you to pass additional services to a
-aggregate upon creation before events are applied.
-
-Changing IoC container
-----------------------
-
-EventFlow provides the NuGet package ``EventFlow.Autofac`` that allows
-you to set the internal ``ContainerBuilder`` used during EventFlow
-initialization.
-
-Pass the ``ContainerBuilder`` to EventFlow and call
-``CreateContainer()`` when configuration is done to create the
-container.
-
-.. code-block:: c#
-
-    var containerBuilder = new ContainerBuilder();
-
-    var container = EventFlowOptions.With
-      .UseAutofacContainerBuilder(containerBuilder) // Must be the first line!
-      ...
-      .CreateContainer();
-
-Maybe call ``UseAutofacAggregateRootFactory()`` just before the
-``CreateContainer()`` to use the Autofac aggregate root factory.
