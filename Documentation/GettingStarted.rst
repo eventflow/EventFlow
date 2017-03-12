@@ -15,6 +15,7 @@ wouldn't serve any purpose as no domain has been configured.
 
 The above line does configures several important defaults
 
+- Custom internal IoC container
 - In-memory :ref:`event store <eventstores>`
 - Console logger
 - A "null" snapshot store, that merely writes a warning if used (no need to
@@ -24,8 +25,13 @@ The above line does configures several important defaults
 
 .. IMPORTANT::
     Before using EventFlow in a production environment, you should configure an
-    alternative **event store** and another **logger** that sends log messages
-    to your production log store.
+    alternative **event store**, an alternative **IoC container** and another
+    **logger** that sends log messages to your production log store.
+
+    - :ref:`IoC container <ioc-container>`
+    - :ref:`Log <log>`
+    - :ref:`Event store <eventstores>`
+    - :ref:`Snapshots <snapshots>`
 
 
 To start using EventFlow, a domain must be configure which consists of the
@@ -278,6 +284,7 @@ Next steps
 Although the implementation in this guide enables you to create a complete
 application, there are several topics that are recommended as next steps.
 
+-  Read the :ref:`dos and donts <dos-and-donts>` section
 -  Use :ref:`value objects <value-objects>` to produce cleaner JSON
 -  If your application need to act on an emitted event, create a
    :ref:`subscriber <subscribers>`
