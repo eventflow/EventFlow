@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.39.{build}
+version: 0.40.{build}
 
 install:
   - cmd: pip install -U Sphinx
@@ -11,6 +11,8 @@ skip_tags: true
 
 build_script:
   - cmd: build.cmd All
+
+image: Visual Studio 2015
 
 environment:
   RABBITMQ_URL:

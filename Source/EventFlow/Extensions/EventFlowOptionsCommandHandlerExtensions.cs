@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var commandHandlerTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>)))
+                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,,,>)))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddCommandHandlers(commandHandlerTypes);
         }
@@ -61,11 +61,11 @@ namespace EventFlow.Extensions
                 if (t.IsAbstract) continue;
                 var handlesCommandTypes = t
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommandHandler<,,,>))
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,,,>))
                     .ToList();
                 if (!handlesCommandTypes.Any())
                 {
-                    throw new ArgumentException($"Type '{commandHandlerType.PrettyPrint()}' does not implement '{typeof (ICommandHandler<,,,>).PrettyPrint()}'");
+                    throw new ArgumentException($"Type '{commandHandlerType.PrettyPrint()}' does not implement '{typeof(ICommandHandler<,,,>).PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>

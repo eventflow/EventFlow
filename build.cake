@@ -1,8 +1,8 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -54,7 +54,6 @@ var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
 // TOOLS
 var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
 var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
 
@@ -122,14 +121,6 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            ExecuteIlMerge(
-                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", CONFIGURATION, "EventFlow.dll"),
-                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", "EventFlow.dll"),
-                new []
-                    {
-                        "Autofac.dll",
-                    });
-
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_OUTPUT_PACKAGES,
@@ -185,28 +176,6 @@ string GetSha()
     return AppVeyor.IsRunningOnAppVeyor
         ? string.Format("git sha: {0}", GitVersion(new GitVersionSettings { ToolPath = TOOL_GITVERSION, }).Sha)
         : "developer build";
-}
-
-void ExecuteIlMerge(
-    string inputPath,
-    string outputPath,
-    IEnumerable<string> assemblies)
-{
-    var baseDir = System.IO.Path.GetDirectoryName(inputPath);
-    var assemblyPaths = assemblies
-        .Select(a => (FilePath) File(System.IO.Path.Combine(baseDir, a)))
-        .ToList();
-
-    ILMerge(
-        outputPath,
-        inputPath,
-        assemblyPaths,
-        new ILMergeSettings
-            {
-                Internalize = true,
-                ArgumentCustomization = aggs => aggs.Append("/targetplatform:v4 /allowDup /target:library"),
-                ToolPath = TOOL_ILMERGE,
-            });
 }
 
 void UploadArtifact(string filePath)

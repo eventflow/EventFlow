@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,20 +20,30 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using EventFlow.TestHelpers;
-using NUnit.Framework;
+using Autofac;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests
+namespace EventFlow.Autofac.Registrations
 {
-    [Category(Categories.Integration)]
-    public class VerifyPaketTemplates
+    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
-        [Test]
-        public void T()
+        private readonly ILifetimeScope _lifetimeScope;
+
+        public AutofacScopeResolver(ILifetimeScope lifetimeScope)
+            : base(lifetimeScope)
         {
-            var paketTemplateFiles = Helpers.GetProjectFiles("paket.template");
+            _lifetimeScope = lifetimeScope.BeginLifetimeScope();
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new AutofacScopeResolver(_lifetimeScope.BeginLifetimeScope());
+        }
+
+        public virtual void Dispose()
+        {
+            _lifetimeScope.Dispose();
         }
     }
 }

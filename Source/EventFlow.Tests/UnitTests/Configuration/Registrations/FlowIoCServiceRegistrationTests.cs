@@ -20,46 +20,21 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using System;
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using EventFlow.Extensions;
+using EventFlow.Configuration;
+using EventFlow.Core.IoC;
 using EventFlow.TestHelpers;
-using FluentAssertions;
+using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Tests.UnitTests.Configuration.Registrations
 {
     [Category(Categories.Unit)]
-    public class MetadataProviderExtensionsTests
+    public class FlowIoCServiceRegistrationTests : TestSuiteForServiceRegistration
     {
-        [Test]
-        public void AbstractMetadataProviderIsNotRegistered()
+        protected override IServiceRegistration CreateSut()
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddMetadataProviders(new List<Type>
-            {
-                typeof (AbstractTestSubscriber)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            return new EventFlowIoCServiceRegistration();
         }
-    }
-
-    public abstract class AbstractTestMetadataProvider : IMetadataProvider
-    {
-        public abstract IEnumerable<KeyValuePair<string, string>> ProvideMetadata
-            <TAggregate, TIdentity>(TIdentity id, IAggregateEvent aggregateEvent, IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity;
     }
 }

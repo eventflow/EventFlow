@@ -20,47 +20,33 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Configuration.Registrations;
-using EventFlow.Extensions;
-using EventFlow.Queries;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Queries;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Linq;
+using EventFlow.Configuration;
 
-namespace EventFlow.Tests.UnitTests.Extensions
+namespace EventFlow.Core.IoC
 {
-    [Category(Categories.Unit)]
-    public class QueryHandlerExtensionsTests
+    public abstract class ServiceRegistration
     {
-        [Test]
-        public void AbstractQueryHandlerIsNotRegistered()
+        protected static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
         {
-            // Arrange
-            var registry = new AutofacServiceRegistration();
-            var sut = EventFlowOptions.New.UseServiceRegistration(registry);
-
-            // Act
-            Action act = () => sut.AddQueryHandlers(new List<Type>
-            {
-                typeof (AbstractTestQueryHandler)
-            });
-
-            // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            var list = bootstraps
+                .Select(b => new
+                    {
+                        Bootstrap = b,
+                        AssemblyName = b.GetType().Assembly.GetName().Name,
+                    })
+                .ToList();
+            var eventFlowBootstraps = list
+                .Where(a => a.AssemblyName.StartsWith("EventFlow"))
+                .OrderBy(a => a.AssemblyName)
+                .Select(a => a.Bootstrap);
+            var otherBootstraps = list
+                .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
+                .OrderBy(a => a.AssemblyName)
+                .Select(a => a.Bootstrap);
+            return eventFlowBootstraps.Concat(otherBootstraps).ToList();
         }
-    }
-
-    public abstract class AbstractTestQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
-    {
-        public abstract Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query,
-            CancellationToken cancellationToken);
     }
 }

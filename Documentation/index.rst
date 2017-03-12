@@ -56,6 +56,8 @@ Contents:
    :maxdepth: 2
    :caption: Additional reading
 
+   IoC
+   Log
    Snapshots
    Customize
    ValueObjects

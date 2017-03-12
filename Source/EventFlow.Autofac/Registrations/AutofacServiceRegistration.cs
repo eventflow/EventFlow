@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,20 +20,22 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
 using EventFlow.Core;
+using EventFlow.Core.IoC;
 using EventFlow.Extensions;
 
-namespace EventFlow.Configuration.Registrations
+namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacServiceRegistration : IServiceRegistration
+    internal class AutofacServiceRegistration : ServiceRegistration, IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly DecoratorService _decoratorService = new DecoratorService();
@@ -205,26 +207,6 @@ namespace EventFlow.Configuration.Registrations
             private Task StartAsync(CancellationToken cancellationToken)
             {
                 return Task.WhenAll(_bootstraps.Select(b => b.BootAsync(cancellationToken)));
-            }
-
-            private static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
-            {
-                var list = bootstraps
-                    .Select(b => new
-                    {
-                        Bootstrap = b,
-                        AssemblyName = b.GetType().Assembly.GetName().Name,
-                    })
-                    .ToList();
-                var eventFlowBootstraps = list
-                    .Where(a => a.AssemblyName.StartsWith("EventFlow"))
-                    .OrderBy(a => a.AssemblyName)
-                    .Select(a => a.Bootstrap);
-                var otherBootstraps = list
-                    .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
-                    .OrderBy(a => a.AssemblyName)
-                    .Select(a => a.Bootstrap);
-                return eventFlowBootstraps.Concat(otherBootstraps).ToList();
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2017 Rasmus Mikkelsen
+// Copyright (c) 2015-2017 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Linq;
@@ -56,7 +55,9 @@ namespace EventFlow.Queries
             _memoryCache = memoryCache;
         }
 
-        public async Task<TResult> ProcessAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
+        public async Task<TResult> ProcessAsync<TResult>(
+            IQuery<TResult> query,
+            CancellationToken cancellationToken)
         {
             var queryType = query.GetType();
             var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
@@ -69,7 +70,9 @@ namespace EventFlow.Queries
             return await task.ConfigureAwait(false);
         }
 
-        public TResult Process<TResult>(IQuery<TResult> query, CancellationToken cancellationToken)
+        public TResult Process<TResult>(
+            IQuery<TResult> query,
+            CancellationToken cancellationToken)
         {
             var result = default(TResult);
             using (var a = AsyncHelper.Wait)
@@ -79,7 +82,9 @@ namespace EventFlow.Queries
             return result;
         }
 
-        private Task<CacheItem> GetCacheItemAsync(Type queryType, CancellationToken cancellationToken)
+        private Task<CacheItem> GetCacheItemAsync(
+            Type queryType,
+            CancellationToken cancellationToken)
         {
             return _memoryCache.GetOrAddAsync(
                 CacheKey.With(GetType(), queryType.GetCacheKey()),
