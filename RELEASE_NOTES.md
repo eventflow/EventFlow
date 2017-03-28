@@ -1,6 +1,7 @@
 ### New in 0.40 (not released yet)
 
-* _Nothing yet_
+* New: Updated EventFlow logo (thanks @olholm)
+* Fixed: Corrected logo path in NuGet packages
 
 ### New in 0.39.2553 (released 2017-01-16)
 
