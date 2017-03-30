@@ -1,4 +1,9 @@
-### New in 0.39 (not released yet)
+### New in 0.40 (not released yet)
+
+* New: Updated EventFlow logo (thanks @olholm)
+* Fixed: Corrected logo path in NuGet packages
+
+### New in 0.39.2553 (released 2017-01-16)
 
 * New: Autofac is no longer IL merged into the `EventFlow` core NuGet package.
   This is both in preparation for .NET Core and to simplify the build process.
