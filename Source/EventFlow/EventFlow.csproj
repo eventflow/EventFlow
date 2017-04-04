@@ -6,6 +6,11 @@
     <TargetFramework>net451</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- START required by Paket -->
+    <AssemblyName>EventFlow</AssemblyName>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <!-- END required by Paket -->
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />

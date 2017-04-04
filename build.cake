@@ -110,7 +110,7 @@ Task("Test")
     .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/net451/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -118,11 +118,14 @@ Task("Package")
     .IsDependentOn("Test")
     .Does(() =>
         {
+            // Paket can't find 'bin/Release/net451/EventFlow.dll'
+            CopyFile("./Source/EventFlow/bin/" + CONFIGURATION + "/net451/EventFlow.dll", "./Source/EventFlow/bin/" + CONFIGURATION + "/EventFlow.dll");
+            
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
             ExecuteCommand(TOOL_PAKET, string.Format(
-                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
+                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\" buildplatform AnyCPU",
                 DIR_OUTPUT_PACKAGES,
                 CONFIGURATION,
                 string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
@@ -158,6 +161,7 @@ void BuildProject(string target)
             .SetMSBuildPlatform(MSBuildPlatform.Automatic)
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
+            .UseToolVersion(MSBuildToolVersion.VS2017)
         );
 }
 
