@@ -1,0 +1,51 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- Mark that this target file has been loaded.  -->
+    <IsPaketRestoreTargetsFileLoaded>true</IsPaketRestoreTargetsFileLoaded>
+    <PaketToolsPath>$(MSBuildThisFileDirectory)</PaketToolsPath>
+    <MonoPath Condition="'$(MonoPath)' == '' And Exists('/Library/Frameworks/Mono.framework/Commands/mono')">/Library/Frameworks/Mono.framework/Commands/mono</MonoPath>
+    <MonoPath Condition="'$(MonoPath)' == ''">mono</MonoPath> 
+    <!-- Paket command -->
+    <PaketExePath Condition=" '$(PaketExePath)' == '' AND Exists('$(PaketRootPath)paket.exe')">$(PaketRootPath)paket.exe</PaketExePath>
+    <PaketExePath Condition=" '$(PaketExePath)' == '' ">$(PaketToolsPath)paket.exe</PaketExePath>
+    <PaketCommand Condition=" '$(OS)' == 'Windows_NT'">"$(PaketExePath)"</PaketCommand>
+    <PaketCommand Condition=" '$(OS)' != 'Windows_NT' ">$(MonoPath) --runtime=v4.0.30319 "$(PaketExePath)"</PaketCommand>
+  </PropertyGroup>    
+
+  <UsingTask TaskName="Paket.Build.Tasks.PaketRestoreTask" AssemblyFile="PaketRestoreTask.dll" />
+
+  <Target Name="PaketRestore" BeforeTargets="_GenerateRestoreGraphWalkPerFramework" >
+    <Exec Command="$(PaketCommand) restore --project $(MSBuildProjectFullPath)" />
+
+     <!-- Write out package references for NETCore -->
+    <PaketRestoreTask
+      ProjectUniqueName="$(MSBuildProjectFullPath)"
+      PackageReferences="@(PackageReference)"
+      TargetFrameworks="$(TargetFramework)">
+      <Output TaskParameter="NewPackageReferences" ItemName="PackageReference" />
+      <Output TaskParameter="AlternativeConfigFile" ItemName="RestoreConfigFile" />        
+    </PaketRestoreTask>
+   </Target>
+
+   <Target Name="FixPackRef" AfterTargets="_WalkEachTargetPerFramework" Returns="@(_PackageReferences)">
+      <!-- Write out package references for NETCore -->
+      <PaketRestoreTask
+        ProjectUniqueName="$(MSBuildProjectFullPath)"
+        PackageReferences="@(PackageReference)"
+        TargetFrameworks="$(TargetFramework)">
+        <Output TaskParameter="NewPackageReferences" ItemName="_PaketPackageReference" />
+        <Output TaskParameter="AlternativeConfigFile" ItemName="RestoreConfigFile2" />
+      </PaketRestoreTask>
+      <ItemGroup>
+        <_PackageReferences Include="%(_PaketPackageReference.Identity)">
+          <TargetFramework>$(TargetFramework)</TargetFramework>
+          <IncludeAssets></IncludeAssets>
+          <ExcludeAssets></ExcludeAssets>
+          <PrivateAssets></PrivateAssets>
+          <Version>%(_PaketPackageReference.Version)</Version>
+        </_PackageReferences>
+      </ItemGroup>
+      
+    </Target>
+
+</Project>

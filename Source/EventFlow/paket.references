@@ -1,2 +1,3 @@
-JetBrains.Annotations
 Newtonsoft.Json
+group NetStandard16
+NETStandard.Library

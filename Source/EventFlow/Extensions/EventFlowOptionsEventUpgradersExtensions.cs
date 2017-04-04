@@ -60,7 +60,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var eventUpgraderTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>)))
+                .Where(t => t.GetTypeInfo().GetInterfaces().Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>)))
                 .Where(t => predicate(t));
             return eventFlowOptions
                 .AddEventUpgraders(eventUpgraderTypes);
@@ -81,10 +81,11 @@ namespace EventFlow.Extensions
             foreach (var eventUpgraderType in eventUpgraderTypes)
             {
                 var t = eventUpgraderType;
-                if (t.IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract) continue;
                 var eventUpgraderForAggregateType = t
+                    .GetTypeInfo()
                     .GetInterfaces()
-                    .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>));
+                    .SingleOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IEventUpgrader<,>));
                 if (eventUpgraderForAggregateType == null)
                 {
                     throw new ArgumentException($"Type '{eventUpgraderType.Name}' does not have the '{typeof(IEventUpgrader<,>).PrettyPrint()}' interface");

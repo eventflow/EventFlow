@@ -65,7 +65,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         }
 
         [Test]
-        public async Task SynchronousSubscribersGetCalled()
+        public async Task SynchronousSubscribersGetCalledAsync()
         {
             // Arrange
             var subscriberMock = ArrangeSynchronousSubscriber<ThingyPingEvent>();
@@ -79,11 +79,10 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         }
 
         [Test]
-        public async Task AynchronousSubscribersGetCalled()
+        public async Task AynchronousSubscribersGetCalledAsync()
         {
             // Arrange
-            AutoResetEvent autoResetEvent;
-            var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>(out autoResetEvent);
+            var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>(out var autoResetEvent);
 
             // Act
             await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);

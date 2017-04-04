@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Configuration;
 
 namespace EventFlow.Core.IoC
@@ -35,7 +36,7 @@ namespace EventFlow.Core.IoC
                 .Select(b => new
                     {
                         Bootstrap = b,
-                        AssemblyName = b.GetType().Assembly.GetName().Name,
+                        AssemblyName = b.GetType().GetTypeInfo().Assembly.GetName().Name,
                     })
                 .ToList();
             var eventFlowBootstraps = list

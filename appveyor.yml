@@ -12,7 +12,7 @@ skip_tags: true
 build_script:
   - cmd: build.cmd All
 
-image: Visual Studio 2015
+image: Visual Studio 2017 RC
 
 environment:
   RABBITMQ_URL:

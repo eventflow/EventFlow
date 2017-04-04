@@ -109,7 +109,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>
         <Reference Include="Dapper">
-          <HintPath>..\..\packages\Dapper\lib\net45\Dapper.dll</HintPath>
+          <HintPath>..\..\packages\Dapper\lib\net451\Dapper.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -127,4 +127,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\.paket\paket.targets" />
 </Project>

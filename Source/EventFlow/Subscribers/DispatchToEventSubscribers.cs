@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -142,8 +143,10 @@ namespace EventFlow.Subscribers
                 _ =>
                     {
                         var arguments = domainEventType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,,>))
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IDomainEvent<,,>))
+                            .GetTypeInfo()
                             .GetGenericArguments();
 
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);

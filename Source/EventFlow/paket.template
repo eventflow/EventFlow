@@ -1,4 +1,4 @@
-﻿type project
+type project
 
 iconUrl https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-256.png
 licenseUrl https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE
@@ -10,3 +10,6 @@ tags CQRS ES event sourceing
 
 excludeddependencies
 	JetBrains.Annotations
+files
+	bin/Release/net451/EventFlow.dll ==> lib/net451
+	bin/Release/netstandard1.6/EventFlow.dll ==> lib/netstandard1.6

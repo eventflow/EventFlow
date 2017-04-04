@@ -22,20 +22,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using EventFlow.Logs;
 
 namespace EventFlow.Core.Caching
 {
     public class MemoryCache : Cache, IMemoryCache, IDisposable
     {
-        private readonly System.Runtime.Caching.MemoryCache _memoryCache = new System.Runtime.Caching.MemoryCache(GenerateKey());
+        private readonly Microsoft.Extensions.Caching.Memory.MemoryCache _memoryCache = new Microsoft.Extensions.Caching.Memory.MemoryCache(CreateOptions());
 
-        private static string GenerateKey()
+        private static MemoryCacheOptions CreateOptions()
         {
-            return $"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}";
+            return new MemoryCacheOptions();
         }
 
         public MemoryCache(ILog log)
@@ -70,8 +70,7 @@ namespace EventFlow.Core.Caching
         {
             _memoryCache.Set(
                 cacheKey.Value,
-                value,
-                new CacheItemPolicy
+                value, new MemoryCacheEntryOptions
                 {
                     SlidingExpiration = slidingExpiration,
                 });

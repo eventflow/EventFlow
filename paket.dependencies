@@ -26,12 +26,14 @@ nuget Owin ~> 1.0
 nuget RabbitMQ.Client ~> 3.6.0
 nuget System.Data.SQLite.Core >= 1.0.99
 
+
 group Build
 	redirects: off
 	framework: <= net451
 	source https://www.nuget.org/api/v2/
+	source https://www.myget.org/F/cake/api/v3/index.json
 
-	nuget cake
+	nuget cake prerelease
 	nuget GitVersion.CommandLine
 	nuget NUnit.Runners ~> 3.0
 	nuget OpenCover
@@ -47,3 +49,13 @@ group Test
 	nuget Helpz
 	nuget Moq ~> 4.0
 	nuget NUnit ~> 3.0
+
+group NetStandard16
+	redirects: off
+	framework: netstandard1.6
+	source https://www.nuget.org/api/v2/
+
+	nuget NETStandard.Library ~> 1.6.0
+	nuget System.Security.Cryptography.Algorithms ~> 4.3.0
+	nuget Microsoft.CSharp ~> 4.3.0
+	nuget Microsoft.Extensions.Caching.Memory ~> 1.1.0
