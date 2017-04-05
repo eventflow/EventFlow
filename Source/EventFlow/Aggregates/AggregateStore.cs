@@ -44,19 +44,25 @@ namespace EventFlow.Aggregates
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
+        private readonly ITaskRunner _taskRunner;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
         public AggregateStore(
             IResolver resolver,
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
+            ITaskRunner taskRunner,
+            IEventFlowConfiguration eventFlowConfiguration)
         {
             _resolver = resolver;
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
             _transientFaultHandler = transientFaultHandler;
+            _taskRunner = taskRunner;
+            _eventFlowConfiguration = eventFlowConfiguration;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -103,15 +109,11 @@ namespace EventFlow.Aggregates
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            if (domainEvents.Any())
-            {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
+            await PublishEventsAsync<TAggregate, TIdentity>(
                     id,
                     domainEvents,
                     cancellationToken)
-                    .ConfigureAwait(false);
-            }
+                .ConfigureAwait(false);
 
             return domainEvents;
         }
@@ -130,17 +132,42 @@ namespace EventFlow.Aggregates
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            if (domainEvents.Any())
+            await PublishEventsAsync<TAggregate, TIdentity>(
+                aggregate.Id,
+                domainEvents,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            return domainEvents;
+        }
+
+        private async Task PublishEventsAsync<TAggregate, TIdentity>(
+            TIdentity identity,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            if (!domainEvents.Any()) return;
+
+            async Task PublisherAsync(IResolver r, CancellationToken c)
             {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                    aggregate.Id,
-                    domainEvents,
-                    cancellationToken)
+                var domainEventPublisher = r.Resolve<IDomainEventPublisher>();
+                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(identity, domainEvents, c)
                     .ConfigureAwait(false);
             }
 
-            return domainEvents;
+            if (_eventFlowConfiguration.AwaitEventPublishing)
+            {
+                await PublisherAsync(_resolver, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                _taskRunner.Run(
+                    Label.Named("publish-events"),
+                    PublisherAsync,
+                    CancellationToken.None);
+            }
         }
     }
 }

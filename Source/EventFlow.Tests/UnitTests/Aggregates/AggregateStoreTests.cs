@@ -50,6 +50,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         private Mock<IAggregateFactory> _aggregateFactoryMock;
         private Mock<IResolver> _resolverMock;
         private Mock<IDomainEventPublisher> _domainEventPublisherMock;
+        private Mock<IEventFlowConfiguration> _eventFlowConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -62,6 +63,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             _eventStoreMock = InjectMock<IEventStore>();
             _aggregateFactoryMock = InjectMock<IAggregateFactory>();
             _resolverMock = InjectMock<IResolver>();
+            _eventFlowConfiguration = InjectMock<IEventFlowConfiguration>();
 
             _domainEventPublisherMock = new Mock<IDomainEventPublisher>();
             _resolverMock
@@ -71,6 +73,9 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             _aggregateFactoryMock
                 .Setup(f => f.CreateNewAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>()))
                 .Returns(() => Task.FromResult(A<ThingyAggregate>()));
+            _eventFlowConfiguration
+                .Setup(m => m.AwaitEventPublishing)
+                .Returns(true);
         }
 
         [Test]

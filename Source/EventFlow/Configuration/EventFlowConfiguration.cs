@@ -31,6 +31,7 @@ namespace EventFlow.Configuration
         public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
         public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
         public bool ThrowSubscriberExceptions { get; set; }
+        public bool AwaitEventPublishing { get; set; }
 
         public EventFlowConfiguration()
         {
@@ -38,6 +39,7 @@ namespace EventFlow.Configuration
             NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
             DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
             ThrowSubscriberExceptions = false;
+            AwaitEventPublishing = true;
         }
     }
 }

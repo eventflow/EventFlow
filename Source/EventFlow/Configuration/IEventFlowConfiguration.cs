@@ -31,5 +31,6 @@ namespace EventFlow.Configuration
         int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; }
         TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; }
         bool ThrowSubscriberExceptions { get; }
+        bool AwaitEventPublishing { get; }
     }
 }
