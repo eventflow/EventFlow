@@ -102,8 +102,7 @@ Task("Build")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            ExecuteCommand(TOOL_PAKET, @"restore --project Source\EventFlow\EventFlow.csproj");
-
+            BuildProject("Restore");
             BuildProject("Build");
         });
 
