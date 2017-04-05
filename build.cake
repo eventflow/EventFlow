@@ -77,7 +77,6 @@ Task("Clean")
 
 // =====================================================================================================
 Task("Version")
-    .IsDependentOn("Clean")
     .Does(() =>
         {
             CreateAssemblyInfo(
@@ -96,11 +95,15 @@ Task("Version")
                     });
         });
 
+
 // =====================================================================================================
 Task("Build")
+    .IsDependentOn("Clean")
     .IsDependentOn("Version")
     .Does(() =>
         {
+            ExecuteCommand(TOOL_PAKET, @"restore --project Source\EventFlow\EventFlow.csproj");
+
             BuildProject("Build");
         });
 
