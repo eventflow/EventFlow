@@ -158,6 +158,7 @@ void BuildProject(string target)
             .SetMSBuildPlatform(MSBuildPlatform.Automatic)
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
+            .UseToolVersion(MSBuildToolVersion.VS2017)
         );
 }
 
