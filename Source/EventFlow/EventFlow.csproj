@@ -3,15 +3,18 @@
   <PropertyGroup>
     <ProjectGuid>{11131251-778D-4D2E-BDD1-4844A789BCA9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFrameworks>net451</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
-    <!-- START required by Paket -->
-    <AssemblyName>EventFlow</AssemblyName>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <!-- END required by Paket -->
   </PropertyGroup>
+
+  <!-- make Paket happy -->
+  <PropertyGroup >
+    <AssemblyName>EventFlow</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <OutputPath>bin\$(Configuration)\$(TargetFramework)</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
