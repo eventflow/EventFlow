@@ -129,6 +129,11 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
+            // Make Paket happy
+            CopyFile(
+                "./Source/EventFlow/bin/" + CONFIGURATION + "/net451/EventFlow.dll",
+                "./Source/EventFlow/bin/" + CONFIGURATION + "/EventFlow.dll");
+
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_OUTPUT_PACKAGES,
@@ -276,7 +281,6 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
 
 void ExecuteTest(string resultsFile, params string[] files)
 {
-
     OpenCover(tool =>
         {
             tool.NUnit3(
