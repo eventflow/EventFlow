@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Decorators;
 
@@ -52,7 +53,7 @@ namespace EventFlow.Core.IoC
 
         public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
-            var serviceType = genericTypeArguments.Any() && _serviceType.IsGenericType
+            var serviceType = genericTypeArguments.Any() && _serviceType.GetTypeInfo().IsGenericType
                 ? _serviceType.MakeGenericType(genericTypeArguments)
                 : _serviceType;
 

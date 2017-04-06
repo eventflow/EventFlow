@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -88,14 +89,15 @@ namespace EventFlow.Sagas.AggregateSagas
                 _ =>
                 {
                     var aggregateRootType = sagaType
+                        .GetTypeInfo()
                         .GetInterfaces()
-                        .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
+                        .FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAggregateRoot<>));
 
                     if (aggregateRootType == null)
                         throw new ArgumentException($"Saga '{sagaType.PrettyPrint()}' is not a aggregate root");
 
-                    var methodInfo = GetType().GetMethod(nameof(UpdateAggregateAsync));
-                    var identityType = aggregateRootType.GetGenericArguments()[0];
+                    var methodInfo = GetType().GetTypeInfo().GetMethod(nameof(UpdateAggregateAsync));
+                    var identityType = aggregateRootType.GetTypeInfo().GetGenericArguments()[0];
                     var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
                     return Task.FromResult<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
                         (id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { id, sid, u, c }));

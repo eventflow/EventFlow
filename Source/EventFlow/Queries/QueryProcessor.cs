@@ -23,6 +23,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -92,9 +93,10 @@ namespace EventFlow.Queries
                 _ =>
                     {
                         var queryInterfaceType = queryType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
-                        var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetGenericArguments()[0]);
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
+                        var queryHandlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, queryInterfaceType.GetTypeInfo().GetGenericArguments()[0]);
                         var invokeExecuteQueryAsync = ReflectionHelper.CompileMethodInvocation<Func<IQueryHandler, IQuery, CancellationToken, Task>>(
                             queryHandlerType,
                             "ExecuteQueryAsync",

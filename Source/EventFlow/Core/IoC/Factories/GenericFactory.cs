@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Configuration;
@@ -42,7 +41,7 @@ namespace EventFlow.Core.IoC.Factories
 
             if (constructorInfos.Length > 1)
             {
-                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
+                throw new Exception($"Type {serviceType.PrettyPrint()} has more than one constructor");
             }
 
             _serviceType = serviceType;
@@ -51,7 +50,7 @@ namespace EventFlow.Core.IoC.Factories
         public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
             var genericType = _serviceType.MakeGenericType(genericTypeArguments);
-            var constructorInfo = genericType.GetConstructors().Single();
+            var constructorInfo = genericType.GetTypeInfo().GetConstructors().Single();
             var parameterInfos = constructorInfo.GetParameters();
 
             var parameters = new object[parameterInfos.Length];
