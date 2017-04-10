@@ -1,9 +1,0 @@
-Dapper
-Newtonsoft.Json
-
-group Test
-	AutoFixture
-	AutoFixture.AutoMoq
-	FluentAssertions
-	Moq
-	NUnit

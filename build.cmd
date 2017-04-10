@@ -1,5 +1,7 @@
 rem @echo off
 
+git clean -fxd
+
 IF EXIST ".paket\paket.exe" GOTO has-packet
 
 ".paket\paket.bootstrapper.exe"
