@@ -19,7 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
