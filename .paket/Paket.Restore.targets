@@ -12,7 +12,7 @@
     <PaketCommand Condition=" '$(OS)' != 'Windows_NT' ">$(MonoPath) --runtime=v4.0.30319 "$(PaketExePath)"</PaketCommand>
   </PropertyGroup>
 
-  <Target Name="PaketRestore" BeforeTargets="_GenerateRestoreGraphWalkPerFramework;CollectPackageReferences" >
+  <Target Name="PaketRestore" BeforeTargets="_GenerateProjectRestoreGraphPerFramework;_GenerateRestoreGraphWalkPerFramework;CollectPackageReferences" >
 
     <Exec Command='$(PaketCommand) restore --project "$(MSBuildProjectFullPath)" ' />
 
@@ -45,7 +45,7 @@
       <ContinuePackingAfterGeneratingNuspec>false</ContinuePackingAfterGeneratingNuspec>
     </PropertyGroup>
   </Target>
-  
+
   <Target Name="PaketOverrideNuspec" AfterTargets="GenerateNuspec" >
     <PropertyGroup>
       <PaketReferencesFilePath>$(MSBuildProjectDirectory)/obj/$(MSBuildProjectFile).references</PaketReferencesFilePath>
@@ -57,11 +57,11 @@
     </ItemGroup>
 
     <Exec Command='$(PaketCommand) fix-nuspec file "@(_NuspecFiles)" references-file "$(PaketReferencesFilePath)" ' />
-    
+
     <ConvertToAbsolutePath Condition="@(_NuspecFiles) != ''" Paths="@(_NuspecFiles)">
       <Output TaskParameter="AbsolutePaths" PropertyName="NuspecFileAbsolutePath" />
     </ConvertToAbsolutePath>
-    
+
     <!-- Call Pack -->
     <PackTask PackItem="$(PackProjectInputFile)"
               PackageFiles="@(_PackageFiles)"
