@@ -1,9 +1,0 @@
-﻿type project
-
-iconUrl https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-256.png
-licenseUrl https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE
-projectUrl https://github.com/eventflow/EventFlow
-requireLicenseAcceptance true
-language en-US
-
-tags CQRS ES event sourceing

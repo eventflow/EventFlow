@@ -22,6 +22,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+#tool nuget:?package=OpenCover&version=4.6.519
+#tool nuget:?package=NUnit.ConsoleRunner
+#tool nuget:?package=GitVersion.CommandLine&version=3.6.5
+
 #addin "Cake.Incubator"
 
 #r "System.IO.Compression.FileSystem"
@@ -53,15 +57,8 @@ var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
     string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
-// TOOLS
-var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
-var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
-var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
-var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
-
+// OTHER
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
-
 
 // =====================================================================================================
 Task("Clean")
@@ -129,16 +126,7 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            // Make Paket happy
-            CopyFile(
-                "./Source/EventFlow/bin/" + CONFIGURATION + "/net451/EventFlow.dll",
-                "./Source/EventFlow/bin/" + CONFIGURATION + "/EventFlow.dll");
-
-            ExecuteCommand(TOOL_PAKET, string.Format(
-                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
-                DIR_OUTPUT_PACKAGES,
-                CONFIGURATION,
-                string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
+            // TODO
         });
 
 // =====================================================================================================
@@ -188,7 +176,7 @@ Version GetArgumentVersion()
 string GetSha()
 {
     return AppVeyor.IsRunningOnAppVeyor
-        ? string.Format("git sha: {0}", GitVersion(new GitVersionSettings { ToolPath = TOOL_GITVERSION, }).Sha)
+        ? string.Format("git sha: {0}", GitVersion().Sha)
         : "developer build";
 }
 
@@ -292,7 +280,6 @@ void ExecuteTest(string resultsFile, params string[] files)
                         NoHeader = true,
                         NoColor = true,
                         Framework = "net-4.5",
-                        ToolPath = TOOL_NUNIT,
                         //OutputFile = nunitOutputPath,
                         Results = resultsFile,
                         DisposeRunners = true
@@ -301,7 +288,6 @@ void ExecuteTest(string resultsFile, params string[] files)
     new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
-            ToolPath = TOOL_OPENCOVER,
             ArgumentCustomization = aggs => aggs.Append("-returntargetcode")
         }
         .WithFilter("+[EventFlow*]*")

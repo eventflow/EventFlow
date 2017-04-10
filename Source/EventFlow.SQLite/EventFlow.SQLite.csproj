@@ -18,12 +18,15 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.references" />
-    <None Include="paket.template" />
+    <PackageReference Include="Dapper" Version="1.50.2" />
+    <PackageReference Include="dbup" Version="3.3.5" />
+    <PackageReference Include="Helpz" Version="0.2.64" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.105" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  
 </Project>
