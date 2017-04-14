@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.0.1")]
 [assembly: AssemblyFileVersion("0.0.1")]
 [assembly: AssemblyInformationalVersion("0.0.1")]
-[assembly: AssemblyCopyright("Copyright (c) Rasmus Mikkelsen 2015 - 2017 (SHA:developer build)")]
+[assembly: AssemblyCopyright("Copyright (c) Rasmus Mikkelsen 2015 - 2016 (SHA:developer build)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyConfiguration("Release")]
 [assembly: ComVisible(false)]
