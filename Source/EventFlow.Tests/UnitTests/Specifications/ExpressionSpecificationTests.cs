@@ -33,7 +33,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
         public void StringIsRight()
         {
             // Arrange
-            var specification = new ExpressionSpecification<int>(i => i > 1 && i < 10 || i == 42);
+            var specification = new ExpressionSpecification<int>(i => (i > 1 && i < 10) || i == 42);
 
             // Act
             var str = specification.ToString();
