@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
@@ -38,6 +38,7 @@ namespace EventFlow.EventStores.Files
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventLocator _filesEventLocator;
+        private readonly IFileSystem _fileSystem;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
         private long _globalSequenceNumber;
@@ -62,16 +63,18 @@ namespace EventFlow.EventStores.Files
             ILog log,
             IJsonSerializer jsonSerializer,
             IFilesEventStoreConfiguration configuration,
-            IFilesEventLocator filesEventLocator)
+            IFilesEventLocator filesEventLocator,
+            IFileSystem fileSystem)
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
             _filesEventLocator = filesEventLocator;
+            _fileSystem = fileSystem;
             _logFilePath = Path.Combine(configuration.StorePath, "Log.store");
 
-            if (File.Exists(_logFilePath))
+            if (AsyncHelper.Run(() => _fileSystem.FileExistAsync(_logFilePath, CancellationToken.None)))
             {
-                var json = File.ReadAllText(_logFilePath);
+                var json = AsyncHelper.Run(() => _fileSystem.ReadAllTextAsync(_logFilePath, CancellationToken.None));
                 var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json);
                 _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
                 _eventLog = eventStoreLog.Log ?? new Dictionary<long, string>();
@@ -106,7 +109,7 @@ namespace EventFlow.EventStores.Files
             var committedDomainEvents = new List<FileEventData>();
             foreach (var path in paths)
             {
-                var committedDomainEvent = await LoadFileEventDataFile(path).ConfigureAwait(false);
+                var committedDomainEvent = await LoadFileEventDataFile(path, cancellationToken).ConfigureAwait(false);
                 committedDomainEvents.Add(committedDomainEvent);
             }
 
@@ -149,7 +152,7 @@ namespace EventFlow.EventStores.Files
             
                     var json = _jsonSerializer.Serialize(fileEventData, true);
 
-                    if (File.Exists(eventPath))
+                    if (await _fileSystem.FileExistAsync(eventPath, cancellationToken).ConfigureAwait(false))
                     {
                         // TODO: This needs to be on file creation
                         throw new OptimisticConcurrencyException(string.Format(
@@ -158,30 +161,29 @@ namespace EventFlow.EventStores.Files
                             id));
                     }
 
-                    using (var streamWriter = File.CreateText(eventPath))
-                    {
-                        _log.Verbose("Writing file '{0}'", eventPath);
-                        await streamWriter.WriteAsync(json).ConfigureAwait(false);
-                    }
+                    _log.Verbose("Writing file '{0}'", eventPath);
+                    await _fileSystem.WriteAllTextAsync(eventPath, json, false, cancellationToken).ConfigureAwait(false);
 
                     committedDomainEvents.Add(fileEventData);
                 }
 
-                using (var streamWriter = File.CreateText(_logFilePath))
-                {
-                    _log.Verbose(
-                        "Writing global sequence number '{0}' to '{1}'",
-                        _globalSequenceNumber,
-                        _logFilePath);
-                    var json = _jsonSerializer.Serialize(
-                        new EventStoreLog
-                        {
-                            GlobalSequenceNumber = _globalSequenceNumber,
-                            Log = _eventLog,
-                        },
-                        true);
-                    await streamWriter.WriteAsync(json).ConfigureAwait(false);
-                }
+                _log.Verbose(
+                    "Writing global sequence number '{0}' to '{1}'",
+                    _globalSequenceNumber,
+                    _logFilePath);
+                var logFileJson = _jsonSerializer.Serialize(
+                    new EventStoreLog
+                    {
+                        GlobalSequenceNumber = _globalSequenceNumber,
+                        Log = _eventLog,
+                    },
+                    true);
+                await _fileSystem.WriteAllTextAsync(
+                    _logFilePath,
+                    logFileJson,
+                    true,
+                    CancellationToken.None /* don't allow cancellation here */)
+                    .ConfigureAwait(false);
 
                 return committedDomainEvents;
             }
@@ -195,35 +197,31 @@ namespace EventFlow.EventStores.Files
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
-                for (var i = fromEventSequenceNumber; ; i++)
+                for (var i = fromEventSequenceNumber;; i++)
                 {
                     var eventPath = _filesEventLocator.GetEventPath(id, i);
-                    if (!File.Exists(eventPath))
+                    if (!await _fileSystem.FileExistAsync(eventPath, cancellationToken).ConfigureAwait(false))
                     {
                         return committedDomainEvents;
                     }
 
-                    var committedDomainEvent = await LoadFileEventDataFile(eventPath).ConfigureAwait(false);
+                    var committedDomainEvent = await LoadFileEventDataFile(eventPath, cancellationToken).ConfigureAwait(false);
                     committedDomainEvents.Add(committedDomainEvent);
                 }
             }
         }
 
-        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             _log.Verbose("Deleting entity with ID '{0}'", id);
             var path = _filesEventLocator.GetEntityPath(id);
-            Directory.Delete(path, true);
-            return Task.FromResult(0);
+            await _fileSystem.DeleteDirectoryAsync(path, true, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<FileEventData> LoadFileEventDataFile(string eventPath)
+        private async Task<FileEventData> LoadFileEventDataFile(string eventPath, CancellationToken cancellationToken)
         {
-            using (var streamReader = File.OpenText(eventPath))
-            {
-                var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                return _jsonSerializer.Deserialize<FileEventData>(json);
-            }
+            var json = await _fileSystem.ReadAllTextAsync(eventPath, cancellationToken).ConfigureAwait(false);
+            return _jsonSerializer.Deserialize<FileEventData>(json);
         }
 
         private EventStoreLog RecreateEventStoreLog(string path)
@@ -232,22 +230,20 @@ namespace EventFlow.EventStores.Files
                 .SelectMany(Directory.GetDirectories)
                 .SelectMany(Directory.GetFiles)
                 .Select(f =>
-                {
-                    Console.WriteLine(f);
-                    using (var streamReader = File.OpenText(f))
                     {
-                        var json = streamReader.ReadToEnd();
+                        _log.Verbose($"Reading event data: {f}");
+
+                        var json = AsyncHelper.Run(() => _fileSystem.ReadAllTextAsync(f, CancellationToken.None));
                         var fileEventData = _jsonSerializer.Deserialize<FileEventData>(json);
                         return new { fileEventData.GlobalSequenceNumber, Path = f };
-                    }
-                })
+                    })
                 .ToDictionary(a => a.GlobalSequenceNumber, a => a.Path);
 
             return new EventStoreLog
-            {
-                GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
-                Log = directory,
-            };
+                {
+                    GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
+                    Log = directory,
+                };
         }
     }
 }

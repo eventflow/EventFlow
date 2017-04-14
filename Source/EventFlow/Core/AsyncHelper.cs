@@ -163,6 +163,25 @@ namespace EventFlow.Core
         /// </summary>
         public static AsyncBridge Wait => new AsyncBridge();
 
+        public static T Run<T>(Func<Task<T>> task)
+        {
+            var result = default(T);
+            using (var a = Wait)
+            {
+                a.Run(task(), r => result = r);
+            }
+
+            return result;
+        }
+
+        public static void Run(Func<Task> task)
+        {
+            using (var a = Wait)
+            {
+                a.Run(task());
+            }
+        }
+
         /// <summary>
         /// Runs a task with the "Fire and Forget" pattern using Task.Run,
         /// and unwraps and handles exceptions
