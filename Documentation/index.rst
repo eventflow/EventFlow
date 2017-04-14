@@ -62,7 +62,7 @@ Contents:
    Customize
    ValueObjects
    DosAndDonts
-   Specification
+   Specifications
    FAQ
 
 
