@@ -33,7 +33,6 @@ group Build
 
 	nuget cake
 	nuget GitVersion.CommandLine
-	nuget NuGet.CommandLine
 	nuget NUnit.Runners ~> 3.0
 	nuget OpenCover
 
