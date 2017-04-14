@@ -33,13 +33,27 @@ namespace EventFlow.Tests.UnitTests.Specifications
         public void StringIsRight()
         {
             // Arrange
-            var specification = new ExpressionSpecification<int>(i => i > 1 && i < 10);
+            var specification = new ExpressionSpecification<int>(i => i > 1 && i < 10 || i == 42);
 
             // Act
             var str = specification.ToString();
 
             // Assert
-            str.Should().Be("((i > 1) && (i < 10))");
+            str.Should().Be("i => (((i > 1) && (i < 10)) || (i == 42))");
+        }
+
+        [TestCase(42, true)]
+        [TestCase(-42, false)]
+        public void ExpressionIsEvaluated(int value, bool expectedIsSatisfied)
+        {
+            // Arrange
+            var is42 = new ExpressionSpecification<int>(i => i == 42);
+
+            // Act
+            var result = is42.IsSatisfiedBy(value);
+
+            // Assert
+            result.Should().Be(expectedIsSatisfied);
         }
     }
 }

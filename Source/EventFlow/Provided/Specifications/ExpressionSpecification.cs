@@ -58,14 +58,14 @@ namespace EventFlow.Provided.Specifications
         {
             try
             {
+                var paramName = expression.Parameters[0].Name;
                 var expBody = expression.Body.ToString();
 
-                var paramName = expression.Parameters[0].Name;
-                var paramTypeName = expression.Parameters[0].Type.Name;
+                expBody = expBody
+                    .Replace("AndAlso", "&&")
+                    .Replace("OrElse", "||");
 
-                return expBody
-                    .Replace(paramName + ".", paramTypeName + ".")
-                    .Replace("AndAlso", "&&");
+                return $"{paramName} => {expBody}";
             }
             catch
             {
