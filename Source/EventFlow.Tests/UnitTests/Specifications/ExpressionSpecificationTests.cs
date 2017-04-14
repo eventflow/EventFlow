@@ -21,37 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using EventFlow.Specifications;
+using EventFlow.Provided.Specifications;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.Provided.Specifications
+namespace EventFlow.Tests.UnitTests.Specifications
 {
-    public class OrSpecification<T> : Specification<T>
+    public class ExpressionSpecificationTests
     {
-        private readonly ISpecification<T> _specification1;
-        private readonly ISpecification<T> _specification2;
-
-        public OrSpecification(
-            ISpecification<T> specification1,
-            ISpecification<T> specification2)
+        [Test]
+        public void StringIsRight()
         {
-            _specification1 = specification1 ?? throw new ArgumentNullException(nameof(specification1));
-            _specification2 = specification2 ?? throw new ArgumentNullException(nameof(specification2));
-        }
+            // Arrange
+            var specification = new ExpressionSpecification<int>(i => i > 1 && i < 10);
 
-        protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)
-        {
-            var reasons1 = _specification1.WhyIsNotSatisfiedBy(obj).ToList();
-            var reasons2 = _specification2.WhyIsNotSatisfiedBy(obj).ToList();
+            // Act
+            var str = specification.ToString();
 
-            if (!reasons1.Any() || !reasons2.Any())
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return reasons1.Concat(reasons2);
+            // Assert
+            str.Should().Be("((i > 1) && (i < 10))");
         }
     }
 }

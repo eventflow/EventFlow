@@ -8,6 +8,16 @@ things you need to keep in mind to make it easier and minimize the
 potential bugs. This guide will give you some details on typical
 problems and how EventFlow can help you minimize the risk.
 
+Business rules
+--------------
+
+Specifications
+^^^^^^^^^^^^^^^^^^
+
+`Consider` moving complex business rules to :ref:`specifications <specifications>`.
+This eases both readability, testability and re-use.
+
+
 Events
 ------
 
