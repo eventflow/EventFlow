@@ -11,6 +11,7 @@ To use the specification implementation shipped with EventFlow, simply create a
 class that inherits from ``Specification<T>``.
 
 .. code-block:: c#
+
     public class BelowFiveSpecification : Specification<int>
     {
         protected override IEnumerable<string> IsNotSatisfiedBecause(int i)
@@ -32,6 +33,7 @@ The ``ISpecification<T>`` interface has two methods defined, the traditional
 empty enumerable if the specification was indeed satisfied.
 
 .. code-block:: c#
+
     public interface ISpecification<in T>
     {
         bool IsSatisfiedBy(T obj);
@@ -45,6 +47,7 @@ ships with a series of extension methods for the ``ISpecification<T>`` interface
 that allows easy combination of implemented specifications.
 
 .. code-block:: c#
+
     // Throws a `DomainError` exception if obj doesn't satisfy the specification
     spec.ThrowDomainErrorIfNotStatisfied(obj);
 
@@ -67,3 +70,19 @@ that allows easy combination of implemented specifications.
     // Builds a new specification that requires the input specification
     // not to be satisfied
     var notSpec = spec.Not();
+
+
+If you need a simple expression to combine with other more complex specifications
+you can use the bundled ``ExpressionSpecification<T>``, which is a specification
+wrapper for an expression.
+
+.. code-block:: c#
+
+    var spec = new ExpressionSpecification<int>(i => 1 < i && i < 3);
+
+    // 'str' will contain the value "i => ((1 < i) && (i < 3))"
+    var str = spec.ToString();
+
+
+If the specification isn't satisfied, a string representation of the expression
+is returned.
