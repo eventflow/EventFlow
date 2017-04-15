@@ -1,6 +1,9 @@
 Customize
 =========
 
+If you are looking for how to configure EventFlow, look at the
+:ref:`configuration <configuration>` documentation.
+
 When ever EventFlow doesn't meet your needs, e.g. if you want to collect
 statistics on each command execution time, you can customize EventFlow.
 
