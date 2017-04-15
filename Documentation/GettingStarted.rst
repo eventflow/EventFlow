@@ -293,3 +293,5 @@ application, there are several topics that are recommended as next steps.
 -  Setup a persistent event store using e.g.
    :ref:`Microsoft SQL Server <eventstore-mssql>`
 -  Create :ref:`read models <read-stores>` for efficient querying
+-  Consider the use of :ref:`specifications <specifications>` to ease
+   creation of business rules

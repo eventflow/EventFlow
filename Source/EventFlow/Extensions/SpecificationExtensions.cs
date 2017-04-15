@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using EventFlow.Exceptions;
 using EventFlow.Provided.Specifications;
 using EventFlow.Specifications;
@@ -66,11 +67,24 @@ namespace EventFlow.Extensions
             return new AndSpeficication<T>(specification1, specification2);
         }
 
+        public static ISpecification<T> And<T>(
+            this ISpecification<T> specification,
+            Expression<Func<T, bool>> expression)
+        {
+            return specification.And(new ExpressionSpecification<T>(expression));
+        }
+
         public static ISpecification<T> Or<T>(
             this ISpecification<T> specification1,
             ISpecification<T> specification2)
         {
             return new OrSpecification<T>(specification1, specification2);
+        }
+        public static ISpecification<T> Or<T>(
+            this ISpecification<T> specification,
+            Expression<Func<T, bool>> expression)
+        {
+            return specification.Or(new ExpressionSpecification<T>(expression));
         }
 
         public static ISpecification<T> Not<T>(

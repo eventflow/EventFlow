@@ -63,6 +63,7 @@ Contents:
    Customize
    ValueObjects
    DosAndDonts
+   Specifications
    FAQ
 
 
