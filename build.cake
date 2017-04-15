@@ -24,6 +24,8 @@
 
 #r "System.IO.Compression.FileSystem"
 
+#tool "nuget:?package=gitlink"
+
 using System.Net;
 using System.IO.Compression;
 
@@ -41,6 +43,7 @@ var DIR_OUTPUT_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Build", "Doc
 var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
 var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build");
 var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
+var DIR_SOURCE = System.IO.Path.Combine(PROJECT_DIR, "Source");
 
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
@@ -48,6 +51,7 @@ var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencove
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
 var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
 var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
+var FILE_SOLUTION = System.IO.Path.Combine(PROJECT_DIR, "EventFlow.sln");
 var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
     string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
@@ -126,6 +130,15 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
+            Information("Updating PDB files using GitLink");
+            GitLink(
+                DIR_SOURCE,
+                new GitLinkSettings{
+                    RepositoryUrl = "https://github.com/eventflow/EventFlow",
+                    SolutionFileName = FILE_SOLUTION
+                });
+
+            Information("Paket pack");
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_OUTPUT_PACKAGES,
