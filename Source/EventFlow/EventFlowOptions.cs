@@ -31,6 +31,7 @@ using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Core.IoC;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EventArchives;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
@@ -207,6 +208,8 @@ namespace EventFlow
             serviceRegistration.Register<ITaskRunner, TaskRunner>();
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();
+            serviceRegistration.Register<IEventArchive, NullEventArchive>();
+            serviceRegistration.Register<IFileSystem, FileSystem>();
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
             serviceRegistration.Register<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton);

@@ -111,6 +111,7 @@ namespace EventFlow.TestHelpers
                 {
                     Timestamp = A<DateTimeOffset>(),
                     SourceId = A<SourceId>(),
+                    AggregateSequenceNumber = aggregateSequenceNumber,
                 };
 
             if (aggregateSequenceNumber == 0)

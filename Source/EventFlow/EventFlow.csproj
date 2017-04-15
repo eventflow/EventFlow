@@ -68,6 +68,8 @@
     <Compile Include="Core\DisposableAction.cs" />
     <Compile Include="Commands\CommandScheduler.cs" />
     <Compile Include="Commands\ICommandScheduler.cs" />
+    <Compile Include="Core\FileSystem.cs" />
+    <Compile Include="Core\IFileSystem.cs" />
     <Compile Include="Core\IoC\Factories\ConstructorFactory.cs" />
     <Compile Include="Core\IoC\Factories\GenericFactory.cs" />
     <Compile Include="Core\IoC\Factories\LambdaFactory.cs" />
@@ -78,6 +80,9 @@
     <Compile Include="Core\IoC\ServiceRegistration.cs" />
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
+    <Compile Include="EventArchives\IEventArchive.cs" />
+    <Compile Include="EventArchives\NullEventArchive.cs" />
+    <Compile Include="EventArchives\GZipFileEventArchive.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
     <Compile Include="Provided\Specifications\ExpressionSpecification.cs" />
