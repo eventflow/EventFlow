@@ -18,9 +18,6 @@
     </td>
     <td  width="33%">
       <p>
-        <a href="https://www.codefactor.io/repository/github/eventflow/eventflow"><img src="https://www.codefactor.io/repository/github/eventflow/eventflow/badge" /></a>
-      </p>
-      <p>
         <a href="https://ci.appveyor.com/project/rasmusnu/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
