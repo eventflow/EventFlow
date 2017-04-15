@@ -22,11 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Provided.Specifications;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Specifications
 {
+    [Category(Categories.Unit)]
     public class ExpressionSpecificationTests
     {
         [Test]
