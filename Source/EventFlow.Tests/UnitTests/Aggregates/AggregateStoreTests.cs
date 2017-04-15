@@ -74,8 +74,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 .Setup(f => f.CreateNewAggregateAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>()))
                 .Returns(() => Task.FromResult(A<ThingyAggregate>()));
             _eventFlowConfiguration
-                .Setup(m => m.AwaitEventPublishing)
-                .Returns(true);
+                .Setup(m => m.DomainEventPublishingStrategy)
+                .Returns(DomainEventPublishingStrategies.Default);
         }
 
         [Test]

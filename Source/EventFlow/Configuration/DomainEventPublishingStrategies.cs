@@ -21,16 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
 namespace EventFlow.Configuration
 {
-    public interface IEventFlowConfiguration
+    public enum DomainEventPublishingStrategies
     {
-        int PopulateReadModelEventPageSize { get; }
-        int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; }
-        TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; }
-        bool ThrowSubscriberExceptions { get; }
-        DomainEventPublishingStrategies DomainEventPublishingStrategy { get; }
+        /// <summary>
+        /// Await publishing of domain events, i.e., these will be updated
+        /// when aggregate updating (command publishing) is done
+        /// - subscribers
+        /// - read models
+        /// - sagas
+        /// </summary>
+        Default = 0,
+
+        /// <summary>
+        /// Schedule domain event publishing using `ITaskRunner`. Don't wait
+        /// for subscribers, read models and sagas to be updated. This allows
+        /// a more eventual consistance programming model
+        /// </summary>
+        TaskRun = 1,
     }
 }

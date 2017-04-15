@@ -157,16 +157,18 @@ namespace EventFlow.Aggregates
                     .ConfigureAwait(false);
             }
 
-            if (_eventFlowConfiguration.AwaitEventPublishing)
+            switch (_eventFlowConfiguration.DomainEventPublishingStrategy)
             {
-                await PublisherAsync(_resolver, cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                _taskRunner.Run(
-                    Label.Named("publish-events"),
-                    PublisherAsync,
-                    CancellationToken.None);
+                case DomainEventPublishingStrategies.Default:
+                    await PublisherAsync(_resolver, cancellationToken).ConfigureAwait(false);
+                    break;
+
+                case DomainEventPublishingStrategies.TaskRun:
+                    _taskRunner.Run(Label.Named("publish-events"), PublisherAsync, CancellationToken.None);
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"'{_eventFlowConfiguration.DomainEventPublishingStrategy}' is unknown");
             }
         }
     }
