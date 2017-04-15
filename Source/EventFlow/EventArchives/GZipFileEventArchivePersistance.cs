@@ -29,7 +29,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
@@ -40,24 +39,20 @@ namespace EventFlow.EventArchives
 {
     public class GZipFileEventArchivePersistance : IEventArchivePersistance
     {
-        private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IFileSystem _fileSystem;
         private readonly ILog _log;
 
         public GZipFileEventArchivePersistance(
             ILog log,
-            IEventJsonSerializer eventJsonSerializer,
             IFileSystem fileSystem)
         {
             _log = log;
-            _eventJsonSerializer = eventJsonSerializer;
             _fileSystem = fileSystem;
         }
 
         public async Task ArchiveAsync(
-            Type aggregateType,
             IIdentity identity,
-            Func<CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>> batchFetcher,
+            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
             CancellationToken cancellationToken)
         {
             // just for tests
@@ -75,17 +70,15 @@ namespace EventFlow.EventArchives
             {
                 jsonTextWriter.WriteStartArray();
 
-                IReadOnlyCollection<IDomainEvent> domainEvents;
-                while ((domainEvents = await batchFetcher(cancellationToken).ConfigureAwait(false)).Any())
+                IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
+                while ((committedDomainEvents = await batchFetcher(cancellationToken).ConfigureAwait(false)).Any())
                 {
-                    foreach (var domainEvent in domainEvents)
+                    foreach (var committedDomainEvent in committedDomainEvents)
                     {
-                        var serializedEvent = _eventJsonSerializer.Serialize(
-                            domainEvent.GetAggregateEvent(),
-                            domainEvent.Metadata);
                         var jsonEvent = new JsonEvent(
-                            serializedEvent.SerializedData,
-                            serializedEvent.SerializedMetadata);
+                            committedDomainEvent.Data,
+                            committedDomainEvent.Metadata);
+
                         jsonSerializer.Serialize(
                             jsonTextWriter,
                             jsonEvent);

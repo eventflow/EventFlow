@@ -55,11 +55,6 @@ namespace EventFlow.Tests.UnitTests.EventArchives
             eventDefinitionService.Load(typeof(ThingyPingEvent));
 
             _fileSystemMock = InjectMock<IFileSystem>();
-
-            Inject<IEventJsonSerializer>(new EventJsonSerializer(
-                new EventFlow.Core.JsonSerializer(),
-                eventDefinitionService,
-                new DomainEventFactory()));
         }
 
         [Test]
@@ -67,9 +62,9 @@ namespace EventFlow.Tests.UnitTests.EventArchives
         {
             // TODO cleanup
 
-            var domainEvents = ManyDomainEvents<ThingyPingEvent>();
-            var stack = new Stack<IReadOnlyCollection<IDomainEvent>>();
-            stack.Push(domainEvents);
+            var committedDomainEvents = Many<ICommittedDomainEvent>();
+            var stack = new Stack<IReadOnlyCollection<ICommittedDomainEvent>>();
+            stack.Push(committedDomainEvents);
 
             IReadOnlyCollection<GZipFileEventArchivePersistance.JsonEvent> jsonEvents = null;
 
@@ -81,10 +76,8 @@ namespace EventFlow.Tests.UnitTests.EventArchives
 
                 var pipeHandle = anonymousPipeServerStream.GetClientHandleAsString();
                 var writeTask = Task.Run(async () => {
-                    await Sut.ArchiveAsync(
-                        typeof(ThingyAggregate),
-                        A<ThingyId>(),
-                        c => Task.FromResult(stack.Count != 0 ? stack.Pop() : new IDomainEvent[]{}),
+                    await Sut.ArchiveAsync(A<ThingyId>(),
+                        c => Task.FromResult(stack.Count != 0 ? stack.Pop() : new ICommittedDomainEvent[]{}),
                         CancellationToken.None)
                         .ConfigureAwait(false);
                 });
@@ -106,7 +99,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives
             }
 
             jsonEvents.Should().NotBeNull();
-            jsonEvents.Should().HaveCount(domainEvents.Count);
+            jsonEvents.Should().HaveCount(committedDomainEvents.Count);
         }
     }
 }

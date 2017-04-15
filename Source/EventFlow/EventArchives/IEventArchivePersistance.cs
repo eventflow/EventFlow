@@ -25,17 +25,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EventStores;
 
 namespace EventFlow.EventArchives
 {
     public interface IEventArchivePersistance
     {
         Task ArchiveAsync(
-            Type aggregateType,
             IIdentity identity,
-            Func<CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>> batchFetcher,
+            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
             CancellationToken cancellationToken);
     }
 }

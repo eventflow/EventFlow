@@ -21,34 +21,43 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Logs;
 
 namespace EventFlow.EventArchives
 {
-    public class NullEventArchivePersistance : IEventArchivePersistance
+    public class EventArchive : IEventArchive
     {
-        private readonly ILog _log;
+        private readonly IEventPersistence _eventPersistence;
+        private readonly IEventArchivePersistance _eventArchivePersistance;
 
-        public NullEventArchivePersistance(
-            ILog log)
+        public EventArchive(
+            IEventPersistence eventPersistence,
+            IEventArchivePersistance eventArchivePersistance)
         {
-            _log = log;
+            _eventPersistence = eventPersistence;
+            _eventArchivePersistance = eventArchivePersistance;
         }
 
-        public Task ArchiveAsync(
+        public async Task ArchiveAsync(
             IIdentity identity,
-            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
             CancellationToken cancellationToken)
         {
-            _log.Warning($"Asked to archive aggregate with ID '{identity}', but throwing it away! Configure an event archive!");
+            await _eventArchivePersistance.ArchiveAsync(
+                identity,
+                c => _eventPersistence.LoadCommittedEventsAsync(
+                    identity,
+                    0,
+                    c),
+                cancellationToken)
+                .ConfigureAwait(false);
 
-            return Task.FromResult(0);
+            await _eventPersistence.DeleteEventsAsync(
+                identity,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

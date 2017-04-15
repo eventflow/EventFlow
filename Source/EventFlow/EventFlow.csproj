@@ -80,6 +80,8 @@
     <Compile Include="Core\IoC\ServiceRegistration.cs" />
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
+    <Compile Include="EventArchives\EventArchive.cs" />
+    <Compile Include="EventArchives\IEventArchive.cs" />
     <Compile Include="EventArchives\IEventArchivePersistance.cs" />
     <Compile Include="EventArchives\NullEventArchivePersistance.cs" />
     <Compile Include="EventArchives\GZipFileEventArchivePersistance.cs" />
