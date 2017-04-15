@@ -46,6 +46,7 @@ var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATIO
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
 var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
+var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
 var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
 var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
@@ -107,7 +108,11 @@ Task("Build")
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
-    .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
+    .Finally(() => 
+        {
+            UploadArtifact(FILE_NUNIT_TXT_REPORT);
+            UploadTestResults(FILE_NUNIT_XML_REPORT);
+        })
     .Does(() =>
         {
             ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
@@ -181,6 +186,12 @@ string GetSha()
 
 void UploadArtifact(string filePath)
 {
+    if (!FileExists(filePath))
+    {
+        Information("Skipping uploading of artifact, does not exist: {0}", filePath);
+        return;
+    }
+
     if (AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Uploading artifact: {0}", filePath);
@@ -195,6 +206,12 @@ void UploadArtifact(string filePath)
 
 void UploadTestResults(string filePath)
 {
+    if (!FileExists(filePath))
+    {
+        Information("Skipping uploading of test results, does not exist: {0}", filePath);
+        return;
+    }
+
     if (AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Uploading test results: {0}", filePath);
@@ -281,7 +298,7 @@ void ExecuteTest(string files, string resultsFile)
                         NoColor = true,
                         Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
-                        //OutputFile = nunitOutputPath,
+                        OutputFile = FILE_NUNIT_TXT_REPORT,
                         Results = resultsFile,
                         DisposeRunners = true
                     });
