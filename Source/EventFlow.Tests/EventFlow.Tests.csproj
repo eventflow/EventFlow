@@ -53,6 +53,7 @@
     <Compile Include="Documentation\GettingStarted\ExampleId.cs" />
     <Compile Include="Documentation\GettingStarted\ExampleReadModel.cs" />
     <Compile Include="EventFlowTests.cs" />
+    <Compile Include="FailingTests.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IntegrationTests\BackwardCompatibilityTests.cs" />
     <Compile Include="IntegrationTests\Sagas\AggregateSagaTests.cs" />
