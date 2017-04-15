@@ -22,8 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-#addin "Cake.Incubator"
-
 #r "System.IO.Compression.FileSystem"
 
 using System.Net;
@@ -58,7 +56,6 @@ var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
 var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
-var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
@@ -80,6 +77,7 @@ Task("Clean")
 
 // =====================================================================================================
 Task("Version")
+    .IsDependentOn("Clean")
     .Does(() =>
         {
             CreateAssemblyInfo(
@@ -98,14 +96,11 @@ Task("Version")
                     });
         });
 
-
 // =====================================================================================================
 Task("Build")
-    .IsDependentOn("Clean")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            BuildProject("Restore");
             BuildProject("Build");
         });
 
@@ -115,10 +110,7 @@ Task("Test")
     .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
     .Does(() =>
         {
-            ExecuteTest(
-                FILE_NUNIT_XML_REPORT,
-                "./Source/**/bin/" + CONFIGURATION + "/net451/EventFlow*Tests.dll",
-                "./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll" );
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -128,11 +120,6 @@ Task("Package")
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
-
-            // Make Paket happy
-            CopyFile(
-                "./Source/EventFlow/bin/" + CONFIGURATION + "/net451/EventFlow.dll",
-                "./Source/EventFlow/bin/" + CONFIGURATION + "/EventFlow.dll");
 
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
@@ -279,12 +266,13 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string resultsFile, params string[] files)
+void ExecuteTest(string files, string resultsFile)
 {
+
     OpenCover(tool =>
         {
             tool.NUnit3(
-                GetFiles(files),
+                files,
                 new NUnit3Settings
                     {
                         ShadowCopy = false,
