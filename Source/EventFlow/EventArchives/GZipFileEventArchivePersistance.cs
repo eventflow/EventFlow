@@ -38,13 +38,13 @@ using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace EventFlow.EventArchives
 {
-    public class GZipFileEventArchive : IEventArchive
+    public class GZipFileEventArchivePersistance : IEventArchivePersistance
     {
         private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IFileSystem _fileSystem;
         private readonly ILog _log;
 
-        public GZipFileEventArchive(
+        public GZipFileEventArchivePersistance(
             ILog log,
             IEventJsonSerializer eventJsonSerializer,
             IFileSystem fileSystem)

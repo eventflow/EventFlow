@@ -80,9 +80,9 @@
     <Compile Include="Core\IoC\ServiceRegistration.cs" />
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
-    <Compile Include="EventArchives\IEventArchive.cs" />
-    <Compile Include="EventArchives\NullEventArchive.cs" />
-    <Compile Include="EventArchives\GZipFileEventArchive.cs" />
+    <Compile Include="EventArchives\IEventArchivePersistance.cs" />
+    <Compile Include="EventArchives\NullEventArchivePersistance.cs" />
+    <Compile Include="EventArchives\GZipFileEventArchivePersistance.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
     <Compile Include="Provided\Specifications\ExpressionSpecification.cs" />

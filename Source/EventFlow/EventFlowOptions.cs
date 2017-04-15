@@ -208,7 +208,7 @@ namespace EventFlow
             serviceRegistration.Register<ITaskRunner, TaskRunner>();
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();
-            serviceRegistration.Register<IEventArchive, NullEventArchive>();
+            serviceRegistration.Register<IEventArchivePersistance, NullEventArchivePersistance>();
             serviceRegistration.Register<IFileSystem, FileSystem>();
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();

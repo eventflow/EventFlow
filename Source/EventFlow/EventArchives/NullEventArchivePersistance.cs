@@ -27,15 +27,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
+using EventFlow.Logs;
 
 namespace EventFlow.EventArchives
 {
-    public interface IEventArchive
+    public class NullEventArchivePersistance : IEventArchivePersistance
     {
-        Task ArchiveAsync(
+        private readonly ILog _log;
+
+        public NullEventArchivePersistance(
+            ILog log)
+        {
+            _log = log;
+        }
+
+        public Task ArchiveAsync(
             Type aggregateType,
             IIdentity identity,
             Func<CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>> batchFetcher,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            _log.Warning($"Asked to archive '{aggregateType.PrettyPrint()}' with ID '{identity}', but throwing it away! Configure an event archive!");
+
+            return Task.FromResult(0);
+        }
     }
 }
