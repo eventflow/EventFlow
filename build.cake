@@ -124,7 +124,7 @@ Task("Test")
 
 // =====================================================================================================
 Task("Package")
-    .IsDependentOn("Build")
+    .IsDependentOn("Test")
     .Does(() =>
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
