@@ -140,7 +140,7 @@ Task("Package")
 
             Information("Paket pack");
             ExecuteCommand(TOOL_PAKET, string.Format(
-                "pack pin-project-references output \"{0}\" buildconfig {1} symbols releaseNotes \"{2}\"",
+                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_OUTPUT_PACKAGES,
                 CONFIGURATION,
                 string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
