@@ -99,6 +99,17 @@ Then to schedule the job
       CancellationToken.None)
       .ConfigureAwait(false);
 
+
+Jobs shipped with EventFlow
+---------------------------
+
+EventFlow ships with a few jobs that might be useful. All are located
+in the ``EventFlow.Provided.Jobs`` namespace.
+
+* ``ArchiveEventsJob``: Allows scheduling of archiving events
+* ``PublishCommandJob``: Allows scheduling of command publishing
+
+
 Hangfire
 --------
 
