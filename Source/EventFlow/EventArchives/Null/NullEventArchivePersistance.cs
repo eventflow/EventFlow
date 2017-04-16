@@ -29,7 +29,7 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.EventArchives.Null
 {
     public class NullEventArchivePersistance : IEventArchivePersistance
     {

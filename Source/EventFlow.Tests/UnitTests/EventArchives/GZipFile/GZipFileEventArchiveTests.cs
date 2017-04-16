@@ -28,9 +28,8 @@ using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EventArchives;
+using EventFlow.EventArchives.GZipFile;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
@@ -41,7 +40,7 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.EventArchives
+namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
 {
     [Category(Categories.Unit)]
     public class GZipFileEventArchiveTests : TestsFor<GZipFileEventArchivePersistance>

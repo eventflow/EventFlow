@@ -35,7 +35,7 @@ using EventFlow.Logs;
 using Newtonsoft.Json;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.EventArchives.GZipFile
 {
     public class GZipFileEventArchivePersistance : IEventArchivePersistance
     {

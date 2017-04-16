@@ -32,6 +32,7 @@ using EventFlow.Core.Caching;
 using EventFlow.Core.IoC;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventArchives;
+using EventFlow.EventArchives.Null;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
