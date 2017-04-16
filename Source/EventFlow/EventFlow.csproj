@@ -87,6 +87,7 @@
     <Compile Include="EventArchives\GZipFileEventArchivePersistance.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
+    <Compile Include="Provided\Jobs\ArchiveEventsJob.cs" />
     <Compile Include="Provided\Specifications\ExpressionSpecification.cs" />
     <Compile Include="Sagas\ISaga.cs" />
     <Compile Include="Sagas\ISagaContext.cs" />

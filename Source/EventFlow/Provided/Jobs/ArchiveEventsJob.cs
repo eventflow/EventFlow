@@ -21,20 +21,43 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.Provided.Jobs;
+using EventFlow.Core;
+using EventFlow.EventArchives;
+using EventFlow.Jobs;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.Provided
+namespace EventFlow.Provided.Jobs
 {
-    public class ProvidedJobsModule : IModule
+    [JobVersion("ArchiveEvents", 1)]
+    public class ArchiveEventsJob : IJob
     {
-        public void Register(IEventFlowOptions eventFlowOptions)
+        public ArchiveEventsJob(
+            IIdentity id)
         {
-            // Use explicite adding of types, no need to scan assembly
-            eventFlowOptions.AddJobs(
-                typeof(PublishCommandJob),
-                typeof(ArchiveEventsJob));
+            Id = id.Value;
+        }
+
+        public string Id { get; }
+
+        public Task ExecuteAsync(
+            IResolver resolver,
+            CancellationToken cancellationToken)
+        {
+            var eventArchive = resolver.Resolve<IEventArchive>();
+
+            return eventArchive.ArchiveAsync(
+                new EventsId(Id),
+                cancellationToken);
+        }
+
+        private class EventsId : SingleValueObject<string>, IIdentity
+        {
+            public EventsId(string value) : base(value)
+            {
+            }
         }
     }
 }
