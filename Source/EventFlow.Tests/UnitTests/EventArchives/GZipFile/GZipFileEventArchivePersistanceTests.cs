@@ -43,7 +43,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
 {
     [Category(Categories.Unit)]
-    public class GZipFileEventArchiveTests : TestsFor<GZipFileEventArchivePersistance>
+    public class GZipFileEventArchivePersistanceTests : TestsFor<GZipFileEventArchivePersistance>
     {
         private Mock<IFileSystem> _fileSystemMock;
 

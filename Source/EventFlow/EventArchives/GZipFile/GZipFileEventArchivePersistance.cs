@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -40,14 +41,21 @@ namespace EventFlow.EventArchives.GZipFile
     public class GZipFileEventArchivePersistance : IEventArchivePersistance
     {
         private readonly IFileSystem _fileSystem;
+        private readonly IGZipFileEventArchiveConfiguration _configuration;
         private readonly ILog _log;
+        private readonly JsonSerializer _jsonSerializer = new JsonSerializer
+            {
+                Formatting = Formatting.None,
+            };
 
         public GZipFileEventArchivePersistance(
             ILog log,
-            IFileSystem fileSystem)
+            IFileSystem fileSystem,
+            IGZipFileEventArchiveConfiguration configuration)
         {
             _log = log;
             _fileSystem = fileSystem;
+            _configuration = configuration;
         }
 
         public async Task ArchiveAsync(
@@ -55,12 +63,14 @@ namespace EventFlow.EventArchives.GZipFile
             Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
             CancellationToken cancellationToken)
         {
-            // just for tests
-            var tempFileName = Path.GetTempFileName();
-            var jsonSerializer = new JsonSerializer();
+            var fileName = _configuration.GetEventArchiveFile(identity);
 
+            _log.Verbose($"Storing event archive for '{identity}' at '{fileName}'");
+            var stopwatch = Stopwatch.StartNew();
+
+            var numberOfEvents = 0;
             using (var stream = await _fileSystem.CreateAsync(
-                    tempFileName,
+                    fileName,
                     false,
                     cancellationToken)
                 .ConfigureAwait(false))
@@ -79,14 +89,18 @@ namespace EventFlow.EventArchives.GZipFile
                             committedDomainEvent.Data,
                             committedDomainEvent.Metadata);
 
-                        jsonSerializer.Serialize(
+                        _jsonSerializer.Serialize(
                             jsonTextWriter,
                             jsonEvent);
+
+                        numberOfEvents++;
                     }
                 }
 
                 jsonTextWriter.WriteEndArray();
             }
+
+            _log.Verbose($"Used {stopwatch.Elapsed.TotalSeconds:0.###} seconds to store {numberOfEvents} events for archive of '{identity}' at '{fileName}'");
         }
 
         public class JsonEvent

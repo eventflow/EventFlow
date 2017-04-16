@@ -81,6 +81,8 @@
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="EventArchives\EventArchive.cs" />
+    <Compile Include="EventArchives\GZipFile\GZipFileEventArchiveConfiguration.cs" />
+    <Compile Include="EventArchives\GZipFile\IGZipFileEventArchiveConfiguration.cs" />
     <Compile Include="EventArchives\IEventArchive.cs" />
     <Compile Include="EventArchives\IEventArchivePersistance.cs" />
     <Compile Include="EventArchives\Null\NullEventArchivePersistance.cs" />
