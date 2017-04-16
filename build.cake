@@ -22,9 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-#addin "Cake.Incubator"
-
 #r "System.IO.Compression.FileSystem"
+
+#tool "nuget:?package=gitlink"
 
 using System.Net;
 using System.IO.Compression;
@@ -43,12 +43,15 @@ var DIR_OUTPUT_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Build", "Doc
 var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
 var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build");
 var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
+var DIR_SOURCE = System.IO.Path.Combine(PROJECT_DIR, "Source");
 
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
 var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
+var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
 var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
+var FILE_SOLUTION = System.IO.Path.Combine(PROJECT_DIR, "EventFlow.sln");
 var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
     string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
@@ -58,7 +61,6 @@ var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit
 var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
 var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
 var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
-var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
 
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
@@ -80,6 +82,7 @@ Task("Clean")
 
 // =====================================================================================================
 Task("Version")
+    .IsDependentOn("Clean")
     .Does(() =>
         {
             CreateAssemblyInfo(
@@ -98,27 +101,25 @@ Task("Version")
                     });
         });
 
-
 // =====================================================================================================
 Task("Build")
-    .IsDependentOn("Clean")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            BuildProject("Restore");
             BuildProject("Build");
         });
 
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
-    .Finally(() => UploadTestResults(FILE_NUNIT_XML_REPORT))
+    .Finally(() => 
+        {
+            UploadArtifact(FILE_NUNIT_TXT_REPORT);
+            UploadTestResults(FILE_NUNIT_XML_REPORT);
+        })
     .Does(() =>
         {
-            ExecuteTest(
-                FILE_NUNIT_XML_REPORT,
-                "./Source/**/bin/" + CONFIGURATION + "/net451/EventFlow*Tests.dll",
-                "./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll" );
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -129,11 +130,15 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            // Make Paket happy
-            CopyFile(
-                "./Source/EventFlow/bin/" + CONFIGURATION + "/net451/EventFlow.dll",
-                "./Source/EventFlow/bin/" + CONFIGURATION + "/EventFlow.dll");
+            Information("Updating PDB files using GitLink");
+            GitLink(
+                DIR_SOURCE,
+                new GitLinkSettings{
+                    RepositoryUrl = "https://github.com/eventflow/EventFlow",
+                    SolutionFileName = FILE_SOLUTION
+                });
 
+            Information("Paket pack");
             ExecuteCommand(TOOL_PAKET, string.Format(
                 "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
                 DIR_OUTPUT_PACKAGES,
@@ -194,6 +199,12 @@ string GetSha()
 
 void UploadArtifact(string filePath)
 {
+    if (!FileExists(filePath))
+    {
+        Information("Skipping uploading of artifact, does not exist: {0}", filePath);
+        return;
+    }
+
     if (AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Uploading artifact: {0}", filePath);
@@ -208,6 +219,12 @@ void UploadArtifact(string filePath)
 
 void UploadTestResults(string filePath)
 {
+    if (!FileExists(filePath))
+    {
+        Information("Skipping uploading of test results, does not exist: {0}", filePath);
+        return;
+    }
+
     if (AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Uploading test results: {0}", filePath);
@@ -279,12 +296,13 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string resultsFile, params string[] files)
+void ExecuteTest(string files, string resultsFile)
 {
+
     OpenCover(tool =>
         {
             tool.NUnit3(
-                GetFiles(files),
+                files,
                 new NUnit3Settings
                     {
                         ShadowCopy = false,
@@ -293,7 +311,7 @@ void ExecuteTest(string resultsFile, params string[] files)
                         NoColor = true,
                         Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
-                        //OutputFile = nunitOutputPath,
+                        OutputFile = FILE_NUNIT_TXT_REPORT,
                         Results = resultsFile,
                         DisposeRunners = true
                     });

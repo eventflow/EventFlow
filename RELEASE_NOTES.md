@@ -1,6 +1,9 @@
 ### New in 0.41 (not released yet)
 
-* _Nothing yet_
+* New: NuGet packages now contain PDB files with links to GitHub
+  (thanks to [GitLink](https://github.com/gittools/gitlink)). Be sure
+  to check `Enable source server support` to be able to step through
+  the EventFlow source code. See GitLink documentation for details
 
 ### New in 0.40.2590 (released 2017-03-30)
 

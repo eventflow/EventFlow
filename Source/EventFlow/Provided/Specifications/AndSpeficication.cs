@@ -37,11 +37,8 @@ namespace EventFlow.Provided.Specifications
             ISpecification<T> specification1,
             ISpecification<T> specification2)
         {
-            if (specification1 == null) throw new ArgumentNullException(nameof(specification1));
-            if (specification2 == null) throw new ArgumentNullException(nameof(specification2));
-
-            _specification1 = specification1;
-            _specification2 = specification2;
+            _specification1 = specification1 ?? throw new ArgumentNullException(nameof(specification1));
+            _specification2 = specification2 ?? throw new ArgumentNullException(nameof(specification2));
         }
 
         protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)
