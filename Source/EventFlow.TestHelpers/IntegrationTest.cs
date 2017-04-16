@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.EventArchives;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Queries;
@@ -55,6 +56,7 @@ namespace EventFlow.TestHelpers
         protected ICommandBus CommandBus { get; private set; }
         protected ISagaStore SagaStore { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
+        protected IEventArchive EventArchive { get; private set; }
 
         [SetUp]
         public void SetUpIntegrationTest()
@@ -74,6 +76,7 @@ namespace EventFlow.TestHelpers
             QueryProcessor = Resolver.Resolve<IQueryProcessor>();
             ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
             SagaStore = Resolver.Resolve<ISagaStore>();
+            EventArchive = Resolver.Resolve<IEventArchive>();
         }
 
         [TearDown]

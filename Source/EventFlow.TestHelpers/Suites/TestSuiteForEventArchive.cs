@@ -21,51 +21,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using EventFlow.TestHelpers.Aggregates;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.TestHelpers.Suites
 {
-    public class EventArchive : IEventArchive
+    public abstract class TestSuiteForEventArchive : IntegrationTest
     {
-        private readonly IEventPersistence _eventPersistence;
-        private readonly IEventArchivePersistance _eventArchivePersistance;
-
-        public EventArchive(
-            IEventPersistence eventPersistence,
-            IEventArchivePersistance eventArchivePersistance)
+        [Test]
+        public async Task Dummy()
         {
-            _eventPersistence = eventPersistence;
-            _eventArchivePersistance = eventArchivePersistance;
-        }
+            // Arrange
+            var thingyId = A<ThingyId>();
+            await PublishPingCommandsAsync(thingyId, 3).ConfigureAwait(false);
+            var domainEvents = await EventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    thingyId,
+                    1,
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+            domainEvents.Should().HaveCount(3); // sanity check
 
-        public async Task ArchiveAsync(
-            IIdentity identity,
-            CancellationToken cancellationToken)
-        {
-            var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
-                identity,
+            // Act
+            await EventArchive.ArchiveAsync(thingyId, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            domainEvents = await EventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                thingyId,
                 1,
-                cancellationToken)
+                CancellationToken.None)
                 .ConfigureAwait(false);
-            var stack = new Stack<IReadOnlyCollection<ICommittedDomainEvent>>();
-            stack.Push(committedDomainEvents);
-
-            // TODO - cleanup
-
-            await _eventArchivePersistance.ArchiveAsync(
-                identity,
-                _ => Task.FromResult(stack.Count != 0 ? stack.Pop() : new ICommittedDomainEvent[]{}),
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            await _eventPersistence.DeleteEventsAsync(
-                identity,
-                cancellationToken)
-                .ConfigureAwait(false);
+            domainEvents.Should().BeEmpty();
         }
     }
 }
