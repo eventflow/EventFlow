@@ -1,4 +1,8 @@
-### New in 0.41 (not released yet)
+### New in 0.42 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.41.2727 (released 2017-04-27)
 
 * New: NuGet packages now contain PDB files with links to GitHub
   (thanks to [GitLink](https://github.com/gittools/gitlink)). Be sure
