@@ -66,8 +66,12 @@ namespace EventFlow.TestHelpers.Suites
 
         private class A : I
         {
+            public static object SyncRoot { get; } = new object();
+            public static bool WasDisposed { get; set; }
+
             public void Dispose()
             {
+                WasDisposed = true;
             }
         }
 
@@ -202,6 +206,33 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             i1.Should().BeSameAs(i2);
+        }
+
+        [Test]
+        public void ScopesDoesntDisposeSingletons()
+        {
+            lock (A.SyncRoot)
+            {
+                // Arrange
+                Sut.Register<I, A>(Lifetime.Singleton);
+                using (var resolver = Sut.CreateResolver(false))
+                {
+                    var i1 = resolver.Resolve<I>();
+
+                    // Act
+                    using (var scope1 = resolver.BeginScope())
+                    {
+                        var i2 = scope1.Resolve<I>();
+                        i2.Should().BeSameAs(i1);
+                    }
+
+                    // Assert
+                    A.WasDisposed.Should().BeFalse();
+                }
+
+                A.WasDisposed.Should().BeTrue();
+                A.WasDisposed = false;
+            }
         }
 
         [Test]

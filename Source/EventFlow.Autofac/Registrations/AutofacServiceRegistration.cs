@@ -66,6 +66,7 @@ namespace EventFlow.Autofac.Registrations
             var serviceRegistration = _containerBuilder
                 .Register<TService>(c => c.Resolve<TImplementation>())
                 .As<TService>()
+                .ExternallyOwned()
                 .OnActivating(args =>
                     {
                         var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
