@@ -288,6 +288,10 @@ application, there are several topics that are recommended as next steps.
 -  Use :ref:`value objects <value-objects>` to produce cleaner JSON
 -  If your application need to act on an emitted event, create a
    :ref:`subscriber <subscribers>`
+-  Check the :ref:`configuration <configuration>` to make sure everything
+   is as you would like it
 -  Setup a persistent event store using e.g.
    :ref:`Microsoft SQL Server <eventstore-mssql>`
 -  Create :ref:`read models <read-stores>` for efficient querying
+-  Consider the use of :ref:`specifications <specifications>` to ease
+   creation of business rules

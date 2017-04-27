@@ -35,9 +35,7 @@ namespace EventFlow.Provided.Specifications
         public NotSpecification(
             ISpecification<T> specification)
         {
-            if (specification == null) throw new ArgumentNullException(nameof(specification));
-
-            _specification = specification;
+            _specification = specification ?? throw new ArgumentNullException(nameof(specification));
         }
 
         protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)

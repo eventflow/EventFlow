@@ -122,6 +122,7 @@
     <Compile Include="UnitTests\Snapshots\SnapshotUpgradeServiceTests.cs" />
     <Compile Include="UnitTests\Snapshots\Strategies\SnapshotEveryFewVersionsStrategyTests.cs" />
     <Compile Include="UnitTests\Snapshots\Strategies\SnapshotRandomlyStrategyTests.cs" />
+    <Compile Include="UnitTests\Specifications\ExpressionSpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\SpecificationTests.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecifications.cs" />
     <Compile Include="UnitTests\Specifications\TestSpecificationsTests.cs" />
@@ -162,7 +163,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="..\..\.paket\paket.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
       <ItemGroup>
@@ -245,4 +245,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\.paket\paket.targets" />
 </Project>

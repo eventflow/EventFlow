@@ -1,4 +1,14 @@
-### New in 0.40 (not released yet)
+### New in 0.41 (not released yet)
+
+* New: NuGet packages now contain PDB files with links to GitHub
+  (thanks to [GitLink](https://github.com/gittools/gitlink)). Be sure
+  to check `Enable source server support` to be able to step through
+  the EventFlow source code. See GitLink documentation for details
+* Fixed: Fixed a bug in how EventFlow registers singletons with Autofac
+  that made Autofac invoke `IDisposable.Dispose()` upon disposing
+  lifetime scopes
+
+### New in 0.40.2590 (released 2017-03-30)
 
 * New: Updated EventFlow logo (thanks @olholm)
 * Fixed: Corrected logo path in NuGet packages
