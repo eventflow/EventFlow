@@ -71,6 +71,8 @@ namespace EventFlow.TestHelpers.Suites
 
             public void Dispose()
             {
+                if (WasDisposed) throw new ObjectDisposedException("A was already disposed!");
+
                 WasDisposed = true;
             }
         }
@@ -220,9 +222,36 @@ namespace EventFlow.TestHelpers.Suites
                     var i1 = resolver.Resolve<I>();
 
                     // Act
-                    using (var scope1 = resolver.BeginScope())
+                    using (var scopeResolver = resolver.BeginScope())
                     {
-                        var i2 = scope1.Resolve<I>();
+                        var i2 = scopeResolver.Resolve<I>();
+                        i2.Should().BeSameAs(i1);
+                    }
+
+                    // Assert
+                    A.WasDisposed.Should().BeFalse();
+                }
+
+                A.WasDisposed.Should().BeTrue();
+                A.WasDisposed = false;
+            }
+        }
+
+        [Test]
+        public void ResolvingScopeResolversCreatesScope()
+        {
+            lock (A.SyncRoot)
+            {
+                // Arrange
+                Sut.Register<I, A>(Lifetime.Singleton);
+                using (var resolver = Sut.CreateResolver(false))
+                {
+                    var i1 = resolver.Resolve<I>();
+
+                    // Act
+                    using (var scopeResolver = resolver.Resolve<IScopeResolver>())
+                    {
+                        var i2 = scopeResolver.Resolve<I>();
                         i2.Should().BeSameAs(i1);
                     }
 
