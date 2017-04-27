@@ -47,7 +47,7 @@ namespace EventFlow.Autofac.Registrations
 
             _containerBuilder.RegisterType<AutofacStartable>().As<IStartable>();
             _containerBuilder.RegisterType<AutofacResolver>().As<IResolver>();
-            _containerBuilder.RegisterType<AutofacScopeResolver>().As<IScopeResolver>();
+            _containerBuilder.Register(c => new AutofacScopeResolver(c.Resolve<ILifetimeScope>().BeginLifetimeScope())).As<IScopeResolver>();
             _containerBuilder.Register<IDecoratorService>(_ => _decoratorService).SingleInstance();
         }
 
@@ -66,6 +66,7 @@ namespace EventFlow.Autofac.Registrations
             var serviceRegistration = _containerBuilder
                 .Register<TService>(c => c.Resolve<TImplementation>())
                 .As<TService>()
+                .ExternallyOwned()
                 .OnActivating(args =>
                     {
                         var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
