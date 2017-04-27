@@ -4,6 +4,9 @@
   (thanks to [GitLink](https://github.com/gittools/gitlink)). Be sure
   to check `Enable source server support` to be able to step through
   the EventFlow source code. See GitLink documentation for details
+* Fixed: Fixed a bug in how EventFlow registers singletons with Autofac
+  that made Autofac invoke `IDisposable.Dispose()` upon disposing
+  lifetime scopes
 
 ### New in 0.40.2590 (released 2017-03-30)
 
