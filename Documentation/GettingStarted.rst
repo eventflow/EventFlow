@@ -91,9 +91,9 @@ stored in the in-memory event store. The JSON for the event is shown here.
       "MagicNumber": 42
     }
 
-The event data itself is strait forward as its merely the JSON serialization of
+The event data itself is straightforward as it is merely the JSON serialization of
 an instance of the type ``ExampleEvent`` with the value we defined. A bit more
-interesting is the meta data that EventFlow stores along the event, which is
+interesting is the metadata that EventFlow stores along the event, which is
 used by the EventFlow event store.
 
 .. code-block:: json
@@ -111,7 +111,7 @@ used by the EventFlow event store.
       "event_version": "1"
     }
 
-All the built-in meta data is available on each instance of ``IDoamainEvent<,,>``,
+All the built-in meta data is available on each instance of ``IDomainEvent<,,>``,
 which is accessible from event handlers for e.g. read models or subscribers. It
 also possible create your own :ref:`meta data providers <metadata-providers-custom>`
 or add additional EventFlow built-in providers as needed.
@@ -139,10 +139,10 @@ very simple.
 Aggregate
 ---------
 
-Now we'll take a look at the ``ExampleAggrenate``. Its rather simple as the
+Now we'll take a look at the ``ExampleAggregate``. Its rather simple as the
 only thing it can, is apply the magic number once.
 
-.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleAggrenate.cs
+.. literalinclude:: ../Source/EventFlow.Tests/Documentation/GettingStarted/ExampleAggregate.cs
   :linenos:
   :dedent: 4
   :language: c#
@@ -158,7 +158,7 @@ aggregate is loaded. EventFlow has a :ref:`set of different approaches <aggregat
 that you can select from, but in this example we use the `Apply` methods as
 they are the simplest.
 
-The ``ExampleAggrenate`` exposes the ``SetMagicNumer(int)`` method, which
+The ``ExampleAggregate`` exposes the ``SetMagicNumer(int)`` method, which
 is used to expose the business rules for changing the magic number. If the
 magic number hasn't been set before, the event ``ExampleEvent`` is emitted
 and the aggregate state is mutated.
