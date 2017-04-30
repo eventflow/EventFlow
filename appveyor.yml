@@ -10,7 +10,7 @@ install:
 skip_tags: true
 
 build_script:
-  - cmd: build.cmd All
+  - cmd: build.ps1 All
 
 image: Visual Studio 2017
 
