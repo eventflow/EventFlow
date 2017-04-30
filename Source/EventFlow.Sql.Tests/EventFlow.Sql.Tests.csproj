@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventFlow.Sql.Tests</RootNamespace>
     <AssemblyName>EventFlow.Sql.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,10 +50,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\ReadModels\ReadModelSqlGeneratorTests.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="paket.references" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -75,98 +72,15 @@
       <Name>EventFlow</Name>
     </ProjectReference>
   </ItemGroup>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Dapper">
-          <HintPath>..\..\packages\Dapper\lib\net45\Dapper.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Newtonsoft.Json">
-          <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Ploeh.AutoFixture">
-          <HintPath>..\..\packages\test\AutoFixture\lib\net40\Ploeh.AutoFixture.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Ploeh.AutoFixture.AutoMoq">
-          <HintPath>..\..\packages\test\AutoFixture.AutoMoq\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Castle.Core">
-          <HintPath>..\..\packages\test\Castle.Core\lib\net45\Castle.Core.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="FluentAssertions">
-          <HintPath>..\..\packages\test\FluentAssertions\lib\net45\FluentAssertions.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="FluentAssertions.Core">
-          <HintPath>..\..\packages\test\FluentAssertions\lib\net45\FluentAssertions.Core.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Moq">
-          <HintPath>..\..\packages\test\Moq\lib\net45\Moq.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="nunit.framework">
-          <HintPath>..\..\packages\test\NUnit\lib\net45\nunit.framework.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="..\..\.paket\paket.targets" />
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions">
+      <Version>4.19.2</Version>
+    </PackageReference>
+    <PackageReference Include="NUnit">
+      <Version>3.6.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
 </Project>

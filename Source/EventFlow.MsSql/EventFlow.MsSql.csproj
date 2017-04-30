@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventFlow.MsSql</RootNamespace>
     <AssemblyName>EventFlow.MsSql</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -83,12 +84,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.references">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="paket.template" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="EventStores\Scripts\0001 - Create table EventFlow.sql" />
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +91,14 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SnapshotStores\Scripts\0001 - Create EventFlowSnapshots.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper">
+      <Version>1.50.2</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -105,27 +108,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Dapper">
-          <HintPath>..\..\packages\Dapper\lib\net45\Dapper.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Newtonsoft.Json">
-          <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="..\..\.paket\paket.targets" />
 </Project>

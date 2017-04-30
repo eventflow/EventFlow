@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventFlow.Elasticsearch</RootNamespace>
     <AssemblyName>EventFlow.Elasticsearch</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -62,10 +62,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.references">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="paket.template" />
+    <PackageReference Include="Elasticsearch.Net">
+      <Version>5.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="NEST">
+      <Version>5.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -75,41 +80,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="mscorlib">
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="Elasticsearch.Net">
-          <HintPath>..\..\packages\Elasticsearch.Net\lib\net45\Elasticsearch.Net.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Nest">
-          <HintPath>..\..\packages\NEST\lib\net45\Nest.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Newtonsoft.Json">
-          <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="..\..\.paket\paket.targets" />
 </Project>

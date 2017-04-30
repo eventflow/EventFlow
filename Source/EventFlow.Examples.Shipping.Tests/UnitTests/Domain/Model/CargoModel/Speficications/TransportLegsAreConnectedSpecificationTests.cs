@@ -29,7 +29,7 @@ using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CardoModel.Speficications
+namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CargoModel.Speficications
 {
     [Category(Categories.Unit)]
     public class TransportLegsAreConnectedSpecificationTests : Test

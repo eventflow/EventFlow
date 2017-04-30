@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Installer;
+using Nest;
 using NUnit.Framework;
 
 namespace EventFlow.Elasticsearch.Tests
@@ -39,8 +40,8 @@ namespace EventFlow.Elasticsearch.Tests
     {
         private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
             "elasticsearch",
-            new Version(2, 3, 3),
-            "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip");
+            new Version(5, 3, 2),
+            "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.2.zip");
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class ClusterHealth
@@ -74,19 +75,19 @@ namespace EventFlow.Elasticsearch.Tests
                 return clusterHealth.Status;
             }
 
-            public Task WaitForGeenStateAsync()
+            public Task WaitForGreenStateAsync()
             {
                 return WaitHelper.WaitAsync(TimeSpan.FromMinutes(1), async () =>
-                    {
-                        var status = await GetStatusAsync().ConfigureAwait(false);
-                        return status == "green";
-                    });
+                {
+                    var status = await GetStatusAsync().ConfigureAwait(false);
+                    return status == "green";
+                });
             }
 
             public async Task DeleteEverythingAsync()
             {
                 await HttpHelper.DeleteAsync(new Uri(Uri, "*")).ConfigureAwait(false);
-                await WaitForGeenStateAsync().ConfigureAwait(false);
+                await WaitForGreenStateAsync().ConfigureAwait(false);
             }
 
             public void Dispose()
@@ -113,22 +114,20 @@ namespace EventFlow.Elasticsearch.Tests
 
             var installedSoftware = await InstallHelper.InstallAsync(SoftwareDescription).ConfigureAwait(false);
             var version = SoftwareDescription.Version;
-            var installPath = Path.Combine(installedSoftware.InstallPath, $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
+            var installPath = Path.Combine(installedSoftware.InstallPath,
+                $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
 
-            var tcpPort = TcpHelper.GetFreePort();
+            var tcpPort = 9200; //TcpHelper.GetFreePort();
             var exePath = Path.Combine(installPath, "bin", "elasticsearch.bat");
-            var nodeName = $"node-{Guid.NewGuid().ToString("N")}";
+            var nodeName = $"node-{Guid.NewGuid():N}";
 
             var settings = new Dictionary<string, string>
-                {
-                    {"http.port", tcpPort.ToString()},
-                    {"node.name", nodeName},
-                    {"index.number_of_shards", "1"},
-                    {"index.number_of_replicas", "0"},
-                    {"gateway.expected_nodes", "1"},
-                    {"discovery.zen.ping.multicast.enabled", "false"},
-                    {"cluster.routing.allocation.disk.threshold_enabled", "false"}
-                };
+            {
+                {"node.name", nodeName},
+                {"http.port", tcpPort.ToString()},
+                {"gateway.expected_nodes", "1"},
+                {"cluster.routing.allocation.disk.threshold_enabled", "false"}
+            };
             var configFilePath = Path.Combine(installPath, "config", "elasticsearch.yml");
             if (!File.Exists(configFilePath))
             {
@@ -146,12 +145,12 @@ namespace EventFlow.Elasticsearch.Tests
                     new Uri($"http://127.0.0.1:{tcpPort}"),
                     processDisposable);
 
-                await elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
+                await elasticsearchInstance.WaitForGreenStateAsync().ConfigureAwait(false);
                 await elasticsearchInstance.DeleteEverythingAsync().ConfigureAwait(false);
 
                 return elasticsearchInstance;
             }
-            catch (Exception)
+            catch
             {
                 processDisposable.DisposeSafe("Failed to dispose Elasticsearch process");
                 throw;

@@ -54,8 +54,8 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
                 d => d
                     .Index(readModelDescription.IndexName.Value)
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
+                            cancellationToken)
                 .ConfigureAwait(false);
 
             return getResponse != null && getResponse.Found

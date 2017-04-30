@@ -140,8 +140,8 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             var c = resolver.Resolve<C>();
             var nested = c.Is.ToList();
-            nested[0].Should().BeOfType<B>();
-            nested[1].Should().BeOfType<A>();
+            nested.Should().Contain(x => x.GetType() == typeof(A));
+            nested.Should().Contain(x => x.GetType() == typeof(B));
         }
 
         [Test]
