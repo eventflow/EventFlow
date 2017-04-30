@@ -99,10 +99,18 @@ Task("Version")
                         ComVisible = false,
                     });
         });
-
+		
+// =====================================================================================================
+Task("Restore")
+    .IsDependentOn("Version")
+    .Does(() =>
+        {
+            BuildProject("Restore");
+        });
+		
 // =====================================================================================================
 Task("Build")
-    .IsDependentOn("Version")
+    .IsDependentOn("Restore")
     .Does(() =>
         {
             BuildProject("Build");
@@ -113,12 +121,12 @@ Task("Test")
     .IsDependentOn("Build")
     .Finally(() => 
         {
-            UploadArtifact(FILE_NUNIT_TXT_REPORT);
-            UploadTestResults(FILE_NUNIT_XML_REPORT);
+            //UploadArtifact(FILE_NUNIT_TXT_REPORT);
+            //UploadTestResults(FILE_NUNIT_XML_REPORT);
         })
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+            //ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -301,7 +309,7 @@ void ExecuteTest(string files, string resultsFile)
                         Timeout = 600000,
                         NoHeader = true,
                         NoColor = true,
-                        Framework = "net-4.5",
+                        Framework = "net-4.6.2",
                         ToolPath = TOOL_NUNIT,
                         OutputFile = FILE_NUNIT_TXT_REPORT,
                         Results = resultsFile,
@@ -320,4 +328,4 @@ void ExecuteTest(string files, string resultsFile)
         .WithFilter("-[*Shipping*]*"));
 }
 
-RunTarget(Argument<string>("target", "Package"));
+RunTarget(Argument<string>("target", "All"));
