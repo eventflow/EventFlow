@@ -1,0 +1,55 @@
+init:
+  - git config --global core.autocrlf input
+
+version: 0.42.{build}
+
+install:
+  - cmd: pip install -U Sphinx
+  - cmd: pip install sphinx_rtd_theme
+
+skip_tags: true
+
+build_script:
+  - cmd: build.cmd All
+
+image: Visual Studio 2017
+
+environment:
+  RABBITMQ_URL:
+    secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
+
+test: off
+
+artifacts:
+  - path: Build\Packages\*.nupkg
+  - path: Build\Documentation\*.zip
+
+services:
+  - mssql2014
+
+on_success:
+- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
+- pip install codecov
+- codecov -f "Build\\Reports\\opencover-results.xml"
+
+nuget:
+  account_feed: false
+  project_feed: false
+  disable_publish_on_pr: true
+
+deploy:
+  - provider: NuGet
+    api_key:
+      secure: +YlrKmWps7RJVPU4s7B4HWNL9cZXaUVdiNJInli9IZPlTP+J0CyHsUvcDY8haE+b
+    skip_symbols: false
+    on:
+      branch: master
+  - provider: GitHub
+    artifact: /.*\.(nupkg|zip)/
+    auth_token:
+      secure: f+y+RL1ETsxIbYKlliZrmXpfr1wvEVNhGGEOYyl2K8ryz02WxXL+kLe7pu53Kc8r
+    tag: v$(appveyor_build_version)
+    draft: true
+    prerelease: false
+    on:
+      branch: master
