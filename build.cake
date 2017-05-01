@@ -25,6 +25,9 @@
 #r "System.IO.Compression.FileSystem"
 
 #tool "nuget:?package=gitlink"
+#tool "nuget:?package=NUnit.ConsoleRunner"
+#tool "nuget:?package=OpenCover"
+#tool "nuget:?package=GitVersion.CommandLine"
 
 using System.Net;
 using System.IO.Compression;
@@ -57,9 +60,9 @@ var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
 // TOOLS
-var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
-var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
+var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "tools", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
+var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "tools", "OpenCover", "tools", "OpenCover.Console.exe");
+var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "tools", "GitVersion.CommandLine", "tools", "GitVersion.exe");
 
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
