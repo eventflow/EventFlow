@@ -117,7 +117,7 @@ namespace EventFlow.Elasticsearch.Tests
             var installPath = Path.Combine(installedSoftware.InstallPath,
                 $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
 
-            var tcpPort = 9200; //TcpHelper.GetFreePort();
+            var tcpPort = TcpHelper.GetFreePort();
             var exePath = Path.Combine(installPath, "bin", "elasticsearch.bat");
             var nodeName = $"node-{Guid.NewGuid():N}";
 
