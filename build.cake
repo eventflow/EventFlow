@@ -124,12 +124,12 @@ Task("Test")
     .IsDependentOn("Build")
     .Finally(() => 
         {
-            //UploadArtifact(FILE_NUNIT_TXT_REPORT);
-            //UploadTestResults(FILE_NUNIT_XML_REPORT);
+            UploadArtifact(FILE_NUNIT_TXT_REPORT);
+            UploadTestResults(FILE_NUNIT_XML_REPORT);
         })
     .Does(() =>
         {
-            //ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -312,7 +312,7 @@ void ExecuteTest(string files, string resultsFile)
                         Timeout = 600000,
                         NoHeader = true,
                         NoColor = true,
-                        Framework = "net-4.6.2",
+                        Framework = "net-4.5",
                         ToolPath = TOOL_NUNIT,
                         OutputFile = FILE_NUNIT_TXT_REPORT,
                         Results = resultsFile,
