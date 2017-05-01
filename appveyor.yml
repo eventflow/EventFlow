@@ -10,7 +10,7 @@ install:
 skip_tags: true
 
 build_script:
-  - cmd: build.ps1 -target="All"
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
 
 image: Visual Studio 2017
 
