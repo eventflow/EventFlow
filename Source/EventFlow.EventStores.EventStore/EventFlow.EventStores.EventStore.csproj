@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventFlow.EventStores.EventStore</RootNamespace>
     <AssemblyName>EventFlow.EventStores.EventStore</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EventStore.Client">
-      <Version>4.0.0</Version>
+      <Version>3.9.5</Version>
     </PackageReference>
     <PackageReference Include="NEST">
       <Version>5.3.1</Version>
