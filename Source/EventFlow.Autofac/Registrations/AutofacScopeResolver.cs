@@ -33,7 +33,7 @@ namespace EventFlow.Autofac.Registrations
         public AutofacScopeResolver(ILifetimeScope lifetimeScope)
             : base(lifetimeScope)
         {
-            _lifetimeScope = lifetimeScope.BeginLifetimeScope();
+            _lifetimeScope = lifetimeScope;
         }
 
         public IScopeResolver BeginScope()
