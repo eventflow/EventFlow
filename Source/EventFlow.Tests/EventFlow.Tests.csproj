@@ -92,7 +92,7 @@
     <Compile Include="UnitTests\Core\RetryStrategies\OptimisticConcurrencyRetryStrategyTests.cs" />
     <Compile Include="UnitTests\Core\TaskRunnerTests.cs" />
     <Compile Include="UnitTests\Core\VersionedTypes\VersionedTypeDefinitionServiceTestSuite.cs" />
-    <Compile Include="UnitTests\EventArchives\GZipFile\GZipFileEventArchivePersistanceTests.cs" />
+    <Compile Include="UnitTests\EventArchives\Files\FileEventArchivePersistanceTests.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotSerilizerTests.cs" />
     <Compile Include="UnitTests\EventStores\Snapshots\SnapshotUpgradeServiceTests.cs" />
     <Compile Include="UnitTests\Extensions\StringExtensionsTests.cs" />

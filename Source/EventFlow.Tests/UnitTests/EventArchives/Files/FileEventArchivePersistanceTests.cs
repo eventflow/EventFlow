@@ -42,10 +42,10 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
+namespace EventFlow.Tests.UnitTests.EventArchives.Files
 {
     [Category(Categories.Unit)]
-    public class GZipFileEventArchivePersistanceTests : TestsFor<FileEventArchivePersistance>
+    public class FileEventArchivePersistanceTests : TestsFor<FileEventArchivePersistance>
     {
         private Mock<IFileSystem> _fileSystemMock;
         private Mock<IFileEventArchiveConfiguration> _fileEventArchiveConfigurationMock;
