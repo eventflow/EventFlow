@@ -24,17 +24,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 using Newtonsoft.Json;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace EventFlow.EventArchives.Files
 {
@@ -42,20 +37,19 @@ namespace EventFlow.EventArchives.Files
     {
         private readonly IFileSystem _fileSystem;
         private readonly IFileEventArchiveConfiguration _configuration;
+        private readonly IEventArchiveStreamer _eventArchiveStreamer;
         private readonly ILog _log;
-        private readonly JsonSerializer _jsonSerializer = new JsonSerializer
-            {
-                Formatting = Formatting.None,
-            };
 
         public FileEventArchivePersistance(
             ILog log,
             IFileSystem fileSystem,
-            IFileEventArchiveConfiguration configuration)
+            IFileEventArchiveConfiguration configuration,
+            IEventArchiveStreamer eventArchiveStreamer)
         {
             _log = log;
             _fileSystem = fileSystem;
             _configuration = configuration;
+            _eventArchiveStreamer = eventArchiveStreamer;
         }
 
         public async Task<EventArchiveDetails> ArchiveAsync(
@@ -68,39 +62,20 @@ namespace EventFlow.EventArchives.Files
             _log.Verbose($"Storing event archive for '{identity}' at '{fileName}'");
             var stopwatch = Stopwatch.StartNew();
 
-            var numberOfEvents = 0;
             using (var stream = await _fileSystem.CreateAsync(
                     fileName,
                     false,
                     cancellationToken)
                 .ConfigureAwait(false))
-            using (var gZipStream = new GZipStream(stream, CompressionLevel.Fastest, true))
-            using (var streamWriter = new StreamWriter(gZipStream, Encoding.UTF8, 1024, true))
-            using (var jsonTextWriter = new JsonTextWriter(streamWriter))
             {
-                jsonTextWriter.WriteStartArray();
-
-                IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
-                while ((committedDomainEvents = await batchFetcher(cancellationToken).ConfigureAwait(false)).Any())
-                {
-                    foreach (var committedDomainEvent in committedDomainEvents)
-                    {
-                        var jsonEvent = new JsonEvent(
-                            committedDomainEvent.Data,
-                            committedDomainEvent.Metadata);
-
-                        _jsonSerializer.Serialize(
-                            jsonTextWriter,
-                            jsonEvent);
-
-                        numberOfEvents++;
-                    }
-                }
-
-                jsonTextWriter.WriteEndArray();
+                await _eventArchiveStreamer.StreamEventsAsync(
+                    stream,
+                    batchFetcher,
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
 
-            _log.Verbose($"Used {stopwatch.Elapsed.TotalSeconds:0.###} seconds to store {numberOfEvents} events for archive of '{identity}' at '{fileName}'");
+            _log.Verbose($"Used {stopwatch.Elapsed.TotalSeconds:0.###} seconds to store archive of '{identity}' at '{fileName}'");
 
             return new EventArchiveDetails(new Uri(fileName));
         }
