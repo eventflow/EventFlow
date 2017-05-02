@@ -43,7 +43,6 @@ var DIR_OUTPUT_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Build", "Doc
 var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
 var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build");
 var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
-var DIR_SOURCE = System.IO.Path.Combine(PROJECT_DIR, "Source");
 
 // IMPORTANT FILES
 var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
@@ -124,7 +123,7 @@ Task("Test")
 
 // =====================================================================================================
 Task("Package")
-    .IsDependentOn("Test")
+    .IsDependentOn("Build")
     .Does(() =>
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
@@ -132,7 +131,7 @@ Task("Package")
 
             Information("Updating PDB files using GitLink");
             GitLink(
-                DIR_SOURCE,
+                PROJECT_DIR,
                 new GitLinkSettings{
                     RepositoryUrl = "https://github.com/eventflow/EventFlow",
                     SolutionFileName = FILE_SOLUTION
