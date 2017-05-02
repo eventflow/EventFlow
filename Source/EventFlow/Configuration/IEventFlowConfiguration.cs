@@ -62,5 +62,6 @@ namespace EventFlow.Configuration
         /// </summary>
         /// <remarks>Defaults to false</remarks>
         bool ThrowSubscriberExceptions { get; }
+        DomainEventPublishingStrategies DomainEventPublishingStrategy { get; }
     }
 }

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -50,6 +51,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         private Mock<IAggregateFactory> _aggregateFactoryMock;
         private Mock<IResolver> _resolverMock;
         private Mock<IDomainEventPublisher> _domainEventPublisherMock;
+        private Mock<IEventFlowConfiguration> _eventFlowConfiguration;
+        private Mock<ITaskRunner> _taskRunnerMock;
 
         [SetUp]
         public void SetUp()
@@ -62,6 +65,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             _eventStoreMock = InjectMock<IEventStore>();
             _aggregateFactoryMock = InjectMock<IAggregateFactory>();
             _resolverMock = InjectMock<IResolver>();
+            _eventFlowConfiguration = InjectMock<IEventFlowConfiguration>();
+            _taskRunnerMock = InjectMock<ITaskRunner>();
 
             _domainEventPublisherMock = new Mock<IDomainEventPublisher>();
             _resolverMock
@@ -77,6 +82,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void UpdateAsync_RetryForOptimisticConcurrencyExceptionsAreDone()
         {
             // Arrange
+            Arrange_Configuration_DomainEventPublishingStrategy(DomainEventPublishingStrategies.Default);
             Arrange_EventStore_LoadEventsAsync();
             Arrange_EventStore_StoreAsync_ThrowsOptimisticConcurrencyException();
 
@@ -102,6 +108,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void UpdateAsync_DuplicateOperationExceptionIsThrowsIfSourceAlreadyApplied()
         {
             // Arrange
+            Arrange_Configuration_DomainEventPublishingStrategy(DomainEventPublishingStrategies.Default);
             var domainEvents = ManyDomainEvents<ThingyPingEvent>(1).ToArray();
             var sourceId = domainEvents[0].Metadata.SourceId;
             Arrange_EventStore_LoadEventsAsync(domainEvents);
@@ -119,6 +126,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void UpdateAsync_EventsArePublishedOnce_IfPublisherThrowsOptimisticConcurrencyException()
         {
             // Arrange
+            Arrange_Configuration_DomainEventPublishingStrategy(DomainEventPublishingStrategies.Default);
             Arrange_EventStore_LoadEventsAsync();
             Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
             Arrange_DomainEventPublisher_PublishAsync_ThrowsOptimisticConcurrencyException();
@@ -148,6 +156,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public async Task UpdateAsync_EventsCommittedAndPublished()
         {
             // Arrange
+            Arrange_Configuration_DomainEventPublishingStrategy(DomainEventPublishingStrategies.Default);
             Arrange_EventStore_LoadEventsAsync();
             Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
 
@@ -176,6 +185,45 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                     It.IsAny<ThingyId>(),
                     It.Is<IReadOnlyCollection<IDomainEvent>>(e => e.Count == 1),
                     It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateAsync_EventsCommittedAndSentToTaskRunner()
+        {
+            // Arrange
+            Arrange_Configuration_DomainEventPublishingStrategy(DomainEventPublishingStrategies.TaskRun);
+            Arrange_EventStore_LoadEventsAsync();
+            Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
+
+            // Sut
+            await Sut.UpdateAsync<ThingyAggregate, ThingyId>(
+                    A<ThingyId>(),
+                    A<SourceId>(),
+                    (a, c) =>
+                    {
+                        a.Ping(A<PingId>());
+                        return Task.FromResult(0);
+                    },
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            _eventStoreMock.Verify(
+                m => m.StoreAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(),
+                    It.IsAny<ISourceId>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+            _domainEventPublisherMock.Verify(
+                m => m.PublishAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.Is<IReadOnlyCollection<IDomainEvent>>(e => e.Count == 1),
+                    It.IsAny<CancellationToken>()),
+                Times.Never);
+            _taskRunnerMock.Verify(
+                m => m.Run(It.IsAny<Label>(), It.IsAny<Func<IResolver, CancellationToken, Task>>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -218,6 +266,14 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                     It.IsAny<ThingyId>(),
                     It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
+        }
+
+        private void Arrange_Configuration_DomainEventPublishingStrategy(
+            DomainEventPublishingStrategies domainEventPublishingStrategy)
+        {
+            _eventFlowConfiguration
+                .Setup(m => m.DomainEventPublishingStrategy)
+                .Returns(domainEventPublishingStrategy);
         }
 
         private static Task NoOperationAsync(ThingyAggregate thingyAggregate, CancellationToken cancellationToken)
