@@ -81,6 +81,7 @@
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="EventArchives\EventArchive.cs" />
+    <Compile Include="EventArchives\EventArchiveDetails.cs" />
     <Compile Include="EventArchives\Files\FileEventArchiveConfiguration.cs" />
     <Compile Include="EventArchives\Files\IFileEventArchiveConfiguration.cs" />
     <Compile Include="EventArchives\IEventArchive.cs" />

@@ -29,7 +29,7 @@ namespace EventFlow.EventArchives
 {
     public interface IEventArchive
     {
-        Task ArchiveAsync(
+        Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
             CancellationToken cancellationToken);
     }

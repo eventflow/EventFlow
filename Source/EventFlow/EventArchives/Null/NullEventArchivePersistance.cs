@@ -41,14 +41,14 @@ namespace EventFlow.EventArchives.Null
             _log = log;
         }
 
-        public Task ArchiveAsync(
+        public Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
             Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
             CancellationToken cancellationToken)
         {
             _log.Warning($"Asked to archive aggregate with ID '{identity}', but throwing it away! Configure an event archive!");
 
-            return Task.FromResult(0);
+            return Task.FromResult(EventArchiveDetails.None);
         }
     }
 }

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -29,6 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventArchives;
 using EventFlow.EventArchives.Files;
 using EventFlow.EventStores;
 using EventFlow.Logs;
@@ -46,6 +48,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
     public class GZipFileEventArchivePersistanceTests : TestsFor<FileEventArchivePersistance>
     {
         private Mock<IFileSystem> _fileSystemMock;
+        private Mock<IFileEventArchiveConfiguration> _fileEventArchiveConfigurationMock;
 
         [SetUp]
         public void SetUp()
@@ -54,11 +57,18 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
             eventDefinitionService.Load(typeof(ThingyPingEvent));
 
             _fileSystemMock = InjectMock<IFileSystem>();
+            _fileEventArchiveConfigurationMock = InjectMock<IFileEventArchiveConfiguration>();
         }
 
         [Test]
         public void EventsAreArchived()
         {
+            // Arrange
+            var tmpFileName = Path.GetTempFileName();
+            _fileEventArchiveConfigurationMock
+                .Setup(m => m.GetEventArchiveFile(It.IsAny<IIdentity>()))
+                .Returns(tmpFileName);
+
             // TODO cleanup
 
             var committedDomainEvents = Many<ICommittedDomainEvent>();
@@ -66,6 +76,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
             stack.Push(committedDomainEvents);
 
             IReadOnlyCollection<FileEventArchivePersistance.JsonEvent> jsonEvents = null;
+            EventArchiveDetails eventArchiveDetails = null;
 
             using (var anonymousPipeServerStream = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.None))
             {
@@ -75,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
 
                 var pipeHandle = anonymousPipeServerStream.GetClientHandleAsString();
                 var writeTask = Task.Run(async () => {
-                    await Sut.ArchiveAsync(A<ThingyId>(),
+                    eventArchiveDetails = await Sut.ArchiveAsync(A<ThingyId>(),
                         c => Task.FromResult(stack.Count != 0 ? stack.Pop() : new ICommittedDomainEvent[]{}),
                         CancellationToken.None)
                         .ConfigureAwait(false);
@@ -99,6 +110,8 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
 
             jsonEvents.Should().NotBeNull();
             jsonEvents.Should().HaveCount(committedDomainEvents.Count);
+            eventArchiveDetails.Should().NotBeNull();
+            eventArchiveDetails.Uri.Should().Be(new Uri(tmpFileName));
         }
     }
 }

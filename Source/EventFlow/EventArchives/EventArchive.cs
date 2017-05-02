@@ -42,7 +42,7 @@ namespace EventFlow.EventArchives
             _eventArchivePersistance = eventArchivePersistance;
         }
 
-        public async Task ArchiveAsync(
+        public async Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
             CancellationToken cancellationToken)
         {
@@ -56,7 +56,7 @@ namespace EventFlow.EventArchives
 
             // TODO - cleanup
 
-            await _eventArchivePersistance.ArchiveAsync(
+            var eventArchiveDetails = await _eventArchivePersistance.ArchiveAsync(
                 identity,
                 _ => Task.FromResult(stack.Count != 0 ? stack.Pop() : new ICommittedDomainEvent[]{}),
                 cancellationToken)
@@ -66,6 +66,8 @@ namespace EventFlow.EventArchives
                 identity,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            return eventArchiveDetails;
         }
     }
 }

@@ -22,19 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.EventStores;
 
 namespace EventFlow.EventArchives
 {
-    public interface IEventArchivePersistance
+    public class EventArchiveDetails
     {
-        Task<EventArchiveDetails> ArchiveAsync(
-            IIdentity identity,
-            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
-            CancellationToken cancellationToken);
+        public static EventArchiveDetails None { get; } = new EventArchiveDetails(new Uri("none://"));
+
+        public EventArchiveDetails(
+            Uri uri)
+        {
+            Uri = uri ?? throw new ArgumentNullException(nameof(uri));
+        }
+
+        public Uri Uri { get; }
     }
 }

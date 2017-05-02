@@ -58,7 +58,7 @@ namespace EventFlow.EventArchives.Files
             _configuration = configuration;
         }
 
-        public async Task ArchiveAsync(
+        public async Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
             Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
             CancellationToken cancellationToken)
@@ -101,6 +101,8 @@ namespace EventFlow.EventArchives.Files
             }
 
             _log.Verbose($"Used {stopwatch.Elapsed.TotalSeconds:0.###} seconds to store {numberOfEvents} events for archive of '{identity}' at '{fileName}'");
+
+            return new EventArchiveDetails(new Uri(fileName));
         }
 
         public class JsonEvent
@@ -113,7 +115,10 @@ namespace EventFlow.EventArchives.Files
                 Metadata = metadata;
             }
 
+            [JsonProperty("event")]
             public string Event { get; }
+
+            [JsonProperty("metadata")]
             public string Metadata { get; }
         }
     }
