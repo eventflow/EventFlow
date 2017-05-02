@@ -1,9 +1,23 @@
-### New in 0.41 (not released yet)
+### New in 0.43 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.42.2755 (released 2017-05-02)
+
+* Fixed: The deterministic `IDomainEvent.Metadata.EventId` is now correctly
+  based on the both the aggregate identity and the aggregate sequence number,
+  instead of merely the aggregate identity
+* Fixed: [GitLink](https://github.com/gittools/gitlink) PDB source URLs
+
+### New in 0.41.2727 (released 2017-04-27)
 
 * New: NuGet packages now contain PDB files with links to GitHub
   (thanks to [GitLink](https://github.com/gittools/gitlink)). Be sure
   to check `Enable source server support` to be able to step through
   the EventFlow source code. See GitLink documentation for details
+* Fixed: Fixed a bug in how EventFlow registers singletons with Autofac
+  that made Autofac invoke `IDisposable.Dispose()` upon disposing
+  lifetime scopes
 
 ### New in 0.40.2590 (released 2017-03-30)
 
