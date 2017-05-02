@@ -30,7 +30,6 @@ using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Installer;
-using Nest;
 using NUnit.Framework;
 
 namespace EventFlow.Elasticsearch.Tests

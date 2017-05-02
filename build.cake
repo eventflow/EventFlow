@@ -25,9 +25,9 @@
 #r "System.IO.Compression.FileSystem"
 
 #tool "nuget:?package=gitlink"
+#tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
-#tool "nuget:?package=GitVersion.CommandLine"
 
 using System.Net;
 using System.IO.Compression;
@@ -59,13 +59,7 @@ var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
     string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
-// TOOLS
-var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "tools", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
-var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "tools", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "tools", "GitVersion.CommandLine", "tools", "GitVersion.exe");
-
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
-
 
 // =====================================================================================================
 Task("Clean")
@@ -78,8 +72,9 @@ Task("Clean")
                     DIR_OUTPUT_DOCUMENTATION,
                     DIR_BUILT_DOCUMENTATION,
                 });
-
-            BuildProject("Clean");
+				
+			DeleteDirectories(GetDirectories("**/bin"), true);
+			DeleteDirectories(GetDirectories("**/obj"), true);
         });
 
 // =====================================================================================================
@@ -108,7 +103,7 @@ Task("Restore")
     .IsDependentOn("Version")
     .Does(() =>
         {
-            BuildProject("Restore");
+			DotNetCoreRestore(".");
         });
 		
 // =====================================================================================================
@@ -116,20 +111,25 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
         {
-            BuildProject("Build");
+            DotNetCoreBuild(
+				".", 
+				new DotNetCoreBuildSettings()
+				{
+					Configuration = CONFIGURATION
+				});
         });
 
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
-    .Finally(() => 
+    .Does(() =>
+        {
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/net451/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+        })
+	.Finally(() => 
         {
             UploadArtifact(FILE_NUNIT_TXT_REPORT);
             UploadTestResults(FILE_NUNIT_XML_REPORT);
-        })
-    .Does(() =>
-        {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -147,6 +147,17 @@ Task("Package")
                     RepositoryUrl = "https://github.com/eventflow/EventFlow",
                     SolutionFileName = FILE_SOLUTION
                 });
+
+			foreach (var project in GetFiles("./Source/**/*.csproj"))
+			{
+				DotNetCorePack(
+					project.GetDirectory().FullPath,
+					new DotNetCorePackSettings()
+					{
+						Configuration = CONFIGURATION,
+						OutputDirectory = DIR_OUTPUT_PACKAGES
+					});
+			}
         });
 
 // =====================================================================================================
@@ -169,19 +180,6 @@ Task("All")
         });
 
 // =====================================================================================================
-void BuildProject(string target)
-{
-    MSBuild(
-        "EventFlow.sln",
-         s => s
-            .WithTarget(target)
-            .SetConfiguration(CONFIGURATION)
-            .SetMSBuildPlatform(MSBuildPlatform.Automatic)
-            .SetVerbosity(Verbosity.Minimal)
-            .SetNodeReuse(false)
-            .UseToolVersion(MSBuildToolVersion.VS2017)
-        );
-}
 
 Version GetArgumentVersion()
 {
@@ -196,7 +194,7 @@ Version GetArgumentVersion()
 string GetSha()
 {
     return AppVeyor.IsRunningOnAppVeyor
-        ? string.Format("git sha: {0}", GitVersion(new GitVersionSettings { ToolPath = TOOL_GITVERSION, }).Sha)
+        ? string.Format("git sha: {0}", GitVersion().Sha)
         : "developer build";
 }
 
@@ -253,11 +251,9 @@ void UploadTestResults(string filePath)
                 e.ToString());
         }
         
-        /*
-        // This should work, but doesn't seem to
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit3);*/
+            AppVeyorTestResultsType.NUnit3);
     }    
     else
     {
@@ -301,28 +297,25 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
 
 void ExecuteTest(string files, string resultsFile)
 {
-
-    OpenCover(tool =>
-        {
-            tool.NUnit3(
-                files,
-                new NUnit3Settings
-                    {
-                        ShadowCopy = false,
-                        Timeout = 600000,
-                        NoHeader = true,
-                        NoColor = true,
-                        Framework = "net-4.5",
-                        ToolPath = TOOL_NUNIT,
-                        OutputFile = FILE_NUNIT_TXT_REPORT,
-                        Results = resultsFile,
-                        DisposeRunners = true
-                    });
+	OpenCover(tool => 
+		{
+			tool.NUnit3(
+				files,
+				new NUnit3Settings
+					{
+						Framework = "net-4.5",
+						Timeout = 600000,
+						ShadowCopy = false,
+						NoHeader = true,
+						NoColor = true,
+						DisposeRunners = true,
+						OutputFile = FILE_NUNIT_TXT_REPORT,
+						Results = resultsFile
+					});
         },
     new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
-            ToolPath = TOOL_OPENCOVER,
             ArgumentCustomization = aggs => aggs.Append("-returntargetcode")
         }
         .WithFilter("+[EventFlow*]*")

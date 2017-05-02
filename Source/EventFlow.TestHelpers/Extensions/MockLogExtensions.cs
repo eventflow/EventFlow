@@ -33,10 +33,10 @@ namespace EventFlow.TestHelpers.Extensions
         {
             logMock.Verify(
                 m => m.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()),
-                Times.Never);
+                Times.Never());
             logMock.Verify(
                 m => m.Error(It.IsAny<string>(), It.IsAny<object[]>()),
-                Times.Never);
+                Times.Never());
         }
     }
 }

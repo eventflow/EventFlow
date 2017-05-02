@@ -35,7 +35,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacServiceRegistration : ServiceRegistration, IServiceRegistration
+    public class AutofacServiceRegistration : ServiceRegistration, IServiceRegistration
     {
         private readonly ContainerBuilder _containerBuilder;
         private readonly DecoratorService _decoratorService = new DecoratorService();

@@ -4,13 +4,13 @@ init:
 version: 0.42.{build}
 
 install:
-  - cmd: pip install -U Sphinx
-  - cmd: pip install sphinx_rtd_theme
+  - ps: .\pip install -U Sphinx
+  - ps: .\pip install sphinx_rtd_theme
 
 skip_tags: true
 
 build_script:
-  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
+  - ps: .\build.ps1 -Target "All"
 
 image: Visual Studio 2017
 

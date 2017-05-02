@@ -275,7 +275,7 @@ namespace EventFlow.TestHelpers.Suites
             Sut.CreateResolver(true);
 
             // Assert
-            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once);
+            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace EventFlow.TestHelpers.Suites
             }
 
             // Assert
-            iMock.Verify(i => i.Dispose(), Times.Once);
+            iMock.Verify(i => i.Dispose(), Times.Once());
         }
 
         [Test]

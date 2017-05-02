@@ -1,111 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.EventStores.EventStore.Tests</RootNamespace>
-    <AssemblyName>EventFlow.EventStores.EventStore.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFramework>net451</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="EventStoreRunner.cs" />
-    <Compile Include="IntegrationTests\EventStoreEventStoreTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <ProjectReference Include="..\EventFlow.EventStores.EventStore\EventFlow.EventStores.EventStore.csproj" />
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="AutoFixture.AutoMoq">
-      <Version>3.50.2</Version>
-    </PackageReference>
-    <PackageReference Include="Castle.Core">
-      <Version>4.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="EventStore.Client">
-      <Version>3.9.5</Version>
-    </PackageReference>
-    <PackageReference Include="FluentAssertions">
-      <Version>4.19.2</Version>
-    </PackageReference>
-    <PackageReference Include="HangFire.Core">
-      <Version>1.6.12</Version>
-    </PackageReference>
-    <PackageReference Include="Helpz">
-      <Version>0.2.64</Version>
-    </PackageReference>
-    <PackageReference Include="Moq">
-      <Version>4.7.9</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>10.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="NUnit">
-      <Version>3.6.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventFlow.EventStores.EventStore\EventFlow.EventStores.EventStore.csproj">
-      <Project>{e42a253d-2011-4799-b55d-1d0c61e171c2}</Project>
-      <Name>EventFlow.EventStores.EventStore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj">
-      <Project>{571d291c-5e4c-43af-855f-7c4e2f318f4c}</Project>
-      <Name>EventFlow.TestHelpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
