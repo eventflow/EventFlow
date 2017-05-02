@@ -86,7 +86,7 @@ namespace EventFlow.Aggregates
             var aggregateSequenceNumber = Version + 1;
             var eventId = EventId.NewDeterministic(
                 GuidFactories.Deterministic.Namespaces.Events,
-                $"{Id.Value}-v{0}");
+                $"{Id.Value}-v{aggregateSequenceNumber}");
             var now = DateTimeOffset.Now;
             var eventMetadata = new Metadata
                 {
