@@ -1,6 +1,8 @@
 ### New in 0.42 (not released yet)
 
-* _Nothing yet_
+* Fixed: The deterministic `IDomainEvent.Metadata.EventId` is now correctly
+  based on the both the aggregate identity and the aggregate sequence number,
+  instead of merely the aggregate identity
 
 ### New in 0.41.2727 (released 2017-04-27)
 

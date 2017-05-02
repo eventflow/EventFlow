@@ -46,7 +46,7 @@ namespace EventFlow.Aggregates
         public TIdentity Id { get; }
         public int Version { get; protected set; }
         public bool IsNew => Version <= 0;
-        public IEnumerable<IAggregateEvent> UncommittedEvents { get { return _uncommittedEvents.Select(e => e.AggregateEvent); } }
+        public IEnumerable<IUncommittedEvent> UncommittedEvents => _uncommittedEvents;
 
         static AggregateRoot()
         {
@@ -86,7 +86,7 @@ namespace EventFlow.Aggregates
             var aggregateSequenceNumber = Version + 1;
             var eventId = EventId.NewDeterministic(
                 GuidFactories.Deterministic.Namespaces.Events,
-                $"{Id.Value}-v{0}");
+                $"{Id.Value}-v{aggregateSequenceNumber}");
             var now = DateTimeOffset.Now;
             var eventMetadata = new Metadata
                 {
