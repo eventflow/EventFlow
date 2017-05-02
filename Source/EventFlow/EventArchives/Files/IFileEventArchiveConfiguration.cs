@@ -23,9 +23,9 @@
 
 using EventFlow.Core;
 
-namespace EventFlow.EventArchives.GZipFile
+namespace EventFlow.EventArchives.Files
 {
-    public interface IGZipFileEventArchiveConfiguration
+    public interface IFileEventArchiveConfiguration
     {
         string GetEventArchiveFile(IIdentity identity);
     }

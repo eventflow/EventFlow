@@ -36,22 +36,22 @@ using EventFlow.Logs;
 using Newtonsoft.Json;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
-namespace EventFlow.EventArchives.GZipFile
+namespace EventFlow.EventArchives.Files
 {
-    public class GZipFileEventArchivePersistance : IEventArchivePersistance
+    public class FileEventArchivePersistance : IEventArchivePersistance
     {
         private readonly IFileSystem _fileSystem;
-        private readonly IGZipFileEventArchiveConfiguration _configuration;
+        private readonly IFileEventArchiveConfiguration _configuration;
         private readonly ILog _log;
         private readonly JsonSerializer _jsonSerializer = new JsonSerializer
             {
                 Formatting = Formatting.None,
             };
 
-        public GZipFileEventArchivePersistance(
+        public FileEventArchivePersistance(
             ILog log,
             IFileSystem fileSystem,
-            IGZipFileEventArchiveConfiguration configuration)
+            IFileEventArchiveConfiguration configuration)
         {
             _log = log;
             _fileSystem = fileSystem;

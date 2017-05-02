@@ -81,12 +81,12 @@
     <Compile Include="Core\ITaskRunner.cs" />
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="EventArchives\EventArchive.cs" />
-    <Compile Include="EventArchives\GZipFile\GZipFileEventArchiveConfiguration.cs" />
-    <Compile Include="EventArchives\GZipFile\IGZipFileEventArchiveConfiguration.cs" />
+    <Compile Include="EventArchives\Files\FileEventArchiveConfiguration.cs" />
+    <Compile Include="EventArchives\Files\IFileEventArchiveConfiguration.cs" />
     <Compile Include="EventArchives\IEventArchive.cs" />
     <Compile Include="EventArchives\IEventArchivePersistance.cs" />
     <Compile Include="EventArchives\Null\NullEventArchivePersistance.cs" />
-    <Compile Include="EventArchives\GZipFile\GZipFileEventArchivePersistance.cs" />
+    <Compile Include="EventArchives\Files\FileEventArchivePersistance.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />
     <Compile Include="Extensions\EventFlowOptionsMemoryCacheExtensions.cs" />
     <Compile Include="Provided\Jobs\ArchiveEventsJob.cs" />

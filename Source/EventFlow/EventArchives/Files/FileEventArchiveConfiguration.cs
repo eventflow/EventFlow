@@ -25,18 +25,18 @@ using System;
 using System.IO;
 using EventFlow.Core;
 
-namespace EventFlow.EventArchives.GZipFile
+namespace EventFlow.EventArchives.Files
 {
-    public class GZipFileEventArchiveConfiguration : IGZipFileEventArchiveConfiguration
+    public class FileEventArchiveConfiguration : IFileEventArchiveConfiguration
     {
-        public static IGZipFileEventArchiveConfiguration Create(string archivePath)
+        public static IFileEventArchiveConfiguration Create(string archivePath)
         {
-            return new GZipFileEventArchiveConfiguration(archivePath);
+            return new FileEventArchiveConfiguration(archivePath);
         }
 
         private readonly string _archivePath;
 
-        private GZipFileEventArchiveConfiguration(
+        private FileEventArchiveConfiguration(
             string archivePath)
         {
             if (string.IsNullOrEmpty(archivePath))

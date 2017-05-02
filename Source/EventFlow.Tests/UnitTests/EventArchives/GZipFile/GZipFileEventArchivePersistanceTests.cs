@@ -29,7 +29,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.EventArchives.GZipFile;
+using EventFlow.EventArchives.Files;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
@@ -43,7 +43,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
 {
     [Category(Categories.Unit)]
-    public class GZipFileEventArchivePersistanceTests : TestsFor<GZipFileEventArchivePersistance>
+    public class GZipFileEventArchivePersistanceTests : TestsFor<FileEventArchivePersistance>
     {
         private Mock<IFileSystem> _fileSystemMock;
 
@@ -65,7 +65,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
             var stack = new Stack<IReadOnlyCollection<ICommittedDomainEvent>>();
             stack.Push(committedDomainEvents);
 
-            IReadOnlyCollection<GZipFileEventArchivePersistance.JsonEvent> jsonEvents = null;
+            IReadOnlyCollection<FileEventArchivePersistance.JsonEvent> jsonEvents = null;
 
             using (var anonymousPipeServerStream = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.None))
             {
@@ -88,7 +88,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.GZipFile
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
                         var ss = new Newtonsoft.Json.JsonSerializer();
-                        jsonEvents = ss.Deserialize<IReadOnlyCollection<GZipFileEventArchivePersistance.JsonEvent>>(jsonTextReader);
+                        jsonEvents = ss.Deserialize<IReadOnlyCollection<FileEventArchivePersistance.JsonEvent>>(jsonTextReader);
                     }
                 });
 

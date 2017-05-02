@@ -24,20 +24,23 @@
 using System.IO;
 using EventFlow.Configuration;
 using EventFlow.EventArchives;
-using EventFlow.EventArchives.GZipFile;
+using EventFlow.EventArchives.Files;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.EventArchives.GZipFile
+namespace EventFlow.Tests.IntegrationTests.EventArchives.Files
 {
-    public class GZipFileEventArchivePersistanceTests : TestSuiteForEventArchive
+    [Category(Categories.Integration)]
+    public class FileEventArchivePersistanceTests : TestSuiteForEventArchive
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .RegisterServices(sr =>
                     {
-                        sr.Register<IEventArchivePersistance, GZipFileEventArchivePersistance>();
-                        sr.Register(_ => GZipFileEventArchiveConfiguration.Create(Path.GetTempPath()));
+                        sr.Register<IEventArchivePersistance, FileEventArchivePersistance>();
+                        sr.Register(_ => FileEventArchiveConfiguration.Create(Path.GetTempPath()));
                     })
                 .CreateResolver();
         }
