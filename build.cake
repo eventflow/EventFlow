@@ -142,7 +142,7 @@ Task("Package")
 
             Information("Updating PDB files using GitLink");
             GitLink(
-                DIR_SOURCE,
+                PROJECT_DIR,
                 new GitLinkSettings{
                     RepositoryUrl = "https://github.com/eventflow/EventFlow",
                     SolutionFileName = FILE_SOLUTION
@@ -150,13 +150,18 @@ Task("Package")
 
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
-				DotNetCorePack(
-					project.GetDirectory().FullPath,
-					new DotNetCorePackSettings()
-					{
-						Configuration = CONFIGURATION,
-						OutputDirectory = DIR_OUTPUT_PACKAGES
-					});
+				if (!project.ToString().Contains("Test") && 
+					!project.ToString().Contains("Example"))
+				{
+					DotNetCorePack(
+						project.GetDirectory().FullPath,
+						new DotNetCorePackSettings()
+						{
+							Configuration = CONFIGURATION,
+							OutputDirectory = DIR_OUTPUT_PACKAGES,
+							ArgumentCustomization = aggs => aggs.Append("/p:Version=" + VERSION.ToString())
+						});
+				}
 			}
         });
 
