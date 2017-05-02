@@ -3,6 +3,7 @@
 * Fixed: The deterministic `IDomainEvent.Metadata.EventId` is now correctly
   based on the both the aggregate identity and the aggregate sequence number,
   instead of merely the aggregate identity
+* Fixed: [GitLink](https://github.com/gittools/gitlink) PDB source URLs
 
 ### New in 0.41.2727 (released 2017-04-27)
 
