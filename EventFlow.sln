@@ -76,6 +76,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Elasticsearch", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Elasticsearch.Tests", "Source\EventFlow.Elasticsearch.Tests\EventFlow.Elasticsearch.Tests.csproj", "{D4D7E41C-1473-4449-A128-CA4383783E6C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scenarios", "Scenarios", "{6465AA30-EA36-437F-A799-9E65B2425C7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Scenarios.Mvc5", "Source\EventFlow.Scenarios.Mvc5\EventFlow.Scenarios.Mvc5.csproj", "{6D878284-357A-46E4-882E-644A8A1C1406}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -178,6 +182,10 @@ Global
 		{D4D7E41C-1473-4449-A128-CA4383783E6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4D7E41C-1473-4449-A128-CA4383783E6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4D7E41C-1473-4449-A128-CA4383783E6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D878284-357A-46E4-882E-644A8A1C1406}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D878284-357A-46E4-882E-644A8A1C1406}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D878284-357A-46E4-882E-644A8A1C1406}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D878284-357A-46E4-882E-644A8A1C1406}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,5 +214,6 @@ Global
 		{36F59228-C7DC-4799-8342-4CAF5C4E95D5} = {92F3C263-8C0C-4D12-B41A-452E48D2E5E8}
 		{404C6099-E82F-4433-8505-5479D76660CD} = {D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}
 		{D4D7E41C-1473-4449-A128-CA4383783E6C} = {D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}
+		{6D878284-357A-46E4-882E-644A8A1C1406} = {6465AA30-EA36-437F-A799-9E65B2425C7A}
 	EndGlobalSection
 EndGlobal
