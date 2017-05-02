@@ -127,7 +127,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             eventIdGuids[0]
                 .Should()
                 .Be("event-3dde5ccb-b594-59b4-ad0a-4d432ffce026");
-            // GuidFactories.Deterministic.Namespaces.Events, $"{thingyId.Value}-v1"
+            // GuidFactories.Deterministic.Namespaces.Events, $"{thingyId.Value}-v2"
             eventIdGuids[1]
                 .Should()
                 .Be("event-2e79868f-6ef7-5c88-a941-12ae7ae801c7");
