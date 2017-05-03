@@ -20,9 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="10.4.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
