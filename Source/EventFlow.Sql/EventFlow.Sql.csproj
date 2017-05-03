@@ -13,7 +13,7 @@
     <PackageTags>CQRS ES event sourcing SQL</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
-    <PackageProjectUrl>http://geteventflow.net/</PackageProjectUrl>
+    <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
