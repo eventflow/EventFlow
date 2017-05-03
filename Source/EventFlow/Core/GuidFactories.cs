@@ -116,9 +116,12 @@ namespace EventFlow.Core
                 byte[] hash;
                 using (var algorithm = SHA1.Create())
                 {
-                    algorithm.TransformBlock(namespaceBytes, 0, namespaceBytes.Length, null, 0);
-                    algorithm.TransformFinalBlock(nameBytes, 0, nameBytes.Length);
-                    hash = algorithm.Hash;
+                    // TODO
+
+                    //algorithm.TransformBlock(namespaceBytes, 0, namespaceBytes.Length, null, 0);
+                    //algorithm.TransformFinalBlock(nameBytes, 0, nameBytes.Length);
+                    //hash = algorithm.Hash;
+                    hash = new byte[]{};
                 }
 
                 // Most bytes from the hash are copied straight to the bytes of the new
