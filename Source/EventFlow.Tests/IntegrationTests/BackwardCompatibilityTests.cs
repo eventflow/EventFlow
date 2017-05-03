@@ -50,7 +50,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void SetUp()
         {
             var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
-            var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "TestData", "FilesEventStore"));
+            var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "..", "TestData", "FilesEventStore"));
 
             _resolver = EventFlowOptions.New
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
@@ -62,17 +62,17 @@ namespace EventFlow.Tests.IntegrationTests
             _aggregateStore = _resolver.Resolve<IAggregateStore>();
         }
 
-        //[Test]
-        //public async Task ValidateTestAggregate()
-        //{
-        //    // Act
-        //    var testAggregate = await _aggregateStore.LoadAsync<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
+        [Test]
+        public async Task ValidateTestAggregate()
+        {
+            // Act
+            var testAggregate = await _aggregateStore.LoadAsync<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
 
-        //    // Assert
-        //    testAggregate.Version.Should().Be(2);
-        //    testAggregate.PingsReceived.Should().Contain(PingId.With("95433aa0-11f7-4128-bd5f-18e0ecc4d7c1"));
-        //    testAggregate.PingsReceived.Should().Contain(PingId.With("2352d09b-4712-48cc-bb4f-5560d7c52558"));
-        //}
+            // Assert
+            testAggregate.Version.Should().Be(2);
+            testAggregate.PingsReceived.Should().Contain(PingId.With("95433aa0-11f7-4128-bd5f-18e0ecc4d7c1"));
+            testAggregate.PingsReceived.Should().Contain(PingId.With("2352d09b-4712-48cc-bb4f-5560d7c52558"));
+        }
 
         [Test, Explicit]
         public void CreateEventHelper()
