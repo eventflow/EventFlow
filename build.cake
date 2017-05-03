@@ -115,7 +115,8 @@ Task("Build")
 				".", 
 				new DotNetCoreBuildSettings()
 				{
-					Configuration = CONFIGURATION
+					Configuration = CONFIGURATION,
+					ArgumentCustomization = aggs => aggs.Append("/p:Version=" + VERSION.ToString())
 				});
         });
 
@@ -150,18 +151,23 @@ Task("Package")
 
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
-				if (!project.ToString().Contains("Test") && 
-					!project.ToString().Contains("Example"))
+				var name = project.GetDirectory().FullPath;
+				
+				if (name.Contains("Test") || name.Contains("Example"))
 				{
-					DotNetCorePack(
-						project.GetDirectory().FullPath,
-						new DotNetCorePackSettings()
-						{
-							Configuration = CONFIGURATION,
-							OutputDirectory = DIR_OUTPUT_PACKAGES,
-							ArgumentCustomization = aggs => aggs.Append("/p:Version=" + VERSION.ToString())
-						});
+					continue;
 				}
+				
+				DotNetCorePack(
+					name,
+					new DotNetCorePackSettings()
+					{
+						Configuration = CONFIGURATION,
+						OutputDirectory = DIR_OUTPUT_PACKAGES,
+						NoBuild = true,
+						Verbose = false,
+						ArgumentCustomization = aggs => aggs.Append("/p:Version=" + VERSION.ToString())
+					});
 			}
         });
 
@@ -188,12 +194,10 @@ Task("All")
 
 Version GetArgumentVersion()
 {
+	var buildVersion = EnvironmentVariable("APPVEYOR_BUILD_VERSION");
     var arg = Argument<string>("buildVersion", "0.0.1");
-    var version = string.IsNullOrEmpty(arg)
-        ? Version.Parse("0.0.1")
-        : Version.Parse(arg);
 
-    return version;
+    return Version.Parse(buildVersion ?? arg);
 }
 
 string GetSha()
@@ -256,9 +260,11 @@ void UploadTestResults(string filePath)
                 e.ToString());
         }
         
+        /*
+        // This should work, but doesn't seem to
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit3);
+            AppVeyorTestResultsType.NUnit3);*/
     }    
     else
     {
