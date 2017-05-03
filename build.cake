@@ -103,7 +103,12 @@ Task("Restore")
     .IsDependentOn("Version")
     .Does(() =>
         {
-			DotNetCoreRestore(".");
+			DotNetCoreRestore(
+				".", 
+				new DotNetCoreRestoreSettings()
+				{
+					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+				});
         });
 		
 // =====================================================================================================
@@ -116,7 +121,7 @@ Task("Build")
 				new DotNetCoreBuildSettings()
 				{
 					Configuration = CONFIGURATION,
-					ArgumentCustomization = aggs => aggs.Append("/p:Version=" + VERSION.ToString())
+					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
 				});
         });
 
@@ -125,7 +130,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/net451/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/**/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         })
 	.Finally(() => 
         {
@@ -152,12 +157,13 @@ Task("Package")
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
 				var name = project.GetDirectory().FullPath;
+				var version = VERSION.ToString();
 				
 				if (name.Contains("Test") || name.Contains("Example"))
 				{
 					continue;
 				}
-				
+							
 				DotNetCorePack(
 					name,
 					new DotNetCorePackSettings()
@@ -166,7 +172,7 @@ Task("Package")
 						OutputDirectory = DIR_OUTPUT_PACKAGES,
 						NoBuild = true,
 						Verbose = false,
-						ArgumentCustomization = aggs => aggs.Append("/p:Version=" + VERSION.ToString())
+						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
 					});
 			}
         });
@@ -198,6 +204,15 @@ Version GetArgumentVersion()
     var arg = Argument<string>("buildVersion", "0.0.1");
 
     return Version.Parse(buildVersion ?? arg);
+}
+
+string GetDotNetCoreArgsVersions()
+{
+	var version = GetArgumentVersion().ToString();
+	
+	return string.Format(
+		@"/p:Version={0} /p:AssemblyVersion={1} /p:FileVersion={2} /p:ProductVersion={3}",
+		version, version, version, version);
 }
 
 string GetSha()
