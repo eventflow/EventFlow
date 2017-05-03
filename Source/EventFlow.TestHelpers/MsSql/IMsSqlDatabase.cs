@@ -21,41 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.SnapshotStores;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.MsSql;
-using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
+using System;
+using System.Data.SqlClient;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
+namespace EventFlow.TestHelpers.MsSql
 {
-    [Category(Categories.Integration)]
-    public class MsSqlSnapshotStoreTests : TestSuiteForSnapshotStore
+    public interface IMsSqlDatabase : IDisposable
     {
-        private IMsSqlDatabase _testDatabase;
-
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
-
-            var resolver = eventFlowOptions
-                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseMsSqlSnapshotStore()
-                .CreateResolver();
-
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
-            EventFlowSnapshotStoresMsSql.MigrateDatabase(databaseMigrator);
-
-            return resolver;
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            _testDatabase.DisposeSafe("Failed to delete database");
-        }
+        MsSqlConnectionString ConnectionString { get; }
+        bool DropOnDispose { get; }
+        void Ping();
+        T WithConnection<T>(Func<SqlConnection, T> action);
+        void Execute(string sql);
+        void WithConnection(Action<SqlConnection> action);
     }
 }

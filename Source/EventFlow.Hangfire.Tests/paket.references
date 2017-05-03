@@ -6,5 +6,4 @@ Owin
 
 group Test
 	FluentAssertions
-	Helpz
 	NUnit

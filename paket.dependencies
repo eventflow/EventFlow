@@ -45,6 +45,5 @@ group Test
 	nuget AutoFixture ~> 3.0
 	nuget AutoFixture.AutoMoq ~> 3.0
 	nuget FluentAssertions ~> 4.2
-	nuget Helpz
 	nuget Moq ~> 4.0
 	nuget NUnit ~> 3.0

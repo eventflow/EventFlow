@@ -31,8 +31,8 @@ using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
-using Helpz.MsSql;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores

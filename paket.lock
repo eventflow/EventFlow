@@ -76,12 +76,11 @@ FRAMEWORK: NET451
 NUGET
   remote: https://www.nuget.org/api/v2
     AutoFixture (3.50.2)
-    AutoFixture.AutoMoq (3.50.2) - framework: >= net451
+    AutoFixture.AutoMoq (3.50.2)
       AutoFixture (>= 3.50.2)
       Moq (>= 4.1.1308.2120)
     Castle.Core (3.3.3)
     FluentAssertions (4.2.1)
-    Helpz (0.1.8) - framework: >= net451
     Moq (4.5.22)
       Castle.Core (>= 3.3.3)
     NUnit (3.4.1)

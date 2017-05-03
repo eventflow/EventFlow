@@ -94,6 +94,10 @@
     <Compile Include="Installer\InstalledSoftware.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="LogHelper.cs" />
+    <Compile Include="MsSql\IMsSqlDatabase.cs" />
+    <Compile Include="MsSql\MsSqlConnectionString.cs" />
+    <Compile Include="MsSql\MsSqlDatabase.cs" />
+    <Compile Include="MsSql\MsSqlHelpz.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Installer\InstallHelper.cs" />
