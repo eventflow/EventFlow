@@ -33,7 +33,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Core.IoC
 {
-    public class EventFlowIoCServiceRegistration : ServiceRegistration, IServiceRegistration
+    internal class EventFlowIoCServiceRegistration : ServiceRegistration, IServiceRegistration
     {
         private readonly object _syncRoot = new object();
         private readonly Dictionary<Type, List<Registration>> _registrations = new Dictionary<Type, List<Registration>>();
