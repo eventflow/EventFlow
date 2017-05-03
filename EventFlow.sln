@@ -1,13 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{7387D16E-5CC4-464B-85F3-F409543D09BD}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow", "Source\EventFlow\EventFlow.csproj", "{11131251-778D-4D2E-BDD1-4844A789BCA9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSSQL", "MSSQL", "{E4FC24C0-3EB3-4203-B4F2-0B534B42574A}"
@@ -37,8 +32,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ", "Source\EventFlow.RabbitMQ\EventFlow.RabbitMQ.csproj", "{4B06F01F-ACE6-489D-A92A-012F533EFA3C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ.Tests", "Source\EventFlow.RabbitMQ.Tests\EventFlow.RabbitMQ.Tests.csproj", "{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac.Tests", "Source\EventFlow.Autofac.Tests\EventFlow.Autofac.Tests.csproj", "{EDCD8854-6224-4329-87C2-9ADD7D153070}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autofac", "Autofac", "{980EEDAA-1FEF-4D7C-8811-5EF1D9729773}"
 EndProject
@@ -75,6 +68,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Elasticsearch", "Source\EventFlow.Elasticsearch\EventFlow.Elasticsearch.csproj", "{404C6099-E82F-4433-8505-5479D76660CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Elasticsearch.Tests", "Source\EventFlow.Elasticsearch.Tests\EventFlow.Elasticsearch.Tests.csproj", "{D4D7E41C-1473-4449-A128-CA4383783E6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac.Tests", "Source\EventFlow.Autofac.Tests\EventFlow.Autofac.Tests.csproj", "{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -126,10 +121,6 @@ Global
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EDCD8854-6224-4329-87C2-9ADD7D153070}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB079985-722A-43C9-9F14-C7D2AFBE8826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB079985-722A-43C9-9F14-C7D2AFBE8826}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB079985-722A-43C9-9F14-C7D2AFBE8826}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -178,6 +169,10 @@ Global
 		{D4D7E41C-1473-4449-A128-CA4383783E6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4D7E41C-1473-4449-A128-CA4383783E6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4D7E41C-1473-4449-A128-CA4383783E6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -192,7 +187,6 @@ Global
 		{BC4F0E41-6659-4D6D-9D25-1558CBA1649B} = {F6D62A27-50EA-4846-8F36-F3D36F52DCA6}
 		{4B06F01F-ACE6-489D-A92A-012F533EFA3C} = {7951DC73-5DAF-4322-9AF0-099BF5C90837}
 		{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A} = {7951DC73-5DAF-4322-9AF0-099BF5C90837}
-		{EDCD8854-6224-4329-87C2-9ADD7D153070} = {980EEDAA-1FEF-4D7C-8811-5EF1D9729773}
 		{FB079985-722A-43C9-9F14-C7D2AFBE8826} = {4741A405-DA64-40CC-A726-A2C48CA49DA3}
 		{35180FC7-9135-4E79-8643-0FB825B40871} = {4741A405-DA64-40CC-A726-A2C48CA49DA3}
 		{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39} = {7F20CC09-6988-40BC-8693-80E0F7022926}
@@ -206,5 +200,6 @@ Global
 		{36F59228-C7DC-4799-8342-4CAF5C4E95D5} = {92F3C263-8C0C-4D12-B41A-452E48D2E5E8}
 		{404C6099-E82F-4433-8505-5479D76660CD} = {D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}
 		{D4D7E41C-1473-4449-A128-CA4383783E6C} = {D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}
+		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5} = {980EEDAA-1FEF-4D7C-8811-5EF1D9729773}
 	EndGlobalSection
 EndGlobal

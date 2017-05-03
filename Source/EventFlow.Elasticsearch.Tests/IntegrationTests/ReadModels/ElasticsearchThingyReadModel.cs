@@ -34,18 +34,19 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        [String(Index = FieldIndexOption.NotAnalyzed)]
+        [Keyword(
+            Index = true)]
         public string Id { get; set; }
 
         [Boolean(
             Name = "DomainErrorAfterFirstReceived",
-            Index = NonStringIndexOption.NotAnalyzed)]
+            Index = false)]
         public bool DomainErrorAfterFirstReceived { get; set; }
 
         [Number(
             NumberType.Integer,
             Name = "PingsReceived",
-            Index = NonStringIndexOption.NotAnalyzed)]
+            Index = false)]
         public int PingsReceived { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)

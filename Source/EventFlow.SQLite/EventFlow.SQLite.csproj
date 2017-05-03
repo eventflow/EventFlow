@@ -1,105 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CEE8E914-B31C-4AAA-B520-CF72560D90FA}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.SQLite</RootNamespace>
-    <AssemblyName>EventFlow.SQLite</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFramework>net451</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Title>EventFlow.SQLite</Title>
+    <Authors>Rasmus Mikkelsen</Authors>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2017</Copyright>
+    <Description>SQLite event store for EventFlow</Description>
+    <PackageTags>CQRS ES event sourcing SQLite</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
+    <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="Connections\ISQLiteConnectionFactory.cs" />
-    <Compile Include="Connections\SQLiteConnectionFactory.cs" />
-    <Compile Include="Extensions\EventFlowOptionsExtensions.cs" />
-    <Compile Include="Connections\ISQLiteConfiguration.cs" />
-    <Compile Include="Connections\ISQLiteConnection.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadStores\SQLiteReadModelStore.cs" />
-    <Compile Include="ReadStores\ISQLiteReadModelStore.cs" />
-    <Compile Include="RetryStrategies\ISQLiteErrorRetryStrategy.cs" />
-    <Compile Include="RetryStrategies\SQLiteErrorRetryStrategy.cs" />
-    <Compile Include="Connections\SQLiteConfiguration.cs" />
-    <Compile Include="Connections\SQLiteConnection.cs" />
-    <Compile Include="EventStores\SQLiteEventPersistence.cs" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.105" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj">
-      <Project>{8ec9d877-7351-4c7e-87a8-29bbd3d7febb}</Project>
-      <Name>EventFlow.Sql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="paket.references" />
-    <None Include="paket.template" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <PropertyGroup>
-        <__paket__System_Data_SQLite_Core_targets>net451\System.Data.SQLite.Core</__paket__System_Data_SQLite_Core_targets>
-      </PropertyGroup>
-    </When>
-  </Choose>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="System.Data.SQLite">
-          <HintPath>..\..\packages\System.Data.SQLite.Core\lib\net451\System.Data.SQLite.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="..\..\packages\System.Data.SQLite.Core\build\$(__paket__System_Data_SQLite_Core_targets).targets" Condition="Exists('..\..\packages\System.Data.SQLite.Core\build\$(__paket__System_Data_SQLite_Core_targets).targets')" Label="Paket" />
-  <Import Project="..\..\.paket\paket.targets" />
 </Project>
