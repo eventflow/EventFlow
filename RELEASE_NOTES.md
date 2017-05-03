@@ -1,6 +1,6 @@
 ### New in 0.43 (not released yet)
 
-* _Nothing yet_
+* Breaking: Updated _all_ NuGet package dependencies to their latest versions
 
 ### New in 0.42.2755 (released 2017-05-02)
 

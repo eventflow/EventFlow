@@ -82,7 +82,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         {
             try
             {
-                _indexName = $"eventflow-test-{Guid.NewGuid().ToString("D")}";
+                _indexName = $"eventflow-test-{Guid.NewGuid():D}";
 
                 var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_indexName);
 
@@ -103,12 +103,15 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
                 _elasticClient = resolver.Resolve<IElasticClient>();
 
-                _elasticClient.CreateIndex(_indexName);
-                _elasticClient.Map<ElasticsearchThingyMessageReadModel>(d => d
-                    .Index(_indexName)
-                    .AutoMap());
+                _elasticClient.CreateIndex(_indexName, c => c
+                    .Settings(s => s
+                        .NumberOfShards(1)
+                        .NumberOfReplicas(0))
+                    .Mappings(m => m
+                        .Map<ElasticsearchThingyMessageReadModel>(d => d
+                            .AutoMap())));
 
-                _elasticsearchInstance.WaitForGeenStateAsync().Wait(TimeSpan.FromMinutes(1));
+                _elasticsearchInstance.WaitForGreenStateAsync().Wait(TimeSpan.FromMinutes(1));
 
                 return resolver;
             }

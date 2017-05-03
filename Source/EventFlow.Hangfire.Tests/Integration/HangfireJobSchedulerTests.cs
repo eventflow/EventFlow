@@ -107,7 +107,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         protected override async Task AssertJobIsSuccessfullAsync(IJobId jobId)
         {
             var jobHtml = await GetAsync($"hangfire/jobs/details/{jobId.Value}").ConfigureAwait(false);
-            jobHtml.Should().Contain("<h1 class=\"page-header\">&quot;PublishCommand v1&quot;</h1>");
+            jobHtml.Should().Contain("<h1 class=\"page-header\">PublishCommand v1</h1>");
         }
 
         private static async Task<string> GetAsync(string path)
