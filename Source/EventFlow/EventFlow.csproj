@@ -17,6 +17,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>    
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
