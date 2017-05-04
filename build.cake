@@ -25,7 +25,6 @@
 #r "System.IO.Compression.FileSystem"
 #r "System.Xml"
 
-#tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
 
@@ -49,7 +48,6 @@ var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build"
 var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
 
 // IMPORTANT FILES
-var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
 var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
 var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
@@ -80,31 +78,10 @@ Task("Clean")
 			DeleteDirectories(GetDirectories("**/bin"), true);
 			DeleteDirectories(GetDirectories("**/obj"), true);
         });
-
-// =====================================================================================================
-Task("Version")
-    .IsDependentOn("Clean")
-    .Does(() =>
-        {
-            CreateAssemblyInfo(
-                FILE_SOLUTIONINFO,
-                new AssemblyInfoSettings
-                    {
-                        Version = VERSION.ToString(),
-                        FileVersion = VERSION.ToString(),
-                        InformationalVersion = VERSION.ToString(),
-                        Company = "Rasmus Mikkelsen",
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0} (SHA:{1})", DateTime.Now.Year, GetSha()),
-                        Configuration = CONFIGURATION,
-                        Trademark = "",
-                        Product = "EventFlow",
-                        ComVisible = false,
-                    });
-        });
-		
+	
 // =====================================================================================================
 Task("Restore")
-    .IsDependentOn("Version")
+    .IsDependentOn("Clean")
     .Does(() =>
         {
 			DotNetCoreRestore(
@@ -241,13 +218,6 @@ void SetReleaseNotes(string filePath)
 
         xmlDocument.Save(filePath);
     }
-}
-
-string GetSha()
-{
-    return AppVeyor.IsRunningOnAppVeyor
-        ? string.Format("git sha: {0}", GitVersion().Sha)
-        : "developer build";
 }
 
 void UploadArtifact(string filePath)
