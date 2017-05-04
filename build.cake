@@ -62,6 +62,10 @@ var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
 // =====================================================================================================
+Task("Default")
+    .IsDependentOn("Package");
+
+// =====================================================================================================
 Task("Clean")
     .Does(() =>
         {
