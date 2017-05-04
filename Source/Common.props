@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
-    <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
+	<DebugType>portable</DebugType>
+	<IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(SourceLinkEnabled)' != 'false'">
