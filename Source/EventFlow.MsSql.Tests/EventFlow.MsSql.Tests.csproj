@@ -8,9 +8,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Helpz" Version="0.2.64" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
