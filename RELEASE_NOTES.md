@@ -1,6 +1,8 @@
 ### New in 0.43 (not released yet)
 
 * Breaking: Updated _all_ NuGet package dependencies to their latest versions
+* New: EventFlow now embeds PDB and source code within the assemblies using
+  [SourceLink](https://github.com/ctaggart/SourceLink) (GitLink now removed)
 
 ### New in 0.42.2755 (released 2017-05-02)
 
