@@ -1,10 +1,6 @@
 <Project>
   <PropertyGroup>
-	<DebugType>portable</DebugType>
-	<IsTestProject Condition="$(MSBuildProjectName.Contains('Test')) or $(MSBuildProjectName.Contains('Example'))">true</IsTestProject>
+	<DebugType>embedded</DebugType>
+	<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(SourceLinkEnabled)' != 'false'">
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.1.1" PrivateAssets="All" /> 
-  </ItemGroup>
 </Project>
