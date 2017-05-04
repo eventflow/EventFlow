@@ -230,7 +230,7 @@ void SetReleaseNotes(string filePath)
             filePath));
     }
 
-    if (AppVeyor.IsRunningOnAppVeyor)
+    if (!AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Skipping update of release notes");
         return;
