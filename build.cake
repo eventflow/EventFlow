@@ -25,7 +25,6 @@
 #r "System.IO.Compression.FileSystem"
 #r "System.Xml"
 
-#tool "nuget:?package=gitlink"
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
@@ -122,7 +121,10 @@ Task("Build")
 				new DotNetCoreBuildSettings()
 				{
 					Configuration = CONFIGURATION,
-					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+					ArgumentCustomization = aggs => aggs
+                        .Append(GetDotNetCoreArgsVersions())
+                        .Append("/p:ci=true")
+                        .Append("/p:SourceLinkEnabled=true")
 				});
         });
 
@@ -146,14 +148,6 @@ Task("Package")
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
-
-            Information("Updating PDB files using GitLink");
-            GitLink(
-                PROJECT_DIR,
-                new GitLinkSettings{
-                    RepositoryUrl = "https://github.com/eventflow/EventFlow",
-                    SolutionFileName = FILE_SOLUTION
-                });
 
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
