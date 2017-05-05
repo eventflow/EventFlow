@@ -23,11 +23,14 @@
 // 
 
 #r "System.IO.Compression.FileSystem"
+#r "System.Xml"
 
-#tool "nuget:?package=gitlink"
+#tool "nuget:?package=NUnit.ConsoleRunner"
+#tool "nuget:?package=OpenCover"
 
-using System.Net;
 using System.IO.Compression;
+using System.Net;
+using System.Xml;
 
 var VERSION = GetArgumentVersion();
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
@@ -45,7 +48,6 @@ var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build"
 var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
 
 // IMPORTANT FILES
-var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
 var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
 var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
@@ -55,14 +57,11 @@ var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
     DIR_OUTPUT_DOCUMENTATION,
     string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
-// TOOLS
-var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
-var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
-var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
-
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
+// =====================================================================================================
+Task("Default")
+    .IsDependentOn("Package");
 
 // =====================================================================================================
 Task("Clean")
@@ -75,50 +74,52 @@ Task("Clean")
                     DIR_OUTPUT_DOCUMENTATION,
                     DIR_BUILT_DOCUMENTATION,
                 });
-
-            BuildProject("Clean");
+				
+			DeleteDirectories(GetDirectories("**/bin"), true);
+			DeleteDirectories(GetDirectories("**/obj"), true);
         });
-
+	
 // =====================================================================================================
-Task("Version")
+Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
         {
-            CreateAssemblyInfo(
-                FILE_SOLUTIONINFO,
-                new AssemblyInfoSettings
-                    {
-                        Version = VERSION.ToString(),
-                        FileVersion = VERSION.ToString(),
-                        InformationalVersion = VERSION.ToString(),
-                        Company = "Rasmus Mikkelsen",
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0} (SHA:{1})", DateTime.Now.Year, GetSha()),
-                        Configuration = CONFIGURATION,
-                        Trademark = "",
-                        Product = "EventFlow",
-                        ComVisible = false,
-                    });
+			DotNetCoreRestore(
+				".", 
+				new DotNetCoreRestoreSettings()
+				{
+					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+				});
         });
-
+		
 // =====================================================================================================
 Task("Build")
-    .IsDependentOn("Version")
+    .IsDependentOn("Restore")
     .Does(() =>
         {
-            BuildProject("Build");
+            DotNetCoreBuild(
+				".", 
+				new DotNetCoreBuildSettings()
+				{
+					Configuration = CONFIGURATION,
+					ArgumentCustomization = aggs => aggs
+                        .Append(GetDotNetCoreArgsVersions())
+                        .Append("/p:ci=true")
+                        .Append("/p:SourceLinkEnabled=true")
+				});
         });
 
 // =====================================================================================================
 Task("Test")
     .IsDependentOn("Build")
-    .Finally(() => 
+    .Does(() =>
+        {
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/**/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+        })
+	.Finally(() => 
         {
             UploadArtifact(FILE_NUNIT_TXT_REPORT);
             UploadTestResults(FILE_NUNIT_XML_REPORT);
-        })
-    .Does(() =>
-        {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -129,20 +130,29 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            Information("Updating PDB files using GitLink");
-            GitLink(
-                PROJECT_DIR,
-                new GitLinkSettings{
-                    RepositoryUrl = "https://github.com/eventflow/EventFlow",
-                    SolutionFileName = FILE_SOLUTION
-                });
+			foreach (var project in GetFiles("./Source/**/*.csproj"))
+			{
+				var name = project.GetDirectory().FullPath;
+				var version = VERSION.ToString();
+				
+				if (name.Contains("Test") || name.Contains("Example"))
+				{
+					continue;
+				}
 
-            Information("Paket pack");
-            ExecuteCommand(TOOL_PAKET, string.Format(
-                "pack pin-project-references output \"{0}\" buildconfig {1} releaseNotes \"{2}\"",
-                DIR_OUTPUT_PACKAGES,
-                CONFIGURATION,
-                string.Join(Environment.NewLine, RELEASE_NOTES.Notes)));
+                SetReleaseNotes(project.ToString());
+							
+				DotNetCorePack(
+					name,
+					new DotNetCorePackSettings()
+					{
+						Configuration = CONFIGURATION,
+						OutputDirectory = DIR_OUTPUT_PACKAGES,
+						NoBuild = true,
+						Verbose = false,
+						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+					});
+			}
         });
 
 // =====================================================================================================
@@ -165,35 +175,49 @@ Task("All")
         });
 
 // =====================================================================================================
-void BuildProject(string target)
-{
-    MSBuild(
-        "EventFlow.sln",
-         s => s
-            .WithTarget(target)
-            .SetConfiguration(CONFIGURATION)
-            .SetMSBuildPlatform(MSBuildPlatform.Automatic)
-            .SetVerbosity(Verbosity.Minimal)
-            .SetNodeReuse(false)
-            .UseToolVersion(MSBuildToolVersion.VS2017)
-        );
-}
 
 Version GetArgumentVersion()
 {
-    var arg = Argument<string>("buildVersion", "0.0.1");
-    var version = string.IsNullOrEmpty(arg)
-        ? Version.Parse("0.0.1")
-        : Version.Parse(arg);
-
-    return version;
+    return Version.Parse(EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "0.0.1");
 }
 
-string GetSha()
+string GetDotNetCoreArgsVersions()
 {
-    return AppVeyor.IsRunningOnAppVeyor
-        ? string.Format("git sha: {0}", GitVersion(new GitVersionSettings { ToolPath = TOOL_GITVERSION, }).Sha)
-        : "developer build";
+	var version = GetArgumentVersion().ToString();
+	
+	return string.Format(
+		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0}",
+		version);
+}
+
+void SetReleaseNotes(string filePath)
+{
+    var releaseNotes = string.Join(Environment.NewLine, RELEASE_NOTES.Notes);
+
+    var xmlDocument = new XmlDocument();
+    xmlDocument.Load(filePath);
+
+    var node = xmlDocument.SelectSingleNode("Project/PropertyGroup/PackageReleaseNotes") as XmlElement;
+    if (node == null)
+    {
+        throw new Exception(string.Format(
+            "Project {0} does not have a `<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>` property",
+            filePath));
+    }
+
+    if (!AppVeyor.IsRunningOnAppVeyor)
+    {
+        Information("Skipping update of release notes");
+        return;
+    } 
+    else
+    {
+        Information(string.Format("Setting release notes in '{0}'", filePath));
+        
+        node.InnerText = releaseNotes;
+
+        xmlDocument.Save(filePath);
+    }
 }
 
 void UploadArtifact(string filePath)
@@ -297,28 +321,25 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
 
 void ExecuteTest(string files, string resultsFile)
 {
-
-    OpenCover(tool =>
-        {
-            tool.NUnit3(
-                files,
-                new NUnit3Settings
-                    {
-                        ShadowCopy = false,
-                        Timeout = 600000,
-                        NoHeader = true,
-                        NoColor = true,
-                        Framework = "net-4.5",
-                        ToolPath = TOOL_NUNIT,
-                        OutputFile = FILE_NUNIT_TXT_REPORT,
-                        Results = resultsFile,
-                        DisposeRunners = true
-                    });
+	OpenCover(tool => 
+		{
+			tool.NUnit3(
+				files,
+				new NUnit3Settings
+					{
+						Framework = "net-4.5",
+						Timeout = 600000,
+						ShadowCopy = false,
+						NoHeader = true,
+						NoColor = true,
+						DisposeRunners = true,
+						OutputFile = FILE_NUNIT_TXT_REPORT,
+						Results = resultsFile
+					});
         },
     new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
-            ToolPath = TOOL_OPENCOVER,
             ArgumentCustomization = aggs => aggs.Append("-returntargetcode")
         }
         .WithFilter("+[EventFlow*]*")

@@ -94,11 +94,11 @@ namespace EventFlow.EventStores.Files
             int pageSize,
             CancellationToken cancellationToken)
         {
-            var startPostion = globalPosition.IsStart
+            var startPosition = globalPosition.IsStart
                 ? 1
                 : int.Parse(globalPosition.Value);
 
-            var paths = Enumerable.Range(startPostion, pageSize)
+            var paths = Enumerable.Range(startPosition, pageSize)
                 .TakeWhile(g => _eventLog.ContainsKey(g))
                 .Select(g => _eventLog[g])
                 .ToList();
@@ -112,7 +112,7 @@ namespace EventFlow.EventStores.Files
 
             var nextPosition = committedDomainEvents.Any()
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
-                : startPostion;
+                : startPosition;
 
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }

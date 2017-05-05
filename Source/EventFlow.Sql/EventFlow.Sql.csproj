@@ -1,123 +1,36 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Common.props" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8EC9D877-7351-4C7E-87A8-29BBD3D7FEBB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventFlow.Sql</RootNamespace>
-    <AssemblyName>EventFlow.Sql</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFramework>net451</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Title>EventFlow.Sql</Title>
+    <Authors>Rasmus Mikkelsen</Authors>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2017</Copyright>
+    <Description>Generic SQL support for EventFlow</Description>
+    <PackageTags>CQRS ES event sourcing SQL</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
+    <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.2" />
+    <PackageReference Include="dbup" Version="3.3.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="Extensions\AssemblyExtensions.cs" />
-    <Compile Include="Connections\ISqlConnectionFactory.cs" />
-    <Compile Include="Exceptions\SqlMigrationException.cs" />
-    <Compile Include="Connections\ISqlConfiguration.cs" />
-    <Compile Include="Connections\ISqlConnection.cs" />
-    <Compile Include="Migrations\ISqlDatabaseMigrator.cs" />
-    <Compile Include="Integrations\DbUpUpgradeLog.cs" />
-    <Compile Include="Connections\SqlConfiguration.cs" />
-    <Compile Include="Connections\SqlConnection.cs" />
-    <Compile Include="Migrations\SqlScript.cs" />
-    <Compile Include="Migrations\SqlDatabaseMigrator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadModels\ISqlReadModelStore.cs" />
-    <Compile Include="ReadModels\IReadModelSqlGenerator.cs" />
-    <Compile Include="ReadModels\SqlReadModelStore.cs" />
-    <Compile Include="ReadModels\ReadModelSqlGenerator.cs" />
-    <Compile Include="ReadModels\Attributes\SqlReadModelIdentityColumnAttribute.cs" />
-    <Compile Include="ReadModels\Attributes\SqlReadModelIgnoreColumnAttribute.cs" />
-    <Compile Include="ReadModels\Attributes\SqlReadModelVersionColumnAttribute.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="paket.references">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="paket.template" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj">
-      <Project>{11131251-778d-4d2e-bdd1-4844a789bca9}</Project>
-      <Name>EventFlow</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Dapper">
-          <HintPath>..\..\packages\Dapper\lib\net45\Dapper.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="DbUp">
-          <HintPath>..\..\packages\dbup\lib\net35\DbUp.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.1'">
-      <ItemGroup>
-        <Reference Include="Newtonsoft.Json">
-          <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="..\..\.paket\paket.targets" />
 </Project>

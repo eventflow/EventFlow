@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+	<DebugType>embedded</DebugType>
+	<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

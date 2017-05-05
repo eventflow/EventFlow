@@ -21,45 +21,51 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using EventFlow.Extensions;
-using EventFlow.MsSql.EventStores;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.MsSql;
-using NUnit.Framework;
+using System;
+using System.Data.SqlClient;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
+namespace EventFlow.TestHelpers.MsSql
 {
-    [Category(Categories.Integration)]
-    public class MsSqlScriptsTests
+    public class MsSqlDatabase : IMsSqlDatabase
     {
-        private IMsSqlDatabase _msSqlDatabase;
-
-        [Test]
-        public void SqlScriptsAreIdempotent()
+        public MsSqlDatabase(MsSqlConnectionString connectionString, bool dropOnDispose)
         {
-            // Arrange
-            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
+            ConnectionString = connectionString;
+            DropOnDispose = dropOnDispose;
+            ConnectionString.Ping();
+        }
 
-            // Act
-            foreach (var _ in Enumerable.Range(0, 2))
+        public MsSqlConnectionString ConnectionString { get; }
+        public bool DropOnDispose { get; }
+
+        public void Dispose()
+        {
+            if (DropOnDispose)
             {
-                foreach (var sqlScript in sqlScripts)
-                {
-                    _msSqlDatabase.Execute(sqlScript.Content);
-                }
+                var masterConnectionString = ConnectionString.NewConnectionString("master");
+                masterConnectionString.Execute($"ALTER DATABASE [{ConnectionString.Database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;");
+                masterConnectionString.Execute($"DROP DATABASE [{ConnectionString.Database}];");
             }
         }
 
-        [SetUp]
-        public void SetUp()
+        public void Ping()
         {
-            _msSqlDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+            ConnectionString.Ping();
         }
 
-        public void TearDown()
+        public T WithConnection<T>(Func<SqlConnection, T> action)
         {
-            _msSqlDatabase.DisposeSafe("MSSQL database");
+            return ConnectionString.WithConnection(action);
+        }
+
+        public void Execute(string sql)
+        {
+            ConnectionString.Execute(sql);
+        }
+
+        public void WithConnection(Action<SqlConnection> action)
+        {
+            ConnectionString.WithConnection(action);
         }
     }
 }
