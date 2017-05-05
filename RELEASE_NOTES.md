@@ -1,4 +1,8 @@
-### New in 0.43 (not released yet)
+### New in 0.44 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.43.2806 (released 2017-05-05)
 
 * Breaking: Updated _all_ NuGet package dependencies to their latest versions
 * New: EventFlow now embeds PDB and source code within the assemblies using
