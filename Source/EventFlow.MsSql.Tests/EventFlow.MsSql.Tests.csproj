@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFramework>net451</TargetFramework>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
@@ -6,9 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Helpz" Version="0.2.64" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.MsSql\EventFlow.MsSql.csproj" />
