@@ -1,6 +1,6 @@
 ### New in 0.44 (not released yet)
 
-* _Nothing yet_
+* Fixed: EventFlow supports Autofac 3.5.2+
 
 ### New in 0.43.2806 (released 2017-05-05)
 
