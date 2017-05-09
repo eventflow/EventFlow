@@ -30,7 +30,7 @@ using EventFlow.EventStores;
 
 namespace EventFlow.EventArchives
 {
-    public interface IEventArchiveStreamer
+    public interface IEventArchiveStreamFormatter
     {
         Task StreamEventsAsync(
             Stream stream,

@@ -29,18 +29,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.EventArchives.Files;
 using EventFlow.EventStores;
 using Newtonsoft.Json;
 
 namespace EventFlow.EventArchives
 {
-    public class EventArchiveStreamer : IEventArchiveStreamer
+    public class EventArchiveStreamFormatter : IEventArchiveStreamFormatter
     {
         private readonly JsonSerializer _jsonSerializer = new JsonSerializer
-            {
-                Formatting = Formatting.None,
-            };
+        {
+            Formatting = Formatting.None
+        };
 
         public async Task StreamEventsAsync(
             Stream stream,
@@ -55,10 +54,9 @@ namespace EventFlow.EventArchives
 
                 IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
                 while ((committedDomainEvents = await batchFetcher(cancellationToken).ConfigureAwait(false)).Any())
-                {
                     foreach (var committedDomainEvent in committedDomainEvents)
                     {
-                        var jsonEvent = new FileEventArchivePersistance.JsonEvent(
+                        var jsonEvent = new JsonEvent(
                             committedDomainEvent.Data,
                             committedDomainEvent.Metadata);
 
@@ -66,10 +64,26 @@ namespace EventFlow.EventArchives
                             jsonTextWriter,
                             jsonEvent);
                     }
-                }
 
                 jsonTextWriter.WriteEndArray();
             }
+        }
+
+        public class JsonEvent
+        {
+            public JsonEvent(
+                string @event,
+                string metadata)
+            {
+                Event = @event;
+                Metadata = metadata;
+            }
+
+            [JsonProperty("event")]
+            public string Event { get; }
+
+            [JsonProperty("metadata")]
+            public string Metadata { get; }
         }
     }
 }

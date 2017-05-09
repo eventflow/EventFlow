@@ -56,7 +56,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
             var eventDefinitionService = new EventDefinitionService(Mock<ILog>());
             eventDefinitionService.Load(typeof(ThingyPingEvent));
 
-            Inject<IEventArchiveStreamer>(new EventArchiveStreamer());
+            Inject<IEventArchiveStreamFormatter>(new EventArchiveStreamFormatter());
 
             _fileSystemMock = InjectMock<IFileSystem>();
             _fileEventArchiveConfigurationMock = InjectMock<IFileEventArchiveConfiguration>();

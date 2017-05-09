@@ -82,12 +82,12 @@
     <Compile Include="Core\TaskRunner.cs" />
     <Compile Include="EventArchives\EventArchive.cs" />
     <Compile Include="EventArchives\EventArchiveDetails.cs" />
-    <Compile Include="EventArchives\EventArchiveStreamer.cs" />
+    <Compile Include="EventArchives\EventArchiveStreamFormatter.cs" />
     <Compile Include="EventArchives\Files\FileEventArchiveConfiguration.cs" />
     <Compile Include="EventArchives\Files\IFileEventArchiveConfiguration.cs" />
     <Compile Include="EventArchives\IEventArchive.cs" />
     <Compile Include="EventArchives\IEventArchivePersistance.cs" />
-    <Compile Include="EventArchives\IEventArchiveStreamer.cs" />
+    <Compile Include="EventArchives\IEventArchiveStreamFormatter.cs" />
     <Compile Include="EventArchives\Null\NullEventArchivePersistance.cs" />
     <Compile Include="EventArchives\Files\FileEventArchivePersistance.cs" />
     <Compile Include="Extensions\AggregateStoreExtensions.cs" />

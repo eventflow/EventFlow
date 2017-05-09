@@ -37,19 +37,19 @@ namespace EventFlow.EventArchives.Files
     {
         private readonly IFileSystem _fileSystem;
         private readonly IFileEventArchiveConfiguration _configuration;
-        private readonly IEventArchiveStreamer _eventArchiveStreamer;
+        private readonly IEventArchiveStreamFormatter _eventArchiveStreamFormatter;
         private readonly ILog _log;
 
         public FileEventArchivePersistance(
             ILog log,
             IFileSystem fileSystem,
             IFileEventArchiveConfiguration configuration,
-            IEventArchiveStreamer eventArchiveStreamer)
+            IEventArchiveStreamFormatter eventArchiveStreamFormatter)
         {
             _log = log;
             _fileSystem = fileSystem;
             _configuration = configuration;
-            _eventArchiveStreamer = eventArchiveStreamer;
+            _eventArchiveStreamFormatter = eventArchiveStreamFormatter;
         }
 
         public async Task<EventArchiveDetails> ArchiveAsync(
@@ -68,7 +68,7 @@ namespace EventFlow.EventArchives.Files
                     cancellationToken)
                 .ConfigureAwait(false))
             {
-                await _eventArchiveStreamer.StreamEventsAsync(
+                await _eventArchiveStreamFormatter.StreamEventsAsync(
                     stream,
                     batchFetcher,
                     cancellationToken)
@@ -78,23 +78,6 @@ namespace EventFlow.EventArchives.Files
             _log.Verbose($"Used {stopwatch.Elapsed.TotalSeconds:0.###} seconds to store archive of '{identity}' at '{fileName}'");
 
             return new EventArchiveDetails(new Uri(fileName));
-        }
-
-        public class JsonEvent
-        {
-            public JsonEvent(
-                string @event,
-                string metadata)
-            {
-                Event = @event;
-                Metadata = metadata;
-            }
-
-            [JsonProperty("event")]
-            public string Event { get; }
-
-            [JsonProperty("metadata")]
-            public string Metadata { get; }
         }
     }
 }
