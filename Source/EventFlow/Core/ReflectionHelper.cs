@@ -35,17 +35,13 @@ namespace EventFlow.Core
     {
         public static string GetCodeBase(Assembly assembly, bool includeFileName = false)
         {
-            return string.Empty;
-            // TODO
-            /*
-            var codebase = assembly.GetName().CodeBase;
+            var codebase = assembly.CodeBase;
             var uri = new UriBuilder(codebase);
             var path = Path.GetFullPath(Uri.UnescapeDataString(uri.Path));
             var codeBase = includeFileName ?
                 path :
                 Path.GetDirectoryName(path);
             return codeBase;
-            */
         }
 
         /// <summary>
