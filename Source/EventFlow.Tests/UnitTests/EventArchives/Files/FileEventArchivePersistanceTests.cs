@@ -77,7 +77,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
             var stack = new Stack<IReadOnlyCollection<ICommittedDomainEvent>>();
             stack.Push(committedDomainEvents);
 
-            IReadOnlyCollection<FileEventArchivePersistance.JsonEvent> jsonEvents = null;
+            IReadOnlyCollection<EventArchiveStreamFormatter.JsonEvent> jsonEvents = null;
             EventArchiveDetails eventArchiveDetails = null;
 
             using (var anonymousPipeServerStream = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.None))
@@ -101,7 +101,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
                         var ss = new Newtonsoft.Json.JsonSerializer();
-                        jsonEvents = ss.Deserialize<IReadOnlyCollection<FileEventArchivePersistance.JsonEvent>>(jsonTextReader);
+                        jsonEvents = ss.Deserialize<IReadOnlyCollection<EventArchiveStreamFormatter.JsonEvent>>(jsonTextReader);
                     }
                 });
 
