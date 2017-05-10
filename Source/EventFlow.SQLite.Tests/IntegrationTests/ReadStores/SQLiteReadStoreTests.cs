@@ -46,7 +46,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
+            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
             using (File.Create(_databasePath)) { }
 
@@ -64,19 +64,19 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
             var connection = resolver.Resolve<ISQLiteConnection>();
             const string sqlThingyAggregate = @"
                 CREATE TABLE [ReadModel-ThingyAggregate](
-	                [Id] [INTEGER] PRIMARY KEY ASC,
+                    [Id] [INTEGER] PRIMARY KEY ASC,
                     [AggregateId] [nvarchar](64) NOT NULL,
                     [Version] INTEGER,
-	                [PingsReceived] [int] NOT NULL,
-	                [DomainErrorAfterFirstReceived] [bit] NOT NULL
+                    [PingsReceived] [int] NOT NULL,
+                    [DomainErrorAfterFirstReceived] [bit] NOT NULL
                 )";
             const string sqlThingyMessage = @"
                 CREATE TABLE [ReadModel-ThingyMessage](
-	                [Id] [INTEGER] PRIMARY KEY ASC,
-	                [ThingyId] [nvarchar](64) NOT NULL,
+                    [Id] [INTEGER] PRIMARY KEY ASC,
+                    [ThingyId] [nvarchar](64) NOT NULL,
                     [Version] INTEGER,
-	                [MessageId] [nvarchar](64) NOT NULL,
-	                [Message] [nvarchar](512) NOT NULL
+                    [MessageId] [nvarchar](64) NOT NULL,
+                    [Message] [nvarchar](512) NOT NULL
                 )";
             connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyAggregate, null).Wait();
             connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyMessage, null).Wait();

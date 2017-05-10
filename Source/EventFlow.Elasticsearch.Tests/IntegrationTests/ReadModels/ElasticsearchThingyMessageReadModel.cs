@@ -36,14 +36,14 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
     {
         public string Id { get; set; }
 
-        [String(
+        [Keyword(
             Name = "ThingyId",
-            Index = FieldIndexOption.NotAnalyzed)]
+            Index = true)]
         public string ThingyId { get; set; }
 
-        [String(
+        [Text(
             Name = "Message",
-            Index = FieldIndexOption.No)]
+            Index = false)]
         public string Message { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)

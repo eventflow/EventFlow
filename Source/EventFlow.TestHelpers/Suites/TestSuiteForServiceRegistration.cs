@@ -140,8 +140,8 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             var c = resolver.Resolve<C>();
             var nested = c.Is.ToList();
-            nested[0].Should().BeOfType<B>();
-            nested[1].Should().BeOfType<A>();
+            nested.Should().Contain(x => x.GetType() == typeof(A));
+            nested.Should().Contain(x => x.GetType() == typeof(B));
         }
 
         [Test]
@@ -275,7 +275,7 @@ namespace EventFlow.TestHelpers.Suites
             Sut.CreateResolver(true);
 
             // Assert
-            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once);
+            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace EventFlow.TestHelpers.Suites
             }
 
             // Assert
-            iMock.Verify(i => i.Dispose(), Times.Once);
+            iMock.Verify(i => i.Dispose(), Times.Once());
         }
 
         [Test]

@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.43.{build}
+version: 0.44.{build}
 
 install:
   - cmd: pip install -U Sphinx
@@ -10,7 +10,7 @@ install:
 skip_tags: true
 
 build_script:
-  - cmd: build.cmd All
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
 
 image: Visual Studio 2017
 
@@ -23,9 +23,6 @@ test: off
 artifacts:
   - path: Build\Packages\*.nupkg
   - path: Build\Documentation\*.zip
-
-cache:
-  - packages -> paket.lock
 
 services:
   - mssql2014

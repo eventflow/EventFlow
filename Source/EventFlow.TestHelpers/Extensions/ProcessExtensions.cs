@@ -35,17 +35,19 @@ namespace EventFlow.TestHelpers.Extensions
             Action<Process> initialize)
         {
             var autoResetEvent = new AutoResetEvent(false);
-            DataReceivedEventHandler handler = (sender, args) =>
+
+            void Handler(object sender, DataReceivedEventArgs args)
+            {
+                if (args?.Data != null && args.Data.Contains(output))
                 {
-                    if (args.Data.Contains(output))
-                    {
-                        autoResetEvent.Set();
-                    }
-                };
-            process.OutputDataReceived += handler;
+                    autoResetEvent.Set();
+                }
+            }
+
+            process.OutputDataReceived += Handler;
             initialize(process);
             var foundOutput = autoResetEvent.WaitOne(TimeSpan.FromSeconds(30));
-            process.OutputDataReceived -= handler;
+            process.OutputDataReceived -= Handler;
             return foundOutput;
         }
     }

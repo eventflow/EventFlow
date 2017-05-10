@@ -20,9 +20,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
-using System.Reflection;
+using System;
+using System.Data.SqlClient;
 
-[assembly: AssemblyTitle("EventFlow.Hangfire.Tests")]
-[assembly: AssemblyCulture("")]
+namespace EventFlow.TestHelpers.MsSql
+{
+    public interface IMsSqlDatabase : IDisposable
+    {
+        MsSqlConnectionString ConnectionString { get; }
+        bool DropOnDispose { get; }
+        void Ping();
+        T WithConnection<T>(Func<SqlConnection, T> action);
+        void Execute(string sql);
+        void WithConnection(Action<SqlConnection> action);
+    }
+}
