@@ -6,6 +6,8 @@
   - `EventFlow.Elasticsearch`
   - `EventFlow.Hangfire`
   - `EventFlow.RabbitMQ`
+* Fixed: Removed dependency `Microsoft.Owin.Host.HttpListener` from
+  `EventFlow.Owin` as it doesn't need it
 
 ### New in 0.43.2806 (released 2017-05-05)
 
