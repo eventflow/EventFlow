@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
@@ -93,7 +94,7 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof(IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof(IAggregateEvent).GetTypeInfo().IsAssignableFrom(aggregateEventType))
                 {
                     throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof(IAggregateEvent).PrettyPrint()}");
                 }
@@ -106,7 +107,7 @@ namespace EventFlow
         {
             foreach (var sagaType in sagaTypes)
             {
-                if (!typeof(ISaga).IsAssignableFrom(sagaType))
+                if (!typeof(ISaga).GetTypeInfo().IsAssignableFrom(sagaType))
                 {
                     throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
                 }
@@ -119,7 +120,7 @@ namespace EventFlow
         {
             foreach (var commandType in commandTypes)
             {
-                if (!typeof(ICommand).IsAssignableFrom(commandType))
+                if (!typeof(ICommand).GetTypeInfo().IsAssignableFrom(commandType))
                 {
                     throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof(ICommand).PrettyPrint()}");
                 }
@@ -132,7 +133,7 @@ namespace EventFlow
         {
             foreach (var jobType in jobTypes)
             {
-                if (!typeof(IJob).IsAssignableFrom(jobType))
+                if (!typeof(IJob).GetTypeInfo().IsAssignableFrom(jobType))
                 {
                     throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof(IJob).PrettyPrint()}");
                 }
@@ -145,7 +146,7 @@ namespace EventFlow
         {
             foreach (var snapshotType in snapshotTypes)
             {
-                if (!typeof(ISnapshot).IsAssignableFrom(snapshotType))
+                if (!typeof(ISnapshot).GetTypeInfo().IsAssignableFrom(snapshotType))
                 {
                     throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
                 }
@@ -221,7 +222,11 @@ namespace EventFlow
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
+#if NET451
             serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
+#else
+            serviceRegistration.Register<IMemoryCache, DictionaryMemoryCache>(Lifetime.Singleton);
+#endif
             serviceRegistration.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));

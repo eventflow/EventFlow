@@ -31,7 +31,7 @@ namespace EventFlow.Extensions
     public static class StringExtensions
     {
         private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
-        private static readonly SHA256Managed Sha256Managed = new SHA256Managed();
+        private static readonly SHA256 Sha256Managed = SHA256.Create();
 
         public static string ToSlug(this string str)
         {
