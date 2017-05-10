@@ -1,6 +1,11 @@
 ### New in 0.44 (not released yet)
 
-* _Nothing yet_
+* New: .NETStandard 1.6 support for the following NuGet packages
+  - `EventFlow`
+  - `EventFlow.Autofac`
+  - `EventFlow.Elasticsearch`
+  - `EventFlow.Hangfire`
+  - `EventFlow.RabbitMQ`
 
 ### New in 0.43.2806 (released 2017-05-05)
 
