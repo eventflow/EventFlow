@@ -1,6 +1,6 @@
 ### New in 0.44 (not released yet)
 
-* New: .NETStandard 1.6 support for the following NuGet packages
+* New: .NET Standard 1.6 support for the following NuGet packages
   - `EventFlow`
   - `EventFlow.Autofac`
   - `EventFlow.Elasticsearch`
