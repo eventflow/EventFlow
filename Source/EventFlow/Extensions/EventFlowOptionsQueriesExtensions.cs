@@ -54,7 +54,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
-                .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
+                .Where(t => t.GetTypeInfo().GetInterfaces().Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
                 .Where(t => predicate(t));
             return eventFlowOptions
                 .AddQueryHandlers(subscribeSynchronousToTypes);
@@ -67,10 +67,11 @@ namespace EventFlow.Extensions
             foreach (var queryHandlerType in queryHandlerTypes)
             {
                 var t = queryHandlerType;
-                if (t.IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract) continue;
                 var queryHandlerInterfaces = t
+                    .GetTypeInfo()
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
+                    .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))
                     .ToList();
                 if (!queryHandlerInterfaces.Any())
                 {

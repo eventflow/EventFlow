@@ -23,6 +23,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -96,7 +97,7 @@ namespace EventFlow.Core.VersionedTypes
             var versionedTypeUpgraderType = typeof(IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgrader = _resolver.Resolve(upgraderType);
 
-            var methodInfo = versionedTypeUpgraderType.GetMethod("UpgradeAsync");
+            var methodInfo = versionedTypeUpgraderType.GetTypeInfo().GetMethod("UpgradeAsync");
 
             var task = (Task) methodInfo.Invoke(versionedTypeUpgrader, new object[] { versionedType, cancellationToken });
 

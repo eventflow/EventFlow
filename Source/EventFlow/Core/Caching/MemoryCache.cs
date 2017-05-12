@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#if NET451
+
 using System;
 using System.Runtime.Caching;
 using System.Threading;
@@ -89,3 +91,5 @@ namespace EventFlow.Core.Caching
         }
     }
 }
+
+#endif

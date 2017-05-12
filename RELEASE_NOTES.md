@@ -1,4 +1,15 @@
-### New in 0.43 (not released yet)
+### New in 0.44 (not released yet)
+
+* New: .NET Standard 1.6 support for the following NuGet packages
+  - `EventFlow`
+  - `EventFlow.Autofac`
+  - `EventFlow.Elasticsearch`
+  - `EventFlow.Hangfire`
+  - `EventFlow.RabbitMQ`
+* Fixed: Removed dependency `Microsoft.Owin.Host.HttpListener` from
+  `EventFlow.Owin` as it doesn't need it
+
+### New in 0.43.2806 (released 2017-05-05)
 
 * Breaking: Updated _all_ NuGet package dependencies to their latest versions
 * New: EventFlow now embeds PDB and source code within the assemblies using
