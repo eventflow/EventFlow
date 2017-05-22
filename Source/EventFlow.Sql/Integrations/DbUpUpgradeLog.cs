@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#if NET451
+
 using DbUp.Engine.Output;
 using EventFlow.Logs;
 
@@ -51,3 +53,5 @@ namespace EventFlow.Sql.Integrations
         }
     }
 }
+
+#endif
