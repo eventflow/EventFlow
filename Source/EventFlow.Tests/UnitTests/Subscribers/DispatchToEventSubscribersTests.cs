@@ -57,7 +57,6 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
 
             Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
-            Inject<ITaskRunner>(new TaskRunner(_logMock.Object, _resolverMock.Object));
 
             _resolverMock
                 .Setup(m => m.Resolve<IScopeResolver>())
@@ -71,7 +70,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             var subscriberMock = ArrangeSynchronousSubscriber<ThingyPingEvent>();
 
             // Act
-            await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -86,7 +85,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>(out autoResetEvent);
 
             // Act
-            await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             autoResetEvent.WaitOne(TimeSpan.FromSeconds(10)).Should().BeTrue("Failed to invoke asynchronous subscriber");
@@ -109,7 +108,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Throws(expectedException);
 
             // Act
-            Assert.DoesNotThrowAsync(async () => await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false));
+            Assert.DoesNotThrowAsync(async () => await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false));
 
             // Assert
             _logMock.Verify(
@@ -131,7 +130,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Throws(expectedException);
 
             // Act
-            var exception = Assert.Throws<Exception>(() => Sut.DispatchAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
+            var exception = Assert.Throws<Exception>(() => Sut.DispatchToSynchronousSubscribersAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
 
             // Assert
             exception.Should().BeSameAs(expectedException);

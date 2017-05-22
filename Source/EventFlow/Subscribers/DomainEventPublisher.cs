@@ -26,7 +26,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
+using EventFlow.Jobs;
+using EventFlow.Provided.Jobs;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
 
@@ -36,17 +39,23 @@ namespace EventFlow.Subscribers
     {
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IDispatchToSagas _dispatchToSagas;
+        private readonly IJobScheduler _jobScheduler;
+        private readonly IResolver _resolver;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IDispatchToSagas dispatchToSagas,
+            IJobScheduler jobScheduler,
+            IResolver resolver,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
+            _jobScheduler = jobScheduler;
+            _resolver = resolver;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -69,7 +78,13 @@ namespace EventFlow.Subscribers
             await Task.WhenAll(handle).ConfigureAwait(false);
 
             // Update subscriptions AFTER read stores have been updated
-            await _dispatchToEventSubscribers.DispatchAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+            await _dispatchToEventSubscribers.DispatchToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+
+            // Update asynchronous subscribers
+            await Task.WhenAll(domainEvents.Select(
+                d => _jobScheduler.ScheduleNowAsync(
+                    DispatchToAsynchronousEventSubscribersJob.Create(d, _resolver), CancellationToken.None)))
+                .ConfigureAwait(false);
 
             // Update sagas
             await _dispatchToSagas.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);
