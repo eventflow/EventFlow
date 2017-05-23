@@ -30,13 +30,13 @@ namespace EventFlow.Tests.Documentation.GettingStarted
     /// Read model for our aggregate
     public class ExampleReadModel :
         IReadModel,
-        IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
+        IAmReadModelFor<ExampleAggregate, ExampleId, ExampleEvent>
     {
         public int MagicNumber { get; private set; }
 
         public void Apply(
             IReadModelContext context,
-            IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent)
+            IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
         {
             MagicNumber = domainEvent.AggregateEvent.MagicNumber;
         }
