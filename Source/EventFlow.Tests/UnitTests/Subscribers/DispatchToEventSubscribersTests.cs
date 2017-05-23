@@ -71,7 +71,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         }
 
         [Test]
-        public async Task AynchronousSubscribersGetCalled()
+        public async Task AsynchronousSubscribersGetCalled()
         {
             // Arrange
             var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>();
