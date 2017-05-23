@@ -26,7 +26,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Logs;
 using EventFlow.Subscribers;
@@ -44,7 +43,6 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
     {
         private Mock<IResolver> _resolverMock;
-        private Mock<IScopeResolver> _scopeResolverMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
         private Mock<ILog> _logMock;
 
@@ -53,14 +51,9 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         {
             _logMock = InjectMock<ILog>();
             _resolverMock = InjectMock<IResolver>();
-            _scopeResolverMock = new Mock<IScopeResolver>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
 
             Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
-
-            _resolverMock
-                .Setup(m => m.Resolve<IScopeResolver>())
-                .Returns(_scopeResolverMock.Object);
         }
 
         [Test]
@@ -81,14 +74,12 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         public async Task AynchronousSubscribersGetCalled()
         {
             // Arrange
-            AutoResetEvent autoResetEvent;
-            var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>(out autoResetEvent);
+            var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>();
 
             // Act
-            await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchToAsynchronousSubscribersAsync(A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            autoResetEvent.WaitOne(TimeSpan.FromSeconds(10)).Should().BeTrue("Failed to invoke asynchronous subscriber");
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
             _logMock.VerifyNoErrorsLogged();
         }
@@ -149,18 +140,15 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             return subscriberMock;
         }
 
-        private Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeAsynchronousSubscriber<TEvent>(out AutoResetEvent autoResetEvent)
+        private Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeAsynchronousSubscriber<TEvent>()
             where TEvent : IAggregateEvent<ThingyAggregate, ThingyId>
         {
             var subscriberMock = new Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
-            var myAutoResetEvent = new AutoResetEvent(false);
 
-            _scopeResolverMock
+            _resolverMock
                 .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeAsynchronousTo<,,>))))
-                .Callback(() => myAutoResetEvent.Set())
                 .Returns(new object[] { subscriberMock.Object });
 
-            autoResetEvent = myAutoResetEvent;
             return subscriberMock;
         }
     }
