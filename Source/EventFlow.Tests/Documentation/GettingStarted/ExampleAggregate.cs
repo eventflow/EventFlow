@@ -28,13 +28,13 @@ using EventFlow.Exceptions;
 namespace EventFlow.Tests.Documentation.GettingStarted
 {
     /// The aggregate root
-    public class ExampleAggrenate :
-        AggregateRoot<ExampleAggrenate, ExampleId>,
+    public class ExampleAggregate :
+        AggregateRoot<ExampleAggregate, ExampleId>,
         IEmit<ExampleEvent>
     {
         private int? _magicNumber;
 
-        public ExampleAggrenate(ExampleId id) : base(id) { }
+        public ExampleAggregate(ExampleId id) : base(id) { }
 
         // Method invoked by our command
         public void SetMagicNumer(int magicNumber)

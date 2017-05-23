@@ -28,7 +28,7 @@ namespace EventFlow.Tests.Documentation.GettingStarted
 {
     /// Command for update magic number
     public class ExampleCommand :
-        Command<ExampleAggrenate, ExampleId>
+        Command<ExampleAggregate, ExampleId>
     {
         public ExampleCommand(
             ExampleId aggregateId,
