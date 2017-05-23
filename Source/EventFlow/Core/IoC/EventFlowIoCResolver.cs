@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Configuration;
@@ -60,7 +59,7 @@ namespace EventFlow.Core.IoC
             var genericArguments = _emptyTypeArray;
             var typeInfo = serviceType.GetTypeInfo();
 
-            if (serviceType.IsGenericType &&
+            if (typeInfo.IsGenericType &&
                 !_registrations.ContainsKey(serviceType) &&
                 typeInfo.GetGenericTypeDefinition() != typeof(IEnumerable<>))
             {
@@ -88,7 +87,7 @@ namespace EventFlow.Core.IoC
                         .Create(_resolverContext);
                 }
 
-                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} is not registered");
+                throw new Exception($"Type {serviceType.PrettyPrint()} is not registered");
             }
 
             return registrations.First().Create(_resolverContext, genericArguments);
@@ -107,7 +106,7 @@ namespace EventFlow.Core.IoC
         public IEnumerable<Type> GetRegisteredServices()
         {
             return _registrations.Keys
-                .Where(t => !t.IsGenericTypeDefinition);
+                .Where(t => !t.GetTypeInfo().IsGenericTypeDefinition);
         }
 
         public bool HasRegistrationFor<T>()

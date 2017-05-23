@@ -75,6 +75,7 @@ namespace EventFlow.ValueObjects
             return TypeProperties.GetOrAdd(
                 GetType(),
                 t => t
+                    .GetTypeInfo()
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .OrderBy(p => p.Name)
                     .ToList());

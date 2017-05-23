@@ -60,9 +60,10 @@ namespace EventFlow.Extensions
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
                 .Where(t => t
+                    .GetTypeInfo()
                     .GetInterfaces()
                     .Any(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
+                        (i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
                         i == typeof(ISubscribeSynchronousToAll)))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddSubscribers(subscribeSynchronousToTypes);
@@ -75,11 +76,12 @@ namespace EventFlow.Extensions
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
             {
                 var t = subscribeSynchronousToType;
-                if (t.IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract) continue;
                 var subscribeTos = t
+                    .GetTypeInfo()
                     .GetInterfaces()
                     .Where(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
+                        i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>) ||
                         i == typeof(ISubscribeSynchronousToAll))
                     .ToList();
                 if (!subscribeTos.Any())

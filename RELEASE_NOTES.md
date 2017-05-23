@@ -1,6 +1,17 @@
-### New in 0.44 (not released yet)
+### New in 0.45 (not released yet)
 
 * _Nothing yet_
+
+### New in 0.44.2832 (released 2017-05-12)
+
+* New: .NET Standard 1.6 support for the following NuGet packages
+  - `EventFlow`
+  - `EventFlow.Autofac`
+  - `EventFlow.Elasticsearch`
+  - `EventFlow.Hangfire`
+  - `EventFlow.RabbitMQ`
+* Fixed: Removed dependency `Microsoft.Owin.Host.HttpListener` from
+  `EventFlow.Owin` as it doesn't need it
 
 ### New in 0.43.2806 (released 2017-05-05)
 

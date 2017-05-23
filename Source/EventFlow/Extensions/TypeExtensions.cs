@@ -73,7 +73,7 @@ namespace EventFlow.Extensions
                 return nameParts[0];
             }
 
-            var genericArguments = type.GetGenericArguments();
+            var genericArguments = type.GetTypeInfo().GetGenericArguments();
             return !type.IsConstructedGenericType
                 ? $"{nameParts[0]}<{new string(',', genericArguments.Length - 1)}>"
                 : $"{nameParts[0]}<{string.Join(",", genericArguments.Select(t => PrettyPrintRecursive(t, depth + 1)))}>";
@@ -88,13 +88,13 @@ namespace EventFlow.Extensions
                 aggregateType,
                 t =>
                     {
-                        if (!typeof(IAggregateRoot).IsAssignableFrom(aggregateType))
+                        if (!typeof(IAggregateRoot).GetTypeInfo().IsAssignableFrom(aggregateType))
                         {
                             throw new ArgumentException($"Type '{aggregateType.PrettyPrint()}' is not an aggregate root");
                         }
 
                         return new AggregateName(
-                            t.GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
+                            t.GetTypeInfo().GetCustomAttributes<AggregateNameAttribute>().SingleOrDefault()?.Name ??
                             t.Name);
                     });
         }
@@ -114,7 +114,7 @@ namespace EventFlow.Extensions
                         var parameters = mi.GetParameters();
                         return
                             parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
+                            aggregateEventType.GetTypeInfo().IsAssignableFrom(parameters[0].ParameterType);
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,
