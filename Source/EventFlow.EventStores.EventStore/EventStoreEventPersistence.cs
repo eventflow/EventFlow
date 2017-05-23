@@ -181,6 +181,11 @@ namespace EventFlow.EventStores.EventStore
             return Map(streamEvents);
         }
 
+        public Task<ICommittedDomainEventStream> OpenReadAsync(IIdentity id, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);

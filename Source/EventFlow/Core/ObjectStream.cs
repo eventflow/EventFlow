@@ -24,31 +24,27 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Core
 {
-    public interface IEventPersistence
+    public abstract class ObjectStream<T> : IObjectStream<T>
     {
-        Task<AllCommittedEventsPage> LoadAllCommittedEvents(
-            GlobalPosition globalPosition,
-            int pageSize,
-            CancellationToken cancellationToken);
+        private IEnumerator<Task<IReadOnlyCollection<T>>> _enumerator;
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
-            IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken);
+        public async Task<IReadOnlyCollection<T>> ReadAsync(CancellationToken cancellationToken)
+        {
+            if (_enumerator == null)
+            {
+                _enumerator = Iterate().GetEnumerator();
+            }
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            IIdentity id,
-            int fromEventSequenceNumber,
-            CancellationToken cancellationToken);
+            var readOnlyCollection = await _enumerator.Current.ConfigureAwait(false);
+            _enumerator.MoveNext();
+            return readOnlyCollection;
+        }
 
-        Task<ICommittedDomainEventStream> OpenReadAsync(
-            IIdentity id,
-            CancellationToken cancellationToken);
+        protected abstract IEnumerable<Task<IReadOnlyCollection<T>>> Iterate();
 
-        Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
+        public abstract void Dispose();
     }
 }

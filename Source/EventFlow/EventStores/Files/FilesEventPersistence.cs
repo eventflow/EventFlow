@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
+using EventFlow.EventStores;
 
 namespace EventFlow.EventStores.Files
 {
@@ -207,6 +208,11 @@ namespace EventFlow.EventStores.Files
                     committedDomainEvents.Add(committedDomainEvent);
                 }
             }
+        }
+
+        public Task<ICommittedDomainEventStream> OpenReadAsync(IIdentity id, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)

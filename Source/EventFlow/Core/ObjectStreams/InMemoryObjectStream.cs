@@ -21,34 +21,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
-using EventFlow.Core;
+using EventFlow.Extensions;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Core.ObjectStreams
 {
-    public interface IEventPersistence
+    public class InMemoryObjectStream<T> : ObjectStream<T>
     {
-        Task<AllCommittedEventsPage> LoadAllCommittedEvents(
-            GlobalPosition globalPosition,
-            int pageSize,
-            CancellationToken cancellationToken);
+        private readonly IEnumerable<T> _stream;
+        private readonly int _batchSize;
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
-            IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
-            CancellationToken cancellationToken);
+        public InMemoryObjectStream(
+            IEnumerable<T> stream,
+            int batchSize)
+        {
+            if (batchSize <= 0) throw new ArgumentOutOfRangeException(nameof(batchSize));
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
-            IIdentity id,
-            int fromEventSequenceNumber,
-            CancellationToken cancellationToken);
+            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+            _batchSize = batchSize;
+        }
 
-        Task<ICommittedDomainEventStream> OpenReadAsync(
-            IIdentity id,
-            CancellationToken cancellationToken);
+        protected override IEnumerable<Task<IReadOnlyCollection<T>>> Iterate()
+        {
+            return _stream.Partition(_batchSize).Select(Task.FromResult);
+        }
 
-        Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
+        public override void Dispose()
+        {
+        }
     }
 }

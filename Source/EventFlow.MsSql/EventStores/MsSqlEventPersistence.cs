@@ -196,6 +196,11 @@ namespace EventFlow.MsSql.EventStores
             return eventDataModels;
         }
 
+        public Task<ICommittedDomainEventStream> OpenReadAsync(IIdentity id, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";

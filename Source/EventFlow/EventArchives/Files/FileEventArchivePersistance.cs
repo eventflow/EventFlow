@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Logs;
-using Newtonsoft.Json;
 
 namespace EventFlow.EventArchives.Files
 {
