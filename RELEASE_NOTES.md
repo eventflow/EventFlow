@@ -1,6 +1,9 @@
 ### New in 0.45 (not released yet)
 
-* _Nothing yet_
+* Breaking: `InstantJobScheduler`, the default in-memory scheduler if nothing
+  is configured, now swallows all job exceptions and logs them as errors. This
+  ensure that the `InstantJobScheduler` behaves as any other out-of-process
+  job scheduler
 
 ### New in 0.44.2832 (released 2017-05-12)
 

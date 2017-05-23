@@ -71,6 +71,7 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        [Timeout(10000)]
         public async Task AsynchronousSubscribesGetInvoked()
         {
             // Act

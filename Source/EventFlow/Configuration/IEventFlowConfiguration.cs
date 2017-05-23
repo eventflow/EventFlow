@@ -62,5 +62,12 @@ namespace EventFlow.Configuration
         /// </summary>
         /// <remarks>Defaults to false</remarks>
         bool ThrowSubscriberExceptions { get; }
+
+        /// <summary>
+        /// Should EventFlow schedule a job to invoke asynchronous domain event
+        /// subscribers
+        /// </summary>
+        /// <remarks>Defaults to false</remarks>
+        bool IsAsynchronousSubscribersEnabled { get; }
     }
 }

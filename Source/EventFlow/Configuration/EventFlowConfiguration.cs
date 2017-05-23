@@ -31,13 +31,15 @@ namespace EventFlow.Configuration
         public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
         public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
         public bool ThrowSubscriberExceptions { get; set; }
+        public bool IsAsynchronousSubscribersEnabled { get; set; }
 
-        public EventFlowConfiguration()
+        internal EventFlowConfiguration()
         {
             PopulateReadModelEventPageSize = 200;
             NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
             DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
             ThrowSubscriberExceptions = false;
+            IsAsynchronousSubscribersEnabled = false;
         }
     }
 }

@@ -41,6 +41,7 @@ namespace EventFlow.Subscribers
         private readonly IDispatchToSagas _dispatchToSagas;
         private readonly IJobScheduler _jobScheduler;
         private readonly IResolver _resolver;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
@@ -49,6 +50,7 @@ namespace EventFlow.Subscribers
             IDispatchToSagas dispatchToSagas,
             IJobScheduler jobScheduler,
             IResolver resolver,
+            IEventFlowConfiguration eventFlowConfiguration,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
@@ -56,6 +58,7 @@ namespace EventFlow.Subscribers
             _dispatchToSagas = dispatchToSagas;
             _jobScheduler = jobScheduler;
             _resolver = resolver;
+            _eventFlowConfiguration = eventFlowConfiguration;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -67,26 +70,59 @@ namespace EventFlow.Subscribers
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            await PublishToReadStoresAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+            await PublishToSubscribersOfAllEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+
+            // Update subscriptions AFTER read stores have been updated
+            await PublishToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+            await PublishToAsynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+
+            await PublishToSagasAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task PublishToReadStoresAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken _)
+        {
             // ARGH, dilemma, should we pass the cancellation token to read model update or not?
             var updateReadStoresTasks = _readStoreManagers
                 .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, CancellationToken.None));
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
+        }
 
-            // Send to handlers that listen to all events
+        private async Task PublishToSubscribersOfAllEventsAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
             var handle = _subscribeSynchronousToAlls
                 .Select(s => s.HandleAsync(domainEvents, cancellationToken));
             await Task.WhenAll(handle).ConfigureAwait(false);
+        }
 
-            // Update subscriptions AFTER read stores have been updated
+        private async Task PublishToSynchronousSubscribersAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
             await _dispatchToEventSubscribers.DispatchToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+        }
 
-            // Update asynchronous subscribers
-            await Task.WhenAll(domainEvents.Select(
-                d => _jobScheduler.ScheduleNowAsync(
-                    DispatchToAsynchronousEventSubscribersJob.Create(d, _resolver), CancellationToken.None)))
-                .ConfigureAwait(false);
+        private async Task PublishToAsynchronousSubscribersAsync(
+            IEnumerable<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            if (_eventFlowConfiguration.IsAsynchronousSubscribersEnabled)
+            {
+                await Task.WhenAll(domainEvents.Select(
+                        d => _jobScheduler.ScheduleNowAsync(
+                            DispatchToAsynchronousEventSubscribersJob.Create(d, _resolver), cancellationToken)))
+                    .ConfigureAwait(false);
+            }
+        }
 
-            // Update sagas
+        private async Task PublishToSagasAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
             await _dispatchToSagas.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
     }

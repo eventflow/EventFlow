@@ -68,20 +68,6 @@ namespace EventFlow.Subscribers
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            await DispatchToSynchronousSubscribersAsync((IEnumerable<IDomainEvent>) domainEvents, cancellationToken).ConfigureAwait(false);
-        }
-
-        public Task DispatchToAsynchronousSubscribersAsync(
-            IDomainEvent domainEvent,
-            CancellationToken cancellationToken)
-        {
-            return DispatchToSubscribersAsync(domainEvent, SubscribeAsynchronousToType, true, cancellationToken);
-        }
-
-        private async Task DispatchToSynchronousSubscribersAsync(
-            IEnumerable<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
             foreach (var domainEvent in domainEvents)
             {
                 await DispatchToSubscribersAsync(
@@ -91,6 +77,13 @@ namespace EventFlow.Subscribers
                         cancellationToken)
                     .ConfigureAwait(false);
             }
+        }
+
+        public Task DispatchToAsynchronousSubscribersAsync(
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken)
+        {
+            return DispatchToSubscribersAsync(domainEvent, SubscribeAsynchronousToType, true, cancellationToken);
         }
 
         private async Task DispatchToSubscribersAsync(
