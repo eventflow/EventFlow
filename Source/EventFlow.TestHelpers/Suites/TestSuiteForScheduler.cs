@@ -67,7 +67,8 @@ namespace EventFlow.TestHelpers.Suites
             _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
 
             return base.Options(eventFlowOptions)
-                .RegisterServices(sr => sr.Register(c => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber));
+                .RegisterServices(sr => sr.Register(c => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
+                .Configure(c => c.IsAsynchronousSubscribersEnabled = true);
         }
 
         [Test]
