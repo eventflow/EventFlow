@@ -366,8 +366,10 @@ category.
 
 ## Thanks
 
+* [Contributors](https://github.com/eventflow/EventFlow/graphs/contributors)
 * [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
-* [iconmonstr](http://iconmonstr.com/network-6-icon/): Free icons for EventFlow
+* [olholm](https://github.com/olholm): Current logo
+* [iconmonstr](http://iconmonstr.com/network-6-icon/): First logo
 * [JC008](https://github.com/JC008): License for Navicat Essentials for SQLite
 
 ## License
