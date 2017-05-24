@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
+using EventFlow.Core.ObjectStreams;
 using EventFlow.Logs;
 
 namespace EventFlow.Sql.Connections
@@ -87,7 +88,41 @@ namespace EventFlow.Sql.Connections
                     },
                     cancellationToken)
                     .ConfigureAwait(false))
-                .ToList();
+                .AsList();
+        }
+
+        public virtual async Task<IObjectStream<TResult>> StreamAsync<TResult>(
+            Label label,
+            CancellationToken cancellationToken,
+            string sql,
+            object param = null)
+        {
+            if (!Configuration.IsStreamingEnabled)
+            {
+                var result = await QueryAsync<TResult>(label, cancellationToken, sql, param).ConfigureAwait(false);
+                return new InMemoryObjectStream<TResult>(result);
+            }
+
+            var dbConnection = await TransientFaultHandler.TryAsync(
+                c => ConnectionFactory.OpenConnectionAsync(Configuration.ConnectionString, c),
+                Label.Named("open-connection"),
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            IEnumerable<TResult> stream;
+            try
+            {
+                var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken, flags: CommandFlags.None);
+                stream = await dbConnection.QueryAsync<TResult>(commandDefinition).ConfigureAwait(false);
+                 
+            }
+            catch (Exception)
+            {
+                dbConnection.Dispose();
+                throw;
+            }
+
+            return new SqlObjectStream<TResult>(dbConnection, stream, 500);
         }
 
         public virtual Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(

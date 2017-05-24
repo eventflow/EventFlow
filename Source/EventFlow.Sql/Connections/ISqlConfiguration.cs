@@ -30,7 +30,10 @@ namespace EventFlow.Sql.Connections
     {
         RetryDelay TransientRetryDelay { get; }
         string ConnectionString { get; }
+        bool IsStreamingEnabled { get; }
 
         T SetTransientRetryDelay(RetryDelay retryDelay);
+        T SetConnectionString(string connectionString);
+        T SetIsStreamingEnabled(bool isStreamingEnabled);
     }
 }

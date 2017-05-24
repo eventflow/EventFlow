@@ -21,43 +21,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sql.Connections
 {
-    public abstract class SqlConfiguration<T> : ISqlConfiguration<T>
-        where T : ISqlConfiguration<T>
+    public class SqlObjectStream<T> : ObjectStream<T>
     {
-        public string ConnectionString { get; private set; }
-        public bool IsStreamingEnabled { get; private set; } = true;
+        private readonly IDbConnection _sqlConnection;
+        private readonly IEnumerable<T> _stream;
+        private readonly int _partitionSize;
 
-        public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
-            TimeSpan.FromMilliseconds(50),
-            TimeSpan.FromMilliseconds(100));
-
-        public T SetConnectionString(string connectionString)
+        public SqlObjectStream(
+            IDbConnection dbConnection,
+            IEnumerable<T> stream,
+            int partitionSize)
         {
-            ConnectionString = connectionString;
-
-            // Are there alternatives to this double cast?
-            return (T)(object)this;
+            _sqlConnection = dbConnection;
+            _stream = stream;
+            _partitionSize = partitionSize;
         }
 
-        public T SetTransientRetryDelay(RetryDelay retryDelay)
+        protected override IEnumerable<Task<IReadOnlyCollection<T>>> Iterate()
         {
-            TransientRetryDelay = retryDelay;
-
-            // Are there alternatives to this double cast?
-            return (T)(object)this;
+            return _stream.Partition(_partitionSize).Select(Task.FromResult);
         }
 
-        public T SetIsStreamingEnabled(bool isStreamingEnabled)
+        public override void Dispose()
         {
-            IsStreamingEnabled = isStreamingEnabled;
-
-            // Are there alternatives to this double cast?
-            return (T)(object)this;
+            _sqlConnection.Dispose();
         }
     }
 }

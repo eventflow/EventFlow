@@ -36,17 +36,25 @@ namespace EventFlow.Core.ObjectStreams
 
         public InMemoryObjectStream(
             IEnumerable<T> stream,
-            int batchSize)
+            int batchSize = -1)
         {
-            if (batchSize <= 0) throw new ArgumentOutOfRangeException(nameof(batchSize));
-
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
             _batchSize = batchSize;
         }
 
         protected override IEnumerable<Task<IReadOnlyCollection<T>>> Iterate()
         {
-            return _stream.Partition(_batchSize).Select(Task.FromResult);
+            if (_batchSize > 0)
+            {
+                foreach (var partition in _stream.Partition(_batchSize))
+                {
+                    yield return Task.FromResult(partition);
+                }
+            }
+            else
+            {
+                yield return Task.FromResult<IReadOnlyCollection<T>>(_stream.ToList());
+            }
         }
 
         public override void Dispose()
