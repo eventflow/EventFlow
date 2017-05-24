@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -46,21 +45,16 @@ namespace EventFlow.EventArchives
             IIdentity identity,
             CancellationToken cancellationToken)
         {
-            var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
-                identity,
-                1,
-                cancellationToken)
-                .ConfigureAwait(false);
-            var stack = new Stack<IReadOnlyCollection<ICommittedDomainEvent>>();
-            stack.Push(committedDomainEvents);
+            EventArchiveDetails eventArchiveDetails;
 
-            // TODO - cleanup
-
-            var eventArchiveDetails = await _eventArchivePersistance.ArchiveAsync(
-                identity,
-                _ => Task.FromResult(stack.Count != 0 ? stack.Pop() : new ICommittedDomainEvent[]{}),
-                cancellationToken)
-                .ConfigureAwait(false);
+            using (var committedDomainEventStream = await _eventPersistence.OpenReadAsync(identity, cancellationToken).ConfigureAwait(false))
+            {
+                eventArchiveDetails = await _eventArchivePersistance.ArchiveAsync(
+                    identity,
+                    committedDomainEventStream,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
             await _eventPersistence.DeleteEventsAsync(
                 identity,

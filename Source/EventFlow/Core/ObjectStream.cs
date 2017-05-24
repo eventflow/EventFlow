@@ -30,6 +30,7 @@ namespace EventFlow.Core
     public abstract class ObjectStream<T> : IObjectStream<T>
     {
         private IEnumerator<Task<IReadOnlyCollection<T>>> _enumerator;
+        private static readonly IReadOnlyCollection<T> Empty = new T[] { };
 
         public async Task<IReadOnlyCollection<T>> ReadAsync(CancellationToken cancellationToken)
         {
@@ -38,8 +39,12 @@ namespace EventFlow.Core
                 _enumerator = Iterate().GetEnumerator();
             }
 
-            var readOnlyCollection = await _enumerator.Current.ConfigureAwait(false);
-            _enumerator.MoveNext();
+            var readOnlyCollection = Empty;
+            if (_enumerator.MoveNext() && _enumerator.Current != null)
+            {
+                readOnlyCollection = await _enumerator.Current.ConfigureAwait(false);
+            }
+
             return readOnlyCollection;
         }
 

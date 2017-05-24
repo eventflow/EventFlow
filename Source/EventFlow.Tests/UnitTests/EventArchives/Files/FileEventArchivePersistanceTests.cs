@@ -33,6 +33,7 @@ using EventFlow.Core;
 using EventFlow.EventArchives;
 using EventFlow.EventArchives.Files;
 using EventFlow.EventStores;
+using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -73,9 +74,8 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
 
             // TODO cleanup
 
-            var committedDomainEvents = Many<ICommittedDomainEvent>();
-            var stack = new Stack<IReadOnlyCollection<ICommittedDomainEvent>>();
-            stack.Push(committedDomainEvents);
+            var committedDomainEvents = Many<ICommittedDomainEvent>(27);
+            var committedDomainEventStream = new InMemoryCommittedDomainEventStream(committedDomainEvents, 3);
 
             IReadOnlyCollection<EventArchiveStreamFormatter.JsonEvent> jsonEvents = null;
             EventArchiveDetails eventArchiveDetails = null;
@@ -89,7 +89,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
                 var pipeHandle = anonymousPipeServerStream.GetClientHandleAsString();
                 var writeTask = Task.Run(async () => {
                     eventArchiveDetails = await Sut.ArchiveAsync(A<ThingyId>(),
-                        c => Task.FromResult(stack.Count != 0 ? stack.Pop() : new ICommittedDomainEvent[]{}),
+                        committedDomainEventStream,
                         CancellationToken.None)
                         .ConfigureAwait(false);
                 });

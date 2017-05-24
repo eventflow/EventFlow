@@ -21,8 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -43,7 +41,7 @@ namespace EventFlow.EventArchives.Null
 
         public Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
-            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
+            ICommittedDomainEventStream committedDomainEventStream,
             CancellationToken cancellationToken)
         {
             _log.Warning($"Asked to archive aggregate with ID '{identity}', but throwing it away! Configure an event archive!");

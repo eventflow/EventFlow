@@ -43,7 +43,7 @@ namespace EventFlow.EventArchives
 
         public async Task StreamEventsAsync(
             Stream stream,
-            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
+            ICommittedDomainEventStream committedDomainEventStream,
             CancellationToken cancellationToken)
         {
             using (var gZipStream = new GZipStream(stream, CompressionLevel.Fastest, true))
@@ -53,7 +53,7 @@ namespace EventFlow.EventArchives
                 jsonTextWriter.WriteStartArray();
 
                 IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
-                while ((committedDomainEvents = await batchFetcher(cancellationToken).ConfigureAwait(false)).Any())
+                while ((committedDomainEvents = await committedDomainEventStream.ReadAsync(cancellationToken).ConfigureAwait(false)).Any())
                     foreach (var committedDomainEvent in committedDomainEvents)
                     {
                         var jsonEvent = new JsonEvent(

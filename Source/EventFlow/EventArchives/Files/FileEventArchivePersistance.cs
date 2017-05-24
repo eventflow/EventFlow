@@ -53,7 +53,7 @@ namespace EventFlow.EventArchives.Files
 
         public async Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
-            Func<CancellationToken, Task<IReadOnlyCollection<ICommittedDomainEvent>>> batchFetcher,
+            ICommittedDomainEventStream committedDomainEventStream,
             CancellationToken cancellationToken)
         {
             var fileName = _configuration.GetEventArchiveFile(identity);
@@ -69,7 +69,7 @@ namespace EventFlow.EventArchives.Files
             {
                 await _eventArchiveStreamFormatter.StreamEventsAsync(
                     stream,
-                    batchFetcher,
+                    committedDomainEventStream,
                     cancellationToken)
                     .ConfigureAwait(false);
             }

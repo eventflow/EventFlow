@@ -30,7 +30,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Core.ObjectStreams;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -80,13 +79,6 @@ namespace EventFlow.EventStores.InMemory
                 {
                     return json;
                 }
-            }
-        }
-
-        private class InMemoryCommittedDomainEventStream : InMemoryObjectStream<ICommittedDomainEvent>, ICommittedDomainEventStream
-        {
-            public InMemoryCommittedDomainEventStream(IEnumerable<ICommittedDomainEvent> stream, int batchSize) : base(stream, batchSize)
-            {
             }
         }
 

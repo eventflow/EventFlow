@@ -21,18 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.EventStores;
+using System.Collections.Generic;
+using EventFlow.Core.ObjectStreams;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.EventStores.InMemory
 {
-    public interface IEventArchiveStreamFormatter
+    public class InMemoryCommittedDomainEventStream : InMemoryObjectStream<ICommittedDomainEvent>, ICommittedDomainEventStream
     {
-        Task StreamEventsAsync(
-            Stream stream,
-            ICommittedDomainEventStream committedDomainEventStream,
-            CancellationToken cancellationToken);
+        public InMemoryCommittedDomainEventStream(IEnumerable<ICommittedDomainEvent> stream, int batchSize) : base(stream, batchSize)
+        {
+        }
     }
 }
