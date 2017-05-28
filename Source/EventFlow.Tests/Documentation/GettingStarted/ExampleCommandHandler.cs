@@ -30,10 +30,10 @@ namespace EventFlow.Tests.Documentation.GettingStarted
 {
     /// Command handler for our command
     public class ExampleCommandHandler :
-        CommandHandler<ExampleAggrenate, ExampleId, ExampleCommand>
+        CommandHandler<ExampleAggregate, ExampleId, ExampleCommand>
     {
         public override Task ExecuteAsync(
-            ExampleAggrenate aggregate,
+            ExampleAggregate aggregate,
             ExampleCommand command,
             CancellationToken cancellationToken)
         {

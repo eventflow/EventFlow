@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.44.{build}
+version: 0.45.{build}
 
 install:
   - cmd: pip install -U Sphinx
