@@ -1,4 +1,8 @@
-### New in 0.45 (not released yet)
+### New in 0.46 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.45.2877 (released 2017-05-28)
 
 * Breaking: Asynchronous subscribers are now **disabled by default**, i.e.,
   any implementations of `ISubscribeAsynchronousTo<,,>` wont get invoked
