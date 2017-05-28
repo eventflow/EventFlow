@@ -30,8 +30,12 @@ namespace EventFlow.Subscribers
 {
     public interface IDispatchToEventSubscribers
     {
-        Task DispatchAsync(
+        Task DispatchToSynchronousSubscribersAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
+
+        Task DispatchToAsynchronousSubscribersAsync(
+            IDomainEvent domainEvent,
             CancellationToken cancellationToken);
     }
 }

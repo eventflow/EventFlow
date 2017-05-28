@@ -1,6 +1,23 @@
 ### New in 0.45 (not released yet)
 
-* _Nothing yet_
+* Breaking: Asynchronous subscribers are now **disabled by default**, i.e.,
+  any implementations of `ISubscribeAsynchronousTo<,,>` wont get invoked
+  unless enabled
+  ```
+  eventFlowOptions.Configure(c => IsAsynchronousSubscribersEnabled = true);
+  ```
+  the `ITaskRunner` has been removed and asynchronous subscribers are now
+  invoked using a new scheduled job that's scheduled to run right after the
+  domain events are emitted. Using the `ITaskRunner` led to unexpected task
+  terminations, especially if EventFlow was hosted in IIS. If enabling
+  asynchronous subscribers, please _make sure_ to configure proper job
+  scheduling, e.g. by using the `EventFlow.Hangfire` NuGet package. The default
+  job scheduler is `InstantJobScheduler`, which executes jobs _synchronously_,
+  giving a end result similar to that of synchronous subscribers
+* Breaking: `InstantJobScheduler`, the default in-memory scheduler if nothing
+  is configured, now swallows all job exceptions and logs them as errors. This
+  ensure that the `InstantJobScheduler` behaves as any other out-of-process
+  job scheduler
 
 ### New in 0.44.2832 (released 2017-05-12)
 
