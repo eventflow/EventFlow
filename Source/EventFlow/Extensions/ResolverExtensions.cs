@@ -31,18 +31,21 @@ namespace EventFlow.Extensions
     public static class ResolverExtensions
     {
         public static void ValidateRegistrations(
-            this IResolver resolver)
+            this IRootResolver resolver)
         {
             var exceptions = new List<Exception>();
-            foreach (var type in resolver.GetRegisteredServices())
+            using (var scopeResolver = resolver.BeginScope())
             {
-                try
+                foreach (var type in scopeResolver.GetRegisteredServices())
                 {
-                    resolver.Resolve(type);
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
+                    try
+                    {
+                        scopeResolver.Resolve(type);
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add(ex);
+                    }
                 }
             }
 
