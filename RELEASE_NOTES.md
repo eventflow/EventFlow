@@ -1,4 +1,11 @@
-### New in 0.45 (not released yet)
+### New in 0.46 (not released yet)
+
+* Fix: EventFlow now uses a Autofac lifetime scope for validating service
+  registrations when `IEventFlowOpions.CreateResolver(true)` is invoked.
+  Previously services were created but never disposed as they were resolved
+  using the root container
+
+### New in 0.45.2877 (released 2017-05-28)
 
 * Breaking: Asynchronous subscribers are now **disabled by default**, i.e.,
   any implementations of `ISubscribeAsynchronousTo<,,>` wont get invoked
