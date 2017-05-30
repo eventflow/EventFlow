@@ -1,4 +1,8 @@
-### New in 0.46 (not released yet)
+### New in 0.47 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.46.2886 (released 2017-05-29)
 
 * Fix: EventFlow now uses a Autofac lifetime scope for validating service
   registrations when `IEventFlowOpions.CreateResolver(true)` is invoked.
