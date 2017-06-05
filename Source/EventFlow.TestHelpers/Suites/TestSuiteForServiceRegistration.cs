@@ -471,11 +471,44 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             act.ShouldNotThrow<ArgumentException>();
         }
+        
+        [Test]
+        public async Task AggregateFactoryWorks()
+        {
+            // Arrange
+            Sut.Register<IAggregateFactory, AggregateFactory>();
+            var resolver = Sut.CreateResolver(false);
+            var aggregateFactory = resolver.Resolve<IAggregateFactory>();
+            var customId = new CustomId(A<string>());
+
+            // Act
+            var customAggregate = await aggregateFactory.CreateNewAggregateAsync<CustomAggregate, CustomId>(customId).ConfigureAwait(false);
+
+            // Assert
+            customAggregate.Id.Value.Should().Be(customId.Value);
+        }
 
         public abstract class AbstractTestQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
         {
             public abstract Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query,
                 CancellationToken cancellationToken);
+        }
+
+        public class CustomId : IIdentity
+        {
+            public CustomId(string value)
+            {
+                Value = value;
+            }
+
+            public string Value { get; }
+        }
+
+        public class CustomAggregate : AggregateRoot<CustomAggregate, CustomId>
+        {
+            public CustomAggregate(CustomId id) : base(id)
+            {
+            }
         }
     }
 
