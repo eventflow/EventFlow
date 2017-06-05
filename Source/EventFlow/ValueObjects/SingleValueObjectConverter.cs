@@ -55,6 +55,10 @@ namespace EventFlow.ValueObjects
                     });
 
             var value = serializer.Deserialize(reader, parameterType);
+
+            if (value == null)
+                return null;
+
             return Activator.CreateInstance(objectType, new[] { value });
         }
 
