@@ -187,7 +187,7 @@ namespace EventFlow.TestHelpers.Suites
             Sut.Register<I, A>();
 
             // Act
-            var resolver = Sut.CreateResolver(true);
+            var resolver = Sut.CreateResolver(false);
             var i1 = resolver.Resolve<I>();
             var i2 = resolver.Resolve<I>();
 
