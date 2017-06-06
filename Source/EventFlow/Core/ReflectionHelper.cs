@@ -53,9 +53,10 @@ namespace EventFlow.Core
             var typeInfo = type.GetTypeInfo();
 
             var methodInfo = methodSignature == null || !methodSignature.Any()
-                ? typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public).SingleOrDefault(m => m.Name == methodName)
-                : typeInfo.GetMethod(methodName, methodSignature);
-
+                ? typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).SingleOrDefault(m => m.Name == methodName)
+                : typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .SingleOrDefault(e => e.Name == methodName && e.GetParameters().Select(j => j.ParameterType).SequenceEqual(methodSignature));
+            
             if (methodInfo == null)
             {
                 throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
