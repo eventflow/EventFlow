@@ -1,4 +1,14 @@
-### New in 0.46 (not released yet)
+### New in 0.47 (not released yet)
+
+* New: To be more explicit, `IEventFlowOpions.AddSynchronousSubscriber<,,,>` and
+  `IEventFlowOpions.AddAsynchronousSubscriber<,,,>` generic methods
+* Fix: `IEventFlowOpions.AddSubscriber`, `IEventFlowOpions.AddSubscribers` and  
+  `IEventFlowOpions.AddDefaults` now correctly registers implementations of
+  `ISubscribeAsynchronousTo<,,>`
+* Obsolete:  `IEventFlowOpions.AddSubscriber` is marked obsolete in favor of its
+  explicite counterparts
+
+### New in 0.46.2886 (released 2017-05-29)
 
 * Fix: EventFlow now uses a Autofac lifetime scope for validating service
   registrations when `IEventFlowOpions.CreateResolver(true)` is invoked.
