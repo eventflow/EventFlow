@@ -33,6 +33,7 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
+        [Obsolete("Please use the more explicite method 'AddSynchronousSubscriber<,,,>' instead")]
         public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -44,7 +45,18 @@ namespace EventFlow.Extensions
                 .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
-        public static IEventFlowOptions AddAsyncSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+        public static IEventFlowOptions AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
+        {
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
+        }
+
+        public static IEventFlowOptions AddAsynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity

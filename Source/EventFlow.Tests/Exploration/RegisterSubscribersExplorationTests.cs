@@ -73,7 +73,7 @@ namespace EventFlow.Tests.Exploration
             yield return o =>
                 {
                     Console.WriteLine("Using generic");
-                    return o.AddAsyncSubscriber<ThingyAggregate, ThingyId, ThingyPingEvent, TestSubscriber>();
+                    return o.AddAsynchronousSubscriber<ThingyAggregate, ThingyId, ThingyPingEvent, TestSubscriber>() ;
                 };
             yield return o =>
                 {
