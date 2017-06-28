@@ -97,7 +97,13 @@ namespace EventFlow.Subscribers
                     subscriberType,
                     cancellationToken)
                 .ConfigureAwait(false);
-            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType);
+            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType).ToList();
+
+            if (!subscribers.Any())
+            {
+                _log.Debug(() => $"Didn't find any subscribers to '{domainEvent.EventType.PrettyPrint()}'");
+                return;
+            }
 
             foreach (var subscriber in subscribers)
             {
