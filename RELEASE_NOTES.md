@@ -1,4 +1,8 @@
-### New in 0.47 (not released yet)
+### New in 0.48 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.47.2894 (released 2017-06-28)
 
 * New: To be more explicit, `IEventFlowOpions.AddSynchronousSubscriber<,,,>` and
   `IEventFlowOpions.AddAsynchronousSubscriber<,,,>` generic methods
