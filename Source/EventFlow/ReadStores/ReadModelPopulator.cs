@@ -29,7 +29,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -66,15 +65,6 @@ namespace EventFlow.ReadStores
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
             return Task.WhenAll(deleteTasks);
-        }
-
-        public void Purge<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new()
-        {
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(PurgeAsync<TReadModel>(cancellationToken));
-            }
         }
 
         public async Task PopulateAsync<TReadModel>(
@@ -143,15 +133,6 @@ namespace EventFlow.ReadStores
                 stopwatch.Elapsed.TotalSeconds,
                 totalEvents,
                 relevantEvents);
-        }
-
-        public void Populate<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new()
-        {
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(PopulateAsync<TReadModel>(cancellationToken));
-            }
         }
 
         private IReadOnlyCollection<IReadStoreManager<TReadModel>> ResolveReadStoreManager<TReadModel>()

@@ -21,17 +21,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Core;
+using EventFlow.ReadStores;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Extensions
 {
-    public interface IReadModelPopulator
+    public static class ReadModelPopulatorExtensions
     {
-        Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new();
+        public static void Purge<TReadModel>(
+            this IReadModelPopulator readModelPopulator,
+            CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new()
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(readModelPopulator.PurgeAsync<TReadModel>(cancellationToken));
+            }
+        }
 
-        Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new();
+        public static void Populate<TReadModel>(
+            this IReadModelPopulator readModelPopulator,
+            CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel, new()
+        {
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(readModelPopulator.PopulateAsync<TReadModel>(cancellationToken));
+            }
+        }
     }
 }
