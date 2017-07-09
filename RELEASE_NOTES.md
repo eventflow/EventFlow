@@ -1,6 +1,9 @@
 ### New in 0.48 (not released yet)
 
-* _Nothing yet_
+* Breaking: Moved non-async methods on `IReadModelPopulator` to extension
+  methods
+* New: Added non-generic overloads for purge and populate methods on
+  `IReadModelPopulator`
 
 ### New in 0.47.2894 (released 2017-06-28)
 
