@@ -56,9 +56,5 @@ namespace EventFlow.Core.ObjectStreams
                 yield return Task.FromResult<IReadOnlyCollection<T>>(_stream.ToList());
             }
         }
-
-        public override void Dispose()
-        {
-        }
     }
 }

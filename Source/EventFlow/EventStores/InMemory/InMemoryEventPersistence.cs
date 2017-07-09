@@ -180,8 +180,12 @@ namespace EventFlow.EventStores.InMemory
 
         public async Task<ICommittedDomainEventStream> OpenReadAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            var committedDomainEvents = await LoadCommittedEventsAsync(id, 1, cancellationToken).ConfigureAwait(false);
-            var committedDomainEventStream = (ICommittedDomainEventStream) new InMemoryCommittedDomainEventStream(
+            var committedDomainEvents = await LoadCommittedEventsAsync(
+                id,
+                1,
+                cancellationToken)
+                .ConfigureAwait(false);
+            var committedDomainEventStream = new InMemoryCommittedDomainEventStream(
                 committedDomainEvents,
                 3);
 

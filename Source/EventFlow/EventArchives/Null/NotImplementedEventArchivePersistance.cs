@@ -21,32 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Logs;
 
 namespace EventFlow.EventArchives.Null
 {
-    public class NullEventArchivePersistance : IEventArchivePersistance
+    public class NotImplementedEventArchivePersistance : IEventArchivePersistance
     {
-        private readonly ILog _log;
-
-        public NullEventArchivePersistance(
-            ILog log)
-        {
-            _log = log;
-        }
-
         public Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
             ICommittedDomainEventStream committedDomainEventStream,
             CancellationToken cancellationToken)
         {
-            _log.Warning($"Asked to archive aggregate with ID '{identity}', but throwing it away! Configure an event archive!");
-
-            return Task.FromResult(EventArchiveDetails.None);
+            throw new NotImplementedException(
+                "Please register an event archive persistance before using the functionality");
         }
     }
 }

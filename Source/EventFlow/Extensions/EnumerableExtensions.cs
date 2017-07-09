@@ -29,7 +29,9 @@ namespace EventFlow.Extensions
 {
     public static class EnumerableExtensions
     {
-        public static IEnumerable<IReadOnlyCollection<T>> Partition<T>(this IEnumerable<T> items, int partitionSize)
+        public static IEnumerable<IReadOnlyCollection<T>> Partition<T>(
+            this IEnumerable<T> items,
+            int partitionSize)
         {
             return new PartitionHelper<T>(items, partitionSize);
         }

@@ -181,7 +181,9 @@ namespace EventFlow.EventStores.EventStore
             return Map(streamEvents);
         }
 
-        public Task<ICommittedDomainEventStream> OpenReadAsync(IIdentity id, CancellationToken cancellationToken)
+        public Task<ICommittedDomainEventStream> OpenReadAsync(
+            IIdentity id,
+            CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

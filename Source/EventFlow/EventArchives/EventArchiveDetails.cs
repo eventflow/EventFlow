@@ -27,8 +27,6 @@ namespace EventFlow.EventArchives
 {
     public class EventArchiveDetails
     {
-        public static EventArchiveDetails None { get; } = new EventArchiveDetails(new Uri("none://"));
-
         public EventArchiveDetails(
             Uri uri)
         {

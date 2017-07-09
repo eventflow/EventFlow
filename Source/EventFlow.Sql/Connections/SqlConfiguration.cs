@@ -30,7 +30,7 @@ namespace EventFlow.Sql.Connections
         where T : ISqlConfiguration<T>
     {
         public string ConnectionString { get; private set; }
-        public bool IsStreamingEnabled { get; private set; } = true;
+        public bool IsStreamingEnabled { get; private set; }
 
         public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
             TimeSpan.FromMilliseconds(50),

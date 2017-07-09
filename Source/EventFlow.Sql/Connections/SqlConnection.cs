@@ -112,8 +112,14 @@ namespace EventFlow.Sql.Connections
             IEnumerable<TResult> stream;
             try
             {
-                var commandDefinition = new CommandDefinition(sql, param, cancellationToken: cancellationToken, flags: CommandFlags.None);
-                stream = await dbConnection.QueryAsync<TResult>(commandDefinition).ConfigureAwait(false);
+                var commandDefinition = new CommandDefinition(
+                    sql,
+                    param,
+                    cancellationToken: cancellationToken,
+                    flags: CommandFlags.None);
+                stream = await dbConnection.QueryAsync<TResult>(
+                    commandDefinition)
+                    .ConfigureAwait(false);
                  
             }
             catch (Exception)

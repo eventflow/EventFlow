@@ -47,7 +47,10 @@ namespace EventFlow.EventArchives
         {
             EventArchiveDetails eventArchiveDetails;
 
-            using (var committedDomainEventStream = await _eventPersistence.OpenReadAsync(identity, cancellationToken).ConfigureAwait(false))
+            using (var committedDomainEventStream = await _eventPersistence.OpenReadAsync(
+                identity,
+                cancellationToken)
+                .ConfigureAwait(false))
             {
                 eventArchiveDetails = await _eventArchivePersistance.ArchiveAsync(
                     identity,

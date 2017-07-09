@@ -50,6 +50,8 @@ namespace EventFlow.Core
 
         protected abstract IEnumerable<Task<IReadOnlyCollection<T>>> Iterate();
 
-        public abstract void Dispose();
+        public virtual void Dispose()
+        {
+        }
     }
 }

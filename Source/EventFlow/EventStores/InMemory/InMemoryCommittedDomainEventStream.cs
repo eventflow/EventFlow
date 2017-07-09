@@ -26,9 +26,13 @@ using EventFlow.Core.ObjectStreams;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryCommittedDomainEventStream : InMemoryObjectStream<ICommittedDomainEvent>, ICommittedDomainEventStream
+    public class InMemoryCommittedDomainEventStream :
+        InMemoryObjectStream<ICommittedDomainEvent>, ICommittedDomainEventStream
     {
-        public InMemoryCommittedDomainEventStream(IEnumerable<ICommittedDomainEvent> stream, int batchSize) : base(stream, batchSize)
+        public InMemoryCommittedDomainEventStream(
+            IEnumerable<ICommittedDomainEvent> stream,
+            int batchSize)
+            : base(stream, batchSize)
         {
         }
     }
