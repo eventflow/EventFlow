@@ -34,7 +34,7 @@ namespace EventFlow.Provided
             // Use explicite adding of types, no need to scan assembly
             eventFlowOptions.AddJobs(
                 typeof(PublishCommandJob),
-				typeof(DispatchToAsynchronousEventSubscribersJob),
+                typeof(DispatchToAsynchronousEventSubscribersJob),
                 typeof(ArchiveEventsJob));
         }
     }
