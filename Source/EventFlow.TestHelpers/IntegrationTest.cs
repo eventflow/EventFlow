@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -97,7 +98,13 @@ namespace EventFlow.TestHelpers
             return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(thingyId);
         }
 
-        protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count = 1)
+        protected async Task<PingId> PublishPingCommandAsync(ThingyId thingyId)
+        {
+            var pingIds = await PublishPingCommandsAsync(thingyId, 1).ConfigureAwait(false);
+            return pingIds.Single();
+        }
+
+        protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count)
         {
             if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
 

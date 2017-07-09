@@ -45,6 +45,12 @@ namespace EventFlow.EventStores
             _domainEventFactory = domainEventFactory;
         }
 
+        public SerializedEvent Serialize(
+            IDomainEvent domainEvent)
+        {
+            return Serialize(domainEvent.GetAggregateEvent(), domainEvent.Metadata);
+        }
+
         public SerializedEvent Serialize(IAggregateEvent aggregateEvent, IEnumerable<KeyValuePair<string, string>> metadatas)
         {
             var eventDefinition = _eventDefinitionService.GetDefinition(aggregateEvent.GetType());
@@ -65,6 +71,12 @@ namespace EventFlow.EventStores
                 dataJson,
                 metadata.AggregateSequenceNumber,
                 metadata);
+        }
+
+        public IDomainEvent Deserialize(string eventJson, string metadataJson)
+        {
+            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(metadataJson);
+            return Deserialize(eventJson, metadata);
         }
 
         public IDomainEvent Deserialize(string json, IMetadata metadata)

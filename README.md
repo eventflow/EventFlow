@@ -2,10 +2,10 @@
 
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
-    <td width="33%">
+    <td width="25%">
       <img src="./icon-128.png" />
     </td>
-    <td  width="33%">
+    <td  width="25%">
       <p>
         <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
       </p>
@@ -16,13 +16,17 @@
         <a href="http://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
       </p>
     </td>
-    <td  width="33%">
+    <td  width="25%">
       <p>
         <a href="https://ci.appveyor.com/project/rasmusnu/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
         <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
       </p>
+    </td>
+    <td  width="25%">
+      Think EventFlow is great,<br/>
+      <a href="https://www.paypal.me/rasmusnu">buy me a cup of coffee</a>
     </td>
   </tr>
 </table>
@@ -362,8 +366,10 @@ category.
 
 ## Thanks
 
+* [Contributors](https://github.com/eventflow/EventFlow/graphs/contributors)
 * [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
-* [iconmonstr](http://iconmonstr.com/network-6-icon/): Free icons for EventFlow
+* [olholm](https://github.com/olholm): Current logo
+* [iconmonstr](http://iconmonstr.com/network-6-icon/): First logo
 * [JC008](https://github.com/JC008): License for Navicat Essentials for SQLite
 
 ## License

@@ -1,6 +1,47 @@
-### New in 0.45 (not released yet)
+### New in 0.48 (not released yet)
 
-* _Nothing yet_
+* Breaking: Moved non-async methods on `IReadModelPopulator` to extension
+  methods
+* New: Added non-generic overloads for purge and populate methods on
+  `IReadModelPopulator`
+
+### New in 0.47.2894 (released 2017-06-28)
+
+* New: To be more explicit, `IEventFlowOpions.AddSynchronousSubscriber<,,,>` and
+  `IEventFlowOpions.AddAsynchronousSubscriber<,,,>` generic methods
+* Fix: `IEventFlowOpions.AddSubscriber`, `IEventFlowOpions.AddSubscribers` and  
+  `IEventFlowOpions.AddDefaults` now correctly registers implementations of
+  `ISubscribeAsynchronousTo<,,>`
+* Obsolete:  `IEventFlowOpions.AddSubscriber` is marked obsolete in favor of its
+  explicite counterparts
+
+### New in 0.46.2886 (released 2017-05-29)
+
+* Fix: EventFlow now uses a Autofac lifetime scope for validating service
+  registrations when `IEventFlowOpions.CreateResolver(true)` is invoked.
+  Previously services were created but never disposed as they were resolved
+  using the root container
+
+### New in 0.45.2877 (released 2017-05-28)
+
+* Breaking: Asynchronous subscribers are now **disabled by default**, i.e.,
+  any implementations of `ISubscribeAsynchronousTo<,,>` wont get invoked
+  unless enabled
+  ```
+  eventFlowOptions.Configure(c => IsAsynchronousSubscribersEnabled = true);
+  ```
+  the `ITaskRunner` has been removed and asynchronous subscribers are now
+  invoked using a new scheduled job that's scheduled to run right after the
+  domain events are emitted. Using the `ITaskRunner` led to unexpected task
+  terminations, especially if EventFlow was hosted in IIS. If enabling
+  asynchronous subscribers, please _make sure_ to configure proper job
+  scheduling, e.g. by using the `EventFlow.Hangfire` NuGet package. The default
+  job scheduler is `InstantJobScheduler`, which executes jobs _synchronously_,
+  giving a end result similar to that of synchronous subscribers
+* Breaking: `InstantJobScheduler`, the default in-memory scheduler if nothing
+  is configured, now swallows all job exceptions and logs them as errors. This
+  ensure that the `InstantJobScheduler` behaves as any other out-of-process
+  job scheduler
 
 ### New in 0.44.2832 (released 2017-05-12)
 

@@ -62,7 +62,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var thingyId = A<ThingyId>();
 
             // Act
-            await PublishPingCommandsAsync(thingyId).ConfigureAwait(false);
+            await PublishPingCommandAsync(thingyId).ConfigureAwait(false);
 
             // Assert
             var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
@@ -76,7 +76,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var thingyId = A<ThingyId>();
 
             // Act
-            await PublishPingCommandsAsync(thingyId).ConfigureAwait(false);
+            await PublishPingCommandAsync(thingyId).ConfigureAwait(false);
 
             // Assert
             var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
