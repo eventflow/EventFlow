@@ -32,7 +32,6 @@ namespace EventFlow.MsSql.RetryStrategies
     {
         private readonly ILog _log;
         private readonly IMsSqlConfiguration _msSqlConfiguration;
-        private static readonly Random Random = new Random();
 
         public MsSqlErrorRetryStrategy(
             ILog log,
@@ -56,9 +55,9 @@ namespace EventFlow.MsSql.RetryStrategies
                 // The service is currently busy. Retry the request after 10 seconds.
                 case 40501:
                     {
-                        var delay = TimeSpan.FromMilliseconds(5000 + (10000 * Random.NextDouble()));
+                        var delay = _msSqlConfiguration.ServerBusyRetryDelay.PickDelay();
                         _log.Warning(
-                            "MSSQL server returned error 40501 which means it too busy! Trying to wait {0:0.###} (random between 5 and 15 seconds)",
+                            "MSSQL server returned error 40501 which means it too busy and asked us to wait 10 seconds! Trying to wait {0:0.###} seconds.",
                             delay.TotalSeconds);
                         return Retry.YesAfter(delay);
                     }

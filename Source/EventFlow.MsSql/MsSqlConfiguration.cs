@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using EventFlow.Core;
 using EventFlow.Sql.Connections;
 
 namespace EventFlow.MsSql
@@ -31,6 +33,17 @@ namespace EventFlow.MsSql
 
         private MsSqlConfiguration()
         {
+        }
+
+        public RetryDelay ServerBusyRetryDelay { get; private set; } = RetryDelay.Between(
+            TimeSpan.FromSeconds(10),
+            TimeSpan.FromSeconds(15));
+
+        public IMsSqlConfiguration SetServerBusyRetryDelay(RetryDelay retryDelay)
+        {
+            ServerBusyRetryDelay = retryDelay;
+
+            return this;
         }
     }
 }

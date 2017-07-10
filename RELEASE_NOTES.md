@@ -8,6 +8,8 @@
   that is useful when developing event and read model stores for EventFlow.
   The package is an initial release and its interface is unstable and
   subject to change
+* New: Now possible to configure retry delay for MSSQL error `40501` (server
+  too busy) using `IMsSqlConfiguration.SetServerBusyRetryDelay(RetryDelay)`
 
 ### New in 0.47.2894 (released 2017-06-28)
 
