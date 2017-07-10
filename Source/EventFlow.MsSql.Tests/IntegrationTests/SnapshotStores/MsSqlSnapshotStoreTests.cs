@@ -26,8 +26,8 @@ using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.SnapshotStores;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
-using Helpz.MsSql;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores

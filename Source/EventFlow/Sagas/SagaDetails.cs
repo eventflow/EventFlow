@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
@@ -38,14 +39,18 @@ namespace EventFlow.Sagas
 
         public static SagaDetails From(Type sagaType)
         {
-            if (!typeof(ISaga).IsAssignableFrom(sagaType))
+            if (!typeof(ISaga).GetTypeInfo().IsAssignableFrom(sagaType))
             {
                 throw new ArgumentException(
                     $"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}",
                     nameof(sagaType));
             }
 
-            var sagaInterfaces = sagaType.GetInterfaces();
+            var sagaInterfaces = sagaType
+                .GetTypeInfo()
+                .GetInterfaces()
+                .Select(i => i.GetTypeInfo())
+                .ToList();
             var sagaHandlesTypes = sagaInterfaces
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaHandles<,,>))
                 .ToList();

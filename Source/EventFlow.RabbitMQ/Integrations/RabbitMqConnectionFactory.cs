@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -73,7 +74,7 @@ namespace EventFlow.RabbitMQ.Integrations
                         AutomaticRecoveryEnabled = true,
                         ClientProperties = new Dictionary<string, object>
                             {
-                                { "eventflow-version", typeof(RabbitMqConnectionFactory).Assembly.GetName().Version.ToString() },
+                                { "eventflow-version", typeof(RabbitMqConnectionFactory).GetTypeInfo().Assembly.GetName().Version.ToString() },
                                 { "machine-name", Environment.MachineName },
                             },
                     };

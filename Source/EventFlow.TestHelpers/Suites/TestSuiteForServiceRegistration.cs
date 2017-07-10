@@ -66,8 +66,14 @@ namespace EventFlow.TestHelpers.Suites
 
         private class A : I
         {
+            public static object SyncRoot { get; } = new object();
+            public static bool WasDisposed { get; set; }
+
             public void Dispose()
             {
+                if (WasDisposed) throw new ObjectDisposedException("A was already disposed!");
+
+                WasDisposed = true;
             }
         }
 
@@ -134,8 +140,8 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             var c = resolver.Resolve<C>();
             var nested = c.Is.ToList();
-            nested[0].Should().BeOfType<B>();
-            nested[1].Should().BeOfType<A>();
+            nested.Should().Contain(x => x.GetType() == typeof(A));
+            nested.Should().Contain(x => x.GetType() == typeof(B));
         }
 
         [Test]
@@ -181,7 +187,7 @@ namespace EventFlow.TestHelpers.Suites
             Sut.Register<I, A>();
 
             // Act
-            var resolver = Sut.CreateResolver(true);
+            var resolver = Sut.CreateResolver(false);
             var i1 = resolver.Resolve<I>();
             var i2 = resolver.Resolve<I>();
 
@@ -205,6 +211,60 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public void ScopesDoesntDisposeSingletons()
+        {
+            lock (A.SyncRoot)
+            {
+                // Arrange
+                Sut.Register<I, A>(Lifetime.Singleton);
+                using (var resolver = Sut.CreateResolver(false))
+                {
+                    var i1 = resolver.Resolve<I>();
+
+                    // Act
+                    using (var scopeResolver = resolver.BeginScope())
+                    {
+                        var i2 = scopeResolver.Resolve<I>();
+                        i2.Should().BeSameAs(i1);
+                    }
+
+                    // Assert
+                    A.WasDisposed.Should().BeFalse();
+                }
+
+                A.WasDisposed.Should().BeTrue();
+                A.WasDisposed = false;
+            }
+        }
+
+        [Test]
+        public void ResolvingScopeResolversCreatesScope()
+        {
+            lock (A.SyncRoot)
+            {
+                // Arrange
+                Sut.Register<I, A>(Lifetime.Singleton);
+                using (var resolver = Sut.CreateResolver(false))
+                {
+                    var i1 = resolver.Resolve<I>();
+
+                    // Act
+                    using (var scopeResolver = resolver.Resolve<IScopeResolver>())
+                    {
+                        var i2 = scopeResolver.Resolve<I>();
+                        i2.Should().BeSameAs(i1);
+                    }
+
+                    // Assert
+                    A.WasDisposed.Should().BeFalse();
+                }
+
+                A.WasDisposed.Should().BeTrue();
+                A.WasDisposed = false;
+            }
+        }
+
+        [Test]
         public void InvokesBootstraps()
         {
             // Arrange
@@ -215,7 +275,7 @@ namespace EventFlow.TestHelpers.Suites
             Sut.CreateResolver(true);
 
             // Assert
-            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once);
+            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [Test]
@@ -233,7 +293,7 @@ namespace EventFlow.TestHelpers.Suites
             }
 
             // Assert
-            iMock.Verify(i => i.Dispose(), Times.Once);
+            iMock.Verify(i => i.Dispose(), Times.Once());
         }
 
         [Test]
@@ -411,11 +471,44 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             act.ShouldNotThrow<ArgumentException>();
         }
+        
+        [Test]
+        public async Task AggregateFactoryWorks()
+        {
+            // Arrange
+            Sut.Register<IAggregateFactory, AggregateFactory>();
+            var resolver = Sut.CreateResolver(false);
+            var aggregateFactory = resolver.Resolve<IAggregateFactory>();
+            var customId = new CustomId(A<string>());
+
+            // Act
+            var customAggregate = await aggregateFactory.CreateNewAggregateAsync<CustomAggregate, CustomId>(customId).ConfigureAwait(false);
+
+            // Assert
+            customAggregate.Id.Value.Should().Be(customId.Value);
+        }
 
         public abstract class AbstractTestQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
         {
             public abstract Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query,
                 CancellationToken cancellationToken);
+        }
+
+        public class CustomId : IIdentity
+        {
+            public CustomId(string value)
+            {
+                Value = value;
+            }
+
+            public string Value { get; }
+        }
+
+        public class CustomAggregate : AggregateRoot<CustomAggregate, CustomId>
+        {
+            public CustomAggregate(CustomId id) : base(id)
+            {
+            }
         }
     }
 

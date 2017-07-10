@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.41.{build}
+version: 0.48.{build}
 
 install:
   - cmd: pip install -U Sphinx
@@ -10,9 +10,9 @@ install:
 skip_tags: true
 
 build_script:
-  - cmd: build.cmd All
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
 
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 environment:
   RABBITMQ_URL:
@@ -23,9 +23,6 @@ test: off
 artifacts:
   - path: Build\Packages\*.nupkg
   - path: Build\Documentation\*.zip
-
-cache:
-  - packages -> paket.lock
 
 services:
   - mssql2014

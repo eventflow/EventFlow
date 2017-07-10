@@ -51,7 +51,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             cacheValue.Should().BeSameAs(value);
-            factory.Verify(m => m(It.IsAny<CancellationToken>()), Times.Once);
+            factory.Verify(m => m(It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace EventFlow.TestHelpers.Suites
                 CancellationToken.None).GetAwaiter().GetResult());
 
             // Assert
-            faultyFactory.Verify(m => m(It.IsAny<CancellationToken>()), Times.Once);
+            faultyFactory.Verify(m => m(It.IsAny<CancellationToken>()), Times.Once());
             thrownException.Should().BeSameAs(exception);
         }
 

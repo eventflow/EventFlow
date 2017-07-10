@@ -6,7 +6,7 @@ FAQ - frequently asked questions
 How can I ensure that only specific users can execute commands?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You should implement a *decorator* for the ``ICommadBus`` that does the
+You should implement a *decorator* for the ``ICommandBus`` that does the
 authentication. Have a look at the :ref:`decorator <ioc-decorator>` documentation
 to see how this can be achieved.
 

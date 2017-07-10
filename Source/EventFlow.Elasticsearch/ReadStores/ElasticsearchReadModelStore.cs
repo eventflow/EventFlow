@@ -66,9 +66,9 @@ namespace EventFlow.Elasticsearch.ReadStores
                 id,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                    .Index(readModelDescription.IndexName.Value))
+                        .Index(readModelDescription.IndexName.Value), 
+                            cancellationToken)
                 .ConfigureAwait(false);
 
             if (!getResponse.IsValid || !getResponse.Found)
@@ -90,8 +90,8 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelDescription.IndexName.Value,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
+                            cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -119,9 +119,9 @@ namespace EventFlow.Elasticsearch.ReadStores
                     readModelUpdate.ReadModelId,
                     d => d
                         .RequestConfiguration(c => c
-                            .CancellationToken(cancellationToken)
                             .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value))
+                            .Index(readModelDescription.IndexName.Value), 
+                                cancellationToken)
                     .ConfigureAwait(false);
 
                 var readModelEnvelope = response.Found
@@ -133,12 +133,12 @@ namespace EventFlow.Elasticsearch.ReadStores
                 await _elasticClient.IndexAsync(
                     readModelEnvelope.ReadModel,
                     d => d
-                        .RequestConfiguration(c => c
-                            .CancellationToken(cancellationToken))
+                        .RequestConfiguration(c => c)
                         .Id(readModelUpdate.ReadModelId)
                         .Index(readModelDescription.IndexName.Value)
                         .Version(readModelEnvelope.Version.GetValueOrDefault())
-                        .VersionType(VersionType.ExternalGte))
+                        .VersionType(VersionType.ExternalGte), 
+                            cancellationToken)
                     .ConfigureAwait(false);
             }
         }

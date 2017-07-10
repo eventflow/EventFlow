@@ -27,9 +27,47 @@ namespace EventFlow.Configuration
 {
     public interface IEventFlowConfiguration
     {
+        /// <summary>
+        /// Number of events to load from the event persistance when read models
+        /// are populated.
+        /// </summary>
+        /// <remarks>Defaults to 200</remarks>
         int PopulateReadModelEventPageSize { get; }
+
+        /// <summary>
+        /// Use by <c>OptimisticConcurrencyRetryStrategy</c> to determine the number
+        /// of retries when an optimistic concurrency exceptions is thrown from the
+        /// event persistance.
+        /// 
+        /// If more fine grained control of is needed, a custom implementation of
+        /// <c>IOptimisticConcurrencyRetryStrategy</c> should be provided.
+        /// </summary>
+        /// <remarks>Defaults to 4</remarks>
         int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; }
+
+        /// <summary>
+        /// Use by <c>OptimisticConcurrencyRetryStrategy</c> to determine the delay
+        /// between retries when an optimistic concurrency exceptions is thrown from the
+        /// event persistance.
+        /// 
+        /// If more fine grained control of is needed, a custom implementation of
+        /// <c>IOptimisticConcurrencyRetryStrategy</c> should be provided.
+        /// </summary>
+        /// <remarks>Defaults to 100 ms</remarks>
         TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; }
+
+        /// <summary>
+        /// Should EventFlow throw exceptions thrown by subscibers when publishing
+        /// domain events.
+        /// </summary>
+        /// <remarks>Defaults to false</remarks>
         bool ThrowSubscriberExceptions { get; }
+
+        /// <summary>
+        /// Should EventFlow schedule a job to invoke asynchronous domain event
+        /// subscribers
+        /// </summary>
+        /// <remarks>Defaults to false</remarks>
+        bool IsAsynchronousSubscribersEnabled { get; }
     }
 }

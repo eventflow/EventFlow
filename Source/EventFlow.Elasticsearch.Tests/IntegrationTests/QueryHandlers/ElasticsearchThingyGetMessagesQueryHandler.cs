@@ -21,17 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Nest;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
@@ -58,23 +58,23 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
                 indexName,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
+                            cancellationToken)
                 .ConfigureAwait(false);
             await _elasticClient.RefreshAsync(
                 indexName,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
+                            cancellationToken)
                 .ConfigureAwait(false);
 
             var searchResponse = await _elasticClient.SearchAsync<ElasticsearchThingyMessageReadModel>(d => d
                 .RequestConfiguration(c => c
-                    .CancellationToken(cancellationToken)
                     .AllowedStatusCodes((int)HttpStatusCode.NotFound))
                 .Index(indexName)
-                .Query(q => q.Term(m => m.ThingyId, query.ThingyId.Value)))
+                .Query(q => q.Term(m => m.ThingyId, query.ThingyId.Value)), 
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             return searchResponse.Documents

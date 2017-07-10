@@ -65,10 +65,10 @@ namespace EventFlow.SQLite.EventStores
             int pageSize,
             CancellationToken cancellationToken)
         {
-            var startPostion = globalPosition.IsStart
+            var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
-            var endPosition = startPostion + pageSize;
+            var endPosition = startPosition + pageSize;
 
             const string sql = @"
                 SELECT
@@ -84,14 +84,14 @@ namespace EventFlow.SQLite.EventStores
                 sql,
                 new
                     {
-                        FromId = startPostion,
+                        FromId = startPosition,
                         ToId = endPosition,
                     })
                 .ConfigureAwait(false);
 
             var nextPosition = eventDataModels.Any()
                 ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
-                : startPostion;
+                : startPosition;
 
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }

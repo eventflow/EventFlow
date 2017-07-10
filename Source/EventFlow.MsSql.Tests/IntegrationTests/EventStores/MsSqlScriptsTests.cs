@@ -25,7 +25,7 @@ using System.Linq;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.TestHelpers;
-using Helpz.MsSql;
+using EventFlow.TestHelpers.MsSql;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores

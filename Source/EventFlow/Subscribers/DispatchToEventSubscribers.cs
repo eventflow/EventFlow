@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -44,7 +45,6 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IMemoryCache _memoryCache;
-        private readonly ITaskRunner _taskRunner;
 
         private class SubscriberInfomation
         {
@@ -56,43 +56,22 @@ namespace EventFlow.Subscribers
             ILog log,
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
-            IMemoryCache memoryCache,
-            ITaskRunner taskRunner)
+            IMemoryCache memoryCache)
         {
             _log = log;
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _memoryCache = memoryCache;
-            _taskRunner = taskRunner;
         }
 
-        public async Task DispatchAsync(
+        public async Task DispatchToSynchronousSubscribersAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            DispatchToAsynchronousSubscribers(domainEvents, cancellationToken);
-            await DispatchToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-        }
-
-        private void DispatchToAsynchronousSubscribers(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            _taskRunner.Run(
-                Label.Named("publish-to-asynchronous-subscribers"),
-                (r, c) => Task.WhenAll(domainEvents.Select(d => DispatchToSubscribersAsync(d, r, SubscribeAsynchronousToType, true, c))),
-                cancellationToken);
-        }
-
-        private async Task DispatchToSynchronousSubscribersAsync(
-            IEnumerable<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
             foreach (var domainEvent in domainEvents)
             {
                 await DispatchToSubscribersAsync(
                         domainEvent,
-                        _resolver,
                         SubscribeSynchronousToType,
                         !_eventFlowConfiguration.ThrowSubscriberExceptions,
                         cancellationToken)
@@ -100,9 +79,15 @@ namespace EventFlow.Subscribers
             }
         }
 
+        public Task DispatchToAsynchronousSubscribersAsync(
+            IDomainEvent domainEvent,
+            CancellationToken cancellationToken)
+        {
+            return DispatchToSubscribersAsync(domainEvent, SubscribeAsynchronousToType, true, cancellationToken);
+        }
+
         private async Task DispatchToSubscribersAsync(
             IDomainEvent domainEvent,
-            IResolver resolver,
             Type subscriberType,
             bool swallowException,
             CancellationToken cancellationToken)
@@ -112,7 +97,13 @@ namespace EventFlow.Subscribers
                     subscriberType,
                     cancellationToken)
                 .ConfigureAwait(false);
-            var subscribers = resolver.ResolveAll(subscriberInfomation.SubscriberType);
+            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType).ToList();
+
+            if (!subscribers.Any())
+            {
+                _log.Debug(() => $"Didn't find any subscribers to '{domainEvent.EventType.PrettyPrint()}'");
+                return;
+            }
 
             foreach (var subscriber in subscribers)
             {
@@ -142,8 +133,10 @@ namespace EventFlow.Subscribers
                 _ =>
                     {
                         var arguments = domainEventType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,,>))
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEvent<,,>))
+                            .GetTypeInfo()
                             .GetGenericArguments();
 
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);

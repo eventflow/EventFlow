@@ -33,6 +33,7 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
+        [Obsolete("Please use the more explicite method 'AddSynchronousSubscriber<,,,>' instead")]
         public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -42,6 +43,28 @@ namespace EventFlow.Extensions
         {
             return eventFlowOptions
                 .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
+        }
+
+        public static IEventFlowOptions AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
+        {
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
+        }
+
+        public static IEventFlowOptions AddAsynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowOptions eventFlowOptions)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TEvent : IAggregateEvent<TAggregate, TIdentity>
+            where TSubscriber : class, ISubscribeAsynchronousTo<TAggregate, TIdentity, TEvent>
+        {
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register<ISubscribeAsynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
         public static IEventFlowOptions AddSubscribers(
@@ -56,14 +79,19 @@ namespace EventFlow.Extensions
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
+            var iSubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
+            var iSubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
+            var iSubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
+
             predicate = predicate ?? (t => true);
             var subscribeSynchronousToTypes = fromAssembly
                 .GetTypes()
                 .Where(t => t
+                    .GetTypeInfo()
                     .GetInterfaces()
                     .Any(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
-                        i == typeof(ISubscribeSynchronousToAll)))
+                        i.GetTypeInfo().IsGenericType && (i.GetGenericTypeDefinition() == iSubscribeSynchronousToType || i.GetGenericTypeDefinition() == iSubscribeAsynchronousToType) ||
+                        i == iSubscribeSynchronousToAllType))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddSubscribers(subscribeSynchronousToTypes);
         }
@@ -72,19 +100,24 @@ namespace EventFlow.Extensions
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> subscribeSynchronousToTypes)
         {
+            var iSubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
+            var iSubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
+            var iSubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
+
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
             {
                 var t = subscribeSynchronousToType;
-                if (t.IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract) continue;
                 var subscribeTos = t
+                    .GetTypeInfo()
                     .GetInterfaces()
                     .Where(i =>
-                        (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>)) ||
-                        i == typeof(ISubscribeSynchronousToAll))
+                        i.GetTypeInfo().IsGenericType && (i.GetGenericTypeDefinition() == iSubscribeSynchronousToType || i.GetGenericTypeDefinition() == iSubscribeAsynchronousToType) ||
+                        i == iSubscribeSynchronousToAllType)
                     .ToList();
                 if (!subscribeTos.Any())
                 {
-                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(ISubscribeSynchronousTo<,,>).PrettyPrint()}'");
+                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{iSubscribeSynchronousToType.PrettyPrint()}', '{iSubscribeAsynchronousToType.PrettyPrint()}' or '{iSubscribeSynchronousToAllType.PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>

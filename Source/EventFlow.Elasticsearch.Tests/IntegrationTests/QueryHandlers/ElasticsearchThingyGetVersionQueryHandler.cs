@@ -52,9 +52,9 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
                 query.ThingyId.Value,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                    .Index(readModelDescription.IndexName.Value))
+                        .Index(readModelDescription.IndexName.Value), 
+                            cancellationToken)
                 .ConfigureAwait(false);
 
             return getResponse != null && getResponse.Found

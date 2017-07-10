@@ -93,19 +93,19 @@ namespace EventFlow.EventStores.InMemory
             int pageSize,
             CancellationToken cancellationToken)
         {
-            var startPostion = globalPosition.IsStart
+            var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
-            var endPosition = startPostion + pageSize;
+            var endPosition = startPosition + pageSize;
 
             var committedDomainEvents = _eventStore
                 .SelectMany(kv => kv.Value)
-                .Where(e => e.GlobalSequenceNumber >= startPostion && e.GlobalSequenceNumber <= endPosition)
+                .Where(e => e.GlobalSequenceNumber >= startPosition && e.GlobalSequenceNumber <= endPosition)
                 .ToList();
 
             var nextPosition = committedDomainEvents.Any()
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
-                : startPostion;
+                : startPosition;
 
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }

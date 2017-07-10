@@ -56,12 +56,14 @@ Contents:
    :maxdepth: 2
    :caption: Additional reading
 
+   Configuration
    IoC
    Log
    Snapshots
    Customize
    ValueObjects
    DosAndDonts
+   Specifications
    FAQ
 
 

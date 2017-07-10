@@ -65,8 +65,7 @@ namespace EventFlow.Core.VersionedTypes
             }
 
             var invalidTypes = types
-                .Where(t => !typeof(TTypeCheck)
-                .IsAssignableFrom(t))
+                .Where(t => !typeof(TTypeCheck).GetTypeInfo().IsAssignableFrom(t))
                 .ToList();
             if (invalidTypes.Any())
             {
@@ -88,7 +87,7 @@ namespace EventFlow.Core.VersionedTypes
                 _log.Verbose(() =>
                     {
                         var assemblies = definitions
-                            .Select(d => d.Type.Assembly.GetName().Name)
+                            .Select(d => d.Type.GetTypeInfo().Assembly.GetName().Name)
                             .Distinct()
                             .OrderBy(n => n)
                             .ToList();
@@ -229,6 +228,7 @@ namespace EventFlow.Core.VersionedTypes
         private TDefinition CreateDefinitionFromAttribute(Type versionedType)
         {
             var attribute = versionedType
+                .GetTypeInfo()
                 .GetCustomAttributes()
                 .OfType<TAttribute>()
                 .SingleOrDefault();

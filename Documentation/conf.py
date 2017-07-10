@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'EventFlow'
-copyright = u'2015-2016, Rasmus Mikkelsen'
+copyright = u'2015-2017, Rasmus Mikkelsen'
 author = u'Rasmus Mikkelsen'
 
 # The version info for the project you're documenting, acts as replacement for

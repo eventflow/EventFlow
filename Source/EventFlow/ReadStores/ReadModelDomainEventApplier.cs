@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -57,7 +58,7 @@ namespace EventFlow.ReadStores
                             var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType, domainEvent.GetIdentity().GetType(), t);
 
                             var methodSignature = new[] {typeof(IReadModelContext), domainEventType};
-                            var methodInfo = readModelType.GetMethod("Apply", methodSignature);
+                            var methodInfo = readModelType.GetTypeInfo().GetMethod("Apply", methodSignature);
 
                             return methodInfo == null
                                 ? null

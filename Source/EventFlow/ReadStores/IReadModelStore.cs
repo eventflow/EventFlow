@@ -29,14 +29,17 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelStore<TReadModel>
+    public interface IReadModelStore
+    {
+        Task DeleteAllAsync(
+            CancellationToken cancellationToken);
+    }
+
+    public interface IReadModelStore<TReadModel> : IReadModelStore
         where TReadModel : class, IReadModel, new()
     {
         Task<ReadModelEnvelope<TReadModel>> GetAsync(
             string id,
-            CancellationToken cancellationToken);
-
-        Task DeleteAllAsync(
             CancellationToken cancellationToken);
 
         Task UpdateAsync(

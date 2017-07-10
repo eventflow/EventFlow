@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Configuration;
@@ -44,7 +43,7 @@ namespace EventFlow.Core.IoC.Factories
 
             if (constructorInfos.Length > 1)
             {
-                throw new ConfigurationErrorsException($"Type {serviceType.PrettyPrint()} has more than one constructor");
+                throw new Exception($"Type {serviceType.PrettyPrint()} has more than one constructor");
             }
 
             _constructorInfo = constructorInfos.Single();
