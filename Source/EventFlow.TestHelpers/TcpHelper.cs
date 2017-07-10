@@ -36,7 +36,12 @@ namespace EventFlow.TestHelpers
         {
             var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             var activeTcpListeners = ipGlobalProperties.GetActiveTcpListeners();
-            var ports = new HashSet<int>(activeTcpListeners.Select(p => p.Port));
+            var activeTcpConnections = ipGlobalProperties.GetActiveTcpConnections();
+
+            var ports = new HashSet<int>(Enumerable.Empty<int>()
+                .Concat(activeTcpListeners.Select(l => l.Port)
+                .Concat(activeTcpConnections.Select(c => c.LocalEndPoint.Port))
+                ));
 
             while (true)
             {
