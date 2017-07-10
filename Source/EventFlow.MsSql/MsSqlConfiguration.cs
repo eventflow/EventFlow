@@ -35,6 +35,7 @@ namespace EventFlow.MsSql
         {
         }
 
+        // From official documentation on MSDN: "The service is currently busy. Retry the request after 10 seconds"
         public RetryDelay ServerBusyRetryDelay { get; private set; } = RetryDelay.Between(
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(15));
