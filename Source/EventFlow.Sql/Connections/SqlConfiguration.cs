@@ -36,6 +36,8 @@ namespace EventFlow.Sql.Connections
             TimeSpan.FromMilliseconds(50),
             TimeSpan.FromMilliseconds(100));
 
+        public int TransientRetryCount { get; private set; } = 2;
+
         public T SetConnectionString(string connectionString)
         {
             ConnectionString = connectionString;
@@ -59,5 +61,13 @@ namespace EventFlow.Sql.Connections
             // Are there alternatives to this double cast?
             return (T)(object)this;
         }
+		
+        public T SetTransientRetryCount(int retryCount)
+        {
+            TransientRetryCount = retryCount;
+
+            // Are there alternatives to this double cast?
+            return (T)(object)this;
+        }		
     }
 }

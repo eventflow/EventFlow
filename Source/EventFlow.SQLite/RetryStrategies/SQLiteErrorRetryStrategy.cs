@@ -41,7 +41,7 @@ namespace EventFlow.SQLite.RetryStrategies
         public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
         {
             var sqLiteException = exception as SQLiteException;
-            if (sqLiteException == null || currentRetryCount > 2)
+            if (sqLiteException == null || currentRetryCount > _configuration.TransientRetryCount)
             {
                 return Retry.No;
             }
