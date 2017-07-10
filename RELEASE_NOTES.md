@@ -10,6 +10,9 @@
   subject to change
 * New: Now possible to configure retry delay for MSSQL error `40501` (server
   too busy) using `IMsSqlConfiguration.SetServerBusyRetryDelay(RetryDelay)`
+* Fixed: Added MSSQL error codes `10928`, `10929`, `18401` and `40540` to
+  the list treated as transient errors, i.e., EventFlow will automatically
+  retry if the server returns one of these 
 
 ### New in 0.47.2894 (released 2017-06-28)
 
