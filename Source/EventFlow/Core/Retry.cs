@@ -22,10 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.Core
 {
-    public class Retry
+    public class Retry : ValueObject
     {
         public static Retry Yes { get; } = new Retry(true, TimeSpan.Zero);
         public static Retry YesAfter(TimeSpan retryAfter) => new Retry(true, retryAfter);
@@ -43,6 +45,12 @@ namespace EventFlow.Core
 
             ShouldBeRetried = shouldBeRetried;
             RetryAfter = retryAfter;
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return ShouldBeRetried;
+            yield return RetryAfter;
         }
     }
 }
