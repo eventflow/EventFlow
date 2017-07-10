@@ -10,6 +10,8 @@
   subject to change
 * New: Now possible to configure retry delay for MSSQL error `40501` (server
   too busy) using `IMsSqlConfiguration.SetServerBusyRetryDelay(RetryDelay)`
+* New: Now possible to configure the retry count of transient exceptions for
+  MSSQL and SQLite using the `ISqlConfiguration.SetTransientRetryCount(int)` 
 * Fixed: Added MSSQL error codes `10928`, `10929`, `18401` and `40540` as well
   as a few native `Win32Exception` exceptions to the list treated as transient
   errors, i.e., EventFlow will automatically retry if the server returns one

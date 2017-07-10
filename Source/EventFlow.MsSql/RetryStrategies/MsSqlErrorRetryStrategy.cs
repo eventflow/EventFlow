@@ -52,7 +52,7 @@ namespace EventFlow.MsSql.RetryStrategies
             // List of possible errors inspired by Azure SqlDatabaseTransientErrorDetectionStrategy
 
             var sqlException = exception as SqlException;
-            if (sqlException == null || currentRetryCount > 2)
+            if (sqlException == null || currentRetryCount > _msSqlConfiguration.TransientRetryCount)
             {
                 return Retry.No;
             }
