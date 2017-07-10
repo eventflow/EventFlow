@@ -4,6 +4,10 @@
   methods
 * New: Added non-generic overloads for purge and populate methods on
   `IReadModelPopulator`
+* New: Provided `EventFlow.TestHelpers` which contains several test suites
+  that is useful when developing event and read model stores for EventFlow.
+  The package is an initial release and its interface is unstable and
+  subject to change
 
 ### New in 0.47.2894 (released 2017-06-28)
 
