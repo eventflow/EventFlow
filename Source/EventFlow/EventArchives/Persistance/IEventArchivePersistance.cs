@@ -21,23 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
-namespace EventFlow.EventArchives.Null
+namespace EventFlow.EventArchives.Persistance
 {
-    public class NotImplementedEventArchivePersistance : IEventArchivePersistance
+    public interface IEventArchivePersistance
     {
-        public Task<EventArchiveDetails> ArchiveAsync(
+        Task<EventArchiveDetails> ArchiveAsync(
             IIdentity identity,
             ICommittedDomainEventStream committedDomainEventStream,
-            CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException(
-                "Please register an event archive persistance before using the functionality");
-        }
+            CancellationToken cancellationToken);
     }
 }

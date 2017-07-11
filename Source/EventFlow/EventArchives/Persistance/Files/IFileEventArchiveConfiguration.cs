@@ -21,18 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.EventStores;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.EventArchives.Persistance.Files
 {
-    public interface IEventArchivePersistance
+    public interface IFileEventArchiveConfiguration
     {
-        Task<EventArchiveDetails> ArchiveAsync(
-            IIdentity identity,
-            ICommittedDomainEventStream committedDomainEventStream,
-            CancellationToken cancellationToken);
+        string GetEventArchiveFile(IIdentity identity);
     }
 }

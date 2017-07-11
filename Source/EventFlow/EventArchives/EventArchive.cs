@@ -24,6 +24,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventArchives.Persistance;
 using EventFlow.EventStores;
 
 namespace EventFlow.EventArchives

@@ -25,7 +25,7 @@ using System;
 using System.IO;
 using EventFlow.Core;
 
-namespace EventFlow.EventArchives.Files
+namespace EventFlow.EventArchives.Persistance.Files
 {
     public class FileEventArchiveConfiguration : IFileEventArchiveConfiguration
     {

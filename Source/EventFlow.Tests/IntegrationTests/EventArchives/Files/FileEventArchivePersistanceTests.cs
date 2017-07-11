@@ -24,7 +24,8 @@
 using System.IO;
 using EventFlow.Configuration;
 using EventFlow.EventArchives;
-using EventFlow.EventArchives.Files;
+using EventFlow.EventArchives.Persistance;
+using EventFlow.EventArchives.Persistance.Files;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;

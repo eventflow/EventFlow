@@ -31,7 +31,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventArchives;
-using EventFlow.EventArchives.Files;
+using EventFlow.EventArchives.Formatters;
+using EventFlow.EventArchives.Formatters.GZippedJson;
+using EventFlow.EventArchives.Persistance.Files;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Logs;
@@ -43,7 +45,7 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.EventArchives.Files
+namespace EventFlow.Tests.UnitTests.EventArchives.Persistance.Files
 {
     [Category(Categories.Unit)]
     public class FileEventArchivePersistanceTests : TestsFor<FileEventArchivePersistance>
@@ -57,7 +59,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
             var eventDefinitionService = new EventDefinitionService(Mock<ILog>());
             eventDefinitionService.Load(typeof(ThingyPingEvent));
 
-            Inject<IEventArchiveStreamFormatter>(new EventArchiveStreamFormatter());
+            Inject<IEventArchiveStreamFormatter>(new GZippedJsonEventArchiveStreamFormatter());
 
             _fileSystemMock = InjectMock<IFileSystem>();
             _fileEventArchiveConfigurationMock = InjectMock<IFileEventArchiveConfiguration>();
@@ -77,7 +79,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
             var committedDomainEvents = Many<ICommittedDomainEvent>(27);
             var committedDomainEventStream = new InMemoryCommittedDomainEventStream(committedDomainEvents, 3);
 
-            IReadOnlyCollection<EventArchiveStreamFormatter.JsonEvent> jsonEvents = null;
+            IReadOnlyCollection<GZippedJsonEventArchiveStreamFormatter.JsonEvent> jsonEvents = null;
             EventArchiveDetails eventArchiveDetails = null;
 
             using (var anonymousPipeServerStream = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.None))
@@ -101,7 +103,7 @@ namespace EventFlow.Tests.UnitTests.EventArchives.Files
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
                         var ss = new Newtonsoft.Json.JsonSerializer();
-                        jsonEvents = ss.Deserialize<IReadOnlyCollection<EventArchiveStreamFormatter.JsonEvent>>(jsonTextReader);
+                        jsonEvents = ss.Deserialize<IReadOnlyCollection<GZippedJsonEventArchiveStreamFormatter.JsonEvent>>(jsonTextReader);
                     }
                 });
 

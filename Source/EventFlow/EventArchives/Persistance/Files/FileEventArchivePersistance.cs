@@ -22,15 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.EventArchives.Formatters;
 using EventFlow.EventStores;
 using EventFlow.Logs;
 
-namespace EventFlow.EventArchives.Files
+namespace EventFlow.EventArchives.Persistance.Files
 {
     public class FileEventArchivePersistance : IEventArchivePersistance
     {

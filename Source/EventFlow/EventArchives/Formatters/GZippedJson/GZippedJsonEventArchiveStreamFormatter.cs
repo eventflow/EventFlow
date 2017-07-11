@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -32,9 +31,9 @@ using System.Threading.Tasks;
 using EventFlow.EventStores;
 using Newtonsoft.Json;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.EventArchives.Formatters.GZippedJson
 {
-    public class EventArchiveStreamFormatter : IEventArchiveStreamFormatter
+    public class GZippedJsonEventArchiveStreamFormatter : IEventArchiveStreamFormatter
     {
         private readonly JsonSerializer _jsonSerializer = new JsonSerializer
         {

@@ -26,7 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.EventStores;
 
-namespace EventFlow.EventArchives
+namespace EventFlow.EventArchives.Formatters
 {
     public interface IEventArchiveStreamFormatter
     {
