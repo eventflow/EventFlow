@@ -67,7 +67,7 @@ namespace EventFlow.EventArchives.Persistance.Files
                     cancellationToken)
                 .ConfigureAwait(false))
             {
-                await _eventArchiveStreamFormatter.StreamEventsAsync(
+                await _eventArchiveStreamFormatter.WriteAsync(
                     stream,
                     committedDomainEventStream,
                     cancellationToken)

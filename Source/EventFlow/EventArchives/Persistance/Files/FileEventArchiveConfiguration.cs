@@ -29,7 +29,7 @@ namespace EventFlow.EventArchives.Persistance.Files
 {
     public class FileEventArchiveConfiguration : IFileEventArchiveConfiguration
     {
-        public static IFileEventArchiveConfiguration Create(string archivePath)
+        public static IFileEventArchiveConfiguration New(string archivePath)
         {
             return new FileEventArchiveConfiguration(archivePath);
         }

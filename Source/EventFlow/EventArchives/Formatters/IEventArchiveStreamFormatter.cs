@@ -30,7 +30,7 @@ namespace EventFlow.EventArchives.Formatters
 {
     public interface IEventArchiveStreamFormatter
     {
-        Task StreamEventsAsync(
+        Task WriteAsync(
             Stream stream,
             ICommittedDomainEventStream committedDomainEventStream,
             CancellationToken cancellationToken);

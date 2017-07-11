@@ -26,18 +26,22 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EventArchives.Persistance;
 using EventFlow.EventStores;
+using EventFlow.Logs;
 
 namespace EventFlow.EventArchives
 {
     public class EventArchive : IEventArchive
     {
+        private readonly ILog _log;
         private readonly IEventPersistence _eventPersistence;
         private readonly IEventArchivePersistance _eventArchivePersistance;
 
         public EventArchive(
+            ILog log,
             IEventPersistence eventPersistence,
             IEventArchivePersistance eventArchivePersistance)
         {
+            _log = log;
             _eventPersistence = eventPersistence;
             _eventArchivePersistance = eventArchivePersistance;
         }
@@ -46,8 +50,9 @@ namespace EventFlow.EventArchives
             IIdentity identity,
             CancellationToken cancellationToken)
         {
-            EventArchiveDetails eventArchiveDetails;
+            _log.Debug($"Starting archive of {identity}");
 
+            EventArchiveDetails eventArchiveDetails;
             using (var committedDomainEventStream = await _eventPersistence.OpenReadAsync(
                 identity,
                 cancellationToken)
@@ -60,6 +65,7 @@ namespace EventFlow.EventArchives
                     .ConfigureAwait(false);
             }
 
+            _log.Debug($"Finished archive of {identity} to {eventArchiveDetails}. DELETING it from event persistence");
             await _eventPersistence.DeleteEventsAsync(
                 identity,
                 cancellationToken)

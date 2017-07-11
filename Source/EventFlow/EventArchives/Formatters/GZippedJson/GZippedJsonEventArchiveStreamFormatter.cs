@@ -36,11 +36,11 @@ namespace EventFlow.EventArchives.Formatters.GZippedJson
     public class GZippedJsonEventArchiveStreamFormatter : IEventArchiveStreamFormatter
     {
         private readonly JsonSerializer _jsonSerializer = new JsonSerializer
-        {
-            Formatting = Formatting.None
-        };
+            {
+                Formatting = Formatting.None
+            };
 
-        public async Task StreamEventsAsync(
+        public async Task WriteAsync(
             Stream stream,
             ICommittedDomainEventStream committedDomainEventStream,
             CancellationToken cancellationToken)
@@ -53,6 +53,7 @@ namespace EventFlow.EventArchives.Formatters.GZippedJson
 
                 IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents;
                 while ((committedDomainEvents = await committedDomainEventStream.ReadAsync(cancellationToken).ConfigureAwait(false)).Any())
+                {
                     foreach (var committedDomainEvent in committedDomainEvents)
                     {
                         var jsonEvent = new JsonEvent(
@@ -63,6 +64,7 @@ namespace EventFlow.EventArchives.Formatters.GZippedJson
                             jsonTextWriter,
                             jsonEvent);
                     }
+                }
 
                 jsonTextWriter.WriteEndArray();
             }

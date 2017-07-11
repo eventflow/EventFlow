@@ -41,7 +41,7 @@ namespace EventFlow.Tests.IntegrationTests.EventArchives.Files
                 .RegisterServices(sr =>
                     {
                         sr.Register<IEventArchivePersistance, FileEventArchivePersistance>();
-                        sr.Register(_ => FileEventArchiveConfiguration.Create(Path.GetTempPath()));
+                        sr.Register(_ => FileEventArchiveConfiguration.New(Path.GetTempPath()));
                     })
                 .CreateResolver();
         }

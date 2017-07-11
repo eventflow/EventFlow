@@ -22,10 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.EventArchives
 {
-    public class EventArchiveDetails
+    public class EventArchiveDetails : ValueObject
     {
         public EventArchiveDetails(
             Uri uri)
@@ -34,5 +36,15 @@ namespace EventFlow.EventArchives
         }
 
         public Uri Uri { get; }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Uri;
+        }
+
+        public override string ToString()
+        {
+            return Uri.AbsoluteUri;
+        }
     }
 }
