@@ -71,7 +71,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .Setup(r => r.Resolve<IEnumerable<IReadStoreManager>>())
                 .Returns(new[] {_readStoreManagerMock.Object});
             _resolverMock
-                .Setup(r => r.Resolve<IEnumerable<IReadModelStore<TestReadModel>>>())
+                .Setup(r => r.ResolveAll(typeof(IReadModelStore<TestReadModel>)))
                 .Returns(new[] {_readModelStoreMock.Object});
 
             _eventFlowConfigurationMock
@@ -81,6 +81,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             _eventStoreMock
                 .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns<GlobalPosition, int, CancellationToken>((s, p, c) => Task.FromResult(GetEvents(s, p)));
+            _readStoreManagerMock
+                .Setup(m => m.ReadModelType)
+                .Returns(typeof(TestReadModel));
         }
 
         [Test]

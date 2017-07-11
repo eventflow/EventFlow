@@ -28,9 +28,11 @@ namespace EventFlow.Sql.Connections
     public interface ISqlConfiguration<out T>
         where T : ISqlConfiguration<T>
     {
-        RetryDelay TransientRetryDelay { get; }
         string ConnectionString { get; }
+        RetryDelay TransientRetryDelay { get; }
+        int TransientRetryCount { get; }
 
         T SetTransientRetryDelay(RetryDelay retryDelay);
+        T SetTransientRetryCount(int retryCount);
     }
 }
