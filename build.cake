@@ -149,7 +149,6 @@ Task("Package")
 						Configuration = CONFIGURATION,
 						OutputDirectory = DIR_OUTPUT_PACKAGES,
 						NoBuild = true,
-						Verbose = false,
 						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
 					});
 			}
