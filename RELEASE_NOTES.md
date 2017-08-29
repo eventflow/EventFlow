@@ -1,6 +1,8 @@
 ### New in 0.49 (not released yet)
 
-* _Nothing yet_
+* Breaking: Upgraded `EventStore.Client` dependency to version 4.0
+* Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
+  .NET 4.6.2 as required by `EventStore.Client` NuGet dependency
 
 ### New in 0.48.2937 (released 2017-07-11)
 
