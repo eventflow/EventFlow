@@ -72,7 +72,7 @@ namespace EventFlow.Elasticsearch.Tests
             {
                 try
                 {
-                    var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health"));
+                    var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health")).ConfigureAwait(false);
                     return clusterHealth.Status;
                 }
                 catch (Exception e)
