@@ -106,8 +106,7 @@ namespace EventFlow.Aggregates
             if (domainEvents.Any())
             {
                 var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                    id,
+                await domainEventPublisher.PublishAsync(
                     domainEvents,
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -133,8 +132,7 @@ namespace EventFlow.Aggregates
             if (domainEvents.Any())
             {
                 var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                    aggregate.Id,
+                await domainEventPublisher.PublishAsync(
                     domainEvents,
                     cancellationToken)
                     .ConfigureAwait(false);
