@@ -61,7 +61,7 @@ namespace EventFlow.ReadStores
             return PurgeAsync(typeof(TReadModel), cancellationToken);
         }
 
-        public Task PurgeAsync(
+        public async Task PurgeAsync(
             Type readModelType,
             CancellationToken cancellationToken)
         {
@@ -76,10 +76,10 @@ namespace EventFlow.ReadStores
             }
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
-            return Task.WhenAll(deleteTasks);
+            await Task.WhenAll(deleteTasks).ConfigureAwait(false);
         }
 
-        public Task DeleteAsync(
+        public async Task DeleteAsync(
             string id,
             Type readModelType,
             CancellationToken cancellationToken)
@@ -97,7 +97,7 @@ namespace EventFlow.ReadStores
             _log.Verbose(() => $"Deleting read model {readModelType.PrettyPrint()} with ID '{id}'");
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAsync(id, cancellationToken));
-            return Task.WhenAll(deleteTasks);
+            await Task.WhenAll(deleteTasks).ConfigureAwait(false);
         }
 
         public Task PopulateAsync<TReadModel>(
