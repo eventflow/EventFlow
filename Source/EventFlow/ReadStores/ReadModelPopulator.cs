@@ -65,15 +65,7 @@ namespace EventFlow.ReadStores
             Type readModelType,
             CancellationToken cancellationToken)
         {
-            var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
-
-            var readModelStores = _resolver.ResolveAll(readModelStoreType)
-                .Select(s => (IReadModelStore)s)
-                .ToList();
-            if (!readModelStores.Any())
-            {
-                throw new ArgumentException($"Could not find any read stores for read model '{readModelType.PrettyPrint()}'");
-            }
+            var readModelStores = ResolveReadModelStores(readModelType);
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAllAsync(cancellationToken));
             await Task.WhenAll(deleteTasks).ConfigureAwait(false);
@@ -84,15 +76,7 @@ namespace EventFlow.ReadStores
             Type readModelType,
             CancellationToken cancellationToken)
         {
-            var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
-
-            var readModelStores = _resolver.ResolveAll(readModelStoreType)
-                .Select(s => (IReadModelStore)s)
-                .ToList();
-            if (!readModelStores.Any())
-            {
-                throw new ArgumentException($"Could not find any read stores for read model '{readModelType.PrettyPrint()}'");
-            }
+            var readModelStores = ResolveReadModelStores(readModelType);
 
             _log.Verbose(() => $"Deleting read model {readModelType.PrettyPrint()} with ID '{id}'");
 
@@ -112,7 +96,7 @@ namespace EventFlow.ReadStores
             CancellationToken cancellationToken)
         {
             var stopwatch = Stopwatch.StartNew();
-            var readStoreManagers = ResolveReadStoreManager(readModelType);
+            var readStoreManagers = ResolveReadStoreManagers(readModelType);
 
             var aggregateEventTypes = new HashSet<Type>(readModelType
                 .GetTypeInfo()
@@ -174,7 +158,23 @@ namespace EventFlow.ReadStores
                 relevantEvents);
         }
 
-        private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManager(
+        private IReadOnlyCollection<IReadModelStore> ResolveReadModelStores(
+            Type readModelType)
+        {
+            var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
+            var readModelStores = _resolver.ResolveAll(readModelStoreType)
+                .Select(s => (IReadModelStore)s)
+                .ToList();
+
+            if (!readModelStores.Any())
+            {
+                throw new ArgumentException($"Could not find any read stores for read model '{readModelType.PrettyPrint()}'");
+            }
+
+            return readModelStores;
+        }
+
+        private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManagers(
             Type readModelType)
         {
             var readStoreManagers = _resolver.Resolve<IEnumerable<IReadStoreManager>>()
