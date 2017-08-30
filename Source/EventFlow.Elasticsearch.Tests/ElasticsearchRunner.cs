@@ -77,7 +77,7 @@ namespace EventFlow.Elasticsearch.Tests
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    LogHelper.Log.Warning(e, "Exception while checking Elasticsearch health");
                     return string.Empty;
                 }
             }
