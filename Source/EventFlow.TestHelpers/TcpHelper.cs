@@ -37,6 +37,7 @@ namespace EventFlow.TestHelpers
             var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             var usedPorts = Enumerable.Empty<int>()
                 .Concat(ipGlobalProperties.GetActiveTcpListeners().Select(l => l.Port))
+                .Concat(ipGlobalProperties.GetActiveUdpListeners().Select(l => l.Port))
                 .Concat(ipGlobalProperties.GetActiveTcpConnections().Select(c => c.LocalEndPoint.Port))
                 .Distinct();
 
