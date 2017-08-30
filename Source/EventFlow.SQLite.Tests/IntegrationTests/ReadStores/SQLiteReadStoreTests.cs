@@ -24,7 +24,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
@@ -42,6 +41,8 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
     [Category(Categories.Integration)]
     public class SQLiteReadStoreTests : TestSuiteForReadModelStore
     {
+        protected override Type ReadModelType { get; } = typeof(SQLiteThingyReadModel);
+
         private string _databasePath;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
@@ -82,16 +83,6 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
             connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyMessage, null).Wait();
 
             return resolver;
-        }
-
-        protected override Task PurgeTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PurgeAsync<SQLiteThingyReadModel>(CancellationToken.None);
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PopulateAsync<SQLiteThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]

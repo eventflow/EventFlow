@@ -79,6 +79,25 @@ namespace EventFlow.ReadStores
             return Task.WhenAll(deleteTasks);
         }
 
+        public Task DeleteAsync(
+            string id,
+            Type readModelType,
+            CancellationToken cancellationToken)
+        {
+            var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
+
+            var readModelStores = _resolver.ResolveAll(readModelStoreType)
+                .Select(s => (IReadModelStore)s)
+                .ToList();
+            if (!readModelStores.Any())
+            {
+                throw new ArgumentException($"Could not find any read stores for read model '{readModelType.PrettyPrint()}'");
+            }
+
+            var deleteTasks = readModelStores.Select(s => s.DeleteAsync(id, cancellationToken));
+            return Task.WhenAll(deleteTasks);
+        }
+
         public Task PopulateAsync<TReadModel>(
             CancellationToken cancellationToken)
             where TReadModel : class, IReadModel, new()

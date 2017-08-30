@@ -23,8 +23,6 @@
 
 using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Elasticsearch.Extensions;
 using EventFlow.Elasticsearch.ReadStores;
@@ -45,6 +43,8 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class ElasticsearchReadModelStoreTests : TestSuiteForReadModelStore
     {
+        protected override Type ReadModelType { get; } = typeof(ElasticsearchThingyReadModel);
+
         private IElasticClient _elasticClient;
         private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
         private string _indexName;
@@ -120,16 +120,6 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                 _elasticsearchInstance.DisposeSafe("Failed to dispose ES instance");
                 throw;
             }
-        }
-
-        protected override Task PurgeTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PurgeAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PopulateAsync<ElasticsearchThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]
