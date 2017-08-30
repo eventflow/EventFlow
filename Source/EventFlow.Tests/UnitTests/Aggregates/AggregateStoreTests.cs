@@ -137,8 +137,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
 
             // Assert
             _domainEventPublisherMock.Verify(
-                m => m.PublishAsync<ThingyAggregate, ThingyId>(
-                    It.IsAny<ThingyId>(),
+                m => m.PublishAsync(
                     It.IsAny<IReadOnlyCollection<IDomainEvent>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
@@ -172,8 +171,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                     It.IsAny<CancellationToken>()),
                 Times.Once);
             _domainEventPublisherMock.Verify(
-                m => m.PublishAsync<ThingyAggregate, ThingyId>(
-                    It.IsAny<ThingyId>(),
+                m => m.PublishAsync(
                     It.Is<IReadOnlyCollection<IDomainEvent>>(e => e.Count == 1),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
@@ -204,8 +202,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         private void Arrange_DomainEventPublisher_PublishAsync_ThrowsOptimisticConcurrencyException()
         {
             _domainEventPublisherMock
-                .Setup(m => m.PublishAsync<ThingyAggregate, ThingyId>(
-                    It.IsAny<ThingyId>(),
+                .Setup(m => m.PublishAsync(
                     It.IsAny<IReadOnlyCollection<IDomainEvent>>(),
                     It.IsAny<CancellationToken>()))
                 .Throws(new OptimisticConcurrencyException(string.Empty, null));
