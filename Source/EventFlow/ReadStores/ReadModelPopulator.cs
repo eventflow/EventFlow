@@ -29,8 +29,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
