@@ -58,37 +58,39 @@ namespace EventFlow.TestHelpers
                         }
                 };
             var exeName = Path.GetFileName(exePath);
-            DataReceivedEventHandler outHandler = (sender, e) =>
+
+            void OutHandler(object sender, DataReceivedEventArgs e)
+            {
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
-                    }
-                };
-            process.OutputDataReceived += outHandler;
-            DataReceivedEventHandler errHandler = (sender, e) =>
+                    LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
+                }
+            }
+            void ErrHandler(object sender, DataReceivedEventArgs e)
+            {
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        LogHelper.Log.Error($"ERR - {exeName}: {e.Data}");
-                    }
-                };
-            process.ErrorDataReceived += errHandler;
-            Action<Process> initializeProcess = p =>
-                {
-                    LogHelper.Log.Information($"{exeName} START =======================================");
-                    p.Start();
-                    p.BeginOutputReadLine();
-                    p.BeginErrorReadLine();
-                };
-            process.WaitForOutput(initializationDone, initializeProcess);
+                    LogHelper.Log.Error($"ERR - {exeName}: {e.Data}");
+                }
+            }
+            void InitializeProcess(Process p)
+            {
+                LogHelper.Log.Information($"{exeName} START =======================================");
+                p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+            }
+
+            process.OutputDataReceived += OutHandler;
+            process.ErrorDataReceived += ErrHandler;
+            process.WaitForOutput(initializationDone, InitializeProcess);
 
             return new DisposableAction(() =>
                 {
                     try
                     {
-                        process.OutputDataReceived -= outHandler;
-                        process.ErrorDataReceived -= errHandler;
+                        process.OutputDataReceived -= OutHandler;
+                        process.ErrorDataReceived -= ErrHandler;
 
                         KillProcessAndChildren(process.Id);
                     }
