@@ -182,7 +182,8 @@ namespace EventFlow.MsSql.ReadStores
             var rowsAffected = await _connection.ExecuteAsync(
                 Label.Named("mssql-delete-read-model", readModelName),
                 cancellationToken,
-                sql)
+                sql,
+                new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
             if (rowsAffected != 0)
