@@ -40,6 +40,7 @@ namespace EventFlow.Sql.ReadModels
         private static readonly ConcurrentDictionary<Type, string> IdentityColumns = new ConcurrentDictionary<Type, string>();
         private readonly Dictionary<Type, string> _insertSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _purgeSqls = new Dictionary<Type, string>();
+        private readonly Dictionary<Type, string> _deleteSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
 
@@ -78,6 +79,21 @@ namespace EventFlow.Sql.ReadModels
                 GetTableName<TReadModel>(),
                 GetIdentityColumn<TReadModel>());
             _selectSqls[readModelType] = sql;
+
+            return sql;
+        }
+
+        public string CreateDeleteSql<TReadModel>()
+            where TReadModel : IReadModel
+        {
+            var readModelType = typeof(TReadModel);
+            if (_deleteSqls.TryGetValue(readModelType, out var sql))
+            {
+                return sql;
+            }
+
+            sql = $"DELETE FROM {GetTableName<TReadModel>()} WHERE {GetIdentityColumn<TReadModel>()} = @EventFlowReadModelId";
+            _deleteSqls[readModelType] = sql;
 
             return sql;
         }
