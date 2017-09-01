@@ -1,6 +1,14 @@
 ### New in 0.49 (not released yet)
 
-* _Nothing yet_
+* Breaking: Upgraded `EventStore.Client` dependency to version 4.0
+* Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
+  .NET 4.6.2 as required by `EventStore.Client` NuGet dependency
+* New: Added an overload to `IDomainEventPublisher.PublishAsync` that isn't
+  generic and doesn't require an aggregate ID
+* New: Added `IReadModelPopulator.DeleteAsync` that allows deletion of single
+  read models
+* Obsolete: `IDomainEventPublisher.PublishAsync<,>` (generic) in favor of the
+  new less restrictive non-generic overload
 
 ### New in 0.48.2937 (released 2017-07-11)
 

@@ -165,6 +165,26 @@ namespace EventFlow.Sql.ReadModels
                 : ReadModelEnvelope<TReadModel>.With(id, readModel);
         }
 
+        public override async Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
+            var readModelName = typeof(TReadModel).Name;
+
+            var rowsAffected = await _connection.ExecuteAsync(
+                Label.Named("mssql-delete-read-model", readModelName),
+                cancellationToken,
+                sql,
+                new { EventFlowReadModelId = id })
+                .ConfigureAwait(false);
+
+            if (rowsAffected != 0)
+            {
+                Log.Verbose($"Deleted read model '{id}' of type '{readModelName}'");
+            }
+        }
+
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
             var sql = _readModelSqlGenerator.CreatePurgeSql<TReadModel>();

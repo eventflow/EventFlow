@@ -40,8 +40,8 @@ namespace EventFlow.EventStores.EventStore.Tests
     {
         private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
             "eventstore",
-            new Version(3, 9, 3),
-            "http://download.geteventstore.com/binaries/EventStore-OSS-Win-v3.9.3.zip");
+            new Version(4, 0, 2),
+            "http://download.geteventstore.com/binaries/EventStore-OSS-Win-v4.0.2.zip");
 
         public class EventStoreInstance : IDisposable
         {
