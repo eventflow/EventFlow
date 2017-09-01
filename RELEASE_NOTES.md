@@ -7,6 +7,8 @@
   `Hangfire`
 * New: Added an overload to `IDomainEventPublisher.PublishAsync` that isn't
   generic and doesn't require an aggregate ID
+* New: Added `IReadModelPopulator.DeleteAsync` that allows deletion of single
+  read models
 * Obsolete: `IDomainEventPublisher.PublishAsync<,>` (generic) in favor of the
   new less restrictive non-generic overload
 
