@@ -40,13 +40,13 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddCommands(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate)
+            Predicate<Type> predicate = null)
         {
             predicate = predicate ?? (t => true);
             var commandTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ICommand).GetTypeInfo().IsAssignableFrom(t))
-                .Where(t => predicate(t));
+                .Where(t => predicate == null || predicate(t));
             return eventFlowOptions.AddCommands(commandTypes);
         }
     }
