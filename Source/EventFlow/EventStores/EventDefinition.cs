@@ -28,12 +28,16 @@ namespace EventFlow.EventStores
 {
     public class EventDefinition : VersionedTypeDefinition
     {
+        public Type AggregateType { get; }
+
         public EventDefinition(
+            Type aggregateType,
             int version,
             Type type,
             string name)
             : base(version, type, name)
         {
+            AggregateType = aggregateType;
         }
     }
 }

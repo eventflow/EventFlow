@@ -32,6 +32,7 @@ using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Core.IoC;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.Domain;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
@@ -207,6 +208,7 @@ namespace EventFlow
             serviceRegistration.Register<IJsonSerializer, JsonSerializer>();
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();
+            serviceRegistration.Register<IDomainDescriber, DomainDescriber>();
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
             serviceRegistration.Register<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton);

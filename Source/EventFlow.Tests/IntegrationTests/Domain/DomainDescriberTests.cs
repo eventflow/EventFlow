@@ -22,37 +22,30 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Linq;
-using System.Reflection;
-using EventFlow.Aggregates;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Domain;
+using EventFlow.Extensions;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Tests.IntegrationTests.Domain
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    [Category(Categories.Integration)]
+    public class DomainDescriberTests
     {
-        public EventDefinitionService(ILog log)
-            : base(log)
+        [Test]
+        public async Task BuildGraphAsync()
         {
-        }
+            using (var resolver = EventFlowOptions.New
+                .AddDefaults(EventFlowTestHelpers.Assembly)
+                .CreateResolver())
+            {
+                var domainDescriber = resolver.Resolve<IDomainDescriber>();
 
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            var aggregateEventType = type
-                .GetTypeInfo()
-                .GetInterfaces()
-                .Single(i =>
-                    {
-                        var iti = i.GetTypeInfo();
-                        return iti.IsGenericType && iti.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>);
-                    });
-
-            return new EventDefinition(
-                aggregateEventType.GetTypeInfo().GetGenericArguments()[0],
-                version,
-                type,
-                name);
+                var graph = await domainDescriber.BuildGraphAsync(CancellationToken.None).ConfigureAwait(false);
+                Console.WriteLine(graph);
+            }
         }
     }
 }

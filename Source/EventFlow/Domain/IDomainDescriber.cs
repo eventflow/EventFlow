@@ -21,38 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Linq;
-using System.Reflection;
-using EventFlow.Aggregates;
-using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Domain
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    public interface IDomainDescriber
     {
-        public EventDefinitionService(ILog log)
-            : base(log)
-        {
-        }
-
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            var aggregateEventType = type
-                .GetTypeInfo()
-                .GetInterfaces()
-                .Single(i =>
-                    {
-                        var iti = i.GetTypeInfo();
-                        return iti.IsGenericType && iti.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>);
-                    });
-
-            return new EventDefinition(
-                aggregateEventType.GetTypeInfo().GetGenericArguments()[0],
-                version,
-                type,
-                name);
-        }
+        Task<string> BuildGraphAsync(CancellationToken cancellationToken);
     }
 }
