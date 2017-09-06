@@ -36,15 +36,16 @@ namespace EventFlow.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class CommandResultTests
     {
-        public class TestResultCommand : Command<ThingyAggregate, ThingyId>
+        public class TestResultCommand : Command<ThingyAggregate, ThingyId, ISourceId, int>
         {
-            public TestResultCommand(ThingyId aggregateId) : base(aggregateId)
+            public TestResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
             {
             }
         }
 
         public class TestResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, TestResultCommand>
         {
+            // TODO: It needs to be Task<int>
             public override Task ExecuteAsync(ThingyAggregate aggregate, TestResultCommand command, CancellationToken cancellationToken)
             {
                 return Task.FromResult(42);
@@ -61,8 +62,7 @@ namespace EventFlow.Tests.IntegrationTests
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
 
-                // TODO: Remove need for specifying all generic arguments
-                var result = await commandBus.PublishAsync< ThingyAggregate, ThingyId, ISourceId, int>(
+                var result = await commandBus.PublishAsync(
                     new TestResultCommand(ThingyId.New),
                     CancellationToken.None)
                     .ConfigureAwait(false);

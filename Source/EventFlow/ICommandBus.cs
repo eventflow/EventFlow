@@ -40,7 +40,7 @@ namespace EventFlow
 
         // TODO need reference to result through command and command handler to make sure types match
         Task<TResult> PublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+            ICommand<TAggregate, TIdentity, TSourceIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity

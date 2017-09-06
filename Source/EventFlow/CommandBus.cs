@@ -63,14 +63,26 @@ namespace EventFlow
             where TIdentity : IIdentity
             where TSourceIdentity : ISourceId
         {
-            await PublishAsync<TAggregate, TIdentity, TSourceIdentity, object>(
+            await InternalPublishAsync<TAggregate, TIdentity, TSourceIdentity, object>(
                 command,
                 cancellationToken)
                 .ConfigureAwait(false);
             return command.SourceId;
         }
 
-        public async Task<TResult> PublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
+        public Task<TResult> PublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity, TResult> command,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
+        {
+            return InternalPublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
+                command,
+                cancellationToken);
+        }
+
+        private async Task<TResult> InternalPublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
             ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
