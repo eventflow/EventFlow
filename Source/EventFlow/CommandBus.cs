@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -64,14 +63,28 @@ namespace EventFlow
             where TIdentity : IIdentity
             where TSourceIdentity : ISourceId
         {
+            await PublishAsync<TAggregate, TIdentity, TSourceIdentity, object>(
+                command,
+                cancellationToken)
+                .ConfigureAwait(false);
+            return command.SourceId;
+        }
+
+        public async Task<TResult> PublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TSourceIdentity : ISourceId
+        {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
             _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
-            IReadOnlyCollection<IDomainEvent> domainEvents;
+            AggregateUpdateResult<TResult> aggregateUpdateResult;
             try
             {
-                domainEvents = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
+                aggregateUpdateResult = await ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(command, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -86,7 +99,7 @@ namespace EventFlow
                 throw;
             }
 
-            _log.Verbose(() => domainEvents.Any()
+            _log.Verbose(() => aggregateUpdateResult.DomainEvents.Any()
                 ? string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
                     command.GetType().PrettyPrint(),
@@ -97,12 +110,12 @@ namespace EventFlow
                     command.GetType().PrettyPrint(),
                     command.SourceId,
                     typeof(TAggregate),
-                    string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
+                    string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint()))));
 
-            return command.SourceId;
+            return aggregateUpdateResult.Result;
         }
 
-        private async Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity>(
+        private async Task<AggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
             ICommand<TAggregate, TIdentity, TSourceIdentity> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -133,10 +146,19 @@ namespace EventFlow
 
             var commandHandler = commandHandlers.Single();
 
-            return await _aggregateStore.UpdateAsync<TAggregate, TIdentity>(
+            return await _aggregateStore.UpdateAsync<TAggregate, TIdentity, TResult>(
                 command.AggregateId,
                 command.SourceId,
-                (a, c) => commandExecutionDetails.Invoker(commandHandler, a, command, c),
+                async (a, c) =>
+                    {
+                        // TODO: Rework
+
+                        var task = commandExecutionDetails.Invoker(commandHandler, a, command, c);
+                        await task.ConfigureAwait(false);
+                        return (task.GetType().GetTypeInfo().IsGenericType)
+                            ? (TResult) ((dynamic) task).Result
+                            : default(TResult);
+                    },
                 cancellationToken)
                 .ConfigureAwait(false);
         }

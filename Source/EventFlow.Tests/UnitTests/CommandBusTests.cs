@@ -41,6 +41,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests
 {
+    [Ignore("PoC")]
     [TestFixture]
     [Category(Categories.Unit)]
     public class CommandBusTests : TestsFor<CommandBus>
