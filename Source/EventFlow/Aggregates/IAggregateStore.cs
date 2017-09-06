@@ -45,6 +45,14 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
+        Task<AggregateUpdateResult<TResult>> UpdateAsync<TAggregate, TIdentity, TResult>(
+            TIdentity id,
+            ISourceId sourceId,
+            Func<TAggregate, CancellationToken, Task<TResult>> updateAggregate,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
         Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
             TAggregate aggregate,
             ISourceId sourceId,

@@ -78,6 +78,30 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            var aggregateUpdateResult = await UpdateAsync<TAggregate, TIdentity, object>(
+                id,
+                sourceId,
+                async (a, c) =>
+                    {
+                        await updateAggregate(a, c).ConfigureAwait(false);
+                        return null as object;
+                    },
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            return aggregateUpdateResult.DomainEvents;
+        }
+
+        public async Task<AggregateUpdateResult<TResult>> UpdateAsync<TAggregate, TIdentity, TResult>(
+            TIdentity id,
+            ISourceId sourceId,
+            Func<TAggregate, CancellationToken, Task<TResult>> updateAggregate,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            var result = default(TResult);
+
             var domainEvents = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
@@ -90,7 +114,7 @@ namespace EventFlow.Aggregates
                             $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
                     }
 
-                    await updateAggregate(aggregate, c).ConfigureAwait(false);
+                    result = await updateAggregate(aggregate, c).ConfigureAwait(false);
 
                     return await aggregate.CommitAsync(
                         _eventStore,
@@ -112,7 +136,9 @@ namespace EventFlow.Aggregates
                     .ConfigureAwait(false);
             }
 
-            return domainEvents;
+            return new AggregateUpdateResult<TResult>(
+                result,
+                domainEvents);
         }
 
         public async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
