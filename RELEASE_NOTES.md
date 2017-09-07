@@ -1,4 +1,18 @@
-### New in 0.48 (not released yet)
+### New in 0.49 (not released yet)
+
+* Breaking: Upgraded `EventStore.Client` dependency to version 4.0
+* Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
+  .NET 4.6.2 as required by `EventStore.Client` NuGet dependency
+* Fix: `EventFlow.Hangfire` now depends on `Hangfire.Core` instead of
+  `Hangfire`
+* New: Added an overload to `IDomainEventPublisher.PublishAsync` that isn't
+  generic and doesn't require an aggregate ID
+* New: Added `IReadModelPopulator.DeleteAsync` that allows deletion of single
+  read models
+* Obsolete: `IDomainEventPublisher.PublishAsync<,>` (generic) in favor of the
+  new less restrictive non-generic overload
+
+### New in 0.48.2937 (released 2017-07-11)
 
 * Breaking: Moved non-async methods on `IReadModelPopulator` to extension
   methods
@@ -11,7 +25,7 @@
 * New: Now possible to configure retry delay for MSSQL error `40501` (server
   too busy) using `IMsSqlConfiguration.SetServerBusyRetryDelay(RetryDelay)`
 * New: Now possible to configure the retry count of transient exceptions for
-  MSSQL and SQLite using the `ISqlConfiguration.SetTransientRetryCount(int)` 
+  MSSQL and SQLite using the `ISqlConfiguration.SetTransientRetryCount(int)`
 * Fixed: Added MSSQL error codes `10928`, `10929`, `18401` and `40540` as well
   as a few native `Win32Exception` exceptions to the list treated as transient
   errors, i.e., EventFlow will automatically retry if the server returns one

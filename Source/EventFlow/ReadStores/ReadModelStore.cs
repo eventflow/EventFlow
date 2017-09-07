@@ -33,7 +33,7 @@ namespace EventFlow.ReadStores
     public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
         where TReadModel : class, IReadModel, new()
     {
-        protected ILog Log { get; private set; }
+        protected ILog Log { get; }
 
         protected ReadModelStore(
             ILog log)
@@ -42,6 +42,10 @@ namespace EventFlow.ReadStores
         }
 
         public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
+            CancellationToken cancellationToken);
+
+        public abstract Task DeleteAsync(
             string id,
             CancellationToken cancellationToken);
 

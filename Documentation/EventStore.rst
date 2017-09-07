@@ -16,6 +16,11 @@ support for alternatives.
 In-memory
 ---------
 
+.. IMPORTANT::
+
+    In-memory event store shouldn't be used for production environments, only for tests.
+
+
 Using the in-memory event store is easy as its enabled by default, no need
 to do anything.
 
@@ -71,6 +76,11 @@ application install or update, e.g., when the web site is installed.
 
 Files
 -----
+
+.. IMPORTANT::
+
+    Files event shouldn't be used for production environments, only for tests.
+
 
 The file based event store is useful if you have a set of events that represents
 a certain scenario and would like to create a test that verifies that the domain

@@ -63,12 +63,21 @@ namespace EventFlow.Subscribers
             _readStoreManagers = readStoreManagers.ToList();
         }
 
-        public async Task PublishAsync<TAggregate, TIdentity>(
+        public Task PublishAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+        {
+            return PublishAsync(
+                domainEvents,
+                cancellationToken);
+        }
+
+        public async Task PublishAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
             await PublishToReadStoresAsync(domainEvents, cancellationToken).ConfigureAwait(false);
             await PublishToSubscribersOfAllEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);

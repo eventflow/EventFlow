@@ -21,8 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
@@ -40,6 +39,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
     [Category(Categories.Integration)]
     public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
     {
+        protected override Type ReadModelType { get; } = typeof(MsSqlThingyReadModel);
+
         private IMsSqlDatabase _testDatabase;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
@@ -62,16 +63,6 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
             return resolver;
-        }
-
-        protected override Task PurgeTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PurgeAsync<MsSqlThingyReadModel>(CancellationToken.None);
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PopulateAsync<MsSqlThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]
