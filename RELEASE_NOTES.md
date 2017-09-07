@@ -1,4 +1,8 @@
-### New in 0.49 (not released yet)
+### New in 0.50 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.49.3031 (released 2017-09-07)
 
 * Breaking: Upgraded `EventStore.Client` dependency to version 4.0
 * Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
