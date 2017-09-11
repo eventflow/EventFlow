@@ -28,6 +28,6 @@ namespace EventFlow.Domain
 {
     public interface IDomainDescriber
     {
-        Task<string> BuildGraphAsync(CancellationToken cancellationToken);
+        Task<string> BuildGraphAsync(bool resolveSubscribers, CancellationToken cancellationToken);
     }
 }

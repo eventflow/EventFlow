@@ -24,31 +24,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Domain
 {
     public class DomainDescriber : IDomainDescriber
     {
+        private readonly IScopeResolver _resolver;
         private readonly IEventDefinitionService _eventDefinitionService;
 
         public DomainDescriber(
+            IScopeResolver resolver,
             IEventDefinitionService eventDefinitionService)
         {
+            _resolver = resolver;
             _eventDefinitionService = eventDefinitionService;
         }
 
-        public Task<string> BuildGraphAsync(CancellationToken cancellationToken)
+        public Task<string> BuildGraphAsync(bool resolveSubscribers, CancellationToken cancellationToken)
         {
-            var graph = string.Join(Environment.NewLine, GenerateGraph());
+            var graph = string.Join(Environment.NewLine, GenerateGraph(resolveSubscribers));
             return Task.FromResult(graph);
         }
 
-        private IEnumerable<string> GenerateGraph()
+        private IEnumerable<string> GenerateGraph(bool resolveSubscribers)
         {
             yield return "digraph G {";
             yield return "   rankdir=LR;";
@@ -66,13 +70,64 @@ namespace EventFlow.Domain
 
                 foreach (var eventDefinition in g)
                 {
-                    yield return $"       {aggregateName} -> {eventDefinition.Name}V{eventDefinition.Version}";
+                    yield return $"       {aggregateName} -> {GetNodeName(eventDefinition)}";
                 }
 
                 yield return "   }";
+                yield return string.Empty;
+
+                if (!resolveSubscribers)
+                {
+                    continue;
+                }
+                
+                foreach (var subscriberDetails in g.SelectMany(GatherSubscriberDetails))
+                {
+                    yield return $"   {GetNodeName(subscriberDetails.EventDefinition)} -> {subscriberDetails.SubscriberType.PrettyPrint()}";
+                }
+                yield return string.Empty;
             }
 
             yield return "}";
+        }
+
+        private static string GetNodeName(EventDefinition eventDefinition)
+        {
+            return $"{eventDefinition.Name}V{eventDefinition.Version}";
+        }
+
+        private IEnumerable<SubscriberDetails> GatherSubscriberDetails(EventDefinition eventDefinition)
+        {
+            using (var scope = _resolver.BeginScope())
+            {
+                var subscriberServiceType = typeof(ISubscribeSynchronousTo<,,>).MakeGenericType(
+                    eventDefinition.AggregateType,
+                    eventDefinition.IdentityType,
+                    eventDefinition.Type);
+                
+                foreach (var subscriber in scope.ResolveAll(subscriberServiceType))
+                {
+                    var subscriberImplementationType = subscriber.GetType();
+
+                    yield return new SubscriberDetails(
+                        subscriberImplementationType,
+                        eventDefinition);
+                }
+            }
+        }
+
+        private class SubscriberDetails
+        {
+            public Type SubscriberType { get; }
+            public EventDefinition EventDefinition { get; }
+
+            public SubscriberDetails(
+                Type subscriberType,
+                EventDefinition eventDefinition)
+            {
+                SubscriberType = subscriberType;
+                EventDefinition = eventDefinition;
+            }
         }
     }
 }

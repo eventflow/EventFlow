@@ -32,20 +32,26 @@ namespace EventFlow.EventStores
     public class EventDefinition : VersionedTypeDefinition
     {
         private readonly Lazy<Type> _lazyAggregateType;
+        private readonly Lazy<Type> _lazyIdentityType;
+        
         public Type AggregateType => _lazyAggregateType.Value;
-
+        public Type IdentityType => _lazyIdentityType.Value;
+        
         public EventDefinition(
             int version,
             Type type,
             string name)
             : base(version, type, name)
         {
-            _lazyAggregateType = new Lazy<Type>(() => GetAggregateType(type));
+            var lazyAggregateEventType = new Lazy<Type>(() => GetAggregateEventType(type));
+            
+            _lazyAggregateType = new Lazy<Type>(() => lazyAggregateEventType.Value.GenericTypeArguments[0]);
+            _lazyIdentityType = new Lazy<Type>(() => lazyAggregateEventType.Value.GenericTypeArguments[1]);
         }
 
-        private static Type GetAggregateType(Type eventType)
+        private static Type GetAggregateEventType(Type eventType)
         {
-            var aggregateEventType = eventType
+            return eventType
                 .GetTypeInfo()
                 .GetInterfaces()
                 .Single(i =>
@@ -53,8 +59,6 @@ namespace EventFlow.EventStores
                         var iti = i.GetTypeInfo();
                         return iti.IsGenericType && iti.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>);
                     });
-
-            return aggregateEventType.GetTypeInfo().GetGenericArguments()[0];
         }
     }
 }

@@ -24,9 +24,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Domain;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Events;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Domain
@@ -34,16 +38,25 @@ namespace EventFlow.Tests.IntegrationTests.Domain
     [Category(Categories.Integration)]
     public class DomainDescriberTests
     {
+        private class TestPingIdSubscriber : ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public Task HandleAsync(IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        
         [Test]
         public async Task BuildGraphAsync()
         {
             using (var resolver = EventFlowOptions.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
+                .AddSubscribers(typeof(TestPingIdSubscriber))
                 .CreateResolver())
             {
                 var domainDescriber = resolver.Resolve<IDomainDescriber>();
 
-                var graph = await domainDescriber.BuildGraphAsync(CancellationToken.None).ConfigureAwait(false);
+                var graph = await domainDescriber.BuildGraphAsync(true, CancellationToken.None).ConfigureAwait(false);
                 Console.WriteLine(graph);
             }
         }
