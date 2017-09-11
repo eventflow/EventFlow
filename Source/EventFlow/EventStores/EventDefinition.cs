@@ -22,22 +22,39 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Aggregates;
 using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.EventStores
 {
     public class EventDefinition : VersionedTypeDefinition
     {
-        public Type AggregateType { get; }
+        private readonly Lazy<Type> _lazyAggregateType;
+        public Type AggregateType => _lazyAggregateType.Value;
 
         public EventDefinition(
-            Type aggregateType,
             int version,
             Type type,
             string name)
             : base(version, type, name)
         {
-            AggregateType = aggregateType;
+            _lazyAggregateType = new Lazy<Type>(() => GetAggregateType(type));
+        }
+
+        private static Type GetAggregateType(Type eventType)
+        {
+            var aggregateEventType = eventType
+                .GetTypeInfo()
+                .GetInterfaces()
+                .Single(i =>
+                    {
+                        var iti = i.GetTypeInfo();
+                        return iti.IsGenericType && iti.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>);
+                    });
+
+            return aggregateEventType.GetTypeInfo().GetGenericArguments()[0];
         }
     }
 }

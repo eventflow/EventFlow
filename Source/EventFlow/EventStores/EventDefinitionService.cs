@@ -22,8 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Linq;
-using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
@@ -39,17 +37,7 @@ namespace EventFlow.EventStores
 
         protected override EventDefinition CreateDefinition(int version, Type type, string name)
         {
-            var aggregateEventType = type
-                .GetTypeInfo()
-                .GetInterfaces()
-                .Single(i =>
-                    {
-                        var iti = i.GetTypeInfo();
-                        return iti.IsGenericType && iti.GetGenericTypeDefinition() == typeof(IAggregateEvent<,>);
-                    });
-
             return new EventDefinition(
-                aggregateEventType.GetTypeInfo().GetGenericArguments()[0],
                 version,
                 type,
                 name);
