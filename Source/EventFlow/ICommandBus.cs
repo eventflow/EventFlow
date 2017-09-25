@@ -31,19 +31,10 @@ namespace EventFlow
 {
     public interface ICommandBus
     {
-        Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+        Task<TResult> PublishAsync<TAggregate, TIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
-
-        // TODO need reference to result through command and command handler to make sure types match
-        Task<TResult> PublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity, TResult> command,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId;
+            where TIdentity : IIdentity;
     }
 }

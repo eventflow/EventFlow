@@ -32,19 +32,11 @@ namespace EventFlow.Commands
     {
     }
 
-    public interface ICommandHandler<in TAggregate, TIdentity, TSourceIdentity, in TCommand> : ICommandHandler
-    where TAggregate : IAggregateRoot<TIdentity>
-    where TIdentity : IIdentity
-    where TSourceIdentity : ISourceId
-    where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
-    {
-        Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
-    }
-
-    public interface ICommandHandler<in TAggregate, TIdentity, in TCommand> : ICommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
+    public interface ICommandHandler<in TAggregate, TIdentity, TResult, in TCommand> : ICommandHandler
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
+        Task<TResult> ExecuteCommandAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
     }
 }

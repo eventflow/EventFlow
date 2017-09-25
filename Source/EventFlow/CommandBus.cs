@@ -56,38 +56,11 @@ namespace EventFlow
             _memoryCache = memoryCache;
         }
 
-        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+        public async Task<TResult> PublishAsync<TAggregate, TIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-        {
-            await InternalPublishAsync<TAggregate, TIdentity, TSourceIdentity, object>(
-                command,
-                cancellationToken)
-                .ConfigureAwait(false);
-            return command.SourceId;
-        }
-
-        public Task<TResult> PublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity, TResult> command,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-        {
-            return InternalPublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
-                command,
-                cancellationToken);
-        }
-
-        private async Task<TResult> InternalPublishAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
@@ -96,7 +69,7 @@ namespace EventFlow
             AggregateUpdateResult<TResult> aggregateUpdateResult;
             try
             {
-                aggregateUpdateResult = await ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(command, cancellationToken).ConfigureAwait(false);
+                aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -127,12 +100,11 @@ namespace EventFlow
             return aggregateUpdateResult.Result;
         }
 
-        private async Task<AggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity, TResult>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+        private async Task<AggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
         {
             var commandType = command.GetType();
             var commandExecutionDetails = await GetCommandExecutionDetailsAsync(commandType, cancellationToken).ConfigureAwait(false);

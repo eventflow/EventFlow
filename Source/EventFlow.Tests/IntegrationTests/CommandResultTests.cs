@@ -24,7 +24,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
-using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -36,17 +35,16 @@ namespace EventFlow.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class CommandResultTests
     {
-        public class TestResultCommand : Command<ThingyAggregate, ThingyId, ISourceId, int>
+        public class TestResultCommand : Command<ThingyAggregate, ThingyId, int>
         {
             public TestResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
             {
             }
         }
 
-        public class TestResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, TestResultCommand>
+        public class TestResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, int, TestResultCommand>
         {
-            // TODO: It needs to be Task<int>
-            public override Task ExecuteAsync(ThingyAggregate aggregate, TestResultCommand command, CancellationToken cancellationToken)
+            public override Task<int> ExecuteCommandAsync(ThingyAggregate aggregate, TestResultCommand command, CancellationToken cancellationToken)
             {
                 return Task.FromResult(42);
             }

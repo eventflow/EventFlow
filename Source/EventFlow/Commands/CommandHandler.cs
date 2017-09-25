@@ -28,13 +28,15 @@ using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class CommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>
+    public abstract class CommandHandler<TAggregate, TIdentity, TResult, TCommand> : ICommandHandler<TAggregate, TIdentity, TResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
-        where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
-        public abstract Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
+        public abstract Task<TResult> ExecuteCommandAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken);
     }
 
     public abstract class CommandHandler<TAggregate, TIdentity, TCommand> :
@@ -43,5 +45,18 @@ namespace EventFlow.Commands
         where TIdentity : IIdentity
         where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
     {
+        public override async Task<ISourceId> ExecuteCommandAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken)
+        {
+            await ExecuteAsync(aggregate, command, cancellationToken).ConfigureAwait(false);
+            return command.SourceId;
+        }
+
+        public abstract Task ExecuteAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken);
     }
 }

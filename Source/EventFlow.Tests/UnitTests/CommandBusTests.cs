@@ -69,7 +69,7 @@ namespace EventFlow.Tests.UnitTests
             await Sut.PublishAsync(new ThingyPingCommand(ThingyId.New, PingId.New)).ConfigureAwait(false);
 
             // Assert
-            commandHandler.Verify(h => h.ExecuteAsync(It.IsAny<ThingyAggregate>(), It.IsAny<ThingyPingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            commandHandler.Verify(h => h.ExecuteCommandAsync(It.IsAny<ThingyAggregate>(), It.IsAny<ThingyPingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         private void ArrangeWorkingEventStore()

@@ -30,17 +30,16 @@ using EventFlow.ValueObjects;
 
 namespace EventFlow.Commands
 {
-    public abstract class Command<TAggregate, TIdentity, TSourceIdentity> :
+    public abstract class Command<TAggregate, TIdentity, TResult> :
         ValueObject,
-        ICommand<TAggregate, TIdentity, TSourceIdentity>
+        ICommand<TAggregate, TIdentity, TResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
     {
-        public TSourceIdentity SourceId { get; }
+        public ISourceId SourceId { get; }
         public TIdentity AggregateId { get; }
 
-        protected Command(TIdentity aggregateId, TSourceIdentity sourceId)
+        protected Command(TIdentity aggregateId, ISourceId sourceId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
             if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
@@ -49,7 +48,7 @@ namespace EventFlow.Commands
             SourceId = sourceId;
         }
 
-        public Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
             return commandBus.PublishAsync(this, cancellationToken);
         }
@@ -73,18 +72,6 @@ namespace EventFlow.Commands
 
         protected Command(TIdentity aggregateId, ISourceId sourceId)
             : base(aggregateId, sourceId)
-        {
-        }
-    }
-
-    public abstract class Command<TAggregate, TIdentity, TSourceIdentity, TResult> :
-        Command<TAggregate, TIdentity, TSourceIdentity>,
-        ICommand<TAggregate, TIdentity, TSourceIdentity, TResult>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
-    {
-        protected Command(TIdentity aggregateId, TSourceIdentity sourceId) : base(aggregateId, sourceId)
         {
         }
     }

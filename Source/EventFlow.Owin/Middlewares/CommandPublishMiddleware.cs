@@ -89,7 +89,7 @@ namespace EventFlow.Owin.Middlewares
 
             try
             {
-                var sourceId = await _serializedCommandPublisher.PublishSerilizedCommandAsync(
+                await _serializedCommandPublisher.PublishSerilizedCommandAsync(
                     name,
                     version,
                     requestJson,
@@ -98,7 +98,6 @@ namespace EventFlow.Owin.Middlewares
                 await WriteAsync(
                     new
                         {
-                            SourceId = sourceId.Value,
                         },
                     HttpStatusCode.OK,
                     context)
