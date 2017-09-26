@@ -98,7 +98,7 @@ namespace EventFlow.Owin.Middlewares
                 await WriteAsync(
                     new
                         {
-                            SourceId = sourceId,
+                            SourceId = sourceId.Value,
                         },
                     HttpStatusCode.OK,
                     context)
