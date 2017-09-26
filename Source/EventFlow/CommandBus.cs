@@ -135,13 +135,9 @@ namespace EventFlow
                 command.SourceId,
                 async (a, c) =>
                     {
-                        // TODO: Rework
-
                         var task = commandExecutionDetails.Invoker(commandHandler, a, command, c);
                         await task.ConfigureAwait(false);
-                        return (task.GetType().GetTypeInfo().IsGenericType)
-                            ? (TResult) ((dynamic) task).Result
-                            : default(TResult);
+                        return (TResult) ((dynamic) task).Result;
                     },
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -170,7 +166,7 @@ namespace EventFlow
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
 
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
-                            commandHandlerType, "ExecuteAsync");
+                            commandHandlerType, "ExecuteCommandAsync");
 
                         return Task.FromResult(new CommandExecutionDetails
                             {
