@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Common.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Title>EventFlow.Redis</Title>
+    <Authors>Rasmus Mikkelsen</Authors>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2017</Copyright>
+    <Description>Async/await first CQRS+ES and DDD framework for .NET - http://geteventflow.net/</Description>
+    <PackageTags>CQRS ES event sourcing</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
+    <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.Redis.xml</DocumentationFile>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="1.2.6" />
+  </ItemGroup>
+</Project>

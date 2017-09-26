@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Common.props" />
+  <PropertyGroup>
+    <TargetFramework>net451</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.8.1" />
+    <PackageReference Include="WindowsBase" Version="4.6.1055" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow.Redis\EventFlow.Redis.csproj" />
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
+  </ItemGroup>
+</Project>
