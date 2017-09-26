@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -41,7 +40,6 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests
 {
-    [Ignore("PoC")]
     [TestFixture]
     [Category(Categories.Unit)]
     public class CommandBusTests : TestsFor<CommandBus>
@@ -62,7 +60,7 @@ namespace EventFlow.Tests.UnitTests
         public async Task CommandHandlerIsInvoked()
         {
             // Arrange
-            ArrangeWorkingEventStore();
+            ArrangeWorkingEventStore<ISourceId>();
             var commandHandler = ArrangeCommandHandlerExists<ThingyAggregate, ThingyId, ISourceId, ThingyPingCommand>();
 
             // Act
@@ -72,33 +70,38 @@ namespace EventFlow.Tests.UnitTests
             commandHandler.Verify(h => h.ExecuteCommandAsync(It.IsAny<ThingyAggregate>(), It.IsAny<ThingyPingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        private void ArrangeWorkingEventStore()
+        private void ArrangeWorkingEventStore<TResult>()
         {
             _aggregateStoreMock
-                .Setup(s => s.UpdateAsync(It.IsAny<ThingyId>(), It.IsAny<ISourceId>(), It.IsAny<Func<ThingyAggregate, CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
-                .Callback<ThingyId, ISourceId, Func<ThingyAggregate, CancellationToken, Task>, CancellationToken>((i, s, f, c) => f(A<ThingyAggregate>(), c))
-                .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent>>(Many<IDomainEvent<ThingyAggregate, ThingyId>>()));
+                .Setup(s => s.UpdateAsync(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<ISourceId>(),
+                    It.IsAny<Func<ThingyAggregate, CancellationToken, Task<TResult>>>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback<ThingyId, ISourceId, Func<ThingyAggregate, CancellationToken, Task<TResult>>, CancellationToken>((i, s, f, c) => f(A<ThingyAggregate>(), c))
+                .Returns(() => Task.FromResult(new AggregateUpdateResult<TResult>(default(TResult), Many<IDomainEvent<ThingyAggregate, ThingyId>>())));
         }
 
-        private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>(
-            ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> commandHandler)
+        private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TResult, TCommand>(
+            ICommandHandler<TAggregate, TIdentity, TResult, TCommand> commandHandler)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-            where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+            where TCommand : ICommand<TAggregate, TIdentity, TResult>
         {
             _resolverMock
-                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>)))
+                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TResult, TCommand>)))
                 .Returns(new[] { commandHandler });
         }
 
-        private Mock<ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>()
+        private Mock<ICommandHandler<TAggregate, TIdentity, TResult, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TResult, TCommand>()
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-            where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+            where TCommand : ICommand<TAggregate, TIdentity, TResult>
         {
-            var mock = new Mock<ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>>();
+            var mock = new Mock<ICommandHandler<TAggregate, TIdentity, TResult, TCommand>>();
+            mock
+                .Setup(m => m.ExecuteCommandAsync(It.IsAny<TAggregate>(), It.IsAny<TCommand>(),It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(default(TResult)));
             ArrangeCommandHandlerExists(mock.Object);
             return mock;
         }
