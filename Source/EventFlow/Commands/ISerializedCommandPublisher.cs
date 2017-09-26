@@ -23,12 +23,13 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
     public interface ISerializedCommandPublisher
     {
-        Task PublishSerilizedCommandAsync(
+        Task<ISourceId> PublishSerilizedCommandAsync(
             string name,
             int version,
             string json,

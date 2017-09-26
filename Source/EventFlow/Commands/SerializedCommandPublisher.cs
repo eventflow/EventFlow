@@ -48,7 +48,7 @@ namespace EventFlow.Commands
             _commandBus = commandBus;
         }
 
-        public async Task PublishSerilizedCommandAsync(
+        public async Task<ISourceId> PublishSerilizedCommandAsync(
             string name,
             int version,
             string json,
@@ -77,6 +77,7 @@ namespace EventFlow.Commands
             }
 
             await command.PublishAsync(_commandBus, CancellationToken.None).ConfigureAwait(false);
+            return command.GetSourceId();
         }
     }
 }
