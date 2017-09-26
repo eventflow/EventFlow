@@ -6,9 +6,6 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\EventFlow.RabbitMQ\EventFlow.RabbitMQ.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>

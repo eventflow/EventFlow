@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.RabbitMQ.Extensions;
@@ -68,7 +67,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             using (var resolver = BuildResolver(exchange))
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
-                var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+                var eventJsonSerializer = resolver.Resolve<IRabbitMqMessageFactory>();
 
                 var pingId = PingId.New;
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
@@ -77,9 +76,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 rabbitMqMessage.Exchange.Value.Should().Be(exchange.Value);
                 rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
 
-                var pingEvent = (IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)eventJsonSerializer.Deserialize(
-                    rabbitMqMessage.Message,
-                    new Metadata(rabbitMqMessage.Headers));
+                var pingEvent = (IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>) eventJsonSerializer.CreateDomainEvent(rabbitMqMessage);
 
                 pingEvent.AggregateEvent.PingId.Should().Be(pingId);
             }

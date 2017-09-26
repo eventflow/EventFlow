@@ -68,5 +68,14 @@ namespace EventFlow.RabbitMQ.Integrations
 
             return rabbitMqMessage;
         }
+
+        public IDomainEvent CreateDomainEvent(RabbitMqMessage rabbitMqMessage)
+        {
+            var metadata = new Metadata(rabbitMqMessage.Headers);
+
+            return _eventJsonSerializer.Deserialize(
+                rabbitMqMessage.Message,
+                metadata);
+        }
     }
 }

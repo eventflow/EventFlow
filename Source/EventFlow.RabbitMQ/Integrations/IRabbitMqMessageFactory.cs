@@ -28,5 +28,6 @@ namespace EventFlow.RabbitMQ.Integrations
     public interface IRabbitMqMessageFactory
     {
         RabbitMqMessage CreateMessage(IDomainEvent domainEvent);
+        IDomainEvent CreateDomainEvent(RabbitMqMessage rabbitMqMessage);
     }
 }
