@@ -1,8 +1,14 @@
-### New in 0.49 (not released yet)
+### New in 0.50 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.49.3031 (released 2017-09-07)
 
 * Breaking: Upgraded `EventStore.Client` dependency to version 4.0
 * Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
   .NET 4.6.2 as required by `EventStore.Client` NuGet dependency
+* Fix: `EventFlow.Hangfire` now depends on `Hangfire.Core` instead of
+  `Hangfire`
 * New: Added an overload to `IDomainEventPublisher.PublishAsync` that isn't
   generic and doesn't require an aggregate ID
 * New: Added `IReadModelPopulator.DeleteAsync` that allows deletion of single
