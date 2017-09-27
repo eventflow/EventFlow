@@ -35,27 +35,16 @@ using System.Xml;
 var VERSION = GetArgumentVersion();
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
-var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
-    @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
-    System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
 // IMPORTANT DIRECTORIES
 var DIR_OUTPUT_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
 var DIR_OUTPUT_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
-var DIR_OUTPUT_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Build", "Documentation");
-var DIR_DOCUMENTATION = System.IO.Path.Combine(PROJECT_DIR, "Documentation");
-var DIR_BUILT_DOCUMENTATION = System.IO.Path.Combine(DIR_DOCUMENTATION, "_build");
-var DIR_BUILT_HTML_DOCUMENTATION = System.IO.Path.Combine(DIR_BUILT_DOCUMENTATION, "html");
 
 // IMPORTANT FILES
 var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
 var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
-var FILE_DOCUMENTATION_MAKE = System.IO.Path.Combine(DIR_DOCUMENTATION, "make.bat");
 var FILE_SOLUTION = System.IO.Path.Combine(PROJECT_DIR, "EventFlow.sln");
-var FILE_OUTPUT_DOCUMENTATION_ZIP = System.IO.Path.Combine(
-    DIR_OUTPUT_DOCUMENTATION,
-    string.Format("EventFlow-HtmlDocs-v{0}.zip", VERSION));
 
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
@@ -71,8 +60,6 @@ Task("Clean")
                 {
                     DIR_OUTPUT_PACKAGES,
                     DIR_OUTPUT_REPORTS,
-                    DIR_OUTPUT_DOCUMENTATION,
-                    DIR_BUILT_DOCUMENTATION,
                 });
 				
 			DeleteDirectories(GetDirectories("**/bin"), true);
@@ -116,7 +103,7 @@ Task("Test")
         {
             ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/**/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
         })
-	.Finally(() => 
+	.Finally(() =>
         {
             UploadArtifact(FILE_NUNIT_TXT_REPORT);
             UploadTestResults(FILE_NUNIT_XML_REPORT);
@@ -156,19 +143,8 @@ Task("Package")
         });
 
 // =====================================================================================================
-Task("Documentation")
-    .IsDependentOn("Clean")
-    .Does(() =>
-        {
-            ExecuteCommand(FILE_DOCUMENTATION_MAKE, "html", DIR_DOCUMENTATION);
-
-            ZipFile.CreateFromDirectory(DIR_BUILT_HTML_DOCUMENTATION, FILE_OUTPUT_DOCUMENTATION_ZIP);
-        });
-
-// =====================================================================================================
 Task("All")
     .IsDependentOn("Package")
-    .IsDependentOn("Documentation")
     .Does(() =>
         {
 
@@ -334,7 +310,13 @@ void ExecuteTest(string files, string resultsFile)
 						NoColor = true,
 						DisposeRunners = true,
 						OutputFile = FILE_NUNIT_TXT_REPORT,
-						Results = resultsFile
+						Results = new []
+                            {
+                                new NUnit3Result
+                                    {
+                                        FileName = resultsFile,
+                                    }
+                            }
 					});
         },
     new FilePath(FILE_OPENCOVER_REPORT),
