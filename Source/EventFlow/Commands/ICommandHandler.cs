@@ -24,6 +24,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
@@ -35,6 +36,7 @@ namespace EventFlow.Commands
     public interface ICommandHandler<in TAggregate, TIdentity, TResult, in TCommand> : ICommandHandler
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TResult : IExecutionResult
         where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
         Task<TResult> ExecuteCommandAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);

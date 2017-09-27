@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Aggregates
@@ -45,13 +46,14 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        Task<AggregateUpdateResult<TResult>> UpdateAsync<TAggregate, TIdentity, TResult>(
+        Task<IAggregateUpdateResult<TExecutionResult>> UpdateAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             ISourceId sourceId,
-            Func<TAggregate, CancellationToken, Task<TResult>> updateAggregate,
+            Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity;
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult;
 
         Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
             TAggregate aggregate,

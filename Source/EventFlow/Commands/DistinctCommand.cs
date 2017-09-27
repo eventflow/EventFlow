@@ -27,13 +27,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class DistinctCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity>
+    public abstract class DistinctCommand<TAggregate, TIdentity, TExecutionResult> : ICommand<TAggregate, TIdentity, TExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TExecutionResult : IExecutionResult
     {
         private readonly Lazy<ISourceId> _lazySourceId;
 
@@ -60,9 +62,9 @@ namespace EventFlow.Commands
 
         protected abstract IEnumerable<byte[]> GetSourceIdComponents();
 
-        public Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            return commandBus.PublishAsync(this, cancellationToken);
+            return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
         }
 
         public ISourceId GetSourceId()

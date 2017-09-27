@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
@@ -61,12 +62,13 @@ namespace EventFlow
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TResult : IExecutionResult
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
             _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
-            AggregateUpdateResult<TResult> aggregateUpdateResult;
+            IAggregateUpdateResult<TResult> aggregateUpdateResult;
             try
             {
                 aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
@@ -100,11 +102,12 @@ namespace EventFlow
             return aggregateUpdateResult.Result;
         }
 
-        private async Task<AggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TResult>(
+        private async Task<IAggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TResult>(
             ICommand<TAggregate, TIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TResult : IExecutionResult
         {
             var commandType = command.GetType();
             var commandExecutionDetails = await GetCommandExecutionDetailsAsync(commandType, cancellationToken).ConfigureAwait(false);

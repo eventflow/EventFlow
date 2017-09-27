@@ -21,22 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Aggregates.ExecutionResults;
-using EventFlow.Commands;
-using EventFlow.Core;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace EventFlow
+namespace EventFlow.Aggregates.ExecutionResults
 {
-    public interface ICommandBus
+    public abstract class ExecutionResult : IExecutionResult
     {
-        Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
-            ICommand<TAggregate, TIdentity, TExecutionResult> command,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+        private static readonly IExecutionResult SuccessResult = new SuccessExecutionResult();
+        private static readonly IExecutionResult FailedResult = new FailedExecutionResult(Enumerable.Empty<string>());
+
+        public static IExecutionResult Success() => SuccessResult;
+        public static IExecutionResult Failed() => FailedResult;
+        public static IExecutionResult Failed(IEnumerable<string> errors) => new FailedExecutionResult(errors);
+
+        public abstract bool IsSuccess { get; }
     }
 }

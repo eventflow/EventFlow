@@ -24,6 +24,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
@@ -31,6 +32,7 @@ namespace EventFlow.Commands
     public abstract class CommandHandler<TAggregate, TIdentity, TResult, TCommand> : ICommandHandler<TAggregate, TIdentity, TResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TResult : IExecutionResult
         where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
         public abstract Task<TResult> ExecuteCommandAsync(
@@ -40,18 +42,18 @@ namespace EventFlow.Commands
     }
 
     public abstract class CommandHandler<TAggregate, TIdentity, TCommand> :
-        CommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
+        CommandHandler<TAggregate, TIdentity, IExecutionResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
+        where TCommand : ICommand<TAggregate, TIdentity, IExecutionResult>
     {
-        public override async Task<ISourceId> ExecuteCommandAsync(
+        public override async Task<IExecutionResult> ExecuteCommandAsync(
             TAggregate aggregate,
             TCommand command,
             CancellationToken cancellationToken)
         {
             await ExecuteAsync(aggregate, command, cancellationToken).ConfigureAwait(false);
-            return command.SourceId;
+            return ExecutionResult.Success();
         }
 
         public abstract Task ExecuteAsync(

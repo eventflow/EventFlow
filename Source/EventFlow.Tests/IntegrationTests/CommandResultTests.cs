@@ -23,6 +23,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
@@ -35,18 +37,32 @@ namespace EventFlow.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class CommandResultTests
     {
-        public class TestResultCommand : Command<ThingyAggregate, ThingyId, int>
+        public class TestExecutionResult : ExecutionResult
+        {
+            public TestExecutionResult(
+                int magicNumber,
+                bool isSuccess)
+            {
+                MagicNumber = magicNumber;
+                IsSuccess = isSuccess;
+            }
+
+            public int MagicNumber { get; }
+            public override bool IsSuccess { get; }
+        }
+        
+        public class TestResultCommand : Command<ThingyAggregate, ThingyId, TestExecutionResult>
         {
             public TestResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
             {
             }
         }
 
-        public class TestResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, int, TestResultCommand>
+        public class TestResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, TestExecutionResult, TestResultCommand>
         {
-            public override Task<int> ExecuteCommandAsync(ThingyAggregate aggregate, TestResultCommand command, CancellationToken cancellationToken)
+            public override Task<TestExecutionResult> ExecuteCommandAsync(ThingyAggregate aggregate, TestResultCommand command, CancellationToken cancellationToken)
             {
-                return Task.FromResult(42);
+                return Task.FromResult(new TestExecutionResult(42, true));
             }
         }
 
@@ -65,7 +81,8 @@ namespace EventFlow.Tests.IntegrationTests
                     CancellationToken.None)
                     .ConfigureAwait(false);
 
-                result.Should().Be(42);
+                result.IsSuccess.Should().BeTrue();
+                result.MagicNumber.Should().Be(42);
             }
         }
     }

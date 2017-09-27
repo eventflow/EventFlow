@@ -25,16 +25,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Commands
 {
-    public abstract class Command<TAggregate, TIdentity, TResult> :
+    public abstract class Command<TAggregate, TIdentity, TExecutionResult> :
         ValueObject,
-        ICommand<TAggregate, TIdentity, TResult>
+        ICommand<TAggregate, TIdentity, TExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TExecutionResult : IExecutionResult
     {
         public ISourceId SourceId { get; }
         public TIdentity AggregateId { get; }
@@ -48,9 +50,9 @@ namespace EventFlow.Commands
             SourceId = sourceId;
         }
 
-        public Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            return commandBus.PublishAsync(this, cancellationToken);
+            return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
         }
 
         public ISourceId GetSourceId()
@@ -60,8 +62,7 @@ namespace EventFlow.Commands
     }
 
     public abstract class Command<TAggregate, TIdentity> :
-        Command<TAggregate, TIdentity, ISourceId>,
-        ICommand<TAggregate, TIdentity>
+        Command<TAggregate, TIdentity, IExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {

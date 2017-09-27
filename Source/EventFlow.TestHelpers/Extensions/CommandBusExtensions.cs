@@ -24,6 +24,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
 
@@ -31,11 +32,12 @@ namespace EventFlow.TestHelpers.Extensions
 {
     public static class CommandBusExtensions
     {
-        public static Task<TResult> PublishAsync<TAggregate, TIdentity, TResult>(
+        public static Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
             this ICommandBus commandBus,
-            ICommand<TAggregate, TIdentity, TResult> command)
+            ICommand<TAggregate, TIdentity, TExecutionResult> command)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
         {
             return commandBus.PublishAsync(command, CancellationToken.None);
         }

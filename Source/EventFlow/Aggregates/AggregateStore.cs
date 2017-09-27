@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
@@ -78,13 +79,13 @@ namespace EventFlow.Aggregates
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregateUpdateResult = await UpdateAsync<TAggregate, TIdentity, object>(
+            var aggregateUpdateResult = await UpdateAsync<TAggregate, TIdentity, IExecutionResult>(
                 id,
                 sourceId,
                 async (a, c) =>
                     {
                         await updateAggregate(a, c).ConfigureAwait(false);
-                        return null as object;
+                        return ExecutionResult.Success();
                     },
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -92,13 +93,14 @@ namespace EventFlow.Aggregates
             return aggregateUpdateResult.DomainEvents;
         }
 
-        public async Task<AggregateUpdateResult<TResult>> UpdateAsync<TAggregate, TIdentity, TResult>(
+        public async Task<IAggregateUpdateResult<TResult>> UpdateAsync<TAggregate, TIdentity, TResult>(
             TIdentity id,
             ISourceId sourceId,
             Func<TAggregate, CancellationToken, Task<TResult>> updateAggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
+            where TResult : IExecutionResult
         {
             var result = default(TResult);
 
@@ -165,6 +167,21 @@ namespace EventFlow.Aggregates
             }
 
             return domainEvents;
+        }
+        
+        internal class AggregateUpdateResult<TExecutionResult> : IAggregateUpdateResult<TExecutionResult>
+            where TExecutionResult : IExecutionResult
+        {
+            public TExecutionResult Result { get; }
+            public IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+
+            public AggregateUpdateResult(
+                TExecutionResult result,
+                IReadOnlyCollection<IDomainEvent> domainEvents)
+            {
+                Result = result;
+                DomainEvents = domainEvents;
+            }
         }
     }
 }

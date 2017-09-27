@@ -22,20 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using EventFlow.Aggregates.ExecutionResults;
 
 namespace EventFlow.Aggregates
 {
-    public class AggregateUpdateResult<TResult>
+    public interface IAggregateUpdateResult<out TExecutionResult>
+        where TExecutionResult : IExecutionResult
     {
-        public TResult Result { get; }
-        public IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
-
-        public AggregateUpdateResult(
-            TResult result,
-            IReadOnlyCollection<IDomainEvent> domainEvents)
-        {
-            Result = result;
-            DomainEvents = domainEvents;
-        }
+        TExecutionResult Result { get; }
+        IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
     }
 }

@@ -24,6 +24,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 using EventFlow.Core.VersionedTypes;
 
@@ -31,21 +32,16 @@ namespace EventFlow.Commands
 {
     public interface ICommand : IVersionedType
     {
-        Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
+        Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
         ISourceId GetSourceId();
     }
 
     public interface ICommand<in TAggregate, out TIdentity, TResult> : ICommand
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TResult : IExecutionResult
     {
         TIdentity AggregateId { get; }
         ISourceId SourceId { get; }
-    }
-
-    public interface ICommand<in TAggregate, out TIdentity> : ICommand<TAggregate, TIdentity, ISourceId>
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-    {
     }
 }
