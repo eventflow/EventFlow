@@ -1,6 +1,7 @@
 ### New in 0.50 (not released yet)
 
-* _Nothing yet_
+* Breaking: Upgraded NuGet dependency on `RabbitMQ.Client` from `>= 4.1.3`
+  to `>= 5.0.1`
 
 ### New in 0.49.3031 (released 2017-09-07)
 
