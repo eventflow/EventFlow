@@ -138,9 +138,8 @@ namespace EventFlow
                 command.SourceId,
                 async (a, c) =>
                     {
-                        var task = commandExecutionDetails.Invoker(commandHandler, a, command, c);
-                        await task.ConfigureAwait(false);
-                        return (TResult) ((dynamic) task).Result;
+                        var task = (Task<TResult>) commandExecutionDetails.Invoker(commandHandler, a, command, c);
+                        return await task.ConfigureAwait(false);
                     },
                 cancellationToken)
                 .ConfigureAwait(false);
