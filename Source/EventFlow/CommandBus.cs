@@ -136,11 +136,7 @@ namespace EventFlow
             return await _aggregateStore.UpdateAsync<TAggregate, TIdentity, TResult>(
                 command.AggregateId,
                 command.SourceId,
-                async (a, c) =>
-                    {
-                        var task = (Task<TResult>) commandExecutionDetails.Invoker(commandHandler, a, command, c);
-                        return await task.ConfigureAwait(false);
-                    },
+                (a, c) => (Task<TResult>) commandExecutionDetails.Invoker(commandHandler, a, command, c),
                 cancellationToken)
                 .ConfigureAwait(false);
         }
