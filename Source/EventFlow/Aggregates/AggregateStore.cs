@@ -40,6 +40,7 @@ namespace EventFlow.Aggregates
 {
     public class AggregateStore : IAggregateStore
     {
+        private static readonly IReadOnlyCollection<IDomainEvent> EmptyDomainEventCollection = new IDomainEvent[] { };
         private readonly IResolver _resolver;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
@@ -115,6 +116,13 @@ namespace EventFlow.Aggregates
                     }
 
                     var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
+                    if (!result.IsSuccess)
+                    {
+                        return new AggregateUpdateResult<TExecutionResult>(
+                            result,
+                            EmptyDomainEventCollection);
+                    }
+                    
                     var domainEvents = await aggregate.CommitAsync(
                         _eventStore,
                         _snapshotStore,
