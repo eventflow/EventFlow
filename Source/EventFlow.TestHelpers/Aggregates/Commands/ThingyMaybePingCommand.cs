@@ -26,15 +26,17 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
 
 namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    [CommandVersion("ThingyPing", 1)]
+    [CommandVersion("ThingyMaybePing", 1)]
     public class ThingyMaybePingCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
     {
         public PingId PingId { get; }
         public bool IsSuccess { get; }
 
+        [JsonConstructor]
         public ThingyMaybePingCommand(ThingyId aggregateId, PingId pingId, bool isSuccess)
             : base(aggregateId, CommandId.New)
         {
