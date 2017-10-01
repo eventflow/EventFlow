@@ -88,16 +88,18 @@ namespace EventFlow
 
             _log.Verbose(() => aggregateUpdateResult.DomainEvents.Any()
                 ? string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events, was success:{3}",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
-                    typeof(TAggregate).PrettyPrint())
+                    typeof(TAggregate).PrettyPrint(),
+                    aggregateUpdateResult.Result?.IsSuccess)
                 : string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}, was success: {4}",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
                     typeof(TAggregate),
-                    string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint()))));
+                    string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint())),
+                    aggregateUpdateResult.Result?.IsSuccess));
 
             return aggregateUpdateResult.Result;
         }
