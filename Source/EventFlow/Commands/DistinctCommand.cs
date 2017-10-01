@@ -27,17 +27,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class DistinctCommand<TAggregate, TIdentity> : ICommand<TAggregate, TIdentity, CommandId>
+    public abstract class DistinctCommand<TAggregate, TIdentity, TExecutionResult> : ICommand<TAggregate, TIdentity, TExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
+        where TExecutionResult : IExecutionResult
     {
-        private readonly Lazy<CommandId> _lazySourceId;
+        private readonly Lazy<ISourceId> _lazySourceId;
 
-        public CommandId SourceId => _lazySourceId.Value;
+        public ISourceId SourceId => _lazySourceId.Value;
         public TIdentity AggregateId { get; }
 
         protected DistinctCommand(
@@ -45,7 +47,7 @@ namespace EventFlow.Commands
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
 
-            _lazySourceId = new Lazy<CommandId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
+            _lazySourceId = new Lazy<ISourceId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
 
             AggregateId = aggregateId;
         }
@@ -60,9 +62,9 @@ namespace EventFlow.Commands
 
         protected abstract IEnumerable<byte[]> GetSourceIdComponents();
 
-        public Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            return commandBus.PublishAsync(this, cancellationToken);
+            return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
         }
 
         public ISourceId GetSourceId()

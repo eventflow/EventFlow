@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
@@ -161,6 +162,74 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                         return Task.FromResult(0);
                     },
                 CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            _eventStoreMock.Verify(
+                m => m.StoreAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(),
+                    It.IsAny<ISourceId>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+            _domainEventPublisherMock.Verify(
+                m => m.PublishAsync(
+                    It.Is<IReadOnlyCollection<IDomainEvent>>(e => e.Count == 1),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateAsyncExecutionResult_EventsAreNotCommittedNorPublishedIfExecutionResultIsFalse()
+        {
+            // Arrange
+            Arrange_EventStore_LoadEventsAsync();
+            Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
+
+            // Sut
+            await Sut.UpdateAsync<ThingyAggregate, ThingyId, IExecutionResult>(
+                    A<ThingyId>(),
+                    A<SourceId>(),
+                    (a, c) =>
+                    {
+                        a.Ping(A<PingId>());
+                        return Task.FromResult(ExecutionResult.Failed());
+                    },
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            _eventStoreMock.Verify(
+                m => m.StoreAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<IReadOnlyCollection<IUncommittedEvent>>(),
+                    It.IsAny<ISourceId>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Never);
+            _domainEventPublisherMock.Verify(
+                m => m.PublishAsync(
+                    It.Is<IReadOnlyCollection<IDomainEvent>>(e => e.Count == 1),
+                    It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task UpdateAsyncExecutionResult_EventsAreCommittedAndPublishedIfExecutionResultIsTrue()
+        {
+            // Arrange
+            Arrange_EventStore_LoadEventsAsync();
+            Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
+
+            // Sut
+            await Sut.UpdateAsync<ThingyAggregate, ThingyId, IExecutionResult>(
+                    A<ThingyId>(),
+                    A<SourceId>(),
+                    (a, c) =>
+                    {
+                        a.Ping(A<PingId>());
+                        return Task.FromResult(ExecutionResult.Success());
+                    },
+                    CancellationToken.None)
                 .ConfigureAwait(false);
 
             // Assert

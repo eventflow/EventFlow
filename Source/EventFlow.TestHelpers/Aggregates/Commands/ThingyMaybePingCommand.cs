@@ -23,20 +23,38 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Core;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public interface ICommandBus
+    [CommandVersion("ThingyMaybePing", 1)]
+    public class ThingyMaybePingCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
     {
-        Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
-            ICommand<TAggregate, TIdentity, TExecutionResult> command,
+        public PingId PingId { get; }
+        public bool IsSuccess { get; }
+
+        [JsonConstructor]
+        public ThingyMaybePingCommand(ThingyId aggregateId, PingId pingId, bool isSuccess)
+            : base(aggregateId, CommandId.New)
+        {
+            PingId = pingId;
+            IsSuccess = isSuccess;
+        }
+    }
+
+    public class ThingyMaybePingCommandHandler :
+        CommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyMaybePingCommand>
+    {
+        public override Task<IExecutionResult> ExecuteCommandAsync(
+            ThingyAggregate aggregate,
+            ThingyMaybePingCommand command,
             CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+        {
+            var executionResult = aggregate.PingMaybe(command.PingId, command.IsSuccess);
+            return Task.FromResult(executionResult);
+        }
     }
 }
