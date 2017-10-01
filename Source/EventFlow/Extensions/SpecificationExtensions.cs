@@ -48,7 +48,7 @@ namespace EventFlow.Extensions
             }
         }
 
-        public static IExecutionResult AsExecutionResult<T>(
+        public static IExecutionResult IsNotSatisfiedByAsExecutionResult<T>(
             this ISpecification<T> specification,
             T obj)
         {

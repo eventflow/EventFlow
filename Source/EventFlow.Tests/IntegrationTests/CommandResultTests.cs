@@ -28,6 +28,7 @@ using EventFlow.Commands;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.Tests.UnitTests.Specifications;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -50,18 +51,41 @@ namespace EventFlow.Tests.IntegrationTests
             public override bool IsSuccess { get; }
         }
         
-        public class TestResultCommand : Command<ThingyAggregate, ThingyId, TestExecutionResult>
+        public class TestSuccessResultCommand : Command<ThingyAggregate, ThingyId, TestExecutionResult>
         {
-            public TestResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
+            public TestSuccessResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
             {
             }
         }
 
-        public class TestResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, TestExecutionResult, TestResultCommand>
+        public class TestSuccessResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, TestExecutionResult, TestSuccessResultCommand>
         {
-            public override Task<TestExecutionResult> ExecuteCommandAsync(ThingyAggregate aggregate, TestResultCommand command, CancellationToken cancellationToken)
+            public override Task<TestExecutionResult> ExecuteCommandAsync(
+                ThingyAggregate aggregate,
+                TestSuccessResultCommand command,
+                CancellationToken cancellationToken)
             {
                 return Task.FromResult(new TestExecutionResult(42, true));
+            }
+        }
+        
+        
+        public class TestFailedResultCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
+        {
+            public TestFailedResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
+            {
+            }
+        }
+
+        public class TestFailedResultCommandHandler : CommandHandler<ThingyAggregate, ThingyId, IExecutionResult, TestFailedResultCommand>
+        {
+            public override Task<IExecutionResult> ExecuteCommandAsync(
+                ThingyAggregate aggregate,
+                TestFailedResultCommand command,
+                CancellationToken cancellationToken)
+            {
+                var specification = new TestSpecifications.IsTrueSpecification();
+                return Task.FromResult(specification.IsNotSatisfiedByAsExecutionResult(false));
             }
         }
 
@@ -69,19 +93,25 @@ namespace EventFlow.Tests.IntegrationTests
         public async Task CommandResult()
         {
             using (var resolver = EventFlowOptions.New
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .AddCommandHandlers(typeof(TestResultCommandHandler))
+                .AddCommandHandlers(
+                    typeof(TestSuccessResultCommandHandler),
+                    typeof(TestFailedResultCommandHandler))
                 .CreateResolver(false))
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
 
-                var result = await commandBus.PublishAsync(
-                    new TestResultCommand(ThingyId.New),
+                var success = await commandBus.PublishAsync(
+                    new TestSuccessResultCommand(ThingyId.New),
                     CancellationToken.None)
                     .ConfigureAwait(false);
-
-                result.IsSuccess.Should().BeTrue();
-                result.MagicNumber.Should().Be(42);
+                success.IsSuccess.Should().BeTrue();
+                success.MagicNumber.Should().Be(42);
+                
+                var failed = await commandBus.PublishAsync(
+                        new TestFailedResultCommand(ThingyId.New),
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
+                failed.IsSuccess.Should().BeFalse();
             }
         }
     }
