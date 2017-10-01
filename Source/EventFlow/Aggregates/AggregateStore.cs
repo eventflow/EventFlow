@@ -130,7 +130,8 @@ namespace EventFlow.Aggregates
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            if (aggregateUpdateResult.DomainEvents.Any())
+            if (aggregateUpdateResult.Result.IsSuccess &&
+                aggregateUpdateResult.DomainEvents.Any())
             {
                 var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
                 await domainEventPublisher.PublishAsync(
