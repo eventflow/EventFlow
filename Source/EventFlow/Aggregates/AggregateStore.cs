@@ -93,18 +93,16 @@ namespace EventFlow.Aggregates
             return aggregateUpdateResult.DomainEvents;
         }
 
-        public async Task<IAggregateUpdateResult<TResult>> UpdateAsync<TAggregate, TIdentity, TResult>(
+        public async Task<IAggregateUpdateResult<TExecutionResult>> UpdateAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             ISourceId sourceId,
-            Func<TAggregate, CancellationToken, Task<TResult>> updateAggregate,
+            Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TResult : IExecutionResult
+            where TExecutionResult : IExecutionResult
         {
-            var result = default(TResult);
-
-            var domainEvents = await _transientFaultHandler.TryAsync(
+            var aggregateUpdateResult = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
                     var aggregate = await LoadAsync<TAggregate, TIdentity>(id, c).ConfigureAwait(false);
@@ -116,31 +114,32 @@ namespace EventFlow.Aggregates
                             $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
                     }
 
-                    result = await updateAggregate(aggregate, c).ConfigureAwait(false);
-
-                    return await aggregate.CommitAsync(
+                    var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
+                    var domainEvents = await aggregate.CommitAsync(
                         _eventStore,
                         _snapshotStore,
                         sourceId,
                         cancellationToken)
                         .ConfigureAwait(false);
+
+                    return new AggregateUpdateResult<TExecutionResult>(
+                        result,
+                        domainEvents);
                 },
                 Label.Named("aggregate-update"),
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            if (domainEvents.Any())
+            if (aggregateUpdateResult.DomainEvents.Any())
             {
                 var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
                 await domainEventPublisher.PublishAsync(
-                    domainEvents,
+                    aggregateUpdateResult.DomainEvents,
                     cancellationToken)
                     .ConfigureAwait(false);
             }
 
-            return new AggregateUpdateResult<TResult>(
-                result,
-                domainEvents);
+            return aggregateUpdateResult;
         }
 
         public async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(
