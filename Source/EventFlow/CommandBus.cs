@@ -162,6 +162,8 @@ namespace EventFlow
 
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
+                        
+                        _log.Verbose(() => $"Command '{commandType.PrettyPrint()}' is resolved by '{commandHandlerType.PrettyPrint()}'");
 
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
                             commandHandlerType, "ExecuteCommandAsync");
