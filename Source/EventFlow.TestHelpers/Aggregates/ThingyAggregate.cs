@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Exceptions;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
@@ -82,6 +83,14 @@ namespace EventFlow.TestHelpers.Aggregates
         public void Ping(PingId pingId)
         {
             Emit(new ThingyPingEvent(pingId));
+        }
+
+        public IExecutionResult PingMaybe(PingId pingId, bool isSuccess)
+        {
+            Emit(new ThingyPingEvent(pingId));
+            return isSuccess
+                ? ExecutionResult.Success()
+                : ExecutionResult.Failed();
         }
 
         public void RequestSagaStart()

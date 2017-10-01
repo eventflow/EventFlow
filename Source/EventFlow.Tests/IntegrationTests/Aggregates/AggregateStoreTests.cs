@@ -21,44 +21,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.Aggregates.ExecutionResults;
-using EventFlow.Commands;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Commands
+namespace EventFlow.Tests.IntegrationTests.Aggregates
 {
-    [Category(Categories.Unit)]
-    public class CommandTests : Test
+    [Category(Categories.Integration)]
+    public class AggregateStoreTests : IntegrationTest
     {
-        public class CriticalCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
-        {
-            public string CriticalData { get; }
-
-            public CriticalCommand(ThingyId aggregateId, EventId sourceId, string criticalData) : base(aggregateId, sourceId)
-            {
-                CriticalData = criticalData;
-            }
-        }
-
-        [Test]
-        public void SerializeDeserialize()
+        [TestCase(true, 1)]
+        [TestCase(false, 0)]
+        public async Task ExecutionResultShouldControlEventStore(bool isSuccess, int expectedAggregateVersion)
         {
             // Arrange
-            var criticalCommand = A<CriticalCommand>();
-
+            var pingId = PingId.New;
+            var thingyId = ThingyId.New;
+            
             // Act
-            var json = JsonConvert.SerializeObject(criticalCommand);
-            var deserialized = JsonConvert.DeserializeObject<CriticalCommand>(json);
+            var executionResult = await CommandBus.PublishAsync(
+                    new ThingyMaybePingCommand(thingyId, pingId, isSuccess),
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+            executionResult.IsSuccess.Should().Be(isSuccess);
 
             // Assert
-            deserialized.CriticalData.Should().Be(criticalCommand.CriticalData);
-            deserialized.SourceId.Should().Be(criticalCommand.SourceId);
-            deserialized.AggregateId.Should().Be(criticalCommand.AggregateId);
+            var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
+                    thingyId,
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+            thingyAggregate.Version.Should().Be(expectedAggregateVersion);
+        }
+        
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.CreateResolver();
         }
     }
 }
