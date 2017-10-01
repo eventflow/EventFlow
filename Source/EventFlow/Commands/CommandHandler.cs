@@ -29,7 +29,8 @@ using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class CommandHandler<TAggregate, TIdentity, TResult, TCommand> : ICommandHandler<TAggregate, TIdentity, TResult, TCommand>
+    public abstract class CommandHandler<TAggregate, TIdentity, TResult, TCommand> :
+        ICommandHandler<TAggregate, TIdentity, TResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TResult : IExecutionResult

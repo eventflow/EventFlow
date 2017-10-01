@@ -33,6 +33,7 @@ using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.Subscribers;
 
@@ -41,6 +42,7 @@ namespace EventFlow.Aggregates
     public class AggregateStore : IAggregateStore
     {
         private static readonly IReadOnlyCollection<IDomainEvent> EmptyDomainEventCollection = new IDomainEvent[] { };
+        private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
@@ -48,12 +50,14 @@ namespace EventFlow.Aggregates
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public AggregateStore(
+            ILog log,
             IResolver resolver,
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
+            _log = log;
             _resolver = resolver;
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
@@ -118,6 +122,7 @@ namespace EventFlow.Aggregates
                     var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
                     if (!result.IsSuccess)
                     {
+                        _log.Debug(() => $"Execution failed on aggregate '{typeof(TAggregate).PrettyPrint()}', disregarding any events emitted");
                         return new AggregateUpdateResult<TExecutionResult>(
                             result,
                             EmptyDomainEventCollection);

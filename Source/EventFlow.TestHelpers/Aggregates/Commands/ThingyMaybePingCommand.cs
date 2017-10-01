@@ -21,25 +21,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.Aggregates.ExecutionResults
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public abstract class ExecutionResult : IExecutionResult
+    [CommandVersion("ThingyPing", 1)]
+    public class ThingyMaybePingCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
     {
-        private static readonly IExecutionResult SuccessResult = new SuccessExecutionResult();
-        private static readonly IExecutionResult FailedResult = new FailedExecutionResult(Enumerable.Empty<string>());
+        public PingId PingId { get; }
+        public bool IsSuccess { get; }
 
-        public static IExecutionResult Success() => SuccessResult;
-        public static IExecutionResult Failed() => FailedResult;
-        public static IExecutionResult Failed(IEnumerable<string> errors) => new FailedExecutionResult(errors);
-
-        public abstract bool IsSuccess { get; }
-
-        public override string ToString()
+        public ThingyMaybePingCommand(ThingyId aggregateId, PingId pingId, bool isSuccess)
+            : base(aggregateId, CommandId.New)
         {
-            return $"ExecutionResult - IsSuccess:{IsSuccess}";
+            PingId = pingId;
+            IsSuccess = isSuccess;
+        }
+    }
+
+    public class ThingyMaybePingCommandHandler :
+        CommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyMaybePingCommand>
+    {
+        public override Task<IExecutionResult> ExecuteCommandAsync(
+            ThingyAggregate aggregate,
+            ThingyMaybePingCommand command,
+            CancellationToken cancellationToken)
+        {
+            var executionResult = aggregate.PingMaybe(command.PingId, command.IsSuccess);
+            return Task.FromResult(executionResult);
         }
     }
 }

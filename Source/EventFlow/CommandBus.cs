@@ -149,6 +149,13 @@ namespace EventFlow
             public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
         }
 
+        private const string NameOfExecuteCommand = nameof(
+            ICommandHandler<
+                IAggregateRoot<IIdentity>,
+                IIdentity,
+                IExecutionResult,
+                ICommand<IAggregateRoot<IIdentity>, IIdentity, IExecutionResult>
+            >.ExecuteCommandAsync);
         private Task<CommandExecutionDetails> GetCommandExecutionDetailsAsync(Type commandType, CancellationToken cancellationToken)
         {
             return _memoryCache.GetOrAddAsync(
@@ -168,7 +175,7 @@ namespace EventFlow
                         _log.Verbose(() => $"Command '{commandType.PrettyPrint()}' is resolved by '{commandHandlerType.PrettyPrint()}'");
 
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
-                            commandHandlerType, "ExecuteCommandAsync");
+                            commandHandlerType, NameOfExecuteCommand);
 
                         return Task.FromResult(new CommandExecutionDetails
                             {
