@@ -23,6 +23,7 @@
 
 using System.Threading;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
 
@@ -30,32 +31,32 @@ namespace EventFlow.Extensions
 {
     public static class CommandBusExtensions
     {
-        public static ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
+        public static TExecutionResult Publish<TAggregate, TIdentity, TExecutionResult>(
             this ICommandBus commandBus,
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+            ICommand<TAggregate, TIdentity, TExecutionResult> command)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
+            where TExecutionResult : IExecutionResult
         {
             return commandBus.Publish(command, CancellationToken.None);
         }
 
-        public static ISourceId Publish<TAggregate, TIdentity, TSourceIdentity>(
+        public static TExecutionResult Publish<TAggregate, TIdentity, TExecutionResult>(
             this ICommandBus commandBus,
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+            ICommand<TAggregate, TIdentity, TExecutionResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
+            where TExecutionResult : IExecutionResult
         {
-            ISourceId sourceId = null;
+            var result = default(TExecutionResult);
 
             using (var a = AsyncHelper.Wait)
             {
-                a.Run(commandBus.PublishAsync(command, cancellationToken), id => sourceId = id);
+                a.Run(commandBus.PublishAsync(command, cancellationToken), id => result = id);
             }
 
-            return sourceId;
+            return result;
         }
     }
 }

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Sagas;
@@ -126,11 +127,11 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 }
             }
 
-            protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
-                ICommand<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity> command)
+            protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult>(
+                ICommand<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult> command)
                 where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
                 where TCommandAggregateIdentity : IIdentity
-                where TCommandSourceIdentity : ISourceId
+                where TExecutionResult : IExecutionResult
             {
                 _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
             }
