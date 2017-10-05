@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2017 Rasmus Mikkelsen
 // Copyright (c) 2015-2017 eBay Software Foundation
@@ -20,25 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
+using System.Collections.Generic;
+using EventFlow.Aggregates.ExecutionResults;
 
-namespace EventFlow.Tests.Documentation.GettingStarted
+namespace EventFlow.Aggregates
 {
-    /// Command handler for our command
-    public class ExampleCommandHandler :
-        CommandHandler<ExampleAggregate, ExampleId, ExampleCommand>
+    public interface IAggregateUpdateResult<out TExecutionResult>
+        where TExecutionResult : IExecutionResult
     {
-        public override Task ExecuteAsync(
-            ExampleAggregate aggregate,
-            ExampleCommand command,
-            CancellationToken cancellationToken)
-        {
-            aggregate.SetMagicNumer(command.MagicNumber);
-            return Task.FromResult(0);
-        }
+        TExecutionResult Result { get; }
+        IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
     }
 }

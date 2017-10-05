@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2017 Rasmus Mikkelsen
 // Copyright (c) 2015-2017 eBay Software Foundation
@@ -20,16 +20,29 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using EventFlow.Core;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace EventFlow.Tests.Documentation.GettingStarted
+namespace EventFlow.Aggregates.ExecutionResults
 {
-    /// Represents the aggregate identity (ID)
-    public class ExampleId :
-        Identity<ExampleId>
+    public class FailedExecutionResult : ExecutionResult
     {
-        public ExampleId(string value) : base(value) { }
+        public IReadOnlyCollection<string> Errors { get; }
+
+        public FailedExecutionResult(
+            IEnumerable<string> errors)
+        {
+            Errors = (errors ?? Enumerable.Empty<string>()).ToList();
+        }
+            
+        public override bool IsSuccess { get; } = false;
+
+        public override string ToString()
+        {
+            return Errors.Any()
+                ? $"Failed execution due to: {string.Join(", ", Errors)}"
+                : "Failed execution";
+        }
     }
 }

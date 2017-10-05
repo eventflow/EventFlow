@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2017 Rasmus Mikkelsen
 // Copyright (c) 2015-2017 eBay Software Foundation
@@ -20,25 +20,41 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow.Tests.Documentation.GettingStarted
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    /// Read model for our aggregate
-    public class ExampleReadModel :
-        IReadModel,
-        IAmReadModelFor<ExampleAggregate, ExampleId, ExampleEvent>
+    [CommandVersion("ThingyMaybePing", 1)]
+    public class ThingyMaybePingCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
     {
-        public int MagicNumber { get; private set; }
+        public PingId PingId { get; }
+        public bool IsSuccess { get; }
 
-        public void Apply(
-            IReadModelContext context,
-            IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
+        [JsonConstructor]
+        public ThingyMaybePingCommand(ThingyId aggregateId, PingId pingId, bool isSuccess)
+            : base(aggregateId, CommandId.New)
         {
-            MagicNumber = domainEvent.AggregateEvent.MagicNumber;
+            PingId = pingId;
+            IsSuccess = isSuccess;
+        }
+    }
+
+    public class ThingyMaybePingCommandHandler :
+        CommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyMaybePingCommand>
+    {
+        public override Task<IExecutionResult> ExecuteCommandAsync(
+            ThingyAggregate aggregate,
+            ThingyMaybePingCommand command,
+            CancellationToken cancellationToken)
+        {
+            var executionResult = aggregate.PingMaybe(command.PingId, command.IsSuccess);
+            return Task.FromResult(executionResult);
         }
     }
 }

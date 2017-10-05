@@ -42,5 +42,10 @@ namespace EventFlow.ReadStores
         Task PurgeAsync(
             Type readModelType,
             CancellationToken cancellationToken);
+
+        Task DeleteAsync(
+            string id,
+            Type readModelType,
+            CancellationToken cancellationToken);
     }
 }
