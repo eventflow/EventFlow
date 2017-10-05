@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -34,7 +35,7 @@ namespace EventFlow.Tests.UnitTests.Commands
     [Category(Categories.Unit)]
     public class CommandTests : Test
     {
-        public class CriticalCommand : Command<ThingyAggregate, ThingyId, EventId>
+        public class CriticalCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
         {
             public string CriticalData { get; }
 

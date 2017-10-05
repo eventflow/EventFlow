@@ -38,15 +38,15 @@ namespace EventFlow.TestHelpers.Installer
 
             if (isInstalled)
             {
-                Console.WriteLine($"{softwareDescription}' is already installed");
+                LogHelper.Log.Information($"{softwareDescription}' is already installed");
                 return new InstalledSoftware(softwareDescription, installPath);
             }
 
-            Console.WriteLine($"{softwareDescription} not installed, installing it");
+            LogHelper.Log.Information($"{softwareDescription} not installed, installing it");
 
             var tempDownload = Path.Combine(
                 Path.GetTempPath(),
-                $"{softwareDescription.ShortName}-v{softwareDescription.Version}-{Guid.NewGuid().ToString("N")}.zip");
+                $"{softwareDescription.ShortName}-v{softwareDescription.Version}-{Guid.NewGuid():N}.zip");
 
             try
             {
@@ -65,7 +65,7 @@ namespace EventFlow.TestHelpers.Installer
 
         private static void ExtractZipFile(string zipSourcePath, string directoryDestinationPath)
         {
-            Console.WriteLine($"Extracting '{zipSourcePath}' to '{directoryDestinationPath}'");
+            LogHelper.Log.Information($"Extracting '{zipSourcePath}' to '{directoryDestinationPath}'");
 
             if (!Directory.Exists(directoryDestinationPath))
             {
@@ -89,15 +89,20 @@ namespace EventFlow.TestHelpers.Installer
                 throw new ArgumentException($"File '{destinationPath}' already exists");
             }
 
-            Console.WriteLine($"Downloading '{sourceUri}' to '{destinationPath}'");
+            LogHelper.Log.Information($"Downloading '{sourceUri}' to '{destinationPath}'");
 
             using (var httpClient = new HttpClient())
             using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, sourceUri))
-            using (var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false))
+            using (var httpResponseMessage = await httpClient.SendAsync(
+                httpRequestMessage,
+                HttpCompletionOption.ResponseHeadersRead)
+                .ConfigureAwait(false))
             {
                 if (!httpResponseMessage.IsSuccessStatusCode)
                 {
-                    throw new HttpRequestException($"Failed to download '{sourceUri}' due to '{httpResponseMessage.StatusCode}'");
+                    var msg = $"Failed to download '{sourceUri}' due to '{httpResponseMessage.StatusCode}'";
+                    LogHelper.Log.Fatal(msg);
+                    throw new HttpRequestException(msg);
                 }
 
                 using (var sourceStream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
@@ -106,6 +111,8 @@ namespace EventFlow.TestHelpers.Installer
                     await sourceStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                 }
             }
+
+            LogHelper.Log.Information($"Download complete of '{sourceUri}' to '{destinationPath}'");
         }
     }
 }

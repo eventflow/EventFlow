@@ -70,8 +70,16 @@ namespace EventFlow.Elasticsearch.Tests
 
             public async Task<string> GetStatusAsync()
             {
-                var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health"));
-                return clusterHealth.Status;
+                try
+                {
+                    var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health")).ConfigureAwait(false);
+                    return clusterHealth.Status;
+                }
+                catch (Exception e)
+                {
+                    LogHelper.Log.Warning(e, "Exception while checking Elasticsearch health");
+                    return string.Empty;
+                }
             }
 
             public Task WaitForGreenStateAsync()
@@ -79,7 +87,7 @@ namespace EventFlow.Elasticsearch.Tests
                 return WaitHelper.WaitAsync(TimeSpan.FromMinutes(1), async () =>
                 {
                     var status = await GetStatusAsync().ConfigureAwait(false);
-                    return status == "green";
+                    return string.Equals(status, "green", StringComparison.OrdinalIgnoreCase);
                 });
             }
 
