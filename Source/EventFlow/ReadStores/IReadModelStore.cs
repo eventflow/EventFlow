@@ -31,6 +31,10 @@ namespace EventFlow.ReadStores
 {
     public interface IReadModelStore
     {
+        Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken);
+
         Task DeleteAllAsync(
             CancellationToken cancellationToken);
     }

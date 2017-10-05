@@ -24,24 +24,42 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class CommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>
+    public abstract class CommandHandler<TAggregate, TIdentity, TResult, TCommand> :
+        ICommandHandler<TAggregate, TIdentity, TResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
-        where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+        where TResult : IExecutionResult
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
-        public abstract Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
+        public abstract Task<TResult> ExecuteCommandAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken);
     }
 
     public abstract class CommandHandler<TAggregate, TIdentity, TCommand> :
-        CommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
+        CommandHandler<TAggregate, TIdentity, IExecutionResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
+        where TCommand : ICommand<TAggregate, TIdentity, IExecutionResult>
     {
+        public override async Task<IExecutionResult> ExecuteCommandAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken)
+        {
+            await ExecuteAsync(aggregate, command, cancellationToken).ConfigureAwait(false);
+            return ExecutionResult.Success();
+        }
+
+        public abstract Task ExecuteAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken);
     }
 }

@@ -428,10 +428,8 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         public abstract class AbstractTestCommandHandler :
-            ICommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
+            CommandHandler<ThingyAggregate, ThingyId, ThingyPingCommand>
         {
-            public abstract Task ExecuteAsync(ThingyAggregate aggregate, ThingyPingCommand command,
-                CancellationToken cancellationToken);
         }
 
         [Test]

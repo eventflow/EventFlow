@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2017 Rasmus Mikkelsen
 // Copyright (c) 2015-2017 eBay Software Foundation
@@ -20,37 +20,11 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using EventFlow.Aggregates;
-using EventFlow.Exceptions;
-
-namespace EventFlow.Tests.Documentation.GettingStarted
+namespace EventFlow.Aggregates.ExecutionResults
 {
-    /// The aggregate root
-    public class ExampleAggregate :
-        AggregateRoot<ExampleAggregate, ExampleId>,
-        IEmit<ExampleEvent>
+    public interface IExecutionResult
     {
-        private int? _magicNumber;
-
-        public ExampleAggregate(ExampleId id) : base(id) { }
-
-        // Method invoked by our command
-        public void SetMagicNumer(int magicNumber)
-        {
-            if (_magicNumber.HasValue)
-                throw DomainError.With("Magic number already set");
-
-            Emit(new ExampleEvent(magicNumber));
-        }
-
-        // We apply the event as part of the event sourcing system. EventFlow
-        // provides several different methods for doing this, e.g. state objects,
-        // the Apply method is merely the simplest
-        public void Apply(ExampleEvent aggregateEvent)
-        {
-            _magicNumber = aggregateEvent.MagicNumber;
-        }
+        bool IsSuccess { get; }        
     }
 }

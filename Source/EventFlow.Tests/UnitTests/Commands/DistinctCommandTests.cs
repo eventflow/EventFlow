@@ -23,6 +23,8 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
@@ -36,7 +38,7 @@ namespace EventFlow.Tests.UnitTests.Commands
     [Category(Categories.Unit)]
     public class DistinctCommandTests
     {
-        public class MyDistinctCommand : DistinctCommand<ThingyAggregate, ThingyId>
+        public class MyDistinctCommand : DistinctCommand<ThingyAggregate, ThingyId, IExecutionResult>
         {
             public int MagicNumber { get; }
 
