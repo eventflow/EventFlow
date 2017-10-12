@@ -40,6 +40,7 @@ namespace EventFlow.EventStores.Files
         private readonly IFilesEventLocator _filesEventLocator;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
+        private static SemaphoreSlim _logFileSemaphore = new SemaphoreSlim(1,1);
         private long _globalSequenceNumber;
         private readonly Dictionary<long, string> _eventLog;
 
@@ -139,14 +140,14 @@ namespace EventFlow.EventStores.Files
                     _eventLog[_globalSequenceNumber] = eventPath;
 
                     var fileEventData = new FileEventData
-                        {
-                            AggregateId = id.Value,
-                            AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
-                            Data = serializedEvent.SerializedData,
-                            Metadata = serializedEvent.SerializedMetadata,
-                            GlobalSequenceNumber = _globalSequenceNumber,
-                        };
-            
+                    {
+                        AggregateId = id.Value,
+                        AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
+                        Data = serializedEvent.SerializedData,
+                        Metadata = serializedEvent.SerializedMetadata,
+                        GlobalSequenceNumber = _globalSequenceNumber,
+                    };
+
                     var json = _jsonSerializer.Serialize(fileEventData, true);
 
                     if (File.Exists(eventPath))
@@ -167,20 +168,29 @@ namespace EventFlow.EventStores.Files
                     committedDomainEvents.Add(fileEventData);
                 }
 
-                using (var streamWriter = File.CreateText(_logFilePath))
+                //only allow a single write access to the _logFilePath file at one time
+                await _logFileSemaphore.WaitAsync().ConfigureAwait(false);
+                try
                 {
-                    _log.Verbose(
-                        "Writing global sequence number '{0}' to '{1}'",
-                        _globalSequenceNumber,
-                        _logFilePath);
-                    var json = _jsonSerializer.Serialize(
-                        new EventStoreLog
-                        {
-                            GlobalSequenceNumber = _globalSequenceNumber,
-                            Log = _eventLog,
-                        },
-                        true);
-                    await streamWriter.WriteAsync(json).ConfigureAwait(false);
+                    using (var streamWriter = File.CreateText(_logFilePath))
+                    {
+                        _log.Verbose(
+                            "Writing global sequence number '{0}' to '{1}'",
+                            _globalSequenceNumber,
+                            _logFilePath);
+                        var json = _jsonSerializer.Serialize(
+                            new EventStoreLog
+                            {
+                                GlobalSequenceNumber = _globalSequenceNumber,
+                                Log = _eventLog,
+                            },
+                            true);
+                        await streamWriter.WriteAsync(json).ConfigureAwait(false);
+                    }
+                }
+                finally
+                {
+                    _logFileSemaphore.Release();
                 }
 
                 return committedDomainEvents;
