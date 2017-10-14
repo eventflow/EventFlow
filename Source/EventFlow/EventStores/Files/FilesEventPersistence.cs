@@ -40,7 +40,7 @@ namespace EventFlow.EventStores.Files
         private readonly IFilesEventLocator _filesEventLocator;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
-        private static SemaphoreSlim _logFileSemaphore = new SemaphoreSlim(1,1);
+        private static AsyncLock _logFileSemaphore = new AsyncLock();
         private long _globalSequenceNumber;
         private readonly Dictionary<long, string> _eventLog;
 
@@ -169,8 +169,7 @@ namespace EventFlow.EventStores.Files
                 }
 
                 //only allow a single write access to the _logFilePath file at one time
-                await _logFileSemaphore.WaitAsync().ConfigureAwait(false);
-                try
+                using (await _logFileSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false))
                 {
                     using (var streamWriter = File.CreateText(_logFilePath))
                     {
@@ -188,11 +187,6 @@ namespace EventFlow.EventStores.Files
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
                     }
                 }
-                finally
-                {
-                    _logFileSemaphore.Release();
-                }
-
                 return committedDomainEvents;
             }
         }
