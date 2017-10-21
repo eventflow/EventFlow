@@ -1,4 +1,8 @@
-### New in 0.50 (not released yet)
+### New in 0.51 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.50.3124 (released 2017-10-21)
 
 * New: While EventFlow tries to limit the about of painful API changes, the
   introduction of execution/command results are considered a necessary step
