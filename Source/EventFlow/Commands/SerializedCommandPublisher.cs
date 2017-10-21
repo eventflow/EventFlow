@@ -76,7 +76,8 @@ namespace EventFlow.Commands
                 throw new ArgumentException($"Failed to deserilize command '{name}' v{version}: {e.Message}", e);
             }
 
-            return await command.PublishAsync(_commandBus, CancellationToken.None).ConfigureAwait(false);
+            await command.PublishAsync(_commandBus, CancellationToken.None).ConfigureAwait(false);
+            return command.GetSourceId();
         }
     }
 }

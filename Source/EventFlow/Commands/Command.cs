@@ -25,22 +25,28 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Commands
 {
-    public abstract class Command<TAggregate, TIdentity, TSourceIdentity> :
+    public abstract class Command<TAggregate, TIdentity, TExecutionResult> :
         ValueObject,
-        ICommand<TAggregate, TIdentity, TSourceIdentity>
+        ICommand<TAggregate, TIdentity, TExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
+        where TExecutionResult : IExecutionResult
     {
-        public TSourceIdentity SourceId { get; }
+        public ISourceId SourceId { get; }
         public TIdentity AggregateId { get; }
 
-        protected Command(TIdentity aggregateId, TSourceIdentity sourceId)
+        protected Command(TIdentity aggregateId)
+            : this(aggregateId, CommandId.New)
+        {
+        }
+
+        protected Command(TIdentity aggregateId, ISourceId sourceId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
             if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
@@ -49,9 +55,9 @@ namespace EventFlow.Commands
             SourceId = sourceId;
         }
 
-        public Task<ISourceId> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            return commandBus.PublishAsync(this, cancellationToken);
+            return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
         }
 
         public ISourceId GetSourceId()
@@ -61,8 +67,7 @@ namespace EventFlow.Commands
     }
 
     public abstract class Command<TAggregate, TIdentity> :
-        Command<TAggregate, TIdentity, ISourceId>,
-        ICommand<TAggregate, TIdentity>
+        Command<TAggregate, TIdentity, IExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {

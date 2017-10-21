@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2017 Rasmus Mikkelsen
 // Copyright (c) 2015-2017 eBay Software Foundation
@@ -20,23 +20,27 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace EventFlow.Tests.Documentation.GettingStarted
+namespace EventFlow.Aggregates.ExecutionResults
 {
-    /// A basic event containing some information
-    [EventVersion("example", 1)]
-    public class ExampleEvent :
-        AggregateEvent<ExampleAggregate, ExampleId>
+    public abstract class ExecutionResult : IExecutionResult
     {
-        public ExampleEvent(int magicNumber)
-        {
-            MagicNumber = magicNumber;
-        }
+        private static readonly IExecutionResult SuccessResult = new SuccessExecutionResult();
+        private static readonly IExecutionResult FailedResult = new FailedExecutionResult(Enumerable.Empty<string>());
 
-        public int MagicNumber { get; }
+        public static IExecutionResult Success() => SuccessResult;
+        public static IExecutionResult Failed() => FailedResult;
+        public static IExecutionResult Failed(IEnumerable<string> errors) => new FailedExecutionResult(errors);
+        public static IExecutionResult Failed(params string[] errors) => new FailedExecutionResult(errors);
+
+        public abstract bool IsSuccess { get; }
+
+        public override string ToString()
+        {
+            return $"ExecutionResult - IsSuccess:{IsSuccess}";
+        }
     }
 }

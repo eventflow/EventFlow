@@ -1,11 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.49.{build}
-
-install:
-  - cmd: pip install -U Sphinx
-  - cmd: pip install sphinx_rtd_theme
+version: 0.50.{build}
 
 skip_tags: true
 
@@ -22,7 +18,6 @@ test: off
 
 artifacts:
   - path: Build\Packages\*.nupkg
-  - path: Build\Documentation\*.zip
 
 services:
   - mssql2014
