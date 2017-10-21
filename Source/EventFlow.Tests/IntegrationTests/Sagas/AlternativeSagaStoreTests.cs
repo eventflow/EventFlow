@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -100,6 +101,16 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             testAggregate.As.Should().Be(0);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(0);
+        }
+
+        [Test]
+        public void SagaLocatorReturningNullDoesntThrow()
+        {
+            // Arrange
+            var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
+
+            // Act
+            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
         }
     }
 }

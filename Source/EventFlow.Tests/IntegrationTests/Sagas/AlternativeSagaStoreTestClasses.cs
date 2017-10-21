@@ -141,7 +141,13 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             public Task<ISagaId> LocateSagaAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
             {
-                return Task.FromResult<ISagaId>(new TestSagaId($"saga-for-{domainEvent.GetIdentity().Value}"));
+                var identity = domainEvent.GetIdentity().Value;
+                if (identity.EndsWith(Guid.Empty.ToString()))
+                {
+                    return Task.FromResult<ISagaId>(null);
+                }
+
+                return Task.FromResult<ISagaId>(new TestSagaId($"saga-for-{identity}"));
             }
         }
 

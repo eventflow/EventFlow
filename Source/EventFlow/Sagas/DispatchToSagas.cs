@@ -83,6 +83,13 @@ namespace EventFlow.Sagas
             {
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+
+                if (sagaId == null)
+                {
+                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.Name}' returned null");
+                    continue;
+                }
+
                 var saga =  await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
 
                 if (saga != null)
