@@ -30,7 +30,7 @@ using EventFlow.ReadStores;
 namespace EventFlow.Queries
 {
     public class ReadModelByIdQuery<TReadModel> : IQuery<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         public string Id { get; }
 
@@ -49,7 +49,7 @@ namespace EventFlow.Queries
 
     public class ReadModelByIdQueryHandler<TReadStore, TReadModel> : IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>
         where TReadStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly TReadStore _readStore;
 

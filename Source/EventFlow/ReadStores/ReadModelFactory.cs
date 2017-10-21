@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
@@ -29,9 +30,11 @@ using EventFlow.Logs;
 namespace EventFlow.ReadStores
 {
     public class ReadModelFactory<TReadModel> : IReadModelFactory<TReadModel>
-        where TReadModel : IReadModel, new()
+        where TReadModel : IReadModel
     {
         private readonly ILog _log;
+        
+        // TODO: Check if read model has empty constructor
 
         public ReadModelFactory(
             ILog log)
@@ -43,7 +46,9 @@ namespace EventFlow.ReadStores
         {
             _log.Verbose(() => $"Creating new instance of read model type '{typeof(TReadModel).PrettyPrint()}' with ID '{id}'");
 
-            return Task.FromResult(new TReadModel());
+            var readModel = (TReadModel) Activator.CreateInstance(typeof(TReadModel));
+
+            return Task.FromResult(readModel);
         }
     }
 }

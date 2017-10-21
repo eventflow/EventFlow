@@ -57,7 +57,7 @@ namespace EventFlow.SQLite.Extensions
 
         public static IEventFlowOptions UseSQLiteReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
@@ -72,7 +72,7 @@ namespace EventFlow.SQLite.Extensions
 
         public static IEventFlowOptions UseSQLiteReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(f =>

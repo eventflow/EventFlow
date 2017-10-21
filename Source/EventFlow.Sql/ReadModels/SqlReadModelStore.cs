@@ -40,7 +40,7 @@ namespace EventFlow.Sql.ReadModels
     public abstract class SqlReadModelStore<TSqlConnection, TReadModel> :
         ReadModelStore<TReadModel>,
         ISqlReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
         where TSqlConnection : ISqlConnection
     {
         private readonly TSqlConnection _connection;

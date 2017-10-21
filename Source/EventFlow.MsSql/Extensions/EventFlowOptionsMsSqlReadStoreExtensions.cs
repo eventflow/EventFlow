@@ -33,7 +33,7 @@ namespace EventFlow.MsSql.Extensions
     {
         public static IEventFlowOptions UseMssqlReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
@@ -48,7 +48,7 @@ namespace EventFlow.MsSql.Extensions
 
         public static IEventFlowOptions UseMssqlReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(f =>
