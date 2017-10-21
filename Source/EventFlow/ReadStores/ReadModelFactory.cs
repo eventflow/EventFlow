@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
@@ -33,8 +35,24 @@ namespace EventFlow.ReadStores
         where TReadModel : IReadModel
     {
         private readonly ILog _log;
-        
-        // TODO: Check if read model has empty constructor
+
+        static ReadModelFactory()
+        {
+            var type = typeof(TReadModel).GetTypeInfo();
+
+            var emptyConstructor = type
+                .GetConstructors()
+                .Where(c => !c.GetParameters().Any())
+                .ToList();
+
+            if (!emptyConstructor.Any())
+            {
+                throw new ArgumentException(
+                    $"Read model type '{typeof(TReadModel).PrettyPrint()}' doesn't have an empty "+
+                    $"constructor. Please create a custom '{typeof(IReadModelFactory<TReadModel>).PrettyPrint()}' "+
+                    "implementation.");
+            }
+        }
 
         public ReadModelFactory(
             ILog log)
