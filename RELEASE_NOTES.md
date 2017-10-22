@@ -1,6 +1,6 @@
 ### New in 0.51 (not released yet)
 
-* _Nothing yet_
+* New: Removed the `new()` requirement for read models
 
 ### New in 0.50.3124 (released 2017-10-21)
 
