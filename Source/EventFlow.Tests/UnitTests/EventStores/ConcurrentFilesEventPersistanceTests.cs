@@ -33,6 +33,7 @@ using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
@@ -41,6 +42,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
+    [Category(Categories.Unit)]
     public class ConcurrentFilesEventPersistanceTests
     {
         private const int DegreeOfParallelism = 10;
@@ -84,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var tasks = RunInParallel(async i =>
             {
                 var persistence = CreatePersistence("SameForAll");
-                await CommitEvents(persistence);
+                await CommitEvents(persistence).ConfigureAwait(false);
             });
 
             // Act
@@ -101,7 +103,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var tasks = RunInParallel(async i =>
             {
                 var persistence = CreatePersistence(i.ToString());
-                await CommitEvents(persistence);
+                await CommitEvents(persistence).ConfigureAwait(false);
             });
 
             // Act
@@ -118,7 +120,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var persistence = CreatePersistence();
             var tasks = RunInParallel(async i =>
             {
-                await CommitEvents(persistence);
+                await CommitEvents(persistence).ConfigureAwait(false);
             });
 
             // Act
@@ -151,7 +153,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
             await Retry(async () =>
             {
-                var version = await GetVersion(persistence);
+                var version = await GetVersion(persistence).ConfigureAwait(false);
 
                 var serializedEvents = from aggregateEvent in events
                     let metadata = new Metadata
@@ -163,8 +165,11 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
                 var readOnlyEvents = new ReadOnlyCollection<SerializedEvent>(serializedEvents.ToList());
 
-                await persistence.CommitEventsAsync(ThingyId, readOnlyEvents, CancellationToken.None);
-            });
+                await persistence
+                    .CommitEventsAsync(ThingyId, readOnlyEvents, CancellationToken.None)
+                    .ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
         }
 
         private static async Task<int> GetVersion(FilesEventPersistence persistence)
@@ -172,7 +177,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var existingEvents = await persistence.LoadCommittedEventsAsync(
                 ThingyId,
                 1,
-                CancellationToken.None);
+                CancellationToken.None).ConfigureAwait(false);
 
             int version = existingEvents.LastOrDefault()?.AggregateSequenceNumber ?? 0;
             return version;
@@ -194,7 +199,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             {
                 try
                 {
-                    await action();
+                    await action().ConfigureAwait(false);
                     return;
                 }
                 catch (OptimisticConcurrencyException)
