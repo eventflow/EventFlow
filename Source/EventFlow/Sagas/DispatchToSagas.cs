@@ -86,7 +86,7 @@ namespace EventFlow.Sagas
 
                 if (sagaId == null)
                 {
-                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.Name}' returned null");
+                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.PrettyPrint()}' returned null");
                     continue;
                 }
 
