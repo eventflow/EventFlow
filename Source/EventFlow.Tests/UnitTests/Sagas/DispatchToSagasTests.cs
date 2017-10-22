@@ -68,7 +68,10 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 .Returns(_sagaUpdaterMock.Object);
             _sagaDefinitionServiceMock
                 .Setup(d => d.GetSagaDetails(It.IsAny<Type>()))
-                .Returns(new[] {SagaDetails.From(sagaType),});
+                .Returns(new[] {SagaDetails.From(sagaType)});
+            _sagaLocatorMock
+                .Setup(s => s.LocateSagaAsync(It.IsAny<IDomainEvent>(), CancellationToken.None))
+                .Returns(() => Task.FromResult<ISagaId>(new ThingySagaId(string.Empty)));
         }
 
         [Test]

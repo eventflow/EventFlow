@@ -1,6 +1,10 @@
 ### New in 0.51 (not released yet)
 
 * New: Removed the `new()` requirement for read models
+* New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given 
+  event, it may now return `Task.FromResult(null)` in order to short-circuit
+  the dispatching process. This might be useful in cases where some instances 
+  of an event belong to a saga process while others don't
 
 ### New in 0.50.3124 (released 2017-10-21)
 
