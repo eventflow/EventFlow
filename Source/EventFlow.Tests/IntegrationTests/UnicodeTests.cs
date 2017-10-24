@@ -40,6 +40,26 @@ namespace EventFlow.Tests.IntegrationTests
     public class UnicodeTests
     {
         [Test]
+        public void UpperCaseIdentityThrows()
+        {
+            // Arrange + Act
+            Action action = () => new Identität1("Identität1-00000000-0000-0000-0000-000000000000");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void LowerCaseIdentityWorks()
+        {
+            // Arrange + Act
+            var id = new Identität1("identität1-00000000-0000-0000-0000-000000000000");
+
+            // Assert
+            id.GetGuid().Should().BeEmpty();
+        }
+
+        [Test]
         public void UnicodeIdentities()
         {
             // Arrange + Act
