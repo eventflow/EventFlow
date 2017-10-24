@@ -44,7 +44,7 @@ namespace EventFlow.Core
             var nameReplace = new Regex("Id$");
             Name = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant();
             ValueValidation = new Regex(
-                @"^[a-z0-9]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
+                @"^[\p{L}\p{N}]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
                 RegexOptions.Compiled);
         }
 
