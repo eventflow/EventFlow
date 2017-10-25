@@ -30,10 +30,10 @@ namespace EventFlow.ReadStores
     public interface IReadModelPopulator
     {
         Task PurgeAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new();
+            where TReadModel : class, IReadModel;
 
         Task PopulateAsync<TReadModel>(CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new();
+            where TReadModel : class, IReadModel;
 
         Task PopulateAsync(
             Type readModelType,
