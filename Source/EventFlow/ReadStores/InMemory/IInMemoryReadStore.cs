@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 namespace EventFlow.ReadStores.InMemory
 {
     public interface IInMemoryReadStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         Task<IReadOnlyCollection<TReadModel>> FindAsync(
             Predicate<TReadModel> predicate,

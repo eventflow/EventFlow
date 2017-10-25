@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 namespace EventFlow.ReadStores
 {
     public interface IReadModelFactory<TReadModel>
-        where TReadModel : IReadModel, new()
+        where TReadModel : IReadModel
     {
         Task<TReadModel> CreateAsync(string id, CancellationToken cancellationToken);
     }

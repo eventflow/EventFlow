@@ -26,7 +26,7 @@ using System;
 namespace EventFlow.ReadStores
 {
     public class ReadModelEnvelope<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private ReadModelEnvelope(
             string readModelId,
