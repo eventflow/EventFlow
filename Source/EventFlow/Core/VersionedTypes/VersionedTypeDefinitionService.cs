@@ -38,7 +38,7 @@ namespace EventFlow.Core.VersionedTypes
     {
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Regex NameRegex = new Regex(
-            @"^(Old){0,1}(?<name>[\p{L}\p{N}]+?)(V(?<version>[0-9]+)){0,1}$",
+            @"^(Old){0,1}(?<name>[\p{L}\p{Nd}]+?)(V(?<version>[0-9]+)){0,1}$",
             RegexOptions.Compiled);
 
         private readonly object _syncRoot = new object();
