@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -45,9 +46,12 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class ConcurrentFilesEventPersistanceTests
     {
-        private const int DegreeOfParallelism = 10;
+        // Higher values have exponential effect on duration
+        // due to OptimsticConcurrency and retry
+        private const int DegreeOfParallelism = 15;
         private const int NumberOfEventsPerBatch = 10;
 
+        // All threads operate on same thingy
         private static readonly ThingyId ThingyId = ThingyId.New;
 
         private string _storeRootPath;
@@ -86,7 +90,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var tasks = RunInParallel(async i =>
             {
                 var persistence = CreatePersistence("SameForAll");
-                await CommitEvents(persistence).ConfigureAwait(false);
+                await CommitEventsAsync(persistence).ConfigureAwait(false);
             });
 
             // Act
@@ -103,7 +107,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var tasks = RunInParallel(async i =>
             {
                 var persistence = CreatePersistence(i.ToString());
-                await CommitEvents(persistence).ConfigureAwait(false);
+                await CommitEventsAsync(persistence).ConfigureAwait(false);
             });
 
             // Act
@@ -120,7 +124,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var persistence = CreatePersistence();
             var tasks = RunInParallel(async i =>
             {
-                await CommitEvents(persistence).ConfigureAwait(false);
+                await CommitEventsAsync(persistence).ConfigureAwait(false);
             });
 
             // Act
@@ -145,15 +149,15 @@ namespace EventFlow.Tests.UnitTests.EventStores
             return new FilesEventPersistence(log, serializer, config, locator);
         }
 
-        private async Task CommitEvents(FilesEventPersistence persistence)
+        private async Task CommitEventsAsync(FilesEventPersistence persistence)
         {
             var events = Enumerable.Range(0, NumberOfEventsPerBatch)
                 .Select(i => new ThingyPingEvent(PingId.New))
-                .ToArray();
+                .ToList();
 
-            await Retry(async () =>
+            await RetryAsync(async () =>
             {
-                var version = await GetVersion(persistence).ConfigureAwait(false);
+                var version = await GetVersionAsync(persistence).ConfigureAwait(false);
 
                 var serializedEvents = from aggregateEvent in events
                     let metadata = new Metadata
@@ -172,7 +176,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             .ConfigureAwait(false);
         }
 
-        private static async Task<int> GetVersion(FilesEventPersistence persistence)
+        private static async Task<int> GetVersionAsync(FilesEventPersistence persistence)
         {
             var existingEvents = await persistence.LoadCommittedEventsAsync(
                 ThingyId,
@@ -183,17 +187,17 @@ namespace EventFlow.Tests.UnitTests.EventStores
             return version;
         }
 
-        private static Task[] RunInParallel(Func<int, Task> action)
+        private static IEnumerable<Task> RunInParallel(Func<int, Task> action)
         {
             var tasks = Enumerable.Range(1, DegreeOfParallelism)
                 .AsParallel()
                 .WithDegreeOfParallelism(DegreeOfParallelism)
                 .Select(action);
 
-            return tasks.ToArray();
+            return tasks.ToList();
         }
 
-        private static async Task Retry(Func<Task> action)
+        private static async Task RetryAsync(Func<Task> action)
         {
             for (int retry = 0; retry < DegreeOfParallelism; retry++)
             {
