@@ -1,1 +1,1 @@
-powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Verbosity Diagnostic -Target %1
+powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target %1
