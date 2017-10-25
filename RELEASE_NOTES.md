@@ -1,4 +1,8 @@
-### New in 0.51 (not released yet)
+### New in 0.52 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.51.3155 (released 2017-10-25)
 
 * New: Removed the `new()` requirement for read models
 * New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given 
