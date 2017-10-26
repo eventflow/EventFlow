@@ -33,7 +33,7 @@ namespace EventFlow.Extensions
         public static void Purge<TReadModel>(
             this IReadModelPopulator readModelPopulator,
             CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             using (var a = AsyncHelper.Wait)
             {
@@ -55,7 +55,7 @@ namespace EventFlow.Extensions
         public static void Populate<TReadModel>(
             this IReadModelPopulator readModelPopulator,
             CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             using (var a = AsyncHelper.Wait)
             {

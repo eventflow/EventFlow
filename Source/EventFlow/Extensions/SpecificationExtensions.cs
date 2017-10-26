@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Exceptions;
 using EventFlow.Provided.Specifications;
 using EventFlow.Specifications;
@@ -45,6 +46,19 @@ namespace EventFlow.Extensions
                 throw DomainError.With(
                     $"'{specification.GetType().PrettyPrint()}' is not satisfied becase of {string.Join(" and ", whyIsNotStatisfiedBy)}");
             }
+        }
+
+        public static IExecutionResult IsNotSatisfiedByAsExecutionResult<T>(
+            this ISpecification<T> specification,
+            T obj)
+        {
+            var whyIsNotStatisfiedBy = specification
+                .WhyIsNotSatisfiedBy(obj)
+                .ToList();
+            
+            return whyIsNotStatisfiedBy.Any()
+                ? ExecutionResult.Failed(whyIsNotStatisfiedBy)
+                : ExecutionResult.Success();
         }
 
         public static ISpecification<T> All<T>(

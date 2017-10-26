@@ -34,7 +34,7 @@ namespace EventFlow.ReadStores
     public class MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator> :
         ReadStoreManager<TReadStore, TReadModel>
         where TReadStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
         where TReadModelLocator : IReadModelLocator
     {
         private readonly TReadModelLocator _readModelLocator;

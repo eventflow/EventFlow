@@ -35,7 +35,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
             this IEventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions.RegisterServices(f =>
                 {
@@ -47,7 +47,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions.RegisterServices(f =>
@@ -59,7 +59,7 @@ namespace EventFlow.Extensions
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(f =>
@@ -73,7 +73,7 @@ namespace EventFlow.Extensions
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions

@@ -31,7 +31,7 @@ using EventFlow.Logs;
 namespace EventFlow.ReadStores
 {
     public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         protected ILog Log { get; }
 

@@ -39,7 +39,7 @@ namespace EventFlow.ReadStores
     }
 
     public interface IReadStoreManager<TReadModel> : IReadStoreManager
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
     }
 }

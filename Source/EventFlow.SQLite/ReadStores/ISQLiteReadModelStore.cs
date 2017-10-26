@@ -27,7 +27,7 @@ using EventFlow.Sql.ReadModels;
 namespace EventFlow.SQLite.ReadStores
 {
     public interface ISQLiteReadModelStore<TReadModel> : ISqlReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
     }
 }

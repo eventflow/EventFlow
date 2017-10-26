@@ -29,7 +29,7 @@ using EventFlow.SQLite.Connections;
 namespace EventFlow.SQLite.ReadStores
 {
     public class SQLiteReadModelStore<TReadModel> : SqlReadModelStore<ISQLiteConnection, TReadModel>, ISQLiteReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         public SQLiteReadModelStore(
             ILog log,

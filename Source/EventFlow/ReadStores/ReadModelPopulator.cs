@@ -56,7 +56,7 @@ namespace EventFlow.ReadStores
 
         public Task PurgeAsync<TReadModel>(
             CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return PurgeAsync(typeof(TReadModel), cancellationToken);
         }
@@ -86,7 +86,7 @@ namespace EventFlow.ReadStores
 
         public Task PopulateAsync<TReadModel>(
             CancellationToken cancellationToken)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return PopulateAsync(typeof(TReadModel), cancellationToken);
         }
