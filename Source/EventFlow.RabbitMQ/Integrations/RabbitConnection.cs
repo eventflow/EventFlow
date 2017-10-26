@@ -52,8 +52,7 @@ namespace EventFlow.RabbitMQ.Integrations
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                IModel model;
-                if (!_models.TryTake(out model))
+                if (!_models.TryTake(out var model))
                 {
                     throw new InvalidOperationException(
                         "This should NEVER happen! If it does, please report a bug.");

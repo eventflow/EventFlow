@@ -59,8 +59,7 @@ namespace EventFlow.RabbitMQ.Integrations
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                ConnectionFactory connectionFactory;
-                if (_connectionFactories.TryGetValue(uri, out connectionFactory))
+                if (_connectionFactories.TryGetValue(uri, out var connectionFactory))
                 {
                     return connectionFactory;
                 }

@@ -64,7 +64,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 routingKey,
                 new MessageId(domainEvent.Metadata[MetadataKeys.EventId]));
 
-            _log.Verbose("Create RabbitMQ message {0}", rabbitMqMessage);
+            _log.Verbose(() => $"Create RabbitMQ message {rabbitMqMessage}");
 
             return rabbitMqMessage;
         }
