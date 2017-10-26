@@ -36,7 +36,7 @@ namespace EventFlow.ReadStores
 {
     public abstract class ReadStoreManager<TReadModelStore, TReadModel> : IReadStoreManager<TReadModel>
         where TReadModelStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         // ReSharper disable StaticMemberInGenericType
         private static readonly Type StaticReadModelType = typeof(TReadModel);

@@ -33,7 +33,7 @@ using EventFlow.Logs;
 namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryReadStore<TReadModel> : ReadModelStore<TReadModel>, IInMemoryReadStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly Dictionary<string, ReadModelEnvelope<TReadModel>> _readModels = new Dictionary<string, ReadModelEnvelope<TReadModel>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();
@@ -67,6 +67,16 @@ namespace EventFlow.ReadStores.InMemory
                     .Where(e => predicate(e.ReadModel))
                     .Select(e => e.ReadModel)
                     .ToList();
+            }
+        }
+
+        public override async Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                _readModels.Remove(id);
             }
         }
 

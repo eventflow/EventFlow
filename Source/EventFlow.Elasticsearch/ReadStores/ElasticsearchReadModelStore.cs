@@ -38,7 +38,7 @@ namespace EventFlow.Elasticsearch.ReadStores
 {
     public class ElasticsearchReadModelStore<TReadModel> :
         IElasticsearchReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly ILog _log;
         private readonly IElasticClient _elasticClient;
@@ -77,6 +77,22 @@ namespace EventFlow.Elasticsearch.ReadStores
             }
 
             return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, getResponse.Version);
+        }
+
+        public async Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+
+            await _elasticClient.DeleteAsync(
+                new DocumentPath<TReadModel>(id),
+                d => d
+                    .Index(readModelDescription.IndexName.Value)
+                    .RequestConfiguration(c => c
+                        .AllowedStatusCodes((int) HttpStatusCode.NotFound)),
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
         public async Task DeleteAllAsync(

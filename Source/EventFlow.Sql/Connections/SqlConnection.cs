@@ -136,7 +136,7 @@ namespace EventFlow.Sql.Connections
             CancellationToken cancellationToken,
             string sql,
             IEnumerable<TRow> rows)
-            where TRow : class, new()
+            where TRow : class
         {
             Log.Debug(
                 "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",

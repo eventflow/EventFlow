@@ -272,6 +272,31 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task AggregatesCanUpdatedAfterOptimisticConcurrency()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingId1 = PingId.New;
+            var pingId2 = PingId.New;
+            var aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            var aggregate2 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate1.Ping(pingId1);
+            aggregate2.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await ThrowsExceptionAsync<OptimisticConcurrencyException>(() => aggregate2.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None)).ConfigureAwait(false);
+
+            // Act
+            aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate1.PingsReceived.Single().Should().Be(pingId1);
+            aggregate1.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate1.PingsReceived.ShouldAllBeEquivalentTo(new[] {pingId1, pingId2});
+        }
+
+        [Test]
         public async Task PublishedDomainEventsHaveAggregateSequenceNumbers()
         {
             // Arrange

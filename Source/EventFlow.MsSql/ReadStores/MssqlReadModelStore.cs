@@ -42,7 +42,7 @@ namespace EventFlow.MsSql.ReadStores
     public class MssqlReadModelStore<TReadModel> :
         ReadModelStore<TReadModel>,
         IMssqlReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
@@ -170,6 +170,26 @@ namespace EventFlow.MsSql.ReadStores
             return readModelVersion.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
                 : ReadModelEnvelope<TReadModel>.With(id, readModel);
+        }
+
+        public override async Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
+            var readModelName = typeof(TReadModel).Name;
+
+            var rowsAffected = await _connection.ExecuteAsync(
+                Label.Named("mssql-delete-read-model", readModelName),
+                cancellationToken,
+                sql,
+                new { EventFlowReadModelId = id })
+                .ConfigureAwait(false);
+
+            if (rowsAffected != 0)
+            {
+                Log.Verbose($"Deleted read model '{id}' of type '{readModelName}'");
+            }
         }
 
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)

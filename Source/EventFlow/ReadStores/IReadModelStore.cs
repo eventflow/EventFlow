@@ -31,12 +31,16 @@ namespace EventFlow.ReadStores
 {
     public interface IReadModelStore
     {
+        Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken);
+
         Task DeleteAllAsync(
             CancellationToken cancellationToken);
     }
 
     public interface IReadModelStore<TReadModel> : IReadModelStore
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         Task<ReadModelEnvelope<TReadModel>> GetAsync(
             string id,

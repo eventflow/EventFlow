@@ -21,36 +21,47 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Entities;
-using EventFlow.TestHelpers.Suites;
-using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
-using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.Tests.IntegrationTests.Aggregates
 {
     [Category(Categories.Integration)]
-    public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
+    public class AggregateStoreTests : IntegrationTest
     {
-        protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
+        [TestCase(true, 1)]
+        [TestCase(false, 0)]
+        public async Task ExecutionResultShouldControlEventStore(bool isSuccess, int expectedAggregateVersion)
+        {
+            // Arrange
+            var pingId = PingId.New;
+            var thingyId = ThingyId.New;
+            
+            // Act
+            var executionResult = await CommandBus.PublishAsync(
+                    new ThingyMaybePingCommand(thingyId, pingId, isSuccess),
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+            executionResult.IsSuccess.Should().Be(isSuccess);
 
+            // Assert
+            var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
+                    thingyId,
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+            thingyAggregate.Version.Should().Be(expectedAggregateVersion);
+        }
+        
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
-                .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(
-                    typeof(InMemoryThingyGetQueryHandler),
-                    typeof(InMemoryThingyGetVersionQueryHandler),
-                    typeof(InMemoryThingyGetMessagesQueryHandler))
-                .CreateResolver();
-
-            return resolver;
+            return eventFlowOptions.CreateResolver();
         }
     }
 }

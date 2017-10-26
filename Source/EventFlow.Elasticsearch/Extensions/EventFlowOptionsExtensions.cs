@@ -76,7 +76,7 @@ namespace EventFlow.Elasticsearch.Extensions
 
         public static IEventFlowOptions UseElasticsearchReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(f =>
@@ -89,7 +89,7 @@ namespace EventFlow.Elasticsearch.Extensions
 
         public static IEventFlowOptions UseElasticsearchReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions

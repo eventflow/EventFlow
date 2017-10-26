@@ -22,13 +22,13 @@
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>    
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoFixture.AutoMoq" Version="3.50.2" />
-    <PackageReference Include="FluentAssertions" Version="4.19.2" />
-    <PackageReference Include="Moq" Version="4.7.9" />
-    <PackageReference Include="NUnit" Version="3.6.1" />
+    <PackageReference Include="AutoFixture.AutoMoq" Version="3.50.6" />
+    <PackageReference Include="FluentAssertions" Version="4.19.4" />
+    <PackageReference Include="Moq" Version="4.7.99" />
+    <PackageReference Include="NUnit" Version="3.8.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
@@ -36,8 +36,5 @@
   <ItemGroup>
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

@@ -33,6 +33,9 @@ namespace EventFlow.Sql.ReadModels
         string CreateSelectSql<TReadModel>()
             where TReadModel : IReadModel;
 
+        string CreateDeleteSql<TReadModel>()
+            where TReadModel : IReadModel;
+
         string CreateUpdateSql<TReadModel>()
             where TReadModel : IReadModel;
 

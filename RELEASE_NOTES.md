@@ -1,4 +1,116 @@
-### New in 0.48 (not released yet)
+### New in 0.52 (not released yet)
+
+* Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
+  file system persistence, making it suitable for use in multi-threaded unit
+  tests. Please don't use the files event store in production scenarios
+* New: Support for unicode characters in type names. This simplifies using an
+  [ubiquitous language](http://www.jamesshore.com/Agile-Book/ubiquitous_language.html)
+  in non-english domains
+
+### New in 0.51.3155 (released 2017-10-25)
+
+* New: Removed the `new()` requirement for read models
+* New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given 
+  event, it may now return `Task.FromResult(null)` in order to short-circuit
+  the dispatching process. This might be useful in cases where some instances 
+  of an event belong to a saga process while others don't
+* Fixed: `StringExtensions.ToSha256()` can now be safely used from
+  concurrent threads
+
+### New in 0.50.3124 (released 2017-10-21)
+
+* New: While EventFlow tries to limit the about of painful API changes, the
+  introduction of execution/command results are considered a necessary step
+  towards as better API.
+
+  Commands and command handlers have been updated to support execution
+  results. Execution results is meant to be an alternative to throwing domain
+  exceptions to do application flow. In short, before you were required to
+  throw an exception if you wanted to abort execution and "return" a failure
+  message.
+
+  The introduction of execution results changes this, as it allows
+  returning a failed result that is passed all the way back to the command
+  publisher. Execution results are generic and can thus contain e.g. any
+  validation results that a UI might need. The `ICommandBus.PublishAsync`
+  signature has changed to reflect this.
+
+  from
+  ```csharp
+      Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
+        ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TSourceIdentity : ISourceId
+  ```
+  to
+  ```csharp
+      Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
+        ICommand<TAggregate, TIdentity, TExecutionResult> command,
+        CancellationToken cancellationToken)
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TExecutionResult : IExecutionResult
+  ```
+
+  Command handler signature has changed from
+
+  ```csharp
+      Task ExecuteAsync(
+          TAggregate aggregate,
+          TCommand command,
+          CancellationToken cancellationToken);
+  ```
+  to
+  ```csharp
+      Task<TExecutionResult> ExecuteCommandAsync(
+          TAggregate aggregate,
+          TCommand command,
+          CancellationToken cancellationToken)
+  ```
+
+  Migrating to the new structure should be seamless if your current code base
+  inherits its command handlers from the provided `CommandHandler<,,>` base
+  class.
+
+* Breaking: Source IDs on commands have been reworked to "make room" for
+  execution results on commands. The generic parameter from `ICommand<,,>`
+  and `ICommandHandler<,,,>` has been removed in favor of the new execution
+  results. `ICommand.SourceId` is now of type `ISourceId` instead of using
+  the generic type and the `ICommandBus.PublishAsync` no longer returns
+  `Task<ISourceId>`
+
+  To get code that behaves similar to the previous version, simply take the
+  `ISourceId` from the command, i.e., instead of this
+
+  ```csharp
+  var sourceId = await commandBus.PublishAsync(command);
+  ```
+  write this
+  ```csharp
+  await commandBus.PublishAsync(command);
+  var sourceId = command.SourceId;
+  ```
+  (`CancellationToken` and `.ConfigureAwait(false)` omitted fromt he above)
+
+* Breaking: Upgraded NuGet dependency on `RabbitMQ.Client` from `>= 4.1.3`
+  to `>= 5.0.1`
+
+### New in 0.49.3031 (released 2017-09-07)
+
+* Breaking: Upgraded `EventStore.Client` dependency to version 4.0
+* Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
+  .NET 4.6.2 as required by `EventStore.Client` NuGet dependency
+* Fix: `EventFlow.Hangfire` now depends on `Hangfire.Core` instead of
+  `Hangfire`
+* New: Added an overload to `IDomainEventPublisher.PublishAsync` that isn't
+  generic and doesn't require an aggregate ID
+* New: Added `IReadModelPopulator.DeleteAsync` that allows deletion of single
+  read models
+* Obsolete: `IDomainEventPublisher.PublishAsync<,>` (generic) in favor of the
+  new less restrictive non-generic overload
+
+### New in 0.48.2937 (released 2017-07-11)
 
 * Breaking: Moved non-async methods on `IReadModelPopulator` to extension
   methods
@@ -11,7 +123,7 @@
 * New: Now possible to configure retry delay for MSSQL error `40501` (server
   too busy) using `IMsSqlConfiguration.SetServerBusyRetryDelay(RetryDelay)`
 * New: Now possible to configure the retry count of transient exceptions for
-  MSSQL and SQLite using the `ISqlConfiguration.SetTransientRetryCount(int)` 
+  MSSQL and SQLite using the `ISqlConfiguration.SetTransientRetryCount(int)`
 * Fixed: Added MSSQL error codes `10928`, `10929`, `18401` and `40540` as well
   as a few native `Win32Exception` exceptions to the list treated as transient
   errors, i.e., EventFlow will automatically retry if the server returns one
