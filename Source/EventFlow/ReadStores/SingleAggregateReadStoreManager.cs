@@ -33,7 +33,7 @@ namespace EventFlow.ReadStores
 {
     public class SingleAggregateReadStoreManager<TReadModelStore, TReadModel> : ReadStoreManager<TReadModelStore, TReadModel>
         where TReadModelStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         public SingleAggregateReadStoreManager(
             ILog log,

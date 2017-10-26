@@ -21,25 +21,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public interface IReadStoreManager
+    [CommandVersion("ThingyMaybePing", 1)]
+    public class ThingyMaybePingCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
     {
-        Type ReadModelType { get; }
+        public PingId PingId { get; }
+        public bool IsSuccess { get; }
 
-        Task UpdateReadStoresAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+        [JsonConstructor]
+        public ThingyMaybePingCommand(ThingyId aggregateId, PingId pingId, bool isSuccess)
+            : base(aggregateId, CommandId.New)
+        {
+            PingId = pingId;
+            IsSuccess = isSuccess;
+        }
     }
 
-    public interface IReadStoreManager<TReadModel> : IReadStoreManager
-        where TReadModel : class, IReadModel
+    public class ThingyMaybePingCommandHandler :
+        CommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyMaybePingCommand>
     {
+        public override Task<IExecutionResult> ExecuteCommandAsync(
+            ThingyAggregate aggregate,
+            ThingyMaybePingCommand command,
+            CancellationToken cancellationToken)
+        {
+            var executionResult = aggregate.PingMaybe(command.PingId, command.IsSuccess);
+            return Task.FromResult(executionResult);
+        }
     }
 }

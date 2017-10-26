@@ -44,7 +44,7 @@ namespace EventFlow.RabbitMQ.Tests
         {
             var connectionFactory = new ConnectionFactory
                 {
-                    Uri = uri.ToString(),
+                    Uri = uri,
                 };
             _connection = connectionFactory.CreateConnection();
             _model = _connection.CreateModel();

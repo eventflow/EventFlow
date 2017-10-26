@@ -21,25 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using System.Linq;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Aggregates.ExecutionResults
 {
-    public interface IReadStoreManager
+    public class FailedExecutionResult : ExecutionResult
     {
-        Type ReadModelType { get; }
+        public IReadOnlyCollection<string> Errors { get; }
 
-        Task UpdateReadStoresAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
-    }
+        public FailedExecutionResult(
+            IEnumerable<string> errors)
+        {
+            Errors = (errors ?? Enumerable.Empty<string>()).ToList();
+        }
+            
+        public override bool IsSuccess { get; } = false;
 
-    public interface IReadStoreManager<TReadModel> : IReadStoreManager
-        where TReadModel : class, IReadModel
-    {
+        public override string ToString()
+        {
+            return Errors.Any()
+                ? $"Failed execution due to: {string.Join(", ", Errors)}"
+                : "Failed execution";
+        }
     }
 }

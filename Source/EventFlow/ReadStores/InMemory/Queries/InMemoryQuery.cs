@@ -28,7 +28,7 @@ using EventFlow.Queries;
 namespace EventFlow.ReadStores.InMemory.Queries
 {
     public class InMemoryQuery<TReadModel> : IQuery<IReadOnlyCollection<TReadModel>>
-        where TReadModel : IReadModel, new()
+        where TReadModel : IReadModel
     {
         public Predicate<TReadModel> Query { get; }
 

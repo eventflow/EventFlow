@@ -49,7 +49,7 @@ namespace EventFlow.Sql.Connections
             CancellationToken cancellationToken,
             string sql,
             IEnumerable<TRow> rows)
-            where TRow : class, new();
+            where TRow : class;
 
         Task<TResult> WithConnectionAsync<TResult>(
             Label label,

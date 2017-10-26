@@ -26,7 +26,7 @@ using EventFlow.ReadStores;
 namespace EventFlow.Elasticsearch.ReadStores
 {
     public interface IElasticsearchReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
     }
 }
