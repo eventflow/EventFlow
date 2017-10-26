@@ -3,6 +3,9 @@
 * Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
   file system persistence, making it suitable for use in multi-threaded unit
   tests. Please don't use the files event store in production scenarios
+* New: Support for unicode characters in type names. This simplifies using an
+  [ubiquitous language](http://www.jamesshore.com/Agile-Book/ubiquitous_language.html)
+  in non-english domains
 
 ### New in 0.51.3155 (released 2017-10-25)
 
