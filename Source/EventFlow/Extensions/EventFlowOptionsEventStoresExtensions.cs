@@ -53,7 +53,7 @@ namespace EventFlow.Extensions
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton);
-                    f.Register<IEventPersistence, FilesEventPersistence>();
+                    f.Register<IEventPersistence, FilesEventPersistence>(Lifetime.Singleton);
                     f.Register<IFilesEventLocator, FilesEventLocator>();
                 });
         }
