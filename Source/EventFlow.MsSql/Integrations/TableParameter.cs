@@ -34,7 +34,7 @@ using Microsoft.SqlServer.Server;
 namespace EventFlow.MsSql.Integrations
 {
     internal class TableParameter<TRow> : SqlMapper.IDynamicParameters
-        where TRow : class, new()
+        where TRow : class
     {
         private readonly string _name;
         private readonly IEnumerable<TRow> _rows;

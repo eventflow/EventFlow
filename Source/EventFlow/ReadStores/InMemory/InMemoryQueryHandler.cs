@@ -31,7 +31,7 @@ namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryQueryHandler<TReadModel> :
         IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly IInMemoryReadStore<TReadModel> _readModelStore;
 

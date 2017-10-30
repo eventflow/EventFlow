@@ -38,7 +38,7 @@ namespace EventFlow.Elasticsearch.ReadStores
 {
     public class ElasticsearchReadModelStore<TReadModel> :
         IElasticsearchReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly ILog _log;
         private readonly IElasticClient _elasticClient;

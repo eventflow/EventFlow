@@ -26,7 +26,7 @@ using EventFlow.ReadStores;
 namespace EventFlow.MsSql.ReadStores
 {
     public interface IMssqlReadModelStore<TReadModel> : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
     }
 }

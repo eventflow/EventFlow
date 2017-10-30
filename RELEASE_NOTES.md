@@ -1,4 +1,23 @@
-### New in 0.50 (not released yet)
+### New in 0.52 (not released yet)
+
+* Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
+  file system persistence, making it suitable for use in multi-threaded unit
+  tests. Please don't use the files event store in production scenarios
+* New: Support for unicode characters in type names. This simplifies using an
+  [ubiquitous language](http://www.jamesshore.com/Agile-Book/ubiquitous_language.html)
+  in non-english domains
+
+### New in 0.51.3155 (released 2017-10-25)
+
+* New: Removed the `new()` requirement for read models
+* New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given 
+  event, it may now return `Task.FromResult(null)` in order to short-circuit
+  the dispatching process. This might be useful in cases where some instances 
+  of an event belong to a saga process while others don't
+* Fixed: `StringExtensions.ToSha256()` can now be safely used from
+  concurrent threads
+
+### New in 0.50.3124 (released 2017-10-21)
 
 * New: While EventFlow tries to limit the about of painful API changes, the
   introduction of execution/command results are considered a necessary step

@@ -33,7 +33,7 @@ using EventFlow.Logs;
 namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryReadStore<TReadModel> : ReadModelStore<TReadModel>, IInMemoryReadStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly Dictionary<string, ReadModelEnvelope<TReadModel>> _readModels = new Dictionary<string, ReadModelEnvelope<TReadModel>>();
         private readonly AsyncLock _asyncLock = new AsyncLock();

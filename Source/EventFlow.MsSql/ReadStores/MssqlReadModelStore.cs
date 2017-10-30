@@ -42,7 +42,7 @@ namespace EventFlow.MsSql.ReadStores
     public class MssqlReadModelStore<TReadModel> :
         ReadModelStore<TReadModel>,
         IMssqlReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
