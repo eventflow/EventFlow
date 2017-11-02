@@ -6,6 +6,8 @@
 * New: Support for unicode characters in type names. This simplifies using an
   [ubiquitous language](http://www.jamesshore.com/Agile-Book/ubiquitous_language.html)
   in non-english domains
+* Fixed: Include hyphen in prefix validation for identity values. This fixes a bug
+  where invalid identities could be created (e.g. `ThingyId.With("thingyINVALID-a41e...")`)
 
 ### New in 0.51.3155 (released 2017-10-25)
 
