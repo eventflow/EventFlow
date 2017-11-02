@@ -1,4 +1,8 @@
-### New in 0.52 (not released yet)
+### New in 0.53 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.52.3178 (released 2017-11-02)
 
 * Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
   file system persistence, making it suitable for use in multi-threaded unit
