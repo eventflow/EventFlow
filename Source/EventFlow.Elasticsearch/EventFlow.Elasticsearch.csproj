@@ -24,7 +24,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NEST" Version="5.3.1" />
+    <PackageReference Include="NEST" Version="5.5.0" />
     <PackageReference Include="newtonsoft.json" Version="10.0.3" />    
   </ItemGroup>
   <ItemGroup>
