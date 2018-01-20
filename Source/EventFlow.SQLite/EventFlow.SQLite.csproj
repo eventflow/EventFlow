@@ -9,7 +9,7 @@
     <Title>EventFlow.SQLite</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2017</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
     <Description>SQLite event store for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing SQLite</PackageTags>
     <RepositoryType>git</RepositoryType>
