@@ -29,6 +29,7 @@ using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
+using Test = NUnit.Framework.Internal.Test;
 
 namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 {
@@ -84,12 +85,14 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             Arrange_LoadAllTestTypes();
 
             // Act
-            var eventDefinition = Sut.GetDefinition(testCase.Type);
+            var eventDefinitions = Sut.GetDefinitions(testCase.Type);
 
             // Assert
-            eventDefinition.Name.Should().Be(testCase.Name);
-            eventDefinition.Version.Should().Be(testCase.Version);
-            eventDefinition.Type.Should().Be(testCase.Type);
+            var hasIt = eventDefinitions.SingleOrDefault(e =>
+                e.Name == testCase.Name &&
+                e.Version == testCase.Version &&
+                e.Type == testCase.Type);
+            hasIt.Should().NotBeNull();
         }
 
         [Test]
@@ -199,7 +202,9 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var expectedTypes = Arrange_LoadAllTestTypes();
 
             // Act
-            var result = Sut.GetAllDefinitions().Select(d => d.Type).ToList();
+            var result = Sut.GetAllDefinitions().Select(d => d.Type)
+                .Distinct()
+                .ToList();
 
             // Assert
             result.ShouldAllBeEquivalentTo(expectedTypes);
@@ -221,7 +226,10 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 
         private IReadOnlyCollection<Type> Arrange_LoadAllTestTypes()
         {
-            var types = GetTestCases().Select(t => t.Type).ToList();
+            var types = GetTestCases()
+                .Select(t => t.Type)
+                .Distinct()
+                .ToList();
             Sut.Load(types);
             return types;
         }

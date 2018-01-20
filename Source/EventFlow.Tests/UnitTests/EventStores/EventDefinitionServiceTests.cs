@@ -36,6 +36,11 @@ namespace EventFlow.Tests.UnitTests.EventStores
     {
         [EventVersion("Fancy", 42)]
         public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        
+        [EventVersion("multi-names-event", 1)]
+        [EventVersion("MultiNamesEvent", 1)]
+        [EventVersion("MultiNamesEvent", 2)]
+        public class MultiNamesEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
 
         public class TestEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
 
@@ -76,6 +81,26 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     Name = "The5ThEvent",
                     Type = typeof(OldThe5ThEventV4),
                     Version = 4,
+                };
+            
+            // Multiple names to same events
+            yield return new VersionTypeTestCase
+                {
+                    Name = "multi-names-event",
+                    Type = typeof(MultiNamesEvent),
+                    Version = 1,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "MultiNamesEvent",
+                    Type = typeof(MultiNamesEvent),
+                    Version = 1,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "MultiNamesEvent",
+                    Type = typeof(MultiNamesEvent),
+                    Version = 2,
                 };
         }
     }

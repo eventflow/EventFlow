@@ -26,7 +26,10 @@ using EventFlow.Core.VersionedTypes;
 
 namespace EventFlow.EventStores
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(
+        AttributeTargets.Class,
+        AllowMultiple = true
+        )]
     public class EventVersionAttribute : VersionedTypeAttribute
     {
         public EventVersionAttribute(string name, int version)

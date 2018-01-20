@@ -43,7 +43,7 @@ namespace EventFlow.Core.VersionedTypes
 
         private readonly object _syncRoot = new object();
         private readonly ILog _log;
-        private readonly ConcurrentDictionary<Type, TDefinition> _definitionsByType = new ConcurrentDictionary<Type, TDefinition>();
+        private readonly ConcurrentDictionary<Type, List<TDefinition>> _definitionsByType = new ConcurrentDictionary<Type, List<TDefinition>>();
         private readonly ConcurrentDictionary<string, Dictionary<int, TDefinition>> _definitionByNameAndVersion = new ConcurrentDictionary<string, Dictionary<int, TDefinition>>(); 
 
         protected VersionedTypeDefinitionService(
@@ -77,7 +77,7 @@ namespace EventFlow.Core.VersionedTypes
                 var definitions = types
                     .Distinct()
                     .Where(t => !_definitionsByType.ContainsKey(t))
-                    .Select(CreateDefinition)
+                    .SelectMany(CreateDefinitions)
                     .ToList();
                 if (!definitions.Any())
                 {
@@ -100,10 +100,12 @@ namespace EventFlow.Core.VersionedTypes
 
                 foreach (var definition in definitions)
                 {
-                    _definitionsByType.TryAdd(definition.Type, definition);
+                    var typeDefinitions = _definitionsByType.GetOrAdd(
+                        definition.Type,
+                        _ => new List<TDefinition>());
+                    typeDefinitions.Add(definition);
 
-                    Dictionary<int, TDefinition> versions;
-                    if (!_definitionByNameAndVersion.TryGetValue(definition.Name, out versions))
+                    if (!_definitionByNameAndVersion.TryGetValue(definition.Name, out var versions))
                     {
                         versions = new Dictionary<int, TDefinition>();
                         _definitionByNameAndVersion.TryAdd(definition.Name, versions);
@@ -125,8 +127,7 @@ namespace EventFlow.Core.VersionedTypes
 
         public IEnumerable<TDefinition> GetDefinitions(string name)
         {
-            Dictionary<int, TDefinition> versions;
-            return _definitionByNameAndVersion.TryGetValue(name, out versions)
+            return _definitionByNameAndVersion.TryGetValue(name, out var versions)
                 ? versions.Values.OrderBy(d => d.Version)
                 : Enumerable.Empty<TDefinition>();
         }
@@ -138,8 +139,7 @@ namespace EventFlow.Core.VersionedTypes
 
         public bool TryGetDefinition(string name, int version, out TDefinition definition)
         {
-            Dictionary<int, TDefinition> versions;
-            if (_definitionByNameAndVersion.TryGetValue(name, out versions))
+            if (_definitionByNameAndVersion.TryGetValue(name, out var versions))
             {
                 return versions.TryGetValue(version, out definition);
             }
@@ -151,8 +151,7 @@ namespace EventFlow.Core.VersionedTypes
 
         public TDefinition GetDefinition(string name, int version)
         {
-            TDefinition definition;
-            if (!TryGetDefinition(name, version, out definition))
+            if (!TryGetDefinition(name, version, out var definition))
             {
                 throw new ArgumentException($"No versioned type definition for '{name}' with version {version} in '{GetType().PrettyPrint()}'");
             }
@@ -162,10 +161,7 @@ namespace EventFlow.Core.VersionedTypes
 
         public TDefinition GetDefinition(Type type)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
-
-            TDefinition definition;
-            if (!_definitionsByType.TryGetValue(type, out definition))
+            if (!TryGetDefinition(type, out var definition))
             {
                 throw new ArgumentException($"No definition for type '{type.PrettyPrint()}', have you remembered to load it during EventFlow initialization");
             }
@@ -173,33 +169,60 @@ namespace EventFlow.Core.VersionedTypes
             return definition;
         }
 
+        public IReadOnlyCollection<TDefinition> GetDefinitions(Type type)
+        {
+            if (!TryGetDefinitions(type, out var definitions))
+            {
+                throw new ArgumentException($"No definition for type '{type.PrettyPrint()}', have you remembered to load it during EventFlow initialization");
+            }
+
+            return definitions;
+        }
+
         public bool TryGetDefinition(Type type, out TDefinition definition)
+        {
+            if (!TryGetDefinitions(type, out var definitions))
+            {
+                definition = default(TDefinition);
+                return false;
+            }
+
+            if (definitions.Count > 1)
+            {
+                throw new InvalidOperationException($"Type '{type.PrettyPrint()}' has multiple definitions: {string.Join(", ", definitions.Select(d => d.ToString()))}");
+            }
+
+            definition = definitions.Single();
+            return true;
+        }
+
+        public bool TryGetDefinitions(Type type, out IReadOnlyCollection<TDefinition> definitions)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
-            return _definitionsByType.TryGetValue(type, out definition);
-        }
-
-        private TDefinition CreateDefinition(Type type)
-        {
-            var definition = CreateDefinitions(type).FirstOrDefault(d => d != null);
-            if (definition == null)
+            if (!_definitionsByType.TryGetValue(type, out var list))
             {
-                throw new ArgumentException(
-                    $"Could not create a versioned type definition for type '{type.PrettyPrint()}' in '{GetType().PrettyPrint()}'",
-                    nameof(type));
+                definitions = default(IReadOnlyCollection<TDefinition>);
+                return false;
             }
 
-            _log.Verbose(() => $"{GetType().PrettyPrint()}: Added versioned type definition '{definition}'");
-
-            return definition;
+            definitions = list;
+            return true;
         }
 
         protected abstract TDefinition CreateDefinition(int version, Type type, string name);
 
         private IEnumerable<TDefinition> CreateDefinitions(Type versionedType)
         {
-            yield return CreateDefinitionFromAttribute(versionedType);
+            var hasAttributeDefinition = false;
+            foreach (var definitionFromAttribute in CreateDefinitionFromAttribute(versionedType))
+            {
+                hasAttributeDefinition = true;
+                yield return definitionFromAttribute;
+            }
+
+            if (hasAttributeDefinition) yield break;
+            
             yield return CreateDefinitionFromName(versionedType);
         }
 
@@ -225,19 +248,13 @@ namespace EventFlow.Core.VersionedTypes
                 name);
         }
 
-        private TDefinition CreateDefinitionFromAttribute(Type versionedType)
+        private IEnumerable<TDefinition> CreateDefinitionFromAttribute(Type versionedType)
         {
-            var attribute = versionedType
+            return versionedType
                 .GetTypeInfo()
                 .GetCustomAttributes()
                 .OfType<TAttribute>()
-                .SingleOrDefault();
-            return attribute == null
-                ? null
-                : CreateDefinition(
-                    attribute.Version,
-                    versionedType,
-                    attribute.Name);
+                .Select(a => CreateDefinition(a.Version, versionedType, a.Name));
         }
     }
 }
