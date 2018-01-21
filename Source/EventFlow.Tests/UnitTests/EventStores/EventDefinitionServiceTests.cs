@@ -21,12 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -34,8 +37,40 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, IAggregateEvent, EventVersionAttribute, EventDefinition>
     {
+        [Test]
+        public void GetDefinition_OnEventWithMultipleDefinitions_ThrowsException()
+        {
+            // Arrange
+            Arrange_LoadAllTestTypes();
+
+            // Act + Assert
+            Assert.Throws<InvalidOperationException>(
+                () => Sut.GetDefinition(typeof(MultiNamesEvent)));
+        }
+
+        [Test]
+        public void GetDefinitions_OnEventWithMultipleDefinitions_ReturnsThemAll()
+        {
+            // Arrange
+            Sut.Load(typeof(MultiNamesEvent));
+
+            // Act
+            var eventDefinitions = Sut.GetDefinitions(typeof(MultiNamesEvent));
+
+            // Assert
+            eventDefinitions.Should().HaveCount(3);
+            eventDefinitions
+                .Select(d => $"{d.Name}-V{d.Version}")
+                .ShouldAllBeEquivalentTo(new []{"multi-names-event-V1", "MultiNamesEvent-V1", "MultiNamesEvent-V2"});
+        }
+
         [EventVersion("Fancy", 42)]
         public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
+        
+        [EventVersion("multi-names-event", 1)]
+        [EventVersion("MultiNamesEvent", 1)]
+        [EventVersion("MultiNamesEvent", 2)]
+        public class MultiNamesEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
 
         public class TestEvent : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
 
@@ -76,6 +111,26 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     Name = "The5ThEvent",
                     Type = typeof(OldThe5ThEventV4),
                     Version = 4,
+                };
+            
+            // Multiple names to same events
+            yield return new VersionTypeTestCase
+                {
+                    Name = "multi-names-event",
+                    Type = typeof(MultiNamesEvent),
+                    Version = 1,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "MultiNamesEvent",
+                    Type = typeof(MultiNamesEvent),
+                    Version = 1,
+                };
+            yield return new VersionTypeTestCase
+                {
+                    Name = "MultiNamesEvent",
+                    Type = typeof(MultiNamesEvent),
+                    Version = 2,
                 };
         }
     }
