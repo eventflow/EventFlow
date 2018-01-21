@@ -1,6 +1,6 @@
 ### New in 0.53 (not released yet)
 
-* _Nothing yet_
+* New: Allow events to have multiple `EventVersion` attributes
 
 ### New in 0.52.3178 (released 2017-11-02)
 
