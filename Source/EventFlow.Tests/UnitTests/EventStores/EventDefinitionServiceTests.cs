@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.Core;
@@ -34,6 +35,17 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, IAggregateEvent, EventVersionAttribute, EventDefinition>
     {
+        [Test]
+        public void GetDefinition_OnEventWithMultipleDefinitions_ThrowsException()
+        {
+            // Arrange
+            Arrange_LoadAllTestTypes();
+
+            // Act + Assert
+            Assert.Throws<InvalidOperationException>(
+                () => Sut.GetDefinition(typeof(MultiNamesEvent)));
+        }
+
         [EventVersion("Fancy", 42)]
         public class TestEventWithLongName : AggregateEvent<IAggregateRoot<IIdentity>, IIdentity> { }
         

@@ -29,7 +29,6 @@ using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using Test = NUnit.Framework.Internal.Test;
 
 namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 {
@@ -224,7 +223,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             Assert.DoesNotThrow(() => Sut.Load(null));
         }
 
-        private IReadOnlyCollection<Type> Arrange_LoadAllTestTypes()
+        protected IReadOnlyCollection<Type> Arrange_LoadAllTestTypes()
         {
             var types = GetTestCases()
                 .Select(t => t.Type)
