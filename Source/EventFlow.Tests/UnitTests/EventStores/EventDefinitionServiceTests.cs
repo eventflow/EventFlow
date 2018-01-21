@@ -23,11 +23,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -44,6 +46,22 @@ namespace EventFlow.Tests.UnitTests.EventStores
             // Act + Assert
             Assert.Throws<InvalidOperationException>(
                 () => Sut.GetDefinition(typeof(MultiNamesEvent)));
+        }
+
+        [Test]
+        public void GetDefinitions_OnEventWithMultipleDefinitions_ReturnsThemAll()
+        {
+            // Arrange
+            Sut.Load(typeof(MultiNamesEvent));
+
+            // Act
+            var eventDefinitions = Sut.GetDefinitions(typeof(MultiNamesEvent));
+
+            // Assert
+            eventDefinitions.Should().HaveCount(3);
+            eventDefinitions
+                .Select(d => $"{d.Name}-V{d.Version}")
+                .ShouldAllBeEquivalentTo(new []{"multi-names-event-V1", "MultiNamesEvent-V1", "MultiNamesEvent-V2"});
         }
 
         [EventVersion("Fancy", 42)]
