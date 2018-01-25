@@ -73,10 +73,10 @@ to the documentation.
 * [**Event store:**](http://docs.geteventflow.net/EventStore.html)
   Storage of the event stream for aggregates. Currently there is support for
   these storage types.
- * In-memory - only for test
- * Files - only for test
- * Microsoft SQL Server
- * EventStore - only for test (for now) [home page](https://geteventstore.com/)
+  * In-memory - only for test
+  * Files - only for test
+  * Microsoft SQL Server
+  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
 * [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
@@ -358,8 +358,8 @@ category.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2017 Rasmus Mikkelsen
-Copyright (c) 2015-2017 eBay Software Foundation
+Copyright (c) 2015-2018 Rasmus Mikkelsen
+Copyright (c) 2015-2018 eBay Software Foundation
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

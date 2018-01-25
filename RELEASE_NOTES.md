@@ -1,4 +1,10 @@
-### New in 0.52 (not released yet)
+### New in 0.53 (not released yet)
+
+* New: Allow events to have multiple `EventVersion` attributes
+* Fixed: `ReflectionHelper.CompileMethodInvocation` now recognises
+  `private` methods.
+
+### New in 0.52.3178 (released 2017-11-02)
 
 * Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
   file system persistence, making it suitable for use in multi-threaded unit

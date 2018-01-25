@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,9 @@ namespace EventFlow.Core.VersionedTypes
         IEnumerable<TDefinition> GetAllDefinitions();
         TDefinition GetDefinition(string name, int version);
         TDefinition GetDefinition(Type type);
+        IReadOnlyCollection<TDefinition> GetDefinitions(Type type);
         bool TryGetDefinition(Type type, out TDefinition definition);
+        bool TryGetDefinitions(Type type, out IReadOnlyCollection<TDefinition> definitions);
         void Load(params Type[] types);
     }
 }
