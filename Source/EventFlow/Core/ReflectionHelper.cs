@@ -51,10 +51,13 @@ namespace EventFlow.Core
         public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, params Type[] methodSignature)
         {
             var typeInfo = type.GetTypeInfo();
+            var methods = typeInfo
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(m => m.Name == methodName);
 
             var methodInfo = methodSignature == null || !methodSignature.Any()
-                ? typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public).SingleOrDefault(m => m.Name == methodName)
-                : typeInfo.GetMethod(methodName, methodSignature);
+                ? methods.SingleOrDefault()
+                : methods.SingleOrDefault(m => m.GetParameters().Select(mp => mp.ParameterType).SequenceEqual(methodSignature));
 
             if (methodInfo == null)
             {

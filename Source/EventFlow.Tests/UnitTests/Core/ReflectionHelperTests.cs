@@ -89,12 +89,12 @@ namespace EventFlow.Tests.UnitTests.Core
                 return a + b;
             }
 
-            public Number Add(Number a, Number b)
+            private Number Add(Number a, Number b)
             {
                 return new Number {I = Add(a.I, b.I)};
             }
 
-            public Number Add(Number a, int b)
+            private Number Add(Number a, int b)
             {
                 return new Number { I = Add(a.I, b) };
             }
