@@ -1,4 +1,8 @@
-### New in 0.53 (not released yet)
+### New in 0.54 (not released yet)
+
+- _Nothing yet_
+
+### New in 0.53 (released 2018-01-25)
 
 * New: Allow events to have multiple `EventVersion` attributes
 * Fixed: `ReflectionHelper.CompileMethodInvocation` now recognises
