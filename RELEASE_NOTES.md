@@ -1,6 +1,8 @@
 ### New in 0.53 (not released yet)
 
 * New: Allow events to have multiple `EventVersion` attributes
+* Fixed: `ReflectionHelper.CompileMethodInvocation` now recognises
+  `private` methods.
 
 ### New in 0.52.3178 (released 2017-11-02)
 
