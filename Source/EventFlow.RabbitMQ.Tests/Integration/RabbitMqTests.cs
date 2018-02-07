@@ -46,25 +46,29 @@ namespace EventFlow.RabbitMQ.Tests.Integration
     [Category(Categories.Integration)]
     public class RabbitMqTests
     {
-        private Uri _uri;
+        private static readonly Uri RabbitMqUri = new Uri("amqp://localhost:5672");
+        private IDisposable _rabbitMq;
 
-        [SetUp]
-        public void SetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
-            var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
-            if (string.IsNullOrEmpty(url))
-            {
-                Assert.Inconclusive("The environment variabel named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
-            }
+            _rabbitMq = DockerHelper.StartContainerAsync(
+                "rabbitmq:3.6-management-alpine",
+                new[] { 5672, 15672 }).Result;
+            Thread.Sleep(TimeSpan.FromSeconds(5)); // let RabbitMQ start TODO, poke for access
+        }
 
-            _uri = new Uri(url);
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            _rabbitMq.DisposeSafe("Failed to dispose RabbitMQ");
         }
 
         [Test, Timeout(10000)]
         public async Task Scenario()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
-            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
+            using (var consumer = new RabbitMqConsumer(RabbitMqUri, exchange, new[] { "#" }))
             using (var resolver = BuildResolver(exchange))
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
@@ -95,7 +99,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             const int messagesPrThread = 200;
             const int totalMessageCount = taskCount * messagesPrThread;
 
-            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
+            using (var consumer = new RabbitMqConsumer(RabbitMqUri, exchange, new[] { "#" }))
             using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
             {
                 var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
@@ -143,7 +147,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             configure = configure ?? (e => e);
 
             return configure(EventFlowOptions.New
-                .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
+                .PublishToRabbitMq(RabbitMqConfiguration.With(RabbitMqUri, false, exchange: exchange.Value))
                 .AddDefaults(EventFlowTestHelpers.Assembly))
                 .CreateResolver(false);
         }
