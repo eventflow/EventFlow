@@ -183,7 +183,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public async Task UpdateAsyncExecutionResult_EventsAreNotCommittedNorPublishedIfExecutionResultIsFalse()
         {
             // Arrange
-            Arrange_EventStore_LoadEventsAsync();
+            _eventStoreMock.Arrange_LoadEventsAsync();
             Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
 
             // Sut
@@ -217,7 +217,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public async Task UpdateAsyncExecutionResult_EventsAreCommittedAndPublishedIfExecutionResultIsTrue()
         {
             // Arrange
-            Arrange_EventStore_LoadEventsAsync();
+            _eventStoreMock.Arrange_LoadEventsAsync();
             Arrange_EventStore_StoreAsync(ManyDomainEvents<ThingyPingEvent>(1).ToArray());
 
             // Sut

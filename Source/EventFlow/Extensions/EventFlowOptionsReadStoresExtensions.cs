@@ -104,7 +104,7 @@ namespace EventFlow.Extensions
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
 
-        private static void RegisterInMemoryReadStore<TReadModel>(IServiceRegistration serviceRegistration) where TReadModel : class, IReadModel, new()
+        private static void RegisterInMemoryReadStore<TReadModel>(IServiceRegistration serviceRegistration) where TReadModel : class, IReadModel
         {
             serviceRegistration.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
             serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
