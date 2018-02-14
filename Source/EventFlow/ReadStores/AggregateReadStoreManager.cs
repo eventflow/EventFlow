@@ -41,7 +41,7 @@ namespace EventFlow.ReadStores
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TReadModelStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly IEventStore _eventStore;
 

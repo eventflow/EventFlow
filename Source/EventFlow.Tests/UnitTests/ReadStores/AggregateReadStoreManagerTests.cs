@@ -76,13 +76,34 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public async Task OutdatedEventsAreNotApplied()
+        public async Task AlreadyAppliedEventsAreNotApplied()
         {
             // Arrange
             var thingyId = A<ThingyId>();
             var emittedEvents = new[]
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
+                };
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+                thingyId.Value,
+                A<ReadStoreManagerTestReadModel>(),
+                3));
+
+            // Act
+            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            AppliedDomainEvents.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task OutdatedEventsAreNotApplied()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var emittedEvents = new[]
+                {
+                    ToDomainEvent(thingyId, A<ThingyPingEvent>(), 1),
                 };
             Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
                 thingyId.Value,

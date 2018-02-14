@@ -52,7 +52,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TReadStore : class, IReadModelStore<TReadModel>
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions.RegisterServices(f =>
                 {
@@ -87,7 +87,7 @@ namespace EventFlow.Extensions
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
@@ -104,7 +104,9 @@ namespace EventFlow.Extensions
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
 
-        private static void RegisterInMemoryReadStore<TReadModel>(IServiceRegistration serviceRegistration) where TReadModel : class, IReadModel
+        private static void RegisterInMemoryReadStore<TReadModel>(
+            IServiceRegistration serviceRegistration)
+            where TReadModel : class, IReadModel
         {
             serviceRegistration.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
             serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
