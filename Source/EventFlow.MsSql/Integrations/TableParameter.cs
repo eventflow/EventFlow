@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ using Microsoft.SqlServer.Server;
 namespace EventFlow.MsSql.Integrations
 {
     internal class TableParameter<TRow> : SqlMapper.IDynamicParameters
-        where TRow : class, new()
+        where TRow : class
     {
         private readonly string _name;
         private readonly IEnumerable<TRow> _rows;

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@ using EventFlow.Queries;
 namespace EventFlow.ReadStores.InMemory.Queries
 {
     public class InMemoryQuery<TReadModel> : IQuery<IReadOnlyCollection<TReadModel>>
-        where TReadModel : IReadModel, new()
+        where TReadModel : IReadModel
     {
         public Predicate<TReadModel> Query { get; }
 

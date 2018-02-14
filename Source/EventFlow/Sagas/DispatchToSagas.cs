@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -83,6 +83,13 @@ namespace EventFlow.Sagas
             {
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+
+                if (sagaId == null)
+                {
+                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.PrettyPrint()}' returned null");
+                    continue;
+                }
+
                 var saga =  await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
 
                 if (saga != null)

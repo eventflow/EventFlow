@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,7 @@ namespace EventFlow.Owin.Middlewares
     public class CommandPublishMiddleware : OwinMiddleware
     {
         private static readonly Regex CommandPath = new Regex(
-            @"/*commands/(?<name>[a-z]+)/(?<version>\d+)/{0,1}",
+            @"/*commands/(?<name>[\p{Ll}\p{Lm}\p{Lo}]+)/(?<version>\d+)/{0,1}",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly ILog _log;

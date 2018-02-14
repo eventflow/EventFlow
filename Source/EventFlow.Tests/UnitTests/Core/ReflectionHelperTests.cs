@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -89,12 +89,12 @@ namespace EventFlow.Tests.UnitTests.Core
                 return a + b;
             }
 
-            public Number Add(Number a, Number b)
+            private Number Add(Number a, Number b)
             {
                 return new Number {I = Add(a.I, b.I)};
             }
 
-            public Number Add(Number a, int b)
+            private Number Add(Number a, int b)
             {
                 return new Number { I = Add(a.I, b) };
             }

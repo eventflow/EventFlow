@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,6 +32,7 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
+using FluentAssertions;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
@@ -48,6 +49,12 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             private readonly Dictionary<ISagaId, object> _sagas = new Dictionary<ISagaId, object>();
             private readonly AsyncLock _asyncLock = new AsyncLock();
+            private bool _hasUpdateBeenCalled;
+
+            public void UpdateShouldNotHaveBeenCalled()
+            {
+                this._hasUpdateBeenCalled.Should().BeFalse();
+            }
 
             public async Task<TSaga> UpdateAsync<TSaga>(
                 ISagaId sagaId,
@@ -59,10 +66,11 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             {
                 using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    object obj;
-                    if (!_sagas.TryGetValue(sagaId, out obj))
+                    _hasUpdateBeenCalled = true;
+
+                    if (!_sagas.TryGetValue(sagaId, out var obj))
                     {
-                        obj = Activator.CreateInstance(sagaDetails.SagaType, new object[] {sagaId});
+                        obj = Activator.CreateInstance(sagaDetails.SagaType, sagaId);
                         _sagas[sagaId] = obj;
                     }
 
@@ -141,7 +149,13 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             public Task<ISagaId> LocateSagaAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
             {
-                return Task.FromResult<ISagaId>(new TestSagaId($"saga-for-{domainEvent.GetIdentity().Value}"));
+                var identity = domainEvent.GetIdentity().Value;
+                if (identity.EndsWith(Guid.Empty.ToString()))
+                {
+                    return Task.FromResult<ISagaId>(null);
+                }
+
+                return Task.FromResult<ISagaId>(new TestSagaId($"saga-for-{identity}"));
             }
         }
 
