@@ -53,7 +53,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         public void OneTimeSetUp()
         {
             _rabbitMq = DockerHelper.StartContainerAsync(
-                "rabbitmq:3.6-management-alpine",
+                "library/rabbitmq:3.6-management-alpine",
                 new[] { 5672, 15672 }).Result;
             Thread.Sleep(TimeSpan.FromSeconds(5)); // let RabbitMQ start TODO, poke for access
         }
