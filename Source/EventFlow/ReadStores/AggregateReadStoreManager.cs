@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -79,8 +80,8 @@ namespace EventFlow.ReadStores
             }
             if (expectedVersion < version.Value)
             {
-                throw new OptimisticConcurrencyException(
-                    $"Read model '{readModelEnvelope.ReadModelId}' ({typeof(TReadModel).PrettyPrint()}) is already updated ({expectedVersion} < {version.Value})");
+                Log.Verbose(() => $"Read model '{readModelEnvelope.ReadModelId}' ({typeof(TReadModel).PrettyPrint()}) is already updated ({expectedVersion} < {version.Value})");
+                return readModelEnvelope;
             }
 
             TReadModel readModel;
