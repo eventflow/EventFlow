@@ -50,10 +50,12 @@ namespace EventFlow.TestHelpers
             LogHelper.Log.Information($"Starting container with image '{image}'");
 
             LogHelper.Log.Information($"Pulling image {image}");
+            var imageAndTag = image.Split(':');
             await DockerClient.Images.CreateImageAsync(
                 new ImagesCreateParameters
                     {
-                        FromImage = image,
+                        FromImage = imageAndTag[0],
+                        Tag = imageAndTag.Length > 1 ? imageAndTag[1] : null
                     },
                 null,
                 new Progress<JSONMessage>(m => LogHelper.Log.Verbose($"{m.ProgressMessage} ({m.ID})")))
