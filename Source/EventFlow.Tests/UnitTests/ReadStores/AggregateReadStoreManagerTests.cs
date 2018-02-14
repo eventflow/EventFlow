@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
+using EventFlow.Exceptions;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -76,7 +77,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public async Task AlreadyAppliedEventsAreNotApplied()
+        public void AlreadyAppliedEventsAreNotApplied()
         {
             // Arrange
             var thingyId = A<ThingyId>();
@@ -90,14 +91,14 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 3));
 
             // Act
-            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
+            Assert.ThrowsAsync<OptimisticConcurrencyException>(async () => await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None));
 
             // Assert
             AppliedDomainEvents.Should().BeEmpty();
         }
 
         [Test]
-        public async Task OutdatedEventsAreNotApplied()
+        public void OutdatedEventsAreNotApplied()
         {
             // Arrange
             var thingyId = A<ThingyId>();
@@ -111,7 +112,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 3));
 
             // Act
-            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
+            Assert.ThrowsAsync<OptimisticConcurrencyException>(async () => await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None));
 
             // Assert
             AppliedDomainEvents.Should().BeEmpty();
