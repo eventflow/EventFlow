@@ -25,6 +25,7 @@ using System;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
@@ -42,7 +43,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
         {
             var resolver = eventFlowOptions
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
+                .UseInMemoryReadStoreFor<ThingyAggregate, ThingyId, InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(InMemoryThingyGetQueryHandler),

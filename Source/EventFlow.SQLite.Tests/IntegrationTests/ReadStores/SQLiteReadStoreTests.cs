@@ -32,6 +32,7 @@ using EventFlow.SQLite.Extensions;
 using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
@@ -54,7 +55,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
             var resolver = eventFlowOptions
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
-                .UseSQLiteReadModel<SQLiteThingyReadModel>()
+                .UseSQLiteReadModelFor<ThingyAggregate, ThingyId, SQLiteThingyReadModel>()
                 .UseSQLiteReadModel<SQLiteThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(SQLiteThingyGetQueryHandler),
