@@ -97,7 +97,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public async Task StoredEventsAreAppliedOfThereAreMissingEvents()
+        public async Task StoredEventsAreAppliedIfThereAreMissingEvents()
         {
             // Arrange
             var thingyId = A<ThingyId>();

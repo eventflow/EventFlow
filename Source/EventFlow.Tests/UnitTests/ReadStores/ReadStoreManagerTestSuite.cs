@@ -127,21 +127,21 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                         ReadModelEnvelope<ReadStoreManagerTestReadModel>,
                         CancellationToken,
                         Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>,
-                        CancellationToken>((u, c, f, _) =>
+                        CancellationToken>((readModelUpdates, readModelContext, updaterFunc, cancellationToken) =>
                             {
                                 foreach (var g in readModelEnvelopes.GroupBy(e => e.ReadModelId))
                                 {
                                     foreach (var readModelEnvelope in g)
                                     {
-                                        f(
-                                            c,
-                                            u
+                                        updaterFunc(
+                                            readModelContext,
+                                            readModelUpdates
                                                 .Where(d => d.ReadModelId == g.Key)
                                                 .SelectMany(d => d.DomainEvents)
                                                 .OrderBy(d => d.AggregateSequenceNumber)
                                                 .ToList(),
                                             readModelEnvelope,
-                                            CancellationToken.None);
+                                            cancellationToken);
                                     }
                                 }
                             })
