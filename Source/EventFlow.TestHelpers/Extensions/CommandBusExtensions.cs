@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,11 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
 
@@ -31,12 +32,12 @@ namespace EventFlow.TestHelpers.Extensions
 {
     public static class CommandBusExtensions
     {
-        public static Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
+        public static Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
             this ICommandBus commandBus,
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+            ICommand<TAggregate, TIdentity, TExecutionResult> command)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
+            where TExecutionResult : IExecutionResult
         {
             return commandBus.PublishAsync(command, CancellationToken.None);
         }

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,13 +20,12 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
@@ -62,43 +61,51 @@ namespace EventFlow.Tests.UnitTests
         public async Task CommandHandlerIsInvoked()
         {
             // Arrange
-            ArrangeWorkingEventStore();
-            var commandHandler = ArrangeCommandHandlerExists<ThingyAggregate, ThingyId, ISourceId, ThingyPingCommand>();
+            ArrangeWorkingEventStore<IExecutionResult>();
+            var commandHandler = ArrangeCommandHandlerExists<ThingyAggregate, ThingyId, IExecutionResult, ThingyPingCommand>();
 
             // Act
             await Sut.PublishAsync(new ThingyPingCommand(ThingyId.New, PingId.New)).ConfigureAwait(false);
 
             // Assert
-            commandHandler.Verify(h => h.ExecuteAsync(It.IsAny<ThingyAggregate>(), It.IsAny<ThingyPingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            commandHandler.Verify(h => h.ExecuteCommandAsync(It.IsAny<ThingyAggregate>(), It.IsAny<ThingyPingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        private void ArrangeWorkingEventStore()
+        private void ArrangeWorkingEventStore<TExecutionResult>()
+            where TExecutionResult : IExecutionResult
         {
             _aggregateStoreMock
-                .Setup(s => s.UpdateAsync(It.IsAny<ThingyId>(), It.IsAny<ISourceId>(), It.IsAny<Func<ThingyAggregate, CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
-                .Callback<ThingyId, ISourceId, Func<ThingyAggregate, CancellationToken, Task>, CancellationToken>((i, s, f, c) => f(A<ThingyAggregate>(), c))
-                .Returns(() => Task.FromResult<IReadOnlyCollection<IDomainEvent>>(Many<IDomainEvent<ThingyAggregate, ThingyId>>()));
+                .Setup(s => s.UpdateAsync(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<ISourceId>(),
+                    It.IsAny<Func<ThingyAggregate, CancellationToken, Task<TExecutionResult>>>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback<ThingyId, ISourceId, Func<ThingyAggregate, CancellationToken, Task<TExecutionResult>>, CancellationToken>((i, s, f, c) => f(A<ThingyAggregate>(), c))
+                .Returns(() => Task.FromResult((IAggregateUpdateResult<TExecutionResult>)new AggregateStore.AggregateUpdateResult<TExecutionResult>(default(TExecutionResult), Many<IDomainEvent<ThingyAggregate, ThingyId>>())));
         }
 
-        private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>(
-            ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> commandHandler)
+        private void ArrangeCommandHandlerExists<TAggregate, TIdentity, TExecutionResult, TCommand>(
+            ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand> commandHandler)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-            where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+            where TCommand : ICommand<TAggregate, TIdentity, TExecutionResult>
+            where TExecutionResult : IExecutionResult
         {
             _resolverMock
-                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>)))
+                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>)))
                 .Returns(new[] { commandHandler });
         }
 
-        private Mock<ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TSourceIdentity, TCommand>()
+        private Mock<ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>> ArrangeCommandHandlerExists<TAggregate, TIdentity, TExecutionResult, TCommand>()
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
-            where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+            where TCommand : ICommand<TAggregate, TIdentity, TExecutionResult>
+            where TExecutionResult : IExecutionResult
         {
-            var mock = new Mock<ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>>();
+            var mock = new Mock<ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>>();
+            mock
+                .Setup(m => m.ExecuteCommandAsync(It.IsAny<TAggregate>(), It.IsAny<TCommand>(),It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(default(TExecutionResult)));
             ArrangeCommandHandlerExists(mock.Object);
             return mock;
         }

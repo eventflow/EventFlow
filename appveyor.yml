@@ -1,24 +1,23 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.35.{build}
+version: 0.54.{build}
 
 skip_tags: true
 
 build_script:
-  - cmd: build.cmd
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
+
+image: Visual Studio 2017
 
 environment:
   RABBITMQ_URL:
-    secure: W49qXP+4ZjxPTpBev0ZtuiajlgUwK8DyxTugRqcYoYpTDilN8TpqGS6+MGIYqJAFBtOkzyV+ZT2lVDVsKNXpyQArzVwCoMiOoGDNaULf3ujooaqBFC0rXyZpeTPhfI2q
+    secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
 
 test: off
 
 artifacts:
   - path: Build\Packages\*.nupkg
-
-cache:
-  - packages -> paket.lock
 
 services:
   - mssql2014
@@ -41,7 +40,7 @@ deploy:
     on:
       branch: master
   - provider: GitHub
-    artifact: /.*\.nupkg/
+    artifact: /.*\.(nupkg|zip)/
     auth_token:
       secure: f+y+RL1ETsxIbYKlliZrmXpfr1wvEVNhGGEOYyl2K8ryz02WxXL+kLe7pu53Kc8r
     tag: v$(appveyor_build_version)

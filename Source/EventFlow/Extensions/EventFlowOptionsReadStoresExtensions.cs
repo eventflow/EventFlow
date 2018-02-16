@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Collections.Generic;
 using EventFlow.Configuration;
 using EventFlow.Queries;
@@ -35,7 +35,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
             this IEventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions.RegisterServices(f =>
                 {
@@ -47,7 +47,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions.RegisterServices(f =>
@@ -59,7 +59,7 @@ namespace EventFlow.Extensions
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(f =>
@@ -73,7 +73,7 @@ namespace EventFlow.Extensions
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IReadModel, new()
+            where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions

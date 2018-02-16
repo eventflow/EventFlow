@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +38,7 @@ namespace EventFlow.Elasticsearch.ReadStores
 {
     public class ElasticsearchReadModelStore<TReadModel> :
         IElasticsearchReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         private readonly ILog _log;
         private readonly IElasticClient _elasticClient;
@@ -67,9 +66,9 @@ namespace EventFlow.Elasticsearch.ReadStores
                 id,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                    .Index(readModelDescription.IndexName.Value))
+                        .Index(readModelDescription.IndexName.Value), 
+                            cancellationToken)
                 .ConfigureAwait(false);
 
             if (!getResponse.IsValid || !getResponse.Found)
@@ -78,6 +77,22 @@ namespace EventFlow.Elasticsearch.ReadStores
             }
 
             return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, getResponse.Version);
+        }
+
+        public async Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+
+            await _elasticClient.DeleteAsync(
+                new DocumentPath<TReadModel>(id),
+                d => d
+                    .Index(readModelDescription.IndexName.Value)
+                    .RequestConfiguration(c => c
+                        .AllowedStatusCodes((int) HttpStatusCode.NotFound)),
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
         public async Task DeleteAllAsync(
@@ -91,8 +106,8 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelDescription.IndexName.Value,
                 d => d
                     .RequestConfiguration(c => c
-                        .CancellationToken(cancellationToken)
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)))
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
+                            cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -120,9 +135,9 @@ namespace EventFlow.Elasticsearch.ReadStores
                     readModelUpdate.ReadModelId,
                     d => d
                         .RequestConfiguration(c => c
-                            .CancellationToken(cancellationToken)
                             .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value))
+                            .Index(readModelDescription.IndexName.Value), 
+                                cancellationToken)
                     .ConfigureAwait(false);
 
                 var readModelEnvelope = response.Found
@@ -134,12 +149,12 @@ namespace EventFlow.Elasticsearch.ReadStores
                 await _elasticClient.IndexAsync(
                     readModelEnvelope.ReadModel,
                     d => d
-                        .RequestConfiguration(c => c
-                            .CancellationToken(cancellationToken))
+                        .RequestConfiguration(c => c)
                         .Id(readModelUpdate.ReadModelId)
                         .Index(readModelDescription.IndexName.Value)
                         .Version(readModelEnvelope.Version.GetValueOrDefault())
-                        .VersionType(VersionType.ExternalGte))
+                        .VersionType(VersionType.ExternalGte), 
+                            cancellationToken)
                     .ConfigureAwait(false);
             }
         }

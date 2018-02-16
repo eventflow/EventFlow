@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -118,6 +118,7 @@ namespace EventFlow.Tests.UnitTests.Core
         }
 
         [TestCase("da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
+        [TestCase("thingyid-da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
         [TestCase("thingy-769077C6-F84D-46E3-AD2E-828A576AAAF3")]
         [TestCase("thingy-pppppppp-pppp-pppp-pppp-pppppppppppp")]
         [TestCase("funny-da7ab6b1-c513-581f-a1a0-7cdf17109deb")]

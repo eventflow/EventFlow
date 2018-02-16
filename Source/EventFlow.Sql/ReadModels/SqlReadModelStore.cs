@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
@@ -41,7 +40,7 @@ namespace EventFlow.Sql.ReadModels
     public abstract class SqlReadModelStore<TSqlConnection, TReadModel> :
         ReadModelStore<TReadModel>,
         ISqlReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
         where TSqlConnection : ISqlConnection
     {
         private readonly TSqlConnection _connection;
@@ -54,7 +53,7 @@ namespace EventFlow.Sql.ReadModels
 
         static SqlReadModelStore()
         {
-            var propertyInfos = typeof (TReadModel)
+            var propertyInfos = typeof(TReadModel)
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             var versionPropertyInfo = propertyInfos
@@ -139,7 +138,7 @@ namespace EventFlow.Sql.ReadModels
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
         {
-            var readModelType = typeof (TReadModel);
+            var readModelType = typeof(TReadModel);
             var readModelNameLowerCased = readModelType.Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
@@ -164,6 +163,26 @@ namespace EventFlow.Sql.ReadModels
             return readModelVersion.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
                 : ReadModelEnvelope<TReadModel>.With(id, readModel);
+        }
+
+        public override async Task DeleteAsync(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
+            var readModelName = typeof(TReadModel).Name;
+
+            var rowsAffected = await _connection.ExecuteAsync(
+                Label.Named("mssql-delete-read-model", readModelName),
+                cancellationToken,
+                sql,
+                new { EventFlowReadModelId = id })
+                .ConfigureAwait(false);
+
+            if (rowsAffected != 0)
+            {
+                Log.Verbose($"Deleted read model '{id}' of type '{readModelName}'");
+            }
         }
 
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)

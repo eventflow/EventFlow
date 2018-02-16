@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
 
@@ -50,11 +51,11 @@ namespace EventFlow.Sagas.AggregateSagas
             _isCompleted = true;
         }
 
-        protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity>(
-            ICommand<TCommandAggregate, TCommandAggregateIdentity, TCommandSourceIdentity> command)
+        protected void Publish<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult>(
+            ICommand<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult> command)
             where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
             where TCommandAggregateIdentity : IIdentity
-            where TCommandSourceIdentity : ISourceId
+            where TExecutionResult : IExecutionResult
         {
             _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
         }

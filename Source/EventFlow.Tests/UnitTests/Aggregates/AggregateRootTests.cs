@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -92,6 +93,44 @@ namespace EventFlow.Tests.UnitTests.Aggregates
 
             // Assert
             Sut.DomainErrorAfterFirstReceived.Should().BeTrue();
+        }
+
+        [Test]
+        public void UncomittedEventIdsShouldBeDistinct()
+        {
+            // Act
+            Sut.Ping(A<PingId>());
+            Sut.Ping(A<PingId>());
+
+            // Assert
+            Sut.UncommittedEvents
+                .Select(e => e.Metadata.EventId).Distinct()
+                .Should().HaveCount(2);
+        }
+
+        [Test]
+        public void UncomittedEventIdsShouldBeDeterministic()
+        {
+            // Arrange
+            Inject(ThingyId.With("thingy-75e925aa-9b01-4615-89ee-2a2ecf91d7e8"));
+
+            // Act
+            Sut.Ping(A<PingId>());
+            Sut.Ping(A<PingId>());
+
+            // Assert
+            var eventIdGuids = Sut.UncommittedEvents
+                .Select(e => e.Metadata.EventId.Value)
+                .ToList();
+
+            // GuidFactories.Deterministic.Namespaces.Events, $"{thingyId.Value}-v1"
+            eventIdGuids[0]
+                .Should()
+                .Be("event-3dde5ccb-b594-59b4-ad0a-4d432ffce026");
+            // GuidFactories.Deterministic.Namespaces.Events, $"{thingyId.Value}-v2"
+            eventIdGuids[1]
+                .Should()
+                .Be("event-2e79868f-6ef7-5c88-a941-12ae7ae801c7");
         }
 
         [Test]

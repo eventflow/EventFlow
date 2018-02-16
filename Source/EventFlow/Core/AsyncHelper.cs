@@ -1,9 +1,9 @@
 ﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2013 Tom Jacques (https://github.com/tejacques/AsyncBridge)
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -233,7 +233,7 @@ namespace EventFlow.Core
                     if (task != null)
                     {
                         task.Item1(task.Item2);
-                        if (InnerException != null) // method threw an exeption
+                        if (InnerException != null)
                         {
                             throw new AggregateException(
                                 "AsyncBridge.Run method threw an exception.",

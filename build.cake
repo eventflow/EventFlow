@@ -1,8 +1,8 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -22,87 +22,35 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
-var CONFIGURATION = "Release";
-var REGEX_NUGETPARSER = new System.Text.RegularExpressions.Regex(
-    @"(?<group>[a-z]+)\s+(?<package>[a-z\.0-9]+)\s+\-\s+(?<version>[0-9\.]+)",
-    System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+#r "System.IO.Compression.FileSystem"
+#r "System.Xml"
 
-// IMPORTANT FILES
-var FILE_SOLUTIONINFO = System.IO.Path.Combine(PROJECT_DIR, "Source", "SolutionInfo.cs");
+#tool "nuget:?package=NUnit.ConsoleRunner"
+#tool "nuget:?package=OpenCover"
 
-// IMPORTANT DIRECTORIES
-var DIR_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
-var DIR_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
-
-// TOOLS
-var TOOL_NUNIT = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NUnit.ConsoleRunner", "tools", "nunit3-console.exe");
-var TOOL_OPENCOVER = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "OpenCover", "tools", "OpenCover.Console.exe");
-var TOOL_NUGET = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "NuGet.CommandLine", "tools", "NuGet.exe");
-var TOOL_ILMERGE = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "ilmerge", "tools", "ILMerge.exe");
-var TOOL_PAKET = System.IO.Path.Combine(PROJECT_DIR, ".paket", "paket.exe");
-var TOOL_GITVERSION = System.IO.Path.Combine(PROJECT_DIR, "packages", "build", "GitVersion.CommandLine", "tools", "GitVersion.exe");
+using System.IO.Compression;
+using System.Net;
+using System.Xml;
 
 var VERSION = GetArgumentVersion();
+var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
+var CONFIGURATION = "Release";
+
+// IMPORTANT DIRECTORIES
+var DIR_OUTPUT_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
+var DIR_OUTPUT_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
+
+// IMPORTANT FILES
+var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
+var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
+var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
+var FILE_SOLUTION = System.IO.Path.Combine(PROJECT_DIR, "EventFlow.sln");
+
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
-var NUGET_VERSIONS = GetInstalledNuGetPackages();
 
-var NUGET_DEPENDENCIES = new Dictionary<string, IEnumerable<string>>{
-    {"EventFlow", new []{
-        "Newtonsoft.Json",
-        }},
-    {"EventFlow.Autofac", new []{
-        "EventFlow",
-        "Autofac",
-    }},
-    {"EventFlow.RabbitMQ", new []{
-        "EventFlow",
-        "RabbitMQ.Client"
-    }},
-    {"EventFlow.Hangfire", new []{
-        "EventFlow",
-        "HangFire.Core",
-        }},
-    {"EventFlow.Sql", new []{
-        "EventFlow",
-        "dbup",
-        "Dapper",
-        }},
-    {"EventFlow.MsSql", new []{
-        "EventFlow",
-        "EventFlow.Sql",
-        "Dapper",
-        }},
-    {"EventFlow.SQLite", new []{
-        "EventFlow",
-        "EventFlow.Sql",
-        "System.Data.SQLite.Core",
-        }},
-    {"EventFlow.EventStores.EventStore", new []{
-        "EventFlow",
-        "EventStore.Client",
-        }},
-    {"EventFlow.Elasticsearch", new []{
-        "EventFlow",
-        "NEST",
-        "Elasticsearch.Net",
-        }},
-    {"EventFlow.Owin", new []{
-        "EventFlow",
-        "Owin",
-        "Microsoft.Owin",
-        }},
-
-    // Deprecated packages
-    {"EventFlow.EventStores.MsSql", new []{
-        "EventFlow",
-        "EventFlow.MsSql",
-        }},
-    {"EventFlow.ReadStores.MsSql", new []{
-        "EventFlow",
-        "EventFlow.MsSql",
-        }},
-    };
+// =====================================================================================================
+Task("Default")
+    .IsDependentOn("Package");
 
 // =====================================================================================================
 Task("Clean")
@@ -110,36 +58,42 @@ Task("Clean")
         {
             CleanDirectories(new []
                 {
-                    DIR_PACKAGES,
-                    DIR_REPORTS,
+                    DIR_OUTPUT_PACKAGES,
+                    DIR_OUTPUT_REPORTS,
                 });
-
-            BuildProject("Clean");
+				
+			DeleteDirectories(GetDirectories("**/bin"), true);
+			DeleteDirectories(GetDirectories("**/obj"), true);
         });
-
+	
 // =====================================================================================================
-Task("Version")
+Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
         {
-            CreateAssemblyInfo(
-                FILE_SOLUTIONINFO,
-                new AssemblyInfoSettings
-                    {
-                        Version = VERSION.ToString(),
-                        FileVersion = VERSION.ToString(),
-                        InformationalVersion = VERSION.ToString(),
-                        Copyright = string.Format("Copyright (c) Rasmus Mikkelsen 2015 - {0}", DateTime.Now.Year),
-                        Description = GetSha(),
-                    });
+			DotNetCoreRestore(
+				".", 
+				new DotNetCoreRestoreSettings()
+				{
+					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+				});
         });
-
+		
 // =====================================================================================================
 Task("Build")
-    .IsDependentOn("Version")
+    .IsDependentOn("Restore")
     .Does(() =>
         {
-            BuildProject("Build");
+            DotNetCoreBuild(
+				".", 
+				new DotNetCoreBuildSettings()
+				{
+					Configuration = CONFIGURATION,
+					ArgumentCustomization = aggs => aggs
+                        .Append(GetDotNetCoreArgsVersions())
+                        .Append("/p:ci=true")
+                        .Append("/p:SourceLinkEnabled=true")
+				});
         });
 
 // =====================================================================================================
@@ -147,7 +101,12 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/EventFlow*Tests.dll", "results");
+            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/**/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+        })
+	.Finally(() =>
+        {
+            UploadArtifact(FILE_NUNIT_TXT_REPORT);
+            UploadTestResults(FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -158,110 +117,93 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            ExecuteIlMerge(
-                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", CONFIGURATION, "EventFlow.dll"),
-                System.IO.Path.Combine(PROJECT_DIR, "Source", "EventFlow", "bin", "EventFlow.dll"),
-                new []
-                    {
-                        "Autofac.dll",
-                    });
+			foreach (var project in GetFiles("./Source/**/*.csproj"))
+			{
+				var name = project.GetDirectory().FullPath;
+				var version = VERSION.ToString();
+				
+				if ((name.Contains("Test") && !name.Contains("TestHelpers")) || name.Contains("Example"))
+				{
+					continue;
+				}
 
-            foreach (var nuspecPath in GetFiles("./Source/**/*.nuspec"))
-            {
-                ExecutePackage(nuspecPath);
-            }
+                SetReleaseNotes(project.ToString());
+							
+				DotNetCorePack(
+					name,
+					new DotNetCorePackSettings
+					{
+						Configuration = CONFIGURATION,
+						OutputDirectory = DIR_OUTPUT_PACKAGES,
+						NoBuild = true,
+                        Verbosity = DotNetCoreVerbosity.Detailed,
+						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+					});
+			}
         });
 
 // =====================================================================================================
-void BuildProject(string target)
-{
-    MSBuild(
-        "EventFlow.sln",
-         s => s
-            .WithTarget(target)
-            .SetConfiguration(CONFIGURATION)
-            .SetMSBuildPlatform(MSBuildPlatform.Automatic)
-            .SetVerbosity(Verbosity.Minimal)
-            .SetNodeReuse(false)
-        );
-}
-
-void ExecutePackage(
-    FilePath nuspecPath)
-{
-    Information(nuspecPath.ToString());
-    var packageId = System.IO.Path.GetFileNameWithoutExtension(nuspecPath.ToString());
-    var dependencies = NUGET_DEPENDENCIES[packageId]
-        .Select(GetNuSpecDependency)
-        .ToList();
-
-    NuGetPack(
-        nuspecPath,
-        new NuGetPackSettings
-            {
-                ToolPath = TOOL_NUGET,
-                OutputDirectory = DIR_PACKAGES,
-                ReleaseNotes = RELEASE_NOTES.Notes.ToList(),
-                Version = VERSION.ToString(),
-                Verbosity = NuGetVerbosity.Detailed,
-                Dependencies = dependencies,
-            });
-}
-
-private NuSpecDependency GetNuSpecDependency(string packageId)
-{
-    Information("Finding version for package: {0}", packageId);
-
-    return new NuSpecDependency
+Task("All")
+    .IsDependentOn("Package")
+    .Does(() =>
         {
-            Id = packageId,
-            Version = packageId.StartsWith("EventFlow")
-                ? string.Format("[{0}]", VERSION)
-                : NUGET_VERSIONS[packageId]
-        };
-}
+
+        });
+
+// =====================================================================================================
 
 Version GetArgumentVersion()
 {
-    var arg = Argument<string>("buildVersion", "0.0.1");
-    var version = string.IsNullOrEmpty(arg)
-        ? Version.Parse("0.0.1")
-        : Version.Parse(arg);
-
-    return version;
+    return Version.Parse(EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "0.0.1");
 }
 
-string GetSha()
+string GetDotNetCoreArgsVersions()
 {
-    return AppVeyor.IsRunningOnAppVeyor
-        ? string.Format("git sha: {0}", GitVersion(new GitVersionSettings { ToolPath = TOOL_GITVERSION, }).Sha)
-        : "developer build";
+	var version = GetArgumentVersion().ToString();
+	
+	return string.Format(
+		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0}",
+		version);
 }
 
-void ExecuteIlMerge(
-    string inputPath,
-    string outputPath,
-    IEnumerable<string> assemblies)
+void SetReleaseNotes(string filePath)
 {
-    var baseDir = System.IO.Path.GetDirectoryName(inputPath);
-    var assemblyPaths = assemblies
-        .Select(a => (FilePath) File(System.IO.Path.Combine(baseDir, a)))
-        .ToList();
+    var releaseNotes = string.Join(Environment.NewLine, RELEASE_NOTES.Notes);
 
-    ILMerge(
-        outputPath,
-        inputPath,
-        assemblyPaths,
-        new ILMergeSettings
-            {
-                Internalize = true,
-                ArgumentCustomization = aggs => aggs.Append("/targetplatform:v4 /allowDup /target:library"),
-                ToolPath = TOOL_ILMERGE,
-            });
+    var xmlDocument = new XmlDocument();
+    xmlDocument.Load(filePath);
+
+    var node = xmlDocument.SelectSingleNode("Project/PropertyGroup/PackageReleaseNotes") as XmlElement;
+    if (node == null)
+    {
+        throw new Exception(string.Format(
+            "Project {0} does not have a `<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>` property",
+            filePath));
+    }
+
+    if (!AppVeyor.IsRunningOnAppVeyor)
+    {
+        Information("Skipping update of release notes");
+        return;
+    } 
+    else
+    {
+        Information(string.Format("Setting release notes in '{0}'", filePath));
+        
+        node.InnerText = releaseNotes;
+
+        xmlDocument.Save(filePath);
+    }
 }
 
 void UploadArtifact(string filePath)
 {
+    if (!FileExists(filePath))
+    {
+        Information("Skipping uploading of artifact, does not exist: {0}", filePath);
+        return;
+    }
+
     if (AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Uploading artifact: {0}", filePath);
@@ -276,13 +218,42 @@ void UploadArtifact(string filePath)
 
 void UploadTestResults(string filePath)
 {
+    if (!FileExists(filePath))
+    {
+        Information("Skipping uploading of test results, does not exist: {0}", filePath);
+        return;
+    }
+
     if (AppVeyor.IsRunningOnAppVeyor)
     {
         Information("Uploading test results: {0}", filePath);
 
+        try
+        {
+            using (var webClient = new WebClient())
+            {
+                webClient.UploadFile(
+                    string.Format(
+                        "https://ci.appveyor.com/api/testresults/nunit3/{0}",
+                        Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
+                    filePath);
+            }
+        }
+        catch (Exception e)
+        {
+            Error(
+                "Failed to upload '{0}' due to {1} - {2}: {3}",
+                filePath,
+                e.Message,
+                e.GetType().Name,
+                e.ToString());
+        }
+        
+        /*
+        // This should work, but doesn't seem to
         AppVeyor.UploadTestResults(
             filePath,
-            AppVeyorTestResultsType.NUnit);
+            AppVeyorTestResultsType.NUnit3);*/
     }    
     else
     {
@@ -290,32 +261,7 @@ void UploadTestResults(string filePath)
     }
 }
 
-IReadOnlyDictionary<string, string> GetInstalledNuGetPackages()
-{
-    var nugetPackages = new Dictionary<string, string>();
-    var paketOutput = ExecuteCommand(TOOL_PAKET, "show-installed-packages");
-
-    var match = REGEX_NUGETPARSER.Match(paketOutput);
-    if (!match.Success)
-    {
-        throw new Exception("Unable to read NuGet package versions");
-    }
-
-    do
-    {
-        var package = match.Groups["package"].Value;
-        var version = match.Groups["version"].Value;
-
-        Information("NuGet package '{0}' is version '{1}'", package, version);
-
-        nugetPackages.Add(package, version);
-
-    } while((match = match.NextMatch()) != null && match.Success);
-
-    return nugetPackages;
-}
-
-string ExecuteCommand(string exePath, string arguments = null)
+string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
 {
     Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
 
@@ -327,6 +273,7 @@ string ExecuteCommand(string exePath, string arguments = null)
                 RedirectStandardOutput = true,
                 FileName = exePath,
                 Arguments = arguments,
+                WorkingDirectory = workingDirectory,
             };
         process.Start();
 
@@ -339,47 +286,48 @@ string ExecuteCommand(string exePath, string arguments = null)
 
         Debug(output);
 
+        if (process.ExitCode != 0)
+        {
+            throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
+        }
+
         return output;
     }
 }
 
-void ExecuteTest(string files, string reportName)
+void ExecuteTest(string files, string resultsFile)
 {
-    var openCoverReportPath = System.IO.Path.Combine(DIR_REPORTS, "opencover-" + reportName + ".xml");
-    var nunitOutputPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".txt");
-    var nunitResultsPath = System.IO.Path.Combine(DIR_REPORTS, "nunit-" + reportName + ".xml");
-
-    OpenCover(tool =>
-        {
-            tool.NUnit3(
-                files,
-                new NUnit3Settings
-                    {
-                        ShadowCopy = false,
-                        Timeout = 600000,
-                        NoHeader = true,
-                        NoColor = true,
-                        Framework = "net-4.5",
-                        ToolPath = TOOL_NUNIT,
-                        //OutputFile = nunitOutputPath,
-                        Results = nunitResultsPath,
-                        ResultFormat = "nunit2",
-                        DisposeRunners = true
-                    });
+	OpenCover(tool => 
+		{
+			tool.NUnit3(
+				files,
+				new NUnit3Settings
+					{
+						Framework = "net-4.5",
+						Timeout = 600000,
+						ShadowCopy = false,
+						NoHeader = true,
+						NoColor = true,
+						DisposeRunners = true,
+						OutputFile = FILE_NUNIT_TXT_REPORT,
+						Results = new []
+                            {
+                                new NUnit3Result
+                                    {
+                                        FileName = resultsFile,
+                                    }
+                            }
+					});
         },
-    new FilePath(openCoverReportPath),
+    new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
-            ToolPath = TOOL_OPENCOVER,
             ArgumentCustomization = aggs => aggs.Append("-returntargetcode")
         }
         .WithFilter("+[EventFlow*]*")
         .WithFilter("-[*Tests]*")
         .WithFilter("-[*TestHelpers]*")
         .WithFilter("-[*Shipping*]*"));
-
-    //UploadArtifact(nunitOutputPath);
-    UploadTestResults(nunitResultsPath);
 }
 
-RunTarget("Package");
+RunTarget(Argument<string>("target", "Package"));

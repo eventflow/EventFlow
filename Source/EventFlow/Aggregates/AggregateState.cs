@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,9 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using EventFlow.Core;
 using EventFlow.Extensions;
 
@@ -35,26 +33,11 @@ namespace EventFlow.Aggregates
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        private static readonly Dictionary<Type, Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>> ApplyMethods; 
+        private static readonly IReadOnlyDictionary<Type, Action<TEventApplier, IAggregateEvent>> ApplyMethods; 
 
         static AggregateState()
         {
-            var aggregateEventType = typeof (IAggregateEvent<TAggregate, TIdentity>);
-            var eventApplier = typeof (TEventApplier);
-
-            ApplyMethods = eventApplier
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(mi =>
-                    {
-                        if (mi.Name != "Apply") return false;
-                        var parameters = mi.GetParameters();
-                        return
-                            parameters.Length == 1 &&
-                            aggregateEventType.IsAssignableFrom(parameters[0].ParameterType);
-                    })
-                .ToDictionary(
-                    mi => mi.GetParameters()[0].ParameterType,
-                    mi => ReflectionHelper.CompileMethodInvocation<Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>>>(eventApplier, "Apply", mi.GetParameters()[0].ParameterType));
+            ApplyMethods = typeof(TEventApplier).GetAggregateEventApplyMethods<TAggregate, TIdentity, TEventApplier>();
         }
 
         protected AggregateState()
@@ -63,7 +46,7 @@ namespace EventFlow.Aggregates
             if (me == null)
             {
                 throw new InvalidOperationException(
-                    $"Event applier of type '{GetType().PrettyPrint()}' has a wrong generic argument '{typeof (TEventApplier).PrettyPrint()}'");
+                    $"Event applier of type '{GetType().PrettyPrint()}' has a wrong generic argument '{typeof(TEventApplier).PrettyPrint()}'");
             }
         }
 
@@ -72,7 +55,7 @@ namespace EventFlow.Aggregates
             IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
             var aggregateEventType = aggregateEvent.GetType();
-            Action<TEventApplier, IAggregateEvent<TAggregate, TIdentity>> applier;
+            Action<TEventApplier, IAggregateEvent> applier;
 
             if (!ApplyMethods.TryGetValue(aggregateEventType, out applier))
             {

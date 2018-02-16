@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,8 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
+using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
@@ -30,9 +32,27 @@ using EventFlow.Logs;
 namespace EventFlow.ReadStores
 {
     public class ReadModelFactory<TReadModel> : IReadModelFactory<TReadModel>
-        where TReadModel : IReadModel, new()
+        where TReadModel : IReadModel
     {
         private readonly ILog _log;
+
+        static ReadModelFactory()
+        {
+            var type = typeof(TReadModel).GetTypeInfo();
+
+            var emptyConstructor = type
+                .GetConstructors()
+                .Where(c => !c.GetParameters().Any())
+                .ToList();
+
+            if (!emptyConstructor.Any())
+            {
+                throw new ArgumentException(
+                    $"Read model type '{typeof(TReadModel).PrettyPrint()}' doesn't have an empty "+
+                    $"constructor. Please create a custom '{typeof(IReadModelFactory<TReadModel>).PrettyPrint()}' "+
+                    "implementation.");
+            }
+        }
 
         public ReadModelFactory(
             ILog log)
@@ -44,7 +64,9 @@ namespace EventFlow.ReadStores
         {
             _log.Verbose(() => $"Creating new instance of read model type '{typeof(TReadModel).PrettyPrint()}' with ID '{id}'");
 
-            return Task.FromResult(new TReadModel());
+            var readModel = (TReadModel) Activator.CreateInstance(typeof(TReadModel));
+
+            return Task.FromResult(readModel);
         }
     }
 }

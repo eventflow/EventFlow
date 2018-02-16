@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Concurrent;
@@ -40,10 +39,10 @@ namespace EventFlow.Elasticsearch.ReadStores
         public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
         {
             return IndexNames.GetOrAdd(
-                typeof (TReadModel),
+                typeof(TReadModel),
                 t =>
                     {
-                        var elasticType = t.GetCustomAttribute<ElasticsearchTypeAttribute>();
+                        var elasticType = t.GetTypeInfo().GetCustomAttribute<ElasticsearchTypeAttribute>();
                         var indexName = elasticType == null
                             ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
                             : elasticType.Name;

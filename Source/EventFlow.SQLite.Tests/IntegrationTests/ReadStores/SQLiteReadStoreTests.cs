@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,10 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
@@ -43,11 +41,13 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
     [Category(Categories.Integration)]
     public class SQLiteReadStoreTests : TestSuiteForReadModelStore
     {
+        protected override Type ReadModelType { get; } = typeof(SQLiteThingyReadModel);
+
         private string _databasePath;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
+            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
             using (File.Create(_databasePath)) { }
 
@@ -65,34 +65,24 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
             var connection = resolver.Resolve<ISQLiteConnection>();
             const string sqlThingyAggregate = @"
                 CREATE TABLE [ReadModel-ThingyAggregate](
-	                [Id] [INTEGER] PRIMARY KEY ASC,
+                    [Id] [INTEGER] PRIMARY KEY ASC,
                     [AggregateId] [nvarchar](64) NOT NULL,
                     [Version] INTEGER,
-	                [PingsReceived] [int] NOT NULL,
-	                [DomainErrorAfterFirstReceived] [bit] NOT NULL
+                    [PingsReceived] [int] NOT NULL,
+                    [DomainErrorAfterFirstReceived] [bit] NOT NULL
                 )";
             const string sqlThingyMessage = @"
                 CREATE TABLE [ReadModel-ThingyMessage](
-	                [Id] [INTEGER] PRIMARY KEY ASC,
-	                [ThingyId] [nvarchar](64) NOT NULL,
+                    [Id] [INTEGER] PRIMARY KEY ASC,
+                    [ThingyId] [nvarchar](64) NOT NULL,
                     [Version] INTEGER,
-	                [MessageId] [nvarchar](64) NOT NULL,
-	                [Message] [nvarchar](512) NOT NULL
+                    [MessageId] [nvarchar](64) NOT NULL,
+                    [Message] [nvarchar](512) NOT NULL
                 )";
             connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyAggregate, null).Wait();
             connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlThingyMessage, null).Wait();
 
             return resolver;
-        }
-
-        protected override Task PurgeTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PurgeAsync<SQLiteThingyReadModel>(CancellationToken.None);
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return ReadModelPopulator.PopulateAsync<SQLiteThingyReadModel>(CancellationToken.None);
         }
 
         [TearDown]

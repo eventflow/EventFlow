@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -60,18 +59,23 @@ namespace EventFlow.Sagas
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
+            var commandBus = _resolver.Resolve<ICommandBus>();
             foreach (var domainEvent in domainEvents)
             {
-                await ProcessAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+                await ProcessAsync(
+                    commandBus,
+                    domainEvent,
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
         private async Task ProcessAsync(
+            ICommandBus commandBus,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
-            var commandBus = _resolver.Resolve<ICommandBus>();
 
             _log.Verbose(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
 
@@ -79,6 +83,13 @@ namespace EventFlow.Sagas
             {
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+
+                if (sagaId == null)
+                {
+                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.PrettyPrint()}' returned null");
+                    continue;
+                }
+
                 var saga =  await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
 
                 if (saga != null)

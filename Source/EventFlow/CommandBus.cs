@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,14 +20,14 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
@@ -35,7 +35,6 @@ using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
-using EventFlow.Subscribers;
 
 namespace EventFlow
 {
@@ -44,38 +43,35 @@ namespace EventFlow
         private readonly ILog _log;
         private readonly IResolver _resolver;
         private readonly IAggregateStore _aggregateStore;
-        private readonly IDomainEventPublisher _domainEventPublisher;
         private readonly IMemoryCache _memoryCache;
 
         public CommandBus(
             ILog log,
             IResolver resolver,
             IAggregateStore aggregateStore,
-            IDomainEventPublisher domainEventPublisher,
             IMemoryCache memoryCache)
         {
             _log = log;
             _resolver = resolver;
             _aggregateStore = aggregateStore;
-            _domainEventPublisher = domainEventPublisher;
             _memoryCache = memoryCache;
         }
 
-        public async Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+        public async Task<TResult> PublishAsync<TAggregate, TIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
+            where TResult : IExecutionResult
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
             _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
 
-            IReadOnlyCollection<IDomainEvent> domainEvents;
+            IAggregateUpdateResult<TResult> aggregateUpdateResult;
             try
             {
-                domainEvents = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
+                aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -90,38 +86,30 @@ namespace EventFlow
                 throw;
             }
 
-            if (!domainEvents.Any())
-            {
-                _log.Verbose(() => string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events",
+            _log.Verbose(() => aggregateUpdateResult.DomainEvents.Any()
+                ? string.Format(
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events, was success:{3}",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
-                    typeof(TAggregate).PrettyPrint()));
-                return command.SourceId;
-            }
+                    typeof(TAggregate).PrettyPrint(),
+                    aggregateUpdateResult.Result?.IsSuccess)
+                : string.Format(
+                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}, was success: {4}",
+                    command.GetType().PrettyPrint(),
+                    command.SourceId,
+                    typeof(TAggregate),
+                    string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint())),
+                    aggregateUpdateResult.Result?.IsSuccess));
 
-            _log.Verbose(() => string.Format(
-                "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}",
-                command.GetType().PrettyPrint(),
-                command.SourceId,
-                typeof(TAggregate),
-                string.Join(", ", domainEvents.Select(d => d.EventType.PrettyPrint()))));
-
-            await _domainEventPublisher.PublishAsync<TAggregate, TIdentity>(
-                command.AggregateId,
-                domainEvents,
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            return command.SourceId;
+            return aggregateUpdateResult.Result;
         }
 
-        private async Task<IReadOnlyCollection<IDomainEvent>> ExecuteCommandAsync<TAggregate, TIdentity, TSourceIdentity>(
-            ICommand<TAggregate, TIdentity, TSourceIdentity> command,
+        private async Task<IAggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TResult>(
+            ICommand<TAggregate, TIdentity, TResult> command,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TSourceIdentity : ISourceId
+            where TResult : IExecutionResult
         {
             var commandType = command.GetType();
             var commandExecutionDetails = await GetCommandExecutionDetailsAsync(commandType, cancellationToken).ConfigureAwait(false);
@@ -147,10 +135,10 @@ namespace EventFlow
 
             var commandHandler = commandHandlers.Single();
 
-            return await _aggregateStore.UpdateAsync<TAggregate, TIdentity>(
+            return await _aggregateStore.UpdateAsync<TAggregate, TIdentity, TResult>(
                 command.AggregateId,
                 command.SourceId,
-                (a, c) => commandExecutionDetails.Invoker(commandHandler, a, command, c),
+                (a, c) => (Task<TResult>) commandExecutionDetails.Invoker(commandHandler, a, command, c),
                 cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -161,6 +149,13 @@ namespace EventFlow
             public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
         }
 
+        private const string NameOfExecuteCommand = nameof(
+            ICommandHandler<
+                IAggregateRoot<IIdentity>,
+                IIdentity,
+                IExecutionResult,
+                ICommand<IAggregateRoot<IIdentity>, IIdentity, IExecutionResult>
+            >.ExecuteCommandAsync);
         private Task<CommandExecutionDetails> GetCommandExecutionDetailsAsync(Type commandType, CancellationToken cancellationToken)
         {
             return _memoryCache.GetOrAddAsync(
@@ -169,15 +164,18 @@ namespace EventFlow
                 _ =>
                     {
                         var commandInterfaceType = commandType
+                            .GetTypeInfo()
                             .GetInterfaces()
-                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (ICommand<,,>));
-                        var commandTypes = commandInterfaceType.GetGenericArguments();
+                            .Single(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommand<,,>));
+                        var commandTypes = commandInterfaceType.GetTypeInfo().GetGenericArguments();
 
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
+                        
+                        _log.Verbose(() => $"Command '{commandType.PrettyPrint()}' is resolved by '{commandHandlerType.PrettyPrint()}'");
 
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
-                            commandHandlerType, "ExecuteAsync");
+                            commandHandlerType, NameOfExecuteCommand);
 
                         return Task.FromResult(new CommandExecutionDetails
                             {

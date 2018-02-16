@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,17 +20,17 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
-using EventFlow.Configuration.Registrations;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
+using EventFlow.Core.IoC;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -57,17 +57,17 @@ namespace EventFlow
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
         private readonly List<Type> _snapshotTypes = new List<Type>(); 
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => new AutofacServiceRegistration());
+        private Lazy<IServiceRegistration> _lazyRegistrationFactory;
 
         private EventFlowOptions()
         {
-            UseServiceRegistration(new AutofacServiceRegistration());
+            UseServiceRegistration(new EventFlowIoCServiceRegistration());
 
             ModuleRegistration = new ModuleRegistration(this);
             ModuleRegistration.Register<ProvidedJobsModule>();
         }
 
-        public static EventFlowOptions New => new EventFlowOptions();
+        public static IEventFlowOptions New => new EventFlowOptions();
 
         public IModuleRegistration ModuleRegistration { get; }
 
@@ -94,9 +94,9 @@ namespace EventFlow
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
-                if (!typeof (IAggregateEvent).IsAssignableFrom(aggregateEventType))
+                if (!typeof(IAggregateEvent).GetTypeInfo().IsAssignableFrom(aggregateEventType))
                 {
-                    throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof (IAggregateEvent).PrettyPrint()}");
+                    throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof(IAggregateEvent).PrettyPrint()}");
                 }
                 _aggregateEventTypes.Add(aggregateEventType);
             }
@@ -107,7 +107,7 @@ namespace EventFlow
         {
             foreach (var sagaType in sagaTypes)
             {
-                if (!typeof(ISaga).IsAssignableFrom(sagaType))
+                if (!typeof(ISaga).GetTypeInfo().IsAssignableFrom(sagaType))
                 {
                     throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
                 }
@@ -120,9 +120,9 @@ namespace EventFlow
         {
             foreach (var commandType in commandTypes)
             {
-                if (!typeof (ICommand).IsAssignableFrom(commandType))
+                if (!typeof(ICommand).GetTypeInfo().IsAssignableFrom(commandType))
                 {
-                    throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof (ICommand).PrettyPrint()}");
+                    throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof(ICommand).PrettyPrint()}");
                 }
                 _commandTypes.Add(commandType);
             }
@@ -133,9 +133,9 @@ namespace EventFlow
         {
             foreach (var jobType in jobTypes)
             {
-                if (!typeof (IJob).IsAssignableFrom(jobType))
+                if (!typeof(IJob).GetTypeInfo().IsAssignableFrom(jobType))
                 {
-                    throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof (IJob).PrettyPrint()}");
+                    throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof(IJob).PrettyPrint()}");
                 }
                 _jobTypes.Add(jobType);
             }
@@ -146,7 +146,7 @@ namespace EventFlow
         {
             foreach (var snapshotType in snapshotTypes)
             {
-                if (!typeof(ISnapshot).IsAssignableFrom(snapshotType))
+                if (!typeof(ISnapshot).GetTypeInfo().IsAssignableFrom(snapshotType))
                 {
                     throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
                 }
@@ -190,9 +190,6 @@ namespace EventFlow
 
         private void RegisterDefaults(IServiceRegistration serviceRegistration)
         {
-            // http://docs.autofac.org/en/latest/register/registration.html
-            // Maybe swap around and do after and and .PreserveExistingDefaults()
-
             serviceRegistration.Register<ILog, ConsoleLog>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
@@ -224,7 +221,11 @@ namespace EventFlow
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
+#if NET451
             serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
+#else
+            serviceRegistration.Register<IMemoryCache, DictionaryMemoryCache>(Lifetime.Singleton);
+#endif
             serviceRegistration.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));

@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System.Linq;
 using System.Security.Cryptography;
@@ -32,7 +31,6 @@ namespace EventFlow.Extensions
     public static class StringExtensions
     {
         private static readonly Regex RegexToSlug = new Regex("(?<=.)([A-Z])", RegexOptions.Compiled);
-        private static readonly SHA256Managed Sha256Managed = new SHA256Managed();
 
         public static string ToSlug(this string str)
         {
@@ -42,10 +40,13 @@ namespace EventFlow.Extensions
         public static string ToSha256(this string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);
-            var hash = Sha256Managed.ComputeHash(bytes);
-            return hash
-                .Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}"))
-                .ToString();
+            using (var sha256 = SHA256.Create())
+            {
+                var hash = sha256.ComputeHash(bytes);
+                return hash
+                    .Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}"))
+                    .ToString();
+            }
         }
     }
 }

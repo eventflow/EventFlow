@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.IO;
@@ -44,7 +43,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}.sqlite");
+            _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
             using (File.Create(_databasePath)){ }
 
@@ -57,19 +56,19 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
             var connection = resolver.Resolve<ISQLiteConnection>();
             const string sqlCreateTable = @"
                 CREATE TABLE [EventFlow](
-	                [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
-	                [BatchId] [uniqueidentifier] NOT NULL,
-	                [AggregateId] [nvarchar](255) NOT NULL,
-	                [AggregateName] [nvarchar](255) NOT NULL,
-	                [Data] [nvarchar](1024) NOT NULL,
-	                [Metadata] [nvarchar](1024) NOT NULL,
-	                [AggregateSequenceNumber] [int] NOT NULL
+                    [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
+                    [BatchId] [uniqueidentifier] NOT NULL,
+                    [AggregateId] [nvarchar](255) NOT NULL,
+                    [AggregateName] [nvarchar](255) NOT NULL,
+                    [Data] [nvarchar](1024) NOT NULL,
+                    [Metadata] [nvarchar](1024) NOT NULL,
+                    [AggregateSequenceNumber] [int] NOT NULL
                 )";
             const string sqlCreateIndex = @"
                 CREATE UNIQUE INDEX [IX_EventFlow_AggregateId_AggregateSequenceNumber] ON [EventFlow]
                 (
-	                [AggregateId] ASC,
-	                [AggregateSequenceNumber] ASC
+                    [AggregateId] ASC,
+                    [AggregateSequenceNumber] ASC
                 )";
             connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlCreateTable, null).Wait();
             connection.ExecuteAsync(Label.Named("create-index"), CancellationToken.None, sqlCreateIndex, null).Wait();

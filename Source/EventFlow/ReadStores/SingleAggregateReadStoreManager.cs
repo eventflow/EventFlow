@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -37,7 +36,7 @@ namespace EventFlow.ReadStores
 {
     public class SingleAggregateReadStoreManager<TReadModelStore, TReadModel> : ReadStoreManager<TReadModelStore, TReadModel>
         where TReadModelStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         public SingleAggregateReadStoreManager(
             ILog log,
@@ -53,16 +52,10 @@ namespace EventFlow.ReadStores
         protected override IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
             IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            var readModelIds = domainEvents
-                .Select(e => e.GetIdentity().Value)
-                .Distinct()
+            return domainEvents
+                .GroupBy(d => d.GetIdentity().Value)
+                .Select(g => new ReadModelUpdate(g.Key, g.OrderBy(d => d.AggregateSequenceNumber).ToList()))
                 .ToList();
-            if (readModelIds.Count != 1)
-            {
-                throw new ArgumentException("Only domain events from the same aggregate is allowed");
-            }
-
-            return new[] {new ReadModelUpdate(readModelIds.Single(), domainEvents)};
         }
 
         protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(

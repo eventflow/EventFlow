@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,12 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -38,10 +39,10 @@ namespace EventFlow.ReadStores
 {
     public abstract class ReadStoreManager<TReadModelStore, TReadModel> : IReadStoreManager<TReadModel>
         where TReadModelStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
     {
         // ReSharper disable StaticMemberInGenericType
-        private static readonly Type ReadModelType = typeof(TReadModel);
+        private static readonly Type StaticReadModelType = typeof(TReadModel);
         private static readonly ISet<Type> AggregateTypes;
         private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
@@ -53,23 +54,26 @@ namespace EventFlow.ReadStores
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
         protected ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> TransientFaultHandler { get; }
 
-        protected ISet<Type> GetAggregateTypes() { return AggregateTypes; }
-        protected ISet<Type> GetDomainEventTypes() { return AggregateEventTypes; } 
+        protected ISet<Type> GetAggregateTypes() => AggregateTypes;
+        protected ISet<Type> GetDomainEventTypes() => AggregateEventTypes;
+
+        public Type ReadModelType => StaticReadModelType;
 
         static ReadStoreManager()
         {
-            var iAmReadModelForInterfaceTypes = ReadModelType
+            var iAmReadModelForInterfaceTypes = StaticReadModelType
+                .GetTypeInfo()
                 .GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IAmReadModelFor<,,>))
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAmReadModelFor<,,>))
                 .ToList();
             if (!iAmReadModelForInterfaceTypes.Any())
             {
                 throw new ArgumentException(
-                    $"Read model type '{ReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
+                    $"Read model type '{StaticReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
             }
 
-            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[0]));
-            AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetGenericArguments()[2]));
+            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0]));
+            AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
         }
 
         protected ReadStoreManager(
@@ -99,7 +103,7 @@ namespace EventFlow.ReadStores
             {
                 Log.Verbose(() => string.Format(
                     "None of these events was relevant for read model '{0}', skipping update: {1}",
-                    ReadModelType.PrettyPrint(),
+                    StaticReadModelType.PrettyPrint(),
                     string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
                     ));
                 return Task.FromResult(0);

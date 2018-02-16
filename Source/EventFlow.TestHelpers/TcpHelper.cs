@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
@@ -36,13 +35,18 @@ namespace EventFlow.TestHelpers
         public static int GetFreePort()
         {
             var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            var activeTcpListeners = ipGlobalProperties.GetActiveTcpListeners();
-            var ports = new HashSet<int>(activeTcpListeners.Select(p => p.Port));
+            var usedPorts = Enumerable.Empty<int>()
+                .Concat(ipGlobalProperties.GetActiveTcpListeners().Select(l => l.Port))
+                .Concat(ipGlobalProperties.GetActiveUdpListeners().Select(l => l.Port))
+                .Concat(ipGlobalProperties.GetActiveTcpConnections().Select(c => c.LocalEndPoint.Port))
+                .Distinct();
+
+            var portLookup = new HashSet<int>(usedPorts);
 
             while (true)
             {
                 var port = Random.Next(10000, 60000);
-                if (!ports.Contains(port))
+                if (!portLookup.Contains(port))
                 {
                     return port;
                 }

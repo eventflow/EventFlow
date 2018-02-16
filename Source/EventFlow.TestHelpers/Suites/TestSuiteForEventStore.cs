@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -78,8 +77,8 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.Should().NotBeNull();
             pingEvent.AggregateIdentity.Should().Be(id);
             pingEvent.AggregateSequenceNumber.Should().Be(1);
-            pingEvent.AggregateType.Should().Be(typeof (ThingyAggregate));
-            pingEvent.EventType.Should().Be(typeof (ThingyPingEvent));
+            pingEvent.AggregateType.Should().Be(typeof(ThingyAggregate));
+            pingEvent.EventType.Should().Be(typeof(ThingyPingEvent));
             pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
             pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
@@ -273,6 +272,31 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task AggregatesCanUpdatedAfterOptimisticConcurrency()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingId1 = PingId.New;
+            var pingId2 = PingId.New;
+            var aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            var aggregate2 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate1.Ping(pingId1);
+            aggregate2.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await ThrowsExceptionAsync<OptimisticConcurrencyException>(() => aggregate2.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None)).ConfigureAwait(false);
+
+            // Act
+            aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate1.PingsReceived.Single().Should().Be(pingId1);
+            aggregate1.Ping(pingId2);
+            await aggregate1.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate1.PingsReceived.ShouldAllBeEquivalentTo(new[] {pingId1, pingId2});
+        }
+
+        [Test]
         public async Task PublishedDomainEventsHaveAggregateSequenceNumbers()
         {
             // Arrange
@@ -340,7 +364,7 @@ namespace EventFlow.TestHelpers.Suites
             }
             catch (Exception e)
             {
-                wasCorrectException = e.GetType() == typeof (TException);
+                wasCorrectException = e.GetType() == typeof(TException);
                 if (!wasCorrectException)
                 {
                     throw;

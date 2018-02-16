@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,11 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
@@ -140,14 +140,62 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             var id = ThingyId.New;
-            await PublishPingCommandsAsync(id).ConfigureAwait(false);
+            await PublishPingCommandAsync(id).ConfigureAwait(false);
 
             // Act
-            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            await ReadModelPopulator.PurgeAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
             readModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task DeleteRemovesSpecificReadModel()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandAsync(id1).ConfigureAwait(false);
+            await PublishPingCommandAsync(id2).ConfigureAwait(false);
+            var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
+            var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            readModel1.Should().NotBeNull();
+            readModel2.Should().NotBeNull();
+
+            // Act
+            await ReadModelPopulator.DeleteAsync(
+                id1.Value,
+                ReadModelType,
+                CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
+            readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            readModel1.Should().BeNull();
+            readModel2.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task RePopulateHandlesManyAggregates()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandsAsync(id1, 3).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id2, 5).ConfigureAwait(false);
+
+            // Act
+            await ReadModelPopulator.PurgeAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+            await ReadModelPopulator.PopulateAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
+            var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+
+            readModel1.PingsReceived.Should().Be(3);
+            readModel2.PingsReceived.Should().Be(5);
         }
 
         [Test]
@@ -156,10 +204,10 @@ namespace EventFlow.TestHelpers.Suites
             // Arrange
             var id = ThingyId.New;
             await PublishPingCommandsAsync(id, 2).ConfigureAwait(false);
-            await PurgeTestAggregateReadModelAsync().ConfigureAwait(false);
+            await ReadModelPopulator.PurgeAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
             
             // Act
-            await PopulateTestAggregateReadModelAsync().ConfigureAwait(false);
+            await ReadModelPopulator.PopulateAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
@@ -174,8 +222,6 @@ namespace EventFlow.TestHelpers.Suites
             return thingyMessages;
         }
 
-        protected abstract Task PurgeTestAggregateReadModelAsync();
-
-        protected abstract Task PopulateTestAggregateReadModelAsync();
+        protected abstract Type ReadModelType { get; }
     }
 }

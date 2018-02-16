@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Diagnostics;
@@ -59,37 +58,39 @@ namespace EventFlow.TestHelpers
                         }
                 };
             var exeName = Path.GetFileName(exePath);
-            DataReceivedEventHandler outHandler = (sender, e) =>
+
+            void OutHandler(object sender, DataReceivedEventArgs e)
+            {
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
-                    }
-                };
-            process.OutputDataReceived += outHandler;
-            DataReceivedEventHandler errHandler = (sender, e) =>
+                    LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
+                }
+            }
+            void ErrHandler(object sender, DataReceivedEventArgs e)
+            {
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        LogHelper.Log.Error($"ERR - {exeName}: {e.Data}");
-                    }
-                };
-            process.ErrorDataReceived += errHandler;
-            Action<Process> initializeProcess = p =>
-                {
-                    LogHelper.Log.Information($"{exeName} START =======================================");
-                    p.Start();
-                    p.BeginOutputReadLine();
-                    p.BeginErrorReadLine();
-                };
-            process.WaitForOutput(initializationDone, initializeProcess);
+                    LogHelper.Log.Error($"ERR - {exeName}: {e.Data}");
+                }
+            }
+            void InitializeProcess(Process p)
+            {
+                LogHelper.Log.Information($"{exeName} START =======================================");
+                p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+            }
+
+            process.OutputDataReceived += OutHandler;
+            process.ErrorDataReceived += ErrHandler;
+            process.WaitForOutput(initializationDone, InitializeProcess);
 
             return new DisposableAction(() =>
                 {
                     try
                     {
-                        process.OutputDataReceived -= outHandler;
-                        process.ErrorDataReceived -= errHandler;
+                        process.OutputDataReceived -= OutHandler;
+                        process.ErrorDataReceived -= ErrHandler;
 
                         KillProcessAndChildren(process.Id);
                     }

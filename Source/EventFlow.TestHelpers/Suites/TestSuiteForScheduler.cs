@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,21 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
+using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using FluentAssertions;
+using FluentAssertions.Common;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -37,11 +42,44 @@ namespace EventFlow.TestHelpers.Suites
     public abstract class TestSuiteForScheduler : IntegrationTest
     {
         private IJobScheduler _jobScheduler;
+        private TestAsynchronousSubscriber _testAsynchronousSubscriber;
+
+        private class TestAsynchronousSubscriber : ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public BlockingCollection<PingId> PingIds { get; } = new BlockingCollection<PingId>();
+
+            public Task HandleAsync(IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent, CancellationToken cancellationToken)
+            {
+                PingIds.Add(domainEvent.AggregateEvent.PingId, CancellationToken.None);
+                return Task.FromResult(0);
+            }
+        }
 
         [SetUp]
         public void TestSuiteForSchedulerSetUp()
         {
             _jobScheduler = Resolver.Resolve<IJobScheduler>();
+        }
+
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
+
+            return base.Options(eventFlowOptions)
+                .RegisterServices(sr => sr.Register(c => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
+                .Configure(c => c.IsAsynchronousSubscribersEnabled = true);
+        }
+
+        [Test]
+        [Timeout(10000)]
+        public async Task AsynchronousSubscribesGetInvoked()
+        {
+            // Act
+            var pingId = await PublishPingCommandAsync(A<ThingyId>()).ConfigureAwait(false);
+
+            // Assert
+            var receivedPingId = _testAsynchronousSubscriber.PingIds.Take();
+            receivedPingId.Should().IsSameOrEqualTo(pingId);
         }
 
         [Test]

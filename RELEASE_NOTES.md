@@ -1,6 +1,284 @@
-### New in 0.35 (not released yet)
+### New in 0.54 (not released yet)
 
-* _Nothing yet_
+- _Nothing yet_
+
+### New in 0.53.3204 (released 2018-01-25)
+
+* New: Allow events to have multiple `EventVersion` attributes
+* Fixed: `ReflectionHelper.CompileMethodInvocation` now recognises
+  `private` methods.
+
+### New in 0.52.3178 (released 2017-11-02)
+
+* Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
+  file system persistence, making it suitable for use in multi-threaded unit
+  tests. Please don't use the files event store in production scenarios
+* New: Support for unicode characters in type names. This simplifies using an
+  [ubiquitous language](http://www.jamesshore.com/Agile-Book/ubiquitous_language.html)
+  in non-english domains
+* Fixed: Include hyphen in prefix validation for identity values. This fixes a bug
+  where invalid identities could be created (e.g. `ThingyId.With("thingyINVALID-a41e...")`)
+
+### New in 0.51.3155 (released 2017-10-25)
+
+* New: Removed the `new()` requirement for read models
+* New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given 
+  event, it may now return `Task.FromResult(null)` in order to short-circuit
+  the dispatching process. This might be useful in cases where some instances 
+  of an event belong to a saga process while others don't
+* Fixed: `StringExtensions.ToSha256()` can now be safely used from
+  concurrent threads
+
+### New in 0.50.3124 (released 2017-10-21)
+
+* New: While EventFlow tries to limit the about of painful API changes, the
+  introduction of execution/command results are considered a necessary step
+  towards as better API.
+
+  Commands and command handlers have been updated to support execution
+  results. Execution results is meant to be an alternative to throwing domain
+  exceptions to do application flow. In short, before you were required to
+  throw an exception if you wanted to abort execution and "return" a failure
+  message.
+
+  The introduction of execution results changes this, as it allows
+  returning a failed result that is passed all the way back to the command
+  publisher. Execution results are generic and can thus contain e.g. any
+  validation results that a UI might need. The `ICommandBus.PublishAsync`
+  signature has changed to reflect this.
+
+  from
+  ```csharp
+      Task<ISourceId> PublishAsync<TAggregate, TIdentity, TSourceIdentity>(
+        ICommand<TAggregate, TIdentity, TSourceIdentity> command)
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TSourceIdentity : ISourceId
+  ```
+  to
+  ```csharp
+      Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
+        ICommand<TAggregate, TIdentity, TExecutionResult> command,
+        CancellationToken cancellationToken)
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TExecutionResult : IExecutionResult
+  ```
+
+  Command handler signature has changed from
+
+  ```csharp
+      Task ExecuteAsync(
+          TAggregate aggregate,
+          TCommand command,
+          CancellationToken cancellationToken);
+  ```
+  to
+  ```csharp
+      Task<TExecutionResult> ExecuteCommandAsync(
+          TAggregate aggregate,
+          TCommand command,
+          CancellationToken cancellationToken)
+  ```
+
+  Migrating to the new structure should be seamless if your current code base
+  inherits its command handlers from the provided `CommandHandler<,,>` base
+  class.
+
+* Breaking: Source IDs on commands have been reworked to "make room" for
+  execution results on commands. The generic parameter from `ICommand<,,>`
+  and `ICommandHandler<,,,>` has been removed in favor of the new execution
+  results. `ICommand.SourceId` is now of type `ISourceId` instead of using
+  the generic type and the `ICommandBus.PublishAsync` no longer returns
+  `Task<ISourceId>`
+
+  To get code that behaves similar to the previous version, simply take the
+  `ISourceId` from the command, i.e., instead of this
+
+  ```csharp
+  var sourceId = await commandBus.PublishAsync(command);
+  ```
+  write this
+  ```csharp
+  await commandBus.PublishAsync(command);
+  var sourceId = command.SourceId;
+  ```
+  (`CancellationToken` and `.ConfigureAwait(false)` omitted fromt he above)
+
+* Breaking: Upgraded NuGet dependency on `RabbitMQ.Client` from `>= 4.1.3`
+  to `>= 5.0.1`
+
+### New in 0.49.3031 (released 2017-09-07)
+
+* Breaking: Upgraded `EventStore.Client` dependency to version 4.0
+* Breaking: Changed target framework for `EventFlow.EventStores.EventStore` to
+  .NET 4.6.2 as required by `EventStore.Client` NuGet dependency
+* Fix: `EventFlow.Hangfire` now depends on `Hangfire.Core` instead of
+  `Hangfire`
+* New: Added an overload to `IDomainEventPublisher.PublishAsync` that isn't
+  generic and doesn't require an aggregate ID
+* New: Added `IReadModelPopulator.DeleteAsync` that allows deletion of single
+  read models
+* Obsolete: `IDomainEventPublisher.PublishAsync<,>` (generic) in favor of the
+  new less restrictive non-generic overload
+
+### New in 0.48.2937 (released 2017-07-11)
+
+* Breaking: Moved non-async methods on `IReadModelPopulator` to extension
+  methods
+* New: Added non-generic overloads for purge and populate methods on
+  `IReadModelPopulator`
+* New: Provided `EventFlow.TestHelpers` which contains several test suites
+  that is useful when developing event and read model stores for EventFlow.
+  The package is an initial release and its interface is unstable and
+  subject to change
+* New: Now possible to configure retry delay for MSSQL error `40501` (server
+  too busy) using `IMsSqlConfiguration.SetServerBusyRetryDelay(RetryDelay)`
+* New: Now possible to configure the retry count of transient exceptions for
+  MSSQL and SQLite using the `ISqlConfiguration.SetTransientRetryCount(int)`
+* Fixed: Added MSSQL error codes `10928`, `10929`, `18401` and `40540` as well
+  as a few native `Win32Exception` exceptions to the list treated as transient
+  errors, i.e., EventFlow will automatically retry if the server returns one
+  of these
+
+### New in 0.47.2894 (released 2017-06-28)
+
+* New: To be more explicit, `IEventFlowOpions.AddSynchronousSubscriber<,,,>` and
+  `IEventFlowOpions.AddAsynchronousSubscriber<,,,>` generic methods
+* Fix: `IEventFlowOpions.AddSubscriber`, `IEventFlowOpions.AddSubscribers` and  
+  `IEventFlowOpions.AddDefaults` now correctly registers implementations of
+  `ISubscribeAsynchronousTo<,,>`
+* Obsolete:  `IEventFlowOpions.AddSubscriber` is marked obsolete in favor of its
+  explicite counterparts
+
+### New in 0.46.2886 (released 2017-05-29)
+
+* Fix: EventFlow now uses a Autofac lifetime scope for validating service
+  registrations when `IEventFlowOpions.CreateResolver(true)` is invoked.
+  Previously services were created but never disposed as they were resolved
+  using the root container
+
+### New in 0.45.2877 (released 2017-05-28)
+
+* Breaking: Asynchronous subscribers are now **disabled by default**, i.e.,
+  any implementations of `ISubscribeAsynchronousTo<,,>` wont get invoked
+  unless enabled
+  ```
+  eventFlowOptions.Configure(c => IsAsynchronousSubscribersEnabled = true);
+  ```
+  the `ITaskRunner` has been removed and asynchronous subscribers are now
+  invoked using a new scheduled job that's scheduled to run right after the
+  domain events are emitted. Using the `ITaskRunner` led to unexpected task
+  terminations, especially if EventFlow was hosted in IIS. If enabling
+  asynchronous subscribers, please _make sure_ to configure proper job
+  scheduling, e.g. by using the `EventFlow.Hangfire` NuGet package. The default
+  job scheduler is `InstantJobScheduler`, which executes jobs _synchronously_,
+  giving a end result similar to that of synchronous subscribers
+* Breaking: `InstantJobScheduler`, the default in-memory scheduler if nothing
+  is configured, now swallows all job exceptions and logs them as errors. This
+  ensure that the `InstantJobScheduler` behaves as any other out-of-process
+  job scheduler
+
+### New in 0.44.2832 (released 2017-05-12)
+
+* New: .NET Standard 1.6 support for the following NuGet packages
+  - `EventFlow`
+  - `EventFlow.Autofac`
+  - `EventFlow.Elasticsearch`
+  - `EventFlow.Hangfire`
+  - `EventFlow.RabbitMQ`
+* Fixed: Removed dependency `Microsoft.Owin.Host.HttpListener` from
+  `EventFlow.Owin` as it doesn't need it
+
+### New in 0.43.2806 (released 2017-05-05)
+
+* Breaking: Updated _all_ NuGet package dependencies to their latest versions
+* New: EventFlow now embeds PDB and source code within the assemblies using
+  [SourceLink](https://github.com/ctaggart/SourceLink) (GitLink now removed)
+
+### New in 0.42.2755 (released 2017-05-02)
+
+* Fixed: The deterministic `IDomainEvent.Metadata.EventId` is now correctly
+  based on the both the aggregate identity and the aggregate sequence number,
+  instead of merely the aggregate identity
+* Fixed: [GitLink](https://github.com/gittools/gitlink) PDB source URLs
+
+### New in 0.41.2727 (released 2017-04-27)
+
+* New: NuGet packages now contain PDB files with links to GitHub
+  (thanks to [GitLink](https://github.com/gittools/gitlink)). Be sure
+  to check `Enable source server support` to be able to step through
+  the EventFlow source code. See GitLink documentation for details
+* Fixed: Fixed a bug in how EventFlow registers singletons with Autofac
+  that made Autofac invoke `IDisposable.Dispose()` upon disposing
+  lifetime scopes
+
+### New in 0.40.2590 (released 2017-03-30)
+
+* New: Updated EventFlow logo (thanks @olholm)
+* Fixed: Corrected logo path in NuGet packages
+
+### New in 0.39.2553 (released 2017-01-16)
+
+* New: Autofac is no longer IL merged into the `EventFlow` core NuGet package.
+  This is both in preparation for .NET Core and to simplify the build process.
+  EventFlow now ships with a custom IoC container by default. The Autofac based
+  IoC container is still available via the `EventFlow.Autofac` and will
+  continue to be supported as it is recommended for production use
+* New: An IoC container based aggregate root factory is now the default
+  aggregate factory. The old implementation merely invoked a constructor
+  with the aggregate ID as argument. The new default also checks if any
+  additional services are required for the constructor making the distinction
+  between the two obsolete
+* New: `Command<,,>` now inherits from `ValueObject`
+* Obsolete: `UseResolverAggregateRootFactory()` and `UseAutofacAggregateRootFactory()`
+  are marked as obsolete as this is now the default. The current implementation
+  of these methods does nothing
+* Obsolete: All `IEventFlowOptions.AddAggregateRoots(...)` overloads are obsolete,
+  the aggregate factory no longer has any need for the aggregate types to be
+  registered with the container. The current implementation of the method does
+  nothing
+
+### New in 0.38.2454 (released 2016-12-02)
+
+* Fix: Single aggregate read models can now be re-populated again
+
+### New in 0.37.2424 (released 2016-11-08)
+
+* Breaking: Remove the following empty and deprecated MSSQL NuGet packages. If
+  you use any of these packages, then switch to the `EventFlow.MsSql` package
+  - `EventFlow.EventStores.MsSql`
+  - `EventFlow.ReadStores.MsSql`
+* Breaking: `ITaskRunner.Run(...)` has changed signature. The task factory now
+  gets an instance of `IResolver` that is valid for the duration of the task
+  execution
+* Fixed: The resolver scope of `ISubscribeAsynchronousTo<,,>` is now valid for
+  the duration of the domain handling
+* New: Documentation is now released in HTML format along with NuGet packages.
+  Access the ZIP file from the GitHub releases page
+
+### New in 0.36.2315 (released 2016-10-18)
+
+* New: Documentation is now hosted at http://docs.geteventflow.net/ and
+  http://eventflow.readthedocs.io/ and while documentation is still kept
+  along the source code, the documentation files have been converted from
+  markdown to reStructuredText
+* New: Added `ISubscribeAsynchronousTo<,,>` as an alternative to the existing
+  `ISubscribeSynchronousTo<,,>`, which allow domain event subscribers to be
+  executed using the new `ITaskRunner`
+* New: Added `ITaskRunner` for which the default implementation is mere a thin
+  wrapper around `Task.Run(...)` with some logging added. Implemting this
+  interface allows control of how EventFlows runs tasks. Please note that
+  EventFlow will only use `ITaskRunner` in very limited cases, e.g. if
+  there's implantations of `ISubscribeAsynchronousTo<,,>`
+
+### New in 0.35.2247 (released 2016-09-06)
+
+* Fixed: `IAggregateStore.UpdateAsync` and `StoreAsync` now publishes committed
+  events as expected. This basically means that its now possible to circumvent the
+  command and command handler pattern and use the `IAggregateStore.UpdateAsync`
+  directly to modify an aggregate root
+* Fixed: Domain events emitted from aggregate sagas are now published
 
 ### New in 0.34.2221 (released 2016-08-23)
 

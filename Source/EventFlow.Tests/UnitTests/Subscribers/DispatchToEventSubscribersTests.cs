@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Threading;
@@ -33,6 +32,7 @@ using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -44,34 +44,52 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     {
         private Mock<IResolver> _resolverMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
+        private Mock<ILog> _logMock;
 
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
-
+            _logMock = InjectMock<ILog>();
             _resolverMock = InjectMock<IResolver>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
+
+            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
         }
 
         [Test]
-        public async Task SubscribersGetCalled()
+        public async Task SynchronousSubscribersGetCalled()
         {
             // Arrange
-            var subscriberMock = ArrangeSubscriber<ThingyPingEvent>();
+            var subscriberMock = ArrangeSynchronousSubscriber<ThingyPingEvent>();
 
             // Act
-            await Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
+            await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _logMock.VerifyNoErrorsLogged();
         }
 
         [Test]
+        public async Task AsynchronousSubscribersGetCalled()
+        {
+            // Arrange
+            var subscriberMock = ArrangeAsynchronousSubscriber<ThingyPingEvent>();
+
+            // Act
+            await Sut.DispatchToAsynchronousSubscribersAsync(A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _logMock.VerifyNoErrorsLogged();
+        }
+
+        [Test]
+        [Repeat(500)]
         public void SubscriberExceptionIsNotThrownIfNotConfigured()
         {
             // Arrange
-            var subscriberMock = ArrangeSubscriber<ThingyPingEvent>();
+            var subscriberMock = ArrangeSynchronousSubscriber<ThingyPingEvent>();
             var expectedException = A<Exception>();
             _eventFlowConfigurationMock
                 .Setup(c => c.ThrowSubscriberExceptions)
@@ -81,14 +99,19 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Throws(expectedException);
 
             // Act
-            Assert.DoesNotThrow(() => Sut.DispatchAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).Wait());
+            Assert.DoesNotThrowAsync(async () => await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false));
+
+            // Assert
+            _logMock.Verify(
+                m => m.Error(expectedException, It.IsAny<string>(), It.IsAny<object[]>()),
+                Times.Once);
         }
 
         [Test]
         public void SubscriberExceptionIsThrownIfConfigured()
         {
             // Arrange
-            var subscriberMock = ArrangeSubscriber<ThingyPingEvent>();
+            var subscriberMock = ArrangeSynchronousSubscriber<ThingyPingEvent>();
             var expectedException = A<Exception>();
             _eventFlowConfigurationMock
                 .Setup(c => c.ThrowSubscriberExceptions)
@@ -98,19 +121,32 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Throws(expectedException);
 
             // Act
-            var exception = Assert.Throws<Exception>(() => Sut.DispatchAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
+            var exception = Assert.Throws<Exception>(() => Sut.DispatchToSynchronousSubscribersAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
 
             // Assert
             exception.Should().BeSameAs(expectedException);
+            _logMock.VerifyNoErrorsLogged();
         }
 
-        private Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeSubscriber<TEvent>()
+        private Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeSynchronousSubscriber<TEvent>()
             where TEvent : IAggregateEvent<ThingyAggregate, ThingyId>
         {
             var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
 
             _resolverMock
-                .Setup(r => r.ResolveAll(It.IsAny<Type>()))
+                .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>))))
+                .Returns(new object[] { subscriberMock.Object });
+
+            return subscriberMock;
+        }
+
+        private Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeAsynchronousSubscriber<TEvent>()
+            where TEvent : IAggregateEvent<ThingyAggregate, ThingyId>
+        {
+            var subscriberMock = new Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
+
+            _resolverMock
+                .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeAsynchronousTo<,,>))))
                 .Returns(new object[] { subscriberMock.Object });
 
             return subscriberMock;

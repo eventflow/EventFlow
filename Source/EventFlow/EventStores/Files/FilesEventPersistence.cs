@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -94,25 +94,29 @@ namespace EventFlow.EventStores.Files
             int pageSize,
             CancellationToken cancellationToken)
         {
-            var startPostion = globalPosition.IsStart
+            var startPosition = globalPosition.IsStart
                 ? 1
                 : int.Parse(globalPosition.Value);
 
-            var paths = Enumerable.Range(startPostion, pageSize)
-                .TakeWhile(g => _eventLog.ContainsKey(g))
-                .Select(g => _eventLog[g])
-                .ToList();
-
             var committedDomainEvents = new List<FileEventData>();
-            foreach (var path in paths)
+
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var committedDomainEvent = await LoadFileEventDataFile(path).ConfigureAwait(false);
-                committedDomainEvents.Add(committedDomainEvent);
+                var paths = Enumerable.Range(startPosition, pageSize)
+                    .TakeWhile(g => _eventLog.ContainsKey(g))
+                    .Select(g => _eventLog[g])
+                    .ToList();
+
+                foreach (var path in paths)
+                {
+                    var committedDomainEvent = await LoadFileEventDataFile(path).ConfigureAwait(false);
+                    committedDomainEvents.Add(committedDomainEvent);
+                }
             }
 
             var nextPosition = committedDomainEvents.Any()
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
-                : startPostion;
+                : startPosition;
 
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
         }
@@ -139,14 +143,14 @@ namespace EventFlow.EventStores.Files
                     _eventLog[_globalSequenceNumber] = eventPath;
 
                     var fileEventData = new FileEventData
-                        {
-                            AggregateId = id.Value,
-                            AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
-                            Data = serializedEvent.SerializedData,
-                            Metadata = serializedEvent.SerializedMetadata,
-                            GlobalSequenceNumber = _globalSequenceNumber,
-                        };
-            
+                    {
+                        AggregateId = id.Value,
+                        AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
+                        Data = serializedEvent.SerializedData,
+                        Metadata = serializedEvent.SerializedMetadata,
+                        GlobalSequenceNumber = _globalSequenceNumber,
+                    };
+
                     var json = _jsonSerializer.Serialize(fileEventData, true);
 
                     if (File.Exists(eventPath))
@@ -177,7 +181,7 @@ namespace EventFlow.EventStores.Files
                         new EventStoreLog
                         {
                             GlobalSequenceNumber = _globalSequenceNumber,
-                            Log = _eventLog,
+                            Log = _eventLog
                         },
                         true);
                     await streamWriter.WriteAsync(json).ConfigureAwait(false);
@@ -209,12 +213,14 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             _log.Verbose("Deleting entity with ID '{0}'", id);
             var path = _filesEventLocator.GetEntityPath(id);
-            Directory.Delete(path, true);
-            return Task.FromResult(0);
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                Directory.Delete(path, true);
+            }
         }
 
         private async Task<FileEventData> LoadFileEventDataFile(string eventPath)

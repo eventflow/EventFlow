@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
 using System;
 using System.Collections.Generic;
@@ -40,8 +39,8 @@ namespace EventFlow.Elasticsearch.Tests
     {
         private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
             "elasticsearch",
-            new Version(2, 3, 3),
-            "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip");
+            new Version(5, 3, 2),
+            "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.2.zip");
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class ClusterHealth
@@ -71,23 +70,31 @@ namespace EventFlow.Elasticsearch.Tests
 
             public async Task<string> GetStatusAsync()
             {
-                var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health"));
-                return clusterHealth.Status;
+                try
+                {
+                    var clusterHealth = await HttpHelper.GetAsAsync<ClusterHealth>(new Uri(Uri, "_cluster/health")).ConfigureAwait(false);
+                    return clusterHealth.Status;
+                }
+                catch (Exception e)
+                {
+                    LogHelper.Log.Warning(e, "Exception while checking Elasticsearch health");
+                    return string.Empty;
+                }
             }
 
-            public Task WaitForGeenStateAsync()
+            public Task WaitForGreenStateAsync()
             {
                 return WaitHelper.WaitAsync(TimeSpan.FromMinutes(1), async () =>
-                    {
-                        var status = await GetStatusAsync().ConfigureAwait(false);
-                        return status == "green";
-                    });
+                {
+                    var status = await GetStatusAsync().ConfigureAwait(false);
+                    return string.Equals(status, "green", StringComparison.OrdinalIgnoreCase);
+                });
             }
 
             public async Task DeleteEverythingAsync()
             {
                 await HttpHelper.DeleteAsync(new Uri(Uri, "*")).ConfigureAwait(false);
-                await WaitForGeenStateAsync().ConfigureAwait(false);
+                await WaitForGreenStateAsync().ConfigureAwait(false);
             }
 
             public void Dispose()
@@ -114,22 +121,20 @@ namespace EventFlow.Elasticsearch.Tests
 
             var installedSoftware = await InstallHelper.InstallAsync(SoftwareDescription).ConfigureAwait(false);
             var version = SoftwareDescription.Version;
-            var installPath = Path.Combine(installedSoftware.InstallPath, $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
+            var installPath = Path.Combine(installedSoftware.InstallPath,
+                $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
 
             var tcpPort = TcpHelper.GetFreePort();
             var exePath = Path.Combine(installPath, "bin", "elasticsearch.bat");
-            var nodeName = $"node-{Guid.NewGuid().ToString("N")}";
+            var nodeName = $"node-{Guid.NewGuid():N}";
 
             var settings = new Dictionary<string, string>
-                {
-                    {"http.port", tcpPort.ToString()},
-                    {"node.name", nodeName},
-                    {"index.number_of_shards", "1"},
-                    {"index.number_of_replicas", "0"},
-                    {"gateway.expected_nodes", "1"},
-                    {"discovery.zen.ping.multicast.enabled", "false"},
-                    {"cluster.routing.allocation.disk.threshold_enabled", "false"}
-                };
+            {
+                {"node.name", nodeName},
+                {"http.port", tcpPort.ToString()},
+                {"gateway.expected_nodes", "1"},
+                {"cluster.routing.allocation.disk.threshold_enabled", "false"}
+            };
             var configFilePath = Path.Combine(installPath, "config", "elasticsearch.yml");
             if (!File.Exists(configFilePath))
             {
@@ -147,12 +152,12 @@ namespace EventFlow.Elasticsearch.Tests
                     new Uri($"http://127.0.0.1:{tcpPort}"),
                     processDisposable);
 
-                await elasticsearchInstance.WaitForGeenStateAsync().ConfigureAwait(false);
+                await elasticsearchInstance.WaitForGreenStateAsync().ConfigureAwait(false);
                 await elasticsearchInstance.DeleteEverythingAsync().ConfigureAwait(false);
 
                 return elasticsearchInstance;
             }
-            catch (Exception)
+            catch
             {
                 processDisposable.DisposeSafe("Failed to dispose Elasticsearch process");
                 throw;

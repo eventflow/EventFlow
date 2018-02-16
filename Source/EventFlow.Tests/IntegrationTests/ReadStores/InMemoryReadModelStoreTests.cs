@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
@@ -38,6 +36,8 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
     [Category(Categories.Integration)]
     public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
     {
+        protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
+
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var resolver = eventFlowOptions
@@ -51,20 +51,6 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 .CreateResolver();
 
             return resolver;
-        }
-
-        protected override Task PurgeTestAggregateReadModelAsync()
-        {
-            return Task.WhenAll(
-                ReadModelPopulator.PurgeAsync<InMemoryThingyReadModel>(CancellationToken.None),
-                ReadModelPopulator.PurgeAsync<InMemoryThingyMessageReadModel>(CancellationToken.None));
-        }
-
-        protected override Task PopulateTestAggregateReadModelAsync()
-        {
-            return Task.WhenAll(
-                ReadModelPopulator.PopulateAsync<InMemoryThingyReadModel>(CancellationToken.None),
-                ReadModelPopulator.PopulateAsync<InMemoryThingyMessageReadModel>(CancellationToken.None));
         }
     }
 }

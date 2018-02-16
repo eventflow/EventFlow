@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
 
 using System;
 using System.Collections.Generic;
@@ -35,7 +34,7 @@ using Microsoft.SqlServer.Server;
 namespace EventFlow.MsSql.Integrations
 {
     internal class TableParameter<TRow> : SqlMapper.IDynamicParameters
-        where TRow : class, new()
+        where TRow : class
     {
         private readonly string _name;
         private readonly IEnumerable<TRow> _rows;
@@ -107,7 +106,7 @@ namespace EventFlow.MsSql.Integrations
             var sqlParameter = (SqlParameter)command.CreateParameter();
             sqlParameter.SqlDbType = SqlDbType.Structured;
             sqlParameter.ParameterName = name;
-            sqlParameter.TypeName = $"{typeof (TRow).Name.ToLowerInvariant()}_list_type";
+            sqlParameter.TypeName = $"{typeof(TRow).Name.ToLowerInvariant()}_list_type";
             sqlParameter.Value = sqlDataRecords;
             return sqlParameter;
         }

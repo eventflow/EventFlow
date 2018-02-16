@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,28 +20,46 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
 namespace EventFlow.Commands
 {
-    public abstract class CommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand> : ICommandHandler<TAggregate, TIdentity, TSourceIdentity, TCommand>
+    public abstract class CommandHandler<TAggregate, TIdentity, TResult, TCommand> :
+        ICommandHandler<TAggregate, TIdentity, TResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TSourceIdentity : ISourceId
-        where TCommand : ICommand<TAggregate, TIdentity, TSourceIdentity>
+        where TResult : IExecutionResult
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
-        public abstract Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
+        public abstract Task<TResult> ExecuteCommandAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken);
     }
 
     public abstract class CommandHandler<TAggregate, TIdentity, TCommand> :
-        CommandHandler<TAggregate, TIdentity, ISourceId, TCommand>
+        CommandHandler<TAggregate, TIdentity, IExecutionResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
-        where TCommand : ICommand<TAggregate, TIdentity, ISourceId>
+        where TCommand : ICommand<TAggregate, TIdentity, IExecutionResult>
     {
+        public override async Task<IExecutionResult> ExecuteCommandAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken)
+        {
+            await ExecuteAsync(aggregate, command, cancellationToken).ConfigureAwait(false);
+            return ExecutionResult.Success();
+        }
+
+        public abstract Task ExecuteAsync(
+            TAggregate aggregate,
+            TCommand command,
+            CancellationToken cancellationToken);
     }
 }
