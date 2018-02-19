@@ -28,8 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -43,9 +41,8 @@ namespace EventFlow.ReadStores
             IResolver resolver,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
-            IReadModelFactory<TReadModel> readModelFactory,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory, transientFaultHandler)
+            IReadModelFactory<TReadModel> readModelFactory)
+            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
         }
 

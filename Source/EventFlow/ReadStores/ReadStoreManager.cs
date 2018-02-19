@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -52,7 +51,6 @@ namespace EventFlow.ReadStores
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
-        protected ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> TransientFaultHandler { get; }
 
         protected ISet<Type> GetAggregateTypes() => AggregateTypes;
         protected ISet<Type> GetDomainEventTypes() => AggregateEventTypes;
@@ -81,18 +79,16 @@ namespace EventFlow.ReadStores
             IResolver resolver,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
-            IReadModelFactory<TReadModel> readModelFactory,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            IReadModelFactory<TReadModel> readModelFactory)
         {
             Log = log;
             Resolver = resolver;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
             ReadModelFactory = readModelFactory;
-            TransientFaultHandler = transientFaultHandler;
         }
 
-        public Task UpdateReadStoresAsync(
+        public async Task UpdateReadStoresAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
@@ -106,7 +102,7 @@ namespace EventFlow.ReadStores
                     StaticReadModelType.PrettyPrint(),
                     string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
                     ));
-                return Task.FromResult(0);
+                return;
             }
 
             Log.Verbose(() => string.Format(
@@ -125,17 +121,15 @@ namespace EventFlow.ReadStores
                     typeof(TReadModel).PrettyPrint(),
                     typeof(TReadModelStore).PrettyPrint(),
                     string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
-                return Task.FromResult(0);
+                return;
             }
 
-            return TransientFaultHandler.TryAsync(
-                c => ReadModelStore.UpdateAsync(
-                    readModelUpdates,
-                    readModelContext,
-                    UpdateAsync,
-                    c),
-                Label.Named("updatereadmodel"),
-                cancellationToken);
+            await ReadModelStore.UpdateAsync(
+                readModelUpdates,
+                readModelContext,
+                UpdateAsync,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
         protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(

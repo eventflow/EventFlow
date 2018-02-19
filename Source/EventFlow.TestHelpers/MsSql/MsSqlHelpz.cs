@@ -44,16 +44,16 @@ namespace EventFlow.TestHelpers.MsSql
             var databaseName = $"{label}_{DateTime.Now:yyyy-MM-dd-HH-mm}_{Guid.NewGuid():N}";
 
             var connectionstringParts = new List<string>
-            {
-                $"Database={databaseName}"
-            };
+                {
+                    $"Database={databaseName}"
+                };
 
             var environmentServer = Environment.GetEnvironmentVariable("HELPZ_MSSQL_SERVER");
             var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PASS");
             var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER");
 
             connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
-                ? @"Server=localhost\SQLEXPRESS"
+                ? @"Server=."
                 : $"Server={environmentServer}");
             connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
                 ? @"Integrated Security=True"
