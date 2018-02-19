@@ -50,12 +50,26 @@ namespace EventFlow.TestHelpers
             LogHelper.Log.Information($"Starting container with image '{image}'");
 
             LogHelper.Log.Information($"Pulling image {image}");
+
+            while (true)
+            {
+                var imagesListResponses = await DockerClient.Images.ListImagesAsync(
+                    new ImagesListParameters())
+                    .ConfigureAwait(false);
+                if (imagesListResponses.Any(i => i.RepoTags.Any(t => string.Equals(t, image, StringComparison.OrdinalIgnoreCase))))
+                {
+                    break;
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+
             var imageAndTag = image.Split(':');
             await DockerClient.Images.CreateImageAsync(
                 new ImagesCreateParameters
                     {
                         FromImage = imageAndTag[0],
-                        Tag = imageAndTag.Length > 1 ? imageAndTag[1] : null
+                        Tag = imageAndTag.Length > 1 ? imageAndTag[1] : null,
                     },
                 null,
                 new Progress<JSONMessage>(m => LogHelper.Log.Verbose($"{m.ProgressMessage} ({m.ID})")))
