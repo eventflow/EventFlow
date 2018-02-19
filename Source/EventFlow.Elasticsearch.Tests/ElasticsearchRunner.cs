@@ -23,13 +23,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Installer;
 using NUnit.Framework;
 
 namespace EventFlow.Elasticsearch.Tests
@@ -37,11 +34,6 @@ namespace EventFlow.Elasticsearch.Tests
     [Category(Categories.Integration)]
     public class ElasticsearchRunner
     {
-        private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
-            "elasticsearch",
-            new Version(5, 3, 2),
-            "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.2.zip");
-
         // ReSharper disable once ClassNeverInstantiated.Local
         private class ClusterHealth
         {
@@ -116,42 +108,22 @@ namespace EventFlow.Elasticsearch.Tests
 
         public static async Task<ElasticsearchInstance> StartAsync()
         {
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JAVA_HOME")))
-                throw new InvalidOperationException("The 'JAVA_HOME' environment variable is required");
+            var disposable = await DockerHelper.StartContainerAsync(
+                    "elasticsearch:5.3.2-alpine",
+                    new[] {9200},
+                    new Dictionary<string, string>
+                    {
+                        {"gateway.expected_nodes", "1"},
+                        {"cluster.routing.allocation.disk.threshold_enabled", "false"}
+                    })
+                .ConfigureAwait(false);
 
-            var installedSoftware = await InstallHelper.InstallAsync(SoftwareDescription).ConfigureAwait(false);
-            var version = SoftwareDescription.Version;
-            var installPath = Path.Combine(installedSoftware.InstallPath,
-                $"elasticsearch-{version.Major}.{version.Minor}.{version.Build}");
+            var elasticsearchInstance = new ElasticsearchInstance(
+                new Uri("http://127.0.0.1:9200"),
+                disposable);
 
-            var tcpPort = TcpHelper.GetFreePort();
-            var exePath = Path.Combine(installPath, "bin", "elasticsearch.bat");
-            var nodeName = $"node-{Guid.NewGuid():N}";
-
-            var settings = new Dictionary<string, string>
-            {
-                {"node.name", nodeName},
-                {"http.port", tcpPort.ToString()},
-                {"gateway.expected_nodes", "1"},
-                {"cluster.routing.allocation.disk.threshold_enabled", "false"}
-            };
-            var configFilePath = Path.Combine(installPath, "config", "elasticsearch.yml");
-            if (!File.Exists(configFilePath))
-            {
-                throw new ApplicationException($"Could not find config file at '{configFilePath}'");
-            }
-            File.WriteAllLines(configFilePath, settings.Select(kv => $"{kv.Key}: {kv.Value}"));
-
-            IDisposable processDisposable = null;
             try
             {
-                processDisposable = ProcessHelper.StartExe(exePath,
-                    $"[${nodeName}] started");
-
-                var elasticsearchInstance = new ElasticsearchInstance(
-                    new Uri($"http://127.0.0.1:{tcpPort}"),
-                    processDisposable);
-
                 await elasticsearchInstance.WaitForGreenStateAsync().ConfigureAwait(false);
                 await elasticsearchInstance.DeleteEverythingAsync().ConfigureAwait(false);
 
@@ -159,7 +131,7 @@ namespace EventFlow.Elasticsearch.Tests
             }
             catch
             {
-                processDisposable.DisposeSafe("Failed to dispose Elasticsearch process");
+                elasticsearchInstance.DisposeSafe("Failed to dispose Elasticsearch process");
                 throw;
             }
         }
