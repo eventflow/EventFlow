@@ -43,65 +43,76 @@ namespace EventFlow.TestHelpers
             IReadOnlyCollection<int> ports = null,
             IReadOnlyDictionary<string, string> environment = null)
         {
-            var env = environment
-                ?.OrderBy(kv => kv.Key)
-                .Select(kv => $"{kv.Key}={kv.Value}")
-                .ToList();
-            LogHelper.Log.Information($"Starting container with image '{image}'");
-
-            LogHelper.Log.Information($"Pulling image {image}");
-
-            while (true)
+            using (var ts = new CancellationTokenSource(TimeSpan.FromMinutes(5)))
             {
-                var imagesListResponses = await DockerClient.Images.ListImagesAsync(
-                    new ImagesListParameters())
-                    .ConfigureAwait(false);
-                if (imagesListResponses.Any(i => i.RepoTags.Any(t => string.Equals(t, image, StringComparison.OrdinalIgnoreCase))))
+                var env = environment
+                    ?.OrderBy(kv => kv.Key)
+                    .Select(kv => $"{kv.Key}={kv.Value}")
+                    .ToList();
+                LogHelper.Log.Information($"Starting container with image '{image}'");
+
+                LogHelper.Log.Information($"Pulling image {image}");
+
+                while (true)
                 {
-                    break;
+                    var imagesListResponses = await DockerClient.Images.ListImagesAsync(
+                            new ImagesListParameters(),
+                            ts.Token)
+                        .ConfigureAwait(false);
+                    if (imagesListResponses.Any(i =>
+                        i.RepoTags.Any(t => string.Equals(t, image, StringComparison.OrdinalIgnoreCase))))
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
 
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                var imageAndTag = image.Split(':');
+                await DockerClient.Images.CreateImageAsync(
+                        new ImagesCreateParameters
+                            {
+                                FromImage = imageAndTag[0],
+                                Tag = imageAndTag.Length > 1 ? imageAndTag[1] : null,
+                            },
+                        null,
+                        new Progress<JSONMessage>(m => LogHelper.Log.Verbose($"{m.ProgressMessage} ({m.ID})")),
+                        ts.Token)
+                    .ConfigureAwait(false);
+
+                var createContainerResponse = await DockerClient.Containers.CreateContainerAsync(
+                        new CreateContainerParameters(
+                            new Config
+                            {
+                                Image = image,
+                                Env = env,
+                                ExposedPorts = ports?
+                                    .ToDictionary(p => $"{p}/tcp", p => new EmptyStruct()),
+                            })
+                        {
+                            HostConfig = new HostConfig
+                            {
+                                PortBindings = ports?.ToDictionary(
+                                    p => $"{p}/tcp",
+                                    p => (IList<PortBinding>) new List<PortBinding>
+                                    {
+                                        new PortBinding {HostPort = p.ToString()}
+                                    })
+                            }
+                        },
+                        ts.Token)
+                    .ConfigureAwait(false);
+                LogHelper.Log.Information($"Successfully created container '{createContainerResponse.ID}'");
+
+                await DockerClient.Containers.StartContainerAsync(
+                        createContainerResponse.ID,
+                        new ContainerStartParameters(),
+                        ts.Token)
+                    .ConfigureAwait(false);
+                LogHelper.Log.Information($"Successfully started container '{createContainerResponse.ID}'");
+
+                return new DisposableAction(() => StopContainer(createContainerResponse.ID));
             }
-
-            var imageAndTag = image.Split(':');
-            await DockerClient.Images.CreateImageAsync(
-                new ImagesCreateParameters
-                    {
-                        FromImage = imageAndTag[0],
-                        Tag = imageAndTag.Length > 1 ? imageAndTag[1] : null,
-                    },
-                null,
-                new Progress<JSONMessage>(m => LogHelper.Log.Verbose($"{m.ProgressMessage} ({m.ID})")))
-                .ConfigureAwait(false);
-
-            var createContainerResponse = await DockerClient.Containers.CreateContainerAsync(
-                new CreateContainerParameters(
-                    new Config
-                        {
-                            Image = image,
-                            Env = env,
-                            ExposedPorts = ports?
-                                .ToDictionary(p => $"{p}/tcp", p => new EmptyStruct()),
-                        })
-                    {
-                        HostConfig = new HostConfig
-                        {
-                            PortBindings = ports?.ToDictionary(
-                                p => $"{p}/tcp",
-                                p => (IList<PortBinding>) new List<PortBinding> { new PortBinding{ HostPort = p.ToString()} })
-                        }
-                    })
-                .ConfigureAwait(false);
-            LogHelper.Log.Information($"Successfully created container '{createContainerResponse.ID}'");
-
-            await DockerClient.Containers.StartContainerAsync(
-                createContainerResponse.ID,
-                new ContainerStartParameters())
-                .ConfigureAwait(false);
-            LogHelper.Log.Information($"Successfully started container '{createContainerResponse.ID}'");
-            
-            return new DisposableAction(() =>  StopContainer(createContainerResponse.ID));
         }
 
         private static void StopContainer(string id)
