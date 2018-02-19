@@ -26,6 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Logs;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Entities;
@@ -215,6 +218,44 @@ namespace EventFlow.TestHelpers.Suites
             readModel.PingsReceived.Should().Be(2);
         }
 
+        [Test, Timeout(10000)]
+        public async Task T()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var waitState = new WaitState();
+            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
+
+            // Arramge
+            _semaphoreSlims[id.Value] = waitState;
+            var delayedPublishTask = Task.Run(() => PublishPingCommandsAsync(id, 2));
+            waitState.AutoResetEvent1.WaitOne();
+            _semaphoreSlims.Remove(id.Value);
+            await PublishPingCommandsAsync(id, 2).ConfigureAwait(false);
+            waitState.AutoResetEvent2.Set();
+            await delayedPublishTask.ConfigureAwait(false);
+
+            Console.WriteLine("");
+        }
+
+        private class WaitState
+        {
+            public AutoResetEvent AutoResetEvent1 { get; } = new AutoResetEvent(false);
+            public AutoResetEvent AutoResetEvent2 { get; } = new AutoResetEvent(false);
+        }
+
+        private readonly Dictionary<string, WaitState> _semaphoreSlims = new Dictionary<string, WaitState>();
+
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            _semaphoreSlims.Clear();
+
+            return base.Options(eventFlowOptions)
+                .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
+                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _semaphoreSlims, r.Resolver.Resolve<ILog>())));
+        }
+
         private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)
         {
             var thingyMessages = Fixture.CreateMany<ThingyMessage>(count).ToList();
@@ -223,5 +264,53 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         protected abstract Type ReadModelType { get; }
+
+        private class DelayingReadModelDomainEventApplier : IReadModelDomainEventApplier
+        {
+            private readonly IReadModelDomainEventApplier _readModelDomainEventApplier;
+            private readonly IReadOnlyDictionary<string, WaitState> _waitStates;
+            private readonly ILog _log;
+
+            public DelayingReadModelDomainEventApplier(
+                IReadModelDomainEventApplier readModelDomainEventApplier,
+                IReadOnlyDictionary<string, WaitState> waitStates,
+                ILog log)
+            {
+                _readModelDomainEventApplier = readModelDomainEventApplier;
+                _waitStates = waitStates;
+                _log = log;
+            }
+
+            public async Task<bool> UpdateReadModelAsync<TReadModel>(
+                TReadModel readModel,
+                IReadOnlyCollection<IDomainEvent> domainEvents,
+                IReadModelContext readModelContext,
+                CancellationToken cancellationToken)
+                where TReadModel : IReadModel
+            {
+                _waitStates.TryGetValue(domainEvents.First().GetIdentity().Value, out var waitState);
+
+                if (waitState != null)
+                {
+                    _log.Information("Waiting for access to read model");
+                    waitState.AutoResetEvent1.Set();
+                    waitState.AutoResetEvent2.WaitOne();
+                }
+
+                try
+                {
+                    return await _readModelDomainEventApplier.UpdateReadModelAsync(
+                        readModel,
+                        domainEvents,
+                        readModelContext,
+                        cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                finally
+                {
+
+                }
+            }
+        }
     }
 }
