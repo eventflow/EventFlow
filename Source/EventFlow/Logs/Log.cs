@@ -56,25 +56,24 @@ namespace EventFlow.Logs
             Write(LogLevel.Verbose, exception, format, args);
         }
 
-        public void Verbose(Func<string> combersomeLogging)
+        public virtual void Verbose(Func<string> combersomeLogging)
         {
             if (!IsVerboseEnabled)
             {
                 return;
             }
+
             Verbose(combersomeLogging());
         }
 
-        public virtual void Verbose(Action<StringBuilder> combersomeLogging)
+        public void Verbose(Action<StringBuilder> combersomeLogging)
         {
-            if (!IsVerboseEnabled)
-            {
-                return;
-            }
-
-            var stringBuilder = new StringBuilder();
-            combersomeLogging(stringBuilder);
-            Verbose(stringBuilder.ToString());
+            Verbose(() =>
+                {
+                    var stringBuilder = new StringBuilder();
+                    combersomeLogging(stringBuilder);
+                    return stringBuilder.ToString();
+                });
         }
 
         public void Debug(string format, params object[] args)
@@ -87,7 +86,7 @@ namespace EventFlow.Logs
             Write(LogLevel.Debug, exception, format, args);
         }
 
-        public void Debug(Func<string> combersomeLogging)
+        public virtual void Debug(Func<string> combersomeLogging)
         {
             if (!IsDebugEnabled)
             {
@@ -99,14 +98,12 @@ namespace EventFlow.Logs
 
         public void Debug(Action<StringBuilder> combersomeLogging)
         {
-            if (!IsDebugEnabled)
-            {
-                return;
-            }
-
-            var stringBuilder = new StringBuilder();
-            combersomeLogging(stringBuilder);
-            Debug(stringBuilder.ToString());
+            Debug(() =>
+                {
+                    var stringBuilder = new StringBuilder();
+                    combersomeLogging(stringBuilder);
+                    return stringBuilder.ToString();
+                });
         }
 
         public void Information(string format, params object[] args)
