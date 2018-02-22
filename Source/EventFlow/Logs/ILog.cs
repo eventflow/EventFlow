@@ -55,6 +55,9 @@ namespace EventFlow.Logs
         [StringFormatMethod("format")]
         void Information(Exception exception, string format, params object[] args);
 
+        void Information(Func<string> combersomeLogging);
+        void Information(Action<StringBuilder> combersomeLogging);
+
         [StringFormatMethod("format")]
         void Warning(string format, params object[] args);
 

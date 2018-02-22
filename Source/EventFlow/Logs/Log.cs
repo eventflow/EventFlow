@@ -116,6 +116,26 @@ namespace EventFlow.Logs
             Write(LogLevel.Information, exception, format, args);
         }
 
+        public virtual void Information(Func<string> combersomeLogging)
+        {
+            if (!IsInformationEnabled)
+            {
+                return;
+            }
+
+            Information(combersomeLogging());
+        }
+
+        public void Information(Action<StringBuilder> combersomeLogging)
+        {
+            Information(() =>
+                {
+                    var stringBuilder = new StringBuilder();
+                    combersomeLogging(stringBuilder);
+                    return stringBuilder.ToString();
+                });
+        }
+
         public void Warning(string format, params object[] args)
         {
             Write(LogLevel.Warning, format, args);
