@@ -1,6 +1,7 @@
 ### New in 0.54 (not released yet)
 
-- _Nothing yet_
+- New: Added [LibLog](https://github.com/damianh/LibLog), enable by
+  calling the `IEventFlowOptions.UseLibLog(...)` extension
 
 ### New in 0.53.3204 (released 2018-01-25)
 
