@@ -51,14 +51,14 @@ namespace EventFlow.Logs
             _logger = logProvider.GetLogger("EventFlow");
         }
 
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        public override void Write(LogLevel logLevel, string format, params object[] args)
         {
             _logger(
                 LevelMap[logLevel],
                 () => args.Any() ? string.Format(format, args) : format);
         }
 
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
         {
             _logger(
                 LevelMap[logLevel],

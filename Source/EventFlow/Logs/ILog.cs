@@ -75,5 +75,11 @@ namespace EventFlow.Logs
 
         [StringFormatMethod("format")]
         void Fatal(Exception exception, string format, params object[] args);
+
+        [StringFormatMethod("format")]
+        void Write(LogLevel logLevel, string format, params object[] args);
+
+        [StringFormatMethod("format")]
+        void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
     }
 }
