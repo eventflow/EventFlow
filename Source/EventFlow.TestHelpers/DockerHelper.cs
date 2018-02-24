@@ -70,6 +70,7 @@ namespace EventFlow.TestHelpers
                             ts.Token)
                         .ConfigureAwait(false);
                     if (imagesListResponses.Any(i =>
+                        i.RepoTags != null &&
                         i.RepoTags.Any(t => string.Equals(t, image, StringComparison.OrdinalIgnoreCase))))
                     {
                         break;
