@@ -37,7 +37,7 @@ namespace EventFlow.Core.Caching
 
         private static string GenerateKey()
         {
-            return $"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}";
+            return $"eventflow-{DateTimeOffset.Now:yyyyMMdd-HHmm}-{Guid.NewGuid():N}";
         }
 
         public MemoryCache(ILog log)
