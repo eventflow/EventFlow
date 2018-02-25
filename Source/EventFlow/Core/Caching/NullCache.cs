@@ -22,56 +22,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Logs;
 
 namespace EventFlow.Core.Caching
 {
-    /// <summary>
-    /// Simple cache that disregards expiration times and keeps everything forever,
-    /// useful when doing tests.
-    /// </summary>
-    public class DictionaryMemoryCache : Cache, IMemoryCache
+    public class NullCache : IMemoryCache
     {
-        private readonly ConcurrentDictionary<string, object> _cache = new ConcurrentDictionary<string, object>();
-
-        public DictionaryMemoryCache(
-            ILog log)
-            : base(log)
-        {
-        }
-
-        protected override Task SetAsync<T>(
+        public Task<T> GetOrAddAsync<T>(
             CacheKey cacheKey,
-            DateTimeOffset absoluteExpiration,
-            T value,
-            CancellationToken cancellationToken)
+            DateTimeOffset expirationTime,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken) where T : class
         {
-            _cache[cacheKey.Value] = value;
-
-            return Task.FromResult(0);
+            return factory(cancellationToken);
         }
 
-        protected override Task SetAsync<T>(
+        public Task<T> GetOrAddAsync<T>(
             CacheKey cacheKey,
             TimeSpan slidingExpiration,
-            T value,
-            CancellationToken cancellationToken)
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken) where T : class
         {
-            _cache[cacheKey.Value] = value;
-
-            return Task.FromResult(0);
-        }
-
-        protected override Task<T> GetAsync<T>(
-            CacheKey cacheKey,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_cache.TryGetValue(cacheKey.Value, out var value)
-                ? value as T
-                : default(T));
+            return factory(cancellationToken);
         }
     }
 }
