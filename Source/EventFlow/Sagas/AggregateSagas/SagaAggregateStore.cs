@@ -63,6 +63,7 @@ namespace EventFlow.Sagas.AggregateSagas
                 .ConfigureAwait(false);
 
             var domainEvents = await storeAggregateSagaAsync(
+                this,
                 sagaId,
                 sourceId,
                 async (s, c) =>
@@ -79,7 +80,7 @@ namespace EventFlow.Sagas.AggregateSagas
                 : default(TSaga);
         }
 
-        private async Task<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetUpdateAsync(
+        private async Task<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetUpdateAsync(
             Type sagaType,
             CancellationToken cancellationToken)
         {
@@ -99,8 +100,8 @@ namespace EventFlow.Sagas.AggregateSagas
                     var methodInfo = GetType().GetTypeInfo().GetMethod(nameof(UpdateAggregateAsync));
                     var identityType = aggregateRootType.GetTypeInfo().GetGenericArguments()[0];
                     var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
-                    return Task.FromResult<Func<ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
-                        (id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(this, new object[] { id, sid, u, c }));
+                    return Task.FromResult<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
+                        (sas, id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(sas, new object[] { id, sid, u, c }));
                 },
                 cancellationToken)
                 .ConfigureAwait(false);

@@ -23,7 +23,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core.Caching;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
@@ -39,8 +38,6 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             var thingyId = A<ThingyId>();
-
-            Resolver.Resolve<IMemoryCache>();
 
             // Act
             using (var scope = Resolver.BeginScope())
