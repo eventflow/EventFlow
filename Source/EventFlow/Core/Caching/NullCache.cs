@@ -22,21 +22,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Logs
+namespace EventFlow.Core.Caching
 {
-    public class NullLog : Log
+    public class NullCache : IMemoryCache
     {
-        protected override bool IsVerboseEnabled => false;
-        protected override bool IsInformationEnabled => false;
-        protected override bool IsDebugEnabled => false;
-
-        public override void Write(LogLevel logLevel, string format, params object[] args)
+        public Task<T> GetOrAddAsync<T>(
+            CacheKey cacheKey,
+            DateTimeOffset expirationTime,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken) where T : class
         {
+            return factory(cancellationToken);
         }
 
-        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public Task<T> GetOrAddAsync<T>(
+            CacheKey cacheKey,
+            TimeSpan slidingExpiration,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken) where T : class
         {
+            return factory(cancellationToken);
         }
     }
 }

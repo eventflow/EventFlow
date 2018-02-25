@@ -53,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests
         
         public class TestSuccessResultCommand : Command<ThingyAggregate, ThingyId, TestExecutionResult>
         {
-            public TestSuccessResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
+            public TestSuccessResultCommand(ThingyId aggregateId) : base(aggregateId, EventFlow.Core.SourceId.New)
             {
             }
         }
@@ -72,7 +72,7 @@ namespace EventFlow.Tests.IntegrationTests
         
         public class TestFailedResultCommand : Command<ThingyAggregate, ThingyId, IExecutionResult>
         {
-            public TestFailedResultCommand(ThingyId aggregateId) : base(aggregateId, Core.SourceId.New)
+            public TestFailedResultCommand(ThingyId aggregateId) : base(aggregateId, EventFlow.Core.SourceId.New)
             {
             }
         }

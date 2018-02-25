@@ -1,4 +1,12 @@
-### New in 0.53 (not released yet)
+### New in 0.54 (not released yet)
+
+- **Critical fix:** `SagaAggregateStore` was incorrectly putting a object reference
+  into its memory cache causing an object already disposed exception when working with
+  sagas
+- New: Added [LibLog](https://github.com/damianh/LibLog), enable by
+  calling the `IEventFlowOptions.UseLibLog(...)` extension
+
+### New in 0.53.3204 (released 2018-01-25)
 
 * New: Allow events to have multiple `EventVersion` attributes
 * Fixed: `ReflectionHelper.CompileMethodInvocation` now recognises
