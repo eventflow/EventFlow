@@ -1,6 +1,10 @@
-### New in 0.54 (not released yet)
+### New in 0.55 (not released yet)
 
-- **Critical fix:** `SagaAggregateStore` was incorrectly putting a object reference
+* _Nothing yet_
+
+### New in 0.54.3261 (released 2018-02-25)
+
+- **Critical fix:** `SagaAggregateStore` was incorrectly putting an object reference
   into its memory cache causing an object already disposed exception when working with
   sagas
 - New: Added [LibLog](https://github.com/damianh/LibLog), enable by
