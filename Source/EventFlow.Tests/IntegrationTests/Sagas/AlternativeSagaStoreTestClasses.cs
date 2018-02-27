@@ -45,7 +45,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             }
         }
 
-        public class InMemorySagaStore : ISagaStore
+        public class InMemorySagaStore : SagaStore
         {
             private readonly Dictionary<ISagaId, object> _sagas = new Dictionary<ISagaId, object>();
             private readonly AsyncLock _asyncLock = new AsyncLock();
@@ -56,13 +56,12 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 this._hasUpdateBeenCalled.Should().BeFalse();
             }
 
-            public async Task<TSaga> UpdateAsync<TSaga>(
+            public override async Task<ISaga> UpdateAsync(
                 ISagaId sagaId,
-                SagaDetails sagaDetails,
+                Type sagaType,
                 ISourceId sourceId,
-                Func<TSaga, CancellationToken, Task> updateSaga,
+                Func<ISaga, CancellationToken, Task> updateSaga,
                 CancellationToken cancellationToken)
-                where TSaga : ISaga
             {
                 using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -70,11 +69,11 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
                     if (!_sagas.TryGetValue(sagaId, out var obj))
                     {
-                        obj = Activator.CreateInstance(sagaDetails.SagaType, sagaId);
+                        obj = Activator.CreateInstance(sagaType, sagaId);
                         _sagas[sagaId] = obj;
                     }
 
-                    var saga = (TSaga) obj;
+                    var saga = (ISaga) obj;
 
                     await updateSaga(saga, cancellationToken).ConfigureAwait(false);
 

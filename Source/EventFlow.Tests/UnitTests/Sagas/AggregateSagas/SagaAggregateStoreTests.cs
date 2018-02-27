@@ -62,9 +62,9 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
                 .ReturnsAsync(new List<IDomainEvent>());
 
             // Act
-            await Sut.UpdateAsync<ThingySaga>(
+            await Sut.UpdateAsync(
                 thingySagaId,
-                SagaDetails.From(typeof(ThingySaga)),
+                typeof(ThingySaga),
                 sourceId,
                 (s, c) => Task.FromResult(0),
                 CancellationToken.None);
