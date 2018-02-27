@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
@@ -47,9 +48,16 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
         public class InMemorySagaStore : SagaStore
         {
+            private readonly IResolver _resolver;
             private readonly Dictionary<ISagaId, object> _sagas = new Dictionary<ISagaId, object>();
             private readonly AsyncLock _asyncLock = new AsyncLock();
             private bool _hasUpdateBeenCalled;
+
+            public InMemorySagaStore(
+                IResolver resolver)
+            {
+                _resolver = resolver;
+            }
 
             public void UpdateShouldNotHaveBeenCalled()
             {
@@ -63,6 +71,9 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 Func<ISaga, CancellationToken, Task> updateSaga,
                 CancellationToken cancellationToken)
             {
+                var commandbus = _resolver.Resolve<ICommandBus>();
+
+                ISaga saga;
                 using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
                 {
                     _hasUpdateBeenCalled = true;
@@ -73,12 +84,13 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                         _sagas[sagaId] = obj;
                     }
 
-                    var saga = (ISaga) obj;
+                    saga = (ISaga) obj;
 
                     await updateSaga(saga, cancellationToken).ConfigureAwait(false);
-
-                    return saga;
                 }
+                
+                await saga.PublishAsync(commandbus, cancellationToken).ConfigureAwait(false);
+                return saga;
             }
         }
 
