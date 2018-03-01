@@ -219,7 +219,7 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test, Timeout(10000)]
-        public async Task OptimisticConcurrencyCheck()
+        public virtual async Task OptimisticConcurrencyCheck()
         {
             // Simulates a state in which two read models have been loaded to memory
             // and each is updated independently. The read store should detect the
