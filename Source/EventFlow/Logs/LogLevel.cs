@@ -21,22 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
 namespace EventFlow.Logs
 {
-    public class NullLog : Log
+    public enum LogLevel
     {
-        protected override bool IsVerboseEnabled => false;
-        protected override bool IsInformationEnabled => false;
-        protected override bool IsDebugEnabled => false;
-
-        public override void Write(LogLevel logLevel, string format, params object[] args)
-        {
-        }
-
-        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
-        {
-        }
+        Verbose,
+        Debug,
+        Information,
+        Warning,
+        Error,
+        Fatal
     }
 }

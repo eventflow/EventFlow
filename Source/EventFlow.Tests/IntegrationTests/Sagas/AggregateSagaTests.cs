@@ -170,16 +170,6 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             receivedSagaPingIds.ShouldAllBeEquivalentTo(pingsWithRunningSaga);
         }
 
-        private Task<ThingySaga> LoadSagaAsync(ThingyId thingyId)
-        {
-            // This is specified in the ThingySagaLocator
-            var expectedThingySagaId = new ThingySagaId($"saga-{thingyId.Value}");
-
-            return AggregateStore.LoadAsync<ThingySaga, ThingySagaId>(
-                expectedThingySagaId,
-                CancellationToken.None);
-        }
-
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();

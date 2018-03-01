@@ -31,7 +31,7 @@ namespace EventFlow.Logs
         protected override bool IsDebugEnabled => true;
         protected override bool IsInformationEnabled => true;
 
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        public override void Write(LogLevel logLevel, string format, params object[] args)
         {
             var message = args.Length != 0
                 ? string.Format(format, args)
@@ -39,7 +39,7 @@ namespace EventFlow.Logs
             Console.WriteLine("{0:HH:mm:ss:fff} [{1}]: {2}", DateTime.Now, logLevel, message);
         }
 
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
         {
             var message = args.Length != 0
                 ? string.Format(format, args)

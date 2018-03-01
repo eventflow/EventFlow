@@ -21,22 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Configuration;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Logs
+namespace EventFlow.Tests.IntegrationTests.Core.IoC
 {
-    public class NullLog : Log
+    [Category(Categories.Integration)]
+    public class EventFlowServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
     {
-        protected override bool IsVerboseEnabled => false;
-        protected override bool IsInformationEnabled => false;
-        protected override bool IsDebugEnabled => false;
-
-        public override void Write(LogLevel logLevel, string format, params object[] args)
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-        }
-
-        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
-        {
+            return eventFlowOptions
+                .CreateResolver();
         }
     }
 }
