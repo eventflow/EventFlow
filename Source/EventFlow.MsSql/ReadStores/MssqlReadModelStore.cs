@@ -168,13 +168,13 @@ namespace EventFlow.MsSql.ReadStores
                 cancellationToken,
                 sql,
                 dynamicParameters).ConfigureAwait(false);
-            Log.Verbose(() => $"Updated MSSQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelUpdate.ReadModelId}' to version '{readModelEnvelope.Version}'");
-
             if (rowsAffected != 1)
             {
                 throw new OptimisticConcurrencyException(
                     $"Read model '{readModelEnvelope.ReadModelId}' ({typeof(TReadModel).PrettyPrint()}) is already updated");
             }
+
+            Log.Verbose(() => $"Updated MSSQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelUpdate.ReadModelId}' to version '{readModelEnvelope.Version}'");
         }
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
