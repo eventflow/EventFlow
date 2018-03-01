@@ -1,6 +1,12 @@
 ### New in 0.55 (not released yet)
 
-* _Nothing yet_
+* New: .NET standard 2.0 (still supports 1.6) support added to these
+  NuGet packages
+  - EventFlow
+  - EventFlow.Autofac
+  - EventFlow.Elasticsearch
+  - EventFlow.Hangfire
+  - EventFlow.Sql
 
 ### New in 0.54.3261 (released 2018-02-25)
 
