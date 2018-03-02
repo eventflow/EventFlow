@@ -34,7 +34,7 @@ namespace EventFlow.Extensions
 {
     public static class SpecificationExtensions
     {
-        public static void ThrowDomainErrorIfNotStatisfied<T>(
+        public static void ThrowDomainErrorIfNotSatisfied<T>(
             this ISpecification<T> specification,
             T obj)
         {
