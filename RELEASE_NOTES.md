@@ -1,5 +1,7 @@
 ### New in 0.55 (not released yet)
 
+* New: Trigger sagas without the need of any domain events by using
+  `ISagaStore.UpdateAsync(...)`
 * New: .NET standard 2.0 (still supports 1.6) support added to these
   NuGet packages
   - EventFlow

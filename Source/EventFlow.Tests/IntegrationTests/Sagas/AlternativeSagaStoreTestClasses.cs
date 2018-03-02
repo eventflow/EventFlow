@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
@@ -45,41 +46,51 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             }
         }
 
-        public class InMemorySagaStore : ISagaStore
+        public class InMemorySagaStore : SagaStore
         {
+            private readonly IResolver _resolver;
             private readonly Dictionary<ISagaId, object> _sagas = new Dictionary<ISagaId, object>();
             private readonly AsyncLock _asyncLock = new AsyncLock();
             private bool _hasUpdateBeenCalled;
+
+            public InMemorySagaStore(
+                IResolver resolver)
+            {
+                _resolver = resolver;
+            }
 
             public void UpdateShouldNotHaveBeenCalled()
             {
                 this._hasUpdateBeenCalled.Should().BeFalse();
             }
 
-            public async Task<TSaga> UpdateAsync<TSaga>(
+            public override async Task<ISaga> UpdateAsync(
                 ISagaId sagaId,
-                SagaDetails sagaDetails,
+                Type sagaType,
                 ISourceId sourceId,
-                Func<TSaga, CancellationToken, Task> updateSaga,
+                Func<ISaga, CancellationToken, Task> updateSaga,
                 CancellationToken cancellationToken)
-                where TSaga : ISaga
             {
+                var commandbus = _resolver.Resolve<ICommandBus>();
+
+                ISaga saga;
                 using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
                 {
                     _hasUpdateBeenCalled = true;
 
                     if (!_sagas.TryGetValue(sagaId, out var obj))
                     {
-                        obj = Activator.CreateInstance(sagaDetails.SagaType, sagaId);
+                        obj = Activator.CreateInstance(sagaType, sagaId);
                         _sagas[sagaId] = obj;
                     }
 
-                    var saga = (TSaga) obj;
+                    saga = (ISaga) obj;
 
                     await updateSaga(saga, cancellationToken).ConfigureAwait(false);
-
-                    return saga;
                 }
+                
+                await saga.PublishAsync(commandbus, cancellationToken).ConfigureAwait(false);
+                return saga;
             }
         }
 
