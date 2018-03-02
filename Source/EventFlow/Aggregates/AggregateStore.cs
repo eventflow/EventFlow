@@ -23,11 +23,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates.ExecutionResults;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
@@ -35,7 +33,6 @@ using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
-using EventFlow.Subscribers;
 
 namespace EventFlow.Aggregates
 {
@@ -43,7 +40,6 @@ namespace EventFlow.Aggregates
     {
         private static readonly IReadOnlyCollection<IDomainEvent> EmptyDomainEventCollection = new IDomainEvent[] { };
         private readonly ILog _log;
-        private readonly IResolver _resolver;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
@@ -51,14 +47,12 @@ namespace EventFlow.Aggregates
 
         public AggregateStore(
             ILog log,
-            IResolver resolver,
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
-            _resolver = resolver;
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
@@ -143,16 +137,6 @@ namespace EventFlow.Aggregates
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            if (aggregateUpdateResult.Result.IsSuccess &&
-                aggregateUpdateResult.DomainEvents.Any())
-            {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync(
-                    aggregateUpdateResult.DomainEvents,
-                    cancellationToken)
-                    .ConfigureAwait(false);
-            }
-
             return aggregateUpdateResult;
         }
 
@@ -169,15 +153,6 @@ namespace EventFlow.Aggregates
                 sourceId,
                 cancellationToken)
                 .ConfigureAwait(false);
-
-            if (domainEvents.Any())
-            {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync(
-                    domainEvents,
-                    cancellationToken)
-                    .ConfigureAwait(false);
-            }
 
             return domainEvents;
         }

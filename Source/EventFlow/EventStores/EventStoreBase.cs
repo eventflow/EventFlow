@@ -27,10 +27,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
+using EventFlow.Subscribers;
 
 namespace EventFlow.EventStores
 {
@@ -43,7 +45,8 @@ namespace EventFlow.EventStores
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
-
+        private readonly IResolver _resolver;
+        
         public EventStoreBase(
             ILog log,
             IAggregateFactory aggregateFactory,
@@ -51,7 +54,8 @@ namespace EventFlow.EventStores
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
             IEventPersistence eventPersistence,
-            ISnapshotStore snapshotStore)
+            ISnapshotStore snapshotStore,
+            IResolver resolver)
         {
             _eventPersistence = eventPersistence;
             _snapshotStore = snapshotStore;
@@ -60,6 +64,7 @@ namespace EventFlow.EventStores
             _eventJsonSerializer = eventJsonSerializer;
             _eventUpgradeManager = eventUpgradeManager;
             _metadataProviders = metadataProviders.ToList();
+            _resolver = resolver;
         }
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
@@ -99,6 +104,8 @@ namespace EventFlow.EventStores
                     })
                 .ToList();
 
+            var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+
             var committedDomainEvents = await _eventPersistence.CommitEventsAsync(
                 id,
                 serializedEvents,
@@ -108,6 +115,11 @@ namespace EventFlow.EventStores
             var domainEvents = committedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
+            
+            await domainEventPublisher.PublishAsync(
+                    domainEvents,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             return domainEvents;
         }
