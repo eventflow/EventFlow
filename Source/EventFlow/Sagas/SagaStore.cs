@@ -28,16 +28,25 @@ using EventFlow.Core;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaStore
+    public abstract class SagaStore : ISagaStore
     {
-        Task<TSaga> UpdateAsync<TSaga>(
+        public async Task<TSaga> UpdateAsync<TSaga>(
             ISagaId sagaId,
             ISourceId sourceId,
             Func<TSaga, CancellationToken, Task> updateSaga,
             CancellationToken cancellationToken)
-            where TSaga : ISaga;
+            where TSaga : ISaga
+        {
+            return (TSaga) await UpdateAsync(
+                    sagaId,
+                    typeof(TSaga),
+                    sourceId,
+                    (s, c) => updateSaga((TSaga) s, c),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
 
-        Task<ISaga> UpdateAsync(
+        public abstract Task<ISaga> UpdateAsync(
             ISagaId sagaId,
             Type sagaType,
             ISourceId sourceId,

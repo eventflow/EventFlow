@@ -1,6 +1,7 @@
 ### New in 0.55 (not released yet)
 
-* _Nothing yet_
+* New: Trigger sagas without the need of any domain events by using
+  `ISagaStore.UpdateAsync(...)`
 
 ### New in 0.54.3261 (released 2018-02-25)
 
