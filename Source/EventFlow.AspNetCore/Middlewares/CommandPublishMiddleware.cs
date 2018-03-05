@@ -107,7 +107,7 @@ namespace EventFlow.Aspnetcore.Middlewares
             }
             catch (ArgumentException e)
             {
-                _log.Debug(e, $"Failed to publish serilized command '{name}' v{version} due to: {e.Message}");
+                _log.Debug(e, $"Failed to publish serialized command '{name}' v{version} due to: {e.Message}");
                 await WriteErrorAsync(e.Message, HttpStatusCode.BadRequest, context).ConfigureAwait(false);
             }
             catch (DomainError e)

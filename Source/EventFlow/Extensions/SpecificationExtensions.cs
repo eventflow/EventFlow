@@ -44,7 +44,7 @@ namespace EventFlow.Extensions
             if (whyIsNotStatisfiedBy.Any())
             {
                 throw DomainError.With(
-                    $"'{specification.GetType().PrettyPrint()}' is not satisfied becase of {string.Join(" and ", whyIsNotStatisfiedBy)}");
+                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotStatisfiedBy)}");
             }
         }
 

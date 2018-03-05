@@ -49,7 +49,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
             var itineraryDepartureTime = obj.DepartureTime();
             if (Route.DepartureTime.IsAfter(itineraryDepartureTime))
             {
-                yield return $"Route origin depature '{Route.DepartureTime}' is after itinerary depature '{itineraryDepartureTime}'";
+                yield return $"Route origin departure '{Route.DepartureTime}' is after itinerary departure '{itineraryDepartureTime}'";
             }
 
             var itineraryArrivalLocation = obj.ArrivalLocation();
