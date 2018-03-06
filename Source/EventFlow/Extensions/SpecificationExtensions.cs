@@ -34,6 +34,21 @@ namespace EventFlow.Extensions
 {
     public static class SpecificationExtensions
     {
+        [Obsolete("Use 'ThrowDomainErrorIfNotSatisfied' instead")]
+        public static void ThrowDomainErrorIfNotStatisfied<T>(
+            this ISpecification<T> specification,
+            T obj)
+        {
+            if (specification == null) throw new ArgumentNullException(nameof(specification));
+
+            var whyIsNotStatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
+            if (whyIsNotStatisfiedBy.Any())
+            {
+                throw DomainError.With(
+                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotStatisfiedBy)}");
+            }
+        }
+
         public static void ThrowDomainErrorIfNotSatisfied<T>(
             this ISpecification<T> specification,
             T obj)
