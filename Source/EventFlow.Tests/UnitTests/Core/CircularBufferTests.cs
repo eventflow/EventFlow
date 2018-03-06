@@ -32,11 +32,11 @@ namespace EventFlow.Tests.UnitTests.Core
     [Category(Categories.Unit)]
     public class CircularBufferTests
     {
-        [TestCase(1)] // Below capasity
-        [TestCase(1, 2)] // At capasity
-        [TestCase(1, 2, 3)] // Once above capasity
-        [TestCase(1, 2, 3, 4)] // Loop twice over capasity
-        [TestCase(1, 2, 3, 4, 5)] // One more than of capasity
+        [TestCase(1)] // Below capacity
+        [TestCase(1, 2)] // At capacity
+        [TestCase(1, 2, 3)] // Once above capacity
+        [TestCase(1, 2, 3, 4)] // Loop twice over capacity
+        [TestCase(1, 2, 3, 4, 5)] // One more than of capacity
         public void Put(params int[] numbers)
         {
             // Arrange

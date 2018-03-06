@@ -66,7 +66,7 @@ namespace EventFlow.Aggregates
 
             if (constructorInfos.Count != 1)
             {
-                throw new ArgumentException($"Arregate type '{typeof(TAggregate).PrettyPrint()}' doesn't have just one constructor");
+                throw new ArgumentException($"Aggregate type '{typeof(TAggregate).PrettyPrint()}' doesn't have just one constructor");
             }
 
             var constructorInfo = constructorInfos.Single();

@@ -42,14 +42,14 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 
         public void Create(Schedule schedule)
         {
-            Specs.AggregateIsNew.ThrowDomainErrorIfNotStatisfied(this);
+            Specs.AggregateIsNew.ThrowDomainErrorIfNotSatisfied(this);
 
             Emit(new VoyageCreatedEvent(schedule));
         }
 
         public void Delay(TimeSpan delay)
         {
-            Specs.AggregateIsCreated.ThrowDomainErrorIfNotStatisfied(this);
+            Specs.AggregateIsCreated.ThrowDomainErrorIfNotSatisfied(this);
 
             if (delay == TimeSpan.Zero) return;
 

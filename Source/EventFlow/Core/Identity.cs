@@ -104,7 +104,7 @@ namespace EventFlow.Core
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.OrdinalIgnoreCase))
-                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' contains leading and/or traling spaces";
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' contains leading and/or trailing spaces";
             if (!value.StartsWith(NameWithDash))
                 yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not start with '{NameWithDash}'";
             if (!ValueValidation.IsMatch(value))
