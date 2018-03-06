@@ -88,7 +88,7 @@ namespace EventFlow.RabbitMQ.Tests
             {
                 if (stopwatch.Elapsed >= timeout)
                 {
-                    throw new TimeoutException($"Timedout after {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
+                    throw new TimeoutException($"Timed out after {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
                 }
 
                 BasicDeliverEventArgs basicDeliverEventArgs;

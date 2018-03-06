@@ -89,7 +89,7 @@ namespace EventFlow.Snapshots
             var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
             var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
 
-            _log.Verbose(() => $"Deserilizing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
+            _log.Verbose(() => $"Deserializing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
 
             var snapshot = (ISnapshot)_jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
             var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);

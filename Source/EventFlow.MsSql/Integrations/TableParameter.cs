@@ -41,7 +41,7 @@ namespace EventFlow.MsSql.Integrations
         private readonly SqlMapper.IDynamicParameters _otherParameters;
 
         // ReSharper disable StaticMemberInGenericType
-        // The PropertyInfos and SqlMetaDatas static fields are dependant on the TRow type
+        // The PropertyInfos and SqlMetaDatas static fields are dependent on the TRow type
         private static readonly Dictionary<SqlDbType, Action<SqlDataRecord, int, object>> SqlDataRecordSetters = new Dictionary<SqlDbType, Action<SqlDataRecord, int, object>>
             {
                 {SqlDbType.Text, (r, i, o) => r.SetString(i, (string)o)},

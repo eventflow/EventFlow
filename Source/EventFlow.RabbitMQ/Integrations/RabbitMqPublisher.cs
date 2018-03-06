@@ -115,7 +115,7 @@ namespace EventFlow.RabbitMQ.Integrations
             IReadOnlyCollection<RabbitMqMessage> messages)
         {
             _log.Verbose(
-                "Publishing {0} domain domain events to RabbitMQ host '{1}'",
+                "Publishing {0} domain events to RabbitMQ host '{1}'",
                 messages.Count,
                 _configuration.Uri.Host);
 

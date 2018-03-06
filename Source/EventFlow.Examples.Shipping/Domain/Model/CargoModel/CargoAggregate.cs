@@ -42,14 +42,14 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
 
         public void Book(Route route)
         {
-            Specs.AggregateIsNew.ThrowDomainErrorIfNotStatisfied(this);
+            Specs.AggregateIsNew.ThrowDomainErrorIfNotSatisfied(this);
             Emit(new CargoBookedEvent(route));
         }
 
         public void SetItinerary(Itinerary itinerary)
         {
-            Specs.AggregateIsCreated.ThrowDomainErrorIfNotStatisfied(this);
-            Route.Specification().ThrowDomainErrorIfNotStatisfied(itinerary);
+            Specs.AggregateIsCreated.ThrowDomainErrorIfNotSatisfied(this);
+            Route.Specification().ThrowDomainErrorIfNotSatisfied(itinerary);
 
             Emit(new CargoItinerarySetEvent(itinerary));
         }

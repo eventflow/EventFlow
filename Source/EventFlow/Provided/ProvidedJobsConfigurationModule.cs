@@ -31,7 +31,7 @@ namespace EventFlow.Provided
     {
         public void Register(IEventFlowOptions eventFlowOptions)
         {
-            // Use explicite adding of types, no need to scan assembly
+            // Use explicit adding of types, no need to scan assembly
             eventFlowOptions.AddJobs(
                 typeof(PublishCommandJob), typeof(DispatchToAsynchronousEventSubscribersJob));
         }
