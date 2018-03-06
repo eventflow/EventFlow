@@ -39,14 +39,7 @@ namespace EventFlow.Extensions
             this ISpecification<T> specification,
             T obj)
         {
-            if (specification == null) throw new ArgumentNullException(nameof(specification));
-
-            var whyIsNotStatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
-            if (whyIsNotStatisfiedBy.Any())
-            {
-                throw DomainError.With(
-                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotStatisfiedBy)}");
-            }
+            specification.ThrowDomainErrorIfNotSatisfied(obj);
         }
 
         public static void ThrowDomainErrorIfNotSatisfied<T>(
