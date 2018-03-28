@@ -97,6 +97,24 @@
   - EventFlow.Elasticsearch
   - EventFlow.Hangfire
   - EventFlow.Sql
+* New: Support for Microsoft.Extensions.DependencyInjection (`IServiceProvider`
+  and `IServiceCollection`) using the EventFlow.ServiceProvider NuGet package.
+  
+  Add it to your ASP.NET Core 2.0 application:
+  ```csharp
+	public void ConfigureServices(IServiceCollection services)
+	{
+		services.AddMvc();
+		services.AddEventFlow(o => o.AddDefaults(MyDomainAssembly));
+	}
+  ```
+  Or use it explicitly:
+  ```csharp
+	EventFlowOptions.New.
+		.UseServiceCollection()
+		...
+		.CreateServiceProvider();
+  ```
 
 ### New in 0.54.3261 (released 2018-02-25)
 
