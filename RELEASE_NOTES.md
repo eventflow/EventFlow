@@ -1,5 +1,8 @@
 ### New in 0.55 (not released yet)
 
+* Fixed: Re-populating events to read models that span multiple aggregates
+  now has events orderd by timestamp instead of sequence numbers, i.e., events
+  from aggregates with higher sequences numbers isn't forced last
 * New: Trigger sagas without the need of any domain events by using
   `ISagaStore.UpdateAsync(...)`
 * New: .NET standard 2.0 (still supports 1.6) support added to these
