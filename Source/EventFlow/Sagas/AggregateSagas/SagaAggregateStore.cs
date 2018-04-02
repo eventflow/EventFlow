@@ -35,7 +35,7 @@ using EventFlow.Extensions;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
-    public class SagaAggregateStore : ISagaStore
+    public class SagaAggregateStore : SagaStore
     {
         private readonly IResolver _resolver;
         private readonly IAggregateStore _aggregateStore;
@@ -51,23 +51,7 @@ namespace EventFlow.Sagas.AggregateSagas
             _memoryCache = memoryCache;
         }
 
-        public async Task<TSaga> UpdateAsync<TSaga>(
-            ISagaId sagaId,
-            ISourceId sourceId,
-            Func<TSaga, CancellationToken, Task> updateSaga,
-            CancellationToken cancellationToken)
-            where TSaga : ISaga
-        {
-            return (TSaga) await UpdateAsync(
-                sagaId,
-                typeof(TSaga),
-                sourceId,
-                (s, c) => updateSaga((TSaga) s, c),
-                cancellationToken)
-                .ConfigureAwait(false);
-        }
-        
-        public async Task<ISaga> UpdateAsync(
+        public override async Task<ISaga> UpdateAsync(
             ISagaId sagaId,
             Type sagaType,
             ISourceId sourceId,
