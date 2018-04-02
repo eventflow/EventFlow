@@ -22,18 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.Provided.Jobs;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Provided
+namespace EventFlow.Tests.IntegrationTests.Core.IoC
 {
-    public class ProvidedJobsModule : IModule
+    [Category(Categories.Integration)]
+    public class EventFlowServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
     {
-        public void Register(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            // Use explicit adding of types, no need to scan assembly
-            eventFlowOptions.AddJobs(
-                typeof(PublishCommandJob), typeof(DispatchToAsynchronousEventSubscribersJob));
+            return eventFlowOptions
+                .CreateResolver();
         }
     }
 }

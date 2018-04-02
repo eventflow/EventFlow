@@ -34,7 +34,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
-    [Category(Categories.Unit)]
+    [Category(Categories.Integration), Timeout(20000)]
     public class AlternativeSagaStoreTests
     {
         private IRootResolver _resolver;

@@ -18,7 +18,7 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
+        <a href="https://ci.appveyor.com/project/eventflow/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
         <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>

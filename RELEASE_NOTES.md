@@ -1,5 +1,14 @@
-### New in 0.54 (not released yet)
+### New in 0.55 (not released yet)
 
+* New: Trigger sagas without the need of any domain events by using
+  `ISagaStore.UpdateAsync(...)`
+* New: .NET standard 2.0 (still supports 1.6) support added to these
+  NuGet packages
+  - EventFlow
+  - EventFlow.Autofac
+  - EventFlow.Elasticsearch
+  - EventFlow.Hangfire
+  - EventFlow.Sql
 * New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
   for read models that have a 1-to-1 relation with an aggregate. If read models get
   out of sync, or events are applied in different order, events are either fecthed
@@ -9,6 +18,14 @@
   - `UseElasticsearchReadModelFor<,,>`
   - `UseMssqlReadModelFor<,,>`
   - `UseSQLiteReadModelFor<,,>`
+
+### New in 0.54.3261 (released 2018-02-25)
+
+- **Critical fix:** `SagaAggregateStore` was incorrectly putting an object reference
+  into its memory cache causing an object already disposed exception when working with
+  sagas
+- New: Added [LibLog](https://github.com/damianh/LibLog), enable by
+  calling the `IEventFlowOptions.UseLibLog(...)` extension
 
 ### New in 0.53.3204 (released 2018-01-25)
 

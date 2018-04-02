@@ -21,19 +21,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.Provided.Jobs;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Provided
+namespace EventFlow.Core.Caching
 {
-    public class ProvidedJobsModule : IModule
+    public class NullCache : IMemoryCache
     {
-        public void Register(IEventFlowOptions eventFlowOptions)
+        public Task<T> GetOrAddAsync<T>(
+            CacheKey cacheKey,
+            DateTimeOffset expirationTime,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken) where T : class
         {
-            // Use explicit adding of types, no need to scan assembly
-            eventFlowOptions.AddJobs(
-                typeof(PublishCommandJob), typeof(DispatchToAsynchronousEventSubscribersJob));
+            return factory(cancellationToken);
+        }
+
+        public Task<T> GetOrAddAsync<T>(
+            CacheKey cacheKey,
+            TimeSpan slidingExpiration,
+            Func<CancellationToken, Task<T>> factory,
+            CancellationToken cancellationToken) where T : class
+        {
+            return factory(cancellationToken);
         }
     }
 }

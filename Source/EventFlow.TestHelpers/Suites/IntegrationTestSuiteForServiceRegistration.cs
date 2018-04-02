@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
-// https://github.com/eventflow/EventFlow
+// Copyright (c) 2015-2016 Rasmus Mikkelsen
+// Copyright (c) 2015-2016 eBay Software Foundation
+// https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -21,37 +21,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using EventFlow.Core;
-using EventFlow.TestHelpers;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Sagas;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EventFlow.Tests.UnitTests.Core
+namespace EventFlow.TestHelpers.Suites
 {
-    [Category(Categories.Unit)]
-    public class CircularBufferTests
+    public abstract class IntegrationTestSuiteForServiceRegistration : IntegrationTest
     {
-        [TestCase(1)] // Below capacity
-        [TestCase(1, 2)] // At capacity
-        [TestCase(1, 2, 3)] // Once above capacity
-        [TestCase(1, 2, 3, 4)] // Loop twice over capacity
-        [TestCase(1, 2, 3, 4, 5)] // One more than of capacity
-        public void Put(params int[] numbers)
+        [Test]
+        public async Task PublishingStartAndCompleteTiggerEventsCompletesSaga()
         {
             // Arrange
-            const int capasity = 2;
-            var sut = new CircularBuffer<int>(capasity);
+            var thingyId = A<ThingyId>();
 
             // Act
-            foreach (var number in numbers)
+            using (var scope = Resolver.BeginScope())
             {
-                sut.Put(number);
+                var commandBus = scope.Resolve<ICommandBus>();
+                await commandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
+            }
+            using (var scope = Resolver.BeginScope())
+            {
+                var commandBus = scope.Resolve<ICommandBus>();
+                await commandBus.PublishAsync(new ThingyRequestSagaCompleteCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
             }
 
             // Assert
-            var shouldContain = numbers.Reverse().Take(capasity).ToList();
-            sut.Should().Contain(shouldContain);
+            var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
+            thingySaga.State.Should().Be(SagaState.Completed);
         }
     }
 }

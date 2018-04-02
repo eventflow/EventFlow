@@ -31,11 +31,11 @@ namespace EventFlow.Logs
         protected override bool IsInformationEnabled => false;
         protected override bool IsDebugEnabled => false;
 
-        protected override void Write(LogLevel logLevel, string format, params object[] args)
+        public override void Write(LogLevel logLevel, string format, params object[] args)
         {
         }
 
-        protected override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
+        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
         {
         }
     }

@@ -93,6 +93,7 @@ Task("Build")
                         .Append(GetDotNetCoreArgsVersions())
                         .Append("/p:ci=true")
                         .Append("/p:SourceLinkEnabled=true")
+                        .AppendSwitch("/p:DebugType","=","Full")
 				});
         });
 
@@ -322,7 +323,9 @@ void ExecuteTest(string files, string resultsFile)
     new FilePath(FILE_OPENCOVER_REPORT),
     new OpenCoverSettings
         {
-            ArgumentCustomization = aggs => aggs.Append("-returntargetcode")
+            ArgumentCustomization = aggs => aggs.Append("-returntargetcode"),
+            OldStyle = true,
+            MergeOutput = true            
         }
         .WithFilter("+[EventFlow*]*")
         .WithFilter("-[*Tests]*")

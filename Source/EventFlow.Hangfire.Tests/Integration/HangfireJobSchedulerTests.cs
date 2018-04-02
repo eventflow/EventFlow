@@ -73,7 +73,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            _backgroundJobServer.DisposeSafe("Hangfire backgroung job server");
+            _backgroundJobServer.DisposeSafe("Hangfire background job server");
             _webApp.DisposeSafe("Web APP");
             _msSqlDatabase.DisposeSafe("MSSQL database");
         }

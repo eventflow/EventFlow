@@ -28,23 +28,13 @@ namespace EventFlow.Logs
 {
     public abstract class Log : ILog
     {
-        protected enum LogLevel
-        {
-            Verbose,
-            Debug,
-            Information,
-            Warning,
-            Error,
-            Fatal
-        }
-
         protected abstract bool IsVerboseEnabled { get; }
         protected abstract bool IsInformationEnabled { get; }
         protected abstract bool IsDebugEnabled { get; }
 
-        protected abstract void Write(LogLevel logLevel, string format, params object[] args);
+        public abstract void Write(LogLevel logLevel, string format, params object[] args);
 
-        protected abstract void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
+        public abstract void Write(LogLevel logLevel, Exception exception, string format, params object[] args);
 
         public void Verbose(string format, params object[] args)
         {
@@ -56,25 +46,24 @@ namespace EventFlow.Logs
             Write(LogLevel.Verbose, exception, format, args);
         }
 
-        public void Verbose(Func<string> combersomeLogging)
+        public virtual void Verbose(Func<string> combersomeLogging)
         {
             if (!IsVerboseEnabled)
             {
                 return;
             }
+
             Verbose(combersomeLogging());
         }
 
-        public virtual void Verbose(Action<StringBuilder> combersomeLogging)
+        public void Verbose(Action<StringBuilder> combersomeLogging)
         {
-            if (!IsVerboseEnabled)
-            {
-                return;
-            }
-
-            var stringBuilder = new StringBuilder();
-            combersomeLogging(stringBuilder);
-            Verbose(stringBuilder.ToString());
+            Verbose(() =>
+                {
+                    var stringBuilder = new StringBuilder();
+                    combersomeLogging(stringBuilder);
+                    return stringBuilder.ToString();
+                });
         }
 
         public void Debug(string format, params object[] args)
@@ -87,7 +76,7 @@ namespace EventFlow.Logs
             Write(LogLevel.Debug, exception, format, args);
         }
 
-        public void Debug(Func<string> combersomeLogging)
+        public virtual void Debug(Func<string> combersomeLogging)
         {
             if (!IsDebugEnabled)
             {
@@ -99,14 +88,12 @@ namespace EventFlow.Logs
 
         public void Debug(Action<StringBuilder> combersomeLogging)
         {
-            if (!IsDebugEnabled)
-            {
-                return;
-            }
-
-            var stringBuilder = new StringBuilder();
-            combersomeLogging(stringBuilder);
-            Debug(stringBuilder.ToString());
+            Debug(() =>
+                {
+                    var stringBuilder = new StringBuilder();
+                    combersomeLogging(stringBuilder);
+                    return stringBuilder.ToString();
+                });
         }
 
         public void Information(string format, params object[] args)
@@ -117,6 +104,26 @@ namespace EventFlow.Logs
         public void Information(Exception exception, string format, params object[] args)
         {
             Write(LogLevel.Information, exception, format, args);
+        }
+
+        public virtual void Information(Func<string> combersomeLogging)
+        {
+            if (!IsInformationEnabled)
+            {
+                return;
+            }
+
+            Information(combersomeLogging());
+        }
+
+        public void Information(Action<StringBuilder> combersomeLogging)
+        {
+            Information(() =>
+                {
+                    var stringBuilder = new StringBuilder();
+                    combersomeLogging(stringBuilder);
+                    return stringBuilder.ToString();
+                });
         }
 
         public void Warning(string format, params object[] args)

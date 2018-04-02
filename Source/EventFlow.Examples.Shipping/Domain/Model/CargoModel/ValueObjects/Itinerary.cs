@@ -40,7 +40,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
             var legsList = (transportLegs ?? Enumerable.Empty<TransportLeg>()).ToList();
 
             if (!legsList.Any()) throw new ArgumentException(nameof(transportLegs));
-            (new TransportLegsAreConnectedSpecification()).ThrowDomainErrorIfNotStatisfied(legsList);
+            (new TransportLegsAreConnectedSpecification()).ThrowDomainErrorIfNotSatisfied(legsList);
 
             TransportLegs = legsList;
         }
