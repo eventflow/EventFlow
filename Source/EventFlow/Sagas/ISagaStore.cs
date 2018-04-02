@@ -32,10 +32,16 @@ namespace EventFlow.Sagas
     {
         Task<TSaga> UpdateAsync<TSaga>(
             ISagaId sagaId,
-            SagaDetails sagaDetails,
             ISourceId sourceId,
             Func<TSaga, CancellationToken, Task> updateSaga,
             CancellationToken cancellationToken)
             where TSaga : ISaga;
+
+        Task<ISaga> UpdateAsync(
+            ISagaId sagaId,
+            Type sagaType,
+            ISourceId sourceId,
+            Func<ISaga, CancellationToken, Task> updateSaga,
+            CancellationToken cancellationToken);
     }
 }

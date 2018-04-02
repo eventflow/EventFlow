@@ -59,11 +59,9 @@ namespace EventFlow.Sagas
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var commandBus = _resolver.Resolve<ICommandBus>();
             foreach (var domainEvent in domainEvents)
             {
                 await ProcessAsync(
-                    commandBus,
                     domainEvent,
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -71,7 +69,6 @@ namespace EventFlow.Sagas
         }
 
         private async Task ProcessAsync(
-            ICommandBus commandBus,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
@@ -90,16 +87,11 @@ namespace EventFlow.Sagas
                     continue;
                 }
 
-                var saga =  await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
-
-                if (saga != null)
-                {
-                    await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
-                }
+                await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<ISaga> ProcessSagaAsync(
+        private async Task ProcessSagaAsync(
             IDomainEvent domainEvent,
             ISagaId sagaId,
             SagaDetails details,
@@ -109,9 +101,9 @@ namespace EventFlow.Sagas
             {
                 _log.Verbose(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
 
-                return await _sagaStore.UpdateAsync<ISaga>(
+                await _sagaStore.UpdateAsync(
                     sagaId,
-                    details,
+                    details.SagaType,
                     domainEvent.Metadata.SourceId,
                     (s, c) => UpdateSagaAsync(s, domainEvent, details, c),
                     cancellationToken)
@@ -127,7 +119,7 @@ namespace EventFlow.Sagas
                     .ConfigureAwait(false);
                 if (handled)
                 {
-                    return null;
+                    return;
                 }
 
                 _log.Error(e, $"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'");

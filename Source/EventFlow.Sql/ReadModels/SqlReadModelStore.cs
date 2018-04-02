@@ -192,7 +192,7 @@ namespace EventFlow.Sql.ReadModels
 
             var readModelVersion = GetVersion(readModel);
 
-            Log.Verbose(() => $"Foud SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
+            Log.Verbose(() => $"Found SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)

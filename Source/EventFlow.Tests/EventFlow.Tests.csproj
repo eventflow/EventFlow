@@ -12,4 +12,7 @@
     <PackageReference Include="Serilog" Version="2.6.0" />
     <PackageReference Include="WindowsBase" Version="4.6.1055" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
 </Project>
