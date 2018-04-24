@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
@@ -84,6 +85,15 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
                 orderedValues,
                 o => o.WithStrictOrdering());
+        }
+
+        [Test]
+        public void ProtectAgainsInvalidEnumValues()
+        {
+            // Act + Assert
+            // ReSharper disable once ObjectCreationAsStatement
+            var exception = Assert.Throws<ArgumentException>(() => new MagicEnumSingleValue((MagicEnum)42));
+            exception.Message.Should().Be("The value '42' isn't defined in enum 'MagicEnum'");
         }
 
         [Test]
