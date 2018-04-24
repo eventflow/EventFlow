@@ -1,6 +1,6 @@
 ### New in 0.57 (not released yet)
 
-* _Nothing yet_
+* New: .NET standard 1.6 and 2.0 support for `EventFlow.MsSql` package
 
 ### New in 0.56.3328 (released 2018-04-24)
 
