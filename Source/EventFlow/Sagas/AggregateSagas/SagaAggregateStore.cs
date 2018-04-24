@@ -28,56 +28,64 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
-    public class SagaAggregateStore : ISagaStore
+    public class SagaAggregateStore : SagaStore
     {
+        private readonly IResolver _resolver;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public SagaAggregateStore(
+            IResolver resolver,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
+            _resolver = resolver;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;
         }
 
-        public async Task<TSaga> UpdateAsync<TSaga>(
+        public override async Task<ISaga> UpdateAsync(
             ISagaId sagaId,
-            SagaDetails sagaDetails,
+            Type sagaType,
             ISourceId sourceId,
-            Func<TSaga, CancellationToken, Task> updateSaga,
+            Func<ISaga, CancellationToken, Task> updateSaga,
             CancellationToken cancellationToken)
-            where TSaga : ISaga
         {
-            var saga = default(TSaga);
+            var saga = null as ISaga;
 
             var storeAggregateSagaAsync = await GetUpdateAsync(
-                sagaDetails.SagaType,
-                cancellationToken)
+                    sagaType,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             var domainEvents = await storeAggregateSagaAsync(
-                this,
-                sagaId,
-                sourceId,
-                async (s, c) =>
-                    {
-                        var specificSaga = (TSaga)s;
-                        await updateSaga(specificSaga, c).ConfigureAwait(false);
-                        saga = specificSaga;
-                    },
-                cancellationToken)
+                    this,
+                    sagaId,
+                    sourceId,
+                    async (s, c) =>
+                        {
+                            await updateSaga(s, c).ConfigureAwait(false);
+                            saga = s;
+                        },
+                    cancellationToken)
                 .ConfigureAwait(false);
 
-            return domainEvents.Any()
-                ? saga
-                : default(TSaga);
+            if (!domainEvents.Any())
+            {
+                return null;
+            }
+
+            var commandBus = _resolver.Resolve<ICommandBus>();
+            await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
+
+            return saga;
         }
 
         private async Task<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetUpdateAsync(
@@ -109,6 +117,7 @@ namespace EventFlow.Sagas.AggregateSagas
             return value;
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public async Task<IReadOnlyCollection<IDomainEvent>> UpdateAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             ISourceId sourceId,

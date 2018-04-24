@@ -36,7 +36,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         [Test]
         public void DeserializesCorrectly()
         {
-            // Arragnge
+            // Arrange
             var json = new
                 {
                     aggregate_id = "thingy-42",

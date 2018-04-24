@@ -1,6 +1,21 @@
-### New in 0.54 (not released yet)
+### New in 0.55 (not released yet)
 
-- **Critical fix:** `SagaAggregateStore` was incorrectly putting a object reference
+* Fixed: Re-populating events to read models that span multiple aggregates
+  now has events orderd by timestamp instead of sequence numbers, i.e., events
+  from aggregates with higher sequences numbers isn't forced last
+* New: Trigger sagas without the need of any domain events by using
+  `ISagaStore.UpdateAsync(...)`
+* New: .NET standard 2.0 (still supports 1.6) support added to these
+  NuGet packages
+  - EventFlow
+  - EventFlow.Autofac
+  - EventFlow.Elasticsearch
+  - EventFlow.Hangfire
+  - EventFlow.Sql
+
+### New in 0.54.3261 (released 2018-02-25)
+
+- **Critical fix:** `SagaAggregateStore` was incorrectly putting an object reference
   into its memory cache causing an object already disposed exception when working with
   sagas
 - New: Added [LibLog](https://github.com/damianh/LibLog), enable by

@@ -65,7 +65,7 @@ namespace EventFlow.Jobs
             }
             catch (Exception e)
             {
-                // We want the InstantJobScheduler to behave as an out-of-process scheduler, i.e., doens't
+                // We want the InstantJobScheduler to behave as an out-of-process scheduler, i.e., doesn't
                 // throw exceptions directly related to the job execution
                 _log.Error(e, $"Execution of job '{jobDefinition.Name}' v{jobDefinition.Version} failed!");
             }

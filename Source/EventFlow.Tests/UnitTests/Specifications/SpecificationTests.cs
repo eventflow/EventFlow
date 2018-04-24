@@ -106,7 +106,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var isTrue = new TestSpecifications.IsTrueSpecification();
 
             // Act
-            Assert.Throws<DomainError>(() => isTrue.ThrowDomainErrorIfNotStatisfied(false));
+            Assert.Throws<DomainError>(() => isTrue.ThrowDomainErrorIfNotSatisfied(false));
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var isTrue = new TestSpecifications.IsTrueSpecification();
 
             // Act
-            Assert.DoesNotThrow(() => isTrue.ThrowDomainErrorIfNotStatisfied(true));
+            Assert.DoesNotThrow(() => isTrue.ThrowDomainErrorIfNotSatisfied(true));
         }
     }
 }
