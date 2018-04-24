@@ -21,19 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.Provided.Jobs;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Provided
+namespace EventFlow.Autofac.Tests.IntegrationTests
 {
-    public class ProvidedJobsModule : IModule
+    [Category(Categories.Integration)]
+    public class AutofacServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
     {
-        public void Register(IEventFlowOptions eventFlowOptions)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            // Use explicit adding of types, no need to scan assembly
-            eventFlowOptions.AddJobs(
-                typeof(PublishCommandJob), typeof(DispatchToAsynchronousEventSubscribersJob));
+            return base.Options(eventFlowOptions
+                .UseAutofacContainerBuilder());
+        }
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .CreateResolver();
         }
     }
 }

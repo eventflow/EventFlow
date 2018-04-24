@@ -21,19 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.Provided.Jobs;
-
-namespace EventFlow.Provided
+namespace EventFlow.Logs
 {
-    public class ProvidedJobsModule : IModule
+    public enum LogLevel
     {
-        public void Register(IEventFlowOptions eventFlowOptions)
-        {
-            // Use explicit adding of types, no need to scan assembly
-            eventFlowOptions.AddJobs(
-                typeof(PublishCommandJob), typeof(DispatchToAsynchronousEventSubscribersJob));
-        }
+        Verbose,
+        Debug,
+        Information,
+        Warning,
+        Error,
+        Fatal
     }
 }

@@ -58,7 +58,7 @@ namespace EventFlow.Commands
             if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version));
             if (string.IsNullOrEmpty(json)) throw new ArgumentNullException(nameof(json));
 
-            _log.Verbose($"Executing serilized command '{name}' v{version}");
+            _log.Verbose($"Executing serialized command '{name}' v{version}");
 
             CommandDefinition commandDefinition;
             if (!_commandDefinitionService.TryGetDefinition(name, version, out commandDefinition))
@@ -73,7 +73,7 @@ namespace EventFlow.Commands
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"Failed to deserilize command '{name}' v{version}: {e.Message}", e);
+                throw new ArgumentException($"Failed to deserialize command '{name}' v{version}: {e.Message}", e);
             }
 
             await command.PublishAsync(_commandBus, CancellationToken.None).ConfigureAwait(false);

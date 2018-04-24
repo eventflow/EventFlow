@@ -77,7 +77,7 @@ namespace EventFlow
             {
                 _log.Debug(
                     exception,
-                    "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
+                    "Execution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
                     typeof(TAggregate),

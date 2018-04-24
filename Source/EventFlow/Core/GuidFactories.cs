@@ -112,7 +112,7 @@ namespace EventFlow.Core
                 var namespaceBytes = namespaceId.ToByteArray();
                 SwapByteOrder(namespaceBytes);
 
-                // Comput the hash of the name space ID concatenated with the name (step 4)
+                // Compute the hash of the name space ID concatenated with the name (step 4)
                 byte[] hash;
                 using (var algorithm = SHA1.Create())
                 {

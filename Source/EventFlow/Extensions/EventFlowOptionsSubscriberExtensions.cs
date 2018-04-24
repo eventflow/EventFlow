@@ -33,7 +33,7 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
-        [Obsolete("Please use the more explicite method 'AddSynchronousSubscriber<,,,>' instead")]
+        [Obsolete("Please use the more explicit method 'AddSynchronousSubscriber<,,,>' instead")]
         public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
