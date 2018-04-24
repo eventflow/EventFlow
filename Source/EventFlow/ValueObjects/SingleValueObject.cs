@@ -28,7 +28,7 @@ using EventFlow.Extensions;
 namespace EventFlow.ValueObjects
 {
     public abstract class SingleValueObject<T> : ValueObject, IComparable, ISingleValueObject
-        where T : IComparable, IComparable<T>
+        where T : IComparable
     {
         public T Value { get; }
 

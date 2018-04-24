@@ -37,6 +37,19 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             public StringSingleValue(string value) : base(value) { }
         }
 
+        public enum MagicEnum
+        {
+            Two = 2,
+            Zero = 0,
+            Three = 3,
+            One = 1
+        }
+
+        public class MagicEnumSingleValue : SingleValueObject<MagicEnum>
+        {
+            public MagicEnumSingleValue(MagicEnum value) : base(value) { }
+        }
+
         [Test]
         public void Ordering()
         {
@@ -50,7 +63,69 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(orderedValues);
+            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
+                orderedValues,
+                o => o.WithStrictOrdering());
+        }
+
+        [Test]
+        public void EnumOrdering()
+        {
+            // Arrange
+            var values = Many<MagicEnum>(10);
+            var orderedValues = values.OrderBy(s => s).ToList();
+            values.Should().NotEqual(orderedValues); // Data test
+            var singleValueObjects = values.Select(s => new MagicEnumSingleValue(s)).ToList();
+
+            // Act
+            var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
+
+            // Assert
+            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
+                orderedValues,
+                o => o.WithStrictOrdering());
+        }
+
+        [Test]
+        public void EnumOrderingManual()
+        {
+            // Arrange
+            var values = new[]
+                {
+                    new MagicEnumSingleValue(MagicEnum.Zero), 
+                    new MagicEnumSingleValue(MagicEnum.Three), 
+                    new MagicEnumSingleValue(MagicEnum.One), 
+                    new MagicEnumSingleValue(MagicEnum.Two), 
+                };
+            
+            // Act
+            var orderedValues = values
+                .OrderBy(v => v)
+                .Select(v => v.Value)
+                .ToList();
+            
+            // Assert
+            orderedValues.ShouldAllBeEquivalentTo(
+                new []
+                {
+                    MagicEnum.Zero,
+                    MagicEnum.One,
+                    MagicEnum.Two,
+                    MagicEnum.Three,
+                },
+                o => o.WithStrictOrdering());
+        }
+
+        [Test]
+        public void NullEquals()
+        {
+            // Arrange
+            var obj = new StringSingleValue(A<string>());
+            var null_ = null as StringSingleValue;
+
+            // Assert
+            // ReSharper disable once ExpressionIsAlwaysNull
+            obj.Equals(null_).Should().BeFalse();
         }
 
         [Test]
