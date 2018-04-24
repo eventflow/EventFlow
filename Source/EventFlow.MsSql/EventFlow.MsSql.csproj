@@ -24,6 +24,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="dbup-sqlserver" Version="4.0.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
   </ItemGroup>
   <ItemGroup>
