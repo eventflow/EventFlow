@@ -1,4 +1,8 @@
-### New in 0.56 (not released yet)
+### New in 0.57 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.56.3328 (released 2018-04-24)
 
 * New: Allow enums to be used in `SingleValueObject<T>` and protect from
   undefined enum values
