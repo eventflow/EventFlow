@@ -1,6 +1,7 @@
 ### New in 0.57 (not released yet)
 
-* _Nothing yet_
+* Fixed: AggregateException/InvalidOperationException when reading and updating
+  an aggregate from different threads at the same time using `InMemoryEventPersistence`
 
 ### New in 0.56.3328 (released 2018-04-24)
 
@@ -21,7 +22,6 @@
   - EventFlow.Elasticsearch
   - EventFlow.Hangfire
   - EventFlow.Sql
-* Fixed: AggregateException/InvalidOperationException when reading and updating an aggregate from different threads at the same time using InMemoryEventPersistence
 
 ### New in 0.54.3261 (released 2018-02-25)
 
