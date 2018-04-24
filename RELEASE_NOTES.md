@@ -1,4 +1,8 @@
-### New in 0.55 (not released yet)
+### New in 0.56 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.55.3323 (released 2018-04-24)
 
 * Fixed: Re-populating events to read models that span multiple aggregates
   now has events orderd by timestamp instead of sequence numbers, i.e., events
