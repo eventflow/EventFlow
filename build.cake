@@ -262,40 +262,6 @@ void UploadTestResults(string filePath)
     }
 }
 
-string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
-{
-    Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
-
-    using (var process = new System.Diagnostics.Process())
-    {
-        process.StartInfo = new System.Diagnostics.ProcessStartInfo
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                FileName = exePath,
-                Arguments = arguments,
-                WorkingDirectory = workingDirectory,
-            };
-        process.Start();
-
-        var output = process.StandardOutput.ReadToEnd();
-
-        if (!process.WaitForExit(30000))
-        {
-            throw new Exception("Failed to stop process!");
-        }
-
-        Debug(output);
-
-        if (process.ExitCode != 0)
-        {
-            throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
-        }
-
-        return output;
-    }
-}
-
 void ExecuteTest(string files, string resultsFile)
 {
 	OpenCover(tool => 
