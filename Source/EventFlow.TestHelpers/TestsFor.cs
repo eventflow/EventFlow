@@ -22,8 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using AutoFixture;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.TestHelpers
 {

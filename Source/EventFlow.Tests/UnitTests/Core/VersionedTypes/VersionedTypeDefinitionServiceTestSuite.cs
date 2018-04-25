@@ -24,11 +24,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutoFixture;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 {

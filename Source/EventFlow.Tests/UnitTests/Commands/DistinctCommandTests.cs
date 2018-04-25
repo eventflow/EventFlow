@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Extensions;
@@ -34,7 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
-    [Timeout(10000)]
+    //[Timeout(10000)] // TODO
     [Category(Categories.Unit)]
     public class DistinctCommandTests
     {

@@ -38,7 +38,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    [Timeout(5000)]
+    //[Timeout(5000)] // TODO
     [Category(Categories.Unit)]
     public class ReadModelPopulatorTests : TestsFor<ReadModelPopulator>
     {

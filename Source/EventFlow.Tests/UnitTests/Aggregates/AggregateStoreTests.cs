@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Configuration;
@@ -40,7 +41,6 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {

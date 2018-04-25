@@ -25,13 +25,13 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations

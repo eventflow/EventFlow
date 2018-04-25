@@ -21,15 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core.Caching;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core.Cache
 {
+    /*
     [Category(Categories.Unit)]
     public class InMemoryCacheTests : TestSuiteForInMemoryCache<MemoryCache>
     {
     }
+    */
 }

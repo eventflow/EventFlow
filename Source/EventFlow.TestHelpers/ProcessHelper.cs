@@ -24,9 +24,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Management;
 using EventFlow.Core;
-using EventFlow.Extensions;
 using EventFlow.TestHelpers.Extensions;
 
 namespace EventFlow.TestHelpers
@@ -92,41 +90,18 @@ namespace EventFlow.TestHelpers
                         process.OutputDataReceived -= OutHandler;
                         process.ErrorDataReceived -= ErrHandler;
 
-                        KillProcessAndChildren(process.Id);
+                        process.Kill();
+                        process.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
+                        
+                        // TODO: Find method for reaping child processes
+
+                        process.Dispose();
                     }
                     catch (Exception e)
                     {
                         LogHelper.Log.Error($"Failed to kill process: {e.Message}");
                     }
-                    finally
-                    {
-                        process.DisposeSafe("Process");
-                    }
                 });
-        }
-
-        private static void KillProcessAndChildren(int pid)
-        {
-            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-            var moc = searcher.Get();
-
-            foreach (var o in moc)
-            {
-                var mo = (ManagementObject)o;
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
-
-            try
-            {
-                LogHelper.Log.Information($"Killing process {pid}");
-
-                var proc = Process.GetProcessById(pid);
-                proc.Kill();
-            }
-            catch (ArgumentException)
-            {
-                // Process already exited.
-            }
         }
     }
 }

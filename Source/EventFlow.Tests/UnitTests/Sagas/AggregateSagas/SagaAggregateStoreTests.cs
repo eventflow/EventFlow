@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
-using EventFlow.Sagas;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Sagas;
@@ -43,7 +42,7 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(A<MemoryCache>());
+            Inject<IMemoryCache>(A<DictionaryMemoryCache>());
         }
 
         [Test]
