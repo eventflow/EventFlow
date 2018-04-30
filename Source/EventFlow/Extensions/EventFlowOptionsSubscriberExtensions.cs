@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
-        [Obsolete("Please use the more explicite method 'AddSynchronousSubscriber<,,,>' instead")]
+        [Obsolete("Please use the more explicit method 'AddSynchronousSubscriber<,,,>' instead")]
         public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>

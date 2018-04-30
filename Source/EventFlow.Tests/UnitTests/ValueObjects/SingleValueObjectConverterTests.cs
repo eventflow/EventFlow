@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,6 +32,14 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
     [Category(Categories.Unit)]
     public class SingleValueObjectConverterTests
     {
+        public enum MagicEnum
+        {
+            Two = 2,
+            Zero = 0,
+            Three = 3,
+            One = 1
+        }
+        
         [TestCase("test  test", "\"test  test\"")]
         [TestCase("42", "\"42\"")]
         [TestCase("", "\"\"")]
@@ -95,7 +103,35 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Assert
             intSvo.Value.Should().Be(expectedValue);
         }
+        
+        [TestCase("\"One\"", MagicEnum.One)]
+        [TestCase("1", MagicEnum.One)]
+        [TestCase("2", MagicEnum.Two)]
+        public void EnumDeserilization(string json, MagicEnum expectedValue)
+        {
+            // Act
+            var intSvo = JsonConvert.DeserializeObject<EnumSVO>(json);
 
+            // Assert
+            intSvo.Value.Should().Be(expectedValue);
+        }
+
+        [TestCase(MagicEnum.Zero, "0")]
+        [TestCase(MagicEnum.One, "1")]
+        [TestCase(MagicEnum.Two, "2")]
+        [TestCase(MagicEnum.Three, "3")]
+        public void EnumSerialization(int value, string expectedJson)
+        {
+            // Arrange
+            var intSvo = new IntSVO(value);
+
+            // Act
+            var json = JsonConvert.SerializeObject(intSvo);
+
+            // Assert
+            json.Should().Be(expectedJson);
+        }
+       
         [JsonConverter(typeof(SingleValueObjectConverter))]
         public class StringSVO : SingleValueObject<string>
         {
@@ -106,6 +142,12 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         public class IntSVO : SingleValueObject<int>
         {
             public IntSVO(int value) : base(value) { }
+        }
+        
+        [JsonConverter(typeof(SingleValueObjectConverter))]
+        public class EnumSVO : SingleValueObject<MagicEnum>
+        {
+            public EnumSVO(MagicEnum value) : base(value) { }
         }
     }
 }

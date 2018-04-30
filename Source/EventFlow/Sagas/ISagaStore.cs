@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,10 +32,16 @@ namespace EventFlow.Sagas
     {
         Task<TSaga> UpdateAsync<TSaga>(
             ISagaId sagaId,
-            SagaDetails sagaDetails,
             ISourceId sourceId,
             Func<TSaga, CancellationToken, Task> updateSaga,
             CancellationToken cancellationToken)
             where TSaga : ISaga;
+
+        Task<ISaga> UpdateAsync(
+            ISagaId sagaId,
+            Type sagaType,
+            ISourceId sourceId,
+            Func<ISaga, CancellationToken, Task> updateSaga,
+            CancellationToken cancellationToken);
     }
 }

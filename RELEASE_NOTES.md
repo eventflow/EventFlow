@@ -1,4 +1,43 @@
-### New in 0.52 (not released yet)
+### New in 0.57 (not released yet)
+
+* Fixed: AggregateException/InvalidOperationException when reading and updating
+  an aggregate from different threads at the same time using `InMemoryEventPersistence`
+
+### New in 0.56.3328 (released 2018-04-24)
+
+* New: Allow enums to be used in `SingleValueObject<T>` and protect from
+  undefined enum values
+
+### New in 0.55.3323 (released 2018-04-24)
+
+* Fixed: Re-populating events to read models that span multiple aggregates
+  now has events orderd by timestamp instead of sequence numbers, i.e., events
+  from aggregates with higher sequences numbers isn't forced last
+* New: Trigger sagas without the need of any domain events by using
+  `ISagaStore.UpdateAsync(...)`
+* New: .NET standard 2.0 (still supports 1.6) support added to these
+  NuGet packages
+  - EventFlow
+  - EventFlow.Autofac
+  - EventFlow.Elasticsearch
+  - EventFlow.Hangfire
+  - EventFlow.Sql
+
+### New in 0.54.3261 (released 2018-02-25)
+
+- **Critical fix:** `SagaAggregateStore` was incorrectly putting an object reference
+  into its memory cache causing an object already disposed exception when working with
+  sagas
+- New: Added [LibLog](https://github.com/damianh/LibLog), enable by
+  calling the `IEventFlowOptions.UseLibLog(...)` extension
+
+### New in 0.53.3204 (released 2018-01-25)
+
+* New: Allow events to have multiple `EventVersion` attributes
+* Fixed: `ReflectionHelper.CompileMethodInvocation` now recognises
+  `private` methods.
+
+### New in 0.52.3178 (released 2017-11-02)
 
 * Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
   file system persistence, making it suitable for use in multi-threaded unit
@@ -6,6 +45,8 @@
 * New: Support for unicode characters in type names. This simplifies using an
   [ubiquitous language](http://www.jamesshore.com/Agile-Book/ubiquitous_language.html)
   in non-english domains
+* Fixed: Include hyphen in prefix validation for identity values. This fixes a bug
+  where invalid identities could be created (e.g. `ThingyId.With("thingyINVALID-a41e...")`)
 
 ### New in 0.51.3155 (released 2017-10-25)
 

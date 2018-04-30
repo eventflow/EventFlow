@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,15 @@ namespace EventFlow.Extensions
 {
     public static class SpecificationExtensions
     {
+        [Obsolete("Use 'ThrowDomainErrorIfNotSatisfied' instead")]
         public static void ThrowDomainErrorIfNotStatisfied<T>(
+            this ISpecification<T> specification,
+            T obj)
+        {
+            specification.ThrowDomainErrorIfNotSatisfied(obj);
+        }
+
+        public static void ThrowDomainErrorIfNotSatisfied<T>(
             this ISpecification<T> specification,
             T obj)
         {
@@ -44,7 +52,7 @@ namespace EventFlow.Extensions
             if (whyIsNotStatisfiedBy.Any())
             {
                 throw DomainError.With(
-                    $"'{specification.GetType().PrettyPrint()}' is not satisfied becase of {string.Join(" and ", whyIsNotStatisfiedBy)}");
+                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotStatisfiedBy)}");
             }
         }
 

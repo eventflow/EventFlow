@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,7 +40,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
             var legsList = (transportLegs ?? Enumerable.Empty<TransportLeg>()).ToList();
 
             if (!legsList.Any()) throw new ArgumentException(nameof(transportLegs));
-            (new TransportLegsAreConnectedSpecification()).ThrowDomainErrorIfNotStatisfied(legsList);
+            (new TransportLegsAreConnectedSpecification()).ThrowDomainErrorIfNotSatisfied(legsList);
 
             TransportLegs = legsList;
         }

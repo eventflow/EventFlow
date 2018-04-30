@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,6 +38,7 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using NUnit.Framework;
@@ -62,10 +63,10 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            var eventFlowOptions = EventFlowOptions.New
+            var eventFlowOptions = Options(EventFlowOptions.New)
                 .AddDefaults(EventFlowTestHelpers.Assembly);
 
-            Resolver = CreateRootResolver(Options(eventFlowOptions));
+            Resolver = CreateRootResolver(eventFlowOptions);
 
             AggregateStore = Resolver.Resolve<IAggregateStore>();
             EventStore = Resolver.Resolve<IEventStore>();
@@ -102,6 +103,16 @@ namespace EventFlow.TestHelpers
         {
             var pingIds = await PublishPingCommandsAsync(thingyId, 1).ConfigureAwait(false);
             return pingIds.Single();
+        }
+
+        protected Task<ThingySaga> LoadSagaAsync(ThingyId thingyId)
+        {
+            // This is specified in the ThingySagaLocator
+            var expectedThingySagaId = new ThingySagaId($"saga-{thingyId.Value}");
+
+            return AggregateStore.LoadAsync<ThingySaga, ThingySagaId>(
+                expectedThingySagaId,
+                CancellationToken.None);
         }
 
         protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count)

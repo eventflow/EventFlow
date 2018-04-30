@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -95,7 +95,7 @@ namespace EventFlow.MsSql.SnapshotStores
             }
             catch (SqlException sqlException) when (sqlException.Number == 2601)
             {
-                // If we have a dublicate key exception, then the snapshot has already been created
+                // If we have a duplicate key exception, then the snapshot has already been created
             }
         }
 
