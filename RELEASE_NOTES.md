@@ -1,4 +1,8 @@
-### New in 0.57 (not released yet)
+### New in 0.58 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.57.3359 (released 2018-04-30)
 
 * Fixed: AggregateException/InvalidOperationException when reading and updating
   an aggregate from different threads at the same time using `InMemoryEventPersistence`
