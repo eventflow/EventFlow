@@ -45,6 +45,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
+    [Explicit]
     [Category(Categories.Unit)]
     public class ConcurrentInMemoryEventPersistanceTests
     {
