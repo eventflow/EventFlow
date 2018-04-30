@@ -78,7 +78,7 @@ namespace EventFlow.TestHelpers.Suites
             var pingId = await PublishPingCommandAsync(A<ThingyId>()).ConfigureAwait(false);
 
             // Assert
-            var receivedPingId = _testAsynchronousSubscriber.PingIds.Take();
+            var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take()).ConfigureAwait(false);
             receivedPingId.Should().IsSameOrEqualTo(pingId);
         }
 
