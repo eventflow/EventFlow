@@ -153,16 +153,7 @@ namespace EventFlow.EventStores.Files
 
                     var json = _jsonSerializer.Serialize(fileEventData, true);
 
-                    if (File.Exists(eventPath))
-                    {
-                        // TODO: This needs to be on file creation
-                        throw new OptimisticConcurrencyException(string.Format(
-                            "Event {0} already exists for entity with ID '{1}'",
-                            fileEventData.AggregateSequenceNumber,
-                            id));
-                    }
-
-                    using (var streamWriter = File.CreateText(eventPath))
+                    using (var streamWriter = CreateNewTextFile(eventPath, fileEventData))
                     {
                         _log.Verbose("Writing file '{0}'", eventPath);
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
@@ -188,6 +179,25 @@ namespace EventFlow.EventStores.Files
                 }
 
                 return committedDomainEvents;
+            }
+        }
+
+        private StreamWriter CreateNewTextFile(string path, FileEventData fileEventData)
+        {
+            try
+            {
+                var stream = new FileStream(path, FileMode.CreateNew);
+                return new StreamWriter(stream);
+            }
+            catch (IOException)
+            {
+                if (File.Exists(path))
+                {
+                    throw new OptimisticConcurrencyException(
+                        $"Event {fileEventData.AggregateSequenceNumber} already exists for entity with ID '{fileEventData.AggregateId}'");
+                }
+
+                throw;
             }
         }
 

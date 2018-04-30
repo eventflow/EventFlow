@@ -1,4 +1,10 @@
-### New in 0.56 (not released yet)
+### New in 0.57 (not released yet)
+
+* Fixed: AggregateException/InvalidOperationException when reading and updating
+  an aggregate from different threads at the same time using `InMemoryEventPersistence`
+* New: .NET standard 1.6 and 2.0 support for `EventFlow.MsSql` package
+
+### New in 0.56.3328 (released 2018-04-24)
 
 * New: Allow enums to be used in `SingleValueObject<T>` and protect from
   undefined enum values
