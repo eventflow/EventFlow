@@ -86,7 +86,7 @@ namespace EventFlow
                 throw;
             }
 
-            _log.Verbose(() => aggregateUpdateResult.DomainEvents.Any()
+            _log.Verbose(() => !aggregateUpdateResult.DomainEvents.Any()
                 ? string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events, was success:{3}",
                     command.GetType().PrettyPrint(),

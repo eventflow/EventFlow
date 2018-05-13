@@ -1,6 +1,6 @@
 ### New in 0.58 (not released yet)
 
-* _Nothing yet_
+* Minor fix: Corrected log in `CommandBus` regarding events emitted due to command
 
 ### New in 0.57.3359 (released 2018-04-30)
 
