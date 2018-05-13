@@ -15,6 +15,9 @@ environment:
   RABBITMQ_URL:
     secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
 
+install:
+  - docker version
+
 test: off
 
 artifacts:
