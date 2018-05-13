@@ -30,7 +30,7 @@ namespace EventFlow.MsSql.EventStores
 {
     public static class EventFlowEventStoresMsSql
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowEventStoresMsSql).Assembly;
+        public static Assembly Assembly { get; } = typeof(EventFlowEventStoresMsSql).GetTypeInfo().Assembly;
 
         public static IEnumerable<SqlScript> GetSqlScripts()
         {

@@ -53,7 +53,7 @@ namespace EventFlow.TestHelpers.MsSql
             var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER");
 
             connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
-                ? @"Server=localhost\SQLEXPRESS"
+                ? @"Server=."
                 : $"Server={environmentServer}");
             connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
                 ? @"Integrated Security=True"
