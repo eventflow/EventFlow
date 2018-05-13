@@ -6,7 +6,7 @@ version: 0.58.{build}
 skip_tags: true
 
 build_script:
-  - "C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchDaemon
+  - "C:\\Program Files\\Docker\\Docker\\DockerCli.exe" -SwitchDaemon
   - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
 
 image: Visual Studio 2017
