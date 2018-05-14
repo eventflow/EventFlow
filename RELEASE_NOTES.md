@@ -1,6 +1,7 @@
 ### New in 0.59 (not released yet)
 
-* _Nothing yet_
+* Fix: Commands are now correctly published when no events are emitted from a saga
+  after handling a domain event
 
 ### New in 0.58.3377 (released 2018-05-15)
 

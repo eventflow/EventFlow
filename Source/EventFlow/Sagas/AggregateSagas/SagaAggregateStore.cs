@@ -65,7 +65,7 @@ namespace EventFlow.Sagas.AggregateSagas
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            var domainEvents = await storeAggregateSagaAsync(
+            await storeAggregateSagaAsync(
                     this,
                     sagaId,
                     sourceId,
@@ -77,7 +77,7 @@ namespace EventFlow.Sagas.AggregateSagas
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            if (!domainEvents.Any())
+            if (saga is null)
             {
                 return null;
             }
