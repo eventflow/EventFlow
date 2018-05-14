@@ -32,7 +32,7 @@ namespace EventFlow.Configuration
         public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
         public bool ThrowSubscriberExceptions { get; set; }
         public bool IsAsynchronousSubscribersEnabled { get; set; }
-
+        
         internal EventFlowConfiguration()
         {
             PopulateReadModelEventPageSize = 200;

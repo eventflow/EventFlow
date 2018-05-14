@@ -196,6 +196,20 @@ namespace EventFlow.MsSql.EventStores
             return eventDataModels;
         }
 
+        public Task<IAsyncEnumerable<IReadOnlyCollection<ICommittedDomainEvent>>> OpenStreamAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            var asyncEnumerable = AsyncEnumerable.CreateEnumerable(() => new MsSqlEventEnumerator(
+                _log,
+                _connection,
+                id,
+                fromEventSequenceNumber));
+
+            return Task.FromResult(asyncEnumerable);
+        }
+
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
@@ -210,6 +224,87 @@ namespace EventFlow.MsSql.EventStores
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);
+        }
+
+        private class MsSqlEventEnumerator : IAsyncEnumerator<IReadOnlyCollection<ICommittedDomainEvent>>
+        {
+            private const int BatchSize = 1; // TODO: Make configurable and make default a bit higher
+            private readonly ILog _log;
+            private readonly IMsSqlConnection _connection;
+            private readonly IIdentity _id;
+            private readonly int _fromEventSequenceNumber;
+            private int _currentStartRowIndex;
+
+            const string Sql = @"
+                SELECT
+                    GlobalSequenceNumber,
+                    BatchId,
+                    AggregateId,
+                    AggregateName,
+                    Data,
+                    Metadata,
+                    AggregateSequenceNumber,
+                    EventRank
+                FROM
+                    (
+                        SELECT
+                            GlobalSequenceNumber,
+                            BatchId,
+                            AggregateId,
+                            AggregateName,
+                            Data,
+                            Metadata,
+                            AggregateSequenceNumber,
+                            ROW_NUMBER() OVER(ORDER BY AggregateSequenceNumber ASC) AS EventRank
+                        FROM
+                            EventFlow
+                        WHERE
+                            AggregateId = @AggregateId AND
+                            AggregateSequenceNumber >= @FromEventSequenceNumber
+                    ) AS EventsWithRowNumber
+                WHERE
+                    EventRank >  @StartRowIndex AND
+                    EventRank <= (@StartRowIndex + @MaximumRows)";
+
+            public IReadOnlyCollection<ICommittedDomainEvent> Current { get; private set; }
+
+            public MsSqlEventEnumerator(
+                ILog log,
+                IMsSqlConnection connection,
+                IIdentity id,
+                int fromEventSequenceNumber)
+            {
+                _log = log;
+                _connection = connection;
+                _id = id;
+                _fromEventSequenceNumber = fromEventSequenceNumber;
+            }
+
+            public async Task<bool> MoveNext(CancellationToken cancellationToken)
+            {
+                Current = await _connection.QueryAsync<EventDataModel>(
+                        Label.Named("mssql-fetch-event-stream-batch"),
+                        cancellationToken,
+                        Sql,
+                        new
+                        {
+                            AggregateId = _id.Value,
+                            FromEventSequenceNumber = _fromEventSequenceNumber,
+                            StartRowIndex = _currentStartRowIndex,
+                            MaximumRows = BatchSize
+                        })
+                    .ConfigureAwait(false);
+
+                _log.Verbose(() => $"Loaded {Current.Count} events in batch for aggregate '{_id.Value}'");
+
+                _currentStartRowIndex += BatchSize;
+
+                return Current.Any();
+            }
+
+            public void Dispose()
+            {
+            }
         }
     }
 }

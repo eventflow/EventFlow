@@ -48,6 +48,8 @@ namespace EventFlow.Aggregates
         public bool IsNew => Version <= 0;
         public IEnumerable<IUncommittedEvent> UncommittedEvents => _uncommittedEvents;
 
+        protected bool StreamEvents { get; set; }
+
         static AggregateRoot()
         {
             ApplyMethods = typeof(TAggregate).GetAggregateEventApplyMethods<TAggregate, TIdentity, TAggregate>();
@@ -113,9 +115,24 @@ namespace EventFlow.Aggregates
             ISnapshotStore snapshotStore,
             CancellationToken cancellationToken)
         {
-            var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
+            if (!StreamEvents)
+            {
+                var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
 
-            ApplyEvents(domainEvents);
+                ApplyEvents(domainEvents);
+                return;
+            }
+
+            var asyncEnumerable = await eventStore.OpenStreamAsync<TAggregate, TIdentity>(
+                Id,
+                1,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            await asyncEnumerable.ForEachAsync(
+                (c, i) => ApplyEvents(c, true),
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
@@ -136,12 +153,17 @@ namespace EventFlow.Aggregates
 
         public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
+            ApplyEvents(domainEvents, false);
+        }
+
+        protected void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents, bool allowMultipleInvocations)
+        {
             if (!domainEvents.Any())
             {
                 return;
             }
 
-            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()), allowMultipleInvocations);
             foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
             {
                 _previousSourceIds.Put(domainEvent.Metadata.SourceId);
@@ -156,7 +178,12 @@ namespace EventFlow.Aggregates
 
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
-            if (Version > 0)
+            ApplyEvents(aggregateEvents, false);
+        }
+
+        private void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents, bool allowMultipleInvocations)
+        {
+            if (!allowMultipleInvocations && Version > 0)
             {
                 throw new InvalidOperationException($"Aggregate '{GetType().PrettyPrint()}' with ID '{Id}' already has events");
             }

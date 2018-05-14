@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
-using EventFlow.Sagas;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Sagas;

@@ -51,13 +51,17 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
 
-        public ThingyAggregate(ThingyId id)
+        public ThingyAggregate(
+            ThingyId id,
+            IThingyAggregateConfiguration thingyAggregateConfiguration)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
             Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
             Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
+
+            StreamEvents = thingyAggregateConfiguration.UseEventStreaming;
         }
 
         public void DomainErrorAfterFirst()

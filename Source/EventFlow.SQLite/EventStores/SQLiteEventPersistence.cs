@@ -192,6 +192,14 @@ namespace EventFlow.SQLite.EventStores
             return eventDataModels;
         }
 
+        public Task<IAsyncEnumerable<IReadOnlyCollection<ICommittedDomainEvent>>> OpenStreamAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task DeleteEventsAsync(
             IIdentity id,
             CancellationToken cancellationToken)

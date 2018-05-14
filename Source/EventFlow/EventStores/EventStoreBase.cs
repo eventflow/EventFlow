@@ -171,6 +171,30 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
+        public async Task<IAsyncEnumerable<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>>> OpenStreamAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            if (fromEventSequenceNumber < 1)
+                throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
+
+            _log.Verbose(() => $"Opening event stream for {typeof(TAggregate).PrettyPrint()}");
+
+            var asyncEnumerable = await _eventPersistence.OpenStreamAsync(
+                id,
+                fromEventSequenceNumber,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            return asyncEnumerable
+                .Select(l => (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>) l
+                    .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                    .ToList());
+        }
+
         public virtual async Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,
             CancellationToken cancellationToken)

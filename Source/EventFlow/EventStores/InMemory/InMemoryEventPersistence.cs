@@ -205,6 +205,20 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(result);
         }
 
+        public async Task<IAsyncEnumerable<IReadOnlyCollection<ICommittedDomainEvent>>> OpenStreamAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            var committedDomainEvents = await LoadCommittedEventsAsync(
+                id,
+                fromEventSequenceNumber,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            return AsyncEnumerable.Return(committedDomainEvents);
+        }
+
         public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             var deleted = _eventStore.TryRemove(id.Value, out var committedDomainEvents);

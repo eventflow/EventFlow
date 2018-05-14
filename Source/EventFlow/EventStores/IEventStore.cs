@@ -58,6 +58,13 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
+        Task<IAsyncEnumerable<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>>> OpenStreamAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
         [Obsolete("Use IAggregateStore.LoadAsync instead")]
         Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(
             TIdentity id,

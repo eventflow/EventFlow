@@ -42,6 +42,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
+// ReSharper disable PossibleNullReferenceException
+
 namespace EventFlow.TestHelpers.Suites
 {
     public abstract class TestSuiteForEventStore : IntegrationTest
@@ -103,10 +105,12 @@ namespace EventFlow.TestHelpers.Suites
             loadedTestAggregate.PingsReceived.Count.Should().Be(1);
         }
 
-        [Test]
-        public async Task AggregateEventStreamsAreSeperate()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AggregateEventStreamsAreSeperate(bool useEventStreaming)
         {
             // Arrange
+            AggregateConfiguration.UseEventStreaming = useEventStreaming;
             var id1 = ThingyId.New;
             var id2 = ThingyId.New;
             var aggregate1 = await LoadAggregateAsync(id1).ConfigureAwait(false);
