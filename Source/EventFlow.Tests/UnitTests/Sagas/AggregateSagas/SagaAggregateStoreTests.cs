@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,9 +62,9 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
                 .ReturnsAsync(new List<IDomainEvent>());
 
             // Act
-            await Sut.UpdateAsync<ThingySaga>(
+            await Sut.UpdateAsync(
                 thingySagaId,
-                SagaDetails.From(typeof(ThingySaga)),
+                typeof(ThingySaga),
                 sourceId,
                 (s, c) => Task.FromResult(0),
                 CancellationToken.None);

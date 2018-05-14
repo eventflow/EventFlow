@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using DbUp.Builder;
 using EventFlow.Logs;
 using EventFlow.Sql.Migrations;
 
@@ -33,6 +34,11 @@ namespace EventFlow.MsSql
             IMsSqlConfiguration sqlConfiguration)
             : base(log, sqlConfiguration)
         {
+        }
+
+        protected override UpgradeEngineBuilder For(SupportedDatabases supportedDatabases, string connectionString)
+        {
+            return supportedDatabases.SqlDatabase(connectionString);
         }
     }
 }

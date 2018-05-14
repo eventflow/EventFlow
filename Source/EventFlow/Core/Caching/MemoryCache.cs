@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@ namespace EventFlow.Core.Caching
 
         private static string GenerateKey()
         {
-            return $"eventflow-{DateTimeOffset.Now.ToString("yyyyMMdd-HHmm")}-{Guid.NewGuid().ToString("N")}";
+            return $"eventflow-{DateTimeOffset.Now:yyyyMMdd-HHmm}-{Guid.NewGuid():N}";
         }
 
         public MemoryCache(ILog log)

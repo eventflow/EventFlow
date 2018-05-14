@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ namespace EventFlow.ReadStores
     public class MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator> :
         ReadStoreManager<TReadStore, TReadModel>
         where TReadStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel, new()
+        where TReadModel : class, IReadModel
         where TReadModelLocator : IReadModelLocator
     {
         private readonly TReadModelLocator _readModelLocator;
@@ -59,7 +59,7 @@ namespace EventFlow.ReadStores
                 let readModelIds = _readModelLocator.GetReadModelIds(de)
                 from rid in readModelIds
                 group de by rid into g
-                select new ReadModelUpdate(g.Key, g.OrderBy(d => d.AggregateSequenceNumber).ToList())
+                select new ReadModelUpdate(g.Key, g.OrderBy(d => d.Timestamp).ThenBy(d => d.AggregateSequenceNumber).ToList())
                 ).ToList();
             return readModelUpdates;
         }

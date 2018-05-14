@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net451;netstandard1.6;netstandard2.0</TargetFrameworks>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -9,7 +9,7 @@
     <Title>EventFlow.Sql</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2017</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
     <Description>Generic SQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing SQL</PackageTags>
     <RepositoryType>git</RepositoryType>
@@ -25,13 +25,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.2" />
-    <PackageReference Condition="'$(TargetFramework)' == 'net451'" Include="dbup" Version="3.3.5" />
+    <PackageReference Include="dbup-core" Version="4.0.0" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel.Annotations" Version="4.3.0" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.ComponentModel.Annotations" Version="4.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Condition="'$(TargetFramework)' == 'net451'" Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 </Project>

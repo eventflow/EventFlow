@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,7 +49,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications
             var itineraryDepartureTime = obj.DepartureTime();
             if (Route.DepartureTime.IsAfter(itineraryDepartureTime))
             {
-                yield return $"Route origin depature '{Route.DepartureTime}' is after itinerary depature '{itineraryDepartureTime}'";
+                yield return $"Route origin departure '{Route.DepartureTime}' is after itinerary departure '{itineraryDepartureTime}'";
             }
 
             var itineraryArrivalLocation = obj.ArrivalLocation();

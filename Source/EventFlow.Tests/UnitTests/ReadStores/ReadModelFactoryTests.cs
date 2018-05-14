@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,12 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
@@ -61,6 +67,23 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             }
         }
 
+        [Test]
+        public void ThrowsExceptionForNoEmptyConstruuctors()
+        {
+            // Act + Assert
+            var exception = Assert.Throws<TypeInitializationException>(() => new ReadModelFactory<ReadModelWithConstructorArguments>(Mock<ILog>()));
+            
+            // Assert
+            // ReSharper disable once PossibleNullReferenceException
+            exception.InnerException.Message.Should().Contain("doesn't have an empty constructor");
+        }
+
+        public class ReadModelWithConstructorArguments : IReadModel
+        {
+            // ReSharper disable once UnusedParameter.Local
+            public ReadModelWithConstructorArguments(int magicNumber){ }
+        }
+        
         public interface IFancyReadModel : IReadModel
         {
             int MagicNumber { get; set; }

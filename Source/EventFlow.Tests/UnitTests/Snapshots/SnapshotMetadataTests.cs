@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         [Test]
         public void DeserializesCorrectly()
         {
-            // Arragnge
+            // Arrange
             var json = new
                 {
                     aggregate_id = "thingy-42",

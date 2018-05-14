@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,16 +35,16 @@ namespace EventFlow.Core
         where T : Identity<T>
     {
         // ReSharper disable StaticMemberInGenericType
-        private static readonly string Name;
+        private static readonly string NameWithDash;
         private static readonly Regex ValueValidation;
         // ReSharper enable StaticMemberInGenericType
 
         static Identity()
         {
             var nameReplace = new Regex("Id$");
-            Name = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant();
+            NameWithDash = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant() + "-";
             ValueValidation = new Regex(
-                @"^[a-z0-9]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
+                @"^[^\-]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
                 RegexOptions.Compiled);
         }
 
@@ -86,7 +86,7 @@ namespace EventFlow.Core
 
         public static T With(Guid guid)
         {
-            var value = $"{Name}-{guid:D}";
+            var value = $"{NameWithDash}{guid:D}";
             return With(value);
         }
 
@@ -104,9 +104,9 @@ namespace EventFlow.Core
             }
 
             if (!string.Equals(value.Trim(), value, StringComparison.OrdinalIgnoreCase))
-                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' contains leading and/or traling spaces";
-            if (!value.StartsWith(Name))
-                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not start with '{Name}'";
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' contains leading and/or trailing spaces";
+            if (!value.StartsWith(NameWithDash))
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not start with '{NameWithDash}'";
             if (!ValueValidation.IsMatch(value))
                 yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
         }

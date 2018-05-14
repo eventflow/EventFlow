@@ -9,6 +9,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Autofac.WebApi2" Version="4.0.0" />
     <PackageReference Include="Autofac.WebApi2.Owin" Version="4.0.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.3" />
     <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="3.1.0" />
@@ -18,5 +19,8 @@
     <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj" />
     <ProjectReference Include="..\EventFlow.Owin\EventFlow.Owin.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 </Project>

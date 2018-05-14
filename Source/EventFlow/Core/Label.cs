@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@ namespace EventFlow.Core
 {
     public class Label
     {
-        private static readonly Regex NameValidator = new Regex(@"^[a-z0-9\-]{3,}$", RegexOptions.Compiled);
+        private static readonly Regex NameValidator = new Regex(@"^[\p{Ll}\p{Lm}\p{Lo}\p{Nd}\-]{3,}$", RegexOptions.Compiled);
 
         public static Label Named(string name) => new Label(name.ToLowerInvariant());
 

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,11 +59,9 @@ namespace EventFlow.Sagas
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var commandBus = _resolver.Resolve<ICommandBus>();
             foreach (var domainEvent in domainEvents)
             {
                 await ProcessAsync(
-                    commandBus,
                     domainEvent,
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -71,7 +69,6 @@ namespace EventFlow.Sagas
         }
 
         private async Task ProcessAsync(
-            ICommandBus commandBus,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
@@ -83,16 +80,18 @@ namespace EventFlow.Sagas
             {
                 var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
-                var saga =  await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
 
-                if (saga != null)
+                if (sagaId == null)
                 {
-                    await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
+                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.PrettyPrint()}' returned null");
+                    continue;
                 }
+
+                await ProcessSagaAsync(domainEvent, sagaId, details, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<ISaga> ProcessSagaAsync(
+        private async Task ProcessSagaAsync(
             IDomainEvent domainEvent,
             ISagaId sagaId,
             SagaDetails details,
@@ -102,9 +101,9 @@ namespace EventFlow.Sagas
             {
                 _log.Verbose(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
 
-                return await _sagaStore.UpdateAsync<ISaga>(
+                await _sagaStore.UpdateAsync(
                     sagaId,
-                    details,
+                    details.SagaType,
                     domainEvent.Metadata.SourceId,
                     (s, c) => UpdateSagaAsync(s, domainEvent, details, c),
                     cancellationToken)
@@ -120,7 +119,7 @@ namespace EventFlow.Sagas
                     .ConfigureAwait(false);
                 if (handled)
                 {
-                    return null;
+                    return;
                 }
 
                 _log.Error(e, $"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'");

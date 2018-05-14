@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,6 +40,11 @@ namespace EventFlow.Commands
     {
         public ISourceId SourceId { get; }
         public TIdentity AggregateId { get; }
+
+        protected Command(TIdentity aggregateId)
+            : this(aggregateId, CommandId.New)
+        {
+        }
 
         protected Command(TIdentity aggregateId, ISourceId sourceId)
         {

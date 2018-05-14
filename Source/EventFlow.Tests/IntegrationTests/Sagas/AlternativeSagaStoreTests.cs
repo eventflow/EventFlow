@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -33,12 +34,13 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
-    [Category(Categories.Unit)]
+    [Category(Categories.Integration), Timeout(20000)]
     public class AlternativeSagaStoreTests
     {
         private IRootResolver _resolver;
         private ICommandBus _commandBus;
         private IAggregateStore _aggregateStore;
+        private AlternativeSagaStoreTestClasses.InMemorySagaStore _sagaStore;
 
         [SetUp]
         public void SetUp()
@@ -54,14 +56,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventB),
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
-                    {
-                        sr.RegisterType(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
-                        sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
-                    })
+                {
+                    sr.RegisterType(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
+                    sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
+                })
                 .CreateResolver(false);
 
             _commandBus = _resolver.Resolve<ICommandBus>();
             _aggregateStore = _resolver.Resolve<IAggregateStore>();
+            _sagaStore = (AlternativeSagaStoreTestClasses.InMemorySagaStore) _resolver.Resolve<ISagaStore>();
         }
 
         [TearDown]
@@ -100,6 +103,32 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             testAggregate.As.Should().Be(0);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(0);
+        }
+
+        [Test]
+        public void SagaLocatorReturningNullDoesntThrow()
+        {
+            // Arrange
+            var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
+
+            // Act
+            Action action = () => _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            
+            // Assert
+            action.ShouldNotThrow();
+        }
+
+        [Test]
+        public void SagaLocatorReturningNullDoesntCallSagaStore()
+        {
+            // Arrange
+            var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
+
+            // Act
+            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            
+            // Assert
+            _sagaStore.UpdateShouldNotHaveBeenCalled();
         }
     }
 }

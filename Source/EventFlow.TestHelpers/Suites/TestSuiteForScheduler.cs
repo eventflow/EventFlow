@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,7 +78,7 @@ namespace EventFlow.TestHelpers.Suites
             var pingId = await PublishPingCommandAsync(A<ThingyId>()).ConfigureAwait(false);
 
             // Assert
-            var receivedPingId = _testAsynchronousSubscriber.PingIds.Take();
+            var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take()).ConfigureAwait(false);
             receivedPingId.Should().IsSameOrEqualTo(pingId);
         }
 

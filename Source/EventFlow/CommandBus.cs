@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -77,7 +77,7 @@ namespace EventFlow
             {
                 _log.Debug(
                     exception,
-                    "Excution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
+                    "Execution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
                     typeof(TAggregate),
@@ -86,7 +86,7 @@ namespace EventFlow
                 throw;
             }
 
-            _log.Verbose(() => aggregateUpdateResult.DomainEvents.Any()
+            _log.Verbose(() => !aggregateUpdateResult.DomainEvents.Any()
                 ? string.Format(
                     "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events, was success:{3}",
                     command.GetType().PrettyPrint(),
