@@ -51,69 +51,62 @@ namespace EventFlow.Aggregates
 
         public ISourceId SourceId
         {
-            get { return GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v)); }
-            set { Add(MetadataKeys.SourceId, value.Value); }
+            get => GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v));
+            set => Add(MetadataKeys.SourceId, value.Value);
         }
 
         [JsonIgnore]
         public string EventName
         {
-            get { return GetMetadataValue(MetadataKeys.EventName); }
-            set { Add(MetadataKeys.EventName, value); }
+            get => GetMetadataValue(MetadataKeys.EventName);
+            set => Add(MetadataKeys.EventName, value);
         }
 
         [JsonIgnore]
         public int EventVersion
         {
-            get { return GetMetadataValue(MetadataKeys.EventVersion, int.Parse); }
-            set { Add(MetadataKeys.EventVersion, value.ToString()); }
+            get => GetMetadataValue(MetadataKeys.EventVersion, int.Parse);
+            set => Add(MetadataKeys.EventVersion, value.ToString());
         }
 
         [JsonIgnore]
         public DateTimeOffset Timestamp
         {
-            get { return GetMetadataValue(MetadataKeys.Timestamp, DateTimeOffset.Parse); }
-            set { Add(MetadataKeys.Timestamp, value.ToString("O")); }
+            get => GetMetadataValue(MetadataKeys.Timestamp, DateTimeOffset.Parse);
+            set => Add(MetadataKeys.Timestamp, value.ToString("O"));
         }
 
         [JsonIgnore]
-        public long TimestampEpoch
-        {
-            get
-            {
-                string timestampEpoch;
-                return TryGetValue(MetadataKeys.TimestampEpoch, out timestampEpoch)
-                    ? long.Parse(timestampEpoch)
-                    : Timestamp.ToUnixTime();
-            }
-        }
+        public long TimestampEpoch => TryGetValue(MetadataKeys.TimestampEpoch, out var timestampEpoch)
+            ? long.Parse(timestampEpoch)
+            : Timestamp.ToUnixTime();
 
         [JsonIgnore]
         public int AggregateSequenceNumber
         {
-            get { return GetMetadataValue(MetadataKeys.AggregateSequenceNumber, int.Parse); }
-            set { Add(MetadataKeys.AggregateSequenceNumber, value.ToString()); }
+            get => GetMetadataValue(MetadataKeys.AggregateSequenceNumber, int.Parse);
+            set => Add(MetadataKeys.AggregateSequenceNumber, value.ToString());
         }
 
         [JsonIgnore]
         public string AggregateId
         {
-            get { return GetMetadataValue(MetadataKeys.AggregateId); }
-            set { Add(MetadataKeys.AggregateId, value); }
+            get => GetMetadataValue(MetadataKeys.AggregateId);
+            set => Add(MetadataKeys.AggregateId, value);
         }
 
         [JsonIgnore]
         public IEventId EventId
         {
-            get { return GetMetadataValue(MetadataKeys.EventId, Aggregates.EventId.With); }
-            set { Add(MetadataKeys.EventId, value.Value); }
+            get => GetMetadataValue(MetadataKeys.EventId, Aggregates.EventId.With);
+            set => Add(MetadataKeys.EventId, value.Value);
         }
 
         [JsonIgnore]
         public string AggregateName
         {
-            get { return GetMetadataValue(MetadataKeys.AggregateName); }
-            set { Add(MetadataKeys.AggregateName, value); }
+            get => GetMetadataValue(MetadataKeys.AggregateName);
+            set => Add(MetadataKeys.AggregateName, value);
         }
 
         public Metadata()

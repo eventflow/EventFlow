@@ -53,5 +53,9 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken);
 
         Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
+
+        Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<SerializedEvent>> serializedEventStream,
+            CancellationToken cancellationToken);
     }
 }

@@ -23,7 +23,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +33,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Extensions;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 
@@ -231,6 +234,63 @@ namespace EventFlow.MsSql.EventStores
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);
+        }
+
+        public async Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<SerializedEvent>> serializedEventStream,
+            CancellationToken cancellationToken)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var numberOfEvents = await _connection.WithConnectionAsync(
+                Label.Named("csdcdscs"),
+                async (c, ct) =>
+                {
+                    if (!(c is SqlConnection sqlConnection)) throw new InvalidOperationException();
+
+                    var i = 0;
+                    await serializedEventStream.ForEachAwaitAsync(
+                        async (events, _) =>
+                        {
+                            using (var sqlBulkCopy = new SqlBulkCopy(sqlConnection))
+                            {
+                                sqlBulkCopy.BatchSize = _eventFlowConfiguration.StreamingBatchSize;
+                                sqlBulkCopy.DestinationTableName = "EventFlow";
+                                var dataTable = new DataTable("EventFlow");
+
+                                dataTable.Columns.Add(nameof(EventDataModel.GlobalSequenceNumber), typeof(long));
+                                dataTable.Columns.Add(nameof(EventDataModel.BatchId), typeof(Guid));
+                                dataTable.Columns.Add(nameof(EventDataModel.AggregateId), typeof(string));
+                                dataTable.Columns.Add(nameof(EventDataModel.AggregateName), typeof(string));
+                                dataTable.Columns.Add(nameof(EventDataModel.Data), typeof(string));
+                                dataTable.Columns.Add(nameof(EventDataModel.Metadata), typeof(string));
+                                dataTable.Columns.Add(nameof(EventDataModel.AggregateSequenceNumber), typeof(int));
+
+                                foreach (var serializedEvent in events)
+                                {
+                                    dataTable.Rows.Add(
+                                        DBNull.Value,
+                                        Guid.Parse(serializedEvent.Metadata[MetadataKeys.BatchId]),
+                                        serializedEvent.Metadata.AggregateId,
+                                        serializedEvent.Metadata[MetadataKeys.AggregateName],
+                                        serializedEvent.SerializedData,
+                                        serializedEvent.SerializedMetadata,
+                                        serializedEvent.AggregateSequenceNumber);
+                                    i++;
+                                }
+
+                                await sqlBulkCopy.WriteToServerAsync(dataTable, cancellationToken).ConfigureAwait(false);
+                            }
+                        },
+                        cancellationToken)
+                        .ConfigureAwait(false);
+
+                    return i;
+                },
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            stopwatch.Stop();
+            _log.Verbose(() => $"It took {stopwatch.Elapsed.TotalSeconds:0.##} seconds to import {numberOfEvents} events");
         }
 
         private class MsSqlEventEnumerator : IAsyncEnumerator<IReadOnlyCollection<ICommittedDomainEvent>>

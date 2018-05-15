@@ -218,5 +218,20 @@ namespace EventFlow.EventStores
                 id,
                 cancellationToken);
         }
+
+        public async Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<IUncommittedEvent>> uncommittedEventStream,
+            CancellationToken cancellationToken)
+        {
+            var serilizedEventStream = uncommittedEventStream
+                .Select(events => events
+                    .Select(e => _eventJsonSerializer.Serialize(e.AggregateEvent, e.Metadata))
+                    .ToList());
+
+            await _eventPersistence.ImportEventsAsync(
+                serilizedEventStream,
+                cancellationToken)
+                .ConfigureAwait(false);
+        }
     }
 }

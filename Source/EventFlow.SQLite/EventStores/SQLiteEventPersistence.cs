@@ -219,5 +219,12 @@ namespace EventFlow.SQLite.EventStores
                 id,
                 affectedRows);
         }
+
+        public Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<SerializedEvent>> serializedEventStream,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

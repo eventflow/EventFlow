@@ -236,6 +236,13 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(0);
         }
 
+        public Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<SerializedEvent>> serializedEventStream,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             _asyncLock.Dispose();

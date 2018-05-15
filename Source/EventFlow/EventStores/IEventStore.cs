@@ -79,5 +79,9 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
+
+        Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<IUncommittedEvent>> uncommittedEventStream,
+            CancellationToken cancellationToken);
     }
 }

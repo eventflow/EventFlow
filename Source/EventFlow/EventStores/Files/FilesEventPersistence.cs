@@ -243,6 +243,13 @@ namespace EventFlow.EventStores.Files
             }
         }
 
+        public Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<SerializedEvent>> serializedEventStream,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<FileEventData> LoadFileEventDataFile(string eventPath)
         {
             using (var streamReader = File.OpenText(eventPath))

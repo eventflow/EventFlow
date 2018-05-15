@@ -196,6 +196,13 @@ namespace EventFlow.EventStores.EventStore
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
         }
 
+        public Task ImportEventsAsync(
+            IAsyncEnumerable<IReadOnlyCollection<SerializedEvent>> serializedEventStream,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
         {
             return resolvedEvents

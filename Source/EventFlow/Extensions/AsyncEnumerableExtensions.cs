@@ -8,7 +8,7 @@ namespace EventFlow.Extensions
     public static class AsyncEnumerableExtensions
     {
         // No existing overload taking a Func<..., Task>
-        public static async Task ForEachAsync<TSource>(
+        public static async Task ForEachAwaitAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, int, Task> action,
             CancellationToken cancellationToken)
