@@ -240,6 +240,7 @@ namespace EventFlow.MsSql.EventStores
             private readonly IIdentity _id;
             private readonly int _fromEventSequenceNumber;
             private int _currentStartRowIndex;
+            private bool _getNextBatch;
 
             const string Sql = @"
                 SELECT
@@ -284,10 +285,13 @@ namespace EventFlow.MsSql.EventStores
                 _connection = connection;
                 _id = id;
                 _fromEventSequenceNumber = fromEventSequenceNumber;
+                _getNextBatch = true;
             }
 
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
             {
+                if (!_getNextBatch) return false;
+
                 Current = await _connection.QueryAsync<EventDataModel>(
                         Label.Named("mssql-fetch-event-stream-batch"),
                         cancellationToken,
@@ -301,9 +305,10 @@ namespace EventFlow.MsSql.EventStores
                         })
                     .ConfigureAwait(false);
 
-                _log.Verbose(() => $"Loaded {Current.Count} events in batch for aggregate '{_id.Value}'");
-
                 _currentStartRowIndex += BatchSize;
+                _getNextBatch = Current.Count >= BatchSize;
+
+                _log.Verbose(() => $"Loaded {Current.Count} events in batch for aggregate '{_id.Value}'. Continue? {_getNextBatch}");
 
                 return Current.Any();
             }
