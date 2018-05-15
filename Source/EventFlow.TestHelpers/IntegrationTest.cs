@@ -57,23 +57,14 @@ namespace EventFlow.TestHelpers
         protected ICommandBus CommandBus { get; private set; }
         protected ISagaStore SagaStore { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
-        protected ThingyAggregateConfiguration AggregateConfiguration { get; private set; }
-
-        protected class ThingyAggregateConfiguration : IThingyAggregateConfiguration
-        {
-            public bool UseEventStreaming { get; set; }
-        }
+        protected EventFlowConfiguration Configuration { get; private set; }
 
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            AggregateConfiguration = new ThingyAggregateConfiguration();
             var eventFlowOptions = Options(EventFlowOptions.New)
-                .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(sr =>
-                {
-                    sr.Register<IThingyAggregateConfiguration>(_ => AggregateConfiguration);
-                });
+                .Configure(c => Configuration = c)
+                .AddDefaults(EventFlowTestHelpers.Assembly);
 
             Resolver = CreateRootResolver(eventFlowOptions);
 

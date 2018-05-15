@@ -58,6 +58,8 @@ namespace EventFlow.EventStores.Files
             public Dictionary<long, string> Log { get; set; }
         }
 
+        public bool PreferStreaming => false;
+
         public FilesEventPersistence(
             ILog log,
             IJsonSerializer jsonSerializer,

@@ -112,6 +112,8 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
+        public bool PreferStreaming => false;
+
         public InMemoryEventPersistence(
             ILog log)
         {

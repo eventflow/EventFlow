@@ -32,6 +32,8 @@ namespace EventFlow.EventStores
 {
     public interface IEventStore
     {
+        bool PreferStreaming { get; }
+
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,

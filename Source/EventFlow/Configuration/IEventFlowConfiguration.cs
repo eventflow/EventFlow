@@ -69,5 +69,7 @@ namespace EventFlow.Configuration
         /// </summary>
         /// <remarks>Defaults to false</remarks>
         bool IsAsynchronousSubscribersEnabled { get; }
+
+        bool UseEventStreaming { get; }
     }
 }

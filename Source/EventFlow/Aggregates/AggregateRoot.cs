@@ -48,8 +48,6 @@ namespace EventFlow.Aggregates
         public bool IsNew => Version <= 0;
         public IEnumerable<IUncommittedEvent> UncommittedEvents => _uncommittedEvents;
 
-        protected bool StreamEvents { get; set; }
-
         static AggregateRoot()
         {
             ApplyMethods = typeof(TAggregate).GetAggregateEventApplyMethods<TAggregate, TIdentity, TAggregate>();
@@ -115,7 +113,7 @@ namespace EventFlow.Aggregates
             ISnapshotStore snapshotStore,
             CancellationToken cancellationToken)
         {
-            if (!StreamEvents)
+            if (!eventStore.PreferStreaming)
             {
                 var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
 

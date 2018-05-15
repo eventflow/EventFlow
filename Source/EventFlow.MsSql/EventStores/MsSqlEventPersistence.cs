@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
@@ -50,13 +51,18 @@ namespace EventFlow.MsSql.EventStores
 
         private readonly ILog _log;
         private readonly IMsSqlConnection _connection;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+
+        public bool PreferStreaming => _eventFlowConfiguration.UseEventStreaming;
 
         public MsSqlEventPersistence(
             ILog log,
-            IMsSqlConnection connection)
+            IMsSqlConnection connection,
+            IEventFlowConfiguration eventFlowConfiguration)
         {
             _log = log;
             _connection = connection;
+            _eventFlowConfiguration = eventFlowConfiguration;
         }
 
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(

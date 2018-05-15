@@ -49,6 +49,8 @@ namespace EventFlow.EventStores.EventStore
             public int AggregateSequenceNumber { get; set; }
         }
 
+        public bool PreferStreaming => false;
+
         public EventStoreEventPersistence(
             ILog log,
             IEventStoreConnection connection)

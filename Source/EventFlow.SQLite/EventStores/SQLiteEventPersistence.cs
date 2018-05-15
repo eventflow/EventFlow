@@ -52,6 +52,8 @@ namespace EventFlow.SQLite.EventStores
         private readonly ILog _log;
         private readonly ISQLiteConnection _connection;
 
+        public bool PreferStreaming => false;
+
         public SQLiteEventPersistence(
             ILog log,
             ISQLiteConnection connection)

@@ -110,7 +110,7 @@ namespace EventFlow.TestHelpers.Suites
         public async Task AggregateEventStreamsAreSeperate(bool useEventStreaming)
         {
             // Arrange
-            AggregateConfiguration.UseEventStreaming = useEventStreaming;
+            Configuration.UseEventStreaming = useEventStreaming;
             var id1 = ThingyId.New;
             var id2 = ThingyId.New;
             var aggregate1 = await LoadAggregateAsync(id1).ConfigureAwait(false);

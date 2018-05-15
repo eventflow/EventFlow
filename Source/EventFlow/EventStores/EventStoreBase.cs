@@ -44,6 +44,8 @@ namespace EventFlow.EventStores
         private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
 
+        public bool PreferStreaming => _eventPersistence.PreferStreaming;
+
         public EventStoreBase(
             ILog log,
             IAggregateFactory aggregateFactory,

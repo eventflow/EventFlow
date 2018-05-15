@@ -32,7 +32,8 @@ namespace EventFlow.Configuration
         public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
         public bool ThrowSubscriberExceptions { get; set; }
         public bool IsAsynchronousSubscribersEnabled { get; set; }
-        
+        public bool UseEventStreaming { get; set; }
+
         internal EventFlowConfiguration()
         {
             PopulateReadModelEventPageSize = 200;
@@ -40,6 +41,7 @@ namespace EventFlow.Configuration
             DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
             ThrowSubscriberExceptions = false;
             IsAsynchronousSubscribersEnabled = false;
+            UseEventStreaming = false;
         }
     }
 }

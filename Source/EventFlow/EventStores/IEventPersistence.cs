@@ -30,6 +30,8 @@ namespace EventFlow.EventStores
 {
     public interface IEventPersistence
     {
+        bool PreferStreaming { get; }
+
         Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
