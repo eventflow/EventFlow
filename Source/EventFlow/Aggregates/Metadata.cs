@@ -56,6 +56,13 @@ namespace EventFlow.Aggregates
         }
 
         [JsonIgnore]
+        public Guid BatchId
+        {
+            get => GetMetadataValue(MetadataKeys.BatchId, Guid.Parse);
+            set => Add(MetadataKeys.BatchId, value.ToString());
+        }
+
+        [JsonIgnore]
         public string EventName
         {
             get => GetMetadataValue(MetadataKeys.EventName);

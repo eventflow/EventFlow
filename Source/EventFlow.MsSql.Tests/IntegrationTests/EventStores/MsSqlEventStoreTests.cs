@@ -75,9 +75,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
         [TestCase(5, 3)]
         [TestCase(42, 10)]
         [TestCase(10, 1000)]
+        //[TestCase(100, 5000)]
         public async Task ImportEvents(int numberOfBatches, int batchSize)
         {
             // Arrange
+            Configuration.UseEventStreaming = true;
             Configuration.StreamingBatchSize = batchSize;
             var thingyId = ThingyId.New;
             var batches = Enumerable.Range(0, numberOfBatches)
@@ -88,7 +90,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
 
             // Act
             await EventStore.ImportEventsAsync(
-                AsyncEnumerable.CreateEnumerable(() => new Batchs(batches)),
+                AsyncEnumerable.CreateEnumerable(() => new EnumerableAsyncWrapper<IReadOnlyCollection<IUncommittedEvent>>(batches)),
                 CancellationToken.None)
                 .ConfigureAwait(false);
 
@@ -101,14 +103,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
         }
 
 
-        private class Batchs : IAsyncEnumerator<IReadOnlyCollection<IUncommittedEvent>>
+        private class EnumerableAsyncWrapper<T> : IAsyncEnumerator<T>
         {
-            private List<IReadOnlyCollection<IUncommittedEvent>>.Enumerator _uncommittedEventsStream;
+            private readonly IEnumerator<T> _uncommittedEventsStream;
 
-            public IReadOnlyCollection<IUncommittedEvent> Current => _uncommittedEventsStream.Current;
+            public T Current => _uncommittedEventsStream.Current;
 
-            public Batchs(
-                List<IReadOnlyCollection<IUncommittedEvent>> uncommittedEventsStream)
+            public EnumerableAsyncWrapper(
+                IEnumerable<T> uncommittedEventsStream)
             {
                 _uncommittedEventsStream = uncommittedEventsStream.GetEnumerator();
             }
@@ -120,6 +122,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
 
             public void Dispose()
             {
+                // Nothing to do here
             }
         }
 
@@ -136,7 +139,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
                 EventVersion = 1,
                 SourceId = new SourceId(Guid.NewGuid().ToString("D")),
                 Timestamp = DateTimeOffset.Now,
-                [MetadataKeys.BatchId] = Guid.NewGuid().ToString(),
+                BatchId = Guid.NewGuid(),
             };
             return new UncommittedEvent(
                 aggregateEvent,

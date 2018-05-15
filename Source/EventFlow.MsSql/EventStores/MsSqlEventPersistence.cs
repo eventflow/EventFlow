@@ -29,7 +29,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -118,8 +117,8 @@ namespace EventFlow.MsSql.EventStores
                 .Select((e, i) => new EventDataModel
                     {
                         AggregateId = id.Value,
-                        AggregateName = e.Metadata[MetadataKeys.AggregateName],
-                        BatchId = Guid.Parse(e.Metadata[MetadataKeys.BatchId]),
+                        AggregateName = e.Metadata.AggregateName,
+                        BatchId = e.Metadata.BatchId,
                         Data = e.SerializedData,
                         Metadata = e.SerializedMetadata,
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
@@ -242,18 +241,20 @@ namespace EventFlow.MsSql.EventStores
         {
             var stopwatch = Stopwatch.StartNew();
             var numberOfEvents = await _connection.WithConnectionAsync(
-                Label.Named("csdcdscs"),
+                Label.Named("mssql-bulk-insert-events"),
                 async (c, ct) =>
                 {
                     if (!(c is SqlConnection sqlConnection)) throw new InvalidOperationException();
 
                     var i = 0;
                     await serializedEventStream.ForEachAwaitAsync(
-                        async (events, _) =>
+                        async (serializedEvents, b) =>
                         {
+                            _log.Verbose(() => $"Starting batch {b+1} of SQL bulk copy with {serializedEvents.Count} events");
+
                             using (var sqlBulkCopy = new SqlBulkCopy(sqlConnection))
                             {
-                                sqlBulkCopy.BatchSize = _eventFlowConfiguration.StreamingBatchSize;
+                                sqlBulkCopy.BatchSize = serializedEvents.Count;
                                 sqlBulkCopy.DestinationTableName = "EventFlow";
                                 var dataTable = new DataTable("EventFlow");
 
@@ -265,20 +266,24 @@ namespace EventFlow.MsSql.EventStores
                                 dataTable.Columns.Add(nameof(EventDataModel.Metadata), typeof(string));
                                 dataTable.Columns.Add(nameof(EventDataModel.AggregateSequenceNumber), typeof(int));
 
-                                foreach (var serializedEvent in events)
+                                foreach (var serializedEvent in serializedEvents)
                                 {
                                     dataTable.Rows.Add(
                                         DBNull.Value,
-                                        Guid.Parse(serializedEvent.Metadata[MetadataKeys.BatchId]),
+                                        serializedEvent.Metadata.BatchId,
                                         serializedEvent.Metadata.AggregateId,
-                                        serializedEvent.Metadata[MetadataKeys.AggregateName],
+                                        serializedEvent.Metadata.AggregateName,
                                         serializedEvent.SerializedData,
                                         serializedEvent.SerializedMetadata,
                                         serializedEvent.AggregateSequenceNumber);
+
                                     i++;
                                 }
 
-                                await sqlBulkCopy.WriteToServerAsync(dataTable, cancellationToken).ConfigureAwait(false);
+                                await sqlBulkCopy.WriteToServerAsync(
+                                    dataTable,
+                                    cancellationToken)
+                                    .ConfigureAwait(false);
                             }
                         },
                         cancellationToken)
