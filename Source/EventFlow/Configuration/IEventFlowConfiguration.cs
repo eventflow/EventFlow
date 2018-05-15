@@ -71,5 +71,7 @@ namespace EventFlow.Configuration
         bool IsAsynchronousSubscribersEnabled { get; }
 
         bool UseEventStreaming { get; }
+
+        int StreamingBatchSize { get; }
     }
 }

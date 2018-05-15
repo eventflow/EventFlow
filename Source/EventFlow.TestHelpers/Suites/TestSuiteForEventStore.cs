@@ -111,6 +111,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             // Arrange
             Configuration.UseEventStreaming = useEventStreaming;
+            Configuration.StreamingBatchSize = 1;
             var id1 = ThingyId.New;
             var id2 = ThingyId.New;
             var aggregate1 = await LoadAggregateAsync(id1).ConfigureAwait(false);

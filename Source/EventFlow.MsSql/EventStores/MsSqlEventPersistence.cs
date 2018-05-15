@@ -211,7 +211,8 @@ namespace EventFlow.MsSql.EventStores
                 _log,
                 _connection,
                 id,
-                fromEventSequenceNumber));
+                fromEventSequenceNumber,
+                _eventFlowConfiguration.StreamingBatchSize));
 
             return Task.FromResult(asyncEnumerable);
         }
@@ -234,15 +235,15 @@ namespace EventFlow.MsSql.EventStores
 
         private class MsSqlEventEnumerator : IAsyncEnumerator<IReadOnlyCollection<ICommittedDomainEvent>>
         {
-            private const int BatchSize = 1; // TODO: Make configurable and make default a bit higher
             private readonly ILog _log;
             private readonly IMsSqlConnection _connection;
             private readonly IIdentity _id;
             private readonly int _fromEventSequenceNumber;
+            private readonly int _batchSize;
             private int _currentStartRowIndex;
             private bool _getNextBatch;
 
-            const string Sql = @"
+            private const string Sql = @"
                 SELECT
                     GlobalSequenceNumber,
                     BatchId,
@@ -279,12 +280,14 @@ namespace EventFlow.MsSql.EventStores
                 ILog log,
                 IMsSqlConnection connection,
                 IIdentity id,
-                int fromEventSequenceNumber)
+                int fromEventSequenceNumber,
+                int batchSize)
             {
                 _log = log;
                 _connection = connection;
                 _id = id;
                 _fromEventSequenceNumber = fromEventSequenceNumber;
+                _batchSize = batchSize;
                 _getNextBatch = true;
             }
 
@@ -301,12 +304,12 @@ namespace EventFlow.MsSql.EventStores
                             AggregateId = _id.Value,
                             FromEventSequenceNumber = _fromEventSequenceNumber,
                             StartRowIndex = _currentStartRowIndex,
-                            MaximumRows = BatchSize
+                            MaximumRows = _batchSize
                         })
                     .ConfigureAwait(false);
 
-                _currentStartRowIndex += BatchSize;
-                _getNextBatch = Current.Count >= BatchSize;
+                _currentStartRowIndex += _batchSize;
+                _getNextBatch = Current.Count >= _batchSize;
 
                 _log.Verbose(() => $"Loaded {Current.Count} events in batch for aggregate '{_id.Value}'. Continue? {_getNextBatch}");
 
@@ -315,6 +318,7 @@ namespace EventFlow.MsSql.EventStores
 
             public void Dispose()
             {
+                // Nothing to do here
             }
         }
     }

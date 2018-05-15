@@ -33,6 +33,7 @@ namespace EventFlow.Configuration
         public bool ThrowSubscriberExceptions { get; set; }
         public bool IsAsynchronousSubscribersEnabled { get; set; }
         public bool UseEventStreaming { get; set; }
+        public int StreamingBatchSize { get; set; }
 
         internal EventFlowConfiguration()
         {
@@ -42,6 +43,7 @@ namespace EventFlow.Configuration
             ThrowSubscriberExceptions = false;
             IsAsynchronousSubscribersEnabled = false;
             UseEventStreaming = false;
+            StreamingBatchSize = 200;
         }
     }
 }
