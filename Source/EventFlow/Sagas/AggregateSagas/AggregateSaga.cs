@@ -64,12 +64,14 @@ namespace EventFlow.Sagas.AggregateSagas
             ? SagaState.Completed
             : IsNew ? SagaState.New : SagaState.Running;
 
-        public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public virtual async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            foreach (var unpublishedCommand in _unpublishedCommands.ToList())
+            var commandsToPublish = _unpublishedCommands.ToList();
+            _unpublishedCommands.Clear();
+
+            foreach (var unpublishedCommand in commandsToPublish)
             {
                 await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
-                _unpublishedCommands.Remove(unpublishedCommand);
             }
         }
     }
