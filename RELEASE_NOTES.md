@@ -2,6 +2,8 @@
 
 * Fix: Commands are now correctly published when no events are emitted from a saga
   after handling a domain event
+* Minor fix: Updated name of Primary Key for MSSQL Snapshot Store to be different
+  from MSSQL Event Store, so both can be used in the same database without conflicts
 
 ### New in 0.58.3377 (released 2018-05-15)
 
