@@ -294,26 +294,31 @@ section lists some of them. If you have a link with a relevant article, please
 share it by creating an issue with the link.
 
 * **Domain-Driven Design**
- - [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/) by Eric Evans
+  * [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/)
+    by Eric Evans
+  * [DDD Decoded - Bounded Contexts Explained](http://blog.sapiensworks.com/post/2016/08/12/DDD-Bounded-Contexts-Explained)
+  * [Going "Events-First" for Microservices with Event Storming and DDD](http://www.russmiles.com/essais/going-events-first-for-microservices-with-event-storming-and-ddd)
 * **General CQRS+ES**
- - [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
-   published by Microsoft
- - [An In-Depth Look At CQRS](http://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
-   by Mike Mogosanu
- - [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
-   by Greg Young
- - [Busting some CQRS myths](https://lostechies.com/jimmybogard/2012/08/22/busting-some-cqrs-myths/)
-   by Jimmy Bogard
- - [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
-   by Gabriel Schenker
+  * [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
+    published by Microsoft
+  * [An In-Depth Look At CQRS](http://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
+    by Mike Mogosanu
+  * [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
+    by Greg Young
+  * [Busting some CQRS myths](https://lostechies.com/jimmybogard/2012/08/22/busting-some-cqrs-myths/)
+    by Jimmy Bogard
+  * [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
+    by Gabriel Schenker
+  * [DDD Decoded - Entities and Value Objects Explained](http://blog.sapiensworks.com/post/2016/07/29/DDD-Entities-Value-Objects-Explained)
 * **Eventual consistency**
- - [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
+  * [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
    by Mike Mogosanu
+  * [DDD Decoded - Don't Fear Eventual Consistency](http://blog.sapiensworks.com/post/2016/07/23/DDD-Eventual-Consistency)
 * **Why _not_ to implement "unit of work" in DDD**
- - [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
-   by Mike Mogosanu
- - [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
-   by Mike Mogosanu
+  * [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
+    by Mike Mogosanu
+  * [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+    by Mike Mogosanu
 
 
 ### Integration tests
