@@ -52,7 +52,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
             _eventStoreInstance.DisposeSafe("EventStore shutdown");
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()

@@ -26,7 +26,7 @@ using EventFlow.Configuration;
 
 namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacScopeResolver : AutofacResolver, IScopeResolver
+    public class AutofacScopeResolver : AutofacResolver, IScopeResolver
     {
         private readonly ILifetimeScope _lifetimeScope;
 

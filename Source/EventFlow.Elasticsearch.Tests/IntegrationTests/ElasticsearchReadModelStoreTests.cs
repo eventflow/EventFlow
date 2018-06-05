@@ -78,7 +78,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             }
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             try
             {

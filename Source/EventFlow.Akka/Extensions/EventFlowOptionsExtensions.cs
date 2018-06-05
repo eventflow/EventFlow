@@ -21,36 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using Akka.Actor;
+using EventFlow.Akka.Overrides;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Entities;
-using EventFlow.TestHelpers.Suites;
-using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
-using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
-using NUnit.Framework;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.Akka.Extensions
 {
-    [Category(Categories.Integration)]
-    public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
+    public static class EventFlowOptionsExtensions
     {
-        protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
-
-        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
+        public static IEventFlowOptions UseAkka(
+            this IEventFlowOptions eventFlowOptions,
+            ActorSystem actorSystem = null)
         {
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
-                .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(
-                    typeof(InMemoryThingyGetQueryHandler),
-                    typeof(InMemoryThingyGetVersionQueryHandler),
-                    typeof(InMemoryThingyGetMessagesQueryHandler))
-                .CreateResolver();
-
-            return resolver;
+            return eventFlowOptions
+                .RegisterServices(sr =>
+                {
+                    sr.Register<ICommandBus, AkkaCommandBus>();
+                    if (actorSystem != null)
+                    {
+                        sr.RegisterGeneric(typeof(AggregateActor<,>), typeof(AggregateActor<,>));
+                        sr.Register(_ => actorSystem, Lifetime.Singleton);
+                    }
+                });
         }
     }
 }

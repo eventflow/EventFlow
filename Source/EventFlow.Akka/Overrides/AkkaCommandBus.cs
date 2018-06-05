@@ -21,36 +21,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Entities;
-using EventFlow.TestHelpers.Suites;
-using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
-using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
-using NUnit.Framework;
+using System.Threading;
+using System.Threading.Tasks;
+using Akka.Actor;
+using Akka.DI.Core;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Core;
 
-namespace EventFlow.Tests.IntegrationTests.ReadStores
+namespace EventFlow.Akka.Overrides
 {
-    [Category(Categories.Integration)]
-    public class InMemoryReadModelStoreTests : TestSuiteForReadModelStore
+    public class AkkaCommandBus : ICommandBus
     {
-        protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
+        private readonly ActorSystem _actorSystem;
 
-        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
+        public AkkaCommandBus(
+            ActorSystem actorSystem)
         {
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
-                .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
-                .AddQueryHandlers(
-                    typeof(InMemoryThingyGetQueryHandler),
-                    typeof(InMemoryThingyGetVersionQueryHandler),
-                    typeof(InMemoryThingyGetMessagesQueryHandler))
-                .CreateResolver();
+            _actorSystem = actorSystem;
+        }
 
-            return resolver;
+        public Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
+            ICommand<TAggregate, TIdentity, TExecutionResult> command,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            var props = _actorSystem.DI().Props<AggregateActor<TAggregate, TIdentity>>();
+            var actorRef = _actorSystem.ActorOf(props, command.AggregateId.Value);
+
+            actorRef.Tell(command);
+
+            return Task.FromResult(default(TExecutionResult));
         }
     }
 }

@@ -37,7 +37,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     {
         private IFilesEventStoreConfiguration _configuration;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             var storePath = Path.Combine(
                 Path.GetTempPath(),

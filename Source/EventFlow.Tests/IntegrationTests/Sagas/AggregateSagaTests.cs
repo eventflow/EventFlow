@@ -170,7 +170,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             receivedSagaPingIds.ShouldAllBeEquivalentTo(pingsWithRunningSaga);
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();
             _thingySagaStartedSubscriber

@@ -32,16 +32,23 @@ namespace EventFlow.Commands
 {
     public interface ICommand : IVersionedType
     {
+        ISourceId SourceId { get; }
+
         Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
         ISourceId GetSourceId();
     }
 
-    public interface ICommand<in TAggregate, out TIdentity, TResult> : ICommand
+    public interface ICommand<in TAggregate, out TIdentity> : ICommand
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+    {
+        TIdentity AggregateId { get; }
+    }
+
+    public interface ICommand<in TAggregate, out TIdentity, TResult> : ICommand<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TResult : IExecutionResult
     {
-        TIdentity AggregateId { get; }
-        ISourceId SourceId { get; }
     }
 }

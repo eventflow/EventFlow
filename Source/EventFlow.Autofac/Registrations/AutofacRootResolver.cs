@@ -26,7 +26,7 @@ using EventFlow.Configuration;
 
 namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacRootResolver : AutofacScopeResolver, IRootResolver
+    public class AutofacRootResolver : AutofacScopeResolver, IRootResolver
     {
         public IContainer Container { get; }
 

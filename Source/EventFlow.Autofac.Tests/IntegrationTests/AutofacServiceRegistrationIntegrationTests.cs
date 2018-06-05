@@ -38,7 +38,7 @@ namespace EventFlow.Autofac.Tests.IntegrationTests
                 .UseAutofacContainerBuilder());
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .CreateResolver();

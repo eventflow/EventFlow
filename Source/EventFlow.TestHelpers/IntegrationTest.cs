@@ -46,7 +46,7 @@ namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTest: Test
     {
-        protected IRootResolver Resolver { get; private set; }
+        protected IScopeResolver Resolver { get; private set; }
         protected IAggregateStore AggregateStore { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ISnapshotStore SnapshotStore { get; private set; }
@@ -64,7 +64,7 @@ namespace EventFlow.TestHelpers
             var eventFlowOptions = Options(EventFlowOptions.New)
                 .AddDefaults(EventFlowTestHelpers.Assembly);
 
-            Resolver = CreateRootResolver(eventFlowOptions);
+            Resolver = CreateResolver(eventFlowOptions);
 
             AggregateStore = Resolver.Resolve<IAggregateStore>();
             EventStore = Resolver.Resolve<IEventStore>();
@@ -89,7 +89,7 @@ namespace EventFlow.TestHelpers
             return eventFlowOptions;
         }
 
-        protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
+        protected abstract IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions);
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
         {

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net451</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Akka.DI.AutoFac" Version="1.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow.Akka\EventFlow.Akka.csproj" />
+    <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj" />
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
+  </ItemGroup>
+
+</Project>

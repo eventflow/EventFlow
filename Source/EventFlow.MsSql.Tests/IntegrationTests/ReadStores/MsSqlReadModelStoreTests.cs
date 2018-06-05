@@ -43,7 +43,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
 
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 

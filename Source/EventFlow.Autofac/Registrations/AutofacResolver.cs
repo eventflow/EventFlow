@@ -31,7 +31,7 @@ using EventFlow.Configuration;
 
 namespace EventFlow.Autofac.Registrations
 {
-    internal class AutofacResolver : IResolver
+    public class AutofacResolver : IResolver
     {
         private readonly IComponentContext _componentContext;
 

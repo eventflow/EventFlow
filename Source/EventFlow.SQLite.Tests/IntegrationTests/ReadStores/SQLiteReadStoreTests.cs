@@ -45,7 +45,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
 
         private string _databasePath;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IScopeResolver CreateResolver(IEventFlowOptions eventFlowOptions)
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
