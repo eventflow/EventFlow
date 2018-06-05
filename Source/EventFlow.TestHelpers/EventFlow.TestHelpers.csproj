@@ -28,6 +28,7 @@
     <PackageReference Include="AutoFixture.AutoMoq" Version="3.50.6" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
     <PackageReference Include="Moq" Version="4.7.99" />
+    <PackageReference Include="Npgsql" Version="4.0.0" />
     <PackageReference Include="NUnit" Version="3.8.1" />
   </ItemGroup>
   <ItemGroup>
