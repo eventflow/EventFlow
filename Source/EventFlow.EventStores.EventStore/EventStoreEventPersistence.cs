@@ -129,7 +129,7 @@ namespace EventFlow.EventStores.EventStore
                         var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
-                        return new EventData(eventId, eventType, true, data, meta);
+                        return new EventData(guid, eventType, true, data, meta);
                     })
                 .ToList();
 
