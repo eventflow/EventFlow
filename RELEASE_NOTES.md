@@ -1,6 +1,6 @@
 ### New in 0.60 (not released yet)
 
-* _Nothing yet_
+* Minor: Removed unnecessary transaction in EventStore persistance
 
 ### New in 0.59.3396 (released 2018-05-23)
 
