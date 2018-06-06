@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
 using EventFlow.Sql.ReadModels.Attributes;
@@ -35,6 +34,12 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
     [Category(Categories.Unit)]
     public class ReadModelSqlGeneratorTests : TestsFor<ReadModelSqlGenerator>
     {
+        [SetUp]
+        public void SetUp()
+        {
+            Inject<IReadModelAnalyzer>(new ReadModelAnalyzer());
+        }
+
         [Test]
         public void CreateInsertSql_ProducesCorrectSql()
         {
@@ -65,16 +70,6 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             sql.Should().Be("SELECT * FROM [ReadModel-TestAttributes] WHERE Id = @EventFlowReadModelId");
         }
 
-        [Test]
-        public void GetTableName_UsesTableAttribute()
-        {
-            // Act
-            var tableName = Sut.GetTableName<TestTableAttributeReadModel>();
-
-            // Assert
-            tableName.Should().Be("[Fancy]");
-        }
-
         public class TestAttributesReadModel : IReadModel
         {
             [SqlReadModelIdentityColumn]
@@ -84,11 +79,6 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
 
             [SqlReadModelIgnoreColumn]
             public string Secret { get; set; }
-        }
-
-        [Table("Fancy")]
-        public class TestTableAttributeReadModel : IReadModel
-        {
         }
     }
 }
