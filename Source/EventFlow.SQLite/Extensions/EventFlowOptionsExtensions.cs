@@ -63,7 +63,10 @@ namespace EventFlow.SQLite.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
+                        // TODO: Cleanup
                         f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<IReadModelAnalyzer, ReadModelAnalyzer>(Lifetime.Singleton, true);
+
                         f.Register<ISQLiteReadModelStore<TReadModel>, SQLiteReadModelStore<TReadModel>>();
                         f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<ISQLiteReadModelStore<TReadModel>>());
                     })
@@ -77,7 +80,10 @@ namespace EventFlow.SQLite.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
+                        // TODO: Cleanup
                         f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<IReadModelAnalyzer, ReadModelAnalyzer>(Lifetime.Singleton, true);
+
                         f.Register<ISQLiteReadModelStore<TReadModel>, SQLiteReadModelStore<TReadModel>>();
                         f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<ISQLiteReadModelStore<TReadModel>>());
                     })

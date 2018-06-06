@@ -22,12 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Linq;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.ReadStores;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.Sql.Migrations;
+using EventFlow.Sql.ReadModels;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.MsSql;
@@ -58,9 +62,24 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
                     typeof(MsSqlThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
+            // TODO: Cleanup
+
             var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            var readModelSchemaGenerator = resolver.Resolve<IMssqlReadModelSchemaGenerator>();
+            var readModelAnalyzer = resolver.Resolve<IReadModelAnalyzer>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
-            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
+
+            var sqlScripts = new[] {typeof(MsSqlThingyReadModel), typeof(MsSqlThingyMessageReadModel)}
+                .Select(m => new
+                    {
+                        Schema = readModelSchemaGenerator.GetReadModelSchema(m),
+                        Details = readModelAnalyzer.GetReadModelDetails(m)
+                    })
+                .Select(a => new SqlScript(a.Details.TableName, a.Schema));
+
+            // TODO: Missing index IX_ReadModel-ThingyMessage_ThingyId
+
+            databaseMigrator.MigrateDatabaseUsingScripts(sqlScripts);
 
             return resolver;
         }

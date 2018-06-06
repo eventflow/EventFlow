@@ -21,7 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.MsSql.ReadStores;
+using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.Sql.ReadModels;
 using EventFlow.TestHelpers;
 using NUnit.Framework;
 
@@ -30,9 +33,28 @@ namespace EventFlow.MsSql.Tests.UnitTests.ReadStores
     [Category(Categories.Unit)]
     public class MssqlReadModelSchemaGeneratorTests : TestsFor<MssqlReadModelSchemaGenerator>
     {
-        public class SimpleReadModel
+        [SetUp]
+        public void SetUp()
         {
+            Inject<IReadModelAnalyzer>(new ReadModelAnalyzer());
+        }
 
+        [Test]
+        public void MsSqlThingyReadModel()
+        {
+            // Act
+            var sql = Sut.GetReadModelSchema(typeof(MsSqlThingyReadModel));
+
+            Console.WriteLine(sql);
+        }
+
+        [Test]
+        public void MsSqlThingyMessageReadModel()
+        {
+            // Act
+            var sql = Sut.GetReadModelSchema(typeof(MsSqlThingyMessageReadModel));
+
+            Console.WriteLine(sql);
         }
     }
 }

@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
@@ -45,11 +46,32 @@ namespace EventFlow.Sql.ReadModels
                     var fields = (
                         from propertyInfo in GetPropertyInfos(readModelType)
                         let isIdentity = propertyInfo.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute)
+                        let isRequired = propertyInfo.GetCustomAttributes().Any(a => a is RequiredAttribute)
                         select new ReadModelField(
                             propertyInfo.Name,
                             propertyInfo.PropertyType,
-                            isIdentity)
+                            isIdentity,
+                            isRequired)
                         ).ToList();
+
+                    if (!fields.Any(f => f.IsIdentity))
+                    {
+                        var defaultIdentity = fields.SingleOrDefault(
+                            f => string.Equals(f.Name, "AggregateId", StringComparison.OrdinalIgnoreCase) &&
+                                 f.Type == typeof(string));
+                        if (defaultIdentity != null)
+                        {
+                            fields[fields.IndexOf(defaultIdentity)] = new ReadModelField(
+                                defaultIdentity.Name,
+                                defaultIdentity.Type,
+                                true,
+                                true);
+                        }
+                        else
+                        {
+                            throw new Exception("No identity property");
+                        }
+                    }
 
                     return new ReadModelDetails(
                         GetTableName(readModelType),
@@ -65,7 +87,7 @@ namespace EventFlow.Sql.ReadModels
                 : $"[ReadModel-{readModelType.Name.Replace("ReadModel", string.Empty)}]";
         }
 
-        private static IEnumerable<PropertyInfo> GetPropertyInfos(IReflect readModelType)
+        private static IEnumerable<PropertyInfo> GetPropertyInfos(Type readModelType)
         {
             return readModelType
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)

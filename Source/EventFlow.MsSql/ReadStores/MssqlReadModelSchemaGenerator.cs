@@ -22,32 +22,66 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using EventFlow.Sql.ReadModels.Attributes;
+using System.Text;
+using EventFlow.Extensions;
+using EventFlow.Sql.ReadModels;
 
 namespace EventFlow.MsSql.ReadStores
 {
     public class MssqlReadModelSchemaGenerator : IMssqlReadModelSchemaGenerator
     {
-        private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> PropertyInfos = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
+        private readonly IReadModelAnalyzer _readModelAnalyzer;
+        private static readonly Dictionary<Type, string> Types = new Dictionary<Type, string>
+            {
+                {typeof(string), "[nvarchar](MAX)"},
+                {typeof(int), "[int]"},
+                {typeof(long), "[bigint]"},
+                {typeof(bool), "[bit]"},
+                {typeof(DateTimeOffset), "[datetimeoffset](7)"}
+            };
 
-        
-
-        protected IReadOnlyCollection<PropertyInfo> GetPropertyInfos(Type readModelType)
+        public MssqlReadModelSchemaGenerator(
+            IReadModelAnalyzer readModelAnalyzer)
         {
-            return PropertyInfos.GetOrAdd(
-                readModelType,
-                t =>
-                    {
-                        return t
-                            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                            .Where(p => !p.GetCustomAttributes().Any(a => a is SqlReadModelIgnoreColumnAttribute))
-                            .OrderBy(p => p.Name)
-                            .ToList();
-                    });
+            _readModelAnalyzer = readModelAnalyzer;
+        }
+
+        public string GetReadModelSchema(Type readModelType)
+        {
+            var sb = new StringBuilder();
+            var details = _readModelAnalyzer.GetReadModelDetails(readModelType);
+            var identity = details.Fields.Single(f => f.IsIdentity).Name;
+
+            sb.AppendLine($"CREATE TABLE {details.TableName}");
+            sb.AppendLine( "(");
+            sb.AppendLine( "   [Id] [bigint] IDENTITY(1,1) NOT NULL,");
+            sb.AppendLine($"   [{identity}] [nvarchar](64) NOT NULL,");
+            foreach (var f in details.Fields.Where(f => !f.IsIdentity))
+            {
+                if (!Types.TryGetValue(f.Type, out var t))
+                {
+                    throw new Exception($"Don't know hot to write '{f.Type.PrettyPrint()}'");
+                }
+
+                var required = f.IsRequired ? "NOT " : string.Empty;
+                sb.AppendLine($"   [{f.Name}] {t} {required}NULL,");
+            }
+            sb.AppendLine($"   CONSTRAINT [PK_{details.TableName.Trim('[', ']')}] PRIMARY KEY CLUSTERED");
+            sb.AppendLine("   (");
+            sb.AppendLine("      [Id] ASC");
+            sb.AppendLine("   )");
+            sb.AppendLine(")");
+            sb.AppendLine();
+
+
+            sb.AppendLine($"CREATE UNIQUE NONCLUSTERED INDEX [IX_{details.TableName.Trim('[', ']')}_{identity}] ON {details.TableName}");
+            sb.AppendLine( "(");
+            sb.AppendLine($"   [{identity}] ASC");
+            sb.AppendLine( ")");
+
+            return sb.ToString();
         }
     }
 }

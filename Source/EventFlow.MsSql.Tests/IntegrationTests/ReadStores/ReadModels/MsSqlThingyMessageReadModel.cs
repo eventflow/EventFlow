@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
 using EventFlow.MsSql.ReadStores.Attributes;
@@ -35,11 +36,13 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
     public class MsSqlThingyMessageReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
     {
+        [Required]
         public string ThingyId { get; set; }
 
         [MsSqlReadModelIdentityColumn]
         public string MessageId { get; set; }
 
+        [Required]
         public string Message { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)

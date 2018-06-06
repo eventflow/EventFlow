@@ -30,15 +30,18 @@ namespace EventFlow.Sql.ReadModels
         public string Name { get; }
         public Type Type { get; }
         public bool IsIdentity { get; }
+        public bool IsRequired { get; }
 
         public ReadModelField(
             string name,
             Type type,
-            bool isIdentity)
+            bool isIdentity,
+            bool isRequired)
         {
             Name = name;
             Type = type;
             IsIdentity = isIdentity;
+            IsRequired = isRequired || isIdentity;
         }
     }
 }
