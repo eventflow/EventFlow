@@ -132,17 +132,18 @@ namespace EventFlow.EventStores.EventStore
 
             try
             {
-                using (var transaction = await _connection.StartTransactionAsync(id.Value, expectedVersion).ConfigureAwait(false))
-                {
-                    await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
-                    var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
-                    _log.Verbose(
-                        "Wrote entity {0} with version {1} ({2},{3})",
-                        id,
-                        writeResult.NextExpectedVersion - 1,
-                        writeResult.LogPosition.CommitPosition,
-                        writeResult.LogPosition.PreparePosition);
-                }
+                var writeResult = await _connection.AppendToStreamAsync(
+                    id.Value,
+                    expectedVersion,
+                    eventDatas)
+                    .ConfigureAwait(false);
+
+                _log.Verbose(
+                    "Wrote entity {0} with version {1} ({2},{3})",
+                    id,
+                    writeResult.NextExpectedVersion - 1,
+                    writeResult.LogPosition.CommitPosition,
+                    writeResult.LogPosition.PreparePosition);
             }
             catch (WrongExpectedVersionException e)
             {
