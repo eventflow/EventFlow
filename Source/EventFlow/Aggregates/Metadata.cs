@@ -49,6 +49,7 @@ namespace EventFlow.Aggregates
             return new Metadata(keyValuePairs);
         }
 
+        [JsonIgnore]
         public ISourceId SourceId
         {
             get => GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v));

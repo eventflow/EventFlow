@@ -7,7 +7,7 @@ BEGIN
 		[AggregateSequenceNumber] [int] NOT NULL,
 		[Data] [nvarchar](MAX) NOT NULL,
 		[Metadata] [nvarchar](MAX) NOT NULL,
-		CONSTRAINT [PK_EventFlow] PRIMARY KEY CLUSTERED
+		CONSTRAINT [PK_EventFlowSnapshots] PRIMARY KEY CLUSTERED
 		(
 			[Id] ASC
 		)

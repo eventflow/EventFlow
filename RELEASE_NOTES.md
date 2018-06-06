@@ -1,6 +1,13 @@
-### New in 0.59 (not released yet)
+### New in 0.60 (not released yet)
 
-* _Nothing yet_
+* Minor: Removed unnecessary transaction in EventStore persistance
+
+### New in 0.59.3396 (released 2018-05-23)
+
+* Fix: Commands are now correctly published when no events are emitted from a saga
+  after handling a domain event
+* Minor fix: Updated name of Primary Key for MSSQL Snapshot Store to be different
+  from MSSQL Event Store, so both can be used in the same database without conflicts
 
 ### New in 0.58.3377 (released 2018-05-15)
 
