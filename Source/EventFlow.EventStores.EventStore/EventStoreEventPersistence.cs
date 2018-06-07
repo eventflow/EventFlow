@@ -125,7 +125,7 @@ namespace EventFlow.EventStores.EventStore
                         // While it might be tempting to use e.Metadata.EventId here, we can't
                         // as EventStore won't detect optimistic concurrency exceptions then
                         var guid = Guid.NewGuid();
-
+                        
                         var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
