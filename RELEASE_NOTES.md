@@ -1,5 +1,6 @@
 ### New in 0.65 (not released yet)
 
+* New: Added .NET standard support for EventStore
 * Minor: Removed unnecessary transaction in EventStore persistance
 
 ### New in 0.64.3598 (released 2018-08-24)
