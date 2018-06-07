@@ -78,10 +78,7 @@ namespace EventFlow.Aggregates
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            if (aggregateEvent == null)
-            {
-                throw new ArgumentNullException(nameof(aggregateEvent));
-            }
+            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
 
             var aggregateSequenceNumber = Version + 1;
             var eventId = EventId.NewDeterministic(
@@ -113,6 +110,8 @@ namespace EventFlow.Aggregates
             ISnapshotStore snapshotStore,
             CancellationToken cancellationToken)
         {
+            if (eventStore == null) throw new ArgumentNullException(nameof(eventStore));
+
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
 
             ApplyEvents(domainEvents);
@@ -124,6 +123,8 @@ namespace EventFlow.Aggregates
             ISourceId sourceId,
             CancellationToken cancellationToken)
         {
+            if (eventStore == null) throw new ArgumentNullException(nameof(eventStore));
+
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
                 _uncommittedEvents,
@@ -136,6 +137,8 @@ namespace EventFlow.Aggregates
 
         public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
+            if (domainEvents == null) throw new ArgumentNullException(nameof(domainEvents));
+
             if (!domainEvents.Any())
             {
                 return;
@@ -156,6 +159,8 @@ namespace EventFlow.Aggregates
 
         public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
         {
+            if (aggregateEvents == null) throw new ArgumentNullException(nameof(aggregateEvents));
+
             if (Version > 0)
             {
                 throw new InvalidOperationException($"Aggregate '{GetType().PrettyPrint()}' with ID '{Id}' already has events");
@@ -163,8 +168,7 @@ namespace EventFlow.Aggregates
 
             foreach (var aggregateEvent in aggregateEvents)
             {
-                var e = aggregateEvent as IAggregateEvent<TAggregate, TIdentity>;
-                if (e == null)
+                if (!(aggregateEvent is IAggregateEvent<TAggregate, TIdentity> e))
                 {
                     throw new ArgumentException($"Aggregate event of type '{aggregateEvent.GetType()}' does not belong with aggregate '{this}',");
                 }
@@ -175,6 +179,8 @@ namespace EventFlow.Aggregates
 
         protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
+            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
+
             var eventType = aggregateEvent.GetType();
             if (_eventHandlers.ContainsKey(eventType))
             {
@@ -186,8 +192,7 @@ namespace EventFlow.Aggregates
             }
             else
             {
-                Action<TAggregate, IAggregateEvent> applyMethod;
-                if (!ApplyMethods.TryGetValue(eventType, out applyMethod))
+                if (!ApplyMethods.TryGetValue(eventType, out var applyMethod))
                 {
                     throw new NotImplementedException(
                         $"Aggregate '{Name}' does have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
@@ -203,6 +208,8 @@ namespace EventFlow.Aggregates
         protected void Register<TAggregateEvent>(Action<TAggregateEvent> handler)
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
             var eventType = typeof(TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))
             {
@@ -215,6 +222,8 @@ namespace EventFlow.Aggregates
 
         protected void Register(IEventApplier<TAggregate, TIdentity> eventApplier)
         {
+            if (eventApplier == null) throw new ArgumentNullException(nameof(eventApplier));
+
             _eventAppliers.Add(eventApplier);
         }
 
