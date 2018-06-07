@@ -21,13 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#if NET451
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DbUp;
+using DbUp.Builder;
 using DbUp.Engine;
 using EventFlow.Logs;
 using EventFlow.Sql.Connections;
@@ -36,13 +35,13 @@ using EventFlow.Sql.Integrations;
 
 namespace EventFlow.Sql.Migrations
 {
-    public class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
+    public abstract class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
         where TConfiguration : ISqlConfiguration<TConfiguration>
     {
         private readonly ILog _log;
         private readonly TConfiguration _sqlConfiguration;
 
-        public SqlDatabaseMigrator(
+        protected SqlDatabaseMigrator(
             ILog log,
             TConfiguration sqlConfiguration)
         {
@@ -57,8 +56,7 @@ namespace EventFlow.Sql.Migrations
 
         public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
         {
-            var upgradeEngine = DeployChanges.To
-                .SqlDatabase(connectionString)
+            var upgradeEngine = For(DeployChanges.To, connectionString)
                 .WithScriptsEmbeddedInAssembly(assembly)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
@@ -76,8 +74,7 @@ namespace EventFlow.Sql.Migrations
         public void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString)
         {
             var dbUpSqlScripts = sqlScripts.Select(s => new DbUp.Engine.SqlScript(s.Name, s.Content));
-            var upgradeEngine = DeployChanges.To
-                .SqlDatabase(connectionString)
+            var upgradeEngine = For(DeployChanges.To, connectionString)
                 .WithScripts(dbUpSqlScripts)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
@@ -103,7 +100,7 @@ namespace EventFlow.Sql.Migrations
                 throw new SqlMigrationException(scripts, result.Error.Message, result.Error);
             }
         }
+
+        protected abstract UpgradeEngineBuilder For(SupportedDatabases supportedDatabases, string connectionString);
     }
 }
-
-#endif

@@ -60,7 +60,7 @@ namespace EventFlow.ReadStores
                 let readModelIds = _readModelLocator.GetReadModelIds(de)
                 from rid in readModelIds
                 group de by rid into g
-                select new ReadModelUpdate(g.Key, g.OrderBy(d => d.AggregateSequenceNumber).ToList())
+                select new ReadModelUpdate(g.Key, g.OrderBy(d => d.Timestamp).ThenBy(d => d.AggregateSequenceNumber).ToList())
                 ).ToList();
             return readModelUpdates;
         }
