@@ -23,9 +23,9 @@
 
 using Npgsql;
 using System;
-using System.Data.SqlClient;
 
-namespace EventFlow.TestHelpers.PostgreSql
+namespace EventFlow.PostgreSql.TestsHelpers
+
 {
     public interface IPostgreSqlDatabase : IDisposable
     {

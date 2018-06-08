@@ -27,7 +27,6 @@ using EventFlow.ReadStores;
 
 namespace EventFlow.PostgreSql.ReadStores
 {
-    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
     public interface IPostgreSqlReadModel : IReadModel
     {
         string AggregateId { get; set; }

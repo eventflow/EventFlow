@@ -24,7 +24,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace EventFlow.TestHelpers.PostgreSql
+namespace EventFlow.PostgreSql.TestsHelpers
+
 {
     public static class PostgreSqlHelpz
     {
@@ -48,10 +49,10 @@ namespace EventFlow.TestHelpers.PostgreSql
                 $"Database={databaseName}"
             };
 
-            var environmentServer = Environment.GetEnvironmentVariable("HELPZ_MSSQL_SERVER", EnvironmentVariableTarget.Machine);
-            var environmentPort = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PORT", EnvironmentVariableTarget.Machine);
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PASS", EnvironmentVariableTarget.Machine);
-            var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER", EnvironmentVariableTarget.Machine);
+            var environmentServer = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_SERVER", EnvironmentVariableTarget.Machine);
+            var environmentPort = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PORT", EnvironmentVariableTarget.Machine);
+            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS", EnvironmentVariableTarget.Machine);
+            var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_USER", EnvironmentVariableTarget.Machine);
 
 
             environmentServer = "localhost";

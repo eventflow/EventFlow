@@ -51,14 +51,15 @@ namespace EventFlow.PostgreSql.RetryStrategies
             switch (postGreSqlException.SqlState)
             {
                 //https://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-                //Explanation of each error code
-                case "40P01": // deadlock_detected
+                //deadlock_detected
+
+                case "40P01":
 
 
                 //https://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-                //Explanation of each error code
-                // connection in a separate process.
-                case "25001": //active_sql_transaction
+                //active_sql_transaction
+
+                case "25001": 
                     return Retry.YesAfter(_configuration.TransientRetryDelay.PickDelay());
                     
                 default:

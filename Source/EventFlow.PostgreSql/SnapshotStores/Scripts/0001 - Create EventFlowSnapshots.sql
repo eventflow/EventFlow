@@ -21,5 +21,5 @@ BEGIN
 			AggregateSequenceNumber int
 		);
     END IF;
-END\
+END
 $$;

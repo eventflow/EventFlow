@@ -22,12 +22,11 @@
 
 using System;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.ValueObjects;
 using Npgsql;
 
-namespace EventFlow.TestHelpers.PostgreSql
+namespace EventFlow.PostgreSql.TestsHelpers
+
 {
     public class PostgreSqlConnectionString : SingleValueObject<string>
     {

@@ -23,10 +23,9 @@
 
 using Npgsql;
 using System;
-using System.Data;
-using System.Data.SqlClient;
 
-namespace EventFlow.TestHelpers.PostgreSql
+namespace EventFlow.PostgreSql.TestsHelpers
+
 {
     public class PostgressSqlDatabase : IPostgreSqlDatabase
     {

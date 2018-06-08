@@ -29,19 +29,24 @@ using System.Threading.Tasks;
 
 using EventFlow.Core;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
+using Npgsql;
 
 namespace EventFlow.PostgreSql.SnapshotStores
 {
     public class PostgreSqlSnapshotPersistence : ISnapshotPersistence
     {
+        private readonly ILog _log;
         private readonly IPostgreSqlConnection _postgreSqlConnection;
 
         public PostgreSqlSnapshotPersistence(
+            ILog log,
             IPostgreSqlConnection postgreSqlConnection)
         {
+            _log = log;
             _postgreSqlConnection = postgreSqlConnection;
         }
 
@@ -53,7 +58,8 @@ namespace EventFlow.PostgreSql.SnapshotStores
             var postgreSqlSnapshotDataModels = await _postgreSqlConnection.QueryAsync<PostgreSqlSnapshotDataModel>(
                 Label.Named("fetch-snapshot"),
                 cancellationToken,
-                "SELECT TOP 1 * FROM EventFlowSnapshots WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC;",
+                "SELECT TOP 1 * FROM EventFlowSnapshots " +
+                "WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC;",
                 new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value})
                 .ConfigureAwait(false);
 
@@ -95,9 +101,12 @@ namespace EventFlow.PostgreSql.SnapshotStores
                     postgreSqlSnapshotDataModel)
                     .ConfigureAwait(false);
             }
-            catch (SqlException sqlException) when (sqlException.Number == 2601)
+            catch (PostgresException sqlException) when (sqlException.SqlState == "23505")
             {
                 // If we have a duplicate key exception, then the snapshot has already been created
+                //https://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
+
+                _log.Debug("Duplicate key SQL exception : {0}", sqlException.MessageText);
             }
         }
 
