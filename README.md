@@ -76,7 +76,7 @@ to the documentation.
   * In-memory - only for test
   * Files - only for test
   * Microsoft SQL Server
-  * EventStore - only for test (for now) [home page](https://geteventstore.com/)
+  * EventStore - [home page](https://geteventstore.com/)
 * [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
@@ -179,12 +179,12 @@ public async Task Example()
 
 ```csharp
 // The aggregate root
-public class ExampleAggrenate : AggregateRoot<ExampleAggrenate, ExampleId>,
+public class ExampleAggregate : AggregateRoot<ExampleAggregate, ExampleId>,
   IEmit<ExampleEvent>
 {
   private int? _magicNumber;
 
-  public ExampleAggrenate(ExampleId id) : base(id) { }
+  public ExampleAggregate(ExampleId id) : base(id) { }
 
   // Method invoked by our command
   public void SetMagicNumer(int magicNumber)
@@ -215,7 +215,7 @@ public class ExampleId : Identity<ExampleId>
 
 ```csharp
 // A basic event containing some information
-public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
+public class ExampleEvent : AggregateEvent<ExampleAggregate, ExampleId>
 {
   public ExampleEvent(int magicNumber)
   {
@@ -228,7 +228,7 @@ public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
 
 ```csharp
 // Command for update magic number
-public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
+public class ExampleCommand : Command<ExampleAggregate, ExampleId>
 {
   public ExampleCommand(
     ExampleId aggregateId,
@@ -245,10 +245,10 @@ public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
 ```csharp
 // Command handler for our command
 public class ExampleCommandHandler
-  : CommandHandler<ExampleAggrenate, ExampleId, ExampleCommand>
+  : CommandHandler<ExampleAggregate, ExampleId, ExampleCommand>
 {
   public override Task ExecuteAsync(
-    ExampleAggrenate aggregate,
+    ExampleAggregate aggregate,
     ExampleCommand command,
     CancellationToken cancellationToken)
   {
@@ -261,13 +261,13 @@ public class ExampleCommandHandler
 ```csharp
 // Read model for our aggregate
 public class ExampleReadModel : IReadModel,
-  IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
+  IAmReadModelFor<ExampleAggregate, ExampleId, ExampleEvent>
 {
   public int MagicNumber { get; private set; }
 
   public void Apply(
     IReadModelContext context,
-    IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent)
+    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
   {
     MagicNumber = domainEvent.AggregateEvent.MagicNumber;
   }
