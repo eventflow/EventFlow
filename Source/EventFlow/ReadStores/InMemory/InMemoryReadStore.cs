@@ -50,8 +50,7 @@ namespace EventFlow.ReadStores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                ReadModelEnvelope<TReadModel> readModelEnvelope;
-                return _readModels.TryGetValue(id, out readModelEnvelope)
+                return _readModels.TryGetValue(id, out var readModelEnvelope)
                     ? readModelEnvelope
                     : ReadModelEnvelope<TReadModel>.Empty(id);
             }
@@ -99,8 +98,7 @@ namespace EventFlow.ReadStores.InMemory
             {
                 foreach (var readModelUpdate in readModelUpdates)
                 {
-                    ReadModelEnvelope<TReadModel> readModelEnvelope;
-                    if (!_readModels.TryGetValue(readModelUpdate.ReadModelId, out readModelEnvelope))
+                    if (!_readModels.TryGetValue(readModelUpdate.ReadModelId, out var readModelEnvelope))
                     {
                         readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
                     }

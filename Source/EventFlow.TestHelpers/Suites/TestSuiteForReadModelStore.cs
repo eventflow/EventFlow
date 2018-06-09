@@ -26,6 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Logs;
+using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Entities;
@@ -215,6 +218,53 @@ namespace EventFlow.TestHelpers.Suites
             readModel.PingsReceived.Should().Be(2);
         }
 
+        [Test, Timeout(10000)]
+        public virtual async Task OptimisticConcurrencyCheck()
+        {
+            // Simulates a state in which two read models have been loaded to memory
+            // and each is updated independently. The read store should detect the
+            // concurrent update, reload the read model and apply the updates once
+            // again.
+            // A decorated DelayingReadModelDomainEventApplier is used to introduce
+            // a controlled delay and a set of AutoResetEvent is used to ensure
+            // that the read store is in the desired state before continuing
+
+            // Arrange
+            var id = ThingyId.New;
+            var waitState = new WaitState();
+            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
+
+            // Arrange
+            _waitStates[id.Value] = waitState;
+            var delayedPublishTask = Task.Run(() => PublishPingCommandsAsync(id, 1));
+            waitState.ReadStoreReady.WaitOne();
+            _waitStates.Remove(id.Value);
+            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
+            waitState.ReadStoreContinue.Set();
+            await delayedPublishTask.ConfigureAwait(false);
+
+            // Assert
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
+            readModel.PingsReceived.Should().Be(3);
+        }
+
+        private class WaitState
+        {
+            public AutoResetEvent ReadStoreReady { get; } = new AutoResetEvent(false);
+            public AutoResetEvent ReadStoreContinue { get; } = new AutoResetEvent(false);
+        }
+
+        private readonly Dictionary<string, WaitState> _waitStates = new Dictionary<string, WaitState>();
+
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            _waitStates.Clear();
+
+            return base.Options(eventFlowOptions)
+                .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
+                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));
+        }
+
         private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)
         {
             var thingyMessages = Fixture.CreateMany<ThingyMessage>(count).ToList();
@@ -223,5 +273,46 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         protected abstract Type ReadModelType { get; }
+
+        private class DelayingReadModelDomainEventApplier : IReadModelDomainEventApplier
+        {
+            private readonly IReadModelDomainEventApplier _readModelDomainEventApplier;
+            private readonly IReadOnlyDictionary<string, WaitState> _waitStates;
+            private readonly ILog _log;
+
+            public DelayingReadModelDomainEventApplier(
+                IReadModelDomainEventApplier readModelDomainEventApplier,
+                IReadOnlyDictionary<string, WaitState> waitStates,
+                ILog log)
+            {
+                _readModelDomainEventApplier = readModelDomainEventApplier;
+                _waitStates = waitStates;
+                _log = log;
+            }
+
+            public async Task<bool> UpdateReadModelAsync<TReadModel>(
+                TReadModel readModel,
+                IReadOnlyCollection<IDomainEvent> domainEvents,
+                IReadModelContext readModelContext,
+                CancellationToken cancellationToken)
+                where TReadModel : IReadModel
+            {
+                _waitStates.TryGetValue(domainEvents.First().GetIdentity().Value, out var waitState);
+
+                if (waitState != null)
+                {
+                    _log.Information("Waiting for access to read model");
+                    waitState.ReadStoreReady.Set();
+                    waitState.ReadStoreContinue.WaitOne();
+                }
+
+                return await _readModelDomainEventApplier.UpdateReadModelAsync(
+                    readModel,
+                    domainEvents,
+                    readModelContext,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
     }
 }
