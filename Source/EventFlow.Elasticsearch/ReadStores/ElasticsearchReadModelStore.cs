@@ -23,12 +23,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using EventFlow.Aggregates;
+using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
+using EventFlow.Elasticsearch.ValueObjects;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
@@ -43,15 +46,18 @@ namespace EventFlow.Elasticsearch.ReadStores
         private readonly ILog _log;
         private readonly IElasticClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
+        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public ElasticsearchReadModelStore(
             ILog log,
             IElasticClient elasticClient,
-            IReadModelDescriptionProvider readModelDescriptionProvider)
+            IReadModelDescriptionProvider readModelDescriptionProvider,
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _elasticClient = elasticClient;
             _readModelDescriptionProvider = readModelDescriptionProvider;
+            _transientFaultHandler = transientFaultHandler;
         }
 
         public async Task<ReadModelEnvelope<TReadModel>> GetAsync(
@@ -119,43 +125,67 @@ namespace EventFlow.Elasticsearch.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Verbose(() =>
-                {
-                    var readModelIds = readModelUpdates
-                        .Select(u => u.ReadModelId)
-                        .Distinct()
-                        .OrderBy(i => i)
-                        .ToList();
-                    return $"Updating read models of type '{typeof(TReadModel).PrettyPrint()}' with IDs '{string.Join(", ", readModelIds)}' in index '{readModelDescription.IndexName}'";
-                });
-
             foreach (var readModelUpdate in readModelUpdates)
             {
-                var response = await _elasticClient.GetAsync<TReadModel>(
-                    readModelUpdate.ReadModelId,
-                    d => d
-                        .RequestConfiguration(c => c
-                            .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                            .Index(readModelDescription.IndexName.Value), 
-                                cancellationToken)
+                await _transientFaultHandler.TryAsync(
+                    c => UpdateReadModelAsync(readModelDescription, readModelUpdate, readModelContext, updateReadModel, c),
+                    Label.Named("elasticsearch-read-model-update"),
+                    cancellationToken)
                     .ConfigureAwait(false);
+            }
+        }
 
-                var readModelEnvelope = response.Found
-                    ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version)
-                    : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
+        private async Task UpdateReadModelAsync(
+            ReadModelDescription readModelDescription,
+            ReadModelUpdate readModelUpdate,
+            IReadModelContext readModelContext,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken)
+        {
+            var response = await _elasticClient.GetAsync<TReadModel>(
+                readModelUpdate.ReadModelId,
+                d => d
+                    .RequestConfiguration(c => c
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound))
+                        .Index(readModelDescription.IndexName.Value), 
+                            cancellationToken)
+                .ConfigureAwait(false);
 
-                readModelEnvelope = await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);
+            var readModelEnvelope = response.Found
+                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version)
+                : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
 
+            readModelEnvelope = await updateReadModel(
+                readModelContext,
+                readModelUpdate.DomainEvents,
+                readModelEnvelope,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            try
+            {
                 await _elasticClient.IndexAsync(
                     readModelEnvelope.ReadModel,
-                    d => d
-                        .RequestConfiguration(c => c)
-                        .Id(readModelUpdate.ReadModelId)
-                        .Index(readModelDescription.IndexName.Value)
-                        .Version(readModelEnvelope.Version.GetValueOrDefault())
-                        .VersionType(VersionType.ExternalGte), 
-                            cancellationToken)
+                    d =>
+                    {
+                        d = d
+                            .RequestConfiguration(c => c)
+                            .Id(readModelUpdate.ReadModelId)
+                            .Index(readModelDescription.IndexName.Value);
+                        d = response.Found
+                            ? d.Version(response.Version)
+                            : d.OpType(OpType.Create);
+                        return d;
+                    },
+                    cancellationToken)
                     .ConfigureAwait(false);
+            }
+            catch (ElasticsearchClientException e)
+                when (e.Response?.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            {
+                throw new OptimisticConcurrencyException(
+                    $"Read model '{readModelUpdate.ReadModelId}' updated by another",
+                    e);
             }
         }
     }
