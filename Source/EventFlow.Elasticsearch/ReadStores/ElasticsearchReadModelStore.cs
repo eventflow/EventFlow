@@ -173,7 +173,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                             .Id(readModelUpdate.ReadModelId)
                             .Index(readModelDescription.IndexName.Value);
                         d = response.Found
-                            ? d.Version(response.Version)
+                            ? d.VersionType(VersionType.ExternalGte).Version(readModelEnvelope.Version.GetValueOrDefault())
                             : d.OpType(OpType.Create);
                         return d;
                     },
