@@ -2,6 +2,7 @@
 
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
   Elasticsearch read models 
+* New: Added .NET standard support for EventStore
 * Minor: Removed unnecessary transaction in EventStore persistance
 
 ### New in 0.59.3396 (released 2018-05-23)
