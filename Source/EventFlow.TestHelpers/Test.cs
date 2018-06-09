@@ -79,10 +79,10 @@ namespace EventFlow.TestHelpers
             return instance;
         }
 
-        protected Mock<T> InjectMock<T>()
+        protected Mock<T> InjectMock<T>(params object[] args)
             where T : class
         {
-            var mock = new Mock<T>();
+            var mock = new Mock<T>(args);
             Fixture.Inject(mock.Object);
             return mock;
         }

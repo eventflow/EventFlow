@@ -1,5 +1,35 @@
-### New in 0.55 (not released yet)
+### New in 0.60 (not released yet)
 
+* New: Added .NET standard support for EventStore
+* Minor: Removed unnecessary transaction in EventStore persistance
+
+### New in 0.59.3396 (released 2018-05-23)
+
+* Fix: Commands are now correctly published when no events are emitted from a saga
+  after handling a domain event
+* Minor fix: Updated name of Primary Key for MSSQL Snapshot Store to be different
+  from MSSQL Event Store, so both can be used in the same database without conflicts
+
+### New in 0.58.3377 (released 2018-05-15)
+
+* Minor fix: Corrected log in `CommandBus` regarding events emitted due to command
+
+### New in 0.57.3359 (released 2018-04-30)
+
+* Fixed: AggregateException/InvalidOperationException when reading and updating
+  an aggregate from different threads at the same time using `InMemoryEventPersistence`
+* New: .NET standard 1.6 and 2.0 support for `EventFlow.MsSql` package
+
+### New in 0.56.3328 (released 2018-04-24)
+
+* New: Allow enums to be used in `SingleValueObject<T>` and protect from
+  undefined enum values
+
+### New in 0.55.3323 (released 2018-04-24)
+
+* Fixed: Re-populating events to read models that span multiple aggregates
+  now has events orderd by timestamp instead of sequence numbers, i.e., events
+  from aggregates with higher sequences numbers isn't forced last
 * New: Trigger sagas without the need of any domain events by using
   `ISagaStore.UpdateAsync(...)`
 * New: .NET standard 2.0 (still supports 1.6) support added to these

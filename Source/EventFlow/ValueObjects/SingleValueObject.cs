@@ -23,17 +23,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using EventFlow.Extensions;
 
 namespace EventFlow.ValueObjects
 {
     public abstract class SingleValueObject<T> : ValueObject, IComparable, ISingleValueObject
-        where T : IComparable, IComparable<T>
+        where T : IComparable
     {
+        private static readonly Type Type = typeof(T);
+        private static readonly TypeInfo TypeInfo = typeof(T).GetTypeInfo();
+        
         public T Value { get; }
 
         protected SingleValueObject(T value)
         {
+            if (TypeInfo.IsEnum && !Enum.IsDefined(Type, value))
+            {
+                throw new ArgumentException($"The value '{value}' isn't defined in enum '{Type.PrettyPrint()}'");
+            }
+            
             Value = value;
         }
 
