@@ -171,7 +171,7 @@ namespace EventFlow.MsSql.ReadStores
             if (rowsAffected != 1)
             {
                 throw new OptimisticConcurrencyException(
-                    $"Read model '{readModelEnvelope.ReadModelId}' ({typeof(TReadModel).PrettyPrint()}) is already updated");
+                    $"Read model '{readModelEnvelope.ReadModelId}' updated by another");
             }
 
             Log.Verbose(() => $"Updated MSSQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelUpdate.ReadModelId}' to version '{readModelEnvelope.Version}'");

@@ -180,9 +180,12 @@ namespace EventFlow.Elasticsearch.ReadStores
                     cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (ElasticsearchClientException e) when (e.Response?.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            catch (ElasticsearchClientException e)
+                when (e.Response?.HttpStatusCode == (int)HttpStatusCode.Conflict)
             {
-                throw new OptimisticConcurrencyException(e.Message);
+                throw new OptimisticConcurrencyException(
+                    $"Read model '{readModelUpdate.ReadModelId}' updated by another",
+                    e);
             }
         }
     }
