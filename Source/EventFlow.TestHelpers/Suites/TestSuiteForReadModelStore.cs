@@ -218,6 +218,27 @@ namespace EventFlow.TestHelpers.Suites
             readModel.PingsReceived.Should().Be(2);
         }
 
+        [Test]
+        public async Task MultipleUpdatesAreHandledCorrect()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingIds = new List<PingId>
+                {
+                    await PublishPingCommandAsync(id).ConfigureAwait(false)
+                };
+
+            for (var i = 0; i < 5; i++)
+            {
+                // Act
+                pingIds.Add(await PublishPingCommandAsync(id).ConfigureAwait(false));
+
+                // Assert
+                var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
+                readModel.PingsReceived.Should().Be(pingIds.Count);
+            }
+        }
+
         [Test, Timeout(10000)]
         public virtual async Task OptimisticConcurrencyCheck()
         {
