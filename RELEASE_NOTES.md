@@ -3,6 +3,14 @@
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
   Elasticsearch read models 
 * New: Added .NET standard support for EventStore
+* New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
+  for read models that have a 1-to-1 relation with an aggregate. If read models get
+  out of sync, or events are applied in different order, events are either fecthed
+  or skipped. Added extensions to allow registration.
+  - `UseInMemoryReadStoreFor<,,>`
+  - `UseElasticsearchReadModelFor<,,>`
+  - `UseMssqlReadModelFor<,,>`
+  - `UseSQLiteReadModelFor<,,>`
 * Minor: Removed unnecessary transaction in EventStore persistance
 
 ### New in 0.59.3396 (released 2018-05-23)
@@ -41,15 +49,6 @@
   - EventFlow.Elasticsearch
   - EventFlow.Hangfire
   - EventFlow.Sql
-* New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
-  for read models that have a 1-to-1 relation with an aggregate. If read models get
-  out of sync, or events are applied in different order, events are either fecthed
-  or skipped. Added extensions to allow registration.
-  
-  - `UseInMemoryReadStoreFor<,,>`
-  - `UseElasticsearchReadModelFor<,,>`
-  - `UseMssqlReadModelFor<,,>`
-  - `UseSQLiteReadModelFor<,,>`
 
 ### New in 0.54.3261 (released 2018-02-25)
 
