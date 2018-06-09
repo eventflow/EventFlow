@@ -1,5 +1,7 @@
 ### New in 0.60 (not released yet)
 
+* New: Implemented optimistic concurrency checks for MSSQL, SQLite and
+  Elasticsearch read models 
 * Minor: Removed unnecessary transaction in EventStore persistance
 
 ### New in 0.59.3396 (released 2018-05-23)
