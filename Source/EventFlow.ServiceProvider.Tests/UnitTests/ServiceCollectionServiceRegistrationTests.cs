@@ -21,9 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.ServiceProvider.Extensions;
 using EventFlow.ServiceProvider.Registrations;
@@ -31,7 +28,6 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Moq;
 using NUnit.Framework;
 
@@ -78,36 +74,6 @@ namespace EventFlow.ServiceProvider.Tests.UnitTests
         }
 
         [Test]
-        public void InvokesBootstrapsInHostingEnvironment()
-        {
-            // Arrange
-            var bootstrapMock = new Mock<IBootstrap>();
-            Sut.Register(c => bootstrapMock.Object);
-            var serviceProvider = _serviceCollection.BuildServiceProvider();
-
-            // Act
-            StartHostedServices(serviceProvider);
-
-            // Assert
-            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once());
-        }
-
-        [Test]
-        public void InvokesBootstrapsOnlyOnceWhenResolverIsCreatedInHostingEnvironment()
-        {
-            // Arrange
-            var bootstrapMock = new Mock<IBootstrap>();
-            Sut.Register(c => bootstrapMock.Object);
-            var resolver = (ServiceProviderRootResolver) Sut.CreateResolver(false);
-
-            // Act
-            StartHostedServices(resolver.ServiceProvider);
-
-            // Assert
-            bootstrapMock.Verify(m => m.BootAsync(It.IsAny<CancellationToken>()), Times.Once());
-        }
-
-        [Test]
         public void AddEventFlowRegistersEventFlowInServiceCollection()
         {
             // Arrange
@@ -137,14 +103,6 @@ namespace EventFlow.ServiceProvider.Tests.UnitTests
         {
             _serviceCollection = new ServiceCollection();
             return new ServiceCollectionServiceRegistration(_serviceCollection);
-        }
-
-        private static void StartHostedServices(IServiceProvider serviceProvider)
-        {
-            foreach (var hostedService in serviceProvider.GetServices<IHostedService>())
-            {
-                hostedService.StartAsync(CancellationToken.None);
-            }
         }
     }
 }
