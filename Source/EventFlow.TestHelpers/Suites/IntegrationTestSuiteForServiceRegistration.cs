@@ -21,11 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Queries;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -54,6 +57,18 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
             thingySaga.State.Should().Be(SagaState.Completed);
+        }
+
+        public virtual async Task QueryingUsesScopedDbContext()
+        {
+            using (var scope = Resolver.BeginScope())
+            {
+                var dbContext = scope.Resolve<IDbContext>();
+                var queryProcessor = scope.Resolve<IQueryProcessor>();
+
+                var result = await queryProcessor.ProcessAsync(new DbContextQuery(), CancellationToken.None);
+                result.Should().Be(dbContext.Id);
+            }
         }
     }
 }
