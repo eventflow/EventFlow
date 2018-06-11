@@ -1,7 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2018 Rida Messaoudene
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -103,7 +102,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
             }
             catch (PostgresException sqlException) when (sqlException.SqlState == "23505")
             {
-                // If we have a duplicate key exception, then the snapshot has already been created
+                //If we have a duplicate key exception, then the snapshot has already been created
                 //https://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 
                 _log.Debug("Duplicate key SQL exception : {0}", sqlException.MessageText);
