@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow.ServiceProvider</Title>
-    <Authors>Rasmus Mikkelsen</Authors>
+    <Authors>Frank Ebersoll</Authors>
     <Company>Rasmus Mikkelsen</Company>
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
     <Description>Microsoft.Extensions.DependencyInjection support for EventFlow</Description>
