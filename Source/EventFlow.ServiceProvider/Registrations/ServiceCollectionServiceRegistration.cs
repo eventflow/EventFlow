@@ -22,22 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Decorators;
-using EventFlow.Core;
-using EventFlow.Core.IoC;
 using EventFlow.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace EventFlow.ServiceProvider.Registrations
 {
-    public class ServiceCollectionServiceRegistration : ServiceRegistration, IServiceRegistration
+    public class ServiceCollectionServiceRegistration : IServiceRegistration
     {
         private readonly IServiceCollection _collection;
         private readonly DecoratorService _decoratorService = new DecoratorService();
@@ -51,8 +45,7 @@ namespace EventFlow.ServiceProvider.Registrations
                 new ServiceProviderScopeResolver(((ServiceProviderResolver) c.Resolver).ServiceProvider.CreateScope(),
                     _collection));
             Register<IDecoratorService>(c => _decoratorService, Lifetime.Singleton);
-            Register<IHostedService, HostedBootstrapper>();
-            RegisterType(typeof(Bootstrapper), Lifetime.Singleton);
+            Register<IBootstrapper, Bootstrapper>(Lifetime.Singleton);
         }
 
         public void Register<TService, TImplementation>(Lifetime lifetime = Lifetime.AlwaysUnique,
@@ -118,16 +111,13 @@ namespace EventFlow.ServiceProvider.Registrations
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            var serviceProvider = _collection.BuildServiceProvider();
+            var serviceProvider = _collection.BuildServiceProvider(validateScopes: validateRegistrations);
             var resolver = new ServiceProviderRootResolver(serviceProvider, _collection);
 
             if (validateRegistrations) resolver.ValidateRegistrations();
 
-            var bootstrapper = resolver.Resolve<Bootstrapper>();
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(bootstrapper.Start(CancellationToken.None));
-            }
+            var bootstrapper = resolver.Resolve<IBootstrapper>();
+            bootstrapper.Start();
 
             return resolver;
         }
@@ -166,53 +156,6 @@ namespace EventFlow.ServiceProvider.Registrations
                     return ServiceLifetime.Singleton;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, null);
-            }
-        }
-
-        /// <summary>
-        ///     Ensures that the <see cref="Bootstrapper" /> is run in an ASP.NET Core
-        ///     environment when EventFlow is configured into an existing ServiceCollection
-        ///     instance and <see cref="CreateResolver" /> is not used.
-        /// </summary>
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class HostedBootstrapper : IHostedService
-        {
-            private readonly Bootstrapper _bootstrapper;
-
-            public HostedBootstrapper(Bootstrapper bootstrapper)
-            {
-                _bootstrapper = bootstrapper;
-            }
-
-            public Task StartAsync(CancellationToken cancellationToken)
-            {
-                return _bootstrapper.Start(cancellationToken);
-            }
-
-            public Task StopAsync(CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        private class Bootstrapper
-        {
-            private readonly IEnumerable<IBootstrap> _bootstraps;
-            private bool _hasBeenRun;
-
-            public Bootstrapper(IEnumerable<IBootstrap> bootstraps)
-            {
-                _bootstraps = bootstraps;
-            }
-
-            public Task Start(CancellationToken cancellationToken)
-            {
-                if (_hasBeenRun)
-                    return Task.CompletedTask;
-
-                _hasBeenRun = true;
-
-                return Task.WhenAll(_bootstraps.Select(b => b.BootAsync(cancellationToken)));
             }
         }
     }
