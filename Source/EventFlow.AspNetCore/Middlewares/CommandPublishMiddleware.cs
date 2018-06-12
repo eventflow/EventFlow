@@ -124,8 +124,8 @@ namespace EventFlow.Aspnetcore.Middlewares
         private async Task WriteAsync(object obj, HttpStatusCode statusCode, HttpContext context)
         {
             var json = _jsonSerializer.Serialize(obj);
-            await context.Response.WriteAsync(json).ConfigureAwait(false);
             context.Response.StatusCode = (int) statusCode;
+            await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
         private Task WriteErrorAsync(string errorMessage, HttpStatusCode statusCode, HttpContext context)
