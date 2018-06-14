@@ -162,9 +162,13 @@ namespace EventFlow.Sql.ReadModels
                 t =>
                 {
                     var tableAttribute = t.GetTypeInfo().GetCustomAttribute<TableAttribute>(false);
-                    return tableAttribute != null
-                        ? $"[{tableAttribute.Name}]"
-                        : $"[ReadModel-{t.Name.Replace("ReadModel", string.Empty)}]";
+                    var schema = string.IsNullOrEmpty(tableAttribute?.Schema)
+                        ? "dbo"
+                        : tableAttribute.Schema;
+                    var table = string.IsNullOrEmpty(tableAttribute?.Name)
+                        ? $"ReadModel-{t.Name.Replace("ReadModel", string.Empty)}"
+                        : tableAttribute.Name;
+                    return $"[{schema}].[{table}]";
                 });
         }
 

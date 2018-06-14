@@ -2,6 +2,7 @@
 
 * New: Added .NET standard support for EventStore
 * Minor: Removed unnecessary transaction in EventStore persistance
+* Fixed: Read model SQL schema is no longer ignored for `Table` attribute
 
 ### New in 0.64.3598 (released 2018-08-24)
 
