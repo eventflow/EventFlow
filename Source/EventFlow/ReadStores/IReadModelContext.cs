@@ -28,5 +28,7 @@ namespace EventFlow.ReadStores
     public interface IReadModelContext
     {
         IResolver Resolver { get; }
+        void MarkForDeletion();
+        bool IsMarkedForDeletion { get; }
     }
 }

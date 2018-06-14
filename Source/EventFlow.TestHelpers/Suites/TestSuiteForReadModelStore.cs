@@ -269,6 +269,29 @@ namespace EventFlow.TestHelpers.Suites
             readModel.PingsReceived.Should().Be(3);
         }
 
+        [Test]
+        public async Task MarkingForDeletionRemovesSpecificReadModel()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandAsync(id1).ConfigureAwait(false);
+            await PublishPingCommandAsync(id2).ConfigureAwait(false);
+            var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
+            var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            readModel1.Should().NotBeNull();
+            readModel2.Should().NotBeNull();
+
+            // Act
+            await CommandBus.PublishAsync(new ThingyDeleteCommand(id1), CancellationToken.None);
+
+            // Assert
+            readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
+            readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            readModel1.Should().BeNull();
+            readModel2.Should().NotBeNull();
+        }
+
         private class WaitState
         {
             public AutoResetEvent ReadStoreReady { get; } = new AutoResetEvent(false);
