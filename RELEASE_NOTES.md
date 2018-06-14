@@ -1,6 +1,7 @@
 ### New in 0.60 (not released yet)
 
 * Minor: Removed unnecessary transaction in EventStore persistance
+* Fixed: Read model SQL schema is no longer ignored for `Table` attribute
 
 ### New in 0.59.3396 (released 2018-05-23)
 

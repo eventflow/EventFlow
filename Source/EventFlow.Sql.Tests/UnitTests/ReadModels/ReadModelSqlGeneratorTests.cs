@@ -42,7 +42,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateInsertSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be("INSERT INTO [ReadModel-TestAttributes] (Id, UpdatedTime) VALUES (@Id, @UpdatedTime)");
+            sql.Should().Be("INSERT INTO [dbo].[ReadModel-TestAttributes] (Id, UpdatedTime) VALUES (@Id, @UpdatedTime)");
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateUpdateSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET UpdatedTime = @UpdatedTime WHERE Id = @Id");
+            sql.Should().Be("UPDATE [dbo].[ReadModel-TestAttributes] SET UpdatedTime = @UpdatedTime WHERE Id = @Id");
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateSelectSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be("SELECT * FROM [ReadModel-TestAttributes] WHERE Id = @EventFlowReadModelId");
+            sql.Should().Be("SELECT * FROM [dbo].[ReadModel-TestAttributes] WHERE Id = @EventFlowReadModelId");
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var tableName = Sut.GetTableName<TestTableAttributeReadModel>();
 
             // Assert
-            tableName.Should().Be("[Fancy]");
+            tableName.Should().Be("[doh].[Fancy]");
         }
 
         public class TestAttributesReadModel : IReadModel
@@ -86,7 +86,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             public string Secret { get; set; }
         }
 
-        [Table("Fancy")]
+        [Table("Fancy", Schema = "doh")]
         public class TestTableAttributeReadModel : IReadModel
         {
         }
