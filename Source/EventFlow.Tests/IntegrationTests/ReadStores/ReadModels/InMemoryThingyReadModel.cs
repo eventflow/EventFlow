@@ -30,7 +30,8 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
 {
     public class InMemoryThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
         public ThingyId ThingyId { get; private set; }
         public bool DomainErrorAfterFirstReceived { get; private set; }
@@ -46,6 +47,11 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
         {
             ThingyId = domainEvent.AggregateIdentity;
             PingsReceived++;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        {
+            context.MarkForDeletion();
         }
 
         public Thingy ToThingy()

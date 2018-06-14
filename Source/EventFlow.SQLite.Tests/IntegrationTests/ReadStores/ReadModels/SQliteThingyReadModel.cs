@@ -33,7 +33,8 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
     [Table("ReadModel-ThingyAggregate")]
     public class SQLiteThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
         [SqlReadModelIdentityColumn]
         public string AggregateId { get; set; }
@@ -53,6 +54,11 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        {
+            context.MarkForDeletion();
         }
 
         public Thingy ToThingy()

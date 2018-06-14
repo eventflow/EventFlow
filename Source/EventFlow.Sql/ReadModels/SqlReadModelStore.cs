@@ -101,14 +101,16 @@ namespace EventFlow.Sql.ReadModels
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public override async Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
             {
+                var readModelContext = readModelContextFactory();
+
                 await _transientFaultHandler.TryAsync(
                     c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
                     Label.Named($"sqlite-read-model-update"),
@@ -141,6 +143,12 @@ namespace EventFlow.Sql.ReadModels
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            if (readModelContext.IsMarkedForDeletion)
+            {
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                return;
+            }
 
             SetVersion(readModel, (int?) readModelEnvelope.Version);
             SetIdentity(readModel, readModelEnvelope.ReadModelId);

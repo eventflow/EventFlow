@@ -58,6 +58,7 @@ namespace EventFlow.TestHelpers.Aggregates
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
             Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
             Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
+            Register<ThingyDeletedEvent>(e => {/* do nothing */});
         }
 
         public void DomainErrorAfterFirst()
@@ -120,6 +121,11 @@ namespace EventFlow.TestHelpers.Aggregates
             _pingsReceived.AddRange(snapshot.PingsReceived);
             SnapshotVersions = snapshot.PreviousVersions;
             return Task.FromResult(0);
+        }
+
+        public void Delete()
+        {
+            Emit(new ThingyDeletedEvent());
         }
     }
 }
