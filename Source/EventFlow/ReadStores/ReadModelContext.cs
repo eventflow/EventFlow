@@ -27,12 +27,18 @@ namespace EventFlow.ReadStores
 {
     public class ReadModelContext : IReadModelContext
     {
-        public IResolver Resolver { get; }
-
-        public ReadModelContext(
-            IResolver resolver)
+        public ReadModelContext(IResolver resolver)
         {
             Resolver = resolver;
+        }
+
+        public bool IsMarkedForDeletion { get; private set; }
+
+        public IResolver Resolver { get; }
+
+        public void MarkForDeletion()
+        {
+            IsMarkedForDeletion = true;
         }
     }
 }
