@@ -20,6 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
 
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -109,7 +111,8 @@ namespace EventFlow.ReadStores
                 typeof(TReadModelStore).PrettyPrint(),
                 string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
 
-            var readModelContext = new ReadModelContext(Resolver);
+            IReadModelContext ReadModelContextFactory() => new ReadModelContext(Resolver);
+
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 
             if (!readModelUpdates.Any())
@@ -124,7 +127,7 @@ namespace EventFlow.ReadStores
 
             await ReadModelStore.UpdateAsync(
                 readModelUpdates,
-                readModelContext,
+                ReadModelContextFactory,
                 UpdateAsync,
                 cancellationToken)
                 .ConfigureAwait(false);

@@ -26,6 +26,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
+using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
+using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -42,6 +46,11 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         [SetUp]
         public void SetUpReadStoreManagerTestSuite()
         {
+            Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
+                new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
+                    Mock<ILog>(),
+                    new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
+
             ReadModelStoreMock = InjectMock<IReadModelStore<ReadStoreManagerTestReadModel>>();
         }
 
@@ -62,7 +71,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.Is<IReadOnlyCollection<ReadModelUpdate>>(l => l.Count == 1),
-                    It.IsAny<IReadModelContext>(),
+                    It.IsAny<Func<IReadModelContext>>(),
                     It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<ReadStoreManagerTestReadModel>, CancellationToken, Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);

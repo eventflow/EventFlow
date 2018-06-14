@@ -22,9 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using FluentAssertions;
 using Microsoft.Owin.Hosting;
 using NUnit.Framework;
 
@@ -66,6 +68,15 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
 
             // Act
             await PostAsync("commands/ThingyPing/1", pingCommand).ConfigureAwait(false);
+        }
+
+        [Test]
+        public void PublishCommand_WithNull_ThrowsException()
+        {
+            // Arrange + Act
+            Action action = () => Task.WaitAll(PostAsync("commands/ThingyPing/1", null));
+
+            action.ShouldThrow<HttpRequestException>("because of command is null.");
         }
 
         private Task<string> GetAsync(string url)

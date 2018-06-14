@@ -1,5 +1,8 @@
 ### New in 0.60 (not released yet)
 
+* New: Implemented optimistic concurrency checks for MSSQL, SQLite and
+  Elasticsearch read models 
+* New: Added .NET standard support for EventStore
 * Minor: Removed unnecessary transaction in EventStore persistance
 * Fixed: Read model SQL schema is no longer ignored for `Table` attribute
 

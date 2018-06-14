@@ -27,8 +27,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.MsSql.ReadStores.Attributes;
@@ -47,8 +50,10 @@ namespace EventFlow.MsSql.ReadStores
         private readonly IMsSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
+        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
+        private static readonly string ReadModelNameLoverCase = typeof(TReadModel).Name.ToLowerInvariant();
 
         static MssqlReadModelStore()
         {
@@ -78,78 +83,113 @@ namespace EventFlow.MsSql.ReadStores
             ILog log,
             IMsSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
-            IReadModelFactory<TReadModel> readModelFactory)
+            IReadModelFactory<TReadModel> readModelFactory,
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
             : base(log)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
             _readModelFactory = readModelFactory;
+            _transientFaultHandler = transientFaultHandler;
         }
 
-        public override async Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
             {
-                IMssqlReadModel mssqlReadModel;
+                await _transientFaultHandler.TryAsync(
+                    c => UpdateReadModelAsync(readModelContextFactory, updateReadModel, c, readModelUpdate),
+                    Label.Named($"mssql-read-model-update-{ReadModelNameLoverCase}"),
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
 
-                var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
-                var readModelEnvelope = await GetAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
-                var readModel = readModelEnvelope.ReadModel;
-                var isNew = readModel == null;
+        private async Task UpdateReadModelAsync(
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken,
+            ReadModelUpdate readModelUpdate)
+        {
+            IMssqlReadModel mssqlReadModel;
 
-                if (readModel == null)
+            var readModelEnvelope = await GetAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+            var readModel = readModelEnvelope.ReadModel;
+            var readModelContext = readModelContextFactory();
+            var isNew = readModel == null;
+
+            if (readModel == null)
+            {
+                readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken)
+                    .ConfigureAwait(false);
+                mssqlReadModel = readModel as IMssqlReadModel;
+                if (mssqlReadModel != null)
                 {
-                    readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
-                    mssqlReadModel = readModel as IMssqlReadModel;
-                    if (mssqlReadModel != null)
-                    {
-                        mssqlReadModel.AggregateId = readModelUpdate.ReadModelId;
-                        mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
-                    }
-                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
+                    mssqlReadModel.AggregateId = readModelUpdate.ReadModelId;
+                    mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
                 }
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
+            }
 
-                readModelEnvelope = await updateReadModel(
+            var originalVersion = readModelEnvelope.Version;
+            readModelEnvelope = await updateReadModel(
                     readModelContext,
                     readModelUpdate.DomainEvents,
                     readModelEnvelope,
                     cancellationToken)
-                    .ConfigureAwait(false);
+                .ConfigureAwait(false);
 
-                mssqlReadModel = readModel as IMssqlReadModel;
-                if (mssqlReadModel != null)
-                {
-                    mssqlReadModel.UpdatedTime = DateTimeOffset.Now;
-                    mssqlReadModel.LastAggregateSequenceNumber = (int)readModelEnvelope.Version.GetValueOrDefault();
-                }
-                else
-                {
-                    SetVersion(readModel, (int?) readModelEnvelope.Version);
-                }
-
-                var sql = isNew
-                    ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()
-                    : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
-
-                await _connection.ExecuteAsync(
-                    Label.Named("mssql-store-read-model", readModelNameLowerCased),
-                    cancellationToken,
-                    sql,
-                    readModel).ConfigureAwait(false);
+            if (readModelContext.IsMarkedForDeletion)
+            {
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                return;
             }
+
+            mssqlReadModel = readModel as IMssqlReadModel;
+            if (mssqlReadModel != null)
+            {
+                mssqlReadModel.UpdatedTime = DateTimeOffset.Now;
+                mssqlReadModel.LastAggregateSequenceNumber = (int) readModelEnvelope.Version.GetValueOrDefault();
+            }
+            else
+            {
+                SetVersion(readModel, (int?) readModelEnvelope.Version);
+            }
+
+            var sql = isNew
+                ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()
+                : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
+
+            var dynamicParameters = new DynamicParameters(readModel);
+            if (originalVersion.HasValue)
+            {
+                dynamicParameters.Add("_PREVIOUS_VERSION", (int)originalVersion.Value);
+            }
+
+            var rowsAffected = await _connection.ExecuteAsync(
+                Label.Named("mssql-store-read-model", ReadModelNameLoverCase),
+                cancellationToken,
+                sql,
+                dynamicParameters).ConfigureAwait(false);
+            if (rowsAffected != 1)
+            {
+                throw new OptimisticConcurrencyException(
+                    $"Read model '{readModelEnvelope.ReadModelId}' updated by another");
+            }
+
+            Log.Verbose(() => $"Updated MSSQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelUpdate.ReadModelId}' to version '{readModelEnvelope.Version}'");
         }
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
         {
             var readModelType = typeof(TReadModel);
-            var readModelNameLowerCased = readModelType.Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
-                Label.Named(string.Format("mssql-fetch-read-model-{0}", readModelNameLowerCased)),
+                Label.Named("mssql-fetch-read-model", ReadModelNameLoverCase),
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -165,7 +205,7 @@ namespace EventFlow.MsSql.ReadStores
 
             var readModelVersion = GetVersion(readModel);
 
-            Log.Verbose(() => $"Found MSSQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
+            Log.Verbose(() => $"Found MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{readModelVersion}'");
 
             return readModelVersion.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
@@ -177,10 +217,9 @@ namespace EventFlow.MsSql.ReadStores
             CancellationToken cancellationToken)
         {
             var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
-            var readModelName = typeof(TReadModel).Name;
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-delete-read-model", readModelName),
+                Label.Named("mssql-delete-read-model", ReadModelNameLoverCase),
                 cancellationToken,
                 sql,
                 new { EventFlowReadModelId = id })
@@ -188,7 +227,7 @@ namespace EventFlow.MsSql.ReadStores
 
             if (rowsAffected != 0)
             {
-                Log.Verbose($"Deleted read model '{id}' of type '{readModelName}'");
+                Log.Verbose($"Deleted read model '{id}' of type '{ReadModelNameLoverCase}'");
             }
         }
 
