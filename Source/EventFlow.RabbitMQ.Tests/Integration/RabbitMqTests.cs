@@ -60,7 +60,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             _uri = new Uri(url);
         }
 
-        [Test, Timeout(10000)]
+        [Test, Timeout(10000), Retry(3)]
         public async Task Scenario()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
@@ -85,7 +85,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        [Test, Timeout(60000)]
+        [Test, Timeout(60000), Retry(3)]
         public async Task PublisherPerformance()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
