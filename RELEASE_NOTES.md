@@ -3,6 +3,7 @@
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
   Elasticsearch read models 
 * New: Added .NET standard support for EventStore
+* New: Delete read models by invoking `context.MarkForDeletion()` in an Apply method
 * Minor: Removed unnecessary transaction in EventStore persistance
 
 ### New in 0.59.3396 (released 2018-05-23)
