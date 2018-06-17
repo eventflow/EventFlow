@@ -5,6 +5,7 @@
 * New: Added .NET standard support for EventStore
 * New: Delete read models by invoking `context.MarkForDeletion()` in an Apply method
 * Minor: Removed unnecessary transaction in EventStore persistance
+* Fixed: Read model SQL schema is no longer ignored for `Table` attribute
 
 ### New in 0.59.3396 (released 2018-05-23)
 
