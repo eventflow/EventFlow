@@ -123,8 +123,8 @@ namespace EventFlow.Owin.Middlewares
         private async Task WriteAsync(object obj, HttpStatusCode statusCode, IOwinContext owinContext)
         {
             var json = _jsonSerializer.Serialize(obj);
-            await owinContext.Response.WriteAsync(json).ConfigureAwait(false);
             owinContext.Response.StatusCode = (int) statusCode;
+            await owinContext.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
         private Task WriteErrorAsync(string errorMessage, HttpStatusCode statusCode, IOwinContext owinContext)

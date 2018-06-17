@@ -95,7 +95,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.Is<IReadOnlyCollection<ReadModelUpdate>>(l => l.Count == 1),
-                    It.IsAny<IReadModelContext>(),
+                    It.IsAny<Func<IReadModelContext>>(),
                     It.IsAny<Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
@@ -113,7 +113,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock
                 .Setup(m => m.UpdateAsync(
                     It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
-                    It.IsAny<IReadModelContext>(),
+                    It.IsAny<Func<IReadModelContext>>(),
                     It.IsAny<Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,

@@ -3,6 +3,7 @@
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
   Elasticsearch read models 
 * New: Added .NET standard support for EventStore
+* New: Delete read models by invoking `context.MarkForDeletion()` in an Apply method
 * New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
   for read models that have a 1-to-1 relation with an aggregate. If read models get
   out of sync, or events are applied in different order, events are either fecthed

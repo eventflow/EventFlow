@@ -117,13 +117,14 @@ namespace EventFlow.Elasticsearch.ReadStores
                 .ConfigureAwait(false);
         }
 
-        public async Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            var readModelContext = readModelContextFactory();
 
             foreach (var readModelUpdate in readModelUpdates)
             {
@@ -161,6 +162,12 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
+
+            if (readModelContext.IsMarkedForDeletion)
+            {
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                return;
+            }
 
             try
             {
