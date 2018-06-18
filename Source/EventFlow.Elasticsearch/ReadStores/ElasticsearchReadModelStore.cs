@@ -162,6 +162,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
+            if (readModelEnvelope == null) return;
 
             if (readModelContext.IsMarkedForDeletion)
             {

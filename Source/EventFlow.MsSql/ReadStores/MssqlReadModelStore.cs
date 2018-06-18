@@ -142,6 +142,7 @@ namespace EventFlow.MsSql.ReadStores
                     readModelEnvelope,
                     cancellationToken)
                 .ConfigureAwait(false);
+            if (readModelEnvelope == null) return;
 
             if (readModelContext.IsMarkedForDeletion)
             {
