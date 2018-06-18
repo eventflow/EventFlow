@@ -32,7 +32,8 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
     [ElasticsearchType(IdProperty = "Id", Name = "thingy")]
     public class ElasticsearchThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
         [Keyword(
             Index = true)]
@@ -59,6 +60,11 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
         {
             Id = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        {
+            context.MarkForDeletion();
         }
 
         public Thingy ToThingy()

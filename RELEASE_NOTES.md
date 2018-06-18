@@ -1,4 +1,13 @@
-### New in 0.59 (not released yet)
+### New in 0.60 (not released yet)
+
+* New: Implemented optimistic concurrency checks for MSSQL, SQLite and
+  Elasticsearch read models 
+* New: Added .NET standard support for EventStore
+* New: Delete read models by invoking `context.MarkForDeletion()` in an Apply method
+* Minor: Removed unnecessary transaction in EventStore persistance
+* Fixed: Read model SQL schema is no longer ignored for `Table` attribute
+
+### New in 0.59.3396 (released 2018-05-23)
 
 * Fix: Commands are now correctly published when no events are emitted from a saga
   after handling a domain event

@@ -46,10 +46,10 @@ namespace EventFlow.ReadStores
             string id,
             CancellationToken cancellationToken);
 
-        Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken);
     }
 }

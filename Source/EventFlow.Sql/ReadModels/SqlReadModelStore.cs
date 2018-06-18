@@ -27,8 +27,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
@@ -46,6 +49,7 @@ namespace EventFlow.Sql.ReadModels
         private readonly TSqlConnection _connection;
         private readonly IReadModelSqlGenerator _readModelSqlGenerator;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
+        private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
         private static readonly Func<TReadModel, string> GetIdentity;
@@ -87,53 +91,91 @@ namespace EventFlow.Sql.ReadModels
             ILog log,
             TSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
-            IReadModelFactory<TReadModel> readModelFactory)
+            IReadModelFactory<TReadModel> readModelFactory,
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
             : base(log)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
             _readModelFactory = readModelFactory;
+            _transientFaultHandler = transientFaultHandler;
         }
 
-        public override async Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
             {
-                var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
-                var readModelEnvelope = await GetAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
-                var readModel = readModelEnvelope.ReadModel;
-                var isNew = readModel == null;
+                var readModelContext = readModelContextFactory();
 
-                if (readModel == null)
-                {
-                    readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
-                    readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
-                }
-
-                readModelEnvelope = await updateReadModel(
-                    readModelContext,
-                    readModelUpdate.DomainEvents,
-                    readModelEnvelope,
+                await _transientFaultHandler.TryAsync(
+                    c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
+                    Label.Named($"sqlite-read-model-update"),
                     cancellationToken)
                     .ConfigureAwait(false);
-
-                SetVersion(readModel, (int?) readModelEnvelope.Version);
-                SetIdentity(readModel, readModelEnvelope.ReadModelId);
-
-                var sql = isNew
-                    ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()
-                    : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
-
-                await _connection.ExecuteAsync(
-                    Label.Named("sql-store-read-model", readModelNameLowerCased),
-                    cancellationToken,
-                    sql,
-                    readModel).ConfigureAwait(false);
             }
+        }
+
+        private async Task UpdateReadModelAsync(
+            IReadModelContext readModelContext,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken,
+            ReadModelUpdate readModelUpdate)
+        {
+            var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
+            var readModelEnvelope = await GetAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+            var readModel = readModelEnvelope.ReadModel;
+            var isNew = readModel == null;
+
+            if (readModel == null)
+            {
+                readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
+            }
+
+            var originalVersion = readModelEnvelope.Version;
+            readModelEnvelope = await updateReadModel(
+                readModelContext,
+                readModelUpdate.DomainEvents,
+                readModelEnvelope,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            if (readModelContext.IsMarkedForDeletion)
+            {
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                return;
+            }
+
+            SetVersion(readModel, (int?) readModelEnvelope.Version);
+            SetIdentity(readModel, readModelEnvelope.ReadModelId);
+
+            var sql = isNew
+                ? _readModelSqlGenerator.CreateInsertSql<TReadModel>()
+                : _readModelSqlGenerator.CreateUpdateSql<TReadModel>();
+
+            var dynamicParameters = new DynamicParameters(readModel);
+            if (originalVersion.HasValue)
+            {
+                dynamicParameters.Add("_PREVIOUS_VERSION", (int)originalVersion.Value);
+            }
+            
+            var rowsAffected = await _connection.ExecuteAsync(
+                Label.Named("sql-store-read-model", readModelNameLowerCased),
+                cancellationToken,
+                sql,
+                dynamicParameters)
+                .ConfigureAwait(false);
+            if (rowsAffected != 1)
+            {
+                throw new OptimisticConcurrencyException(
+                    $"Read model '{readModelEnvelope.ReadModelId}' updated by another");
+            }
+
+            Log.Verbose(() => $"Updated SQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelUpdate.ReadModelId}' to version '{readModelEnvelope.Version}'");
         }
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
