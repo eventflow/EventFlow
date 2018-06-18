@@ -21,27 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.AspNetCore.ServiceProvider;
-using EventFlow.Extensions;
-using Microsoft.Extensions.Hosting;
+using EventFlow.Configuration;
+using EventFlow.ServiceProvider.Extensions;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.AspNetCore.Extensions
+namespace EventFlow.ServiceProvider.Tests.IntegrationTests
 {
-	using Configuration;
-	using Microsoft.AspNetCore.Http;
+    [Category(Categories.Integration)]
+    public class ServiceCollectionServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
+    {
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            return base.Options(eventFlowOptions
+                .UseServiceCollection());
+        }
 
-	public static class EventFlowOptionsExtensions
-	{
-		public static IEventFlowOptions AddAspNetCoreMetadataProviders(
-			this IEventFlowOptions eventFlowOptions)
-		{
-			return eventFlowOptions
-				.RegisterServices(sr =>
-			    {
-			        sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton);
-			        sr.Register(typeof(IHostedService), typeof(HostedBootstrapper), Lifetime.Singleton);
-			    })
-				.AddMetadataProviders(EventFlowAspNetCore.Assembly);
-		}
-	}
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions
+                .CreateResolver();
+        }
+    }
 }
