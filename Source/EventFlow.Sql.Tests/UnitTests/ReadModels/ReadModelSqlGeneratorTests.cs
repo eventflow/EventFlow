@@ -82,7 +82,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var tableName = Sut.GetTableName<TestTableAttributeReadModel>();
 
             // Assert
-            tableName.Should().Be("[Fancy]");
+            tableName.Should().Be("[doh].[Fancy]");
         }
 
         public class TestAttributesReadModel : IReadModel
@@ -105,7 +105,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             public string FancyVersion { get; set; }
         }
 
-        [Table("Fancy")]
+        [Table("Fancy", Schema = "doh")]
         public class TestTableAttributeReadModel : IReadModel
         {
         }
