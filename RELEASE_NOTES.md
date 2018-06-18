@@ -2,6 +2,24 @@
 
 * New: Package `EventFlow.Autofac` now references Autofac 3.5.2 for .NET
   framework 4.5.1 (down from Autofac v4.5.0)
+* New: Support for Microsoft.Extensions.DependencyInjection (`IServiceProvider`
+  and `IServiceCollection`) using the EventFlow.ServiceProvider NuGet package.
+  
+  Add it to your ASP.NET Core 2.0 application:
+  ```csharp
+	public void ConfigureServices(IServiceCollection services)
+	{
+		services.AddMvc();
+		services.AddEventFlow(o => o.AddDefaults(MyDomainAssembly));
+	}
+  ```
+  Or use it explicitly:
+  ```csharp
+	EventFlowOptions.New.
+		.UseServiceCollection()
+		...
+		.CreateServiceProvider();
+  ```
 
 ### New in 0.60.3490 (released 2018-06-18)
 

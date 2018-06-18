@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2018 Rasmus Mikkelsen
 // Copyright (c) 2015-2018 eBay Software Foundation
@@ -21,27 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.AspNetCore.ServiceProvider;
-using EventFlow.Extensions;
-using Microsoft.Extensions.Hosting;
+using System.Threading;
+using EventFlow.Configuration.Bootstraps;
+using EventFlow.Core;
 
-namespace EventFlow.AspNetCore.Extensions
+namespace EventFlow.Extensions
 {
-	using Configuration;
-	using Microsoft.AspNetCore.Http;
+    public static class BootstrapperExtensions
+    {
+        public static void Start(this IBootstrapper bootstrapper)
+        {
+            if (bootstrapper is Bootstrapper b && b.HasBeenRun)
+            {
+                return;
+            }
 
-	public static class EventFlowOptionsExtensions
-	{
-		public static IEventFlowOptions AddAspNetCoreMetadataProviders(
-			this IEventFlowOptions eventFlowOptions)
-		{
-			return eventFlowOptions
-				.RegisterServices(sr =>
-			    {
-			        sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton);
-			        sr.Register(typeof(IHostedService), typeof(HostedBootstrapper), Lifetime.Singleton);
-			    })
-				.AddMetadataProviders(EventFlowAspNetCore.Assembly);
-		}
-	}
+            using (var a = AsyncHelper.Wait)
+            {
+                a.Run(bootstrapper.StartAsync(CancellationToken.None));
+            }
+        }
+    }
 }

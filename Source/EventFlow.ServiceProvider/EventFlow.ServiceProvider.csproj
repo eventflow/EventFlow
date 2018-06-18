@@ -6,12 +6,12 @@
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Title>EventFlow.AspNetCore</Title>
-    <Authors>Rasmus Mikkelsen</Authors>
+    <Title>EventFlow.ServiceProvider</Title>
+    <Authors>Frank Ebersoll</Authors>
     <Company>Rasmus Mikkelsen</Company>
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
-    <Description>AspNetCore support for EventFlow</Description>
-    <PackageTags>CQRS ES event sourcing AspNetCore</PackageTags>
+    <Description>Microsoft.Extensions.DependencyInjection support for EventFlow</Description>
+    <PackageTags>CQRS ES event sourcing Microsoft.Extensions.DependencyInjection ServiceProvider ServiceCollection</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
     <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
@@ -22,8 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

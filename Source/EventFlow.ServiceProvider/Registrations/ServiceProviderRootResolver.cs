@@ -1,8 +1,8 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -21,33 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using EventFlow.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.Core.IoC
+namespace EventFlow.ServiceProvider.Registrations
 {
-    public abstract class ServiceRegistration
+    internal class ServiceProviderRootResolver : ServiceProviderResolver, IRootResolver
     {
-        protected static IReadOnlyCollection<IBootstrap> OrderBootstraps(IEnumerable<IBootstrap> bootstraps)
+        public ServiceProviderRootResolver(Microsoft.Extensions.DependencyInjection.ServiceProvider serviceProvider,
+            IServiceCollection serviceCollection)
+            : base(serviceProvider, serviceCollection)
         {
-            var list = bootstraps
-                .Select(b => new
-                    {
-                        Bootstrap = b,
-                        AssemblyName = b.GetType().GetTypeInfo().Assembly.GetName().Name,
-                    })
-                .ToList();
-            var eventFlowBootstraps = list
-                .Where(a => a.AssemblyName.StartsWith("EventFlow"))
-                .OrderBy(a => a.AssemblyName)
-                .Select(a => a.Bootstrap);
-            var otherBootstraps = list
-                .Where(a => !a.AssemblyName.StartsWith("EventFlow"))
-                .OrderBy(a => a.AssemblyName)
-                .Select(a => a.Bootstrap);
-            return eventFlowBootstraps.Concat(otherBootstraps).ToList();
+        }
+
+        public void Dispose()
+        {
+            ((Microsoft.Extensions.DependencyInjection.ServiceProvider) ServiceProvider).Dispose();
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new ServiceProviderScopeResolver(ServiceProvider.CreateScope(), ServiceCollection);
         }
     }
 }
