@@ -123,14 +123,14 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     It.IsAny<CancellationToken>()))
                 .Callback<
                     IReadOnlyCollection<ReadModelUpdate>,
-                    IReadModelContext,
+                    Func<IReadModelContext>,
                     Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
                         ReadModelEnvelope<ReadStoreManagerTestReadModel>,
                         CancellationToken,
                         Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>,
-                        CancellationToken>((readModelUpdates, readModelContext, updaterFunc, cancellationToken) =>
+                        CancellationToken>((readModelUpdates, readModelContextFactory, updaterFunc, cancellationToken) =>
                             {
                                 try
                                 {
@@ -139,7 +139,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                         foreach (var readModelEnvelope in g)
                                         {
                                             updaterFunc(
-                                                readModelContext,
+                                                readModelContextFactory(),
                                                 readModelUpdates
                                                     .Where(d => d.ReadModelId == g.Key)
                                                     .SelectMany(d => d.DomainEvents)
