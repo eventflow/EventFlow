@@ -1,4 +1,8 @@
-### New in 0.60 (not released yet)
+### New in 0.61 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.60.3490 (released 2018-06-18)
 
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
   Elasticsearch read models 
