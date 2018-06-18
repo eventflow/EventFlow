@@ -31,8 +31,6 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Exceptions;
-using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -70,6 +68,7 @@ namespace EventFlow.ReadStores
 
             if (!version.HasValue || expectedVersion == version)
             {
+                Log.Verbose(() => $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' has version {expectedVersion} (or none), applying events");
                 return await base.UpdateAsync(
                     readModelContext,
                     domainEvents,
@@ -79,8 +78,8 @@ namespace EventFlow.ReadStores
             }
             if (expectedVersion < version.Value)
             {
-                throw new OptimisticConcurrencyException(
-                    $"Read model '{readModelEnvelope.ReadModelId}' ({typeof(TReadModel).PrettyPrint()}) is already updated ({expectedVersion} < {version.Value})");
+                Log.Verbose(() => $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' already has version {version.Value} compared to {expectedVersion}, skipping");
+                return null;
             }
 
             TReadModel readModel;
@@ -97,13 +96,14 @@ namespace EventFlow.ReadStores
                 readModel = readModelEnvelope.ReadModel;
             }
 
-            // Apply ALL events
+            // Apply missing events
             var identity = domainEvents.Cast<IDomainEvent<TAggregate, TIdentity>>().First().AggregateIdentity;
             var missingEvents = await _eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 identity,
-                (int) version.Value,
+                (int) version.Value + 1,
                 cancellationToken)
                 .ConfigureAwait(false);
+            Log.Verbose(() => $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' is missing some events {version.Value} < {expectedVersion}, adding them (got {missingEvents.Count} events)");
 
             await ReadModelDomainEventApplier.UpdateReadModelAsync(
                 readModel,
