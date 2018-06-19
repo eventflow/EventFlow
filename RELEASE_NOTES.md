@@ -18,6 +18,7 @@
 		...
 		.CreateServiceProvider();
   ```
+* Fixed: Constructor injection of scoped instances into query handlers
 
 ### New in 0.60.3490 (released 2018-06-18)
 
