@@ -24,21 +24,19 @@
 using EventFlow.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.ServiceProvider.Registrations
+namespace EventFlow.DependencyInjection.Registrations
 {
-    internal class ServiceProviderScopeResolver : ServiceProviderResolver, IScopeResolver
+    internal class ServiceProviderRootResolver : ServiceProviderResolver, IRootResolver
     {
-        private readonly IServiceScope _serviceScope;
-
-        public ServiceProviderScopeResolver(IServiceScope scope, IServiceCollection serviceCollection)
-            : base(scope.ServiceProvider, serviceCollection)
+        public ServiceProviderRootResolver(Microsoft.Extensions.DependencyInjection.ServiceProvider serviceProvider,
+            IServiceCollection serviceCollection)
+            : base(serviceProvider, serviceCollection)
         {
-            _serviceScope = scope;
         }
 
         public void Dispose()
         {
-            _serviceScope.Dispose();
+            ((Microsoft.Extensions.DependencyInjection.ServiceProvider) ServiceProvider).Dispose();
         }
 
         public IScopeResolver BeginScope()
