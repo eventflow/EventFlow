@@ -6,7 +6,7 @@
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Title>EventFlow.ServiceProvider</Title>
+    <Title>EventFlow.DependencyInjection</Title>
     <Authors>Frank Ebersoll</Authors>
     <Company>Rasmus Mikkelsen</Company>
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>

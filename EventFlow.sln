@@ -77,11 +77,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.AspNetCore", "Sou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.AspNetCore.Tests", "Source\EventFlow.AspNetCore.Tests\EventFlow.AspNetCore.Tests.csproj", "{C16B0B27-6E6C-439C-8419-488B2D4D798F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.ServiceProvider", "Source\EventFlow.ServiceProvider\EventFlow.ServiceProvider.csproj", "{7870461F-BA5B-4198-A85E-03BA555198AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.DependencyInjection", "Source\EventFlow.DependencyInjection\EventFlow.DependencyInjection.csproj", "{7870461F-BA5B-4198-A85E-03BA555198AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.ServiceProvider.Tests", "Source\EventFlow.ServiceProvider.Tests\EventFlow.ServiceProvider.Tests.csproj", "{28CA7AD8-6A73-454C-ABF4-26B24D986C85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.DependencyInjection.Tests", "Source\EventFlow.DependencyInjection.Tests\EventFlow.DependencyInjection.Tests.csproj", "{28CA7AD8-6A73-454C-ABF4-26B24D986C85}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceProvider", "ServiceProvider", "{E2DD51BC-974B-4526-961B-825913911FFB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyInjection", "DependencyInjection", "{E2DD51BC-974B-4526-961B-825913911FFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

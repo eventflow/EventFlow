@@ -29,7 +29,7 @@ using EventFlow.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EventFlow.ServiceProvider.Registrations
+namespace EventFlow.DependencyInjection.Registrations
 {
     public class ServiceCollectionServiceRegistration : IServiceRegistration
     {
