@@ -27,7 +27,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
-using EventFlow.Exceptions;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -77,7 +76,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void AlreadyAppliedEventsAreNotApplied()
+        public async Task AlreadyAppliedEventsAreNotApplied()
         {
             // Arrange
             var thingyId = A<ThingyId>();
@@ -85,20 +84,21 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
                 };
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+            var resultingReadModelUpdates = Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
                 thingyId.Value,
                 A<ReadStoreManagerTestReadModel>(),
                 3));
 
             // Act
-            Assert.ThrowsAsync<OptimisticConcurrencyException>(async () => await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None));
+            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             AppliedDomainEvents.Should().BeEmpty();
+            resultingReadModelUpdates.Single().Should().BeNull();
         }
 
         [Test]
-        public void OutdatedEventsAreNotApplied()
+        public async Task OutdatedEventsAreNotApplied()
         {
             // Arrange
             var thingyId = A<ThingyId>();
@@ -112,7 +112,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 3));
 
             // Act
-            Assert.ThrowsAsync<OptimisticConcurrencyException>(async () => await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None));
+            await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None);
 
             // Assert
             AppliedDomainEvents.Should().BeEmpty();

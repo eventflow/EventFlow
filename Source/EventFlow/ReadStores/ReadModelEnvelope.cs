@@ -25,24 +25,34 @@ using System;
 
 namespace EventFlow.ReadStores
 {
-    public class ReadModelEnvelope<TReadModel>
+    public abstract class ReadModelEnvelope
+    {
+        protected ReadModelEnvelope(
+            string readModelId, long? version)
+        {
+            if (string.IsNullOrEmpty(readModelId)) throw new ArgumentNullException(nameof(readModelId));
+
+            ReadModelId = readModelId;
+            Version = version;
+        }
+
+        public string ReadModelId { get; }
+        public long? Version { get; }
+    }
+
+    public class ReadModelEnvelope<TReadModel> : ReadModelEnvelope
         where TReadModel : class, IReadModel
     {
         private ReadModelEnvelope(
             string readModelId,
             TReadModel readModel,
             long? version)
+            : base(readModelId, version)
         {
-            if (string.IsNullOrEmpty(readModelId)) throw new ArgumentNullException(nameof(readModelId));
-
-            ReadModelId = readModelId;
             ReadModel = readModel;
-            Version = version;
         }
 
-        public string ReadModelId { get; }
         public TReadModel ReadModel { get; }
-        public long? Version { get; }
 
         public static ReadModelEnvelope<TReadModel> Empty(string readModelId)
         {

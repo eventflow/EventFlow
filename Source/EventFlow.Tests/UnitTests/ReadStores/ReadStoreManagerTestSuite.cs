@@ -106,9 +106,12 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 Times.Once);
         }
 
-        protected void Arrange_ReadModelStore_UpdateAsync(params ReadModelEnvelope<ReadStoreManagerTestReadModel>[] readModelEnvelopes)
+        protected IReadOnlyCollection<ReadModelEnvelope> Arrange_ReadModelStore_UpdateAsync(
+            params ReadModelEnvelope<ReadStoreManagerTestReadModel>[] readModelEnvelopes)
         {
             // Don't try this at home...
+
+            var resultingReadModelEnvelopes = new List<ReadModelEnvelope>();
 
             ReadModelStoreMock
                 .Setup(m => m.UpdateAsync(
@@ -138,7 +141,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                     {
                                         foreach (var readModelEnvelope in g)
                                         {
-                                            updaterFunc(
+                                            resultingReadModelEnvelopes.Add(updaterFunc(
                                                 readModelContextFactory(),
                                                 readModelUpdates
                                                     .Where(d => d.ReadModelId == g.Key)
@@ -147,7 +150,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                                     .ToList(),
                                                 readModelEnvelope,
                                                 cancellationToken)
-                                                .Wait(cancellationToken);
+                                                .Result);
                                         }
                                     }
                                 }
@@ -157,6 +160,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                 }
                             })
                 .Returns(Task.FromResult(0));
+
+            return resultingReadModelEnvelopes;
         }
     }
 }
