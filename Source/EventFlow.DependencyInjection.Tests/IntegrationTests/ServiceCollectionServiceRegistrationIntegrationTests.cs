@@ -22,27 +22,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Threading.Tasks;
-using Autofac;
-using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
+using EventFlow.DependencyInjection.Extensions;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace EventFlow.Autofac.Tests.IntegrationTests
+namespace EventFlow.DependencyInjection.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class AutofacServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
+    public class ServiceCollectionServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
     {
         protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterType<DbContext>().As<IDbContext>().InstancePerLifetimeScope();
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped<IDbContext, DbContext>();
 
             return base.Options(eventFlowOptions
-                .UseAutofacContainerBuilder(builder))
+                .UseServiceCollection(serviceCollection))
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>();
         }
 

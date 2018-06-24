@@ -21,27 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.AspNetCore.ServiceProvider;
-using EventFlow.Extensions;
-using Microsoft.Extensions.Hosting;
+using EventFlow.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.AspNetCore.Extensions
+namespace EventFlow.DependencyInjection.Registrations
 {
-	using Configuration;
-	using Microsoft.AspNetCore.Http;
+    internal class ServiceProviderRootResolver : ServiceProviderResolver, IRootResolver
+    {
+        public ServiceProviderRootResolver(Microsoft.Extensions.DependencyInjection.ServiceProvider serviceProvider,
+            IServiceCollection serviceCollection)
+            : base(serviceProvider, serviceCollection)
+        {
+        }
 
-	public static class EventFlowOptionsExtensions
-	{
-		public static IEventFlowOptions AddAspNetCoreMetadataProviders(
-			this IEventFlowOptions eventFlowOptions)
-		{
-			return eventFlowOptions
-				.RegisterServices(sr =>
-			    {
-			        sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton);
-			        sr.Register(typeof(IHostedService), typeof(HostedBootstrapper), Lifetime.Singleton);
-			    })
-				.AddMetadataProviders(EventFlowAspNetCore.Assembly);
-		}
-	}
+        public void Dispose()
+        {
+            ((Microsoft.Extensions.DependencyInjection.ServiceProvider) ServiceProvider).Dispose();
+        }
+
+        public IScopeResolver BeginScope()
+        {
+            return new ServiceProviderScopeResolver(ServiceProvider.CreateScope(), ServiceCollection);
+        }
+    }
 }

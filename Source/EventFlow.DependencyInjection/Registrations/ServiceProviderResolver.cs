@@ -21,41 +21,48 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
-using Autofac;
-using EventFlow.Autofac.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Queries;
-using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.Autofac.Tests.IntegrationTests
+namespace EventFlow.DependencyInjection.Registrations
 {
-    [Category(Categories.Integration)]
-    public class AutofacServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
+    internal class ServiceProviderResolver : IResolver
     {
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        public ServiceProviderResolver(IServiceProvider serviceProvider, IServiceCollection serviceCollection)
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterType<DbContext>().As<IDbContext>().InstancePerLifetimeScope();
-
-            return base.Options(eventFlowOptions
-                .UseAutofacContainerBuilder(builder))
-                .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>();
+            ServiceCollection = serviceCollection;
+            ServiceProvider = serviceProvider;
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        public IServiceProvider ServiceProvider { get; }
+        protected IServiceCollection ServiceCollection { get; }
+
+        public T Resolve<T>()
         {
-            return eventFlowOptions
-                .CreateResolver();
+            return ServiceProvider.GetService<T>();
         }
 
-        [Test]
-        public override Task QueryingUsesScopedDbContext()
+        public object Resolve(Type serviceType)
         {
-            return base.QueryingUsesScopedDbContext();
+            return ServiceProvider.GetService(serviceType);
+        }
+
+        public IEnumerable<object> ResolveAll(Type serviceType)
+        {
+            return ServiceProvider.GetServices(serviceType);
+        }
+
+        public IEnumerable<Type> GetRegisteredServices()
+        {
+            return ServiceCollection.Select(d => d.ServiceType).Where(t => !t.IsGenericTypeDefinition);
+        }
+
+        public bool HasRegistrationFor<T>() where T : class
+        {
+            return ServiceCollection.Any(d => d.ServiceType == typeof(T));
         }
     }
 }

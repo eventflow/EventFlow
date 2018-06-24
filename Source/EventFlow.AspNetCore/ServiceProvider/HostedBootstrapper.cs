@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2018 Rasmus Mikkelsen
 // Copyright (c) 2015-2018 eBay Software Foundation
@@ -21,27 +21,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.AspNetCore.ServiceProvider;
-using EventFlow.Extensions;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration.Bootstraps;
 using Microsoft.Extensions.Hosting;
 
-namespace EventFlow.AspNetCore.Extensions
+namespace EventFlow.AspNetCore.ServiceProvider
 {
-	using Configuration;
-	using Microsoft.AspNetCore.Http;
+    /// <summary>
+    ///     Ensures that the <see cref="Bootstrapper" /> is run in an ASP.NET Core
+    ///     environment when EventFlow is configured into an existing ServiceCollection
+    ///     instance and <see cref="CreateResolver" /> is not used.
+    /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Local
+    class HostedBootstrapper : IHostedService
+    {
+        private readonly IBootstrapper _bootstrapper;
 
-	public static class EventFlowOptionsExtensions
-	{
-		public static IEventFlowOptions AddAspNetCoreMetadataProviders(
-			this IEventFlowOptions eventFlowOptions)
-		{
-			return eventFlowOptions
-				.RegisterServices(sr =>
-			    {
-			        sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton);
-			        sr.Register(typeof(IHostedService), typeof(HostedBootstrapper), Lifetime.Singleton);
-			    })
-				.AddMetadataProviders(EventFlowAspNetCore.Assembly);
-		}
-	}
+        public HostedBootstrapper(IBootstrapper bootstrapper)
+        {
+            _bootstrapper = bootstrapper;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return _bootstrapper.StartAsync(cancellationToken);
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
 }

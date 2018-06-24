@@ -1,6 +1,24 @@
 ### New in 0.61 (not released yet)
 
-* _Nothing yet_
+* New: Support for `Microsoft.Extensions.DependencyInjection` (`IServiceProvider`
+  and `IServiceCollection`) using the `EventFlow.DependencyInjection` NuGet package.
+  
+  Add it to your ASP.NET Core 2.0 application:
+  ```csharp
+	public void ConfigureServices(IServiceCollection services)
+	{
+		services.AddMvc();
+		services.AddEventFlow(o => o.AddDefaults(MyDomainAssembly));
+	}
+  ```
+  Or use it explicitly:
+  ```csharp
+	EventFlowOptions.New.
+		.UseServiceCollection()
+		...
+		.CreateServiceProvider();
+  ```
+* Fixed: Constructor injection of scoped instances into query handlers
 
 ### New in 0.60.3490 (released 2018-06-18)
 
