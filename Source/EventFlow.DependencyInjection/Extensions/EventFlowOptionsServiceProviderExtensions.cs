@@ -22,10 +22,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.ServiceProvider.Registrations;
+using EventFlow.DependencyInjection.Registrations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.ServiceProvider.Extensions
+namespace EventFlow.DependencyInjection.Extensions
 {
     public static class EventFlowOptionsServiceProviderExtensions
     {
