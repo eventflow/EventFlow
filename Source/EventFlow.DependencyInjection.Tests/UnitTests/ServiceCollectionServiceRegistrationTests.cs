@@ -22,8 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
-using EventFlow.ServiceProvider.Extensions;
-using EventFlow.ServiceProvider.Registrations;
+using EventFlow.DependencyInjection.Extensions;
+using EventFlow.DependencyInjection.Registrations;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
@@ -31,7 +31,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 
-namespace EventFlow.ServiceProvider.Tests.UnitTests
+namespace EventFlow.DependencyInjection.Tests.UnitTests
 {
     [Category(Categories.Unit)]
     public class ServiceCollectionServiceRegistrationTests : TestSuiteForServiceRegistration

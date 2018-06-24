@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.ServiceProvider\EventFlow.ServiceProvider.csproj" />
+    <ProjectReference Include="..\EventFlow.DependencyInjection\EventFlow.DependencyInjection.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
 

@@ -21,48 +21,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.DependencyInjection.Extensions;
+using EventFlow.Extensions;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using EventFlow.TestHelpers.Suites;
 using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
 
-namespace EventFlow.ServiceProvider.Registrations
+namespace EventFlow.DependencyInjection.Tests.IntegrationTests
 {
-    internal class ServiceProviderResolver : IResolver
+    [Category(Categories.Integration)]
+    public class ServiceCollectionServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
     {
-        public ServiceProviderResolver(IServiceProvider serviceProvider, IServiceCollection serviceCollection)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            ServiceCollection = serviceCollection;
-            ServiceProvider = serviceProvider;
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped<IDbContext, DbContext>();
+
+            return base.Options(eventFlowOptions
+                .UseServiceCollection(serviceCollection))
+                .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>();
         }
 
-        public IServiceProvider ServiceProvider { get; }
-        protected IServiceCollection ServiceCollection { get; }
-
-        public T Resolve<T>()
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            return ServiceProvider.GetService<T>();
+            return eventFlowOptions
+                .CreateResolver();
         }
 
-        public object Resolve(Type serviceType)
+        [Test]
+        public override Task QueryingUsesScopedDbContext()
         {
-            return ServiceProvider.GetService(serviceType);
-        }
-
-        public IEnumerable<object> ResolveAll(Type serviceType)
-        {
-            return ServiceProvider.GetServices(serviceType);
-        }
-
-        public IEnumerable<Type> GetRegisteredServices()
-        {
-            return ServiceCollection.Select(d => d.ServiceType).Where(t => !t.IsGenericTypeDefinition);
-        }
-
-        public bool HasRegistrationFor<T>() where T : class
-        {
-            return ServiceCollection.Any(d => d.ServiceType == typeof(T));
+            return base.QueryingUsesScopedDbContext();
         }
     }
 }

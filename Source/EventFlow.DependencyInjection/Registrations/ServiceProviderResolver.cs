@@ -21,27 +21,48 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.ServiceProvider.Registrations
+namespace EventFlow.DependencyInjection.Registrations
 {
-    internal class ServiceProviderRootResolver : ServiceProviderResolver, IRootResolver
+    internal class ServiceProviderResolver : IResolver
     {
-        public ServiceProviderRootResolver(Microsoft.Extensions.DependencyInjection.ServiceProvider serviceProvider,
-            IServiceCollection serviceCollection)
-            : base(serviceProvider, serviceCollection)
+        public ServiceProviderResolver(IServiceProvider serviceProvider, IServiceCollection serviceCollection)
         {
+            ServiceCollection = serviceCollection;
+            ServiceProvider = serviceProvider;
         }
 
-        public void Dispose()
+        public IServiceProvider ServiceProvider { get; }
+        protected IServiceCollection ServiceCollection { get; }
+
+        public T Resolve<T>()
         {
-            ((Microsoft.Extensions.DependencyInjection.ServiceProvider) ServiceProvider).Dispose();
+            return ServiceProvider.GetService<T>();
         }
 
-        public IScopeResolver BeginScope()
+        public object Resolve(Type serviceType)
         {
-            return new ServiceProviderScopeResolver(ServiceProvider.CreateScope(), ServiceCollection);
+            return ServiceProvider.GetService(serviceType);
+        }
+
+        public IEnumerable<object> ResolveAll(Type serviceType)
+        {
+            return ServiceProvider.GetServices(serviceType);
+        }
+
+        public IEnumerable<Type> GetRegisteredServices()
+        {
+            return ServiceCollection.Select(d => d.ServiceType).Where(t => !t.IsGenericTypeDefinition);
+        }
+
+        public bool HasRegistrationFor<T>() where T : class
+        {
+            return ServiceCollection.Any(d => d.ServiceType == typeof(T));
         }
     }
 }

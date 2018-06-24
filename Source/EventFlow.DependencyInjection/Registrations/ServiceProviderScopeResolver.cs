@@ -21,42 +21,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
 using EventFlow.Configuration;
-using EventFlow.Extensions;
-using EventFlow.ServiceProvider.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Queries;
-using EventFlow.TestHelpers.Suites;
 using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
 
-namespace EventFlow.ServiceProvider.Tests.IntegrationTests
+namespace EventFlow.DependencyInjection.Registrations
 {
-    [Category(Categories.Integration)]
-    public class ServiceCollectionServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
+    internal class ServiceProviderScopeResolver : ServiceProviderResolver, IScopeResolver
     {
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        private readonly IServiceScope _serviceScope;
+
+        public ServiceProviderScopeResolver(IServiceScope scope, IServiceCollection serviceCollection)
+            : base(scope.ServiceProvider, serviceCollection)
         {
-            var serviceCollection = new ServiceCollection();
-
-            serviceCollection.AddScoped<IDbContext, DbContext>();
-
-            return base.Options(eventFlowOptions
-                .UseServiceCollection(serviceCollection))
-                .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>();
+            _serviceScope = scope;
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        public void Dispose()
         {
-            return eventFlowOptions
-                .CreateResolver();
+            _serviceScope.Dispose();
         }
 
-        [Test]
-        public override Task QueryingUsesScopedDbContext()
+        public IScopeResolver BeginScope()
         {
-            return base.QueryingUsesScopedDbContext();
+            return new ServiceProviderScopeResolver(ServiceProvider.CreateScope(), ServiceCollection);
         }
     }
 }
