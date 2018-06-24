@@ -1,7 +1,5 @@
 ### New in 0.61 (not released yet)
 
-* New: Package `EventFlow.Autofac` now references Autofac 3.5.2 for .NET
-  framework 4.5.1 (down from Autofac v4.5.0)
 * New: Support for Microsoft.Extensions.DependencyInjection (`IServiceProvider`
   and `IServiceCollection`) using the EventFlow.ServiceProvider NuGet package.
   
@@ -20,6 +18,8 @@
 		...
 		.CreateServiceProvider();
   ```
+* New: Package `EventFlow.Autofac` now references Autofac 3.5.2 for .NET
+  framework 4.5.1 (down from Autofac v4.5.0)
 
 ### New in 0.60.3490 (released 2018-06-18)
 
