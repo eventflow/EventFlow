@@ -1,7 +1,7 @@
 ### New in 0.61 (not released yet)
 
-* New: Support for Microsoft.Extensions.DependencyInjection (`IServiceProvider`
-  and `IServiceCollection`) using the EventFlow.ServiceProvider NuGet package.
+* New: Support for `Microsoft.Extensions.DependencyInjection` (`IServiceProvider`
+  and `IServiceCollection`) using the `EventFlow.DependencyInjection` NuGet package.
   
   Add it to your ASP.NET Core 2.0 application:
   ```csharp
