@@ -18,6 +18,8 @@
 		...
 		.CreateServiceProvider();
   ```
+* New: Package `EventFlow.Autofac` now references Autofac 3.5.2 for .NET
+  framework 4.5.1 (down from Autofac v4.5.0)
 * Fixed: Constructor injection of scoped instances into query handlers
 
 ### New in 0.60.3490 (released 2018-06-18)
