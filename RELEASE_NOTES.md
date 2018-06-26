@@ -1,9 +1,39 @@
-### New in 0.60 (not released yet)
+### New in 0.62 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.61.3524 (released 2018-06-26)
+
+* New: Support for `Microsoft.Extensions.DependencyInjection` (`IServiceProvider`
+  and `IServiceCollection`) using the `EventFlow.DependencyInjection` NuGet package.
+  
+  Add it to your ASP.NET Core 2.0 application:
+  ```csharp
+	public void ConfigureServices(IServiceCollection services)
+	{
+		services.AddMvc();
+		services.AddEventFlow(o => o.AddDefaults(MyDomainAssembly));
+	}
+  ```
+  Or use it explicitly:
+  ```csharp
+	EventFlowOptions.New.
+		.UseServiceCollection()
+		...
+		.CreateServiceProvider();
+  ```
+* New: Package `EventFlow.Autofac` now references Autofac 3.5.2 for .NET
+  framework 4.5.1 (down from Autofac v4.5.0)
+* Fixed: Constructor injection of scoped instances into query handlers
+
+### New in 0.60.3490 (released 2018-06-18)
 
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
   Elasticsearch read models 
 * New: Added .NET standard support for EventStore
+* New: Delete read models by invoking `context.MarkForDeletion()` in an Apply method
 * Minor: Removed unnecessary transaction in EventStore persistance
+* Fixed: Read model SQL schema is no longer ignored for `Table` attribute
 
 ### New in 0.59.3396 (released 2018-05-23)
 

@@ -93,16 +93,16 @@ namespace EventFlow.MsSql.ReadStores
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public override async Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            Func<IReadModelContext> readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
             {
                 await _transientFaultHandler.TryAsync(
-                    c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
+                    c => UpdateReadModelAsync(readModelContextFactory, updateReadModel, c, readModelUpdate),
                     Label.Named($"mssql-read-model-update-{ReadModelNameLoverCase}"),
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -110,7 +110,7 @@ namespace EventFlow.MsSql.ReadStores
         }
 
         private async Task UpdateReadModelAsync(
-            IReadModelContext readModelContext,
+            Func<IReadModelContext> readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken,
             ReadModelUpdate readModelUpdate)
@@ -119,6 +119,7 @@ namespace EventFlow.MsSql.ReadStores
 
             var readModelEnvelope = await GetAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
             var readModel = readModelEnvelope.ReadModel;
+            var readModelContext = readModelContextFactory();
             var isNew = readModel == null;
 
             if (readModel == null)
@@ -141,6 +142,12 @@ namespace EventFlow.MsSql.ReadStores
                     readModelEnvelope,
                     cancellationToken)
                 .ConfigureAwait(false);
+
+            if (readModelContext.IsMarkedForDeletion)
+            {
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                return;
+            }
 
             mssqlReadModel = readModel as IMssqlReadModel;
             if (mssqlReadModel != null)

@@ -76,7 +76,7 @@ to the documentation.
   * In-memory - only for test
   * Files - only for test
   * Microsoft SQL Server
-  * EventStore - [home page](https://geteventstore.com/)
+  * EventStore - [home page](https://eventstore.org/)
 * [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
