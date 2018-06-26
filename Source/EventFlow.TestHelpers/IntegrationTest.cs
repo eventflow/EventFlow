@@ -37,6 +37,7 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
@@ -62,7 +63,8 @@ namespace EventFlow.TestHelpers
         public void SetUpIntegrationTest()
         {
             var eventFlowOptions = Options(EventFlowOptions.New)
-                .AddDefaults(EventFlowTestHelpers.Assembly);
+                .AddDefaults(EventFlowTestHelpers.Assembly, 
+                    type => type != typeof(DbContextQueryHandler));
 
             Resolver = CreateRootResolver(eventFlowOptions);
 
