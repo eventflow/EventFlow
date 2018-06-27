@@ -79,7 +79,7 @@ namespace EventFlow.ReadStores
             if (expectedVersion < version.Value)
             {
                 Log.Verbose(() => $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' already has version {version.Value} compared to {expectedVersion}, skipping");
-                return null;
+                return readModelEnvelope.Unmodified();
             }
 
             TReadModel readModel;
@@ -114,7 +114,11 @@ namespace EventFlow.ReadStores
 
             version = domainEvents.Max(e => e.AggregateSequenceNumber);
 
-            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, version.Value);
+            return ReadModelEnvelope<TReadModel>.With(
+                readModelEnvelope.ReadModelId,
+                readModel,
+                version.Value,
+                true);
         }
     }
 }

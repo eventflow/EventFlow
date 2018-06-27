@@ -71,15 +71,20 @@ namespace EventFlow.ReadStores
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
-            var readModel = readModelEnvelope.ReadModel ?? await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
+            var readModel = readModelEnvelope.ReadModel;
+            if (readModel == null)
+            {
+                await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
+            }
+
             await ReadModelDomainEventApplier.UpdateReadModelAsync(
                 readModel,
                 domainEvents,
                 readModelContext,
                 cancellationToken)
                 .ConfigureAwait(false);
-            return ReadModelEnvelope<TReadModel>.With(
-                readModelEnvelope.ReadModelId,
+
+            return readModelEnvelope.AsModified(
                 readModel,
                 readModelEnvelope.Version.GetValueOrDefault() + 1 // the best we can do
                 );

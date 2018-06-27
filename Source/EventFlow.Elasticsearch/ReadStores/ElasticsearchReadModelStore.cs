@@ -82,7 +82,11 @@ namespace EventFlow.Elasticsearch.ReadStores
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
-            return ReadModelEnvelope<TReadModel>.With(id, getResponse.Source, getResponse.Version);
+            return ReadModelEnvelope<TReadModel>.With(
+                id,
+                getResponse.Source,
+                getResponse.Version,
+                false);
         }
 
         public async Task DeleteAsync(
@@ -153,7 +157,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 .ConfigureAwait(false);
 
             var readModelEnvelope = response.Found
-                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version)
+                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version, false)
                 : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
 
             readModelEnvelope = await updateReadModel(
@@ -162,7 +166,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
-            if (readModelEnvelope == null) return;
+            if (!readModelEnvelope.IsModified) return;
 
             if (readModelContext.IsMarkedForDeletion)
             {

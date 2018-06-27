@@ -81,7 +81,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
                 thingyId.Value,
                 A<ReadStoreManagerTestReadModel>(),
-                0));
+                0,
+                false));
             var events = new[]
                 {
                     ToDomainEvent(A<ThingyPingEvent>(), 1),
