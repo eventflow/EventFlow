@@ -1,11 +1,11 @@
 ﻿using EventFlow.EntityFramework.EventStores;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.EntityFramework
+namespace EventFlow.EntityFramework.Extensions
 {
     public static class ModelBuilderExtensions
     {
-        public static ModelBuilder AddEventFlowEvents(this ModelBuilder modelBuilder) 
+        public static ModelBuilder AddEventFlowEvents(this ModelBuilder modelBuilder)
         {
             var eventEntity = modelBuilder.Entity<EventEntity>();
             eventEntity.HasKey(e => e.GlobalSequenceNumber);

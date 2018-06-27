@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.EntityFramework.Extensions;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -13,15 +12,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.EventStores
 {
-    public class EntityFrameworkEventPersistence : IEventPersistence
+    public class EntityFrameworkEventPersistence<TDbContext> : IEventPersistence
+        where TDbContext : DbContext
     {
+        private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly ILog _log;
-        private readonly IDbContextProvider _contextProvider;
         private readonly IUniqueConstraintViolationDetector _uniqueConstraintViolationDetector;
 
         public EntityFrameworkEventPersistence(
-            ILog log, 
-            IDbContextProvider<IEventPersistence> contextProvider, 
+            ILog log,
+            IDbContextProvider<TDbContext> contextProvider,
             IUniqueConstraintViolationDetector uniqueConstraintViolationDetector
         )
         {
@@ -30,7 +30,8 @@ namespace EventFlow.EntityFramework.EventStores
             _uniqueConstraintViolationDetector = uniqueConstraintViolationDetector;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize, CancellationToken cancellationToken)
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
+            CancellationToken cancellationToken)
         {
             var startPosition = globalPosition.IsStart
                 ? 0
@@ -54,7 +55,8 @@ namespace EventFlow.EntityFramework.EventStores
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
                 return new ICommittedDomainEvent[0];
@@ -67,7 +69,7 @@ namespace EventFlow.EntityFramework.EventStores
                     BatchId = Guid.Parse(e.Metadata[MetadataKeys.BatchId]),
                     Data = e.SerializedData,
                     Metadata = e.SerializedMetadata,
-                    AggregateSequenceNumber = e.AggregateSequenceNumber,
+                    AggregateSequenceNumber = e.AggregateSequenceNumber
                 })
                 .ToList();
 
@@ -100,7 +102,8 @@ namespace EventFlow.EntityFramework.EventStores
             return entities;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
+            int fromEventSequenceNumber, CancellationToken cancellationToken)
         {
             using (var context = _contextProvider.CreateContext())
             {

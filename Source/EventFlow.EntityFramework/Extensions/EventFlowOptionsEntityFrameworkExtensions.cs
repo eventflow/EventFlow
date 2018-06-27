@@ -1,7 +1,9 @@
 ﻿using EventFlow.Configuration;
 using EventFlow.EntityFramework.EventStores;
-using EventFlow.EventStores;
+using EventFlow.EntityFramework.ReadStores;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.Extensions
 {
@@ -15,25 +17,55 @@ namespace EventFlow.EntityFramework.Extensions
             return eventFlowOptions.RegisterServices(configuration.Apply);
         }
 
-        public static IEventFlowOptions UseEntityFrameworkEventStore<TDbContextProvider>(this IEventFlowOptions eventFlowOptions)
-            where TDbContextProvider : class, IDbContextProvider
+        public static IEventFlowOptions UseEntityFrameworkEventStore<TDbContext>(
+            this IEventFlowOptions eventFlowOptions)
+            where TDbContext : DbContext
         {
             return eventFlowOptions
-                .UseEventStore<EntityFrameworkEventPersistence>()
-                .RegisterServices(s =>
-                {
-                    var serviceType = typeof(IDbContextProvider<IEventPersistence>);
-                    var implementation = typeof(SpecificDbContextProvider<IEventPersistence, TDbContextProvider>);
-                    s.Register(serviceType, implementation);
-                });
+                .UseEventStore<EntityFrameworkEventPersistence<TDbContext>>();
         }
 
-        public static IEventFlowOptions AddDbContextProvider<TContextProvider>(
-            this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique) 
-            where TContextProvider : class, IDbContextProvider
+        public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext>(
+            this IEventFlowOptions eventFlowOptions)
+            where TDbContext : DbContext
+            where TReadModel : class, IReadModel
         {
-            return eventFlowOptions.RegisterServices(s => s.Register<TContextProvider, TContextProvider>(lifetime));
+            return eventFlowOptions
+                .RegisterServices(f =>
+                {
+                    f.Register<IEntityFrameworkReadModelStore<TReadModel>,
+                        EntityFrameworkReadModelStore<TReadModel, TDbContext>>();
+                    f.Register<IReadModelStore<TReadModel>>(r =>
+                        r.Resolver.Resolve<IEntityFrameworkReadModelStore<TReadModel>>());
+                })
+                .UseReadStoreFor<IEntityFrameworkReadModelStore<TReadModel>, TReadModel>();
+        }
+
+        public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext, TReadModelLocator>(
+            this IEventFlowOptions eventFlowOptions)
+            where TDbContext : DbContext
+            where TReadModel : class, IReadModel
+            where TReadModelLocator : IReadModelLocator
+        {
+            return eventFlowOptions
+                .RegisterServices(f =>
+                {
+                    f.Register<IEntityFrameworkReadModelStore<TReadModel>,
+                        EntityFrameworkReadModelStore<TReadModel, TDbContext>>();
+                    f.Register<IReadModelStore<TReadModel>>(r =>
+                        r.Resolver.Resolve<IEntityFrameworkReadModelStore<TReadModel>>());
+                })
+                .UseReadStoreFor<IEntityFrameworkReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+        }
+
+        public static IEventFlowOptions AddDbContextProvider<TDbContext, TContextProvider>(
+            this IEventFlowOptions eventFlowOptions,
+            Lifetime lifetime = Lifetime.AlwaysUnique)
+            where TContextProvider : class, IDbContextProvider<TDbContext>
+            where TDbContext : DbContext
+        {
+            return eventFlowOptions.RegisterServices(s =>
+                s.Register<IDbContextProvider<TDbContext>, TContextProvider>(lifetime));
         }
     }
 }

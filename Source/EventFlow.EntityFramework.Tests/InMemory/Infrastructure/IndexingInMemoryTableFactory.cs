@@ -16,8 +16,8 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
             var innerTable = base.Create(entityType);
             var uniqueIndexes = entityType.GetIndexes().Where(i => i.IsUnique).ToArray();
 
-            return uniqueIndexes.Any() 
-                ? new IndexingInMemoryTable(innerTable, uniqueIndexes) 
+            return uniqueIndexes.Any()
+                ? new IndexingInMemoryTable(innerTable, uniqueIndexes)
                 : innerTable;
         }
     }

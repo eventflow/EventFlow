@@ -1,10 +1,11 @@
 ﻿using EventFlow.EntityFramework.Tests.InMemory.Infrastructure;
+using EventFlow.EntityFramework.Tests.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 namespace EventFlow.EntityFramework.Tests.InMemory
 {
-    public class InMemoryDbContextProvider : IDbContextProvider
+    public class InMemoryDbContextProvider : IDbContextProvider<TestDbContext>
     {
         private readonly DbContextOptions<TestDbContext> _options;
 
@@ -16,7 +17,7 @@ namespace EventFlow.EntityFramework.Tests.InMemory
                 .Options;
         }
 
-        public DbContext CreateContext()
+        public TestDbContext CreateContext()
         {
             var context = new TestDbContext(_options);
             context.Database.EnsureCreated();

@@ -14,6 +14,13 @@ namespace EventFlow.EntityFramework
                 exception.InnerException?.Message?.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
+        public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
+
+        void IEntityFrameworkConfiguration.Apply(IServiceRegistration serviceRegistration)
+        {
+            _registerUniqueConstraintViolationDetector(serviceRegistration);
+        }
+
         public EntityFrameworkConfiguration UseUniqueConstraintViolationDetection<T>()
             where T : class, IUniqueConstraintViolationDetector
         {
@@ -21,18 +28,13 @@ namespace EventFlow.EntityFramework
             return this;
         }
 
-        public EntityFrameworkConfiguration UseUniqueConstraintViolationDetection(Func<Exception, bool> exceptionIsUniqueConstraintViolation)
+        public EntityFrameworkConfiguration UseUniqueConstraintViolationDetection(
+            Func<Exception, bool> exceptionIsUniqueConstraintViolation)
         {
             var detector = new DelegateUniqueConstraintViolationDetector(exceptionIsUniqueConstraintViolation);
-            _registerUniqueConstraintViolationDetector = s => s.Register<IUniqueConstraintViolationDetector>(_ => detector);
+            _registerUniqueConstraintViolationDetector =
+                s => s.Register<IUniqueConstraintViolationDetector>(_ => detector);
             return this;
-        }
-
-        public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
-
-        void IEntityFrameworkConfiguration.Apply(IServiceRegistration serviceRegistration)
-        {
-            _registerUniqueConstraintViolationDetector(serviceRegistration);
         }
 
         private class DelegateUniqueConstraintViolationDetector : IUniqueConstraintViolationDetector

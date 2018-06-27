@@ -2,8 +2,8 @@
 
 namespace EventFlow.EntityFramework
 {
-    public interface IDbContextProvider
+    public interface IDbContextProvider<out TDbContext> where TDbContext : DbContext
     {
-        DbContext CreateContext();
+        TDbContext CreateContext();
     }
 }
