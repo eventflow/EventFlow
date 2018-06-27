@@ -110,7 +110,7 @@ namespace EventFlow.Sql.ReadModels
 
                 await _transientFaultHandler.TryAsync(
                     c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
-                    Label.Named("sqlite-read-model-update"),
+                    Label.Named("sql-read-model-update"),
                     cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -213,7 +213,7 @@ namespace EventFlow.Sql.ReadModels
             var readModelName = typeof(TReadModel).Name;
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-delete-read-model", readModelName),
+                Label.Named("sql-delete-read-model", readModelName),
                 cancellationToken,
                 sql,
                 new { EventFlowReadModelId = id })
