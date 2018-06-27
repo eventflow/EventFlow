@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Extensions;
 
 namespace EventFlow.ReadStores
 {
@@ -29,16 +30,19 @@ namespace EventFlow.ReadStores
     {
         protected ReadModelEnvelope(
             string readModelId,
-            long? version)
+            long? version,
+            bool isModified)
         {
             if (string.IsNullOrEmpty(readModelId)) throw new ArgumentNullException(nameof(readModelId));
 
             ReadModelId = readModelId;
             Version = version;
+            IsModified = isModified;
         }
 
         public string ReadModelId { get; }
         public long? Version { get; }
+        public bool IsModified { get; }
     }
 
     public class ReadModelEnvelope<TReadModel> : ReadModelEnvelope
@@ -47,27 +51,54 @@ namespace EventFlow.ReadStores
         private ReadModelEnvelope(
             string readModelId,
             TReadModel readModel,
-            long? version)
-            : base(readModelId, version)
+            long? version,
+            bool isModified)
+            : base(readModelId, version, isModified)
         {
             ReadModel = readModel;
         }
 
         public TReadModel ReadModel { get; }
 
+        public ReadModelEnvelope<TReadModel> Unmodified()
+        {
+            if (IsModified) throw new InvalidOperationException(
+                $"Expected read model {typeof(TReadModel).PrettyPrint()} '{ReadModel}' to be unmodified");
+
+            return this;
+        }
+
+        public ReadModelEnvelope<TReadModel> AsModified(
+            TReadModel readModel,
+            long? version)
+        {
+            return new ReadModelEnvelope<TReadModel>(
+                ReadModelId,
+                readModel,
+                version,
+                true);
+        }
+
         public static ReadModelEnvelope<TReadModel> Empty(string readModelId)
         {
-            return new ReadModelEnvelope<TReadModel>(readModelId, null, null);
+            return new ReadModelEnvelope<TReadModel>(readModelId, null, null, false);
         }
 
-        public static ReadModelEnvelope<TReadModel> With(string readModelId, TReadModel readModel)
+        public static ReadModelEnvelope<TReadModel> With(
+            string readModelId,
+            TReadModel readModel,
+            bool isModified)
         {
-            return new ReadModelEnvelope<TReadModel>(readModelId, readModel, null);
+            return new ReadModelEnvelope<TReadModel>(readModelId, readModel, null, isModified);
         }
 
-        public static ReadModelEnvelope<TReadModel> With(string readModelId, TReadModel readModel, long version)
+        public static ReadModelEnvelope<TReadModel> With(
+            string readModelId,
+            TReadModel readModel,
+            long version,
+            bool isModified)
         {
-            return new ReadModelEnvelope<TReadModel>(readModelId, readModel, version);
+            return new ReadModelEnvelope<TReadModel>(readModelId, readModel, version, isModified);
         }
     }
 }

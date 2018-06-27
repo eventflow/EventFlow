@@ -130,7 +130,7 @@ namespace EventFlow.Sql.ReadModels
             if (readModel == null)
             {
                 readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
-                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel, false);
             }
 
             var originalVersion = readModelEnvelope.Version;
@@ -140,7 +140,7 @@ namespace EventFlow.Sql.ReadModels
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
-            if (readModelEnvelope == null) return;
+            if (!readModelEnvelope.IsModified) return;
 
             if (readModelContext.IsMarkedForDeletion)
             {
@@ -201,8 +201,8 @@ namespace EventFlow.Sql.ReadModels
             Log.Verbose(() => $"Found SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
-                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
-                : ReadModelEnvelope<TReadModel>.With(id, readModel);
+                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value, false)
+                : ReadModelEnvelope<TReadModel>.With(id, readModel, false);
         }
 
         public override async Task DeleteAsync(
