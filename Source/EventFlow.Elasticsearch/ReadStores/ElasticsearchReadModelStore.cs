@@ -166,7 +166,7 @@ namespace EventFlow.Elasticsearch.ReadStores
 
             if (readModelContext.IsMarkedForDeletion)
             {
-                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
                 return;
             }
 

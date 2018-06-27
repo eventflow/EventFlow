@@ -28,7 +28,8 @@ namespace EventFlow.ReadStores
     public abstract class ReadModelEnvelope
     {
         protected ReadModelEnvelope(
-            string readModelId, long? version)
+            string readModelId,
+            long? version)
         {
             if (string.IsNullOrEmpty(readModelId)) throw new ArgumentNullException(nameof(readModelId));
 
