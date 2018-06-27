@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
 using Microsoft.EntityFrameworkCore;
@@ -85,6 +86,14 @@ namespace EventFlow.EntityFramework.ReadStores
                 if (entity == null)
                     return ReadModelEnvelope<TReadModel>.Empty(id);
 
+                var entry = dbContext.Entry(entity);
+                var version = entry.Metadata.GetProperties().SingleOrDefault(p => p.IsConcurrencyToken);
+                if (version != null)
+                {
+                    var versionValue = (long) entry.Property(version.Name).OriginalValue;
+                    return ReadModelEnvelope<TReadModel>.With(id, entity, versionValue);
+                }
+
                 return ReadModelEnvelope<TReadModel>.With(id, entity);
             }
         }
@@ -95,10 +104,12 @@ namespace EventFlow.EntityFramework.ReadStores
         {
             using (var dbContext = _contextProvider.CreateContext())
             {
-                var entity = await _readModelFactory.CreateAsync(id, cancellationToken);
-                var entry = dbContext.Attach(entity);
-                SetId(entry, id);
-                entry.State = EntityState.Deleted;
+                // TODO: Delete without loading whole entity first (just for the Version)
+
+                var entity = await dbContext.Set<TReadModel>().FindAsync(id);
+                if (entity == null)
+                    return;
+                dbContext.Remove(entity);
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
         }
@@ -126,6 +137,7 @@ namespace EventFlow.EntityFramework.ReadStores
                 readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelId, readModel);
             }
 
+            var originalVersion = readModelEnvelope.Version;
             readModelEnvelope = await updateReadModel(
                     readModelContext,
                     readModelUpdate.DomainEvents,
@@ -143,8 +155,21 @@ namespace EventFlow.EntityFramework.ReadStores
             {
                 var entry = dbContext.Attach(readModelEnvelope.ReadModel);
                 SetId(entry, readModelId);
+                var version = entry.Metadata.GetProperties().SingleOrDefault(p => p.IsConcurrencyToken);
+                if (version != null)
+                {
+                    entry.Property(version.Name).OriginalValue = originalVersion ?? 0;
+                    entry.Property(version.Name).CurrentValue = readModelEnvelope.Version;
+                }
                 entry.State = isNew ? EntityState.Added : EntityState.Modified;
-                await dbContext.SaveChangesAsync(cancellationToken);
+                try
+                {
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+                catch (DbUpdateConcurrencyException e)
+                {
+                    throw new OptimisticConcurrencyException(e.Message, e);
+                }
             }
         }
 

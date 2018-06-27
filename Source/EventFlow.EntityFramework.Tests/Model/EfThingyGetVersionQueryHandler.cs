@@ -19,7 +19,7 @@ namespace EventFlow.EntityFramework.Tests.Model
             using (var context = _dbContextProvider.CreateContext())
             {
                 var entity = await context.Thingys.FindAsync(query.ThingyId.Value);
-                return entity.Version;
+                return entity?.Version;
             }
         }
     }

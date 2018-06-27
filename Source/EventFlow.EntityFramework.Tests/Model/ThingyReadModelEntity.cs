@@ -18,7 +18,8 @@ namespace EventFlow.EntityFramework.Tests.Model
 
         public int PingsReceived { get; set; }
 
-        public int Version { get; set; }
+        [ConcurrencyCheck]
+        public long Version { get; set; }
 
         public void Apply(IReadModelContext context,
             IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
