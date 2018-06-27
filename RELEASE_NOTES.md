@@ -1,4 +1,8 @@
-### New in 0.61 (not released yet)
+### New in 0.62 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.61.3524 (released 2018-06-26)
 
 * New: Support for `Microsoft.Extensions.DependencyInjection` (`IServiceProvider`
   and `IServiceCollection`) using the `EventFlow.DependencyInjection` NuGet package.
