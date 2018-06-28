@@ -45,7 +45,8 @@ namespace EventFlow.EntityFramework.EventStores
                     .Where(e => e.GlobalSequenceNumber >= startPosition
                                 && e.GlobalSequenceNumber <= endPosition)
                     .OrderBy(e => e.GlobalSequenceNumber)
-                    .ToListAsync(cancellationToken);
+                    .ToListAsync(cancellationToken)
+                    .ConfigureAwait(false);
 
                 var nextPosition = entities.Any()
                     ? entities.Max(e => e.GlobalSequenceNumber) + 1
@@ -83,7 +84,8 @@ namespace EventFlow.EntityFramework.EventStores
                 using (var context = _contextProvider.CreateContext())
                 {
                     context.AddRange(entities);
-                    await context.SaveChangesAsync(cancellationToken);
+                    await context.SaveChangesAsync(cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
             catch (DbUpdateException exception)
@@ -112,7 +114,8 @@ namespace EventFlow.EntityFramework.EventStores
                     .Where(e => e.AggregateId == id.Value
                                 && e.AggregateSequenceNumber >= fromEventSequenceNumber)
                     .OrderBy(e => e.AggregateSequenceNumber)
-                    .ToListAsync(cancellationToken);
+                    .ToListAsync(cancellationToken)
+                    .ConfigureAwait(false);
 
                 return entities;
             }
@@ -125,10 +128,11 @@ namespace EventFlow.EntityFramework.EventStores
                 var entities = await context.Set<EventEntity>()
                     .Where(e => e.AggregateId == id.Value)
                     .Select(e => new EventEntity {GlobalSequenceNumber = e.GlobalSequenceNumber})
-                    .ToListAsync(cancellationToken);
+                    .ToListAsync(cancellationToken)
+                    .ConfigureAwait(false);
 
                 context.RemoveRange(entities);
-                await context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
         }
     }

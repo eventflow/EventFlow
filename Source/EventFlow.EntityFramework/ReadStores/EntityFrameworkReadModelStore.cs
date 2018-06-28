@@ -293,7 +293,7 @@ namespace EventFlow.EntityFramework.ReadStores
                 return p.IsConcurrencyToken && (p.ClrType == typeof(long) || p.ClrType == typeof(byte[]));
             }
 
-                        private static IProperty GetKeyProperty(IEntityType entityType)
+            private static IProperty GetKeyProperty(IEntityType entityType)
             {
                 IProperty key;
                 var keyProperties = entityType.FindPrimaryKey() ??
