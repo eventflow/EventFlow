@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
@@ -51,6 +52,13 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 .CreateResolver();
 
             return resolver;
+        }
+
+        [Test]
+        public override Task OptimisticConcurrencyCheck()
+        {
+            // The in-memory uses a global lock on all read models making concurrency impossible
+            return Task.FromResult(0);
         }
     }
 }

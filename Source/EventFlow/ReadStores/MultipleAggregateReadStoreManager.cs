@@ -20,6 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
 
 using System.Collections.Generic;
 using System.Linq;
@@ -71,8 +72,17 @@ namespace EventFlow.ReadStores
             CancellationToken cancellationToken)
         {
             var readModel = readModelEnvelope.ReadModel ?? await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
-            await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
-            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel);
+            await ReadModelDomainEventApplier.UpdateReadModelAsync(
+                readModel,
+                domainEvents,
+                readModelContext,
+                cancellationToken)
+                .ConfigureAwait(false);
+            return ReadModelEnvelope<TReadModel>.With(
+                readModelEnvelope.ReadModelId,
+                readModel,
+                readModelEnvelope.Version.GetValueOrDefault() + 1 // the best we can do
+                );
         }
     }
 }
