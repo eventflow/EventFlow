@@ -96,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             // Assert
             AppliedDomainEvents.Should().BeEmpty();
-            resultingReadModelUpdates.Single().Should().BeNull();
+            resultingReadModelUpdates.Single().IsModified.Should().BeFalse();
         }
 
         [Test]
