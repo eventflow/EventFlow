@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -44,13 +45,16 @@ namespace EventFlow.EntityFramework.ReadStores
         where TReadModel : class, IReadModel
         where TDbContext : DbContext
     {
-        private static EntityDescriptor _descriptor;
+        private static readonly ConcurrentDictionary<string, EntityDescriptor> Descriptors
+            = new ConcurrentDictionary<string, EntityDescriptor>();
 
         private readonly IDbContextProvider<TDbContext> _contextProvider;
+        private readonly int _deletionBatchSize;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public EntityFrameworkReadModelStore(
+            IEntityFrameworkConfiguration configuration,
             ILog log,
             IReadModelFactory<TReadModel> readModelFactory,
             IDbContextProvider<TDbContext> contextProvider,
@@ -60,6 +64,7 @@ namespace EventFlow.EntityFramework.ReadStores
             _readModelFactory = readModelFactory;
             _contextProvider = contextProvider;
             _transientFaultHandler = transientFaultHandler;
+            _deletionBatchSize = configuration.ReadModelDeletionBatchSize;
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
@@ -76,6 +81,7 @@ namespace EventFlow.EntityFramework.ReadStores
 
                     await _transientFaultHandler.TryAsync(
                             c => UpdateReadModelAsync(
+                                // ReSharper disable once AccessToDisposedClosure
                                 dbContext,
                                 readModelContext,
                                 updateReadModel,
@@ -109,9 +115,41 @@ namespace EventFlow.EntityFramework.ReadStores
             }
         }
 
-        public override Task DeleteAllAsync(CancellationToken cancellationToken)
+        public override async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            while (!cancellationToken.IsCancellationRequested)
+                using (var dbContext = _contextProvider.CreateContext())
+                {
+                    dbContext.Model.FindEntityType(typeof(TReadModel));
+                    var descriptor = GetDescriptor(dbContext);
+                    var entities = await dbContext
+                        .Set<TReadModel>()
+                        .AsNoTracking()
+                        .Take(_deletionBatchSize)
+                        .Select(e => new
+                        {
+                            Id = EF.Property<string>(e, descriptor.Key),
+                            Version = EF.Property<long>(e, descriptor.Version)
+                        })
+                        .ToArrayAsync(cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (!entities.Any())
+                        return;
+
+                    foreach (var entity in entities)
+                    {
+                        var readModel = await _readModelFactory.CreateAsync(entity.Id, cancellationToken)
+                            .ConfigureAwait(false);
+
+                        var entry = dbContext.Attach(readModel);
+                        descriptor.SetId(entry, entity.Id);
+                        descriptor.SetVersion(entry, entity.Version);
+                        entry.State = EntityState.Deleted;
+                    }
+
+                    await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                }
         }
 
         private static async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,
@@ -120,10 +158,8 @@ namespace EventFlow.EntityFramework.ReadStores
             bool tracking = false)
         {
             var descriptor = GetDescriptor(dbContext);
-            var set = dbContext.Set<TReadModel>();
-            var query = tracking ? set.AsTracking() : set.AsNoTracking();
-            query = query.Where(e => EF.Property<string>(e, descriptor.Key) == id);
-            var entity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            var entity = await descriptor.Query(dbContext, id, cancellationToken, tracking)
+                .ConfigureAwait(false);
 
             if (entity == null)
                 return ReadModelEnvelope<TReadModel>.Empty(id);
@@ -179,8 +215,8 @@ namespace EventFlow.EntityFramework.ReadStores
             }
 
             var descriptor = GetDescriptor(dbContext);
-            var entry = isNew 
-                ? dbContext.Add(entity) 
+            var entry = isNew
+                ? dbContext.Add(entity)
                 : dbContext.Entry(entity);
             descriptor.SetId(entry, readModelId);
             descriptor.SetVersion(entry, originalVersion, readModelEnvelope.Version);
@@ -199,49 +235,35 @@ namespace EventFlow.EntityFramework.ReadStores
 
         private static EntityDescriptor GetDescriptor(DbContext context)
         {
-            return LazyInitializer.EnsureInitialized(ref _descriptor, () => new EntityDescriptor(context));
+            return Descriptors.GetOrAdd(context.Database.ProviderName, s =>
+                new EntityDescriptor(context));
         }
 
         private class EntityDescriptor
         {
             private readonly IProperty _key;
+            private readonly Func<DbContext, CancellationToken, string, Task<TReadModel>> _queryByIdNoTracking;
+            private readonly Func<DbContext, CancellationToken, string, Task<TReadModel>> _queryByIdTracking;
             private readonly IProperty _version;
 
             public EntityDescriptor(DbContext context)
             {
                 var entityType = context.Model.FindEntityType(typeof(TReadModel));
-                var keyProperties = entityType.FindPrimaryKey() ??
-                                    throw new InvalidOperationException("Primary key not found");
-                try
-                {
-                    _key = keyProperties.Properties.Single();
-                }
-                catch (InvalidOperationException e)
-                {
-                    throw new InvalidOperationException("Read store doesn't support composite primary keys.", e);
-                }
-
-                var concurrencyProperties = entityType
-                    .GetProperties()
-                    .Where(IsConcurrencyProperty)
-                    .ToList();
-
-                if (concurrencyProperties.Count > 1)
-                    concurrencyProperties = concurrencyProperties
-                        .Where(p => p.Name.IndexOf("version", StringComparison.OrdinalIgnoreCase) >= 0)
-                        .ToList();
-
-                try
-                {
-                    _version = concurrencyProperties.SingleOrDefault();
-                }
-                catch (InvalidOperationException e)
-                {
-                    throw new InvalidOperationException("Couldn't determine row version property.", e);
-                }
+                _key = GetKeyProperty(entityType);
+                _version = GetVersionProperty(entityType);
+                _queryByIdTracking = CompileQueryById(true);
+                _queryByIdNoTracking = CompileQueryById(false);
             }
 
             public string Key => _key.Name;
+            public string Version => _version.Name;
+
+            public Task<TReadModel> Query(DbContext context, string id, CancellationToken t, bool tracking = false)
+            {
+                return tracking
+                    ? _queryByIdTracking(context, t, id)
+                    : _queryByIdNoTracking(context, t, id);
+            }
 
             public void SetId(EntityEntry entry, string id)
             {
@@ -257,7 +279,7 @@ namespace EventFlow.EntityFramework.ReadStores
                 return (long?) property.CurrentValue;
             }
 
-            public void SetVersion(EntityEntry entry, long? originalVersion, long? currentVersion)
+            public void SetVersion(EntityEntry entry, long? originalVersion, long? currentVersion = null)
             {
                 if (_version == null) return;
 
@@ -269,6 +291,63 @@ namespace EventFlow.EntityFramework.ReadStores
             private bool IsConcurrencyProperty(IProperty p)
             {
                 return p.IsConcurrencyToken && (p.ClrType == typeof(long) || p.ClrType == typeof(byte[]));
+            }
+
+                        private static IProperty GetKeyProperty(IEntityType entityType)
+            {
+                IProperty key;
+                var keyProperties = entityType.FindPrimaryKey() ??
+                                    throw new InvalidOperationException("Primary key not found");
+                try
+                {
+                    key = keyProperties.Properties.Single();
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw new InvalidOperationException("Read store doesn't support composite primary keys.", e);
+                }
+
+                return key;
+            }
+
+            private IProperty GetVersionProperty(IEntityType entityType)
+            {
+                IProperty version;
+                var concurrencyProperties = entityType
+                    .GetProperties()
+                    .Where(IsConcurrencyProperty)
+                    .ToList();
+
+                if (concurrencyProperties.Count > 1)
+                    concurrencyProperties = concurrencyProperties
+                        .Where(p => p.Name.IndexOf("version", StringComparison.OrdinalIgnoreCase) >= 0)
+                        .ToList();
+
+                try
+                {
+                    version = concurrencyProperties.SingleOrDefault();
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw new InvalidOperationException("Couldn't determine row version property.", e);
+                }
+
+                return version;
+            }
+
+            private Func<DbContext, CancellationToken, string, Task<TReadModel>> CompileQueryById(bool tracking)
+            {
+                return tracking
+                    ? EF.CompileAsyncQuery((DbContext dbContext, CancellationToken t, string id) =>
+                        dbContext
+                            .Set<TReadModel>()
+                            .AsTracking()
+                            .SingleOrDefault(e => EF.Property<string>(e, Key) == id))
+                    : EF.CompileAsyncQuery((DbContext dbContext, CancellationToken t, string id) =>
+                        dbContext
+                            .Set<TReadModel>()
+                            .AsNoTracking()
+                            .SingleOrDefault(e => EF.Property<string>(e, Key) == id));
             }
         }
     }

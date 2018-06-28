@@ -6,6 +6,7 @@ namespace EventFlow.EntityFramework
 {
     public class EntityFrameworkConfiguration : IEntityFrameworkConfiguration
     {
+        private int _readModelDeletionBatchSize = 1000;
         private Action<IServiceRegistration> _registerUniqueConstraintViolationDetector;
 
         private EntityFrameworkConfiguration()
@@ -16,9 +17,19 @@ namespace EventFlow.EntityFramework
 
         public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
 
+        int IEntityFrameworkConfiguration.ReadModelDeletionBatchSize => _readModelDeletionBatchSize;
+
         void IEntityFrameworkConfiguration.Apply(IServiceRegistration serviceRegistration)
         {
+            serviceRegistration.Register<IEntityFrameworkConfiguration>(s => this);
             _registerUniqueConstraintViolationDetector(serviceRegistration);
+        }
+
+        public EntityFrameworkConfiguration SetReadModelDeletionBatchSize(int batchSize)
+        {
+            if (batchSize <= 0) throw new ArgumentOutOfRangeException(nameof(batchSize));
+            _readModelDeletionBatchSize = batchSize;
+            return this;
         }
 
         public EntityFrameworkConfiguration UseUniqueConstraintViolationDetection<T>()
