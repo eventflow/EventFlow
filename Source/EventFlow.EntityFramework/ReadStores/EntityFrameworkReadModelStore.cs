@@ -34,6 +34,7 @@ using EventFlow.Logs;
 using EventFlow.ReadStores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EventFlow.EntityFramework.ReadStores
 {
@@ -43,6 +44,8 @@ namespace EventFlow.EntityFramework.ReadStores
         where TReadModel : class, IReadModel
         where TDbContext : DbContext
     {
+        private static EntityDescriptor _descriptor;
+
         private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
@@ -65,15 +68,25 @@ namespace EventFlow.EntityFramework.ReadStores
                 Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
-            foreach (var readModelUpdate in readModelUpdates)
+            using (var dbContext = _contextProvider.CreateContext())
             {
-                var readModelContext = readModelContextFactory();
+                foreach (var readModelUpdate in readModelUpdates)
+                {
+                    var readModelContext = readModelContextFactory();
 
-                await _transientFaultHandler.TryAsync(
-                        c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
-                        Label.Named("efcore-read-model-update"),
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                    await _transientFaultHandler.TryAsync(
+                            c => UpdateReadModelAsync(
+                                dbContext,
+                                readModelContext,
+                                updateReadModel,
+                                c,
+                                readModelUpdate),
+                            Label.Named("efcore-read-model-update"),
+                            cancellationToken)
+                        .ConfigureAwait(false);
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
             }
         }
 
@@ -82,19 +95,7 @@ namespace EventFlow.EntityFramework.ReadStores
         {
             using (var dbContext = _contextProvider.CreateContext())
             {
-                var entity = await dbContext.FindAsync<TReadModel>(id);
-                if (entity == null)
-                    return ReadModelEnvelope<TReadModel>.Empty(id);
-
-                var entry = dbContext.Entry(entity);
-                var version = entry.Metadata.GetProperties().SingleOrDefault(p => p.IsConcurrencyToken);
-                if (version != null)
-                {
-                    var versionValue = (long) entry.Property(version.Name).OriginalValue;
-                    return ReadModelEnvelope<TReadModel>.With(id, entity, versionValue);
-                }
-
-                return ReadModelEnvelope<TReadModel>.With(id, entity);
+                return await GetAsync(dbContext, id, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -104,13 +105,7 @@ namespace EventFlow.EntityFramework.ReadStores
         {
             using (var dbContext = _contextProvider.CreateContext())
             {
-                // TODO: Delete without loading whole entity first (just for the Version)
-
-                var entity = await dbContext.Set<TReadModel>().FindAsync(id);
-                if (entity == null)
-                    return;
-                dbContext.Remove(entity);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                await DeleteAsync(dbContext, id, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -119,22 +114,53 @@ namespace EventFlow.EntityFramework.ReadStores
             throw new NotImplementedException();
         }
 
-        private async Task UpdateReadModelAsync(
-            IReadModelContext readModelContext,
+        private static async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,
+            string id,
+            CancellationToken cancellationToken,
+            bool tracking = false)
+        {
+            var descriptor = GetDescriptor(dbContext);
+            var set = dbContext.Set<TReadModel>();
+            var query = tracking ? set.AsTracking() : set.AsNoTracking();
+            query = query.Where(e => EF.Property<string>(e, descriptor.Key) == id);
+            var entity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+
+            if (entity == null)
+                return ReadModelEnvelope<TReadModel>.Empty(id);
+
+            var entry = dbContext.Entry(entity);
+            var version = descriptor.GetVersion(entry);
+            return version.HasValue
+                ? ReadModelEnvelope<TReadModel>.With(id, entity, version.Value)
+                : ReadModelEnvelope<TReadModel>.With(id, entity);
+        }
+
+        private static async Task DeleteAsync(TDbContext dbContext, string id, CancellationToken cancellationToken)
+        {
+            var entity = await dbContext.Set<TReadModel>().FindAsync(id).ConfigureAwait(false);
+            if (entity == null)
+                return;
+            dbContext.Remove(entity);
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task UpdateReadModelAsync(TDbContext dbContext, IReadModelContext readModelContext,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
                 Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken,
             ReadModelUpdate readModelUpdate)
         {
             var readModelId = readModelUpdate.ReadModelId;
-            var readModelEnvelope = await GetAsync(readModelId, cancellationToken).ConfigureAwait(false);
-            var readModel = readModelEnvelope.ReadModel;
-            var isNew = readModel == null;
+            var readModelEnvelope = await GetAsync(dbContext, readModelId, cancellationToken, true)
+                .ConfigureAwait(false);
 
-            if (readModel == null)
+            var entity = readModelEnvelope.ReadModel;
+            var isNew = entity == null;
+
+            if (entity == null)
             {
-                readModel = await _readModelFactory.CreateAsync(readModelId, cancellationToken).ConfigureAwait(false);
-                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelId, readModel);
+                entity = await _readModelFactory.CreateAsync(readModelId, cancellationToken).ConfigureAwait(false);
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelId, entity);
             }
 
             var originalVersion = readModelEnvelope.Version;
@@ -144,39 +170,106 @@ namespace EventFlow.EntityFramework.ReadStores
                     readModelEnvelope,
                     cancellationToken)
                 .ConfigureAwait(false);
+            entity = readModelEnvelope.ReadModel;
 
             if (readModelContext.IsMarkedForDeletion)
             {
-                await DeleteAsync(readModelId, cancellationToken);
+                await DeleteAsync(dbContext, readModelId, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
-            using (var dbContext = _contextProvider.CreateContext())
+            var descriptor = GetDescriptor(dbContext);
+            var entry = isNew 
+                ? dbContext.Add(entity) 
+                : dbContext.Entry(entity);
+            descriptor.SetId(entry, readModelId);
+            descriptor.SetVersion(entry, originalVersion, readModelEnvelope.Version);
+            try
             {
-                var entry = dbContext.Attach(readModelEnvelope.ReadModel);
-                SetId(entry, readModelId);
-                var version = entry.Metadata.GetProperties().SingleOrDefault(p => p.IsConcurrencyToken);
-                if (version != null)
-                {
-                    entry.Property(version.Name).OriginalValue = originalVersion ?? 0;
-                    entry.Property(version.Name).CurrentValue = readModelEnvelope.Version;
-                }
-                entry.State = isNew ? EntityState.Added : EntityState.Modified;
-                try
-                {
-                    await dbContext.SaveChangesAsync(cancellationToken);
-                }
-                catch (DbUpdateConcurrencyException e)
-                {
-                    throw new OptimisticConcurrencyException(e.Message, e);
-                }
+                await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+                entry.CurrentValues.SetValues(databaseValues);
+                throw new OptimisticConcurrencyException(e.Message, e);
             }
         }
 
-        private static void SetId(EntityEntry<TReadModel> entry, string readModelId)
+        private static EntityDescriptor GetDescriptor(DbContext context)
         {
-            var key = entry.Metadata.FindPrimaryKey().Properties.Single().Name;
-            entry.Property(key).CurrentValue = readModelId;
+            return LazyInitializer.EnsureInitialized(ref _descriptor, () => new EntityDescriptor(context));
+        }
+
+        private class EntityDescriptor
+        {
+            private readonly IProperty _key;
+            private readonly IProperty _version;
+
+            public EntityDescriptor(DbContext context)
+            {
+                var entityType = context.Model.FindEntityType(typeof(TReadModel));
+                var keyProperties = entityType.FindPrimaryKey() ??
+                                    throw new InvalidOperationException("Primary key not found");
+                try
+                {
+                    _key = keyProperties.Properties.Single();
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw new InvalidOperationException("Read store doesn't support composite primary keys.", e);
+                }
+
+                var concurrencyProperties = entityType
+                    .GetProperties()
+                    .Where(IsConcurrencyProperty)
+                    .ToList();
+
+                if (concurrencyProperties.Count > 1)
+                    concurrencyProperties = concurrencyProperties
+                        .Where(p => p.Name.IndexOf("version", StringComparison.OrdinalIgnoreCase) >= 0)
+                        .ToList();
+
+                try
+                {
+                    _version = concurrencyProperties.SingleOrDefault();
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw new InvalidOperationException("Couldn't determine row version property.", e);
+                }
+            }
+
+            public string Key => _key.Name;
+
+            public void SetId(EntityEntry entry, string id)
+            {
+                var property = entry.Property(_key.Name);
+                property.CurrentValue = id;
+            }
+
+            public long? GetVersion(EntityEntry entry)
+            {
+                if (_version == null) return null;
+
+                var property = entry.Property(_version.Name);
+                return (long?) property.CurrentValue;
+            }
+
+            public void SetVersion(EntityEntry entry, long? originalVersion, long? currentVersion)
+            {
+                if (_version == null) return;
+
+                var property = entry.Property(_version.Name);
+                property.OriginalValue = originalVersion ?? 0;
+                property.CurrentValue = currentVersion ?? 0;
+            }
+
+            private bool IsConcurrencyProperty(IProperty p)
+            {
+                return p.IsConcurrencyToken && (p.ClrType == typeof(long) || p.ClrType == typeof(byte[]));
+            }
         }
     }
 }
