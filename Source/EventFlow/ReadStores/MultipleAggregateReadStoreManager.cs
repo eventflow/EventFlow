@@ -74,7 +74,10 @@ namespace EventFlow.ReadStores
             var readModel = readModelEnvelope.ReadModel;
             if (readModel == null)
             {
-                await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
+                readModel = await ReadModelFactory.CreateAsync(
+                    readModelEnvelope.ReadModelId,
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             await ReadModelDomainEventApplier.UpdateReadModelAsync(
