@@ -70,7 +70,9 @@ namespace EventFlow.ReadStores
                 domainEvents.Max(e => e.AggregateSequenceNumber),
                 readModelEnvelope.Version.GetValueOrDefault());
 
-            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, readModelVersion);
+            return readModelEnvelope.AsModified(
+                readModel,
+                readModelVersion);
         }
     }
 }
