@@ -1,13 +1,6 @@
 ### New in 0.62 (not released yet)
 
-* New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
-  for read models that have a 1-to-1 relation with an aggregate. If read models get
-  out of sync, or events are applied in different order, events are either fecthed
-  or skipped. Added extensions to allow registration.
-  - `UseInMemoryReadStoreFor<,,>`
-  - `UseElasticsearchReadModelFor<,,>`
-  - `UseMssqlReadModelFor<,,>`
-  - `UseSQLiteReadModelFor<,,>`
+* _Nothing yet_
 
 ### New in 0.61.3524 (released 2018-06-26)
 

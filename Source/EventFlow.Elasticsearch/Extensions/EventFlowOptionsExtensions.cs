@@ -24,9 +24,7 @@
 using System;
 using System.Linq;
 using Elasticsearch.Net;
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
@@ -81,7 +79,11 @@ namespace EventFlow.Elasticsearch.Extensions
             where TReadModel : class, IReadModel
         {
             return eventFlowOptions
-                .RegisterServices(RegisterElasticsearchReadStore<TReadModel>)
+                .RegisterServices(f =>
+                    {
+                        f.Register<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
+                    })
                 .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel>();
         }
 
@@ -91,27 +93,12 @@ namespace EventFlow.Elasticsearch.Extensions
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
-                .RegisterServices(RegisterElasticsearchReadStore<TReadModel>)
+                .RegisterServices(f =>
+                    {
+                        f.Register<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
+                    })
                 .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
-        }
-
-        public static IEventFlowOptions UseElasticsearchReadModelFor<TAggregate, TIdentity, TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TReadModel : class, IReadModel
-        {
-            return eventFlowOptions
-                .RegisterServices(RegisterElasticsearchReadStore<TReadModel>)
-                .UseReadStoreFor<TAggregate, TIdentity, IElasticsearchReadModelStore<TReadModel>, TReadModel>();
-        }
-
-        private static void RegisterElasticsearchReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
-            where TReadModel : class, IReadModel
-        {
-            serviceRegistration.Register<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
         }
     }
 }

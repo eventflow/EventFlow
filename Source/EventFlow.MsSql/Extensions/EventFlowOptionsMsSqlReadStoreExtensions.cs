@@ -21,9 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MsSql.ReadStores;
 using EventFlow.ReadStores;
@@ -39,7 +37,12 @@ namespace EventFlow.MsSql.Extensions
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
-                .RegisterServices(RegisterMssqlReadStore<TReadModel>)
+                .RegisterServices(f =>
+                    {
+                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
+                    })
                 .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
 
@@ -48,28 +51,13 @@ namespace EventFlow.MsSql.Extensions
             where TReadModel : class, IReadModel
         {
             return eventFlowOptions
-                .RegisterServices(RegisterMssqlReadStore<TReadModel>)
+                .RegisterServices(f =>
+                    {
+                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
+                    })
                 .UseReadStoreFor<IMssqlReadModelStore<TReadModel>, TReadModel>();
-        }
-
-        public static IEventFlowOptions UseMssqlReadModelFor<TAggregate, TIdentity, TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TReadModel : class, IReadModel
-        {
-            return eventFlowOptions
-                .RegisterServices(RegisterMssqlReadStore<TReadModel>)
-                .UseReadStoreFor<TAggregate, TIdentity, IMssqlReadModelStore<TReadModel>, TReadModel>();
-        }
-
-        private static void RegisterMssqlReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
-            where TReadModel : class, IReadModel
-        {
-            serviceRegistration.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
-            serviceRegistration.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
         }
     }
 }
