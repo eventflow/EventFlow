@@ -52,6 +52,7 @@ namespace EventFlow.Sql.ReadModels
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
+        private static readonly Func<TReadModel, string> GetIdentity;
         private static readonly Action<TReadModel, string> SetIdentity;
 
         static SqlReadModelStore()
@@ -76,10 +77,12 @@ namespace EventFlow.Sql.ReadModels
                 .SingleOrDefault(p => p.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute));
             if (identityPropertyInfo == null)
             {
+                GetIdentity = rm => null as string;
                 SetIdentity = (rm, i) => { };
             }
             else
             {
+                GetIdentity = rm => (string)identityPropertyInfo.GetValue(rm);
                 SetIdentity = (rm, i) => identityPropertyInfo.SetValue(rm, i);
             }
         }
@@ -110,7 +113,7 @@ namespace EventFlow.Sql.ReadModels
 
                 await _transientFaultHandler.TryAsync(
                     c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
-                    Label.Named("sql-read-model-update"),
+                    Label.Named($"sqlite-read-model-update"),
                     cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -130,7 +133,7 @@ namespace EventFlow.Sql.ReadModels
             if (readModel == null)
             {
                 readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
-                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel, false);
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
             }
 
             var originalVersion = readModelEnvelope.Version;
@@ -140,11 +143,10 @@ namespace EventFlow.Sql.ReadModels
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
-            if (!readModelEnvelope.IsModified) return;
 
             if (readModelContext.IsMarkedForDeletion)
             {
-                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
                 return;
             }
 
@@ -201,8 +203,8 @@ namespace EventFlow.Sql.ReadModels
             Log.Verbose(() => $"Found SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
 
             return readModelVersion.HasValue
-                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value, false)
-                : ReadModelEnvelope<TReadModel>.With(id, readModel, false);
+                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
+                : ReadModelEnvelope<TReadModel>.With(id, readModel);
         }
 
         public override async Task DeleteAsync(
@@ -213,7 +215,7 @@ namespace EventFlow.Sql.ReadModels
             var readModelName = typeof(TReadModel).Name;
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("sql-delete-read-model", readModelName),
+                Label.Named("mssql-delete-read-model", readModelName),
                 cancellationToken,
                 sql,
                 new { EventFlowReadModelId = id })

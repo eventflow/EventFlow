@@ -91,7 +91,7 @@ namespace EventFlow.ReadStores.InMemory
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             Func<IReadModelContext> readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-            Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -111,7 +111,6 @@ namespace EventFlow.ReadStores.InMemory
                         readModelEnvelope,
                         cancellationToken)
                         .ConfigureAwait(false);
-                    if (readModelEnvelope == null) return;
 
                     if (readModelContext.IsMarkedForDeletion)
                     {

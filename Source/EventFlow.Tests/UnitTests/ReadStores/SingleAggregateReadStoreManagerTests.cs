@@ -28,9 +28,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
     [Category(Categories.Unit)]
-    public class SingleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<SingleAggregateReadStoreManager<
-        IReadModelStore<ReadStoreManagerTestReadModel>,
-        ReadStoreManagerTestReadModel>>
+    public class SingleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<SingleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTestReadModel>, ReadStoreManagerTestReadModel>>
     {
     }
 }

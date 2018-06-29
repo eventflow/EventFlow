@@ -32,7 +32,6 @@ using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Nest;
@@ -94,7 +93,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                             sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
                         })
                     .ConfigureElasticsearch(_elasticsearchInstance.Uri)
-                    .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
+                    .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                     .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                     .AddQueryHandlers(
                         typeof(ElasticsearchThingyGetQueryHandler),

@@ -132,8 +132,7 @@ namespace EventFlow.MsSql.ReadStores
                     mssqlReadModel.AggregateId = readModelUpdate.ReadModelId;
                     mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
                 }
-
-                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel, false);
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
             }
 
             var originalVersion = readModelEnvelope.Version;
@@ -143,11 +142,10 @@ namespace EventFlow.MsSql.ReadStores
                     readModelEnvelope,
                     cancellationToken)
                 .ConfigureAwait(false);
-            if (!readModelEnvelope.IsModified) return;
 
             if (readModelContext.IsMarkedForDeletion)
             {
-                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
                 return;
             }
 
@@ -210,8 +208,8 @@ namespace EventFlow.MsSql.ReadStores
             Log.Verbose(() => $"Found MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{readModelVersion}'");
 
             return readModelVersion.HasValue
-                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value, false)
-                : ReadModelEnvelope<TReadModel>.With(id, readModel, false);
+                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value)
+                : ReadModelEnvelope<TReadModel>.With(id, readModel);
         }
 
         public override async Task DeleteAsync(
