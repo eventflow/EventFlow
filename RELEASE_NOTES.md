@@ -8,6 +8,9 @@
   - `UseElasticsearchReadModelFor<,,>`
   - `UseMssqlReadModelFor<,,>`
   - `UseSQLiteReadModelFor<,,>`
+* Minor: Applying events to a snapshot will now have the correct `Version` set 
+  inside the `Apply` methods.
+* Minor: Trying to apply events in the wrong order will now throw an exception.
 
 ### New in 0.61.3524 (released 2018-06-26)
 

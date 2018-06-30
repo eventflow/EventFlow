@@ -135,46 +135,49 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
-        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
+        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents, int fromVersion = 0)
         {
             if (domainEvents == null) throw new ArgumentNullException(nameof(domainEvents));
-
-            if (!domainEvents.Any())
-            {
-                return;
-            }
-
-            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
-            foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
-            {
-                _previousSourceIds.Put(domainEvent.Metadata.SourceId);
-            }
-            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
-        }
-
-        public IIdentity GetIdentity()
-        {
-            return Id;
-        }
-
-        public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
-        {
-            if (aggregateEvents == null) throw new ArgumentNullException(nameof(aggregateEvents));
 
             if (Version > 0)
             {
                 throw new InvalidOperationException($"Aggregate '{GetType().PrettyPrint()}' with ID '{Id}' already has events");
             }
 
-            foreach (var aggregateEvent in aggregateEvents)
+            if (!domainEvents.Any())
             {
+                Version = fromVersion;
+                return;
+            }
+
+            Version = fromVersion;
+
+            foreach (var domainEvent in domainEvents)
+            {
+                if (domainEvent.AggregateSequenceNumber != Version + 1)
+                    throw new InvalidOperationException(
+                        $"Cannot apply aggregate event of type '{domainEvent.GetType().PrettyPrint()}' " +
+                        $"with SequenceNumber {domainEvent.AggregateSequenceNumber} on aggregate " +
+                        $"with version {Version}");
+
+                var aggregateEvent = domainEvent.GetAggregateEvent();
                 if (!(aggregateEvent is IAggregateEvent<TAggregate, TIdentity> e))
                 {
-                    throw new ArgumentException($"Aggregate event of type '{aggregateEvent.GetType()}' does not belong with aggregate '{this}',");
+                    throw new ArgumentException($"Aggregate event of type '{domainEvent.GetType()}' does not belong with aggregate '{this}'");
                 }
 
                 ApplyEvent(e);
             }
+            
+            foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
+            {
+                _previousSourceIds.Put(domainEvent.Metadata.SourceId);
+            }
+        }
+
+        public IIdentity GetIdentity()
+        {
+            return Id;
         }
 
         protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
