@@ -14,7 +14,9 @@ namespace EventFlow.EntityFramework.Tests.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.AddEventFlowEvents();
+            modelBuilder
+                .AddEventFlowEvents()
+                .AddEventFlowSnapshots();
         }
     }
 }

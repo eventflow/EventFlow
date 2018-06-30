@@ -6,58 +6,58 @@ namespace EventFlow.EntityFramework
 {
     public class EntityFrameworkConfiguration : IEntityFrameworkConfiguration
     {
-        private int _readModelDeletionBatchSize = 1000;
-        private Action<IServiceRegistration> _registerUniqueConstraintViolationDetector;
+        private int _bulkDeletionBatchSize = 1000;
+        private Action<IServiceRegistration> _registerUniqueConstraintDetectionStrategy;
 
         private EntityFrameworkConfiguration()
         {
-            UseUniqueConstraintViolationDetection(exception =>
+            UseUniqueConstraintDetectionStrategy(exception =>
                 exception.InnerException?.Message?.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
 
-        int IEntityFrameworkConfiguration.ReadModelDeletionBatchSize => _readModelDeletionBatchSize;
+        int IEntityFrameworkConfiguration.BulkDeletionBatchSize => _bulkDeletionBatchSize;
 
         void IEntityFrameworkConfiguration.Apply(IServiceRegistration serviceRegistration)
         {
             serviceRegistration.Register<IEntityFrameworkConfiguration>(s => this);
-            _registerUniqueConstraintViolationDetector(serviceRegistration);
+            _registerUniqueConstraintDetectionStrategy(serviceRegistration);
         }
 
-        public EntityFrameworkConfiguration SetReadModelDeletionBatchSize(int batchSize)
+        public EntityFrameworkConfiguration SetBulkDeletionBatchSize(int batchSize)
         {
             if (batchSize <= 0) throw new ArgumentOutOfRangeException(nameof(batchSize));
-            _readModelDeletionBatchSize = batchSize;
+            _bulkDeletionBatchSize = batchSize;
             return this;
         }
 
-        public EntityFrameworkConfiguration UseUniqueConstraintViolationDetection<T>()
-            where T : class, IUniqueConstraintViolationDetector
+        public EntityFrameworkConfiguration UseUniqueConstraintDetectionStrategy<T>()
+            where T : class, IUniqueConstraintDetectionStrategy
         {
-            _registerUniqueConstraintViolationDetector = s => s.Register<IUniqueConstraintViolationDetector, T>();
+            _registerUniqueConstraintDetectionStrategy = s => s.Register<IUniqueConstraintDetectionStrategy, T>();
             return this;
         }
 
-        public EntityFrameworkConfiguration UseUniqueConstraintViolationDetection(
+        public EntityFrameworkConfiguration UseUniqueConstraintDetectionStrategy(
             Func<Exception, bool> exceptionIsUniqueConstraintViolation)
         {
-            var detector = new DelegateUniqueConstraintViolationDetector(exceptionIsUniqueConstraintViolation);
-            _registerUniqueConstraintViolationDetector =
-                s => s.Register<IUniqueConstraintViolationDetector>(_ => detector);
+            var strategy = new DelegateUniqueConstraintDetectionStrategy(exceptionIsUniqueConstraintViolation);
+            _registerUniqueConstraintDetectionStrategy =
+                s => s.Register<IUniqueConstraintDetectionStrategy>(_ => strategy);
             return this;
         }
 
-        private class DelegateUniqueConstraintViolationDetector : IUniqueConstraintViolationDetector
+        private class DelegateUniqueConstraintDetectionStrategy : IUniqueConstraintDetectionStrategy
         {
             private readonly Func<DbUpdateException, bool> _callback;
 
-            public DelegateUniqueConstraintViolationDetector(Func<DbUpdateException, bool> callback)
+            public DelegateUniqueConstraintDetectionStrategy(Func<DbUpdateException, bool> callback)
             {
                 _callback = callback ?? throw new ArgumentNullException(nameof(callback));
             }
 
-            public bool IsUniqueContraintException(DbUpdateException exception)
+            public bool IsUniqueConstraintViolation(DbUpdateException exception)
             {
                 return _callback(exception);
             }

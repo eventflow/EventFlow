@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.EntityFramework.Extensions;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
@@ -17,17 +18,17 @@ namespace EventFlow.EntityFramework.EventStores
     {
         private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly ILog _log;
-        private readonly IUniqueConstraintViolationDetector _uniqueConstraintViolationDetector;
+        private readonly IUniqueConstraintDetectionStrategy _strategy;
 
         public EntityFrameworkEventPersistence(
             ILog log,
             IDbContextProvider<TDbContext> contextProvider,
-            IUniqueConstraintViolationDetector uniqueConstraintViolationDetector
+            IUniqueConstraintDetectionStrategy strategy
         )
         {
             _log = log;
             _contextProvider = contextProvider;
-            _uniqueConstraintViolationDetector = uniqueConstraintViolationDetector;
+            _strategy = strategy;
         }
 
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
@@ -88,17 +89,12 @@ namespace EventFlow.EntityFramework.EventStores
                         .ConfigureAwait(false);
                 }
             }
-            catch (DbUpdateException exception)
+            catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation(_strategy))
             {
-                if (_uniqueConstraintViolationDetector.IsUniqueContraintException(exception))
-                {
-                    _log.Verbose(
-                        "Entity Framework event insert detected an optimistic concurrency " +
-                        "exception for entity with ID '{0}'", id);
-                    throw new OptimisticConcurrencyException(exception.Message, exception);
-                }
-
-                throw;
+                _log.Verbose(
+                    "Entity Framework event insert detected an optimistic concurrency " +
+                    "exception for entity with ID '{0}'", id);
+                throw new OptimisticConcurrencyException(ex.Message, ex);
             }
 
             return entities;

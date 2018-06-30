@@ -4,7 +4,7 @@ namespace EventFlow.EntityFramework
 {
     public interface IEntityFrameworkConfiguration
     {
-        int ReadModelDeletionBatchSize { get; }
+        int BulkDeletionBatchSize { get; }
         void Apply(IServiceRegistration serviceRegistration);
     }
 }

@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EntityFramework.Extensions;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
@@ -42,7 +43,7 @@ namespace EventFlow.EntityFramework.ReadStores
     public class EntityFrameworkReadModelStore<TReadModel, TDbContext> :
         ReadModelStore<TReadModel>,
         IEntityFrameworkReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel
+        where TReadModel : class, IReadModel, new()
         where TDbContext : DbContext
     {
         private static readonly ConcurrentDictionary<string, EntityDescriptor> Descriptors
@@ -64,7 +65,7 @@ namespace EventFlow.EntityFramework.ReadStores
             _readModelFactory = readModelFactory;
             _contextProvider = contextProvider;
             _transientFaultHandler = transientFaultHandler;
-            _deletionBatchSize = configuration.ReadModelDeletionBatchSize;
+            _deletionBatchSize = configuration.BulkDeletionBatchSize;
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
@@ -115,41 +116,34 @@ namespace EventFlow.EntityFramework.ReadStores
             }
         }
 
-        public override async Task DeleteAllAsync(CancellationToken cancellationToken)
+        private class BulkDeletionModel
         {
-            while (!cancellationToken.IsCancellationRequested)
-                using (var dbContext = _contextProvider.CreateContext())
+            public string Id { get; set; }
+            public long? Version { get; set; }
+        }
+
+        public override Task DeleteAllAsync(CancellationToken cancellationToken)
+        {
+            EntityDescriptor descriptor;
+            using (var dbContext = _contextProvider.CreateContext())
+            {
+                descriptor = GetDescriptor(dbContext);
+            }
+
+            return Bulk.Delete<TDbContext, TReadModel, BulkDeletionModel>(
+                _contextProvider,
+                _deletionBatchSize,
+                cancellationToken,
+                entity => new BulkDeletionModel
                 {
-                    dbContext.Model.FindEntityType(typeof(TReadModel));
-                    var descriptor = GetDescriptor(dbContext);
-                    var entities = await dbContext
-                        .Set<TReadModel>()
-                        .AsNoTracking()
-                        .Take(_deletionBatchSize)
-                        .Select(e => new
-                        {
-                            Id = EF.Property<string>(e, descriptor.Key),
-                            Version = EF.Property<long>(e, descriptor.Version)
-                        })
-                        .ToArrayAsync(cancellationToken)
-                        .ConfigureAwait(false);
-
-                    if (!entities.Any())
-                        return;
-
-                    foreach (var entity in entities)
-                    {
-                        var readModel = await _readModelFactory.CreateAsync(entity.Id, cancellationToken)
-                            .ConfigureAwait(false);
-
-                        var entry = dbContext.Attach(readModel);
-                        descriptor.SetId(entry, entity.Id);
-                        descriptor.SetVersion(entry, entity.Version);
-                        entry.State = EntityState.Deleted;
-                    }
-
-                    await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                }
+                    Id = EF.Property<string>(entity, descriptor.Key),
+                    Version = EF.Property<long>(entity, descriptor.Version)
+                },
+                setProperties: (model, entry) =>
+                {
+                    descriptor.SetId(entry, model.Id);
+                    descriptor.SetVersion(entry, model.Version);
+                });
         }
 
         private static async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,

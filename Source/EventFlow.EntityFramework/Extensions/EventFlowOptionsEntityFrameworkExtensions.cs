@@ -1,6 +1,7 @@
 ﻿using EventFlow.Configuration;
 using EventFlow.EntityFramework.EventStores;
 using EventFlow.EntityFramework.ReadStores;
+using EventFlow.EntityFramework.SnapshotStores;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
 using Microsoft.EntityFrameworkCore;
@@ -25,10 +26,18 @@ namespace EventFlow.EntityFramework.Extensions
                 .UseEventStore<EntityFrameworkEventPersistence<TDbContext>>();
         }
 
+        public static IEventFlowOptions UseEntityFrameworkSnapshotStore<TDbContext>(
+            this IEventFlowOptions eventFlowOptions)
+            where TDbContext : DbContext
+        {
+            return eventFlowOptions
+                .UseSnapshotStore<EntityFrameworkSnapshotPersistence<TDbContext>>();
+        }
+
         public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext>(
             this IEventFlowOptions eventFlowOptions)
             where TDbContext : DbContext
-            where TReadModel : class, IReadModel
+            where TReadModel : class, IReadModel, new()
         {
             return eventFlowOptions
                 .RegisterServices(f =>
@@ -44,7 +53,7 @@ namespace EventFlow.EntityFramework.Extensions
         public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
             where TDbContext : DbContext
-            where TReadModel : class, IReadModel
+            where TReadModel : class, IReadModel, new()
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions

@@ -18,6 +18,15 @@ namespace EventFlow.EntityFramework.Tests
                 .UseEntityFrameworkEventStore<TestDbContext>();
         }
 
+        public static IEventFlowOptions ConfigureForSnapshotStoreTest<TDbContextProvider>(this IEventFlowOptions options)
+            where TDbContextProvider : class, IDbContextProvider<TestDbContext>
+        {
+            return options
+                .ConfigureEntityFramework()
+                .AddDbContextProvider<TestDbContext, TDbContextProvider>(Lifetime.Singleton)
+                .UseEntityFrameworkSnapshotStore<TestDbContext>();
+        }
+
         public static IEventFlowOptions ConfigureForReadStoreTest<TDbContextProvider>(this IEventFlowOptions options)
             where TDbContextProvider : class, IDbContextProvider<TestDbContext>
         {
