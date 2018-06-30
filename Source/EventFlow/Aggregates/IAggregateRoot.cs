@@ -41,9 +41,7 @@ namespace EventFlow.Aggregates
 
         bool HasSourceId(ISourceId sourceId);
 
-        void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents);
-
-        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents);
+        void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents, int fromVersion = 0);
 
         IIdentity GetIdentity();
 
