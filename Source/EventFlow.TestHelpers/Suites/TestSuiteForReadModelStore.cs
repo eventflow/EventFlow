@@ -292,6 +292,23 @@ namespace EventFlow.TestHelpers.Suites
             readModel2.Should().NotBeNull();
         }
 
+        [Test]
+        public async Task CanStoreMessageHistory()
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            var thingyMessages = Fixture.CreateMany<ThingyMessage>(5).ToList();
+            var command = new ThingyAddMessageHistoryCommand(thingyId, thingyMessages);
+            await CommandBus.PublishAsync(command, CancellationToken.None);
+
+            // Act
+            var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
+
+            // Assert
+            returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
+            returnedThingyMessages.ShouldAllBeEquivalentTo(thingyMessages);
+        }
+
         private class WaitState
         {
             public AutoResetEvent ReadStoreReady { get; } = new AutoResetEvent(false);

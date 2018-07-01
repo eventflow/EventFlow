@@ -89,7 +89,7 @@ namespace EventFlow.ReadStores.InMemory
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            Func<IReadModelContext> readModelContextFactory,
+            IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
@@ -97,12 +97,16 @@ namespace EventFlow.ReadStores.InMemory
             {
                 foreach (var readModelUpdate in readModelUpdates)
                 {
-                    if (!_readModels.TryGetValue(readModelUpdate.ReadModelId, out var readModelEnvelope))
+                    var readModelId = readModelUpdate.ReadModelId;
+
+                    var isNew = !_readModels.TryGetValue(readModelId, out var readModelEnvelope);
+
+                    if (isNew)
                     {
-                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
+                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelId);
                     }
 
-                    var readModelContext = readModelContextFactory();
+                    var readModelContext = readModelContextFactory.Create(readModelId, isNew);
 
                     var readModelUpdateResult = await updateReadModel(
                         readModelContext,
@@ -119,11 +123,11 @@ namespace EventFlow.ReadStores.InMemory
 
                     if (readModelContext.IsMarkedForDeletion)
                     {
-                        _readModels.Remove(readModelUpdate.ReadModelId);
+                        _readModels.Remove(readModelId);
                     }
                     else
                     {
-                        _readModels[readModelUpdate.ReadModelId] = readModelEnvelope;
+                        _readModels[readModelId] = readModelEnvelope;
                     }
                 }
             }

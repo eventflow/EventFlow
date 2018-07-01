@@ -99,17 +99,15 @@ namespace EventFlow.Sql.ReadModels
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            Func<IReadModelContext> readModelContextFactory,
+            IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
                 Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
             {
-                var readModelContext = readModelContextFactory();
-
                 await _transientFaultHandler.TryAsync(
-                    c => UpdateReadModelAsync(readModelContext, updateReadModel, c, readModelUpdate),
+                    c => UpdateReadModelAsync(readModelContextFactory, updateReadModel, c, readModelUpdate),
                     Label.Named("sql-read-model-update"),
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -117,21 +115,24 @@ namespace EventFlow.Sql.ReadModels
         }
 
         private async Task UpdateReadModelAsync(
-            IReadModelContext readModelContext,
+            IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken,
             ReadModelUpdate readModelUpdate)
         {
+            var readModelId = readModelUpdate.ReadModelId;
             var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
-            var readModelEnvelope = await GetAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+            var readModelEnvelope = await GetAsync(readModelId, cancellationToken).ConfigureAwait(false);
             var readModel = readModelEnvelope.ReadModel;
             var isNew = readModel == null;
 
             if (readModel == null)
             {
-                readModel = await _readModelFactory.CreateAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+                readModel = await _readModelFactory.CreateAsync(readModelId, cancellationToken).ConfigureAwait(false);
                 readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
             }
+
+            var readModelContext = readModelContextFactory.Create(readModelId, isNew);
 
             var originalVersion = readModelEnvelope.Version;
             var readModelUpdateResult = await updateReadModel(
@@ -148,7 +149,7 @@ namespace EventFlow.Sql.ReadModels
             readModelEnvelope = readModelUpdateResult.Envelope;
             if (readModelContext.IsMarkedForDeletion)
             {
-                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+                await DeleteAsync(readModelId, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -177,7 +178,7 @@ namespace EventFlow.Sql.ReadModels
                     $"Read model '{readModelEnvelope.ReadModelId}' updated by another");
             }
 
-            Log.Verbose(() => $"Updated SQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelUpdate.ReadModelId}' to version '{readModelEnvelope.Version}'");
+            Log.Verbose(() => $"Updated SQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
         }
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)

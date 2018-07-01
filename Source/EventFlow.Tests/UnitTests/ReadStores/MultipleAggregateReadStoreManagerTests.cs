@@ -99,7 +99,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
-                    It.IsAny<Func<IReadModelContext>>(),
+                    It.IsAny<IReadModelContextFactory>(),
                     It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never);
