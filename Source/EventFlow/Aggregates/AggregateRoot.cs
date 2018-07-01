@@ -135,22 +135,9 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
-        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents, int fromVersion = 0)
+        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
             if (domainEvents == null) throw new ArgumentNullException(nameof(domainEvents));
-
-            if (Version > 0)
-            {
-                throw new InvalidOperationException($"Aggregate '{GetType().PrettyPrint()}' with ID '{Id}' already has events");
-            }
-
-            if (!domainEvents.Any())
-            {
-                Version = fromVersion;
-                return;
-            }
-
-            Version = fromVersion;
 
             foreach (var domainEvent in domainEvents)
             {

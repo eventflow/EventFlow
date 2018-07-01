@@ -69,14 +69,15 @@ namespace EventFlow.Snapshots
 
             await LoadSnapshotContainerAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
-            var version = snapshot.Metadata.AggregateSequenceNumber;
+            Version = snapshot.Metadata.AggregateSequenceNumber;
+
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 Id,
-                version + 1,
+                Version + 1,
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            ApplyEvents(domainEvents, version);
+            ApplyEvents(domainEvents);
         }
 
         public override async Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(
