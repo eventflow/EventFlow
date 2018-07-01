@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
@@ -64,9 +65,14 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         {
             // Arrange
             var events = Many<ThingyPingEvent>(2);
+            var domainEvents = events
+                .Select((e, i) => new DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>(
+                    e, Metadata.Empty,
+                    DateTimeOffset.UtcNow, ThingyId.New, i + 1))
+                .ToArray();
 
             // Act
-            Sut.ApplyEvents(events);
+            Sut.ApplyEvents(domainEvents);
 
             // Assert
             Sut.IsNew.Should().BeFalse();
@@ -134,17 +140,17 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         }
 
         [Test]
-        public void ApplyEventsReadsAggregateSequenceNumber()
+        public void ApplyEventWithOutOfOrderSequenceNumberShouldThrow()
         {
             // Arrange
             const int expectedVersion = 7;
             var domainEvent = ToDomainEvent(A<ThingyPingEvent>(), expectedVersion);
 
             // Act
-            Sut.ApplyEvents(new []{ domainEvent });
+            Action applyingEvents = () => Sut.ApplyEvents(new []{ domainEvent });
 
             // Assert
-            Sut.Version.Should().Be(expectedVersion);
+            applyingEvents.ShouldThrow<InvalidOperationException>();
         }
     }
 }
