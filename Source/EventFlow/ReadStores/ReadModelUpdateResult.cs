@@ -21,41 +21,49 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Logs;
-
 namespace EventFlow.ReadStores
 {
-    public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
+    public abstract class ReadModelUpdateResult
+    {
+        public bool IsModified { get; }
+
+        protected ReadModelUpdateResult(
+            bool isModified)
+        {
+            IsModified = isModified;
+        }
+    }
+    
+    public class ReadModelUpdateResult<TReadModel> : ReadModelUpdateResult
         where TReadModel : class, IReadModel
     {
-        protected ILog Log { get; }
+        public ReadModelEnvelope<TReadModel> Envelope { get; }
 
-        protected ReadModelStore(
-            ILog log)
+        private ReadModelUpdateResult(
+            ReadModelEnvelope<TReadModel> envelope,
+            bool isModified)
+            : base(isModified)
         {
-            Log = log;
+            Envelope = envelope;
         }
 
-        public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(
-            string id,
-            CancellationToken cancellationToken);
+        public static ReadModelUpdateResult<TReadModel> With(
+            ReadModelEnvelope<TReadModel> readModelEnvelope,
+            bool isModified)
+        {
+            return new ReadModelUpdateResult<TReadModel>(
+                readModelEnvelope,
+                isModified);
+        }
 
-        public abstract Task DeleteAsync(
-            string id,
-            CancellationToken cancellationToken);
-
-        public abstract Task DeleteAllAsync(
-            CancellationToken cancellationToken);
-
-        public abstract Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContextFactory readModelContextFactory,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
-            CancellationToken cancellationToken);
+        public static ReadModelUpdateResult<TReadModel> With(
+            string readModelId,
+            TReadModel readModel,
+            long? version)
+        {
+            return new ReadModelUpdateResult<TReadModel>(
+                ReadModelEnvelope<TReadModel>.With(readModelId, readModel, version),
+                true);
+        }
     }
 }

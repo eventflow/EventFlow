@@ -31,6 +31,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -55,7 +56,7 @@ namespace EventFlow.ReadStores
             _eventStore = eventStore;
         }
 
-        protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected override async Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,
@@ -79,7 +80,7 @@ namespace EventFlow.ReadStores
             if (expectedVersion < version.Value)
             {
                 Log.Verbose(() => $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' already has version {version.Value} compared to {expectedVersion}, skipping");
-                return readModelEnvelope.Unmodified();
+                return readModelEnvelope.AsUnmodifedResult();
             }
 
             TReadModel readModel;
@@ -114,11 +115,9 @@ namespace EventFlow.ReadStores
 
             version = domainEvents.Max(e => e.AggregateSequenceNumber);
 
-            return ReadModelEnvelope<TReadModel>.With(
-                readModelEnvelope.ReadModelId,
+            return readModelEnvelope.AsModifedResult(
                 readModel,
-                version.Value,
-                true);
+                version);
         }
     }
 }
