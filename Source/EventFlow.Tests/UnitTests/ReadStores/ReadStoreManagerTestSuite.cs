@@ -96,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.Is<IReadOnlyCollection<ReadModelUpdate>>(l => l.Count == 1),
-                    It.IsAny<Func<IReadModelContext>>(),
+                    It.IsAny<IReadModelContextFactory>(),
                     It.IsAny<Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
@@ -117,7 +117,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock
                 .Setup(m => m.UpdateAsync(
                     It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
-                    It.IsAny<Func<IReadModelContext>>(),
+                    It.IsAny<IReadModelContextFactory>(),
                     It.IsAny<Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
@@ -127,7 +127,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     It.IsAny<CancellationToken>()))
                 .Callback<
                     IReadOnlyCollection<ReadModelUpdate>,
-                    Func<IReadModelContext>,
+                    IReadModelContextFactory,
                     Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
@@ -143,7 +143,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                         foreach (var readModelEnvelope in g)
                                         {
                                             resultingReadModelEnvelopes.Add(updaterFunc(
-                                                readModelContextFactory(),
+                                                readModelContextFactory.Create(readModelEnvelope.ReadModelId, true),
                                                 readModelUpdates
                                                     .Where(d => d.ReadModelId == g.Key)
                                                     .SelectMany(d => d.DomainEvents)

@@ -1,4 +1,4 @@
-### New in 0.62 (not released yet)
+﻿### New in 0.62 (not released yet)
 
 * New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
   for read models that have a 1-to-1 relation with an aggregate. If read models get
@@ -8,6 +8,9 @@
   - `UseElasticsearchReadModelFor<,,>`
   - `UseMssqlReadModelFor<,,>`
   - `UseSQLiteReadModelFor<,,>`
+* New: Added `ReadModelId` and `IsNew` properties to the context object that is
+  available to a read model inside the `Apply` methods in order to better support
+  scenarios where a single event affects multiple read model instances. 
 * Minor: Applying events to a snapshot will now have the correct `Version` set 
   inside the `Apply` methods.
 * Minor: Trying to apply events in the wrong order will now throw an exception.
