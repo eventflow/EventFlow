@@ -104,7 +104,7 @@ namespace EventFlow.ReadStores
                 typeof(TReadModelStore).PrettyPrint(),
                 string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
 
-            IReadModelContext ReadModelContextFactory() => new ReadModelContext(Resolver);
+            var contextFactory = new ReadModelContextFactory(Resolver);
 
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 
@@ -120,7 +120,7 @@ namespace EventFlow.ReadStores
 
             await ReadModelStore.UpdateAsync(
                 readModelUpdates,
-                ReadModelContextFactory,
+                contextFactory,
                 UpdateAsync,
                 cancellationToken)
                 .ConfigureAwait(false);

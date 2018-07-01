@@ -122,18 +122,17 @@ namespace EventFlow.Elasticsearch.ReadStores
         }
 
         public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            Func<IReadModelContext> readModelContextFactory,
+            IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
                 Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-            var readModelContext = readModelContextFactory();
 
             foreach (var readModelUpdate in readModelUpdates)
             {
                 await _transientFaultHandler.TryAsync(
-                    c => UpdateReadModelAsync(readModelDescription, readModelUpdate, readModelContext, updateReadModel, c),
+                    c => UpdateReadModelAsync(readModelDescription, readModelUpdate, readModelContextFactory, updateReadModel, c),
                     Label.Named("elasticsearch-read-model-update"),
                     cancellationToken)
                     .ConfigureAwait(false);
@@ -143,12 +142,14 @@ namespace EventFlow.Elasticsearch.ReadStores
         private async Task UpdateReadModelAsync(
             ReadModelDescription readModelDescription,
             ReadModelUpdate readModelUpdate,
-            IReadModelContext readModelContext,
+            IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
+            var readModelId = readModelUpdate.ReadModelId;
+
             var response = await _elasticClient.GetAsync<TReadModel>(
-                readModelUpdate.ReadModelId,
+                readModelId,
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
@@ -156,21 +157,25 @@ namespace EventFlow.Elasticsearch.ReadStores
                             cancellationToken)
                 .ConfigureAwait(false);
 
-            var readModelEnvelope = response.Found
-                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version, false)
-                : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
+            var isNew = !response.Found;
+
+            var readModelEnvelope = isNew
+                ? ReadModelEnvelope<TReadModel>.Empty(readModelId)
+                : ReadModelEnvelope<TReadModel>.With(readModelId, response.Source, response.Version, false);
+
+            var context = readModelContextFactory.Create(readModelId, isNew);
 
             readModelEnvelope = await updateReadModel(
-                readModelContext,
+                context,
                 readModelUpdate.DomainEvents,
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
             if (!readModelEnvelope.IsModified) return;
 
-            if (readModelContext.IsMarkedForDeletion)
+            if (context.IsMarkedForDeletion)
             {
-                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
+                await DeleteAsync(readModelId, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -182,11 +187,11 @@ namespace EventFlow.Elasticsearch.ReadStores
                     {
                         d = d
                             .RequestConfiguration(c => c)
-                            .Id(readModelUpdate.ReadModelId)
+                            .Id(readModelId)
                             .Index(readModelDescription.IndexName.Value);
-                        d = response.Found
-                            ? d.VersionType(VersionType.ExternalGte).Version(readModelEnvelope.Version.GetValueOrDefault())
-                            : d.OpType(OpType.Create);
+                        d = isNew
+                            ? d.OpType(OpType.Create)
+                            : d.VersionType(VersionType.ExternalGte).Version(readModelEnvelope.Version.GetValueOrDefault());
                         return d;
                     },
                     cancellationToken)
@@ -196,7 +201,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 when (e.Response?.HttpStatusCode == (int)HttpStatusCode.Conflict)
             {
                 throw new OptimisticConcurrencyException(
-                    $"Read model '{readModelUpdate.ReadModelId}' updated by another",
+                    $"Read model '{readModelId}' updated by another",
                     e);
             }
         }
