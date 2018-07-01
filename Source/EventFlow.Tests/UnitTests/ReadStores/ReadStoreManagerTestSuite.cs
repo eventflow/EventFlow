@@ -41,9 +41,9 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
     public abstract class ReadStoreManagerTestSuite<T> : TestsFor<T>
-        where T : IReadStoreManager<ReadStoreManagerTestReadModel>
+        where T : IReadStoreManager<TReadModel>
     {
-        protected Mock<IReadModelStore<ReadStoreManagerTestReadModel>> ReadModelStoreMock { get; private set; }
+        protected Mock<IReadModelStore<TReadModel>> ReadModelStoreMock { get; private set; }
         protected Mock<IReadModelDomainEventApplier> ReadModelDomainEventApplierMock { get; private set; }
         protected IReadOnlyCollection<IDomainEvent> AppliedDomainEvents { get; private set; }
 
@@ -55,17 +55,17 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     Mock<ILog>(),
                     new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
 
-            ReadModelStoreMock = InjectMock<IReadModelStore<ReadStoreManagerTestReadModel>>();
+            ReadModelStoreMock = InjectMock<IReadModelStore<TReadModel>>();
 
             ReadModelDomainEventApplierMock = InjectMock<IReadModelDomainEventApplier>();
             ReadModelDomainEventApplierMock
                 .Setup(m => m.UpdateReadModelAsync(
-                    It.IsAny<ReadStoreManagerTestReadModel>(),
+                    It.IsAny<TReadModel>(),
                     It.IsAny<IReadOnlyCollection<IDomainEvent>>(),
                     It.IsAny<IReadModelContext>(),
                     It.IsAny<CancellationToken>()))
                 .Callback<
-                    ReadStoreManagerTestReadModel,
+                    TReadModel,
                     IReadOnlyCollection<IDomainEvent>,
                     IReadModelContext,
                     CancellationToken>((rm, d, c, _) => AppliedDomainEvents = d)
@@ -78,11 +78,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             // Arrange
             var thingyId = Inject(ThingyId.New);
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
                 thingyId.Value,
-                A<ReadStoreManagerTestReadModel>(),
-                0,
-                false));
+                A<TReadModel>()));
             var events = new[]
                 {
                     ToDomainEvent(A<ThingyPingEvent>(), 1),
@@ -100,19 +98,19 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     It.IsAny<Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
-                        ReadModelEnvelope<ReadStoreManagerTestReadModel>,
+                        ReadModelEnvelope<TReadModel>,
                         CancellationToken,
-                        Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                        Task<ReadModelUpdateResult<TReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
-        protected IReadOnlyCollection<ReadModelEnvelope> Arrange_ReadModelStore_UpdateAsync(
-            params ReadModelEnvelope<ReadStoreManagerTestReadModel>[] readModelEnvelopes)
+        protected IReadOnlyCollection<ReadModelUpdateResult> Arrange_ReadModelStore_UpdateAsync(
+            params ReadModelEnvelope<TReadModel>[] readModelEnvelopes)
         {
             // Don't try this at home...
 
-            var resultingReadModelEnvelopes = new List<ReadModelEnvelope>();
+            var resultingReadModelUpdateResults = new List<ReadModelUpdateResult>();
 
             ReadModelStoreMock
                 .Setup(m => m.UpdateAsync(
@@ -121,9 +119,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     It.IsAny<Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
-                        ReadModelEnvelope<ReadStoreManagerTestReadModel>,
+                        ReadModelEnvelope<TReadModel>,
                         CancellationToken,
-                        Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                        Task<ReadModelUpdateResult<TReadModel>>>>(),
                     It.IsAny<CancellationToken>()))
                 .Callback<
                     IReadOnlyCollection<ReadModelUpdate>,
@@ -131,9 +129,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     Func<
                         IReadModelContext,
                         IReadOnlyCollection<IDomainEvent>,
-                        ReadModelEnvelope<ReadStoreManagerTestReadModel>,
+                        ReadModelEnvelope<TReadModel>,
                         CancellationToken,
-                        Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>,
+                        Task<ReadModelUpdateResult<TReadModel>>>,
                         CancellationToken>((readModelUpdates, readModelContextFactory, updaterFunc, cancellationToken) =>
                             {
                                 try
@@ -142,7 +140,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                     {
                                         foreach (var readModelEnvelope in g)
                                         {
-                                            resultingReadModelEnvelopes.Add(updaterFunc(
+                                            resultingReadModelUpdateResults.Add(updaterFunc(
                                                 readModelContextFactory.Create(readModelEnvelope.ReadModelId, true),
                                                 readModelUpdates
                                                     .Where(d => d.ReadModelId == g.Key)
@@ -162,7 +160,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                             })
                 .Returns(Task.FromResult(0));
 
-            return resultingReadModelEnvelopes;
+            return resultingReadModelUpdateResults;
         }
     }
 }

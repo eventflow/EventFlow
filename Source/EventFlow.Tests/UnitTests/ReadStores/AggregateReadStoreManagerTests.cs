@@ -42,8 +42,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public class AggregateReadStoreManagerTests : ReadStoreManagerTestSuite<AggregateReadStoreManager<
         ThingyAggregate,
         ThingyId,
-        IReadModelStore<ReadStoreManagerTestReadModel>,
-        ReadStoreManagerTestReadModel>>
+        IReadModelStore<TReadModel>,
+        TReadModel>>
     {
         private Mock<IEventStore> _eventStoreMock;
 
@@ -62,11 +62,10 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
                 };
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
                 thingyId.Value,
-                A<ReadStoreManagerTestReadModel>(),
-                2,
-                false));
+                A<TReadModel>(),
+                2));
 
             // Act
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
@@ -85,11 +84,10 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
                 };
-            var resultingReadModelUpdates = Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+            var resultingReadModelUpdates = Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
                 thingyId.Value,
-                A<ReadStoreManagerTestReadModel>(),
-                3,
-                false));
+                A<TReadModel>(),
+                3));
 
             // Act
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
@@ -108,11 +106,10 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 1),
                 };
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
                 thingyId.Value,
-                A<ReadStoreManagerTestReadModel>(),
-                3,
-                false));
+                A<TReadModel>(),
+                3));
 
             // Act
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None);
@@ -139,11 +136,10 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .Concat(missingEvents)
                 .Concat(emittedEvents)
                 .ToArray();
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<ReadStoreManagerTestReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
                 thingyId.Value,
-                A<ReadStoreManagerTestReadModel>(),
-                1,
-                false));
+                A<TReadModel>(),
+                1));
             _eventStoreMock.Arrange_LoadEventsAsync(storedEvents);
 
             // Act
