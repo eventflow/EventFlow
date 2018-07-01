@@ -8,6 +8,9 @@
   - `UseElasticsearchReadModelFor<,,>`
   - `UseMssqlReadModelFor<,,>`
   - `UseSQLiteReadModelFor<,,>`
+* New: Added `ReadModelId` and `IsNew` properties to the context object that is
+  available to a read model inside the `Apply` methods in order to better support
+  scenarios where a single event affects multiple read model instances. 
 
 ### New in 0.61.3524 (released 2018-06-26)
 
