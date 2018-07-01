@@ -56,6 +56,7 @@ namespace EventFlow.TestHelpers.Aggregates
         {
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
+            Register<ThingyMessageHistoryAddedEvent>(e => _messages.AddRange(e.ThingyMessages));
             Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
             Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
             Register<ThingyDeletedEvent>(e => {/* do nothing */});
@@ -79,6 +80,18 @@ namespace EventFlow.TestHelpers.Aggregates
             }
 
             Emit(new ThingyMessageAddedEvent(message));
+        }
+
+        public void AddMessageHistory(ThingyMessage[] messages)
+        {
+            var existingIds = _messages.Select(m => m.Id).Intersect(_messages.Select(m => m.Id)).ToArray();
+            if (existingIds.Any())
+            {
+                throw DomainError.With($"Thingy '{Id}' already has messages with IDs " +
+                                       $"'{string.Join(",", existingIds.Select(id => id.ToString()))}'");
+            }
+
+            Emit(new ThingyMessageHistoryAddedEvent(messages));
         }
 
         public void Ping(PingId pingId)

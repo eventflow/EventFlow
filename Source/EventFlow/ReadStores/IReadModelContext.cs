@@ -30,5 +30,6 @@ namespace EventFlow.ReadStores
         IResolver Resolver { get; }
         void MarkForDeletion();
         bool IsMarkedForDeletion { get; }
+        string ReadModelId { get; }
     }
 }
