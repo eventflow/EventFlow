@@ -85,8 +85,7 @@ namespace EventFlow.Elasticsearch.ReadStores
             return ReadModelEnvelope<TReadModel>.With(
                 id,
                 getResponse.Source,
-                getResponse.Version,
-                false);
+                getResponse.Version);
         }
 
         public async Task DeleteAsync(
@@ -124,7 +123,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             Func<IReadModelContext> readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
@@ -144,7 +143,7 @@ namespace EventFlow.Elasticsearch.ReadStores
             ReadModelDescription readModelDescription,
             ReadModelUpdate readModelUpdate,
             IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var response = await _elasticClient.GetAsync<TReadModel>(
@@ -157,17 +156,21 @@ namespace EventFlow.Elasticsearch.ReadStores
                 .ConfigureAwait(false);
 
             var readModelEnvelope = response.Found
-                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version, false)
+                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version)
                 : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
 
-            readModelEnvelope = await updateReadModel(
+            var readModelUpdateResult = await updateReadModel(
                 readModelContext,
                 readModelUpdate.DomainEvents,
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
-            if (!readModelEnvelope.IsModified) return;
+            if (!readModelUpdateResult.IsModified)
+            {
+                return;
+            }
 
+            readModelEnvelope = readModelUpdateResult.Envelope;
             if (readModelContext.IsMarkedForDeletion)
             {
                 await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);

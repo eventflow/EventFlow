@@ -130,7 +130,7 @@ namespace EventFlow.ReadStores
         protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
             IReadOnlyCollection<IDomainEvent> domainEvents);
 
-        protected abstract Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected abstract Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,

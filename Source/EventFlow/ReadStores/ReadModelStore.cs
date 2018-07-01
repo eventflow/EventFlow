@@ -55,7 +55,7 @@ namespace EventFlow.ReadStores
         public abstract Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             Func<IReadModelContext> readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken);
     }
 }

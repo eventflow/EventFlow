@@ -21,35 +21,49 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelStore
+    public abstract class ReadModelUpdateResult
     {
-        Task DeleteAsync(
-            string id,
-            CancellationToken cancellationToken);
+        public bool IsModified { get; }
 
-        Task DeleteAllAsync(
-            CancellationToken cancellationToken);
+        protected ReadModelUpdateResult(
+            bool isModified)
+        {
+            IsModified = isModified;
+        }
     }
-
-    public interface IReadModelStore<TReadModel> : IReadModelStore
+    
+    public class ReadModelUpdateResult<TReadModel> : ReadModelUpdateResult
         where TReadModel : class, IReadModel
     {
-        Task<ReadModelEnvelope<TReadModel>> GetAsync(
-            string id,
-            CancellationToken cancellationToken);
+        public ReadModelEnvelope<TReadModel> Envelope { get; }
 
-        Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            Func<IReadModelContext> readModelContextFactory,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
-            CancellationToken cancellationToken);
+        private ReadModelUpdateResult(
+            ReadModelEnvelope<TReadModel> envelope,
+            bool isModified)
+            : base(isModified)
+        {
+            Envelope = envelope;
+        }
+
+        public static ReadModelUpdateResult<TReadModel> With(
+            ReadModelEnvelope<TReadModel> readModelEnvelope,
+            bool isModified)
+        {
+            return new ReadModelUpdateResult<TReadModel>(
+                readModelEnvelope,
+                isModified);
+        }
+
+        public static ReadModelUpdateResult<TReadModel> With(
+            string readModelId,
+            TReadModel readModel,
+            long? version)
+        {
+            return new ReadModelUpdateResult<TReadModel>(
+                ReadModelEnvelope<TReadModel>.With(readModelId, readModel, version),
+                true);
+        }
     }
 }

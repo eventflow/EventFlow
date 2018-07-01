@@ -96,7 +96,7 @@ namespace EventFlow.MsSql.ReadStores
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             Func<IReadModelContext> readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
@@ -111,7 +111,7 @@ namespace EventFlow.MsSql.ReadStores
 
         private async Task UpdateReadModelAsync(
             Func<IReadModelContext> readModelContextFactory,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken,
             ReadModelUpdate readModelUpdate)
         {
@@ -133,18 +133,22 @@ namespace EventFlow.MsSql.ReadStores
                     mssqlReadModel.CreateTime = readModelUpdate.DomainEvents.First().Timestamp;
                 }
 
-                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel, false);
+                readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, readModel);
             }
 
             var originalVersion = readModelEnvelope.Version;
-            readModelEnvelope = await updateReadModel(
+            var readModelUpdateResult = await updateReadModel(
                     readModelContext,
                     readModelUpdate.DomainEvents,
                     readModelEnvelope,
                     cancellationToken)
                 .ConfigureAwait(false);
-            if (!readModelEnvelope.IsModified) return;
+            if (!readModelUpdateResult.IsModified)
+            {
+                return;
+            }
 
+            readModelEnvelope = readModelUpdateResult.Envelope;
             if (readModelContext.IsMarkedForDeletion)
             {
                 await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken).ConfigureAwait(false);
@@ -209,9 +213,7 @@ namespace EventFlow.MsSql.ReadStores
 
             Log.Verbose(() => $"Found MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{readModelVersion}'");
 
-            return readModelVersion.HasValue
-                ? ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion.Value, false)
-                : ReadModelEnvelope<TReadModel>.With(id, readModel, false);
+            return ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion);
         }
 
         public override async Task DeleteAsync(
