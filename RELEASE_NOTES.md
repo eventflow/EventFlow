@@ -1,6 +1,19 @@
-### New in 0.62 (not released yet)
+﻿### New in 0.62 (not released yet)
 
-* _Nothing yet_
+* New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
+  for read models that have a 1-to-1 relation with an aggregate. If read models get
+  out of sync, or events are applied in different order, events are either fecthed
+  or skipped. Added extensions to allow registration.
+  - `UseInMemoryReadStoreFor<,,>`
+  - `UseElasticsearchReadModelFor<,,>`
+  - `UseMssqlReadModelFor<,,>`
+  - `UseSQLiteReadModelFor<,,>`
+* New: Added `ReadModelId` and `IsNew` properties to the context object that is
+  available to a read model inside the `Apply` methods in order to better support
+  scenarios where a single event affects multiple read model instances. 
+* Minor: Applying events to a snapshot will now have the correct `Version` set 
+  inside the `Apply` methods.
+* Minor: Trying to apply events in the wrong order will now throw an exception.
 
 ### New in 0.61.3524 (released 2018-06-26)
 

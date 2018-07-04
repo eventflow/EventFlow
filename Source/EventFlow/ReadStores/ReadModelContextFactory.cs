@@ -21,29 +21,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.Configuration;
 
-namespace EventFlow.TestHelpers.Aggregates.Commands
+namespace EventFlow.ReadStores
 {
-    [CommandVersion("ThingyDelete", 1)]
-    public class ThingyDeleteCommand : Command<ThingyAggregate, ThingyId>
+    public class ReadModelContextFactory : IReadModelContextFactory
     {
-        public PingId PingId { get; }
+        private readonly IResolver _resolver;
 
-        public ThingyDeleteCommand(ThingyId aggregateId) : base(aggregateId)
+        public ReadModelContextFactory(IResolver resolver)
         {
+            _resolver = resolver;
         }
-    }
 
-    public class ThingyDeleteCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyDeleteCommand>
-    {
-        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyDeleteCommand command, CancellationToken cancellationToken)
+        public IReadModelContext Create(string readModelId, bool isNew)
         {
-            aggregate.Delete();
-            return Task.FromResult(0);
+            return new ReadModelContext(_resolver, readModelId, isNew);
         }
     }
 }

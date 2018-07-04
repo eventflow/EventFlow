@@ -21,29 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Entities;
 
-namespace EventFlow.TestHelpers.Aggregates.Commands
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    [CommandVersion("ThingyDelete", 1)]
-    public class ThingyDeleteCommand : Command<ThingyAggregate, ThingyId>
+    public class ThingyMessageHistoryAddedEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        public PingId PingId { get; }
-
-        public ThingyDeleteCommand(ThingyId aggregateId) : base(aggregateId)
+        public ThingyMessageHistoryAddedEvent(ThingyMessage[] thingyMessages)
         {
+            ThingyMessages = thingyMessages;
         }
-    }
 
-    public class ThingyDeleteCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyDeleteCommand>
-    {
-        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyDeleteCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Delete();
-            return Task.FromResult(0);
-        }
+        public ThingyMessage[] ThingyMessages { get; }
     }
 }

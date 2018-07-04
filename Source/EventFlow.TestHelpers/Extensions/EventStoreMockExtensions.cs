@@ -2,7 +2,7 @@
 // 
 // Copyright (c) 2015-2018 Rasmus Mikkelsen
 // Copyright (c) 2015-2018 eBay Software Foundation
-// https://github.com/eventflow/EventFlow
+// https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,30 +20,36 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
+using EventFlow.TestHelpers.Aggregates;
+using Moq;
 
-namespace EventFlow.TestHelpers.Aggregates.Commands
+namespace EventFlow.TestHelpers.Extensions
 {
-    [CommandVersion("ThingyDelete", 1)]
-    public class ThingyDeleteCommand : Command<ThingyAggregate, ThingyId>
+    public static class EventStoreMockExtensions
     {
-        public PingId PingId { get; }
-
-        public ThingyDeleteCommand(ThingyId aggregateId) : base(aggregateId)
+        public static void Arrange_LoadEventsAsync(
+            this Mock<IEventStore> eventStoreMock,
+            params IDomainEvent<ThingyAggregate, ThingyId>[] domainEvents)
         {
-        }
-    }
+            eventStoreMock
+                .Setup(s => s.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
 
-    public class ThingyDeleteCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyDeleteCommand>
-    {
-        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyDeleteCommand command, CancellationToken cancellationToken)
-        {
-            aggregate.Delete();
-            return Task.FromResult(0);
+            eventStoreMock
+                .Setup(s => s.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    It.IsAny<ThingyId>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
         }
     }
 }

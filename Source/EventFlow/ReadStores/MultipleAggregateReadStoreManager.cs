@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -65,21 +66,29 @@ namespace EventFlow.ReadStores
             return readModelUpdates;
         }
 
-        protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected override async Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
-            var readModel = readModelEnvelope.ReadModel ?? await ReadModelFactory.CreateAsync(readModelEnvelope.ReadModelId, cancellationToken).ConfigureAwait(false);
+            var readModel = readModelEnvelope.ReadModel;
+            if (readModel == null)
+            {
+                readModel = await ReadModelFactory.CreateAsync(
+                    readModelEnvelope.ReadModelId,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
             await ReadModelDomainEventApplier.UpdateReadModelAsync(
                 readModel,
                 domainEvents,
                 readModelContext,
                 cancellationToken)
                 .ConfigureAwait(false);
-            return ReadModelEnvelope<TReadModel>.With(
-                readModelEnvelope.ReadModelId,
+
+            return readModelEnvelope.AsModifedResult(
                 readModel,
                 readModelEnvelope.Version.GetValueOrDefault() + 1 // the best we can do
                 );

@@ -30,7 +30,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -42,7 +41,6 @@ namespace EventFlow.ReadStores
     {
         // ReSharper disable StaticMemberInGenericType
         private static readonly Type StaticReadModelType = typeof(TReadModel);
-        private static readonly ISet<Type> AggregateTypes;
         private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
 
@@ -51,9 +49,6 @@ namespace EventFlow.ReadStores
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
-
-        protected ISet<Type> GetAggregateTypes() => AggregateTypes;
-        protected ISet<Type> GetDomainEventTypes() => AggregateEventTypes;
 
         public Type ReadModelType => StaticReadModelType;
 
@@ -70,7 +65,6 @@ namespace EventFlow.ReadStores
                     $"Read model type '{StaticReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
             }
 
-            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0]));
             AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
         }
 
@@ -111,7 +105,7 @@ namespace EventFlow.ReadStores
                 typeof(TReadModelStore).PrettyPrint(),
                 string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
 
-            IReadModelContext ReadModelContextFactory() => new ReadModelContext(Resolver);
+            var contextFactory = new ReadModelContextFactory(Resolver);
 
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 
@@ -127,7 +121,7 @@ namespace EventFlow.ReadStores
 
             await ReadModelStore.UpdateAsync(
                 readModelUpdates,
-                ReadModelContextFactory,
+                contextFactory,
                 UpdateAsync,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -136,7 +130,7 @@ namespace EventFlow.ReadStores
         protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
             IReadOnlyCollection<IDomainEvent> domainEvents);
 
-        protected abstract Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected abstract Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,
