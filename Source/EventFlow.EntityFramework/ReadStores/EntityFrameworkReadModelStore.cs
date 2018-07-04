@@ -69,22 +69,20 @@ namespace EventFlow.EntityFramework.ReadStores
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            Func<IReadModelContext> readModelContextFactory,
+            IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             using (var dbContext = _contextProvider.CreateContext())
             {
                 foreach (var readModelUpdate in readModelUpdates)
                 {
-                    var readModelContext = readModelContextFactory();
-
                     await _transientFaultHandler.TryAsync(
                             c => UpdateReadModelAsync(
                                 // ReSharper disable once AccessToDisposedClosure
                                 dbContext,
-                                readModelContext,
+                                readModelContextFactory,
                                 updateReadModel,
                                 c,
                                 readModelUpdate),
@@ -174,9 +172,8 @@ namespace EventFlow.EntityFramework.ReadStores
             await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task UpdateReadModelAsync(TDbContext dbContext, IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        private async Task UpdateReadModelAsync(TDbContext dbContext, IReadModelContextFactory readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken,
             ReadModelUpdate readModelUpdate)
         {
@@ -193,20 +190,26 @@ namespace EventFlow.EntityFramework.ReadStores
                 readModelEnvelope = ReadModelEnvelope<TReadModel>.With(readModelId, entity);
             }
 
+            var readModelContext = readModelContextFactory.Create(readModelId, isNew);
             var originalVersion = readModelEnvelope.Version;
-            readModelEnvelope = await updateReadModel(
+            var updateResult = await updateReadModel(
                     readModelContext,
                     readModelUpdate.DomainEvents,
                     readModelEnvelope,
                     cancellationToken)
                 .ConfigureAwait(false);
-            entity = readModelEnvelope.ReadModel;
+
+            if (!updateResult.IsModified)
+                return;
 
             if (readModelContext.IsMarkedForDeletion)
             {
                 await DeleteAsync(dbContext, readModelId, cancellationToken).ConfigureAwait(false);
                 return;
             }
+
+            readModelEnvelope = updateResult.Envelope;
+            entity = readModelEnvelope.ReadModel;
 
             var descriptor = GetDescriptor(dbContext);
             var entry = isNew
