@@ -1,4 +1,8 @@
-﻿### New in 0.62 (not released yet)
+﻿### New in 0.63 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.62.3569 (eleased 2018-07-05)
 
 * New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
   for read models that have a 1-to-1 relation with an aggregate. If read models get
