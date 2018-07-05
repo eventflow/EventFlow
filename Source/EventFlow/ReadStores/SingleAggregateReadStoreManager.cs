@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -56,7 +57,7 @@ namespace EventFlow.ReadStores
                 .ToList();
         }
 
-        protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected override async Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,
@@ -70,7 +71,9 @@ namespace EventFlow.ReadStores
                 domainEvents.Max(e => e.AggregateSequenceNumber),
                 readModelEnvelope.Version.GetValueOrDefault());
 
-            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, readModelVersion);
+            return readModelEnvelope.AsModifedResult(
+                readModel,
+                readModelVersion);
         }
     }
 }

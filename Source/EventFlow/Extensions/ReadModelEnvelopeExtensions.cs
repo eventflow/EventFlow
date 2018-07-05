@@ -21,18 +21,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
 using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.Tests.UnitTests.ReadStores
+namespace EventFlow.Extensions
 {
-    public class ReadStoreManagerTestReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    public static class ReadModelEnvelopeExtensions
     {
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public static ReadModelUpdateResult<TReadModel> AsUnmodifedResult<TReadModel>(
+            this ReadModelEnvelope<TReadModel> readModelEnvelope)
+            where TReadModel: class, IReadModel
         {
+            return ReadModelUpdateResult<TReadModel>.With(
+                readModelEnvelope,
+                false);
+        }
+
+        public static ReadModelUpdateResult<TReadModel> AsModifedResult<TReadModel>(
+            this ReadModelEnvelope<TReadModel> readModelEnvelope,
+            TReadModel readModel,
+            long? version = null)
+            where TReadModel: class, IReadModel
+        {
+            return ReadModelUpdateResult<TReadModel>.With(
+                ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, version), 
+                true);
         }
     }
 }

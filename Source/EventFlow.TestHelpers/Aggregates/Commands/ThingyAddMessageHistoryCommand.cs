@@ -21,28 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Aggregates.Entities;
 
 namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    [CommandVersion("ThingyDelete", 1)]
-    public class ThingyDeleteCommand : Command<ThingyAggregate, ThingyId>
+    public class ThingyAddMessageHistoryCommand : Command<ThingyAggregate, ThingyId>
     {
-        public PingId PingId { get; }
+        public ThingyMessage[] ThingyMessages { get; }
 
-        public ThingyDeleteCommand(ThingyId aggregateId) : base(aggregateId)
+        public ThingyAddMessageHistoryCommand(
+            ThingyId aggregateId,
+            IEnumerable<ThingyMessage> thingyMessages)
+            : base(aggregateId)
         {
+            ThingyMessages = thingyMessages.ToArray();
         }
     }
 
-    public class ThingyDeleteCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyDeleteCommand>
+    public class ThingyAddMessageHistoryCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyAddMessageHistoryCommand>
     {
-        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyDeleteCommand command, CancellationToken cancellationToken)
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyAddMessageHistoryCommand command, CancellationToken cancellationToken)
         {
-            aggregate.Delete();
+            aggregate.AddMessageHistory(command.ThingyMessages);
             return Task.FromResult(0);
         }
     }
