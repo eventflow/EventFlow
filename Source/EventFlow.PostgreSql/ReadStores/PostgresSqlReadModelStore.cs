@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Core;
+using EventFlow.Core.RetryStrategies;
 using EventFlow.Logs;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.ReadStores;
@@ -34,8 +36,9 @@ namespace EventFlow.PostgreSql.ReadStores
             ILog log,
             IPostgreSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
-            IReadModelFactory<TReadModel> readModelFactory)
-            : base(log, connection, readModelSqlGenerator, readModelFactory)
+            IReadModelFactory<TReadModel> readModelFactory,
+	        ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            : base(log, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
         {
         }
     }
