@@ -50,7 +50,7 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.QueryHandlers
             var readModels = await _postgreSqlConnection.QueryAsync<PostgreSqlThingyMessageReadModel>(
                 Label.Named("postgresql-fetch-thingy-message-read-model"),
                 cancellationToken,
-                "SELECT * FROM ReadModel-ThingyMessage WHERE ThingyId = @ThingyId;",
+                "SELECT * FROM \"ReadModel-ThingyMessage\" WHERE ThingyId = @ThingyId;",
                 new { ThingyId = query.ThingyId.Value })
                 .ConfigureAwait(false);
             return readModels

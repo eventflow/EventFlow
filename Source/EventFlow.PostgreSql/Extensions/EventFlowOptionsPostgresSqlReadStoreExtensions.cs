@@ -23,6 +23,7 @@
 
 using EventFlow.Configuration;
 using EventFlow.Extensions;
+using EventFlow.PostgreSql.ReadModels;
 using EventFlow.PostgreSql.ReadStores;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
@@ -39,7 +40,7 @@ namespace EventFlow.PostgreSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>(Lifetime.Singleton, true);
                         f.Register<PostgreSqlReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
                         f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<PostgreSqlReadModelStore<TReadModel>>());
                     })
@@ -53,7 +54,7 @@ namespace EventFlow.PostgreSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
-                        f.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
+                        f.Register<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>(Lifetime.Singleton, true);
                         f.Register<PostgreSqlReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
                         f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<PostgreSqlReadModelStore<TReadModel>>());
                     })

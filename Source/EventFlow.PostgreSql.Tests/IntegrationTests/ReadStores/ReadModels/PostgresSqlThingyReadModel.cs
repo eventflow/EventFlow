@@ -36,7 +36,8 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.ReadModels
     [Table("ReadModel-ThingyAggregate")]
     public class PostgreSqlThingyReadModel : PostgreSqlReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
         public bool DomainErrorAfterFirstReceived { get; set; }
         public int PingsReceived { get; set; }
@@ -49,6 +50,11 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.ReadModels
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        {
+            context.MarkForDeletion();
         }
 
         public Thingy ToThingy()

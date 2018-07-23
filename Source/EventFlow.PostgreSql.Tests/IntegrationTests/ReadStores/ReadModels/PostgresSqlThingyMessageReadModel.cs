@@ -22,7 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.PostgreSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
@@ -34,7 +34,8 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.ReadModels
 {
     [Table("ReadModel-ThingyMessage")]
     public class PostgreSqlThingyMessageReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent>
     {
         public string ThingyId { get; set; }
 
@@ -49,6 +50,15 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.ReadModels
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
             MessageId = thingyMessage.Id.Value;
+            Message = thingyMessage.Message;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
+        {
+            ThingyId = domainEvent.AggregateIdentity.Value;
+
+            var messageId = new ThingyMessageId(context.ReadModelId);
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
             Message = thingyMessage.Message;
         }
 
