@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS EventFlow(
 );
 
 
-CREATE INDEX IF NOT EXISTS "IX_EventFlow_AggregateId_AggregateSequenceNumber" ON EventFlow
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_EventFlow_AggregateId_AggregateSequenceNumber" ON EventFlow
 (
 	AggregateId,
 	AggregateSequenceNumber

@@ -57,8 +57,9 @@ namespace EventFlow.PostgreSql.SnapshotStores
             var postgreSqlSnapshotDataModels = await _postgreSqlConnection.QueryAsync<PostgreSqlSnapshotDataModel>(
                 Label.Named("fetch-snapshot"),
                 cancellationToken,
-                "SELECT TOP 1 * FROM EventFlowSnapshots " +
-                "WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC;",
+                "SELECT * FROM EventFlowSnapshots " +
+                "WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC " +
+                "LIMIT 1;",
                 new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value})
                 .ConfigureAwait(false);
 
