@@ -13,6 +13,8 @@ image: Visual Studio 2017
 environment:
   RABBITMQ_URL:
     secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
+  HELPZ_POSTGRESQ_PASS:   	
+    secure: BWKiC3IYF8nxi1fF0T5+Jg==
 
 test: off
 
@@ -21,6 +23,7 @@ artifacts:
 
 services:
   - mssql2014
+  - postgresql101
 
 on_success:
 - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
