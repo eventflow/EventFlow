@@ -35,6 +35,9 @@ namespace EventFlow.Sql.ReadModels
 {
     public class ReadModelSqlGenerator : IReadModelSqlGenerator
     {
+        protected string QuotedIdentifierPrefix;
+        protected string QuotedIdentifierSuffix;
+
         private static readonly ConcurrentDictionary<Type, string> TableNames = new ConcurrentDictionary<Type, string>();
         private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> PropertyInfos = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
         private static readonly ConcurrentDictionary<Type, string> IdentityColumns = new ConcurrentDictionary<Type, string>();
@@ -44,6 +47,12 @@ namespace EventFlow.Sql.ReadModels
         private readonly Dictionary<Type, string> _deleteSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
         private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
+
+        public ReadModelSqlGenerator()
+        {
+            QuotedIdentifierPrefix = "[";
+            QuotedIdentifierSuffix = "]";
+        }
 
         public string CreateInsertSql<TReadModel>()
             where TReadModel : IReadModel
@@ -161,13 +170,16 @@ namespace EventFlow.Sql.ReadModels
                 readModelType,
                 t =>
                 {
+                    var qip = QuotedIdentifierPrefix;
+                    var qis = QuotedIdentifierSuffix;
+
                     var tableAttribute = t.GetTypeInfo().GetCustomAttribute<TableAttribute>(false);
                     var table = string.IsNullOrEmpty(tableAttribute?.Name)
                         ? $"ReadModel-{t.Name.Replace("ReadModel", string.Empty)}"
                         : tableAttribute.Name;
                     return string.IsNullOrEmpty(tableAttribute?.Schema)
-                        ? $"[{table}]"
-                        : $"[{tableAttribute?.Schema}].[{table}]";
+                        ? $"{qip}{table}{qis}"
+                        : $"{qip}{tableAttribute?.Schema}{qis}.{qip}{table}{qis}";
                 });
         }
 
