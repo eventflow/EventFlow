@@ -1,6 +1,6 @@
 ﻿### New in 0.63 (not released yet)
 
-* _Nothing yet_
+* New: PostgreSQL support in the form of the new `EventFlow.PostgreSql` NuGet package
 
 ### New in 0.62.3569 (eleased 2018-07-05)
 
