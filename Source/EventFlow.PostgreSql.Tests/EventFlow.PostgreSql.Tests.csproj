@@ -17,6 +17,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Npgsql" Version="4.0.2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\EventFlow.PostgreSql\EventFlow.PostgreSql.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
