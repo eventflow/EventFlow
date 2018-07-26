@@ -1,6 +1,5 @@
 ﻿using System;
 using EventFlow.EntityFramework.Tests.Model;
-using EventFlow.PostgreSql.Connections;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.Tests.PostgreSql
@@ -9,9 +8,9 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
     {
         private readonly string _connectionString;
 
-        public PostgreSqlDbContextProvider(IPostgreSqlConfiguration postgreSqlConfiguration)
+        public PostgreSqlDbContextProvider(IEntityFrameworkConfiguration entityFrameworkConfiguration)
         {
-            _connectionString = postgreSqlConfiguration.ConnectionString;
+            _connectionString = entityFrameworkConfiguration.ConnectionString;
         }
 
         public TestDbContext CreateContext()
