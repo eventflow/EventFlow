@@ -9,6 +9,8 @@ namespace EventFlow.EntityFramework
         private int _bulkDeletionBatchSize = 1000;
         private Action<IServiceRegistration> _registerUniqueConstraintDetectionStrategy;
 
+        public string ConnectionString { get; private set; }
+
         private EntityFrameworkConfiguration()
         {
             UseUniqueConstraintDetectionStrategy(exception =>
@@ -61,6 +63,12 @@ namespace EventFlow.EntityFramework
             {
                 return _callback(exception);
             }
+        }
+
+        public EntityFrameworkConfiguration SetConnectionString(string connectionString)
+        {
+            ConnectionString = connectionString;
+            return this;
         }
     }
 }
