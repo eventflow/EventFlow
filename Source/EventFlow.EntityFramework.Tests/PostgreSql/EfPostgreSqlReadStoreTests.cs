@@ -1,9 +1,8 @@
 ﻿using System;
 using EventFlow.Configuration;
+using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
-using EventFlow.PostgreSql.Connections;
-using EventFlow.PostgreSql.Extensions;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
@@ -23,7 +22,7 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
 
             return eventFlowOptions
-                .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .ConfigureForReadStoreTest<PostgreSqlDbContextProvider>()
                 .CreateResolver();
         }

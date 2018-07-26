@@ -1,7 +1,6 @@
 ﻿using EventFlow.Configuration;
+using EventFlow.EntityFramework.Extensions;
 using EventFlow.Extensions;
-using EventFlow.PostgreSql.Connections;
-using EventFlow.PostgreSql.Extensions;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
@@ -19,7 +18,7 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow-snapshots");
 
             return eventFlowOptions
-                .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .ConfigureForSnapshotStoreTest<PostgreSqlDbContextProvider>()
                 .CreateResolver();
         }
