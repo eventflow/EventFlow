@@ -11,11 +11,19 @@ If you think your name is missing from the list, the create a pull-request.
 
 * Converted EventFlow to Visual Studio 2017 project format
 
+### [idubnori](https://github.com/idubnori)
+
+* PostgreSQL implementation
+
 ### [Frank Ebersoll](https://github.com/frankebersoll)
 
 * Created following packages
   * `EventFlow.DependencyInjection`
 * Several key contributions and bug fixes
+
+### [rmess](https://github.com/rmess)
+
+* PostgreSQL implementation
 
 ### [Rasmus Mikkelsen](https://github.com/rasmus)
 
