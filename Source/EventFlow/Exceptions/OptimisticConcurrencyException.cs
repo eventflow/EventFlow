@@ -27,8 +27,8 @@ namespace EventFlow.Exceptions
 {
     public class OptimisticConcurrencyException : Exception
     {
-        public OptimisticConcurrencyException(string mesage)
-            : base(mesage)
+        public OptimisticConcurrencyException(string message)
+            : base(message)
         {
         }
 
