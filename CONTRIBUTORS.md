@@ -11,15 +11,24 @@ If you think your name is missing from the list, the create a pull-request.
 
 * Converted EventFlow to Visual Studio 2017 project format
 
-### [idubnori](https://github.com/idubnori)
+### [Christian Ølholm](https://github.com/olholm)
 
-* PostgreSQL implementation
+* Created the current logo of EventFlow
 
 ### [Frank Ebersoll](https://github.com/frankebersoll)
 
 * Created following packages
   * `EventFlow.DependencyInjection`
 * Several key contributions and bug fixes
+
+### [idubnori](https://github.com/idubnori)
+
+* PostgreSQL implementation
+
+### [Jaco Coetzee](https://github.com/JC008)
+
+* Several key contributions and bug fixes
+* Donated Navicat Essentials for SQLite
 
 ### [rmess](https://github.com/rmess)
 
