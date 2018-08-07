@@ -5,7 +5,7 @@ complete list of all contributions to EventFlow, have look at the
 [contributors](https://github.com/eventflow/EventFlow/graphs/contributors)
 graph.
 
-If you think your name is missing from the list, the create a pull-request.
+If you think your name is missing from the list, create a pull-request.
 
 ### [Carlos Eduardo Ferrari](https://github.com/ceferrari)
 
