@@ -24,7 +24,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="dbup-sqlserver" Version="4.0.0" />
+    <PackageReference Include="dbup-sqlserver" Version="4.1.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.105" />
   </ItemGroup>
   <ItemGroup>
