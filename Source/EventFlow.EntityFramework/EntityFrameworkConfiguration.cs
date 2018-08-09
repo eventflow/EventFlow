@@ -15,6 +15,7 @@ namespace EventFlow.EntityFramework
         
         private EntityFrameworkConfiguration()
         {
+            LinqToDBForEFTools.Initialize();
             UseUniqueConstraintDetectionStrategy<DefaultUniqueConstraintDetectionStrategy>();
         }
 

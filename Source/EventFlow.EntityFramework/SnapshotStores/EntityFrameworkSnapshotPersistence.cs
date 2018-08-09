@@ -31,6 +31,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
+using static LinqToDB.LinqExtensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.SnapshotStores
@@ -41,11 +42,9 @@ namespace EventFlow.EntityFramework.SnapshotStores
         private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly ILog _log;
         private readonly IUniqueConstraintDetectionStrategy _strategy;
-        private readonly int _deletionBatchSize;
 
         public EntityFrameworkSnapshotPersistence(
             ILog log,
-            IEntityFrameworkConfiguration config,
             IDbContextProvider<TDbContext> contextProvider,
             IUniqueConstraintDetectionStrategy strategy
         )
@@ -53,7 +52,6 @@ namespace EventFlow.EntityFramework.SnapshotStores
             _log = log;
             _contextProvider = contextProvider;
             _strategy = strategy;
-            _deletionBatchSize = config.BulkDeletionBatchSize;
         }
 
         public async Task<CommittedSnapshot> GetSnapshotAsync(
@@ -78,8 +76,8 @@ namespace EventFlow.EntityFramework.SnapshotStores
                     .FirstOrDefaultAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                return snapshot == null 
-                    ? null 
+                return snapshot == null
+                    ? null
                     : new CommittedSnapshot(snapshot.Metadata, snapshot.Data);
             }
         }
@@ -114,43 +112,46 @@ namespace EventFlow.EntityFramework.SnapshotStores
             }
         }
 
-        public Task DeleteSnapshotAsync(
+        public async Task DeleteSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
         {
             var aggregateName = aggregateType.GetAggregateName().Value;
             var aggregateId = identity.Value;
-            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
-                _contextProvider,
-                _deletionBatchSize,
-                cancellationToken,
-                e => new SnapshotEntity {Id = e.Id},
-                e => e.AggregateName == aggregateName
-                     && e.AggregateId == aggregateId);
+            using (var dbContext = _contextProvider.CreateContext())
+            {
+                await dbContext.Set<SnapshotEntity>()
+                    .Where(s => s.AggregateName == aggregateName && s.AggregateId == aggregateId)
+                    .DeleteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
 
-        public Task PurgeSnapshotsAsync(
+        public async Task PurgeSnapshotsAsync(
             Type aggregateType,
             CancellationToken cancellationToken)
         {
             var aggregateName = aggregateType.GetAggregateName().Value;
-            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
-                _contextProvider,
-                _deletionBatchSize,
-                cancellationToken,
-                e => new SnapshotEntity {Id = e.Id},
-                e => e.AggregateName == aggregateName);
+            using (var dbContext = _contextProvider.CreateContext())
+            {
+                await dbContext.Set<SnapshotEntity>()
+                    .Where(s => s.AggregateName == aggregateName)
+                    .DeleteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
 
-        public Task PurgeSnapshotsAsync(
+        public async Task PurgeSnapshotsAsync(
             CancellationToken cancellationToken)
         {
-            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
-                _contextProvider,
-                _deletionBatchSize,
-                cancellationToken, 
-                e => new SnapshotEntity { Id = e.Id });
+            using (var dbContext = _contextProvider.CreateContext())
+            {
+                await dbContext.Set<SnapshotEntity>()
+                    .DeleteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
     }
 }
+
