@@ -69,7 +69,7 @@ namespace EventFlow.EntityFramework.Extensions
 
         public static IEventFlowOptions AddDbContextProvider<TDbContext, TContextProvider>(
             this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            Lifetime lifetime = Lifetime.Singleton)
             where TContextProvider : class, IDbContextProvider<TDbContext>
             where TDbContext : DbContext
         {
