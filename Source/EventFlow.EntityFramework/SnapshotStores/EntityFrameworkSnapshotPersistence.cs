@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using static LinqToDB.LinqExtensions;
@@ -40,16 +39,13 @@ namespace EventFlow.EntityFramework.SnapshotStores
         where TDbContext : DbContext
     {
         private readonly IDbContextProvider<TDbContext> _contextProvider;
-        private readonly ILog _log;
         private readonly IUniqueConstraintDetectionStrategy _strategy;
 
         public EntityFrameworkSnapshotPersistence(
-            ILog log,
             IDbContextProvider<TDbContext> contextProvider,
             IUniqueConstraintDetectionStrategy strategy
         )
         {
-            _log = log;
             _contextProvider = contextProvider;
             _strategy = strategy;
         }

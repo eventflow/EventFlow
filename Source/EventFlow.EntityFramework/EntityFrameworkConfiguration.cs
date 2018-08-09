@@ -1,7 +1,6 @@
 ﻿using System;
 using EventFlow.Configuration;
 using LinqToDB.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework
 {

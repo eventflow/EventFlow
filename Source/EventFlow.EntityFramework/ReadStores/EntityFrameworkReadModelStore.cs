@@ -252,8 +252,7 @@ namespace EventFlow.EntityFramework.ReadStores
                 _queryByIdNoTracking = CompileQueryById(false);
             }
 
-            public string Key => _key.Name;
-            public string Version => _version.Name;
+            private string Key => _key.Name;
 
             public Task<TReadModel> Query(DbContext context, string id, CancellationToken t, bool tracking = false)
             {

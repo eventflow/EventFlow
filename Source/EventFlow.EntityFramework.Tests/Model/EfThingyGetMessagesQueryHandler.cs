@@ -2,13 +2,12 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.EntityFramework.Tests
+namespace EventFlow.EntityFramework.Tests.Model
 {
     public class
         EfThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
