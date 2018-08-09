@@ -31,6 +31,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
 using LinqToDB;
@@ -48,6 +49,8 @@ namespace EventFlow.EntityFramework.ReadStores
     {
         private static readonly ConcurrentDictionary<string, EntityDescriptor> Descriptors
             = new ConcurrentDictionary<string, EntityDescriptor>();
+
+        private static readonly string ReadModelNameLowerCase = typeof(TReadModel).Name.ToLowerInvariant();
 
         private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
@@ -112,40 +115,59 @@ namespace EventFlow.EntityFramework.ReadStores
 
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
+            var readModelName = typeof(TReadModel).Name;
+
             using (var dbContext = _contextProvider.CreateContext())
             {
-                await dbContext.Set<TReadModel>()
+                var rowsAffected = await dbContext.Set<TReadModel>()
                     .DeleteAsync(cancellationToken)
                     .ConfigureAwait(false);
+
+                Log.Verbose(
+                    "Purge {0} read models of type '{1}'",
+                    rowsAffected,
+                    readModelName);
             }
         }
 
-        private static async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,
+        private async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,
             string id,
             CancellationToken cancellationToken,
             bool tracking = false)
         {
+            var readModelType = typeof(TReadModel);
             var descriptor = GetDescriptor(dbContext);
             var entity = await descriptor.Query(dbContext, id, cancellationToken, tracking)
                 .ConfigureAwait(false);
 
             if (entity == null)
+            {
+                Log.Verbose(() => $"Could not find any Entity Framework read model '{readModelType.PrettyPrint()}' with ID '{id}'");
                 return ReadModelEnvelope<TReadModel>.Empty(id);
+            }
 
             var entry = dbContext.Entry(entity);
             var version = descriptor.GetVersion(entry);
+
+            Log.Verbose(() => $"Found Entity Framework read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{version}'");
+
             return version.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, entity, version.Value)
                 : ReadModelEnvelope<TReadModel>.With(id, entity);
         }
 
-        private static async Task DeleteAsync(TDbContext dbContext, string id, CancellationToken cancellationToken)
+        private async Task DeleteAsync(TDbContext dbContext, string id, CancellationToken cancellationToken)
         {
             var entity = await dbContext.Set<TReadModel>().FindAsync(id).ConfigureAwait(false);
             if (entity == null)
                 return;
             dbContext.Remove(entity);
-            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            var rowsAffected = await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            if (rowsAffected != 0)
+            {
+                Log.Verbose($"Deleted Entity Framework read model '{id}' of type '{ReadModelNameLowerCase}'");
+            }
         }
 
         private async Task UpdateReadModelAsync(TDbContext dbContext, IReadModelContextFactory readModelContextFactory,
@@ -204,6 +226,8 @@ namespace EventFlow.EntityFramework.ReadStores
                 entry.CurrentValues.SetValues(databaseValues);
                 throw new OptimisticConcurrencyException(e.Message, e);
             }
+
+            Log.Verbose(() => $"Updated Entity Framework read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
         }
 
         private static EntityDescriptor GetDescriptor(DbContext context)
