@@ -150,4 +150,3 @@ namespace EventFlow.EntityFramework.SnapshotStores
         }
     }
 }
-
