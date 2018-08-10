@@ -76,6 +76,7 @@ to the documentation.
   * In-memory - only for test
   * Files - only for test
   * Microsoft SQL Server
+  * Entity Framework Core
   * EventStore - [home page](https://eventstore.org/)
 * [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
@@ -86,6 +87,7 @@ to the documentation.
   * [Elasticsearch](http://docs.geteventflow.net/ReadStores.html#elasticsearch)
   * [In-memory](http://docs.geteventflow.net/ReadStores.html#in-memory) - only for test
   * [Microsoft SQL Server](http://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
+  * Entity Framework Core
 * [**Snapshots:**](http://docs.geteventflow.net/Snapshots.html)
   Instead of reading the entire event stream every single time, a snapshot can
   be created every so often that contains the aggregate state. EventFlow
@@ -93,6 +95,7 @@ to the documentation.
   aggregates. Snapshots in EventFlow are opt-in and EventFlow has support for
   * [In-memory](http://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
   * [Microsoft SQL Server](http://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
+  * Entity Framework Core
 * [**Sagas:**](http://docs.geteventflow.net/Sagas.html)
   Also known as _process managers_, coordinates and routes messages between
   bounded contexts and aggregates
@@ -335,6 +338,7 @@ integrates with correctly.
  * **MSSQL:** Microsoft SQL Server is required to be running
  * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
    for the [RabbitMQ](https://www.rabbitmq.com/) instance you would like to use.
+ * **EntityFramework:** Microsoft SQL Server and PostgreSQL is required to be running
 
 There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
 [here](https://github.com/rasmus/Vagrant.Boxes).
