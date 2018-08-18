@@ -39,8 +39,8 @@ namespace EventFlow.Elasticsearch.Tests
     {
         private static readonly SoftwareDescription SoftwareDescription = SoftwareDescription.Create(
             "elasticsearch",
-            new Version(5, 3, 2),
-            "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.2.zip");
+            new Version(6, 3, 2),
+            "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.zip");
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class ClusterHealth

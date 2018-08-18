@@ -25,7 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Hangfire.Core" Version="1.6.15" />
-    <PackageReference Include="newtonsoft.json" Version="10.0.3" />    
+    <PackageReference Include="newtonsoft.json" Version="11.0.2" />    
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />

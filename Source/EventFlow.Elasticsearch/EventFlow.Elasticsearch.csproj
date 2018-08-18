@@ -24,8 +24,8 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NEST" Version="5.3.1" />
-    <PackageReference Include="newtonsoft.json" Version="10.0.3" />    
+    <PackageReference Include="NEST" Version="6.1.0" />
+    <PackageReference Include="newtonsoft.json" Version="11.0.2" />    
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
