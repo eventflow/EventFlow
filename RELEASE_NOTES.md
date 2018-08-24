@@ -2,11 +2,11 @@
 
 * New: Added .NET standard support for SQLite
 
-### New in 0.63.3581 (eleased 2018-08-07)
+### New in 0.63.3581 (released 2018-08-07)
 
 * New: PostgreSQL support in the form of the new `EventFlow.PostgreSql` NuGet package
 
-### New in 0.62.3569 (eleased 2018-07-05)
+### New in 0.62.3569 (released 2018-07-05)
 
 * New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
   for read models that have a 1-to-1 relation with an aggregate. If read models get
