@@ -1,7 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2018 Rida Messaoudene
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,18 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.Sql.Connections;
 
-namespace EventFlow.Tests.UnitTests.ReadStores
+namespace EventFlow.PostgreSql.Connections
 {
-    public class ReadStoreManagerTestReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+    public interface IPostgreSqlConfiguration : ISqlConfiguration<IPostgreSqlConfiguration>
     {
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-        {
-        }
     }
 }

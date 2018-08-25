@@ -96,6 +96,9 @@ _TeamCity*
 # DotCover is a Code Coverage Tool
 *.dotCover
 
+# AxoCover is a Code Coverage Tool
+.axoCover/
+
 # NCrunch
 _NCrunch_*
 .*crunch*.local.xml
@@ -198,3 +201,6 @@ FakesAssemblies/
 
 # JetBrains Rider
 /.idea
+
+# Git commit history
+/-la

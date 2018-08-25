@@ -52,10 +52,10 @@ namespace EventFlow.ReadStores
         public abstract Task DeleteAllAsync(
             CancellationToken cancellationToken);
 
-        public abstract Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public abstract Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContextFactory readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken);
     }
 }

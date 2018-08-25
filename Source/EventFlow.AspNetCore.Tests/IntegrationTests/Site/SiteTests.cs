@@ -21,12 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
@@ -72,6 +74,15 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 
 			// Act
 			await PostAsync("commands/ThingyPing/1", pingCommand).ConfigureAwait(false);
+		}
+
+		[Test]
+		public void PublishCommand_WithNull_ThrowsException()
+		{
+			// Arrange + Act
+			Action action = () => Task.WaitAll(PostAsync("commands/ThingyPing/1", null));
+
+			action.ShouldThrow<HttpRequestException>("because of command is null.");
 		}
 
 		private async Task<string> GetAsync(string url)

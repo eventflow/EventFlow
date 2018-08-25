@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Common.props" />
+  <PropertyGroup>
+    <TargetFramework>net451</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="IntegrationTests\ReadStores\Scripts\0001 - Create table ReadModel-ThingyAggregate.sql" />
+    <None Remove="IntegrationTests\ReadStores\Scripts\0002 - Create table ReadModel-ThingyMessage.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\ReadStores\Scripts\0001 - Create table ReadModel-ThingyAggregate.sql" />
+    <EmbeddedResource Include="IntegrationTests\ReadStores\Scripts\0002 - Create table ReadModel-ThingyMessage.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow.PostgreSql\EventFlow.PostgreSql.csproj" />
+    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+</Project>

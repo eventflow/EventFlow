@@ -21,9 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading.Tasks;
+using Autofac;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
 
@@ -34,14 +38,24 @@ namespace EventFlow.Autofac.Tests.IntegrationTests
     {
         protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
+            var builder = new ContainerBuilder();
+            builder.RegisterType<DbContext>().As<IDbContext>().InstancePerLifetimeScope();
+
             return base.Options(eventFlowOptions
-                .UseAutofacContainerBuilder());
+                .UseAutofacContainerBuilder(builder))
+                .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>();
         }
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .CreateResolver();
+        }
+
+        [Test]
+        public override Task QueryingUsesScopedDbContext()
+        {
+            return base.QueryingUsesScopedDbContext();
         }
     }
 }

@@ -50,8 +50,7 @@ namespace EventFlow.ReadStores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                ReadModelEnvelope<TReadModel> readModelEnvelope;
-                return _readModels.TryGetValue(id, out readModelEnvelope)
+                return _readModels.TryGetValue(id, out var readModelEnvelope)
                     ? readModelEnvelope
                     : ReadModelEnvelope<TReadModel>.Empty(id);
             }
@@ -89,30 +88,47 @@ namespace EventFlow.ReadStores.InMemory
             }
         }
 
-        public override async Task UpdateAsync(
-            IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-            IReadModelContext readModelContext,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContextFactory readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 foreach (var readModelUpdate in readModelUpdates)
                 {
-                    ReadModelEnvelope<TReadModel> readModelEnvelope;
-                    if (!_readModels.TryGetValue(readModelUpdate.ReadModelId, out readModelEnvelope))
+                    var readModelId = readModelUpdate.ReadModelId;
+
+                    var isNew = !_readModels.TryGetValue(readModelId, out var readModelEnvelope);
+
+                    if (isNew)
                     {
-                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
+                        readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelId);
                     }
 
-                    readModelEnvelope = await updateReadModel(
+                    var readModelContext = readModelContextFactory.Create(readModelId, isNew);
+
+                    var readModelUpdateResult = await updateReadModel(
                         readModelContext,
                         readModelUpdate.DomainEvents,
                         readModelEnvelope,
                         cancellationToken)
                         .ConfigureAwait(false);
+                    if (!readModelUpdateResult.IsModified)
+                    {
+                        return;
+                    }
+                    
+                    readModelEnvelope = readModelUpdateResult.Envelope;
 
-                    _readModels[readModelUpdate.ReadModelId] = readModelEnvelope;
+                    if (readModelContext.IsMarkedForDeletion)
+                    {
+                        _readModels.Remove(readModelId);
+                    }
+                    else
+                    {
+                        _readModels[readModelId] = readModelEnvelope;
+                    }
                 }
             }
         }

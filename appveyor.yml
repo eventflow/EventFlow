@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.60.{build}
+version: 0.64.{build}
 
 skip_tags: true
 
@@ -13,6 +13,7 @@ image: Visual Studio 2017
 environment:
   RABBITMQ_URL:
     secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
+  HELPZ_POSTGRESQL_PASS: Password12!
 
 test: off
 
@@ -21,6 +22,7 @@ artifacts:
 
 services:
   - mssql2014
+  - postgresql101
 
 on_success:
 - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"

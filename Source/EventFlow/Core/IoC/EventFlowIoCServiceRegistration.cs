@@ -23,21 +23,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Decorators;
 using EventFlow.Core.IoC.Factories;
 using EventFlow.Extensions;
 
 namespace EventFlow.Core.IoC
 {
-    internal class EventFlowIoCServiceRegistration : ServiceRegistration, IServiceRegistration
+    internal class EventFlowIoCServiceRegistration : IServiceRegistration
     {
         private readonly object _syncRoot = new object();
         private readonly Dictionary<Type, List<Registration>> _registrations = new Dictionary<Type, List<Registration>>();
         private readonly DecoratorService _decoratorService = new DecoratorService();
+
+        public EventFlowIoCServiceRegistration()
+        {
+            Register<IBootstrapper, Bootstrapper>(Lifetime.Singleton);
+        }
 
         public void Register<TService, TImplementation>(
             Lifetime lifetime = Lifetime.AlwaysUnique,
@@ -125,21 +128,10 @@ namespace EventFlow.Core.IoC
                 resolver.ValidateRegistrations();
             }
 
-            var bootstraps = OrderBootstraps(resolver.ResolveAll(typeof(IBootstrap)).Select(i => (IBootstrap) i));
-
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(StartAsync(bootstraps, CancellationToken.None));
-            }
+            var bootstrapper = resolver.Resolve<IBootstrapper>();
+            bootstrapper.Start();
 
             return resolver;
-        }
-
-        private static async Task StartAsync(
-            IEnumerable<IBootstrap> bootstraps,
-            CancellationToken cancellationToken)
-        {
-            await Task.WhenAll(bootstraps.Select(b => b.BootAsync(cancellationToken))).ConfigureAwait(false);
         }
 
         private void Register(

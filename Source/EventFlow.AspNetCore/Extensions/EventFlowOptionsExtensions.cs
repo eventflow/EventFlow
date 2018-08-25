@@ -21,7 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.AspNetCore.ServiceProvider;
 using EventFlow.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace EventFlow.AspNetCore.Extensions
 {
@@ -34,7 +36,11 @@ namespace EventFlow.AspNetCore.Extensions
 			this IEventFlowOptions eventFlowOptions)
 		{
 			return eventFlowOptions
-				.RegisterServices(sr => sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton))
+				.RegisterServices(sr =>
+			    {
+			        sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton);
+			        sr.Register(typeof(IHostedService), typeof(HostedBootstrapper), Lifetime.Singleton);
+			    })
 				.AddMetadataProviders(EventFlowAspNetCore.Assembly);
 		}
 	}
