@@ -157,17 +157,17 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             // Assert - saga
             var thingySaga = await LoadSagaAsync(thingyId).ConfigureAwait(false);
             thingySaga.State.Should().Be(SagaState.Completed);
-            thingySaga.PingIdsSinceStarted.ShouldAllBeEquivalentTo(pingsWithRunningSaga);
+            thingySaga.PingIdsSinceStarted.Should().AllBeEquivalentTo(pingsWithRunningSaga);
 
             // Assert - aggregate
             var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
-            thingyAggregate.PingsReceived.ShouldAllBeEquivalentTo(
+            thingyAggregate.PingsReceived.Should().AllBeEquivalentTo(
                 pingsWithNewSaga.Concat(pingsWithRunningSaga).Concat(pingsWithCompletedSaga));
             var receivedSagaPingIds = thingyAggregate.Messages
                 .Select(m => PingId.With(m.Message))
                 .ToList();
             receivedSagaPingIds.Should().HaveCount(3);
-            receivedSagaPingIds.ShouldAllBeEquivalentTo(pingsWithRunningSaga);
+            receivedSagaPingIds.Should().AllBeEquivalentTo(pingsWithRunningSaga);
         }
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)

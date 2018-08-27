@@ -72,7 +72,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             // Assert
             AppliedDomainEvents.Should().HaveCount(emittedEvents.Length);
-            AppliedDomainEvents.ShouldAllBeEquivalentTo(emittedEvents);
+            AppliedDomainEvents.Should().AllBeEquivalentTo(emittedEvents);
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             // Assert
             AppliedDomainEvents.Should().HaveCount(storedEvents.Length);
-            AppliedDomainEvents.ShouldAllBeEquivalentTo(storedEvents);
+            AppliedDomainEvents.Should().AllBeEquivalentTo(storedEvents);
         }
     }
 }

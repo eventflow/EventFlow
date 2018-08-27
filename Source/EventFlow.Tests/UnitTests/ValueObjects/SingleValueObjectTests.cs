@@ -26,6 +26,7 @@ using System.Linq;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
@@ -64,7 +65,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
+            orderedSingleValueObjects.Select(v => v.Value).Should().BeEquivalentTo(
                 orderedValues,
                 o => o.WithStrictOrdering());
         }
@@ -82,7 +83,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
+            orderedSingleValueObjects.Select(v => v.Value).Should().AllBeEquivalentTo(
                 orderedValues,
                 o => o.WithStrictOrdering());
         }
@@ -115,7 +116,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
                 .ToList();
             
             // Assert
-            orderedValues.ShouldAllBeEquivalentTo(
+            orderedValues.Should().AllBeEquivalentTo(
                 new []
                 {
                     MagicEnum.Zero,
