@@ -29,9 +29,12 @@ namespace EventFlow.EntityFramework
 {
     public class EntityFrameworkConfiguration : IEntityFrameworkConfiguration
     {
+        private int _bulkDeletionBatchSize = 1000;
         private Action<IServiceRegistration> _registerUniqueConstraintDetectionStrategy;
 
         public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
+
+        int IEntityFrameworkConfiguration.BulkDeletionBatchSize => _bulkDeletionBatchSize;
 
         private EntityFrameworkConfiguration()
         {
@@ -43,6 +46,13 @@ namespace EventFlow.EntityFramework
         {
             serviceRegistration.Register<IEntityFrameworkConfiguration>(s => this);
             _registerUniqueConstraintDetectionStrategy(serviceRegistration);
+        }
+
+        public EntityFrameworkConfiguration SetBulkDeletionBatchSize(int batchSize)
+        {
+            if (batchSize <= 0) throw new ArgumentOutOfRangeException(nameof(batchSize));
+            _bulkDeletionBatchSize = batchSize;
+            return this;
         }
 
         public EntityFrameworkConfiguration UseUniqueConstraintDetectionStrategy<T>()
