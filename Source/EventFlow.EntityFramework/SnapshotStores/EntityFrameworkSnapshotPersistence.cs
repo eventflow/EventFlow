@@ -42,14 +42,14 @@ namespace EventFlow.EntityFramework.SnapshotStores
         private readonly int _deletionBatchSize;
 
         public EntityFrameworkSnapshotPersistence(
-            IEntityFrameworkConfiguration config,
+            IBulkOperationConfiguration bulkOperationConfiguration,
             IDbContextProvider<TDbContext> contextProvider,
             IUniqueConstraintDetectionStrategy strategy
         )
         {
             _contextProvider = contextProvider;
             _strategy = strategy;
-            _deletionBatchSize = config.BulkDeletionBatchSize;
+            _deletionBatchSize = bulkOperationConfiguration.DeletionBatchSize;
         }
 
         public async Task<CommittedSnapshot> GetSnapshotAsync(

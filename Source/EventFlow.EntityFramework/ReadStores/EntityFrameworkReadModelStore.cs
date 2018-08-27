@@ -58,7 +58,7 @@ namespace EventFlow.EntityFramework.ReadStores
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public EntityFrameworkReadModelStore(
-            IEntityFrameworkConfiguration configuration,
+            IBulkOperationConfiguration bulkOperationConfiguration,
             ILog log,
             IReadModelFactory<TReadModel> readModelFactory,
             IDbContextProvider<TDbContext> contextProvider,
@@ -68,7 +68,7 @@ namespace EventFlow.EntityFramework.ReadStores
             _readModelFactory = readModelFactory;
             _contextProvider = contextProvider;
             _transientFaultHandler = transientFaultHandler;
-            _deletionBatchSize = configuration.BulkDeletionBatchSize;
+            _deletionBatchSize = bulkOperationConfiguration.DeletionBatchSize;
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
