@@ -293,7 +293,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
-            aggregate1.PingsReceived.ShouldAllBeEquivalentTo(new[] {pingId1, pingId2});
+            aggregate1.PingsReceived.Should().AllBeEquivalentTo(new[] {pingId1, pingId2});
         }
 
         [Test]
@@ -310,7 +310,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             PublishedDomainEvents.Count.Should().Be(10);
-            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(1, 10));
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).Should().AllBeEquivalentTo(Enumerable.Range(1, 10));
         }
 
         [Test]
@@ -331,7 +331,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             PublishedDomainEvents.Count.Should().Be(10);
-            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(11, 10));
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).Should().AllBeEquivalentTo(Enumerable.Range(11, 10));
         }
 
         [SetUp]

@@ -137,11 +137,8 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
         [Test]
         public void TryGetDefinition_WithInvalidName_ReturnsFalse()
         {
-            // Arrange
-            TDefinition definition;
-
             // Act
-            var found = Sut.TryGetDefinition(Fixture.Create<string>(), 0, out definition);
+            var found = Sut.TryGetDefinition(Fixture.Create<string>(), 0, out _);
 
             // Assert
             found.Should().BeFalse();
@@ -150,11 +147,8 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
         [Test]
         public void TryGetDefinition_WithInvalidType_ReturnsFalse()
         {
-            // Arrange
-            TDefinition definition;
-
             // Act
-            var found = Sut.TryGetDefinition(typeof(object), out definition);
+            var found = Sut.TryGetDefinition(typeof(object), out _);
 
             // Assert
             found.Should().BeFalse();
@@ -206,7 +200,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
                 .ToList();
 
             // Assert
-            result.ShouldAllBeEquivalentTo(expectedTypes);
+            result.Should().AllBeEquivalentTo(expectedTypes);
         }
 
         [Test]

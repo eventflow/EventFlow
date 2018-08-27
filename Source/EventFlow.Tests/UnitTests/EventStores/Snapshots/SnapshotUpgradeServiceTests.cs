@@ -67,7 +67,7 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
             // Assert
             snapshot.Should().BeOfType<ThingySnapshot>();
             var snapshotV3 = (ThingySnapshot) snapshot;
-            snapshotV3.PingsReceived.ShouldAllBeEquivalentTo(pingIds);
+            snapshotV3.PingsReceived.Should().AllBeEquivalentTo(pingIds);
             snapshotV3.PreviousVersions.Should().Contain(ThingySnapshotVersion.Version1);
             snapshotV3.PreviousVersions.Should().Contain(ThingySnapshotVersion.Version2);
         }

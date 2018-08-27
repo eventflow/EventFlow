@@ -37,7 +37,7 @@ using EventFlow.Examples.Shipping.Queries.InMemory;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
-using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
@@ -63,7 +63,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
         [TearDown]
         public void TearDown()
         {
-            _resolver.DisposeSafe(new ConsoleLog(), "");
+            _resolver.DisposeSafe(new ConsoleLog(), string.Empty);
         }
 
         [Test]
