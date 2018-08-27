@@ -17,7 +17,8 @@ namespace EventFlow.EntityFramework.Tests.InMemory
         {
             return eventFlowOptions
                 .ConfigureEntityFramework()
-                .ConfigureForReadStoreTest<InMemoryDbContextProvider>()
+                .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(Lifetime.Singleton)
+                .ConfigureForReadStoreTest()
                 .CreateResolver();
         }
     }

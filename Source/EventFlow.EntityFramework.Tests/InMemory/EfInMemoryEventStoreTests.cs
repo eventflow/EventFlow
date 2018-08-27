@@ -1,5 +1,6 @@
 ﻿using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
@@ -13,7 +14,8 @@ namespace EventFlow.EntityFramework.Tests.InMemory
         {
             return eventFlowOptions
                 .ConfigureEntityFramework()
-                .ConfigureForEventStoreTest<InMemoryDbContextProvider>()
+                .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(Lifetime.Singleton)
+                .ConfigureForEventStoreTest()
                 .CreateResolver();
         }
     }
