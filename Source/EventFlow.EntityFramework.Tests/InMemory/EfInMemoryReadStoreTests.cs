@@ -16,7 +16,7 @@ namespace EventFlow.EntityFramework.Tests.InMemory
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .ConfigureEntityFramework()
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(Lifetime.Singleton)
                 .ConfigureForReadStoreTest()
                 .CreateResolver();

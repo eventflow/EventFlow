@@ -43,7 +43,7 @@ namespace EventFlow.EntityFramework.Tests.MsSql
 
             return eventFlowOptions
                 .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
-                .ConfigureEntityFramework()
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
                 .ConfigureForEventStoreTest()
                 .CreateResolver();

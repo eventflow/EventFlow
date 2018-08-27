@@ -46,7 +46,7 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
 
             return eventFlowOptions
                 .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
-                .ConfigureEntityFramework()
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
                 .ConfigureForReadStoreTest()
                 .CreateResolver();
