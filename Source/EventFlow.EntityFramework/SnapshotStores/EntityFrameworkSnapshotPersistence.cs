@@ -30,7 +30,6 @@ using EventFlow.EntityFramework.Extensions;
 using EventFlow.Extensions;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
-using static LinqToDB.LinqExtensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.SnapshotStores
@@ -40,14 +39,17 @@ namespace EventFlow.EntityFramework.SnapshotStores
     {
         private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly IUniqueConstraintDetectionStrategy _strategy;
+        private readonly int _deletionBatchSize;
 
         public EntityFrameworkSnapshotPersistence(
+            IEntityFrameworkConfiguration config,
             IDbContextProvider<TDbContext> contextProvider,
             IUniqueConstraintDetectionStrategy strategy
         )
         {
             _contextProvider = contextProvider;
             _strategy = strategy;
+            _deletionBatchSize = config.BulkDeletionBatchSize;
         }
 
         public async Task<CommittedSnapshot> GetSnapshotAsync(
@@ -72,8 +74,8 @@ namespace EventFlow.EntityFramework.SnapshotStores
                     .FirstOrDefaultAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                return snapshot == null
-                    ? null
+                return snapshot == null 
+                    ? null 
                     : new CommittedSnapshot(snapshot.Metadata, snapshot.Data);
             }
         }
@@ -108,45 +110,44 @@ namespace EventFlow.EntityFramework.SnapshotStores
             }
         }
 
-        public async Task DeleteSnapshotAsync(
+        public Task DeleteSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
         {
             var aggregateName = aggregateType.GetAggregateName().Value;
             var aggregateId = identity.Value;
-            using (var dbContext = _contextProvider.CreateContext())
-            {
-                await dbContext.Set<SnapshotEntity>()
-                    .Where(s => s.AggregateName == aggregateName && s.AggregateId == aggregateId)
-                    .DeleteAsync(cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
+                _contextProvider,
+                _deletionBatchSize,
+                cancellationToken,
+                e => new SnapshotEntity {Id = e.Id},
+                e => e.AggregateName == aggregateName
+                     && e.AggregateId == aggregateId);
         }
 
-        public async Task PurgeSnapshotsAsync(
+        public Task PurgeSnapshotsAsync(
             Type aggregateType,
             CancellationToken cancellationToken)
         {
             var aggregateName = aggregateType.GetAggregateName().Value;
-            using (var dbContext = _contextProvider.CreateContext())
-            {
-                await dbContext.Set<SnapshotEntity>()
-                    .Where(s => s.AggregateName == aggregateName)
-                    .DeleteAsync(cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
+                _contextProvider,
+                _deletionBatchSize,
+                cancellationToken,
+                e => new SnapshotEntity {Id = e.Id},
+                e => e.AggregateName == aggregateName);
         }
 
-        public async Task PurgeSnapshotsAsync(
+        public Task PurgeSnapshotsAsync(
             CancellationToken cancellationToken)
         {
-            using (var dbContext = _contextProvider.CreateContext())
-            {
-                await dbContext.Set<SnapshotEntity>()
-                    .DeleteAsync(cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
+                _contextProvider,
+                _deletionBatchSize,
+                cancellationToken, 
+                e => new SnapshotEntity { Id = e.Id });
         }
     }
 }
+

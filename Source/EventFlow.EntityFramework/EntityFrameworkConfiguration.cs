@@ -23,7 +23,6 @@
 
 using System;
 using EventFlow.Configuration;
-using LinqToDB.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework
 {
@@ -38,7 +37,6 @@ namespace EventFlow.EntityFramework
 
         private EntityFrameworkConfiguration()
         {
-            LinqToDBForEFTools.Initialize();
             UseUniqueConstraintDetectionStrategy<DefaultUniqueConstraintDetectionStrategy>();
         }
 

@@ -32,7 +32,6 @@ using EventFlow.EntityFramework.Extensions;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Logs;
-using static LinqToDB.LinqExtensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.EventStores
@@ -145,15 +144,14 @@ namespace EventFlow.EntityFramework.EventStores
         {
             using (var context = _contextProvider.CreateContext())
             {
-                var affectedRows = await context.Set<EventEntity>()
+                var entities = await context.Set<EventEntity>()
                     .Where(e => e.AggregateId == id.Value)
-                    .DeleteAsync(cancellationToken)
+                    .Select(e => new EventEntity {GlobalSequenceNumber = e.GlobalSequenceNumber})
+                    .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                _log.Verbose(
-                    "Deleted entity with ID '{0}' by deleting all of its {1} events",
-                    id,
-                    affectedRows);
+                context.RemoveRange(entities);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
         }
     }

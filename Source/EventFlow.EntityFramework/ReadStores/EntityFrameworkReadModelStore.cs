@@ -30,11 +30,11 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.EntityFramework.Extensions;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
-using LinqToDB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -53,10 +53,13 @@ namespace EventFlow.EntityFramework.ReadStores
         private static readonly string ReadModelNameLowerCase = typeof(TReadModel).Name.ToLowerInvariant();
 
         private readonly IDbContextProvider<TDbContext> _contextProvider;
+        private readonly int _deletionBatchSize;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
-        public EntityFrameworkReadModelStore(ILog log,
+        public EntityFrameworkReadModelStore(
+            IEntityFrameworkConfiguration configuration,
+            ILog log,
             IReadModelFactory<TReadModel> readModelFactory,
             IDbContextProvider<TDbContext> contextProvider,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
@@ -65,6 +68,7 @@ namespace EventFlow.EntityFramework.ReadStores
             _readModelFactory = readModelFactory;
             _contextProvider = contextProvider;
             _transientFaultHandler = transientFaultHandler;
+            _deletionBatchSize = configuration.BulkDeletionBatchSize;
         }
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
@@ -113,21 +117,34 @@ namespace EventFlow.EntityFramework.ReadStores
             }
         }
 
-        public override async Task DeleteAllAsync(CancellationToken cancellationToken)
+        private class BulkDeletionModel
         {
-            var readModelName = typeof(TReadModel).Name;
+            public string Id { get; set; }
+            public long? Version { get; set; }
+        }
 
+        public override Task DeleteAllAsync(CancellationToken cancellationToken)
+        {
+            EntityDescriptor descriptor;
             using (var dbContext = _contextProvider.CreateContext())
             {
-                var rowsAffected = await dbContext.Set<TReadModel>()
-                    .DeleteAsync(cancellationToken)
-                    .ConfigureAwait(false);
-
-                Log.Verbose(
-                    "Purge {0} read models of type '{1}'",
-                    rowsAffected,
-                    readModelName);
+                descriptor = GetDescriptor(dbContext);
             }
+
+            return Bulk.Delete<TDbContext, TReadModel, BulkDeletionModel>(
+                _contextProvider,
+                _deletionBatchSize,
+                cancellationToken,
+                entity => new BulkDeletionModel
+                {
+                    Id = EF.Property<string>(entity, descriptor.Key),
+                    Version = EF.Property<long>(entity, descriptor.Version)
+                },
+                setProperties: (model, entry) =>
+                {
+                    descriptor.SetId(entry, model.Id);
+                    descriptor.SetVersion(entry, model.Version);
+                });
         }
 
         private async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,
@@ -252,7 +269,8 @@ namespace EventFlow.EntityFramework.ReadStores
                 _queryByIdNoTracking = CompileQueryById(false);
             }
 
-            private string Key => _key.Name;
+            public string Key => _key.Name;
+            public string Version => _version.Name;
 
             public Task<TReadModel> Query(DbContext context, string id, CancellationToken t, bool tracking = false)
             {
