@@ -23,6 +23,7 @@
 
 using System;
 using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.PostgreSql.TestsHelpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.Tests.PostgreSql
@@ -31,10 +32,10 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
     {
         private readonly DbContextOptions<TestDbContext> _options;
 
-        public PostgreSqlDbContextProvider(IEntityFrameworkConfiguration configuration)
+        public PostgreSqlDbContextProvider(PostgreSqlConnectionString postgreSqlConnectionString)
         {
             _options = new DbContextOptionsBuilder<TestDbContext>()
-                .UseNpgsql(configuration.ConnectionString)
+                .UseNpgsql(postgreSqlConnectionString.Value)
                 .Options;
         }
 

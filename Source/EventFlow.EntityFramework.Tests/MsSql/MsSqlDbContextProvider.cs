@@ -23,6 +23,7 @@
 
 using System;
 using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.TestHelpers.MsSql;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.Tests.MsSql
@@ -31,10 +32,10 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     {
         private readonly DbContextOptions<TestDbContext> _options;
 
-        public MsSqlDbContextProvider(IEntityFrameworkConfiguration configuration)
+        public MsSqlDbContextProvider(MsSqlConnectionString msSqlConnectionString)
         {
             _options = new DbContextOptionsBuilder<TestDbContext>()
-                .UseSqlServer(configuration.ConnectionString)
+                .UseSqlServer(msSqlConnectionString.Value)
                 .Options;
         }
 

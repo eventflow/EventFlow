@@ -33,8 +33,6 @@ namespace EventFlow.EntityFramework
 
         public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
 
-        public string ConnectionString { get; private set; }
-
         private EntityFrameworkConfiguration()
         {
             LinqToDBForEFTools.Initialize();
@@ -51,12 +49,6 @@ namespace EventFlow.EntityFramework
             where T : class, IUniqueConstraintDetectionStrategy
         {
             _registerUniqueConstraintDetectionStrategy = s => s.Register<IUniqueConstraintDetectionStrategy, T>();
-            return this;
-        }
-
-        public EntityFrameworkConfiguration SetConnectionString(string connectionString)
-        {
-            ConnectionString = connectionString;
             return this;
         }
     }

@@ -40,7 +40,8 @@ namespace EventFlow.EntityFramework.Tests.SQLite
         {
             return eventFlowOptions
                 .ConfigureEntityFramework()
-                .ConfigureForReadStoreTest<SqliteDbContextProvider>()
+                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
+                .ConfigureForReadStoreTest()
                 .CreateResolver();
         }
     }

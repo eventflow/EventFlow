@@ -23,6 +23,7 @@
 
 using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
@@ -41,8 +42,10 @@ namespace EventFlow.EntityFramework.Tests.MsSql
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
 
             return eventFlowOptions
-                .ConfigureEntityFramework(EntityFrameworkConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .ConfigureForSnapshotStoreTest<MsSqlDbContextProvider>()
+                .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
+                .ConfigureEntityFramework()
+                .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
+                .ConfigureForSnapshotStoreTest()
                 .CreateResolver();
         }
 

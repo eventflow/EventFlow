@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
@@ -31,28 +30,22 @@ namespace EventFlow.EntityFramework.Tests
 {
     public static class EntityFrameworkTestExtensions
     {
-        public static IEventFlowOptions ConfigureForEventStoreTest<TDbContextProvider>(this IEventFlowOptions options)
-            where TDbContextProvider : class, IDbContextProvider<TestDbContext>
+        public static IEventFlowOptions ConfigureForEventStoreTest(this IEventFlowOptions options)
         {
             return options
-                .AddDbContextProvider<TestDbContext, TDbContextProvider>(Lifetime.Singleton)
                 .UseEntityFrameworkEventStore<TestDbContext>();
         }
 
-        public static IEventFlowOptions ConfigureForSnapshotStoreTest<TDbContextProvider>(this IEventFlowOptions options)
-            where TDbContextProvider : class, IDbContextProvider<TestDbContext>
+        public static IEventFlowOptions ConfigureForSnapshotStoreTest(this IEventFlowOptions options)
         {
             return options
-                .AddDbContextProvider<TestDbContext, TDbContextProvider>(Lifetime.Singleton)
                 .UseEntityFrameworkSnapshotStore<TestDbContext>();
         }
 
-        public static IEventFlowOptions ConfigureForReadStoreTest<TDbContextProvider>(this IEventFlowOptions options)
-            where TDbContextProvider : class, IDbContextProvider<TestDbContext>
+        public static IEventFlowOptions ConfigureForReadStoreTest(this IEventFlowOptions options)
         {
             return options
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
-                .AddDbContextProvider<TestDbContext, TDbContextProvider>(Lifetime.Singleton)
                 .UseEntityFrameworkReadModel<ThingyReadModelEntity, TestDbContext>()
                 .UseEntityFrameworkReadModel<ThingyMessageReadModelEntity, TestDbContext, ThingyMessageLocator>()
                 .AddQueryHandlers(
