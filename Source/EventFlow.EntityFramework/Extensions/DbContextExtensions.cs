@@ -11,7 +11,7 @@ namespace EventFlow.EntityFramework.Extensions
 {
     public static class Bulk
     {
-        public static async Task Delete<TContext, TEntity, TProjection>(IDbContextProvider<TContext> contextProvider,
+        public static async Task<int> Delete<TContext, TEntity, TProjection>(IDbContextProvider<TContext> contextProvider,
             int batchSize,
             CancellationToken cancellationToken,
             Expression<Func<TEntity, TProjection>> projection,
@@ -20,6 +20,8 @@ namespace EventFlow.EntityFramework.Extensions
             where TContext : DbContext 
             where TEntity : class, new()
         {
+            int rowsAffected = 0;
+
             while (!cancellationToken.IsCancellationRequested)
                 using (var dbContext = contextProvider.CreateContext())
                 {
@@ -39,7 +41,7 @@ namespace EventFlow.EntityFramework.Extensions
                         .ConfigureAwait(false);
 
                     if (!items.Any())
-                        return;
+                        return rowsAffected;
 
                     if (setProperties == null)
                     {
@@ -56,10 +58,11 @@ namespace EventFlow.EntityFramework.Extensions
                         }
                     }
 
-                    await dbContext.SaveChangesAsync(cancellationToken)
+                    rowsAffected += await dbContext.SaveChangesAsync(cancellationToken)
                         .ConfigureAwait(false);
                 }
 
+            return rowsAffected;
         }
     }
 }

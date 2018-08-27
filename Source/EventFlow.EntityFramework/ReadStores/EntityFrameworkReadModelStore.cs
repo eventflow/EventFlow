@@ -123,15 +123,17 @@ namespace EventFlow.EntityFramework.ReadStores
             public long? Version { get; set; }
         }
 
-        public override Task DeleteAllAsync(CancellationToken cancellationToken)
+        public override async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
+            var readModelName = typeof(TReadModel).Name;
+
             EntityDescriptor descriptor;
             using (var dbContext = _contextProvider.CreateContext())
             {
                 descriptor = GetDescriptor(dbContext);
             }
 
-            return Bulk.Delete<TDbContext, TReadModel, BulkDeletionModel>(
+            var rowsAffected = await Bulk.Delete<TDbContext, TReadModel, BulkDeletionModel>(
                 _contextProvider,
                 _deletionBatchSize,
                 cancellationToken,
@@ -144,7 +146,13 @@ namespace EventFlow.EntityFramework.ReadStores
                 {
                     descriptor.SetId(entry, model.Id);
                     descriptor.SetVersion(entry, model.Version);
-                });
+                })
+                .ConfigureAwait(false);
+
+            Log.Verbose(
+                "Purge {0} read models of type '{1}'",
+                rowsAffected,
+                readModelName);
         }
 
         private async Task<ReadModelEnvelope<TReadModel>> GetAsync(TDbContext dbContext,

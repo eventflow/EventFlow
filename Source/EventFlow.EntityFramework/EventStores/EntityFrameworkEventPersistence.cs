@@ -151,7 +151,12 @@ namespace EventFlow.EntityFramework.EventStores
                     .ConfigureAwait(false);
 
                 context.RemoveRange(entities);
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                var rowsAffected = await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+                _log.Verbose(
+                    "Deleted entity with ID '{0}' by deleting all of its {1} events",
+                    id,
+                    rowsAffected);
             }
         }
     }
