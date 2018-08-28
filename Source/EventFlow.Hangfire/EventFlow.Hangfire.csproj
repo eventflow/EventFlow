@@ -24,7 +24,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hangfire.Core" Version="1.6.15" />
+    <PackageReference Include="Hangfire.Core" Version="1.6.20" />
     <PackageReference Include="newtonsoft.json" Version="11.0.2" />    
   </ItemGroup>
   <ItemGroup>
