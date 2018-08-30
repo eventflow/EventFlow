@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Configuration;
@@ -30,14 +29,18 @@ using EventFlow.Configuration.Decorators;
 
 namespace EventFlow.Core.IoC
 {
-    internal class Registration : IDisposable
+    internal interface IRegistration
+    {
+        Lifetime Lifetime { get; }
+        object Create(IResolverContext resolverContext, Type[] genericTypeArguments);
+    }
+
+    internal class Registration : IRegistration
     {
         private readonly Type _serviceType;
         private readonly IFactory _factory;
         private readonly IDecoratorService _decoratorService;
-        private readonly Lifetime _lifetime;
-        private readonly object _syncRoot = new object();
-        private readonly Dictionary<Type, object> _singletons = new Dictionary<Type, object>();
+        public Lifetime Lifetime { get; }
 
         public Registration(
             Type serviceType,
@@ -48,7 +51,7 @@ namespace EventFlow.Core.IoC
             _serviceType = serviceType;
             _factory = factory;
             _decoratorService = decoratorService;
-            _lifetime = lifetime;
+            Lifetime = lifetime;
         }
 
         public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
@@ -57,38 +60,7 @@ namespace EventFlow.Core.IoC
                 ? _serviceType.MakeGenericType(genericTypeArguments)
                 : _serviceType;
 
-            if (_lifetime == Lifetime.AlwaysUnique)
-            {
-                return CreateDecorated(resolverContext, serviceType, genericTypeArguments);
-            }
-
-            object singleton;
-            if (!_singletons.TryGetValue(serviceType, out singleton))
-            {
-                lock (_syncRoot)
-                {
-                    if (!_singletons.TryGetValue(serviceType, out singleton))
-                    {
-                        singleton = CreateDecorated(resolverContext, serviceType, genericTypeArguments);
-                        _singletons[serviceType] = singleton;
-                    }
-                }
-            }
-
-            return singleton;
-        }
-
-        public void Dispose()
-        {
-            lock (_syncRoot)
-            {
-                foreach (var singleton in _singletons.Values)
-                {
-                    (singleton as IDisposable)?.Dispose();
-                }
-
-                _singletons.Clear();
-            }
+            return CreateDecorated(resolverContext, serviceType, genericTypeArguments);
         }
 
         private object CreateDecorated(IResolverContext resolverContext, Type serviceType, Type[] genericTypeArguments)
