@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +20,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
 
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,6 @@ namespace EventFlow.ReadStores
     {
         // ReSharper disable StaticMemberInGenericType
         private static readonly Type StaticReadModelType = typeof(TReadModel);
-        private static readonly ISet<Type> AggregateTypes;
         private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
 
@@ -49,9 +49,6 @@ namespace EventFlow.ReadStores
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
-
-        protected ISet<Type> GetAggregateTypes() => AggregateTypes;
-        protected ISet<Type> GetDomainEventTypes() => AggregateEventTypes;
 
         public Type ReadModelType => StaticReadModelType;
 
@@ -68,7 +65,6 @@ namespace EventFlow.ReadStores
                     $"Read model type '{StaticReadModelType.PrettyPrint()}' does not implement any '{typeof(IAmReadModelFor<,,>).PrettyPrint()}'");
             }
 
-            AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0]));
             AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
         }
 
@@ -109,7 +105,8 @@ namespace EventFlow.ReadStores
                 typeof(TReadModelStore).PrettyPrint(),
                 string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
 
-            var readModelContext = new ReadModelContext(Resolver);
+            var contextFactory = new ReadModelContextFactory(Resolver);
+
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 
             if (!readModelUpdates.Any())
@@ -124,7 +121,7 @@ namespace EventFlow.ReadStores
 
             await ReadModelStore.UpdateAsync(
                 readModelUpdates,
-                readModelContext,
+                contextFactory,
                 UpdateAsync,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -133,7 +130,7 @@ namespace EventFlow.ReadStores
         protected abstract IReadOnlyCollection<ReadModelUpdate> BuildReadModelUpdates(
             IReadOnlyCollection<IDomainEvent> domainEvents);
 
-        protected abstract Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected abstract Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,13 +53,13 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
             if (string.IsNullOrEmpty(url))
             {
-                Assert.Inconclusive("The environment variabel named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
+                Assert.Inconclusive("The environment variable named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
             }
 
             _uri = new Uri(url);
         }
 
-        [Test, Timeout(10000)]
+        [Test, Timeout(10000), Retry(3)]
         public async Task Scenario()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
@@ -82,7 +82,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        [Test, Timeout(60000)]
+        [Test, Timeout(60000), Retry(3)]
         public async Task PublisherPerformance()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");

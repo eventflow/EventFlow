@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,18 +21,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.ReadStores;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.Tests.UnitTests.ReadStores
+namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
-    public class ReadStoreManagerTestReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
-    {
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-        {
-        }
-    }
+	using Microsoft.AspNetCore.Mvc;
+
+	[Route("thingy")]
+	public class ThingyController : Controller
+	{
+		private readonly ICommandBus _commandBus;
+
+		public ThingyController(
+			ICommandBus commandBus)
+		{
+			_commandBus = commandBus;
+		}
+
+		[HttpGet]
+		[Route("ping")]
+		public async Task<IActionResult> Ping(string id)
+		{
+			var testId = ThingyId.With(id);
+			var pingCommand = new ThingyPingCommand(testId, PingId.New);
+			await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
+			return Ok();
+		}
+	}
 }

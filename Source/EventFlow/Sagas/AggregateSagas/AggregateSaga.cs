@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,12 +64,14 @@ namespace EventFlow.Sagas.AggregateSagas
             ? SagaState.Completed
             : IsNew ? SagaState.New : SagaState.Running;
 
-        public async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        public virtual async Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
         {
-            foreach (var unpublishedCommand in _unpublishedCommands.ToList())
+            var commandsToPublish = _unpublishedCommands.ToList();
+            _unpublishedCommands.Clear();
+
+            foreach (var unpublishedCommand in commandsToPublish)
             {
                 await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
-                _unpublishedCommands.Remove(unpublishedCommand);
             }
         }
     }

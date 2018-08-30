@@ -18,7 +18,7 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://ci.appveyor.com/project/rasmusnu/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
+        <a href="https://ci.appveyor.com/project/eventflow/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
         <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
@@ -73,10 +73,10 @@ to the documentation.
 * [**Event store:**](http://docs.geteventflow.net/EventStore.html)
   Storage of the event stream for aggregates. Currently there is support for
   these storage types.
- * In-memory - only for test
- * Files - only for test
- * Microsoft SQL Server
- * EventStore - only for test (for now) [home page](https://geteventstore.com/)
+  * In-memory - only for test
+  * Files - only for test
+  * Microsoft SQL Server
+  * EventStore - [home page](https://eventstore.org/)
 * [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
@@ -179,12 +179,12 @@ public async Task Example()
 
 ```csharp
 // The aggregate root
-public class ExampleAggrenate : AggregateRoot<ExampleAggrenate, ExampleId>,
+public class ExampleAggregate : AggregateRoot<ExampleAggregate, ExampleId>,
   IEmit<ExampleEvent>
 {
   private int? _magicNumber;
 
-  public ExampleAggrenate(ExampleId id) : base(id) { }
+  public ExampleAggregate(ExampleId id) : base(id) { }
 
   // Method invoked by our command
   public void SetMagicNumer(int magicNumber)
@@ -215,7 +215,7 @@ public class ExampleId : Identity<ExampleId>
 
 ```csharp
 // A basic event containing some information
-public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
+public class ExampleEvent : AggregateEvent<ExampleAggregate, ExampleId>
 {
   public ExampleEvent(int magicNumber)
   {
@@ -228,7 +228,7 @@ public class ExampleEvent : AggregateEvent<ExampleAggrenate, ExampleId>
 
 ```csharp
 // Command for update magic number
-public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
+public class ExampleCommand : Command<ExampleAggregate, ExampleId>
 {
   public ExampleCommand(
     ExampleId aggregateId,
@@ -245,10 +245,10 @@ public class ExampleCommand : Command<ExampleAggrenate, ExampleId>
 ```csharp
 // Command handler for our command
 public class ExampleCommandHandler
-  : CommandHandler<ExampleAggrenate, ExampleId, ExampleCommand>
+  : CommandHandler<ExampleAggregate, ExampleId, ExampleCommand>
 {
   public override Task ExecuteAsync(
-    ExampleAggrenate aggregate,
+    ExampleAggregate aggregate,
     ExampleCommand command,
     CancellationToken cancellationToken)
   {
@@ -261,13 +261,13 @@ public class ExampleCommandHandler
 ```csharp
 // Read model for our aggregate
 public class ExampleReadModel : IReadModel,
-  IAmReadModelFor<ExampleAggrenate, ExampleId, ExampleEvent>
+  IAmReadModelFor<ExampleAggregate, ExampleId, ExampleEvent>
 {
   public int MagicNumber { get; private set; }
 
   public void Apply(
     IReadModelContext context,
-    IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent)
+    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
   {
     MagicNumber = domainEvent.AggregateEvent.MagicNumber;
   }
@@ -294,26 +294,31 @@ section lists some of them. If you have a link with a relevant article, please
 share it by creating an issue with the link.
 
 * **Domain-Driven Design**
- - [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/) by Eric Evans
+  * [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/)
+    by Eric Evans
+  * [DDD Decoded - Bounded Contexts Explained](http://blog.sapiensworks.com/post/2016/08/12/DDD-Bounded-Contexts-Explained)
+  * [Going "Events-First" for Microservices with Event Storming and DDD](http://www.russmiles.com/essais/going-events-first-for-microservices-with-event-storming-and-ddd)
 * **General CQRS+ES**
- - [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
-   published by Microsoft
- - [An In-Depth Look At CQRS](http://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
-   by Mike Mogosanu
- - [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
-   by Greg Young
- - [Busting some CQRS myths](https://lostechies.com/jimmybogard/2012/08/22/busting-some-cqrs-myths/)
-   by Jimmy Bogard
- - [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
-   by Gabriel Schenker
+  * [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
+    published by Microsoft
+  * [An In-Depth Look At CQRS](http://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
+    by Mike Mogosanu
+  * [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
+    by Greg Young
+  * [Busting some CQRS myths](https://lostechies.com/jimmybogard/2012/08/22/busting-some-cqrs-myths/)
+    by Jimmy Bogard
+  * [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
+    by Gabriel Schenker
+  * [DDD Decoded - Entities and Value Objects Explained](http://blog.sapiensworks.com/post/2016/07/29/DDD-Entities-Value-Objects-Explained)
 * **Eventual consistency**
- - [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
+  * [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
    by Mike Mogosanu
+  * [DDD Decoded - Don't Fear Eventual Consistency](http://blog.sapiensworks.com/post/2016/07/23/DDD-Eventual-Consistency)
 * **Why _not_ to implement "unit of work" in DDD**
- - [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
-   by Mike Mogosanu
- - [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
-   by Mike Mogosanu
+  * [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
+    by Mike Mogosanu
+  * [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+    by Mike Mogosanu
 
 
 ### Integration tests
@@ -358,8 +363,8 @@ category.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2017 Rasmus Mikkelsen
-Copyright (c) 2015-2017 eBay Software Foundation
+Copyright (c) 2015-2018 Rasmus Mikkelsen
+Copyright (c) 2015-2018 eBay Software Foundation
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

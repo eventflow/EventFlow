@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,8 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
 {
     public class InMemoryThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
         public ThingyId ThingyId { get; private set; }
         public bool DomainErrorAfterFirstReceived { get; private set; }
@@ -46,6 +47,11 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
         {
             ThingyId = domainEvent.AggregateIdentity;
             PingsReceived++;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        {
+            context.MarkForDeletion();
         }
 
         public Thingy ToThingy()

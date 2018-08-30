@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -69,8 +69,9 @@ namespace EventFlow.Core.Caching
             CacheKey cacheKey,
             CancellationToken cancellationToken)
         {
-            var value = _cache[cacheKey.Value] as T;
-            return Task.FromResult(value);
+            return Task.FromResult(_cache.TryGetValue(cacheKey.Value, out var value)
+                ? value as T
+                : default(T));
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,6 +32,7 @@ using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Nest;
@@ -93,7 +94,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                             sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
                         })
                     .ConfigureElasticsearch(_elasticsearchInstance.Uri)
-                    .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
+                    .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
                     .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                     .AddQueryHandlers(
                         typeof(ElasticsearchThingyGetQueryHandler),

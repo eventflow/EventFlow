@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,13 +32,20 @@ namespace EventFlow.TestHelpers.Aggregates.Entities
     {
         public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
         {
-            var messageAddedEvent = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>;
-            if (messageAddedEvent == null)
+            var aggregateEvent = domainEvent.GetAggregateEvent();
+            switch (aggregateEvent)
             {
-                yield break;
-            }
+                case ThingyMessageAddedEvent messageAddedEvent:
+                    yield return messageAddedEvent.ThingyMessage.Id.Value;
+                    break;
 
-            yield return messageAddedEvent.AggregateEvent.ThingyMessage.Id.Value;
+                case ThingyMessageHistoryAddedEvent messageHistoryAddedEvent:
+                    foreach (var message in messageHistoryAddedEvent.ThingyMessages)
+                    {
+                        yield return message.Id.Value;
+                    }
+                    break;
+            }
         }
     }
 }

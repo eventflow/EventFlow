@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,13 +20,16 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 
 namespace EventFlow.ReadStores
@@ -54,7 +57,7 @@ namespace EventFlow.ReadStores
                 .ToList();
         }
 
-        protected override async Task<ReadModelEnvelope<TReadModel>> UpdateAsync(
+        protected override async Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
             IReadModelContext readModelContext,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             ReadModelEnvelope<TReadModel> readModelEnvelope,
@@ -64,9 +67,13 @@ namespace EventFlow.ReadStores
 
             await ReadModelDomainEventApplier.UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken).ConfigureAwait(false);
 
-            var readModelVersion = domainEvents.Max(e => e.AggregateSequenceNumber);
+            var readModelVersion = Math.Max(
+                domainEvents.Max(e => e.AggregateSequenceNumber),
+                readModelEnvelope.Version.GetValueOrDefault());
 
-            return ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, readModelVersion);
+            return readModelEnvelope.AsModifedResult(
+                readModel,
+                readModelVersion);
         }
     }
 }

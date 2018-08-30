@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,8 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
     [ElasticsearchType(IdProperty = "Id", Name = "thingy")]
     public class ElasticsearchThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
         [Keyword(
             Index = true)]
@@ -59,6 +60,11 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
         {
             Id = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        {
+            context.MarkForDeletion();
         }
 
         public Thingy ToThingy()

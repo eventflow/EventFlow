@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -30,7 +31,8 @@ using EventFlow.TestHelpers.Aggregates.Events;
 namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
 {
     public class InMemoryThingyMessageReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent>
     {
         public ThingyId ThingyId { get; private set; }
         public ThingyMessageId ThingyMessageId { get; private set; }
@@ -41,6 +43,16 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
             ThingyId = domainEvent.AggregateIdentity;
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+            ThingyMessageId = thingyMessage.Id;
+            Message = thingyMessage.Message;
+        }
+
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
+        {
+            ThingyId = domainEvent.AggregateIdentity;
+
+            var messageId = new ThingyMessageId(context.ReadModelId);
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
             ThingyMessageId = thingyMessage.Id;
             Message = thingyMessage.Message;
         }

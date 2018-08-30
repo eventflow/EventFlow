@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -89,7 +89,7 @@ namespace EventFlow.Snapshots
             var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
             var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
 
-            _log.Verbose(() => $"Deserilizing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
+            _log.Verbose(() => $"Deserializing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
 
             var snapshot = (ISnapshot)_jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
             var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);

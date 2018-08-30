@@ -1,75 +1,93 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow", "Source\EventFlow\EventFlow.csproj", "{11131251-778D-4D2E-BDD1-4844A789BCA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow", "Source\EventFlow\EventFlow.csproj", "{11131251-778D-4D2E-BDD1-4844A789BCA9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSSQL", "MSSQL", "{E4FC24C0-3EB3-4203-B4F2-0B534B42574A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Tests", "Source\EventFlow.Tests\EventFlow.Tests.csproj", "{7747E4A0-B378-46B6-837D-5E78C497B061}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Tests", "Source\EventFlow.Tests\EventFlow.Tests.csproj", "{7747E4A0-B378-46B6-837D-5E78C497B061}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql.Tests", "Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj", "{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MsSql.Tests", "Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj", "{A6F6232B-764F-4428-9EB5-CC98BE4F5E90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Owin", "Source\EventFlow.Owin\EventFlow.Owin.csproj", "{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Owin", "Source\EventFlow.Owin\EventFlow.Owin.csproj", "{EE6F7B78-3EF1-488F-B90A-8E7F350B7D51}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Owin", "Owin", "{9876C758-0A72-400E-A1B1-685E1C22ACB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Owin.Tests", "Source\EventFlow.Owin.Tests\EventFlow.Owin.Tests.csproj", "{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Owin.Tests", "Source\EventFlow.Owin.Tests\EventFlow.Owin.Tests.csproj", "{2F3A5BCA-5336-4BB1-BA3D-0FEEA78C0415}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.TestHelpers", "Source\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.TestHelpers", "Source\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj", "{571D291C-5E4C-43AF-855F-7C4E2F318F4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac", "Source\EventFlow.Autofac\EventFlow.Autofac.csproj", "{26F06682-3364-4C22-B9B2-2F2653D0BE0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Autofac", "Source\EventFlow.Autofac\EventFlow.Autofac.csproj", "{26F06682-3364-4C22-B9B2-2F2653D0BE0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventStore", "EventStore", "{F6D62A27-50EA-4846-8F36-F3D36F52DCA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.EventStores.EventStore", "Source\EventFlow.EventStores.EventStore\EventFlow.EventStores.EventStore.csproj", "{E42A253D-2011-4799-B55D-1D0C61E171C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.EventStores.EventStore", "Source\EventFlow.EventStores.EventStore\EventFlow.EventStores.EventStore.csproj", "{E42A253D-2011-4799-B55D-1D0C61E171C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.EventStores.EventStore.Tests", "Source\EventFlow.EventStores.EventStore.Tests\EventFlow.EventStores.EventStore.Tests.csproj", "{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.EventStores.EventStore.Tests", "Source\EventFlow.EventStores.EventStore.Tests\EventFlow.EventStores.EventStore.Tests.csproj", "{BC4F0E41-6659-4D6D-9D25-1558CBA1649B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RabbitMQ", "RabbitMQ", "{7951DC73-5DAF-4322-9AF0-099BF5C90837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ", "Source\EventFlow.RabbitMQ\EventFlow.RabbitMQ.csproj", "{4B06F01F-ACE6-489D-A92A-012F533EFA3C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.RabbitMQ", "Source\EventFlow.RabbitMQ\EventFlow.RabbitMQ.csproj", "{4B06F01F-ACE6-489D-A92A-012F533EFA3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.RabbitMQ.Tests", "Source\EventFlow.RabbitMQ.Tests\EventFlow.RabbitMQ.Tests.csproj", "{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.RabbitMQ.Tests", "Source\EventFlow.RabbitMQ.Tests\EventFlow.RabbitMQ.Tests.csproj", "{BC96BEAE-E84E-4C51-B66D-DA1F43EAD54A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autofac", "Autofac", "{980EEDAA-1FEF-4D7C-8811-5EF1D9729773}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hangfire", "Hangfire", "{4741A405-DA64-40CC-A726-A2C48CA49DA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Hangfire", "Source\EventFlow.Hangfire\EventFlow.Hangfire.csproj", "{FB079985-722A-43C9-9F14-C7D2AFBE8826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Hangfire", "Source\EventFlow.Hangfire\EventFlow.Hangfire.csproj", "{FB079985-722A-43C9-9F14-C7D2AFBE8826}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Hangfire.Tests", "Source\EventFlow.Hangfire.Tests\EventFlow.Hangfire.Tests.csproj", "{35180FC7-9135-4E79-8643-0FB825B40871}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Hangfire.Tests", "Source\EventFlow.Hangfire.Tests\EventFlow.Hangfire.Tests.csproj", "{35180FC7-9135-4E79-8643-0FB825B40871}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elasticsearch", "Elasticsearch", "{D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{7F20CC09-6988-40BC-8693-80E0F7022926}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Examples.Shipping", "Source\EventFlow.Examples.Shipping\EventFlow.Examples.Shipping.csproj", "{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Examples.Shipping", "Source\EventFlow.Examples.Shipping\EventFlow.Examples.Shipping.csproj", "{B07DD7F2-68EE-4BC7-8E37-E84BFA3F5B39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Examples.Shipping.Queries.InMemory", "Source\EventFlow.Examples.Shipping.Queries.InMemory\EventFlow.Examples.Shipping.Queries.InMemory.csproj", "{079DC9A6-7740-476A-BC4F-D74D8D7A32AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Examples.Shipping.Queries.InMemory", "Source\EventFlow.Examples.Shipping.Queries.InMemory\EventFlow.Examples.Shipping.Queries.InMemory.csproj", "{079DC9A6-7740-476A-BC4F-D74D8D7A32AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Examples.Shipping.Tests", "Source\EventFlow.Examples.Shipping.Tests\EventFlow.Examples.Shipping.Tests.csproj", "{A6F9C84B-27F6-4179-9768-4AA2099405FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Examples.Shipping.Tests", "Source\EventFlow.Examples.Shipping.Tests\EventFlow.Examples.Shipping.Tests.csproj", "{A6F9C84B-27F6-4179-9768-4AA2099405FC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLite", "SQLite", "{2A71452E-15DD-4EBA-A7A1-8CC3D298097D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{92F3C263-8C0C-4D12-B41A-452E48D2E5E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Sql", "Source\EventFlow.Sql\EventFlow.Sql.csproj", "{8EC9D877-7351-4C7E-87A8-29BBD3D7FEBB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Sql", "Source\EventFlow.Sql\EventFlow.Sql.csproj", "{8EC9D877-7351-4C7E-87A8-29BBD3D7FEBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MsSql", "Source\EventFlow.MsSql\EventFlow.MsSql.csproj", "{A0C8E77F-DB74-4035-B0DE-9BADDFCA5EBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MsSql", "Source\EventFlow.MsSql\EventFlow.MsSql.csproj", "{A0C8E77F-DB74-4035-B0DE-9BADDFCA5EBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.SQLite", "Source\EventFlow.SQLite\EventFlow.SQLite.csproj", "{CEE8E914-B31C-4AAA-B520-CF72560D90FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.SQLite", "Source\EventFlow.SQLite\EventFlow.SQLite.csproj", "{CEE8E914-B31C-4AAA-B520-CF72560D90FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.SQLite.Tests", "Source\EventFlow.SQLite.Tests\EventFlow.SQLite.Tests.csproj", "{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.SQLite.Tests", "Source\EventFlow.SQLite.Tests\EventFlow.SQLite.Tests.csproj", "{E81D3BA7-E9C9-4227-840E-7B84ED6302C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Sql.Tests", "Source\EventFlow.Sql.Tests\EventFlow.Sql.Tests.csproj", "{36F59228-C7DC-4799-8342-4CAF5C4E95D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Sql.Tests", "Source\EventFlow.Sql.Tests\EventFlow.Sql.Tests.csproj", "{36F59228-C7DC-4799-8342-4CAF5C4E95D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Elasticsearch", "Source\EventFlow.Elasticsearch\EventFlow.Elasticsearch.csproj", "{404C6099-E82F-4433-8505-5479D76660CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Elasticsearch", "Source\EventFlow.Elasticsearch\EventFlow.Elasticsearch.csproj", "{404C6099-E82F-4433-8505-5479D76660CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Elasticsearch.Tests", "Source\EventFlow.Elasticsearch.Tests\EventFlow.Elasticsearch.Tests.csproj", "{D4D7E41C-1473-4449-A128-CA4383783E6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Elasticsearch.Tests", "Source\EventFlow.Elasticsearch.Tests\EventFlow.Elasticsearch.Tests.csproj", "{D4D7E41C-1473-4449-A128-CA4383783E6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Autofac.Tests", "Source\EventFlow.Autofac.Tests\EventFlow.Autofac.Tests.csproj", "{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Autofac.Tests", "Source\EventFlow.Autofac.Tests\EventFlow.Autofac.Tests.csproj", "{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspNetCore", "AspNetCore", "{3A34F6A2-64B0-4730-A0EB-D324BC755538}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.AspNetCore", "Source\EventFlow.AspNetCore\EventFlow.AspNetCore.csproj", "{9D57E096-AA8E-40E5-A1CC-32C07B425850}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.AspNetCore.Tests", "Source\EventFlow.AspNetCore.Tests\EventFlow.AspNetCore.Tests.csproj", "{C16B0B27-6E6C-439C-8419-488B2D4D798F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostgreSql", "PostgreSql", "{8611714D-5901-4D85-ACA3-8B984F591BDD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.PostgreSql", "Source\EventFlow.PostgreSql\EventFlow.PostgreSql.csproj", "{1400DAC5-118E-41D3-A20C-F4F8648BC5BF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.PostgreSql.Tests", "Source\EventFlow.PostgreSql.Tests\EventFlow.PostgreSql.Tests.csproj", "{6C47746E-8F5D-4DA9-BBD1-17ECEE57F8CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.DependencyInjection", "Source\EventFlow.DependencyInjection\EventFlow.DependencyInjection.csproj", "{7870461F-BA5B-4198-A85E-03BA555198AD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.DependencyInjection.Tests", "Source\EventFlow.DependencyInjection.Tests\EventFlow.DependencyInjection.Tests.csproj", "{28CA7AD8-6A73-454C-ABF4-26B24D986C85}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyInjection", "DependencyInjection", "{E2DD51BC-974B-4526-961B-825913911FFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -173,6 +191,30 @@ Global
 		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D57E096-AA8E-40E5-A1CC-32C07B425850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D57E096-AA8E-40E5-A1CC-32C07B425850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D57E096-AA8E-40E5-A1CC-32C07B425850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D57E096-AA8E-40E5-A1CC-32C07B425850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C16B0B27-6E6C-439C-8419-488B2D4D798F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C16B0B27-6E6C-439C-8419-488B2D4D798F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C16B0B27-6E6C-439C-8419-488B2D4D798F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C16B0B27-6E6C-439C-8419-488B2D4D798F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1400DAC5-118E-41D3-A20C-F4F8648BC5BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1400DAC5-118E-41D3-A20C-F4F8648BC5BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1400DAC5-118E-41D3-A20C-F4F8648BC5BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1400DAC5-118E-41D3-A20C-F4F8648BC5BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C47746E-8F5D-4DA9-BBD1-17ECEE57F8CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C47746E-8F5D-4DA9-BBD1-17ECEE57F8CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C47746E-8F5D-4DA9-BBD1-17ECEE57F8CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C47746E-8F5D-4DA9-BBD1-17ECEE57F8CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7870461F-BA5B-4198-A85E-03BA555198AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7870461F-BA5B-4198-A85E-03BA555198AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7870461F-BA5B-4198-A85E-03BA555198AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7870461F-BA5B-4198-A85E-03BA555198AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28CA7AD8-6A73-454C-ABF4-26B24D986C85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28CA7AD8-6A73-454C-ABF4-26B24D986C85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28CA7AD8-6A73-454C-ABF4-26B24D986C85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28CA7AD8-6A73-454C-ABF4-26B24D986C85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -201,5 +243,15 @@ Global
 		{404C6099-E82F-4433-8505-5479D76660CD} = {D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}
 		{D4D7E41C-1473-4449-A128-CA4383783E6C} = {D6F5FF86-C3F3-443D-BEC4-11BDEC5E34FB}
 		{EFDD4B74-E69A-4F4F-80F4-DC8F32CD76A5} = {980EEDAA-1FEF-4D7C-8811-5EF1D9729773}
+		{9D57E096-AA8E-40E5-A1CC-32C07B425850} = {3A34F6A2-64B0-4730-A0EB-D324BC755538}
+		{C16B0B27-6E6C-439C-8419-488B2D4D798F} = {3A34F6A2-64B0-4730-A0EB-D324BC755538}
+		{8611714D-5901-4D85-ACA3-8B984F591BDD} = {92F3C263-8C0C-4D12-B41A-452E48D2E5E8}
+		{1400DAC5-118E-41D3-A20C-F4F8648BC5BF} = {8611714D-5901-4D85-ACA3-8B984F591BDD}
+		{6C47746E-8F5D-4DA9-BBD1-17ECEE57F8CB} = {8611714D-5901-4D85-ACA3-8B984F591BDD}
+		{7870461F-BA5B-4198-A85E-03BA555198AD} = {E2DD51BC-974B-4526-961B-825913911FFB}
+		{28CA7AD8-6A73-454C-ABF4-26B24D986C85} = {E2DD51BC-974B-4526-961B-825913911FFB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17607E2C-4E8E-45A2-85BD-0A5808E1C0F3}
 	EndGlobalSection
 EndGlobal

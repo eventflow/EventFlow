@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,13 +46,23 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
         }
 
         [Test]
-        public void CreateUpdateSql_ProducesCorrectSql()
+        public void CreateUpdateSql_WithoutVersion_ProducesCorrectSql()
         {
             // Act
-            var sql = Sut.CreateUpdateSql<TestAttributesReadModel>();
+            var sql = Sut.CreateUpdateSql<TestAttributesReadModel>().Trim();
 
             // Assert
             sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET UpdatedTime = @UpdatedTime WHERE Id = @Id");
+        }
+
+        [Test]
+        public void CreateUpdateSql_WithVersion_ProducesCorrectSql()
+        {
+            // Act
+            var sql = Sut.CreateUpdateSql<TestVersionedAttributesReadModel>().Trim();
+
+            // Assert
+            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET FancyVersion = @FancyVersion WHERE CoolId = @CoolId AND FancyVersion = @_PREVIOUS_VERSION");
         }
 
         [Test]
@@ -72,7 +82,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var tableName = Sut.GetTableName<TestTableAttributeReadModel>();
 
             // Assert
-            tableName.Should().Be("[Fancy]");
+            tableName.Should().Be("[doh].[Fancy]");
         }
 
         public class TestAttributesReadModel : IReadModel
@@ -86,7 +96,16 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             public string Secret { get; set; }
         }
 
-        [Table("Fancy")]
+        public class TestVersionedAttributesReadModel : IReadModel
+        {
+            [SqlReadModelIdentityColumn]
+            public string CoolId { get; set; }
+
+            [SqlReadModelVersionColumn]
+            public string FancyVersion { get; set; }
+        }
+
+        [Table("Fancy", Schema = "doh")]
         public class TestTableAttributeReadModel : IReadModel
         {
         }

@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
     [Category(Categories.Unit)]
-    public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTestReadModel>, ReadStoreManagerTestReadModel, IReadModelLocator>>
+    public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<TReadModel>, TReadModel, IReadModelLocator>>
     {
         private Mock<IReadModelLocator> _readModelLocator;
 
@@ -99,8 +99,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             ReadModelStoreMock.Verify(
                 s => s.UpdateAsync(
                     It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
-                    It.IsAny<IReadModelContext>(),
-                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<ReadStoreManagerTestReadModel>, CancellationToken, Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                    It.IsAny<IReadModelContextFactory>(),
+                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never);
         }

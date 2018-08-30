@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -88,7 +88,7 @@ namespace EventFlow.RabbitMQ.Tests
             {
                 if (stopwatch.Elapsed >= timeout)
                 {
-                    throw new TimeoutException($"Timedout after {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
+                    throw new TimeoutException($"Timed out after {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
                 }
 
                 BasicDeliverEventArgs basicDeliverEventArgs;

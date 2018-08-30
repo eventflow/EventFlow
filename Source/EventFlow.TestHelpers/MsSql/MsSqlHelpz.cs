@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,16 +44,16 @@ namespace EventFlow.TestHelpers.MsSql
             var databaseName = $"{label}_{DateTime.Now:yyyy-MM-dd-HH-mm}_{Guid.NewGuid():N}";
 
             var connectionstringParts = new List<string>
-            {
-                $"Database={databaseName}"
-            };
+                {
+                    $"Database={databaseName}"
+                };
 
             var environmentServer = Environment.GetEnvironmentVariable("HELPZ_MSSQL_SERVER");
             var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PASS");
             var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER");
 
             connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
-                ? @"Server=localhost\SQLEXPRESS"
+                ? @"Server=."
                 : $"Server={environmentServer}");
             connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
                 ? @"Integrated Security=True"

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -122,7 +122,10 @@ namespace EventFlow.EventStores.EventStore
             var eventDatas = serializedEvents
                 .Select(e =>
                     {
-                        var guid = Guid.Parse(e.Metadata["guid"]);
+                        // While it might be tempting to use e.Metadata.EventId here, we can't
+                        // as EventStore won't detect optimistic concurrency exceptions then
+                        var guid = Guid.NewGuid();
+
                         var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
@@ -132,17 +135,18 @@ namespace EventFlow.EventStores.EventStore
 
             try
             {
-                using (var transaction = await _connection.StartTransactionAsync(id.Value, expectedVersion).ConfigureAwait(false))
-                {
-                    await transaction.WriteAsync(eventDatas).ConfigureAwait(false);
-                    var writeResult = await transaction.CommitAsync().ConfigureAwait(false);
-                    _log.Verbose(
-                        "Wrote entity {0} with version {1} ({2},{3})",
-                        id,
-                        writeResult.NextExpectedVersion - 1,
-                        writeResult.LogPosition.CommitPosition,
-                        writeResult.LogPosition.PreparePosition);
-                }
+                var writeResult = await _connection.AppendToStreamAsync(
+                    id.Value,
+                    expectedVersion,
+                    eventDatas)
+                    .ConfigureAwait(false);
+
+                _log.Verbose(
+                    "Wrote entity {0} with version {1} ({2},{3})",
+                    id,
+                    writeResult.NextExpectedVersion - 1,
+                    writeResult.LogPosition.CommitPosition,
+                    writeResult.LogPosition.PreparePosition);
             }
             catch (WrongExpectedVersionException e)
             {

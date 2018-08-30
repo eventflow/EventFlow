@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,10 +78,7 @@ namespace EventFlow.Aggregates
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            if (aggregateEvent == null)
-            {
-                throw new ArgumentNullException(nameof(aggregateEvent));
-            }
+            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
 
             var aggregateSequenceNumber = Version + 1;
             var eventId = EventId.NewDeterministic(
@@ -113,6 +110,8 @@ namespace EventFlow.Aggregates
             ISnapshotStore snapshotStore,
             CancellationToken cancellationToken)
         {
+            if (eventStore == null) throw new ArgumentNullException(nameof(eventStore));
+
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(Id, cancellationToken).ConfigureAwait(false);
 
             ApplyEvents(domainEvents);
@@ -124,6 +123,8 @@ namespace EventFlow.Aggregates
             ISourceId sourceId,
             CancellationToken cancellationToken)
         {
+            if (eventStore == null) throw new ArgumentNullException(nameof(eventStore));
+
             var domainEvents = await eventStore.StoreAsync<TAggregate, TIdentity>(
                 Id,
                 _uncommittedEvents,
@@ -136,17 +137,29 @@ namespace EventFlow.Aggregates
 
         public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            if (!domainEvents.Any())
-            {
-                return;
-            }
+            if (domainEvents == null) throw new ArgumentNullException(nameof(domainEvents));
 
-            ApplyEvents(domainEvents.Select(e => e.GetAggregateEvent()));
+            foreach (var domainEvent in domainEvents)
+            {
+                if (domainEvent.AggregateSequenceNumber != Version + 1)
+                    throw new InvalidOperationException(
+                        $"Cannot apply aggregate event of type '{domainEvent.GetType().PrettyPrint()}' " +
+                        $"with SequenceNumber {domainEvent.AggregateSequenceNumber} on aggregate " +
+                        $"with version {Version}");
+
+                var aggregateEvent = domainEvent.GetAggregateEvent();
+                if (!(aggregateEvent is IAggregateEvent<TAggregate, TIdentity> e))
+                {
+                    throw new ArgumentException($"Aggregate event of type '{domainEvent.GetType()}' does not belong with aggregate '{this}'");
+                }
+
+                ApplyEvent(e);
+            }
+            
             foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
             {
                 _previousSourceIds.Put(domainEvent.Metadata.SourceId);
             }
-            Version = domainEvents.Max(e => e.AggregateSequenceNumber);
         }
 
         public IIdentity GetIdentity()
@@ -154,27 +167,10 @@ namespace EventFlow.Aggregates
             return Id;
         }
 
-        public void ApplyEvents(IEnumerable<IAggregateEvent> aggregateEvents)
-        {
-            if (Version > 0)
-            {
-                throw new InvalidOperationException($"Aggregate '{GetType().PrettyPrint()}' with ID '{Id}' already has events");
-            }
-
-            foreach (var aggregateEvent in aggregateEvents)
-            {
-                var e = aggregateEvent as IAggregateEvent<TAggregate, TIdentity>;
-                if (e == null)
-                {
-                    throw new ArgumentException($"Aggregate event of type '{aggregateEvent.GetType()}' does not belong with aggregate '{this}',");
-                }
-
-                ApplyEvent(e);
-            }
-        }
-
         protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
+            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
+
             var eventType = aggregateEvent.GetType();
             if (_eventHandlers.ContainsKey(eventType))
             {
@@ -186,8 +182,7 @@ namespace EventFlow.Aggregates
             }
             else
             {
-                Action<TAggregate, IAggregateEvent> applyMethod;
-                if (!ApplyMethods.TryGetValue(eventType, out applyMethod))
+                if (!ApplyMethods.TryGetValue(eventType, out var applyMethod))
                 {
                     throw new NotImplementedException(
                         $"Aggregate '{Name}' does have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
@@ -203,6 +198,8 @@ namespace EventFlow.Aggregates
         protected void Register<TAggregateEvent>(Action<TAggregateEvent> handler)
             where TAggregateEvent : IAggregateEvent<TAggregate, TIdentity>
         {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
             var eventType = typeof(TAggregateEvent);
             if (_eventHandlers.ContainsKey(eventType))
             {
@@ -215,6 +212,8 @@ namespace EventFlow.Aggregates
 
         protected void Register(IEventApplier<TAggregate, TIdentity> eventApplier)
         {
+            if (eventApplier == null) throw new ArgumentNullException(nameof(eventApplier));
+
             _eventAppliers.Add(eventApplier);
         }
 

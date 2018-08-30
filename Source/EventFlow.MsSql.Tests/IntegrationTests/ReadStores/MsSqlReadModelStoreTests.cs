@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2017 Rasmus Mikkelsen
-// Copyright (c) 2015-2017 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,7 @@ using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
@@ -50,7 +51,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
             var resolver = eventFlowOptions
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseMssqlReadModel<MsSqlThingyReadModel>()
+                .UseMssqlReadModelFor<ThingyAggregate, ThingyId, MsSqlThingyReadModel>()
                 .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(MsSqlThingyGetQueryHandler),
