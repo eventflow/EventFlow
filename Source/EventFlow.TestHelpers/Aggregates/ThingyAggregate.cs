@@ -43,7 +43,7 @@ namespace EventFlow.TestHelpers.Aggregates
         IEmit<ThingyDomainErrorAfterFirstEvent>
     {
         // ReSharper disable once NotAccessedField.Local
-        private readonly IUniqueContext _uniqueContext;
+        private readonly IScopedContext _scopedContext;
         // We just hold a reference
 
         public const int SnapshotEveryVersion = 10;
@@ -56,10 +56,10 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
 
-        public ThingyAggregate(ThingyId id, IUniqueContext uniqueContext)
+        public ThingyAggregate(ThingyId id, IScopedContext scopedContext)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
         {
-            _uniqueContext = uniqueContext;
+            _scopedContext = scopedContext;
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
             Register<ThingyMessageHistoryAddedEvent>(e => _messages.AddRange(e.ThingyMessages));

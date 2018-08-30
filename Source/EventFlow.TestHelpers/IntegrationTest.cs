@@ -63,7 +63,7 @@ namespace EventFlow.TestHelpers
         public void SetUpIntegrationTest()
         {
             var eventFlowOptions = Options(EventFlowOptions.New)
-                .RegisterServices(sr => sr.Register<IUniqueContext, UniqueContext>(Lifetime.Scoped))
+                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
                 .AddDefaults(EventFlowTestHelpers.Assembly, 
                     type => type != typeof(DbContextQueryHandler));

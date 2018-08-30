@@ -23,7 +23,7 @@
 
 namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    public interface IUniqueContext
+    public interface IScopedContext
     {
         string Id { get; }
     }

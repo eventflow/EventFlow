@@ -26,24 +26,24 @@ using EventFlow.Logs;
 
 namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    public class UniqueContext : IUniqueContext, IDisposable
+    public class ScopedContext : IScopedContext, IDisposable
     {
         private readonly ILog _log;
         private bool _isDisposed;
 
         public string Id { get; } = Guid.NewGuid().ToString();
 
-        public UniqueContext(
+        public ScopedContext(
             ILog log)
         {
             _log = log;
 
-            _log.Information($"Unique context {Id} created");
+            _log.Information($"Scoped context {Id} created");
         }
 
         public void Dispose()
         {
-            if (_isDisposed) throw new ObjectDisposedException($"UniqueContext {Id} is already disposed");
+            if (_isDisposed) throw new ObjectDisposedException($"Scoped context {Id} is already disposed");
 
             _isDisposed = true;
             _log.Information($"Unique context {Id} was disposed");

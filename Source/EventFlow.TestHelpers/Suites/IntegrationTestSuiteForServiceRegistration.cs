@@ -63,7 +63,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             using (var scope = Resolver.BeginScope())
             {
-                var dbContext = scope.Resolve<IUniqueContext>();
+                var dbContext = scope.Resolve<IScopedContext>();
                 var queryProcessor = scope.Resolve<IQueryProcessor>();
 
                 var result = await queryProcessor.ProcessAsync(new DbContextQuery(), CancellationToken.None);
