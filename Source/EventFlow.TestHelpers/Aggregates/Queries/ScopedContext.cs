@@ -46,7 +46,7 @@ namespace EventFlow.TestHelpers.Aggregates.Queries
             if (_isDisposed) throw new ObjectDisposedException($"Scoped context {Id} is already disposed");
 
             _isDisposed = true;
-            _log.Information($"Unique context {Id} was disposed");
+            _log.Information($"Scoped context {Id} was disposed");
         }
     }
 }
