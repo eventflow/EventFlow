@@ -38,7 +38,8 @@ namespace EventFlow.Core.IoC
         private readonly bool _disposeSingletons;
         private readonly IResolverContext _resolverContext;
         private readonly Type[] _emptyTypeArray = {};
-        private readonly List<IDisposable> _disposables = new List<IDisposable>();
+        private readonly List<IDisposable> _uniqueDisposables = new List<IDisposable>();
+        private readonly ConcurrentDictionary<IRegistration, object> _scoped = new ConcurrentDictionary<IRegistration, object>();
 
         public EventFlowIoCResolver(
             ConcurrentDictionary<IRegistration, object> singletons,
@@ -75,14 +76,9 @@ namespace EventFlow.Core.IoC
 
             if (!_registrations.TryGetValue(serviceType, out var registrations))
             {
-                if (serviceType == typeof(IResolver))
+                if (serviceType == typeof(IResolver) || serviceType == typeof(IScopeResolver))
                 {
                     return this;
-                }
-
-                if (serviceType == typeof(IScopeResolver))
-                {
-                    return BeginScope();
                 }
 
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
@@ -119,10 +115,17 @@ namespace EventFlow.Core.IoC
 
         public void Dispose()
         {
-            foreach (var disposable in _disposables)
+            foreach (var disposable in _uniqueDisposables)
             {
                 disposable.Dispose();
             }
+            _uniqueDisposables.Clear();
+
+            foreach (var scoped in _scoped.Values)
+            {
+                (scoped as IDisposable)?.Dispose();
+            }
+            _scoped.Clear();
 
             if (!_disposeSingletons)
             {
@@ -133,7 +136,6 @@ namespace EventFlow.Core.IoC
             {
                 (singleton as IDisposable)?.Dispose();
             }
-
             _singletons.Clear();
         }
 
@@ -150,12 +152,15 @@ namespace EventFlow.Core.IoC
                     var service = registration.Create(_resolverContext, genericTypeArguments);
                     if (service is IDisposable disposable)
                     {
-                        _disposables.Add(disposable);
+                        _uniqueDisposables.Add(disposable);
                     }
                     return service;
 
                 case Lifetime.Singleton:
                     return _singletons.GetOrAdd(registration, r => r.Create(_resolverContext, genericTypeArguments));
+
+                case Lifetime.Scoped:
+                    return _scoped.GetOrAdd(registration, r => r.Create(_resolverContext, genericTypeArguments));
 
                 default:
                     throw new ArgumentOutOfRangeException();

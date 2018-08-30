@@ -29,16 +29,16 @@ namespace EventFlow.TestHelpers.Aggregates.Queries
 {
     public class DbContextQueryHandler : IQueryHandler<DbContextQuery, string>
     {
-        private readonly IDbContext _dbContext;
+        private readonly IUniqueContext _uniqueContext;
 
-        public DbContextQueryHandler(IDbContext dbContext)
+        public DbContextQueryHandler(IUniqueContext uniqueContext)
         {
-            _dbContext = dbContext;
+            _uniqueContext = uniqueContext;
         }
 
         public Task<string> ExecuteQueryAsync(DbContextQuery query, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_dbContext.Id);
+            return Task.FromResult(_uniqueContext.Id);
         }
     }
 }

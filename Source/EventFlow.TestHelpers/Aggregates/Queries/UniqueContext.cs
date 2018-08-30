@@ -21,10 +21,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using EventFlow.Logs;
+
 namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    public interface IDbContext 
+    public class UniqueContext : IUniqueContext, IDisposable
     {
-        string Id { get; }
+        private readonly ILog _log;
+        private bool _isDisposed;
+
+        public string Id { get; } = Guid.NewGuid().ToString();
+
+        public UniqueContext(
+            ILog log)
+        {
+            _log = log;
+
+            _log.Information($"Unique context {Id} created");
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed) throw new ObjectDisposedException($"UniqueContext {Id} is already disposed");
+
+            _isDisposed = true;
+            _log.Information($"Unique context {Id} was disposed");
+        }
     }
 }
