@@ -76,9 +76,14 @@ namespace EventFlow.Core.IoC
 
             if (!_registrations.TryGetValue(serviceType, out var registrations))
             {
-                if (serviceType == typeof(IResolver) || serviceType == typeof(IScopeResolver))
+                if (serviceType == typeof(IResolver))
                 {
                     return this;
+                }
+
+                if (serviceType == typeof(IScopeResolver))
+                {
+                    return new EventFlowIoCResolver(_singletons, _registrations, false);
                 }
 
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))

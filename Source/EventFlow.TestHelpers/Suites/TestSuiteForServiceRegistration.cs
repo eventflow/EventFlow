@@ -251,6 +251,7 @@ namespace EventFlow.TestHelpers.Suites
             {
                 // Arrange
                 Sut.Register<I, A>(Lifetime.Singleton);
+
                 using (var resolver = Sut.CreateResolver(false))
                 {
                     var i1 = resolver.Resolve<I>();
@@ -278,6 +279,7 @@ namespace EventFlow.TestHelpers.Suites
             {
                 // Arrange
                 Sut.Register<I, A>(Lifetime.Singleton);
+
                 using (var resolver = Sut.CreateResolver(false))
                 {
                     var i1 = resolver.Resolve<I>();
