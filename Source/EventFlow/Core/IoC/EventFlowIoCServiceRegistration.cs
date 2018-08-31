@@ -124,7 +124,7 @@ namespace EventFlow.Core.IoC
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             var resolver = new EventFlowIoCResolver(
-                new ConcurrentDictionary<IRegistration, object>(), 
+                new ConcurrentDictionary<int, object>(), 
                 _registrations,
                 true);
 

@@ -32,15 +32,17 @@ namespace EventFlow.Core.IoC
     internal interface IRegistration
     {
         Lifetime Lifetime { get; }
+        Type ServiceType { get; }
+
         object Create(IResolverContext resolverContext, Type[] genericTypeArguments);
     }
 
     internal class Registration : IRegistration
     {
-        private readonly Type _serviceType;
         private readonly IFactory _factory;
         private readonly IDecoratorService _decoratorService;
         public Lifetime Lifetime { get; }
+        public Type ServiceType { get; }
 
         public Registration(
             Type serviceType,
@@ -48,7 +50,7 @@ namespace EventFlow.Core.IoC
             IFactory factory,
             IDecoratorService decoratorService)
         {
-            _serviceType = serviceType;
+            ServiceType = serviceType;
             _factory = factory;
             _decoratorService = decoratorService;
             Lifetime = lifetime;
@@ -56,9 +58,9 @@ namespace EventFlow.Core.IoC
 
         public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
-            var serviceType = genericTypeArguments.Any() && _serviceType.GetTypeInfo().IsGenericType
-                ? _serviceType.MakeGenericType(genericTypeArguments)
-                : _serviceType;
+            var serviceType = genericTypeArguments.Any() && ServiceType.GetTypeInfo().IsGenericType
+                ? ServiceType.MakeGenericType(genericTypeArguments)
+                : ServiceType;
 
             return CreateDecorated(resolverContext, serviceType, genericTypeArguments);
         }

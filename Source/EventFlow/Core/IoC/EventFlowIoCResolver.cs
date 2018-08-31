@@ -33,16 +33,16 @@ namespace EventFlow.Core.IoC
 {
     internal class EventFlowIoCResolver : IRootResolver
     {
-        private readonly ConcurrentDictionary<IRegistration, object> _singletons;
         private readonly IReadOnlyDictionary<Type, List<Registration>> _registrations;
         private readonly bool _disposeSingletons;
         private readonly IResolverContext _resolverContext;
         private readonly Type[] _emptyTypeArray = {};
         private readonly List<IDisposable> _uniqueDisposables = new List<IDisposable>();
-        private readonly ConcurrentDictionary<IRegistration, object> _scoped = new ConcurrentDictionary<IRegistration, object>();
+        private readonly ConcurrentDictionary<int, object> _singletons;
+        private readonly ConcurrentDictionary<int, object> _scoped = new ConcurrentDictionary<int, object>();
 
         public EventFlowIoCResolver(
-            ConcurrentDictionary<IRegistration, object> singletons,
+            ConcurrentDictionary<int, object> singletons,
             IReadOnlyDictionary<Type, List<Registration>> registrations,
             bool disposeSingletons)
         {
@@ -157,21 +157,34 @@ namespace EventFlow.Core.IoC
                     return service;
 
                 case Lifetime.Singleton:
-                    return _singletons.GetOrAdd(registration, r => r.Create(_resolverContext, genericTypeArguments));
+                    return _singletons.GetOrAdd(
+                        CombineHash(registration.ServiceType, genericTypeArguments),
+                        _ => registration.Create(_resolverContext, genericTypeArguments));
 
                 case Lifetime.Scoped:
-                    return _scoped.GetOrAdd(registration, r => r.Create(_resolverContext, genericTypeArguments));
+                    return _scoped.GetOrAdd(
+                        CombineHash(registration.ServiceType, genericTypeArguments),
+                        _ => registration.Create(_resolverContext, genericTypeArguments));
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
+        private static int CombineHash(Type serviceType, params Type[] genericTypeArguments)
+        {
+            return genericTypeArguments.Aggregate(
+                serviceType.GetHashCode(),
+                (i, t) => HashHelper.Combine(i, t.GetHashCode()));
+        }
+
         private static readonly ConcurrentDictionary<Type, IRegistration> EnumerableResolvers = new ConcurrentDictionary<Type, IRegistration>();
 
         private class EnumerableResolver : IRegistration
         {
-            private readonly Type _genericArgument;
+            public Type ServiceType { get; }
+            public Lifetime Lifetime => Lifetime.AlwaysUnique;
+
             private readonly MethodInfo _methodInfo;
 
             public EnumerableResolver(
@@ -182,8 +195,8 @@ namespace EventFlow.Core.IoC
                     .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
                     .Single(mi => mi.Name == nameof(ResolveEnumerable));
 
-                _genericArgument = typeInfo.GenericTypeArguments.Single();
-                _methodInfo = genericMethodInfo.MakeGenericMethod(_genericArgument);
+                ServiceType = typeInfo.GenericTypeArguments.Single();
+                _methodInfo = genericMethodInfo.MakeGenericMethod(ServiceType);
             }
 
             private static IEnumerable<T> ResolveEnumerable<T>(IResolverContext resolverContext, Type serviceType)
@@ -193,11 +206,9 @@ namespace EventFlow.Core.IoC
                     .Select(s => (T)s);
             }
 
-            public Lifetime Lifetime => Lifetime.AlwaysUnique;
-
             public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
             {
-                return _methodInfo.Invoke(null, new object[] { resolverContext, _genericArgument });
+                return _methodInfo.Invoke(null, new object[] { resolverContext, ServiceType });
             }
         }
     }
