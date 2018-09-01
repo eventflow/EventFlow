@@ -29,7 +29,7 @@ image: Visual Studio 2017
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
-  RABBITMQ_DOCKER_IMAGE_NAME: giordanol/rabbitmqwindows
+  RABBITMQ_DOCKER_IMAGE_NAME: idubnori/rabbitmq-windows:3.6.9
   ELASTICSEARCH_DOCKER_IMAGE_NAME: sixeyed/elasticsearch:5.6.0-nanoserver-sac2016
   EVENTSTORE_DOCKER_IMAGE_NAME: idubnori/eventstore:4.1.1-hotfix1-windowsservercore
 
