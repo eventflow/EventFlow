@@ -5,6 +5,9 @@
 ### New in 0.64.3598 (released 2018-08-24)
 
 * New: Added .NET standard support for SQLite
+* Minor: Fixed stack overflow in `ValidateRegistrations` when decorator
+  components are co-located together with other components that are registed using
+  `Add*`-methods
 
 ### New in 0.63.3581 (released 2018-08-07)
 

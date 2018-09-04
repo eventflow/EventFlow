@@ -39,7 +39,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var sagaTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISaga).GetTypeInfo().IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract && t.IsAssignableTo<ISaga>())
                 .Where(t => predicate(t));
 
             return eventFlowOptions.AddSagas(sagaTypes);
@@ -60,7 +60,8 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var sagaTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISagaLocator).GetTypeInfo().IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract && t.IsAssignableTo<ISagaLocator>())
+                .Where(t => !t.HasConstructorParameterOfType(x => x.IsAssignableTo<ISagaLocator>()))
                 .Where(t => predicate(t));
 
             return eventFlowOptions.AddSagaLocators(sagaTypes);
