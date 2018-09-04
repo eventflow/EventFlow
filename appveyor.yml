@@ -6,11 +6,7 @@ version: 0.65.{build}
 skip_tags: true
 
 before_build:
-  - ps: |
-      docker pull $env:RABBITMQ_DOCKER_IMAGE_NAME
-      $cid = docker run -d $env:RABBITMQ_DOCKER_IMAGE_NAME
-      $hostip = docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" $cid
-      $env:RABBITMQ_URL = "amqp://guest:guest@${hostip}:5672"
+  - ps: .\up_integration-test-env.ps1
 
 build_script:
   - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
@@ -19,7 +15,6 @@ image: Visual Studio 2017
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
-  RABBITMQ_DOCKER_IMAGE_NAME: giordanol/rabbitmqwindows
 
 test: off
 
