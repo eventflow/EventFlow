@@ -21,34 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Linq;
-using System.Reflection;
-using EventFlow.Jobs;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Core;
 
-namespace EventFlow.Extensions
+namespace EventFlow.TestHelpers.Aggregates.Decorators
 {
-    public static class EventFlowOptionsJobExtensions
+    /// <summary>
+    /// Caused StackOverflowException when colocated with command handlers and using options.AddDefaults().
+    /// </summary>
+    /// <seealso cref="http://github.com/eventflow/EventFlow/issues/523"/>
+    public class SomeCommandHandlerDecorator<TAggregate, TIdentity, TResult, TCommand> :
+        CommandHandler<TAggregate, TIdentity, TResult, TCommand>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TResult : IExecutionResult
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
-        public static IEventFlowOptions AddJobs(
-            this IEventFlowOptions eventFlowOptions,
-            params Type[] jobTypes)
+        public SomeCommandHandlerDecorator(ICommandHandler<TAggregate, TIdentity, TResult, TCommand> inner)
         {
-            return eventFlowOptions.AddJobs(jobTypes);
         }
 
-        public static IEventFlowOptions AddJobs(
-            this IEventFlowOptions eventFlowOptions,
-            Assembly fromAssembly,
-            Predicate<Type> predicate)
+        public override Task<TResult> ExecuteCommandAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken)
         {
-            predicate = predicate ?? (t => true);
-            var jobTypes = fromAssembly
-                .GetTypes()
-                .Where(type => !type.GetTypeInfo().IsAbstract && type.IsAssignableTo<IJob>())
-                .Where(t => !t.HasConstructorParameterOfType(i => i.IsAssignableTo<IJob>()))
-                .Where(t => predicate(t));
-            return eventFlowOptions.AddJobs(jobTypes);
+            throw new System.NotImplementedException();
         }
     }
 }
