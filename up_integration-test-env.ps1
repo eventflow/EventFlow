@@ -6,6 +6,7 @@ Function Get-Container-Ip($containername)
 # end functions
 
 # Up containers
+docker-compose -f docker-compose.ci.yml pull --parallel
 docker-compose -f docker-compose.ci.yml up -d
 
 # Install curl
