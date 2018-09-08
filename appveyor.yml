@@ -23,9 +23,7 @@ services:
   - postgresql101
 
 on_success:
-- cmd: docker-compose -f docker-compose.ci.yml stop
-- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
-- pip install codecov
+- choco install codecov
 - codecov -f "Build\\Reports\\opencover-results.xml"
 
 nuget:
