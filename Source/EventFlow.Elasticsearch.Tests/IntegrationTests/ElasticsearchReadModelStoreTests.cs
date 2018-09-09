@@ -21,23 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Net;
 using EventFlow.Configuration;
 using EventFlow.Elasticsearch.Extensions;
-using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
-using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
-using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
+
 using Nest;
+
 using NUnit.Framework;
-using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Reflection;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 {
@@ -48,11 +50,12 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         private IElasticClient _elasticClient;
         private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
-        private string _indexName;
+        private List<string> _indexes;
 
         [OneTimeSetUp]
         public void FixtureSetUp()
         {
+            _indexes = new List<string>();
             _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
         }
 
@@ -62,20 +65,26 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
         }
 
-        public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
+        private static IEnumerable<Type> GetLoadableTypes<T>(params Assembly[] assemblies)
         {
-            private readonly string _indexName;
+            IEnumerable<Type> availableTypes;
 
-            public TestReadModelDescriptionProvider(
-                string indexName)
+            if (assemblies == null || !assemblies.Any()) throw new ArgumentNullException(nameof(assemblies));
+            try
             {
-                _indexName = indexName;
+                availableTypes = assemblies.SelectMany(x=>x.GetTypes());
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                availableTypes = e.Types.Where(t => t != null);
             }
 
-            public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
+            foreach (Type type in availableTypes)
             {
-                return new ReadModelDescription(
-                    new IndexName(_indexName));
+                if (type.GetCustomAttributes(typeof(T), true).Length > 0)
+                {
+                    yield return type;
+                }
             }
         }
 
@@ -83,15 +92,10 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         {
             try
             {
-                _indexName = $"eventflow-test-{Guid.NewGuid():D}";
-
-                var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_indexName);
-
                 var resolver = eventFlowOptions
                     .RegisterServices(sr =>
                         {
                             sr.RegisterType(typeof(ThingyMessageLocator));
-                            sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
                         })
                     .ConfigureElasticsearch(_elasticsearchInstance.Uri)
                     .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
@@ -104,13 +108,27 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
                 _elasticClient = resolver.Resolve<IElasticClient>();
 
-                _elasticClient.CreateIndex(_indexName, c => c
-                    .Settings(s => s
-                        .NumberOfShards(1)
-                        .NumberOfReplicas(0))
-                    .Mappings(m => m
-                        .Map<ElasticsearchThingyMessageReadModel>(d => d
-                            .AutoMap())));
+                var readModelTypes =
+                    GetLoadableTypes<ElasticsearchTypeAttribute>(typeof(ElasticsearchThingyReadModel).Assembly);
+
+                foreach (var readModelType in readModelTypes)
+                {
+                    var esType = readModelType.GetTypeInfo()
+                        .GetCustomAttribute<ElasticsearchTypeAttribute>();
+
+                    var indexName = GetIndexName(esType.Name);
+                    _indexes.Add(indexName);
+
+                    _elasticClient.CreateIndex(indexName, c => c
+                        .Settings(s => s
+                            .NumberOfShards(1)
+                            .NumberOfReplicas(0))
+                        .Aliases(a => a.Alias(esType.Name))
+                        .Mappings(m => m
+                            .Map(TypeName.Create(readModelType), d => d
+                                .AutoMap())));
+
+                }
 
                 _elasticsearchInstance.WaitForGreenStateAsync().Wait(TimeSpan.FromMinutes(1));
 
@@ -123,15 +141,23 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             }
         }
 
+        private string GetIndexName(string name)
+        {
+            return $"eventflow-test-{name}-{Guid.NewGuid():D}";
+        }
+
         [TearDown]
         public void TearDown()
         {
             try
             {
-                Console.WriteLine($"Deleting test index '{_indexName}'");
-                _elasticClient.DeleteIndex(
-                    _indexName,
-                    r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
+                foreach (var index in _indexes)
+                {
+                    Console.WriteLine($"Deleting test index '{index}'");
+                    _elasticClient.DeleteIndex(
+                        index,
+                        r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
+                }
             }
             catch (Exception e)
             {
