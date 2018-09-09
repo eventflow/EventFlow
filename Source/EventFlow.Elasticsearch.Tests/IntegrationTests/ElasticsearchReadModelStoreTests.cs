@@ -122,7 +122,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         private string GetIndexName(string name)
         {
-            return $"eventflow-test-{name}-{Guid.NewGuid():D}";
+            return $"eventflow-test-{name}-{Guid.NewGuid():D}".ToLowerInvariant();
         }
 
         [TearDown]
