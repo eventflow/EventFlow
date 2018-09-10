@@ -36,7 +36,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
     [Category(Categories.Unit)]
-    public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<ReadStoreManagerTestReadModel>, ReadStoreManagerTestReadModel, IReadModelLocator>>
+    public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<TReadModel>, TReadModel, IReadModelLocator>>
     {
         private Mock<IReadModelLocator> _readModelLocator;
 
@@ -45,7 +45,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             _readModelLocator = InjectMock<IReadModelLocator>();
 
-            _readModelLocator.Setup(l => l.GetReadModelIds(It.IsAny<IDomainEvent>())).Returns(new[] {A<string>()});
+            _readModelLocator.Setup(l => l.GetReadModelIds(It.IsAny<IDomainEvent>())).Returns(new[] { A<string>() });
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 s => s.UpdateAsync(
                     It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
                     It.IsAny<IReadModelContextFactory>(),
-                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<ReadStoreManagerTestReadModel>, CancellationToken, Task<ReadModelEnvelope<ReadStoreManagerTestReadModel>>>>(),
+                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never);
         }

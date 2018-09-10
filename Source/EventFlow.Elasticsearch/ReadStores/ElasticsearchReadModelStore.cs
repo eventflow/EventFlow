@@ -73,7 +73,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value), 
+                        .Index(readModelDescription.IndexName.Value),
                             cancellationToken)
                 .ConfigureAwait(false);
 
@@ -85,8 +85,7 @@ namespace EventFlow.Elasticsearch.ReadStores
             return ReadModelEnvelope<TReadModel>.With(
                 id,
                 getResponse.Source,
-                getResponse.Version,
-                false);
+                getResponse.Version);
         }
 
         public async Task DeleteAsync(
@@ -100,7 +99,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 d => d
                     .Index(readModelDescription.IndexName.Value)
                     .RequestConfiguration(c => c
-                        .AllowedStatusCodes((int) HttpStatusCode.NotFound)),
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)),
                 cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -116,7 +115,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelDescription.IndexName.Value,
                 d => d
                     .RequestConfiguration(c => c
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)),
                             cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -124,7 +123,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
@@ -143,7 +142,7 @@ namespace EventFlow.Elasticsearch.ReadStores
             ReadModelDescription readModelDescription,
             ReadModelUpdate readModelUpdate,
             IReadModelContextFactory readModelContextFactory,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelId = readModelUpdate.ReadModelId;
@@ -153,7 +152,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value), 
+                        .Index(readModelDescription.IndexName.Value),
                             cancellationToken)
                 .ConfigureAwait(false);
 
@@ -161,18 +160,22 @@ namespace EventFlow.Elasticsearch.ReadStores
 
             var readModelEnvelope = isNew
                 ? ReadModelEnvelope<TReadModel>.Empty(readModelId)
-                : ReadModelEnvelope<TReadModel>.With(readModelId, response.Source, response.Version, false);
+                : ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, response.Source, response.Version);
 
             var context = readModelContextFactory.Create(readModelId, isNew);
 
-            readModelEnvelope = await updateReadModel(
+            var readModelUpdateResult = await updateReadModel(
                 context,
                 readModelUpdate.DomainEvents,
                 readModelEnvelope,
                 cancellationToken)
                 .ConfigureAwait(false);
-            if (!readModelEnvelope.IsModified) return;
+            if (!readModelUpdateResult.IsModified)
+            {
+                return;
+            }
 
+            readModelEnvelope = readModelUpdateResult.Envelope;
             if (context.IsMarkedForDeletion)
             {
                 await DeleteAsync(readModelId, cancellationToken).ConfigureAwait(false);

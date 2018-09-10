@@ -38,6 +38,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Extensions;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
