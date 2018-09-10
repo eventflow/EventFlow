@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using EventFlow.TestHelpers.PostgreSql;
 
 namespace EventFlow.PostgreSql.TestsHelpers
 

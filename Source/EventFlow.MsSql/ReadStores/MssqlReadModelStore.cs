@@ -161,11 +161,11 @@ namespace EventFlow.MsSql.ReadStores
             if (mssqlReadModel != null)
             {
                 mssqlReadModel.UpdatedTime = DateTimeOffset.Now;
-                mssqlReadModel.LastAggregateSequenceNumber = (int)readModelEnvelope.Version.GetValueOrDefault();
+                mssqlReadModel.LastAggregateSequenceNumber = (int) readModelEnvelope.Version.GetValueOrDefault();
             }
             else
             {
-                SetVersion(readModel, (int?)readModelEnvelope.Version);
+                SetVersion(readModel, (int?) readModelEnvelope.Version);
             }
 
             var sql = isNew

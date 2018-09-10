@@ -118,7 +118,7 @@ namespace EventFlow.ReadStores.InMemory
                     {
                         return;
                     }
-
+                    
                     readModelEnvelope = readModelUpdateResult.Envelope;
 
                     if (readModelContext.IsMarkedForDeletion)

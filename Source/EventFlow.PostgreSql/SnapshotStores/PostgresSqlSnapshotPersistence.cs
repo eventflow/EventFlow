@@ -60,7 +60,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
                 "SELECT * FROM EventFlowSnapshots " +
                 "WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC " +
                 "LIMIT 1;",
-                new { AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value })
+                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value})
                 .ConfigureAwait(false);
 
             if (!postgreSqlSnapshotDataModels.Any())
@@ -82,12 +82,12 @@ namespace EventFlow.PostgreSql.SnapshotStores
         {
             var postgreSqlSnapshotDataModel = new PostgreSqlSnapshotDataModel
             {
-                AggregateId = identity.Value,
-                AggregateName = aggregateType.GetAggregateName().Value,
-                AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
-                Metadata = serializedSnapshot.SerializedMetadata,
-                Data = serializedSnapshot.SerializedData,
-            };
+                    AggregateId = identity.Value,
+                    AggregateName = aggregateType.GetAggregateName().Value,
+                    AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
+                    Metadata = serializedSnapshot.SerializedMetadata,
+                    Data = serializedSnapshot.SerializedData,
+                };
 
             try
             {
@@ -119,7 +119,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
                 Label.Named("delete-snapshots-for-aggregate"),
                 cancellationToken,
                 "DELETE FROM EventFlowSnapshots WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId;",
-                new { AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value });
+                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value});
         }
 
         public Task PurgeSnapshotsAsync(
@@ -130,7 +130,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
                 Label.Named("purge-snapshots-for-aggregate"),
                 cancellationToken,
                 "DELETE FROM EventFlowSnapshots WHERE AggregateName = @AggregateName;",
-                new { AggregateName = aggregateType.GetAggregateName().Value });
+                new {AggregateName = aggregateType.GetAggregateName().Value});
         }
 
         public Task PurgeSnapshotsAsync(

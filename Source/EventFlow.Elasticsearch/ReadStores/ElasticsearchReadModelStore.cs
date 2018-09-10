@@ -73,7 +73,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value),
+                        .Index(readModelDescription.IndexName.Value), 
                             cancellationToken)
                 .ConfigureAwait(false);
 
@@ -99,7 +99,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 d => d
                     .Index(readModelDescription.IndexName.Value)
                     .RequestConfiguration(c => c
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)),
+                        .AllowedStatusCodes((int) HttpStatusCode.NotFound)),
                 cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -115,7 +115,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 readModelDescription.IndexName.Value,
                 d => d
                     .RequestConfiguration(c => c
-                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)),
+                        .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
                             cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -152,7 +152,7 @@ namespace EventFlow.Elasticsearch.ReadStores
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value),
+                        .Index(readModelDescription.IndexName.Value), 
                             cancellationToken)
                 .ConfigureAwait(false);
 

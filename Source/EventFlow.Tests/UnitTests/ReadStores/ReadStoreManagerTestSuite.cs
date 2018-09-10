@@ -70,7 +70,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     IReadModelContext,
                     CancellationToken>((rm, d, c, _) => AppliedDomainEvents = d)
                 .Returns(Task.FromResult(true));
-            AppliedDomainEvents = new IDomainEvent[] { };
+            AppliedDomainEvents = new IDomainEvent[] {};
         }
 
         [Test]
@@ -133,31 +133,31 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                         CancellationToken,
                         Task<ReadModelUpdateResult<TReadModel>>>,
                         CancellationToken>((readModelUpdates, readModelContextFactory, updaterFunc, cancellationToken) =>
-                        {
-                            try
                             {
-                                foreach (var g in readModelEnvelopes.GroupBy(e => e.ReadModelId))
+                                try
                                 {
-                                    foreach (var readModelEnvelope in g)
+                                    foreach (var g in readModelEnvelopes.GroupBy(e => e.ReadModelId))
                                     {
-                                        resultingReadModelUpdateResults.Add(updaterFunc(
-                                            readModelContextFactory.Create(readModelEnvelope.ReadModelId, true),
-                                            readModelUpdates
-                                                .Where(d => d.ReadModelId == g.Key)
-                                                .SelectMany(d => d.DomainEvents)
-                                                .OrderBy(d => d.AggregateSequenceNumber)
-                                                .ToList(),
-                                            readModelEnvelope,
-                                            cancellationToken)
-                                            .Result);
+                                        foreach (var readModelEnvelope in g)
+                                        {
+                                            resultingReadModelUpdateResults.Add(updaterFunc(
+                                                readModelContextFactory.Create(readModelEnvelope.ReadModelId, true),
+                                                readModelUpdates
+                                                    .Where(d => d.ReadModelId == g.Key)
+                                                    .SelectMany(d => d.DomainEvents)
+                                                    .OrderBy(d => d.AggregateSequenceNumber)
+                                                    .ToList(),
+                                                readModelEnvelope,
+                                                cancellationToken)
+                                                .Result);
+                                        }
                                     }
                                 }
-                            }
-                            catch (AggregateException e) when (e.InnerException != null)
-                            {
-                                throw e.InnerException;
-                            }
-                        })
+                                catch (AggregateException e) when (e.InnerException != null)
+                                {
+                                    throw e.InnerException;
+                                }
+                            })
                 .Returns(Task.FromResult(0));
 
             return resultingReadModelUpdateResults;

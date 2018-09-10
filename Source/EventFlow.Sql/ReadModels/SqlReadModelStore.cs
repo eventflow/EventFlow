@@ -153,7 +153,7 @@ namespace EventFlow.Sql.ReadModels
                 return;
             }
 
-            SetVersion(readModel, (int?)readModelEnvelope.Version);
+            SetVersion(readModel, (int?) readModelEnvelope.Version);
             SetIdentity(readModel, readModelEnvelope.ReadModelId);
 
             var sql = isNew
@@ -165,7 +165,7 @@ namespace EventFlow.Sql.ReadModels
             {
                 dynamicParameters.Add("_PREVIOUS_VERSION", (int)originalVersion.Value);
             }
-
+            
             var rowsAffected = await _connection.ExecuteAsync(
                 Label.Named("sql-store-read-model", readModelNameLowerCased),
                 cancellationToken,

@@ -10,11 +10,11 @@
     LastAggregateSequenceNumber int NOT NULL,
     CONSTRAINT "PK_ReadModel-ThingyAggregate" PRIMARY KEY 
     (
-        Id --ASC
+        Id
     )
 );
 
 CREATE INDEX  IF NOT EXISTS "IX_ReadModel-ThingyAggregate_AggregateId" ON "ReadModel-ThingyAggregate"
 (
-    AggregateId --ASC
+    AggregateId
 );

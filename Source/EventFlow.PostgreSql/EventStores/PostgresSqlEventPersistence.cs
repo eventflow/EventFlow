@@ -1,7 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2018 Rida Messaoudene
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -121,7 +120,7 @@ namespace EventFlow.PostgreSql.EventStores
                 .ToList();
 
             _log.Verbose(
-                "Committing {0} events to POSTGRESQL event store for entity with ID '{1}'",
+                "Committing {0} events to PostgreSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
 
@@ -138,7 +137,7 @@ namespace EventFlow.PostgreSql.EventStores
             try
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
-                    Label.Named("sqlite-insert-events"),
+                    Label.Named("postgresql-insert-events"),
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -146,11 +145,12 @@ namespace EventFlow.PostgreSql.EventStores
             }
             catch (PostgresException e)
             {
+                //If we have a duplicate key exception, then the event has already been created
                 //https://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
-                //Explanation of Error code
-                if (e.SqlState == "23505") //unique_violation
+
+                if (e.SqlState == "23505") 
                 {
-                    throw new OptimisticConcurrencyException(e.ToString(), e);
+                    throw new OptimisticConcurrencyException(e.Message, e);
                 }
 
                 throw;
@@ -184,7 +184,7 @@ namespace EventFlow.PostgreSql.EventStores
                 ORDER BY
                     AggregateSequenceNumber ASC;";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("sqlite-fetch-events"),
+                Label.Named("postgresql-fetch-events"),
                 cancellationToken,
                 sql,
                 new

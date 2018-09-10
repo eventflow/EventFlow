@@ -1,7 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2018 Rida Messaoudene
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +27,6 @@ using EventFlow.PostgreSql.ReadStores.Attributes;
 
 namespace EventFlow.PostgreSql.ReadStores
 {
-    [Obsolete("EventFlow no longer dictates any properties for the MSSQL read models. Read the updated documentation")]
     public abstract class PostgreSqlReadModel : IPostgreSqlReadModel
     {
         [PostgreSqlReadModelIdentityColumn]

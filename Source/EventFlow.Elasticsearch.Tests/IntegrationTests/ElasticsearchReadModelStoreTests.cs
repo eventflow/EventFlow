@@ -30,11 +30,8 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
-
 using Nest;
-
 using NUnit.Framework;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,20 +46,13 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         protected override Type ReadModelType { get; } = typeof(ElasticsearchThingyReadModel);
 
         private IElasticClient _elasticClient;
-        private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
+        private string _elasticsearchUrl;
         private List<string> _indexes;
 
         [OneTimeSetUp]
         public void FixtureSetUp()
         {
             _indexes = new List<string>();
-            _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
-        }
-
-        [OneTimeTearDown]
-        public void FixtureTearDown()
-        {
-            _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
         }
 
         private static IEnumerable<Type> GetLoadableTypes<T>(params Assembly[] assemblies)
@@ -90,60 +80,49 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            try
+            _elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+
+            var resolver = eventFlowOptions
+                .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
+                .ConfigureElasticsearch(_elasticsearchUrl)
+                .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
+                .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(
+                    typeof(ElasticsearchThingyGetQueryHandler),
+                    typeof(ElasticsearchThingyGetVersionQueryHandler),
+                    typeof(ElasticsearchThingyGetMessagesQueryHandler))
+                .CreateResolver();
+
+            _elasticClient = resolver.Resolve<IElasticClient>();
+
+            var readModelTypes =
+                GetLoadableTypes<ElasticsearchTypeAttribute>(typeof(ElasticsearchThingyReadModel).Assembly);
+
+            foreach (var readModelType in readModelTypes)
             {
-                var resolver = eventFlowOptions
-                    .RegisterServices(sr =>
-                        {
-                            sr.RegisterType(typeof(ThingyMessageLocator));
-                        })
-                    .ConfigureElasticsearch(_elasticsearchInstance.Uri)
-                    .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
-                    .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
-                    .AddQueryHandlers(
-                        typeof(ElasticsearchThingyGetQueryHandler),
-                        typeof(ElasticsearchThingyGetVersionQueryHandler),
-                        typeof(ElasticsearchThingyGetMessagesQueryHandler))
-                    .CreateResolver();
+                var esType = readModelType.GetTypeInfo()
+                    .GetCustomAttribute<ElasticsearchTypeAttribute>();
 
-                _elasticClient = resolver.Resolve<IElasticClient>();
+                var indexName = GetIndexName(esType.Name);
 
-                var readModelTypes =
-                    GetLoadableTypes<ElasticsearchTypeAttribute>(typeof(ElasticsearchThingyReadModel).Assembly);
+                _indexes.Add(indexName);
 
-                foreach (var readModelType in readModelTypes)
-                {
-                    var esType = readModelType.GetTypeInfo()
-                        .GetCustomAttribute<ElasticsearchTypeAttribute>();
-
-                    var indexName = GetIndexName(esType.Name);
-                    _indexes.Add(indexName);
-
-                    _elasticClient.CreateIndex(indexName, c => c
-                        .Settings(s => s
-                            .NumberOfShards(1)
-                            .NumberOfReplicas(0))
-                        .Aliases(a => a.Alias(esType.Name))
-                        .Mappings(m => m
-                            .Map(TypeName.Create(readModelType), d => d
-                                .AutoMap())));
-
-                }
-
-                _elasticsearchInstance.WaitForGreenStateAsync().Wait(TimeSpan.FromMinutes(1));
-
-                return resolver;
+                _elasticClient.CreateIndex(indexName, c => c
+                    .Settings(s => s
+                        .NumberOfShards(1)
+                        .NumberOfReplicas(0))
+                    .Aliases(a => a.Alias(esType.Name))
+                    .Mappings(m => m
+                        .Map(TypeName.Create(readModelType), d => d
+                            .AutoMap())));
             }
-            catch
-            {
-                _elasticsearchInstance.DisposeSafe("Failed to dispose ES instance");
-                throw;
-            }
+
+            return resolver;
         }
 
         private string GetIndexName(string name)
         {
-            return $"eventflow-test-{name}-{Guid.NewGuid():D}";
+            return $"eventflow-test-{name}-{Guid.NewGuid():D}".ToLowerInvariant();
         }
 
         [TearDown]

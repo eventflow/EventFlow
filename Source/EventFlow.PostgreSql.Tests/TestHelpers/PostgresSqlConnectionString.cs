@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 Rida Messaoudene
 // https://github.com/rasmus/Helpz
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,12 +22,11 @@
 
 using System;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.ValueObjects;
 using Npgsql;
 
-namespace EventFlow.TestHelpers.PostgreSql
+namespace EventFlow.PostgreSql.TestsHelpers
+
 {
     public class PostgreSqlConnectionString : SingleValueObject<string>
     {

@@ -6,12 +6,12 @@
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Title>EventFlow.MsSql</Title>
-    <Authors>Rasmus Mikkelsen</Authors>
-    <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
-    <Description>MSSQL support for EventFlow</Description>
-    <PackageTags>CQRS ES event sourcing MSSQL</PackageTags>
+    <Title>EventFlow.PostgreSql</Title>
+    <Authors>Rida Messaoudene</Authors>
+    <Company>Rida Messaoudene</Company>
+    <Copyright>Copyright (c) Rida Messaoudene 2015 - 2018</Copyright>
+    <Description>POSTGRESQL support for EventFlow</Description>
+    <PackageTags>CQRS ES event sourcing POSTGRESQL</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
     <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
