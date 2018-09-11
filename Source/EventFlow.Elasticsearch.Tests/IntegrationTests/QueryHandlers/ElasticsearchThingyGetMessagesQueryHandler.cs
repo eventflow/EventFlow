@@ -73,7 +73,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
                 .RequestConfiguration(c => c
                     .AllowedStatusCodes((int)HttpStatusCode.NotFound))
                 .Index(indexName)
-                .Query(q => q.Term(m => m.ThingyId, query.ThingyId.Value)), 
+                .Query(q => q.Term(m => m.ThingyId.Suffix("keyword"), query.ThingyId.Value)), 
                     cancellationToken)
                 .ConfigureAwait(false);
 
