@@ -102,6 +102,17 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             {
                 var esType = readModelType.GetTypeInfo()
                     .GetCustomAttribute<ElasticsearchTypeAttribute>();
+                
+                var aliasResponse = _elasticClient.GetAlias(x => x.Name(esType.Name));
+
+                if (aliasResponse.ApiCall.Success)
+                {
+                    foreach (var indicesKey in aliasResponse.Indices.Keys)
+                    {
+                        _elasticClient.DeleteIndex(indicesKey,
+                                d => d.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
+                    }
+                }
 
                 var indexName = GetIndexName(esType.Name);
 
