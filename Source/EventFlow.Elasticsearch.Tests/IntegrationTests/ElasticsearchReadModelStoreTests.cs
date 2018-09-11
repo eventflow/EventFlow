@@ -55,29 +55,6 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             _indexes = new List<string>();
         }
 
-        private static IEnumerable<Type> GetLoadableTypes<T>(params Assembly[] assemblies)
-        {
-            IEnumerable<Type> availableTypes;
-
-            if (assemblies == null || !assemblies.Any()) throw new ArgumentNullException(nameof(assemblies));
-            try
-            {
-                availableTypes = assemblies.SelectMany(x=>x.GetTypes());
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                availableTypes = e.Types.Where(t => t != null);
-            }
-
-            foreach (Type type in availableTypes)
-            {
-                if (type.GetCustomAttributes(typeof(T), true).Length > 0)
-                {
-                    yield return type;
-                }
-            }
-        }
-
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             _elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
@@ -93,6 +70,13 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                     typeof(ElasticsearchThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
+            PrepareIndexes(resolver);
+
+            return resolver;
+        }
+
+        private void PrepareIndexes(IRootResolver resolver)
+        {
             _elasticClient = resolver.Resolve<IElasticClient>();
 
             var readModelTypes =
@@ -102,15 +86,23 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             {
                 var esType = readModelType.GetTypeInfo()
                     .GetCustomAttribute<ElasticsearchTypeAttribute>();
-                
+
                 var aliasResponse = _elasticClient.GetAlias(x => x.Name(esType.Name));
 
                 if (aliasResponse.ApiCall.Success)
                 {
-                    foreach (var indicesKey in aliasResponse.Indices.Keys)
+                    if (aliasResponse.Indices != null)
                     {
-                        _elasticClient.DeleteIndex(indicesKey,
-                                d => d.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
+                        foreach (var indice in aliasResponse?.Indices)
+                        {
+                            _elasticClient.DeleteAlias(indice.Key, esType.Name);
+
+                            _elasticClient.DeleteIndex(indice.Key,
+                                d => d.RequestConfiguration(c => c.AllowedStatusCodes((int) HttpStatusCode.NotFound)));
+                        }
+
+                        _elasticClient.DeleteIndex(esType.Name,
+                            d => d.RequestConfiguration(c => c.AllowedStatusCodes((int) HttpStatusCode.NotFound)));
                     }
                 }
 
@@ -127,13 +119,34 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                         .Map(TypeName.Create(readModelType), d => d
                             .AutoMap())));
             }
-
-            return resolver;
         }
 
         private string GetIndexName(string name)
         {
             return $"eventflow-test-{name}-{Guid.NewGuid():D}".ToLowerInvariant();
+        }
+
+        private IEnumerable<Type> GetLoadableTypes<T>(params Assembly[] assemblies)
+        {
+            IEnumerable<Type> availableTypes;
+
+            if (assemblies == null || !assemblies.Any()) throw new ArgumentNullException(nameof(assemblies));
+            try
+            {
+                availableTypes = assemblies.SelectMany(x => x.GetTypes());
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                availableTypes = e.Types.Where(t => t != null);
+            }
+
+            foreach (Type type in availableTypes)
+            {
+                if (type.GetCustomAttributes(typeof(T), true).Length > 0)
+                {
+                    yield return type;
+                }
+            }
         }
 
         [TearDown]
