@@ -45,7 +45,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             _readModelLocator = InjectMock<IReadModelLocator>();
 
-            _readModelLocator.Setup(l => l.GetReadModelIds(It.IsAny<IDomainEvent>())).Returns(new[] {A<string>()});
+            _readModelLocator.Setup(l => l.GetReadModelIds(It.IsAny<IDomainEvent>())).Returns(new[] { A<string>() });
         }
 
         [Test]

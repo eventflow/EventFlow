@@ -6,7 +6,7 @@ services:
     container_name: rabbitmq-ef
 
   elasticsearch:
-    image: sixeyed/elasticsearch:5.6.0-nanoserver-sac2016
+    image: idubnori/elasticsearch:6.3.2-nanoserver-sac2016
     container_name: elasticsearch-ef
 
   eventstore:

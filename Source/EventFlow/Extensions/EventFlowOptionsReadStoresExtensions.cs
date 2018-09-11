@@ -41,10 +41,10 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel
         {
             return eventFlowOptions.RegisterServices(f =>
-                {
-                    f.Register<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
-                });
+            {
+                f.Register<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
+                f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+            });
         }
 
         public static IEventFlowOptions UseReadStoreFor<TAggregate, TIdentity, TReadStore, TReadModel>(
@@ -55,10 +55,10 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel
         {
             return eventFlowOptions.RegisterServices(f =>
-                {
-                    f.Register<IReadStoreManager, AggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
-                });
+            {
+                f.Register<IReadStoreManager, AggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
+                f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+            });
         }
 
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
@@ -68,10 +68,10 @@ namespace EventFlow.Extensions
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions.RegisterServices(f =>
-                {
-                    f.Register<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
-                });
+            {
+                f.Register<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
+                f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+            });
         }
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel>(

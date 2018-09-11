@@ -1,6 +1,8 @@
-﻿### New in 0.65 (not released yet)
+### New in 0.65 (not released yet)
 
-* _Nothing yet_
+* New: Added .NET standard support for EventStore
+* Minor: Removed unnecessary transaction in EventStore persistance
+* Fixed: Read model SQL schema is no longer ignored for `Table` attribute
 
 ### New in 0.64.3598 (released 2018-08-24)
 
@@ -96,6 +98,24 @@
   - EventFlow.Elasticsearch
   - EventFlow.Hangfire
   - EventFlow.Sql
+* New: Support for Microsoft.Extensions.DependencyInjection (`IServiceProvider`
+  and `IServiceCollection`) using the EventFlow.ServiceProvider NuGet package.
+  
+  Add it to your ASP.NET Core 2.0 application:
+  ```csharp
+	public void ConfigureServices(IServiceCollection services)
+	{
+		services.AddMvc();
+		services.AddEventFlow(o => o.AddDefaults(MyDomainAssembly));
+	}
+  ```
+  Or use it explicitly:
+  ```csharp
+	EventFlowOptions.New.
+		.UseServiceCollection()
+		...
+		.CreateServiceProvider();
+  ```
 
 ### New in 0.54.3261 (released 2018-02-25)
 
