@@ -9,7 +9,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hangfire.SqlServer" Version="1.6.15" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.6.20" />
     <PackageReference Include="Microsoft.Owin" Version="3.1.0" />
     <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="3.1.0" />
     <PackageReference Include="Microsoft.Owin.Hosting" Version="3.1.0" />
