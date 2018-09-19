@@ -129,8 +129,8 @@ namespace EventFlow.PostgreSql.EventStores
                     EventFlow
                         (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
                     VALUES
-                        (@BatchId, @AggregateId, @AggregateName, @Data, @Metadata, @AggregateSequenceNumber);
-                SELECT lastval() FROM EventFlow;";
+                        (@BatchId, @AggregateId, @AggregateName, @Data, @Metadata, @AggregateSequenceNumber)
+                 RETURNING GlobalSequenceNumber;";
 
             IReadOnlyCollection<long> ids;
 
