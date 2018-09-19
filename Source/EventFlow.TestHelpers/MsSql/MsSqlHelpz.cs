@@ -58,6 +58,7 @@ namespace EventFlow.TestHelpers.MsSql
             connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
                 ? @"Integrated Security=True"
                 : $"User Id={envrionmentUsername}");
+            connectionstringParts.Add("Connection Timeout=60");
             if (!string.IsNullOrEmpty(environmentPassword))
             {
                 connectionstringParts.Add($"Password={environmentPassword}");
