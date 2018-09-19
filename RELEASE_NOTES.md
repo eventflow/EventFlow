@@ -1,6 +1,6 @@
 ﻿### New in 0.65 (not released yet)
 
-* _Nothing yet_
+* Minor: Performance improvement of storing events for `EventFlow.PostgreSql`
 
 ### New in 0.64.3598 (released 2018-08-24)
 
