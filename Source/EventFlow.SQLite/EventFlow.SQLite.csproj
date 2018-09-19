@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -25,7 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dbup-sqlserver" Version="4.1.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.105" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.109.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />

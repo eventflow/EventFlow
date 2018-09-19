@@ -1,12 +1,16 @@
-﻿### New in 0.64 (not released yet)
+﻿### New in 0.65 (not released yet)
 
 * _Nothing yet_
 
-### New in 0.63.3581 (eleased 2018-08-07)
+### New in 0.64.3598 (released 2018-08-24)
+
+* New: Added .NET standard support for SQLite
+
+### New in 0.63.3581 (released 2018-08-07)
 
 * New: PostgreSQL support in the form of the new `EventFlow.PostgreSql` NuGet package
 
-### New in 0.62.3569 (eleased 2018-07-05)
+### New in 0.62.3569 (released 2018-07-05)
 
 * New: Created `AggregateReadStoreManager<,,,>` which is a new read store manager
   for read models that have a 1-to-1 relation with an aggregate. If read models get
@@ -18,8 +22,8 @@
   - `UseSQLiteReadModelFor<,,>`
 * New: Added `ReadModelId` and `IsNew` properties to the context object that is
   available to a read model inside the `Apply` methods in order to better support
-  scenarios where a single event affects multiple read model instances. 
-* Minor: Applying events to a snapshot will now have the correct `Version` set 
+  scenarios where a single event affects multiple read model instances.
+* Minor: Applying events to a snapshot will now have the correct `Version` set
   inside the `Apply` methods.
 * Minor: Trying to apply events in the wrong order will now throw an exception.
 
@@ -27,7 +31,7 @@
 
 * New: Support for `Microsoft.Extensions.DependencyInjection` (`IServiceProvider`
   and `IServiceCollection`) using the `EventFlow.DependencyInjection` NuGet package.
-  
+
   Add it to your ASP.NET Core 2.0 application:
   ```csharp
 	public void ConfigureServices(IServiceCollection services)
@@ -50,7 +54,7 @@
 ### New in 0.60.3490 (released 2018-06-18)
 
 * New: Implemented optimistic concurrency checks for MSSQL, SQLite and
-  Elasticsearch read models 
+  Elasticsearch read models
 * New: Added .NET standard support for EventStore
 * New: Delete read models by invoking `context.MarkForDeletion()` in an Apply method
 * Minor: Removed unnecessary transaction in EventStore persistance
@@ -109,7 +113,7 @@
 
 ### New in 0.52.3178 (released 2017-11-02)
 
-* Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for 
+* Fixed: `.UseFilesEventStore` now uses a thread safe singleton instance for
   file system persistence, making it suitable for use in multi-threaded unit
   tests. Please don't use the files event store in production scenarios
 * New: Support for unicode characters in type names. This simplifies using an
@@ -121,9 +125,9 @@
 ### New in 0.51.3155 (released 2017-10-25)
 
 * New: Removed the `new()` requirement for read models
-* New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given 
+* New: If `ISagaLocator.LocateSagaAsync` cannot identify the saga for a given
   event, it may now return `Task.FromResult(null)` in order to short-circuit
-  the dispatching process. This might be useful in cases where some instances 
+  the dispatching process. This might be useful in cases where some instances
   of an event belong to a saga process while others don't
 * Fixed: `StringExtensions.ToSha256()` can now be safely used from
   concurrent threads
@@ -244,7 +248,7 @@
 
 * New: To be more explicit, `IEventFlowOpions.AddSynchronousSubscriber<,,,>` and
   `IEventFlowOpions.AddAsynchronousSubscriber<,,,>` generic methods
-* Fix: `IEventFlowOpions.AddSubscriber`, `IEventFlowOpions.AddSubscribers` and  
+* Fix: `IEventFlowOpions.AddSubscriber`, `IEventFlowOpions.AddSubscribers` and
   `IEventFlowOpions.AddDefaults` now correctly registers implementations of
   `ISubscribeAsynchronousTo<,,>`
 * Obsolete:  `IEventFlowOpions.AddSubscriber` is marked obsolete in favor of its
@@ -414,7 +418,7 @@
     **deletes the index** instead of doing a _delete by query_. Make sure to
     create a separate index for each read model. Delete by query has been
     [moved to a plugin in Elasticsearch 2.x](https://www.elastic.co/blog/core-delete-by-query-is-a-plugin) and
-    deleting the entire index is now recommended    
+    deleting the entire index is now recommended
   - The default index for a read model is now `eventflow-[lower case type name]`,
     e.g. `eventflow-thingyreadmodel`, instead of merely `eventflow`
 * Breaking: The following NuGet dependencies have been updated
@@ -683,7 +687,7 @@
   registration and bootstrapping in order for developers to skip calling
   `CreateResolver()` (or `CreateContainer()` if using the `EventFlow.Autofac`
   package) completely. EventFlow will register its bootstrap services in the
-  IoC container and configure itself whenever the container is created    
+  IoC container and configure itself whenever the container is created
 * New: Introduced `IBootstrap` interface that you can register. It has a
   single `BootAsync(...)` method that will be called as soon as the IoC
   container is ready (similar to that of `IStartable` of Autofac)
@@ -935,7 +939,7 @@
      `ICommandHandler<TAggregate,TIdentity, TCommand>`
    - `IAmReadModelFor<TEvent>` changed to
      `IAmReadModelFor<TAggregate,TIdentity,TEvent>`
-   - `IDomainEvent<TEvent>` changed to `IDomainEvent<TAggregate,TIdentity>`  
+   - `IDomainEvent<TEvent>` changed to `IDomainEvent<TAggregate,TIdentity>`
  * New: `ICommandBus.Publish` now takes a `CancellationToken` argument
  * Fixed: MSSQL should list columns to SELECT when fetching events
 

@@ -77,6 +77,8 @@ to the documentation.
   * Files - only for test
   * Microsoft SQL Server
   * Entity Framework Core
+  * SQLite
+  * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
 * [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
@@ -88,6 +90,8 @@ to the documentation.
   * [In-memory](http://docs.geteventflow.net/ReadStores.html#in-memory) - only for test
   * [Microsoft SQL Server](http://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
   * Entity Framework Core
+  * SQLite
+  * PostgreSQL
 * [**Snapshots:**](http://docs.geteventflow.net/Snapshots.html)
   Instead of reading the entire event stream every single time, a snapshot can
   be created every so often that contains the aggregate state. EventFlow
@@ -96,6 +100,8 @@ to the documentation.
   * [In-memory](http://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
   * [Microsoft SQL Server](http://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
   * Entity Framework Core
+  * SQLite
+  * PostgreSQL
 * [**Sagas:**](http://docs.geteventflow.net/Sagas.html)
   Also known as _process managers_, coordinates and routes messages between
   bounded contexts and aggregates
@@ -328,17 +334,14 @@ share it by creating an issue with the link.
 EventFlow has several tests that verify that its able to use the systems it
 integrates with correctly.
 
- * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) is automatically
-   downloaded and run during the Elasticsearch integration tests from your `TEMP`
-   directory. Requires Java to be installed and the `JAVA_HOME` environment
-   variable set
- * **EventStore:** [EventStore](https://geteventstore.com/) is automatically
-   downloaded and run during the EventStore integration tests from your `TEMP`
-   directory
+ * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) run as Docker [Windows Container](https://docs.microsoft.com//virtualization/windowscontainers/about/). if use in local, requires its environment and `docker-compose` tool, and execute `PS> up_integration-test-env.ps1`
+ * **EventStore:** [EventStore](https://geteventstore.com/) is same as the above
+ * **RabbitMQ:** [RabbitMQ](https://www.rabbitmq.com/) is same as the above
  * **MSSQL:** Microsoft SQL Server is required to be running
  * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
    for the [RabbitMQ](https://www.rabbitmq.com/) instance you would like to use.
  * **EntityFramework:** Microsoft SQL Server and PostgreSQL is required to be running
+ * **PostgreSQL:** PostgreSQL is required to be running
 
 There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
 [here](https://github.com/rasmus/Vagrant.Boxes).
