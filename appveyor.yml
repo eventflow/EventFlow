@@ -5,11 +5,8 @@ version: 0.65.{build}
 
 skip_tags: true
 
-before_build:
-  - ps: .\up_integration-test-env.ps1
-
 build_script:
-  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 -Target All;"
 
 image: Visual Studio 2017
 
@@ -26,8 +23,7 @@ services:
   - postgresql101
 
 on_success:
-- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
-- pip install codecov
+- choco install codecov
 - codecov -f "Build\\Reports\\opencover-results.xml"
 
 nuget:
