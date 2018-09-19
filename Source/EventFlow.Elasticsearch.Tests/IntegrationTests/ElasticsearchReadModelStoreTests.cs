@@ -47,20 +47,9 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         protected override Type ReadModelType { get; } = typeof(ElasticsearchThingyReadModel);
 
         private IElasticClient _elasticClient;
-        private ElasticsearchRunner.ElasticsearchInstance _elasticsearchInstance;
+
+        private string _elasticsearchUrl;
         private string _indexName;
-
-        [OneTimeSetUp]
-        public void FixtureSetUp()
-        {
-            _elasticsearchInstance = ElasticsearchRunner.StartAsync().Result;
-        }
-
-        [OneTimeTearDown]
-        public void FixtureTearDown()
-        {
-            _elasticsearchInstance.DisposeSafe("Failed to close Elasticsearch down");
-        }
 
         public class TestReadModelDescriptionProvider : IReadModelDescriptionProvider
         {
@@ -81,46 +70,37 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            try
-            {
-                _indexName = $"eventflow-test-{Guid.NewGuid():D}";
+            _elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+            _indexName = $"eventflow-test-{Guid.NewGuid():D}";
 
-                var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_indexName);
+            var testReadModelDescriptionProvider = new TestReadModelDescriptionProvider(_indexName);
 
-                var resolver = eventFlowOptions
-                    .RegisterServices(sr =>
-                        {
-                            sr.RegisterType(typeof(ThingyMessageLocator));
-                            sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
-                        })
-                    .ConfigureElasticsearch(_elasticsearchInstance.Uri)
-                    .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
-                    .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
-                    .AddQueryHandlers(
-                        typeof(ElasticsearchThingyGetQueryHandler),
-                        typeof(ElasticsearchThingyGetVersionQueryHandler),
-                        typeof(ElasticsearchThingyGetMessagesQueryHandler))
-                    .CreateResolver();
+            var resolver = eventFlowOptions
+                .RegisterServices(sr =>
+                {
+                    sr.RegisterType(typeof(ThingyMessageLocator));
+                    sr.Register<IReadModelDescriptionProvider>(c => testReadModelDescriptionProvider);
+                })
+                .ConfigureElasticsearch(_elasticsearchUrl)
+                .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
+                .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
+                .AddQueryHandlers(
+                    typeof(ElasticsearchThingyGetQueryHandler),
+                    typeof(ElasticsearchThingyGetVersionQueryHandler),
+                    typeof(ElasticsearchThingyGetMessagesQueryHandler))
+                .CreateResolver();
 
-                _elasticClient = resolver.Resolve<IElasticClient>();
+            _elasticClient = resolver.Resolve<IElasticClient>();
 
-                _elasticClient.CreateIndex(_indexName, c => c
-                    .Settings(s => s
-                        .NumberOfShards(1)
-                        .NumberOfReplicas(0))
-                    .Mappings(m => m
-                        .Map<ElasticsearchThingyMessageReadModel>(d => d
-                            .AutoMap())));
+            _elasticClient.CreateIndex(_indexName, c => c
+                .Settings(s => s
+                    .NumberOfShards(1)
+                    .NumberOfReplicas(0))
+                .Mappings(m => m
+                    .Map<ElasticsearchThingyMessageReadModel>(d => d
+                        .AutoMap())));
 
-                _elasticsearchInstance.WaitForGreenStateAsync().Wait(TimeSpan.FromMinutes(1));
-
-                return resolver;
-            }
-            catch
-            {
-                _elasticsearchInstance.DisposeSafe("Failed to dispose ES instance");
-                throw;
-            }
+            return resolver;
         }
 
         [TearDown]
