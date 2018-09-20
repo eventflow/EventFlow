@@ -21,22 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Configuration;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework
 {
-    public class OptimisticConcurrencyException : Exception
+    public interface IEntityFrameworkConfiguration
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
-        }
+        void Apply(IServiceRegistration serviceRegistration);
     }
 }

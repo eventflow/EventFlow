@@ -21,22 +21,37 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.Extensions;
+using EventFlow.TestHelpers.Aggregates.Entities;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests
 {
-    public class OptimisticConcurrencyException : Exception
+    public static class EntityFrameworkTestExtensions
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        public static IEventFlowOptions ConfigureForEventStoreTest(this IEventFlowOptions options)
         {
+            return options
+                .UseEntityFrameworkEventStore<TestDbContext>();
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public static IEventFlowOptions ConfigureForSnapshotStoreTest(this IEventFlowOptions options)
         {
+            return options
+                .UseEntityFrameworkSnapshotStore<TestDbContext>();
+        }
+
+        public static IEventFlowOptions ConfigureForReadStoreTest(this IEventFlowOptions options)
+        {
+            return options
+                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
+                .UseEntityFrameworkReadModel<ThingyReadModelEntity, TestDbContext>()
+                .UseEntityFrameworkReadModel<ThingyMessageReadModelEntity, TestDbContext, ThingyMessageLocator>()
+                .AddQueryHandlers(
+                    typeof(EfThingyGetQueryHandler),
+                    typeof(EfThingyGetVersionQueryHandler),
+                    typeof(EfThingyGetMessagesQueryHandler));
         }
     }
 }

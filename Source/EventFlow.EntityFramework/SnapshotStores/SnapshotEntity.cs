@@ -21,22 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.SnapshotStores
 {
-    public class OptimisticConcurrencyException : Exception
+    public class SnapshotEntity
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
-        }
+        public long Id { get; set; }
+        public string AggregateId { get; set; }
+        public string AggregateName { get; set; }
+        public int AggregateSequenceNumber { get; set; }
+        public string Data { get; set; }
+        public string Metadata { get; set; }
     }
 }

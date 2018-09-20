@@ -76,6 +76,7 @@ to the documentation.
   * In-memory - only for test
   * Files - only for test
   * Microsoft SQL Server
+  * Entity Framework Core
   * SQLite
   * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
@@ -88,6 +89,7 @@ to the documentation.
   * [Elasticsearch](http://docs.geteventflow.net/ReadStores.html#elasticsearch)
   * [In-memory](http://docs.geteventflow.net/ReadStores.html#in-memory) - only for test
   * [Microsoft SQL Server](http://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
+  * Entity Framework Core
   * SQLite
   * PostgreSQL
 * [**Snapshots:**](http://docs.geteventflow.net/Snapshots.html)
@@ -97,6 +99,7 @@ to the documentation.
   aggregates. Snapshots in EventFlow are opt-in and EventFlow has support for
   * [In-memory](http://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
   * [Microsoft SQL Server](http://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
+  * Entity Framework Core
   * SQLite
   * PostgreSQL
 * [**Sagas:**](http://docs.geteventflow.net/Sagas.html)
@@ -335,6 +338,9 @@ integrates with correctly.
  * **EventStore:** [EventStore](https://geteventstore.com/) is same as the above
  * **RabbitMQ:** [RabbitMQ](https://www.rabbitmq.com/) is same as the above
  * **MSSQL:** Microsoft SQL Server is required to be running
+ * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
+   for the [RabbitMQ](https://www.rabbitmq.com/) instance you would like to use.
+ * **EntityFramework:** Microsoft SQL Server and PostgreSQL is required to be running
  * **PostgreSQL:** PostgreSQL is required to be running
 
 There's a Vagrant box with both Elasticsearch and RabbitMQ you can use

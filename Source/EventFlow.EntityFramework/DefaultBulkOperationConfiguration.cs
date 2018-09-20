@@ -21,22 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework
 {
-    public class OptimisticConcurrencyException : Exception
+    public class DefaultBulkOperationConfiguration : IBulkOperationConfiguration
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
+        public int DeletionBatchSize { get; }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public DefaultBulkOperationConfiguration()
         {
+            DeletionBatchSize = 1000;
         }
     }
 }

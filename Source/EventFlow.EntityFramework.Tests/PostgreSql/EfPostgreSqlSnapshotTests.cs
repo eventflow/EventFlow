@@ -21,22 +21,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.Configuration;
+using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.Extensions;
+using EventFlow.PostgreSql.TestsHelpers;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.PostgreSql
 {
-    public class OptimisticConcurrencyException : Exception
+    [Category(Categories.Integration)]
+    public class EfPostgreSqlSnapshotTests : TestSuiteForSnapshotStore
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        private IPostgreSqlDatabase _testDatabase;
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow-snapshots");
+
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
+                .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
+                .ConfigureForSnapshotStoreTest()
+                .CreateResolver();
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        [TearDown]
+        public void TearDown()
         {
+            _testDatabase.DisposeSafe("Failed to delete database");
         }
     }
 }

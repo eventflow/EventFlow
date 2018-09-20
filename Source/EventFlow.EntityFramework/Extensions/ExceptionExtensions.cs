@@ -21,22 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Extensions
 {
-    public class OptimisticConcurrencyException : Exception
+    public static class ExceptionExtensions
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        public static bool IsUniqueConstraintViolation(this DbUpdateException e,
+            IUniqueConstraintDetectionStrategy strategy)
         {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
+            return strategy.IsUniqueConstraintViolation(e);
         }
     }
 }

@@ -21,22 +21,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.EntityFramework.Tests.InMemory.Infrastructure;
+using EventFlow.EntityFramework.Tests.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.InMemory
 {
-    public class OptimisticConcurrencyException : Exception
+    public class InMemoryDbContextProvider : IDbContextProvider<TestDbContext>
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        private readonly DbContextOptions<TestDbContext> _options;
+
+        public InMemoryDbContextProvider()
         {
+            _options = new DbContextOptionsBuilder<TestDbContext>()
+                .UseInMemoryDatabase("EventFlowTest")
+                .ReplaceService<IInMemoryTableFactory, IndexingInMemoryTableFactory>()
+                .Options;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public TestDbContext CreateContext()
         {
+            var context = new TestDbContext(_options);
+            context.Database.EnsureCreated();
+            return context;
         }
     }
 }
