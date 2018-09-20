@@ -22,21 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.EventStores;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.EventStores
 {
-    public class OptimisticConcurrencyException : Exception
+    public class EventEntity : ICommittedDomainEvent
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
-        }
+        public long GlobalSequenceNumber { get; set; }
+        public Guid BatchId { get; set; }
+        public string AggregateName { get; set; }
+        public string AggregateId { get; set; }
+        public string Data { get; set; }
+        public string Metadata { get; set; }
+        public int AggregateSequenceNumber { get; set; }
     }
 }

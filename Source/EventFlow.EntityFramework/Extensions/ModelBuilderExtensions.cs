@@ -21,22 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.EntityFramework.EventStores;
+using EventFlow.EntityFramework.SnapshotStores;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Extensions
 {
-    public class OptimisticConcurrencyException : Exception
+    public static class ModelBuilderExtensions
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        public static ModelBuilder AddEventFlowEvents(this ModelBuilder modelBuilder)
         {
+            var eventEntity = modelBuilder.Entity<EventEntity>();
+            eventEntity.HasKey(e => e.GlobalSequenceNumber);
+            eventEntity.HasIndex(e => new {e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
+            return modelBuilder;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public static ModelBuilder AddEventFlowSnapshots(this ModelBuilder modelBuilder)
         {
+            var eventEntity = modelBuilder.Entity<SnapshotEntity>();
+            eventEntity.HasKey(e => e.Id);
+            eventEntity.HasIndex(e => new {e.AggregateName, e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
+            return modelBuilder;
         }
     }
 }

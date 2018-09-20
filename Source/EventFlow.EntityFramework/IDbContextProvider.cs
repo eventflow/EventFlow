@@ -21,22 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework
 {
-    public class OptimisticConcurrencyException : Exception
+    public interface IDbContextProvider<out TDbContext> where TDbContext : DbContext
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
-        }
+        TDbContext CreateContext();
     }
 }
