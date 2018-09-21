@@ -22,21 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework
 {
-    public class OptimisticConcurrencyException : Exception
+    internal class DefaultUniqueConstraintDetectionStrategy : IUniqueConstraintDetectionStrategy
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        public bool IsUniqueConstraintViolation(DbUpdateException exception)
         {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
+            return exception.InnerException?.Message?.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

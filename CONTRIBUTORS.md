@@ -19,11 +19,13 @@ If you think your name is missing from the list, create a pull-request.
 
 * Created following packages
   * `EventFlow.DependencyInjection`
+  * `EventFlow.EntityFramework`
 * Several key contributions and bug fixes
 
 ### [idubnori](https://github.com/idubnori)
 
 * PostgreSQL implementation
+* EntityFramework implementation
 
 ### [Jaco Coetzee](https://github.com/JC008)
 

@@ -21,22 +21,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Queries;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.Model
 {
-    public class OptimisticConcurrencyException : Exception
+    public class EfThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        private readonly IDbContextProvider<TestDbContext> _dbContextProvider;
+
+        public EfThingyGetQueryHandler(IDbContextProvider<TestDbContext> dbContextProvider)
         {
+            _dbContextProvider = dbContextProvider;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
+            using (var context = _dbContextProvider.CreateContext())
+            {
+                var entity = await context.Thingys.FindAsync(query.ThingyId.Value);
+                return entity?.ToThingy();
+            }
         }
     }
 }
