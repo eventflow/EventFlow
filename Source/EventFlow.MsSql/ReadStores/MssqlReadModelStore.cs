@@ -53,7 +53,7 @@ namespace EventFlow.MsSql.ReadStores
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
-        private static readonly string ReadModelNameLoverCase = typeof(TReadModel).Name.ToLowerInvariant();
+        private static readonly string ReadModelNameLowerCase = typeof(TReadModel).Name.ToLowerInvariant();
 
         static MssqlReadModelStore()
         {
@@ -103,7 +103,7 @@ namespace EventFlow.MsSql.ReadStores
             {
                 await _transientFaultHandler.TryAsync(
                     c => UpdateReadModelAsync(readModelContextFactory, updateReadModel, c, readModelUpdate),
-                    Label.Named($"mssql-read-model-update-{ReadModelNameLoverCase}"),
+                    Label.Named($"mssql-read-model-update-{ReadModelNameLowerCase}"),
                     cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -179,7 +179,7 @@ namespace EventFlow.MsSql.ReadStores
             }
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-store-read-model", ReadModelNameLoverCase),
+                Label.Named("mssql-store-read-model", ReadModelNameLowerCase),
                 cancellationToken,
                 sql,
                 dynamicParameters).ConfigureAwait(false);
@@ -197,7 +197,7 @@ namespace EventFlow.MsSql.ReadStores
             var readModelType = typeof(TReadModel);
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
-                Label.Named("mssql-fetch-read-model", ReadModelNameLoverCase),
+                Label.Named("mssql-fetch-read-model", ReadModelNameLowerCase),
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -225,7 +225,7 @@ namespace EventFlow.MsSql.ReadStores
             var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-delete-read-model", ReadModelNameLoverCase),
+                Label.Named("mssql-delete-read-model", ReadModelNameLowerCase),
                 cancellationToken,
                 sql,
                 new { EventFlowReadModelId = id })
@@ -233,7 +233,7 @@ namespace EventFlow.MsSql.ReadStores
 
             if (rowsAffected != 0)
             {
-                Log.Verbose($"Deleted read model '{id}' of type '{ReadModelNameLoverCase}'");
+                Log.Verbose($"Deleted read model '{id}' of type '{ReadModelNameLowerCase}'");
             }
         }
 

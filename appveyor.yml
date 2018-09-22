@@ -1,18 +1,16 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.64.{build}
+version: 0.65.{build}
 
 skip_tags: true
 
 build_script:
-  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command .\build.ps1 -Target "All"
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 -Target All;"
 
 image: Visual Studio 2017
 
 environment:
-  RABBITMQ_URL:
-    secure: es47RGxjYJo4Ms8YR7ZY1R93OayJf6z3CVH2oUZMChaDXtchygrccwBPIBB8doWH68S13m/4p99EmtjdrudbM1gelesdwewX5ouJXO9wyo1/zZhNZDrUpb21Ojw6O1hH
   HELPZ_POSTGRESQL_PASS: Password12!
 
 test: off
@@ -25,8 +23,7 @@ services:
   - postgresql101
 
 on_success:
-- "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
-- pip install codecov
+- choco install codecov
 - codecov -f "Build\\Reports\\opencover-results.xml"
 
 nuget:

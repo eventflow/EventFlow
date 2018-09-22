@@ -21,22 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.EntityFramework.Extensions;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.Model
 {
-    public class OptimisticConcurrencyException : Exception
+    public class TestDbContext : DbContext
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        public TestDbContext(DbContextOptions<TestDbContext> options) : base(options)
         {
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public DbSet<ThingyReadModelEntity> Thingys { get; set; }
+        public DbSet<ThingyMessageReadModelEntity> ThingyMessages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder
+                .AddEventFlowEvents()
+                .AddEventFlowSnapshots();
         }
     }
 }

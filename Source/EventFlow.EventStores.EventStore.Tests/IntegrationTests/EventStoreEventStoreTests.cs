@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Configuration;
 using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
@@ -38,22 +39,10 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
-        private EventStoreRunner.EventStoreInstance _eventStoreInstance;
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            _eventStoreInstance = EventStoreRunner.StartAsync().Result;
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _eventStoreInstance.DisposeSafe("EventStore shutdown");
-        }
-
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL"));
+
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()
                 .KeepReconnecting()
@@ -63,7 +52,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 
             var resolver = eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .UseEventStoreEventStore(_eventStoreInstance.ConnectionStringUri, connectionSettings)
+                .UseEventStoreEventStore(eventStoreUri, connectionSettings)
                 .CreateResolver();
 
             return resolver;

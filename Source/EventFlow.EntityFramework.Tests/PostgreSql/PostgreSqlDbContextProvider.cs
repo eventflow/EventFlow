@@ -22,20 +22,31 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.PostgreSql.TestsHelpers;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.PostgreSql
 {
-    public class OptimisticConcurrencyException : Exception
+    public class PostgreSqlDbContextProvider : IDbContextProvider<TestDbContext>, IDisposable
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        private readonly DbContextOptions<TestDbContext> _options;
+
+        public PostgreSqlDbContextProvider(PostgreSqlConnectionString postgreSqlConnectionString)
         {
+            _options = new DbContextOptionsBuilder<TestDbContext>()
+                .UseNpgsql(postgreSqlConnectionString.Value)
+                .Options;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public TestDbContext CreateContext()
+        {
+            var context = new TestDbContext(_options);
+            context.Database.EnsureCreated();
+            return context;
+        }
+
+        public void Dispose()
         {
         }
     }

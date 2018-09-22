@@ -79,7 +79,7 @@ namespace EventFlow.SQLite.EventStores
                 ORDER BY
                     GlobalSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("mssql-fetch-events"),
+                Label.Named("sqlite-fetch-events"),
                 cancellationToken,
                 sql,
                 new
@@ -119,7 +119,7 @@ namespace EventFlow.SQLite.EventStores
                 .ToList();
 
             _log.Verbose(
-                "Committing {0} events to MSSQL event store for entity with ID '{1}'",
+                "Committing {0} events to SQLite event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
 
@@ -198,7 +198,7 @@ namespace EventFlow.SQLite.EventStores
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
-                Label.Named("mssql-delete-aggregate"),
+                Label.Named("sqlite-delete-aggregate"),
                 cancellationToken,
                 sql,
                 new { AggregateId = id.Value })

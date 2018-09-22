@@ -22,21 +22,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
+using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.SQLite
 {
-    public class OptimisticConcurrencyException : Exception
+    [Category(Categories.Integration)]
+    public class EfSqliteReadStoreTests : TestSuiteForReadModelStore
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
+        protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            return eventFlowOptions
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
+                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
+                .ConfigureForReadStoreTest()
+                .CreateResolver();
         }
     }
 }
