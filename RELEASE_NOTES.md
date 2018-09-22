@@ -1,6 +1,9 @@
 ﻿### New in 0.66 (not released yet)
 
-* _Nothing yet_
+* New: Expose `Lifetime.Scoped` through the EventFLow service registration
+  interface
+* Fix: Internal IoC (remember its just for testing) now correctly invokes
+  `IDisposable.Dispose()` on scope and container dispose
 
 ### New in 0.65.3664 (eleased 2018-09-22)
 
