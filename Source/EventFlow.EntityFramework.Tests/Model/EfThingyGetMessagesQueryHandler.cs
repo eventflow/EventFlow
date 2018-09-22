@@ -21,22 +21,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Queries;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.Model
 {
-    public class OptimisticConcurrencyException : Exception
+    public class
+        EfThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        private readonly IDbContextProvider<TestDbContext> _dbContextProvider;
+
+        public EfThingyGetMessagesQueryHandler(IDbContextProvider<TestDbContext> dbContextProvider)
         {
+            _dbContextProvider = dbContextProvider;
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query,
+            CancellationToken cancellationToken)
         {
+            using (var context = _dbContextProvider.CreateContext())
+            {
+                var entities = await context.ThingyMessages
+                    .Where(m => m.ThingyId == query.ThingyId.Value)
+                    .Select(m => m.ToThingyMessage())
+                    .ToArrayAsync(cancellationToken);
+                return entities;
+            }
         }
     }
 }

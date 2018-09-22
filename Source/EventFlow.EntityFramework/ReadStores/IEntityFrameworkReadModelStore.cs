@@ -21,22 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using EventFlow.ReadStores;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.ReadStores
 {
-    public class OptimisticConcurrencyException : Exception
+    public interface IEntityFrameworkReadModelStore<T> : IReadModelStore<T>
+        where T : class, IReadModel
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
-        {
-        }
-
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
-        {
-        }
     }
 }

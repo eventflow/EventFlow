@@ -21,22 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
 {
-    public class OptimisticConcurrencyException : Exception
+    public class IndexingInMemoryTableFactory : InMemoryTableFactory
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        public IndexingInMemoryTableFactory(ILoggingOptions loggingOptions) : base(loggingOptions)
         {
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        public override IInMemoryTable Create(IEntityType entityType)
         {
+            var innerTable = base.Create(entityType);
+            var uniqueIndexes = entityType.GetIndexes().Where(i => i.IsUnique).ToArray();
+
+            return uniqueIndexes.Any()
+                ? new IndexingInMemoryTable(innerTable, uniqueIndexes)
+                : innerTable;
         }
     }
 }

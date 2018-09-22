@@ -22,21 +22,40 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
+using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.Extensions;
+using EventFlow.PostgreSql.TestsHelpers;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
 
-namespace EventFlow.Exceptions
+namespace EventFlow.EntityFramework.Tests.PostgreSql
 {
-    public class OptimisticConcurrencyException : Exception
+    [Category(Categories.Integration)]
+    public class EfPostgreSqlReadStoreTests : TestSuiteForReadModelStore
     {
-        public OptimisticConcurrencyException(string message)
-            : base(message)
+        private IPostgreSqlDatabase _testDatabase;
+
+        protected override Type ReadModelType => typeof(ThingyReadModelEntity);
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
+
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
+                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
+                .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
+                .ConfigureForReadStoreTest()
+                .CreateResolver();
         }
 
-        public OptimisticConcurrencyException(
-            string message,
-            Exception innerException)
-            : base(message, innerException)
+        [TearDown]
+        public void TearDown()
         {
+            _testDatabase.DisposeSafe("Failed to delete database");
         }
     }
 }
