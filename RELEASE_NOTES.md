@@ -1,4 +1,8 @@
-﻿### New in 0.65 (not released yet)
+﻿### New in 0.66 (not released yet)
+
+*  **Critical fix:** - fix issue where the process using EventFlow could hang using 100% CPU due to unsynchronized Dictionary access, See #541.
+
+### New in 0.65.3664 (eleased 2018-09-22)
 
 * Minor: Performance improvement of storing events for `EventFlow.PostgreSql`
 
