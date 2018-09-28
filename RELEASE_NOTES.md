@@ -1,6 +1,6 @@
 ﻿### New in 0.66 (not released yet)
 
-* _Nothing yet_
+*  **Critical fix:** - fix issue where the process using EventFlow could hang using 100% CPU due to unsynchronized Dictionary access, See #541.
 
 ### New in 0.65.3664 (eleased 2018-09-22)
 
