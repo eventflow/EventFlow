@@ -1,6 +1,10 @@
-﻿### New in 0.67 (not released yet)
+### New in 0.67 (not released yet)
 
-* _Nothing yet_
+* New: Upgrade NEST version to 6.1.0 and Hangfire.Core to 1.6.20
+  Now Elasticsearch provide one index per document. If `ElasticsearchTypeAttribute`
+  is used the index is map with the Name value as an alias.
+  When `ElasticsearchReadModelStore` delete all documents, it will delete 
+  all indexes linked to the alias.
 
 ### New in 0.66.3673 (released 2018-09-30)
 
@@ -10,12 +14,6 @@
 ### New in 0.65.3664 (released 2018-09-22)
 
 * Minor: Performance improvement of storing events for `EventFlow.PostgreSql`
-* New: Upgrade NEST version to 6.1.0 and Hangfire.Core to 1.6.20
-  Now Elasticsearch provide one index per document. If `ElasticsearchTypeAttribute`
-  is used the index is map with the Name value as an alias.
-  When `ElasticsearchReadModelStore` delete all documents, it will delete 
-  all indexes linked to the alias.
-
 
 ### New in 0.64.3598 (released 2018-08-24)
 
