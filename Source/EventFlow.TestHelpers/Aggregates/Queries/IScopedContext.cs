@@ -21,12 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-
 namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    public class DbContext : IDbContext
+    public interface IScopedContext
     {
-        public string Id { get; } = Guid.NewGuid().ToString();
+        string Id { get; }
     }
 }

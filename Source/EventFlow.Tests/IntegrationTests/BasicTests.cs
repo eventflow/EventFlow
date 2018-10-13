@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.Queries;
@@ -36,6 +37,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
@@ -96,6 +98,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<PingReadModel, IPingReadModelLocator>()
+                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
                 .AddSubscribers(typeof(Subscriber))
                 .CreateResolver())
             {

@@ -32,6 +32,7 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
@@ -56,6 +57,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
+                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
                 .CreateResolver();
 
             _commandBus = _resolver.Resolve<ICommandBus>();

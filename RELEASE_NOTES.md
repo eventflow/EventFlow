@@ -1,10 +1,14 @@
 ### New in 0.67 (not released yet)
 
+* New: Expose `Lifetime.Scoped` through the EventFLow service registration
+  interface
 * New: Upgrade NEST version to 6.1.0 and Hangfire.Core to 1.6.20
   Now Elasticsearch provide one index per document. If `ElasticsearchTypeAttribute`
   is used the index is map with the Name value as an alias.
   When `ElasticsearchReadModelStore` delete all documents, it will delete 
   all indexes linked to the alias.
+* Fix: Internal IoC (remember its just for testing) now correctly invokes
+  `IDisposable.Dispose()` on scope and container dispose
 
 ### New in 0.66.3673 (released 2018-09-30)
 

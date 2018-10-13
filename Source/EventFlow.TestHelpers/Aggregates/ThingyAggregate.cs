@@ -32,6 +32,7 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
@@ -41,8 +42,12 @@ namespace EventFlow.TestHelpers.Aggregates
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
         IEmit<ThingyDomainErrorAfterFirstEvent>
     {
-        public const int SnapshotEveryVersion = 10;
+        // ReSharper disable once NotAccessedField.Local
+        private readonly IScopedContext _scopedContext;
+        // We just hold a reference
 
+        public const int SnapshotEveryVersion = 10;
+        
         private readonly List<PingId> _pingsReceived = new List<PingId>();
         private readonly List<ThingyMessage> _messages = new List<ThingyMessage>(); 
 
@@ -51,9 +56,10 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
 
-        public ThingyAggregate(ThingyId id)
+        public ThingyAggregate(ThingyId id, IScopedContext scopedContext)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
         {
+            _scopedContext = scopedContext;
             Register<ThingyPingEvent>(e => _pingsReceived.Add(e.PingId));
             Register<ThingyMessageAddedEvent>(e => _messages.Add(e.ThingyMessage));
             Register<ThingyMessageHistoryAddedEvent>(e => _messages.AddRange(e.ThingyMessages));

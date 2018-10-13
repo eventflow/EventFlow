@@ -25,9 +25,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.Tests.UnitTests.Specifications;
 using FluentAssertions;
 using NUnit.Framework;
@@ -96,6 +98,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddCommandHandlers(
                     typeof(TestSuccessResultCommandHandler),
                     typeof(TestFailedResultCommandHandler))
+                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
                 .CreateResolver(false))
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
