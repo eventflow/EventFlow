@@ -42,11 +42,11 @@ namespace EventFlow.Sql.ReadModels
         private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> PropertyInfos = new ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>>();
         private static readonly ConcurrentDictionary<Type, string> IdentityColumns = new ConcurrentDictionary<Type, string>();
         private static readonly ConcurrentDictionary<Type, string> VersionColumns = new ConcurrentDictionary<Type, string>();
-        private readonly Dictionary<Type, string> _insertSqls = new Dictionary<Type, string>();
-        private readonly Dictionary<Type, string> _purgeSqls = new Dictionary<Type, string>();
-        private readonly Dictionary<Type, string> _deleteSqls = new Dictionary<Type, string>();
-        private readonly Dictionary<Type, string> _selectSqls = new Dictionary<Type, string>();
-        private readonly Dictionary<Type, string> _updateSqls = new Dictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _insertSqls = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _purgeSqls = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _deleteSqls = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _selectSqls = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _updateSqls = new ConcurrentDictionary<Type, string>();
 
         public ReadModelSqlGenerator()
         {

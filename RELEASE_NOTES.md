@@ -1,4 +1,17 @@
-﻿### New in 0.65 (not released yet)
+### New in 0.67 (not released yet)
+
+* New: Upgrade NEST version to 6.1.0 and Hangfire.Core to 1.6.20
+  Now Elasticsearch provide one index per document. If `ElasticsearchTypeAttribute`
+  is used the index is map with the Name value as an alias.
+  When `ElasticsearchReadModelStore` delete all documents, it will delete 
+  all indexes linked to the alias.
+
+### New in 0.66.3673 (released 2018-09-30)
+
+*  **Critical fix:** - fix issue where the process using EventFlow could hang using
+   100% CPU due to unsynchronized Dictionary access, See #541.
+
+### New in 0.65.3664 (released 2018-09-22)
 
 * New: Entity Framework Core support in the form of the new `EventFlow.EntityFramework` NuGet package
   
