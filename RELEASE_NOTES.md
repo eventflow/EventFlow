@@ -13,14 +13,12 @@
 
 ### New in 0.65.3664 (released 2018-09-22)
 
-* New: Entity Framework Core support in the form of the new `EventFlow.EntityFramework` NuGet package
-  
-  It has been tested with the following stacks.
+* New: Entity Framework Core support in the form of the new `EventFlow.EntityFramework` NuGet
+  package. It has been tested with the following stacks.
   - EF Core In-Memory Database Provider
   - SQLite
   - SQL Server
   - PostgreSQL
-
 * Minor: Performance improvement of storing events for `EventFlow.PostgreSql`
 
 ### New in 0.64.3598 (released 2018-08-24)
