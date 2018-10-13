@@ -1,3 +1,10 @@
+### New in 0.68 (not released yet)
+
+* Breaking: Changed name of namespace of the projects AspNetCore `EventFlow.Aspnetcore` to
+   `EventFlow.AspNetCore`
+
+* Fix: adjust using dependencies to `using EventFlow.AspNetCore...;`
+
 ### New in 0.67 (not released yet)
 
 * New: Upgrade NEST version to 6.1.0 and Hangfire.Core to 1.6.20
