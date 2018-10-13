@@ -40,10 +40,10 @@ namespace EventFlow.PostgreSql.Extensions
                 .RegisterServices(f =>
                     {
                         f.Register<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>(Lifetime.Singleton, true);
-                        f.Register<PostgreSqlReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<PostgreSqlReadModelStore<TReadModel>>());
+                        f.Register<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IPostgresReadModelStore<TReadModel>>());
                     })
-                .UseReadStoreFor<PostgreSqlReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+                .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
 
         public static IEventFlowOptions UsePostgreSqlReadModel<TReadModel>(
@@ -54,10 +54,10 @@ namespace EventFlow.PostgreSql.Extensions
                 .RegisterServices(f =>
                     {
                         f.Register<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>(Lifetime.Singleton, true);
-                        f.Register<PostgreSqlReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<PostgreSqlReadModelStore<TReadModel>>());
+                        f.Register<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
+                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IPostgresReadModelStore<TReadModel>>());
                     })
-                .UseReadStoreFor<PostgreSqlReadModelStore<TReadModel>, TReadModel>();
+                .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel>();
         }
     }
 }

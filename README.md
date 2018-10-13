@@ -59,6 +59,13 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
   _in-progress_, but should provide inspiration on how to use EventFlow on a
   larger scale. If you have ideas and/or comments, create a pull request or
   an issue
+  
+#### External Examples
+
+ * **[Racetimes:](https://github.com/dennisfabri/Eventflow.Example.Racetimes)**
+   Shows some features of EventFlow that are not covered in the 
+   [complete example](#complete-example). It features entities, a read model for 
+   an entity, delete on read models, specifications and snapshots.
 
 ### Overview
 
