@@ -1,11 +1,11 @@
 ### New in 0.68 (not released yet)
 
-* _Nothing yet_
+* Breaking: Changed name of namespace of the projects AspNetCore `EventFlow.Aspnetcore`
+  to `EventFlow.AspNetCore`
+* Fix: adjust using dependencies to `using EventFlow.AspNetCore...;`
 
 ### New in 0.67.3697 (released 2018-10-14)
 
-* Breaking: Changed name of namespace of the projects AspNetCore `EventFlow.Aspnetcore`
-  to `EventFlow.AspNetCore`
 * New: Expose `Lifetime.Scoped` through the EventFLow service registration
   interface
 * New: Upgrade NEST version to 6.1.0 and Hangfire.Core to 1.6.20
@@ -15,7 +15,6 @@
   all indexes linked to the alias.
 * Fix: Internal IoC (remember its just for testing) now correctly invokes
   `IDisposable.Dispose()` on scope and container dispose
-* Fix: adjust using dependencies to `using EventFlow.AspNetCore...;`
 
 ### New in 0.66.3673 (released 2018-09-30)
 
