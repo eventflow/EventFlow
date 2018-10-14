@@ -297,6 +297,35 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task MultipleScopes()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingId1 = PingId.New;
+            var pingId2 = PingId.New;
+
+            // Act
+            using (var scopedResolver = Resolver.BeginScope())
+            {
+                var commandBus = scopedResolver.Resolve<ICommandBus>();
+                await commandBus.PublishAsync(
+                    new ThingyPingCommand(id, pingId1))
+                    .ConfigureAwait(false);
+            }
+            using (var scopedResolver = Resolver.BeginScope())
+            {
+                var commandBus = scopedResolver.Resolve<ICommandBus>();
+                await commandBus.PublishAsync(
+                        new ThingyPingCommand(id, pingId2))
+                    .ConfigureAwait(false);
+            }
+
+            // Assert
+            var aggregate = await LoadAggregateAsync(id).ConfigureAwait(false);
+            aggregate.PingsReceived.ShouldAllBeEquivalentTo(new []{pingId1, pingId2});
+        }
+
+        [Test]
         public async Task PublishedDomainEventsHaveAggregateSequenceNumbers()
         {
             // Arrange

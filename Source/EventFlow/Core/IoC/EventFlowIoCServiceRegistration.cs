@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
@@ -122,7 +123,11 @@ namespace EventFlow.Core.IoC
 
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
-            var resolver = new EventFlowIoCResolver(_registrations, true);
+            var resolver = new EventFlowIoCResolver(
+                new ConcurrentDictionary<int, object>(), 
+                _registrations,
+                true);
+
             if (validateRegistrations)
             {
                 resolver.ValidateRegistrations();
@@ -142,8 +147,7 @@ namespace EventFlow.Core.IoC
         {
             lock (_syncRoot)
             {
-                List<Registration> registrations;
-                if (_registrations.TryGetValue(serviceType, out registrations))
+                if (_registrations.TryGetValue(serviceType, out var registrations))
                 {
                     if (keepDefault)
                     {

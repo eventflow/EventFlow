@@ -27,8 +27,10 @@ using Autofac.Extensions.DependencyInjection;
 using EventFlow.AspNetCore.Middlewares;
 using EventFlow.AspNetCore.Extensions;
 using EventFlow.Autofac.Extensions;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,7 +49,8 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 			var container = EventFlowOptions.New
 				.UseAutofacContainerBuilder(containerBuilder)
 				.AddDefaults(EventFlowTestHelpers.Assembly)
-				.AddAspNetCoreMetadataProviders();
+			    .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
+                .AddAspNetCoreMetadataProviders();
 
 
 			containerBuilder.Populate(services);

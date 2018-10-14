@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
@@ -59,11 +58,12 @@ namespace EventFlow.TestHelpers.Suites
             thingySaga.State.Should().Be(SagaState.Completed);
         }
 
+        [Test]
         public virtual async Task QueryingUsesScopedDbContext()
         {
             using (var scope = Resolver.BeginScope())
             {
-                var dbContext = scope.Resolve<IDbContext>();
+                var dbContext = scope.Resolve<IScopedContext>();
                 var queryProcessor = scope.Resolve<IQueryProcessor>();
 
                 var result = await queryProcessor.ProcessAsync(new DbContextQuery(), CancellationToken.None);
