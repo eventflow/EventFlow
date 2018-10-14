@@ -2,7 +2,6 @@
 
 * Breaking: Changed name of namespace of the projects AspNetCore `EventFlow.Aspnetcore` to
    `EventFlow.AspNetCore`
-
 * Fix: adjust using dependencies to `using EventFlow.AspNetCore...;`
 
 ### New in 0.67 (not released yet)
