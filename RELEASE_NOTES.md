@@ -1,4 +1,8 @@
-### New in 0.67 (not released yet)
+### New in 0.68 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.67.3697 (released 2018-10-14)
 
 * New: Expose `Lifetime.Scoped` through the EventFLow service registration
   interface
