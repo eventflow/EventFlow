@@ -27,5 +27,6 @@ namespace EventFlow.Configuration
     {
         AlwaysUnique,
         Singleton,
+        Scoped
     }
 }
