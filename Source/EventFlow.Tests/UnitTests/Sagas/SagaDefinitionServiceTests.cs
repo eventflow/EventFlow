@@ -50,6 +50,19 @@ namespace EventFlow.Tests.UnitTests.Sagas
             sagaTypeDetails.Single().SagaType.Should().Be(typeof(ThingySaga));
         }
 
+        [Test]
+        public void LoadSagas_ThrowsIfSagaIsAddedTwice()
+        {
+            // Arrange
+            Sut.LoadSagas(typeof(ThingySaga));
+
+            // Act
+            var exception = Assert.Throws<ArgumentException>(() => Sut.LoadSagas(typeof(ThingySaga)));
+
+            // Assert
+            exception.Message.Should().Contain("is already loaded");
+        }
+
         [TestCase(typeof(ThingyDomainErrorAfterFirstEvent))]
         [TestCase(typeof(ThingyMessageAddedEvent))]
         public void GetSagaTypeDetails_WithUnknownAggregateEvents(Type aggregateEventType)

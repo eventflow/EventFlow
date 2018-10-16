@@ -25,11 +25,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
     public class SagaDefinitionService : ISagaDefinitionService
     {
+        private readonly ConcurrentDictionary<Type, SagaDetails> _sagaDetails = new ConcurrentDictionary<Type, SagaDetails>();
         private readonly ConcurrentDictionary<Type, List<SagaDetails>> _sagaDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaDetails>>();
 
         public void LoadSagas(params Type[] sagaTypes)
@@ -41,7 +43,13 @@ namespace EventFlow.Sagas
         {
             foreach (var sagaType in sagaTypes)
             {
+                if (_sagaDetails.ContainsKey(sagaType))
+                {
+                    throw new ArgumentException($"Saga type '{sagaType.PrettyPrint()}' is already loaded");
+                }
+
                 var sagaDetails = SagaDetails.From(sagaType);
+                _sagaDetails[sagaType] = sagaDetails;
 
                 foreach (var aggregateEventType in sagaDetails.AggregateEventTypes)
                 {
@@ -56,8 +64,7 @@ namespace EventFlow.Sagas
 
         public IEnumerable<SagaDetails> GetSagaDetails(Type aggregateEventType)
         {
-            List<SagaDetails> sagaDetails;
-            return _sagaDetailsByAggregateEvent.TryGetValue(aggregateEventType, out sagaDetails)
+            return _sagaDetailsByAggregateEvent.TryGetValue(aggregateEventType, out var sagaDetails)
                 ? sagaDetails
                 : Enumerable.Empty<SagaDetails>();
         }
