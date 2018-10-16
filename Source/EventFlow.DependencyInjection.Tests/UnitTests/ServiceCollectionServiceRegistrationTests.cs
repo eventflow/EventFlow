@@ -28,7 +28,6 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.DependencyInjection.Tests.UnitTests
@@ -37,41 +36,6 @@ namespace EventFlow.DependencyInjection.Tests.UnitTests
     public class ServiceCollectionServiceRegistrationTests : TestSuiteForServiceRegistration
     {
         private ServiceCollection _serviceCollection;
-
-        [Test]
-        public void ValidateRegistrationsShouldDispose()
-        {
-            // Arrange
-            var service = new Mock<I>();
-            var createdCount = 0;
-            Sut.Register(_ =>
-            {
-                createdCount++;
-                return service.Object;
-            });
-
-            // Act and Assert
-            using (var resolver = Sut.CreateResolver(true))
-            {
-                createdCount.Should().Be(1);
-                service.Verify(m => m.Dispose(), Times.Once);
-
-                var resolvedService = resolver.Resolve<I>();
-                createdCount.Should().Be(2);
-                resolvedService.Should().BeSameAs(service.Object);
-
-                using (var scopedResolver = resolver.BeginScope())
-                {
-                    var nestedResolvedService = scopedResolver.Resolve<I>();
-                    createdCount.Should().Be(3);
-                    nestedResolvedService.Should().BeSameAs(service.Object);
-                }
-
-                service.Verify(m => m.Dispose(), Times.Exactly(2));
-            }
-
-            service.Verify(m => m.Dispose(), Times.Exactly(3));
-        }
 
         [Test]
         public void AddEventFlowRegistersEventFlowInServiceCollection()
