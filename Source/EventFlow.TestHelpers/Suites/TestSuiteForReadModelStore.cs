@@ -100,6 +100,19 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public void ReadModelDefinitionIsLoaded()
+        {
+            // Act
+            // done during load via the DefinitionServicesInitializer
+
+            // Assert
+            var readModelDefinition = ReadModelDefinitionService.GetDefinition(ReadModelType);
+            readModelDefinition.Type.Should().Be(ReadModelType);
+            readModelDefinition.Name.Should().NotBeEmpty();
+            readModelDefinition.Version.Should().Be(1);
+        }
+
+        [Test]
         public async Task CanStoreMultipleMessages()
         {
             // Arrange

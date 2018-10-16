@@ -125,7 +125,7 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {readModelType.PrettyPrint()} is not a {typeof(IReadModel).PrettyPrint()}");
                 }
-                _sagaTypes.Add(readModelType);
+                _readModelTypes.Add(readModelType);
             }
             return this;
         }
@@ -222,6 +222,7 @@ namespace EventFlow
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
+            serviceRegistration.Register<IReadModelDefinitionService, ReadModelDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
             serviceRegistration.Register<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton);
             serviceRegistration.Register<IAggregateFactory, AggregateFactory>();
