@@ -22,17 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
+using EventFlow.Logs;
 
-namespace EventFlow.Configuration
+namespace EventFlow.ReadStores
 {
-    public interface ILoadedVersionedTypes
+    public class ReadModelDefinitionService :
+        VersionedTypeDefinitionService<IReadModel, ReadModelVersionAttribute, ReadModelDefinition>,
+        IReadModelDefinitionService
     {
-        IReadOnlyCollection<Type> Jobs { get; }
-        IReadOnlyCollection<Type> Commands { get; }
-        IReadOnlyCollection<Type> Events { get; }
-        IReadOnlyCollection<Type> Sagas { get; }
-        IReadOnlyCollection<Type> SnapshotTypes { get; }
-        IReadOnlyCollection<Type> ReadModelTypes { get; }
+        public ReadModelDefinitionService(ILog log) : base(log)
+        {
+        }
+
+        protected override ReadModelDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new ReadModelDefinition(version, type, name);
+        }
     }
 }

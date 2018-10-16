@@ -53,6 +53,7 @@ namespace EventFlow
     {
         private readonly List<Type> _aggregateEventTypes = new List<Type>();
         private readonly List<Type> _sagaTypes = new List<Type>(); 
+        private readonly List<Type> _readModelTypes = new List<Type>();
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
@@ -112,6 +113,19 @@ namespace EventFlow
                     throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
                 }
                 _sagaTypes.Add(sagaType);
+            }
+            return this;
+        }
+
+        public IEventFlowOptions AddReadModels(IEnumerable<Type> readModelTypes)
+        {
+            foreach (var readModelType in readModelTypes)
+            {
+                if (!typeof(IReadModel).GetTypeInfo().IsAssignableFrom(readModelType))
+                {
+                    throw new ArgumentException($"Type {readModelType.PrettyPrint()} is not a {typeof(IReadModel).PrettyPrint()}");
+                }
+                _sagaTypes.Add(readModelType);
             }
             return this;
         }
@@ -230,14 +244,15 @@ namespace EventFlow
             serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             serviceRegistration.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
-            serviceRegistration.Register<IBootstrap, DefinitionServicesInitilizer>();
+            serviceRegistration.Register<IBootstrap, DefinitionServicesInitializer>();
             serviceRegistration.Register(_ => ModuleRegistration, Lifetime.Singleton);
             serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
                 _aggregateEventTypes,
                 _sagaTypes,
-                _snapshotTypes),
+                _snapshotTypes,
+                _readModelTypes),
                 Lifetime.Singleton);
         }
 

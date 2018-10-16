@@ -26,27 +26,30 @@ using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.EventStores;
 using EventFlow.Jobs;
+using EventFlow.ReadStores;
 using EventFlow.Sagas;
 using EventFlow.Snapshots;
 
 namespace EventFlow.Configuration.Bootstraps
 {
-    public class DefinitionServicesInitilizer : IBootstrap
+    public class DefinitionServicesInitializer : IBootstrap
     {
         private readonly ICommandDefinitionService _commandDefinitionService;
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
+        private readonly IReadModelDefinitionService _readModelDefinitionService;
         private readonly ILoadedVersionedTypes _loadedVersionedTypes;
 
-        public DefinitionServicesInitilizer(
+        public DefinitionServicesInitializer(
             ILoadedVersionedTypes loadedVersionedTypes,
             IEventDefinitionService eventDefinitionService,
             ICommandDefinitionService commandDefinitionService,
             IJobDefinitionService jobDefinitionService,
             ISagaDefinitionService sagaDefinitionService,
-            ISnapshotDefinitionService snapshotDefinitionService)
+            ISnapshotDefinitionService snapshotDefinitionService,
+            IReadModelDefinitionService readModelDefinitionService)
         {
             _loadedVersionedTypes = loadedVersionedTypes;
             _eventDefinitionService = eventDefinitionService;
@@ -54,6 +57,7 @@ namespace EventFlow.Configuration.Bootstraps
             _jobDefinitionService = jobDefinitionService;
             _sagaDefinitionService = sagaDefinitionService;
             _snapshotDefinitionService = snapshotDefinitionService;
+            _readModelDefinitionService = readModelDefinitionService;
         }
 
         public Task BootAsync(CancellationToken cancellationToken)
@@ -63,6 +67,7 @@ namespace EventFlow.Configuration.Bootstraps
             _jobDefinitionService.Load(_loadedVersionedTypes.Jobs);
             _sagaDefinitionService.LoadSagas(_loadedVersionedTypes.Sagas);
             _snapshotDefinitionService.Load(_loadedVersionedTypes.SnapshotTypes);
+            _readModelDefinitionService.Load(_loadedVersionedTypes.ReadModelTypes);
 
             return Task.FromResult(0);
         }
