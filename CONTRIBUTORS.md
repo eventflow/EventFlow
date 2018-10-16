@@ -26,6 +26,7 @@ If you think your name is missing from the list, create a pull-request.
 
 * PostgreSQL implementation
 * EntityFramework implementation
+* Build and integration test improvements
 
 ### [Jaco Coetzee](https://github.com/JC008)
 
