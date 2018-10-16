@@ -1,6 +1,6 @@
 ### New in 0.68 (not released yet)
 
-* Fix: Validate that a saga is only loaded once
+* Fix: Ignore multiple loads of the same saga
 
 ### New in 0.67.3697 (released 2018-10-14)
 

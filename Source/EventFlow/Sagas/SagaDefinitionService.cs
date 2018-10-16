@@ -26,13 +26,21 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 
 namespace EventFlow.Sagas
 {
     public class SagaDefinitionService : ISagaDefinitionService
     {
+        private readonly ILog _log;
         private readonly ConcurrentDictionary<Type, SagaDetails> _sagaDetails = new ConcurrentDictionary<Type, SagaDetails>();
         private readonly ConcurrentDictionary<Type, List<SagaDetails>> _sagaDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaDetails>>();
+
+        public SagaDefinitionService(
+            ILog log)
+        {
+            _log = log;
+        }
 
         public void LoadSagas(params Type[] sagaTypes)
         {
@@ -45,7 +53,8 @@ namespace EventFlow.Sagas
             {
                 if (_sagaDetails.ContainsKey(sagaType))
                 {
-                    throw new ArgumentException($"Saga type '{sagaType.PrettyPrint()}' is already loaded");
+                    _log.Warning($"Saga type '{sagaType.PrettyPrint()}' has already been added, skipping it this time");
+                    continue;
                 }
 
                 var sagaDetails = SagaDetails.From(sagaType);
