@@ -24,7 +24,7 @@
 using System;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using EventFlow.Aspnetcore.Middlewares;
+using EventFlow.AspNetCore.Middlewares;
 using EventFlow.AspNetCore.Extensions;
 using EventFlow.Autofac.Extensions;
 using EventFlow.Configuration;

@@ -29,7 +29,7 @@ using EventFlow.EventStores;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace EventFlow.Aspnetcore.MetadataProviders
+namespace EventFlow.AspNetCore.MetadataProviders
 {
     public class AddUserHostAddressMetadataProvider : IMetadataProvider
     {
