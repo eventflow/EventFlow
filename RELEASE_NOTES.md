@@ -1,5 +1,7 @@
 ### New in 0.68 (not released yet)
 
+* Breaking: Changed name of namespace of the projects AspNetCore `EventFlow.Aspnetcore`
+  to `EventFlow.AspNetCore`
 * Fix: Ignore multiple loads of the same saga
 
 ### New in 0.67.3697 (released 2018-10-14)

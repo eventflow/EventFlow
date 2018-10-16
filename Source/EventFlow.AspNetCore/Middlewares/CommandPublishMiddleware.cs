@@ -33,7 +33,7 @@ using EventFlow.Exceptions;
 using EventFlow.Logs;
 using Microsoft.AspNetCore.Http;
 
-namespace EventFlow.Aspnetcore.Middlewares
+namespace EventFlow.AspNetCore.Middlewares
 {
     public class CommandPublishMiddleware
     {
