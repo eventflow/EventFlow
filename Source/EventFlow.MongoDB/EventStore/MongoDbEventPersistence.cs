@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Exceptions;
 using EventFlow.Logs;
 using EventFlow.MongoDB.ValueObjects;
 using MongoDB.Driver;
@@ -67,10 +68,17 @@ namespace EventFlow.MongoDB.EventStore
                 .ToList();
 
             _log.Verbose("Committing {0} events to MongoDb event store for entity with ID '{1}'", eventDataModels.Count, id);
-            await MongoDbEventStoreCollection
-                .InsertManyAsync(eventDataModels, cancellationToken: cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            try
+            {
+                await MongoDbEventStoreCollection
+                    .InsertManyAsync(eventDataModels, cancellationToken: cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
+            }
+            catch (MongoBulkWriteException e)
+            {
+                throw new OptimisticConcurrencyException(e.Message, e);
 
+            }
             return eventDataModels;
         }
 

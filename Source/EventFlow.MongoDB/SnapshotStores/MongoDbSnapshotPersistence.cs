@@ -42,7 +42,7 @@ namespace EventFlow.MongoDB.SnapshotStores
                 .Find(filter)
                 .Sort(sort)
                 .Limit(1)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
             if (mongoDbSnapshotDataModel == null)
             {
                 return null;
@@ -76,8 +76,8 @@ namespace EventFlow.MongoDB.SnapshotStores
                          filterBuilder.Eq(model => model.AggregateId, identity.Value) &
                          filterBuilder.Eq(model => model.AggregateSequenceNumber, serializedSnapshot.Metadata.AggregateSequenceNumber);
 
-            await collection.DeleteManyAsync(filter);
-            await collection.InsertOneAsync(mongoDbSnapshotDataModel);
+            await collection.DeleteManyAsync(filter, cancellationToken);
+            await collection.InsertOneAsync(mongoDbSnapshotDataModel, cancellationToken: cancellationToken);
         }
 
         public Task DeleteSnapshotAsync(
@@ -90,14 +90,14 @@ namespace EventFlow.MongoDB.SnapshotStores
 
             var filter = filterBuilder.Eq(model => model.AggregateName, aggregateType.GetAggregateName().Value) &
                          filterBuilder.Eq(model => model.AggregateId, identity.Value);
-            return collection.DeleteManyAsync(filter);
+            return collection.DeleteManyAsync(filter, cancellationToken);
         }
 
         public Task PurgeSnapshotsAsync(CancellationToken cancellationToken)
         {
             var collection = _mongoDatabase.GetCollection<MongoDbSnapshotDataModel>(SnapShotsCollectionName);
             var filter = new BsonDocument();
-            return collection.DeleteManyAsync(filter);
+            return collection.DeleteManyAsync(filter, cancellationToken);
         }
 
         public Task PurgeSnapshotsAsync(
@@ -106,7 +106,7 @@ namespace EventFlow.MongoDB.SnapshotStores
         {
             var collection = _mongoDatabase.GetCollection<MongoDbSnapshotDataModel>(SnapShotsCollectionName);
             var filter = Builders<MongoDbSnapshotDataModel>.Filter.Eq(model => model.AggregateName, aggregateType.GetAggregateName().Value);
-            return collection.DeleteManyAsync(filter);
+            return collection.DeleteManyAsync(filter, cancellationToken);
         }        
     }
 }
