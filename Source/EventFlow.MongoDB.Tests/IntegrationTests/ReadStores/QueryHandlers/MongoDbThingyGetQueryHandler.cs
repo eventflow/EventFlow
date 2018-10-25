@@ -35,9 +35,9 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
     public class MongoDbThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        private readonly MongoDbReadModelStore<MongoDbThingyReadModel> _readStore;
+        private readonly IMongoDbReadModelStore<MongoDbThingyReadModel> _readStore;
         public MongoDbThingyGetQueryHandler(
-            MongoDbReadModelStore<MongoDbThingyReadModel> mongeReadStore)
+            IMongoDbReadModelStore<MongoDbThingyReadModel> mongeReadStore)
         {
             _readStore = mongeReadStore;
         }

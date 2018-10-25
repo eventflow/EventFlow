@@ -42,7 +42,7 @@ namespace EventFlow.MongoDB.ReadStores
 		    _log.Information($"Deleting '{typeof(TReadModel).PrettyPrint()}' with id '{id}', from '{readModelDescription.RootCollectionName}'!");
 
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-		    await collection.DeleteOneAsync(x => x._id.ToString() == id, cancellationToken);
+		    await collection.DeleteOneAsync(x => x._id == id, cancellationToken);
 		}
 
 		public async Task DeleteAllAsync(CancellationToken cancellationToken)
