@@ -27,10 +27,12 @@ using EventFlow.Extensions;
 using EventFlow.MongoDB.Extensions;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.MongoDB.ValueObjects;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Mongo2Go;
+using MongoDB.Driver;
 using NUnit.Framework;
 
 namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
@@ -59,9 +61,9 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
                     typeof(MongoDbThingyGetMessagesQueryHandler))
                 .CreateResolver();
 
-
             return resolver;
         }
+
 
         [TearDown]
         public void TearDown()

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.MongoDB.ValueObjects;
@@ -77,41 +78,55 @@ namespace EventFlow.MongoDB.ReadStores
 			
 			return await collection.FindAsync(filter, options, cancellationToken);
 		}
-        
+
         private async Task UpdateReadModelAsync(ReadModelDescription readModelDescription,
             ReadModelUpdate readModelUpdate,
             IReadModelContextFactory readModelContextFactory,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
 
-                var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-                var filter = Builders<TReadModel>.Filter.Eq(readmodel => readmodel._id, readModelUpdate.ReadModelId);
-                var result = collection.Find(filter).FirstOrDefault();
+            var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
+            var filter = Builders<TReadModel>.Filter.Eq(readmodel => readmodel._id, readModelUpdate.ReadModelId);
+            var result = collection.Find(filter).FirstOrDefault();
 
-                var isNew = result == null;
-                
-                var readModelEnvelope = !isNew
-                    ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, result)
-                    : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
+            var isNew = result == null;
 
-                var readModelContext = readModelContextFactory.Create(readModelUpdate.ReadModelId, isNew);
-                var readModelUpdateResult = await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope, cancellationToken).ConfigureAwait(false);
-                
-                if (!readModelUpdateResult.IsModified)
-                {
-                    return;
-                }
+            var readModelEnvelope = !isNew
+                ? ReadModelEnvelope<TReadModel>.With(readModelUpdate.ReadModelId, result)
+                : ReadModelEnvelope<TReadModel>.Empty(readModelUpdate.ReadModelId);
+
+            var readModelContext = readModelContextFactory.Create(readModelUpdate.ReadModelId, isNew);
+            var readModelUpdateResult =
+                await updateReadModel(readModelContext, readModelUpdate.DomainEvents, readModelEnvelope,
+                    cancellationToken).ConfigureAwait(false);
+
+            if (!readModelUpdateResult.IsModified)
+            {
+                return;
+            }
 
 
-                readModelEnvelope = readModelUpdateResult.Envelope;
-                readModelEnvelope.ReadModel._version = readModelEnvelope.Version;
-
+            readModelEnvelope = readModelUpdateResult.Envelope;
+            var originalVersion = readModelEnvelope.ReadModel._version;
+            readModelEnvelope.ReadModel._version = readModelEnvelope.Version;
+            try
+            {
                 await collection.ReplaceOneAsync<TReadModel>(
-                    x => x._id == readModelUpdate.ReadModelId,
+                    x => x._id == readModelUpdate.ReadModelId && x._version == originalVersion,
                     readModelEnvelope.ReadModel,
-                    new UpdateOptions() { IsUpsert = true },
+                    new UpdateOptions() {IsUpsert = true},
                     cancellationToken);
+            }
+            catch (MongoWriteException e)
+            {
+
+                throw new OptimisticConcurrencyException(
+                    $"Read model '{readModelUpdate.ReadModelId}' updated by another",
+                    e);
+
+            }
         }
         
         public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,

@@ -46,8 +46,8 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers
         {
             var thingyId = query.ThingyId.ToString();
             var asyncCursor = await _readStore.FindAsync(f => string.Equals(f._id, thingyId), cancellationToken: cancellationToken).ConfigureAwait(false);
-            var thingyReadModel = await asyncCursor.FirstAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-            return thingyReadModel.ToThingy();
+            var thingyReadModel = await asyncCursor.FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            return thingyReadModel?.ToThingy();
         }
     }
 }
