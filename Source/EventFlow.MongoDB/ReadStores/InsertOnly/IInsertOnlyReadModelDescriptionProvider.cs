@@ -1,6 +1,6 @@
 ﻿using EventFlow.MongoDB.ValueObjects;
 
-namespace EventFlow.MongoDB.ReadStores
+namespace EventFlow.MongoDB.ReadStores.InsertOnly
 {
     public interface IInsertOnlyReadModelDescriptionProvider
     {

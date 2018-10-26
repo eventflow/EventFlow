@@ -1,11 +1,11 @@
-﻿using EventFlow.Extensions;
-using EventFlow.MongoDB.ReadStores.Attributes;
-using EventFlow.MongoDB.ValueObjects;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using EventFlow.Extensions;
+using EventFlow.MongoDB.ReadStores.Attributes;
+using EventFlow.MongoDB.ValueObjects;
 
-namespace EventFlow.MongoDB.ReadStores
+namespace EventFlow.MongoDB.ReadStores.InsertOnly
 {
     public class InsertOnlyReadModelDescriptionProvider : IInsertOnlyReadModelDescriptionProvider
     {

@@ -5,6 +5,7 @@ using EventFlow.ReadStores;
 using EventFlow.MongoDB.EventStore;
 using MongoDB.Driver;
 using System;
+using EventFlow.MongoDB.ReadStores.InsertOnly;
 
 namespace EventFlow.MongoDB.Extensions
 {

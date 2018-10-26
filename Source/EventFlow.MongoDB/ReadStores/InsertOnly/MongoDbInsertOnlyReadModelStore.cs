@@ -1,19 +1,19 @@
-﻿using EventFlow.Aggregates;
-using EventFlow.Extensions;
-using EventFlow.Logs;
-using EventFlow.ReadStores;
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Driver;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
+using EventFlow.Extensions;
+using EventFlow.Logs;
 using EventFlow.MongoDB.ValueObjects;
+using EventFlow.ReadStores;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Driver;
 
-namespace EventFlow.MongoDB.ReadStores
+namespace EventFlow.MongoDB.ReadStores.InsertOnly
 {
     public class MongoDbInsertOnlyReadModelStore<TReadModel> : IMongoDbInsertOnlyReadModelStore<TReadModel>
         where TReadModel : class, IMongoDbInsertOnlyReadModel, new()

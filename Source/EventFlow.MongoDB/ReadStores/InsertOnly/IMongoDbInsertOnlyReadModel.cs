@@ -1,6 +1,6 @@
 ﻿using EventFlow.ReadStores;
 
-namespace EventFlow.MongoDB.ReadStores
+namespace EventFlow.MongoDB.ReadStores.InsertOnly
 {
     public interface IMongoDbInsertOnlyReadModel : IReadModel
     {
