@@ -4,7 +4,7 @@ namespace EventFlow.MongoDB.ReadStores
 {
     public interface IMongoDbReadModel : IReadModel
     {
-        string _id { get; }
-        long? _version { get; set; }
+        string Id { get; }
+        long? Version { get; set; }
     }
 }

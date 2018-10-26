@@ -44,7 +44,7 @@ namespace EventFlow.MongoDB.ReadStores
                 $"Deleting '{typeof(TReadModel).PrettyPrint()}' with id '{id}', from '{readModelDescription.RootCollectionName}'!");
 
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-            await collection.DeleteOneAsync(x => x._id.ToString() == id, cancellationToken);
+            await collection.DeleteOneAsync(x => x.Id.ToString() == id, cancellationToken);
         }
 
         public async Task DeleteAllAsync(CancellationToken cancellationToken)
@@ -105,7 +105,7 @@ namespace EventFlow.MongoDB.ReadStores
                     cancellationToken).ConfigureAwait(false);
             
             readModelEnvelope = modelUpdateResult.Envelope;
-            readModelEnvelope.ReadModel._id =
+            readModelEnvelope.ReadModel.Id =
                 ObjectIdGenerator.Instance.GenerateId(collection, readModelEnvelope.ReadModel);
             await collection.InsertOneAsync(
                 readModelEnvelope.ReadModel,

@@ -45,9 +45,9 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers
         public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
         {
             var thingyId = query.ThingyId.ToString();
-            var asyncCursor = await _readStore.FindAsync(f => string.Equals(f._id, thingyId), cancellationToken: cancellationToken).ConfigureAwait(false);
+            var asyncCursor = await _readStore.FindAsync(f => string.Equals(f.Id, thingyId), cancellationToken: cancellationToken).ConfigureAwait(false);
             var thingyReadModel = await asyncCursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-            return thingyReadModel?._version;
+            return thingyReadModel?.Version;
         }
     }
 }

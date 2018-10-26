@@ -43,7 +43,7 @@ namespace EventFlow.MongoDB.ReadStores
 		    _log.Information($"Deleting '{typeof(TReadModel).PrettyPrint()}' with id '{id}', from '{readModelDescription.RootCollectionName}'!");
 
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-		    await collection.DeleteOneAsync(x => x._id == id, cancellationToken);
+		    await collection.DeleteOneAsync(x => x.Id == id, cancellationToken);
 		}
 
 		public async Task DeleteAllAsync(CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ namespace EventFlow.MongoDB.ReadStores
             _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with _id '{id}' from collection '{readModelDescription.RootCollectionName}'");
 
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-            var filter = Builders<TReadModel>.Filter.Eq(readModel => readModel._id, id);
+            var filter = Builders<TReadModel>.Filter.Eq(readModel => readModel.Id, id);
             var result = await collection.Find(filter).FirstAsync(cancellationToken);
             return ReadModelEnvelope<TReadModel>.With(id, result);
         }
@@ -88,7 +88,7 @@ namespace EventFlow.MongoDB.ReadStores
         {
 
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-            var filter = Builders<TReadModel>.Filter.Eq(readmodel => readmodel._id, readModelUpdate.ReadModelId);
+            var filter = Builders<TReadModel>.Filter.Eq(readmodel => readmodel.Id, readModelUpdate.ReadModelId);
             var result = collection.Find(filter).FirstOrDefault();
 
             var isNew = result == null;
@@ -107,14 +107,20 @@ namespace EventFlow.MongoDB.ReadStores
                 return;
             }
 
+            if (readModelContext.IsMarkedForDeletion)
+            {
+
+                await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
+                return;
+            }
 
             readModelEnvelope = readModelUpdateResult.Envelope;
-            var originalVersion = readModelEnvelope.ReadModel._version;
-            readModelEnvelope.ReadModel._version = readModelEnvelope.Version;
+            var originalVersion = readModelEnvelope.ReadModel.Version;
+            readModelEnvelope.ReadModel.Version = readModelEnvelope.Version;
             try
             {
                 await collection.ReplaceOneAsync<TReadModel>(
-                    x => x._id == readModelUpdate.ReadModelId && x._version == originalVersion,
+                    x => x.Id == readModelUpdate.ReadModelId && x.Version == originalVersion,
                     readModelEnvelope.ReadModel,
                     new UpdateOptions() {IsUpsert = true},
                     cancellationToken);

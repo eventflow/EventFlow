@@ -36,8 +36,8 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
-        public string _id { get; set; }
-        public long? _version { get; set; }
+        public string Id { get; set; }
+        public long? Version { get; set; }
 
         public bool DomainErrorAfterFirstReceived { get; set; }
 
@@ -45,13 +45,13 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
-            _id = domainEvent.AggregateIdentity.Value;
+            Id = domainEvent.AggregateIdentity.Value;
             DomainErrorAfterFirstReceived = true;
         }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
-            _id = domainEvent.AggregateIdentity.Value;
+            Id = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
         }
 
@@ -63,7 +63,7 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
         public Thingy ToThingy()
         {
             return new Thingy(
-                ThingyId.With(_id),
+                ThingyId.With(Id),
                 PingsReceived,
                 DomainErrorAfterFirstReceived);
         }

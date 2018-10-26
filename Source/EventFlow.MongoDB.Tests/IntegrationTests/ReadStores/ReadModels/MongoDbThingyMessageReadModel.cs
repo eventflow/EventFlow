@@ -38,8 +38,8 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent>
     {
 
-        public string _id { get; set; }
-        public long? _version { get; set; }
+        public string Id { get; set; }
+        public long? Version { get; set; }
 
         public string ThingyId { get; set; }
 
@@ -50,7 +50,7 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
             ThingyId = domainEvent.AggregateIdentity.Value;
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            _id = thingyMessage.Id.Value;
+            Id = thingyMessage.Id.Value;
             Message = thingyMessage.Message;
         }
 
@@ -60,14 +60,14 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
 
             var messageId = new ThingyMessageId(context.ReadModelId);
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
-            _id = messageId.Value;
+            Id = messageId.Value;
             Message = thingyMessage.Message;
         }
 
         public ThingyMessage ToThingyMessage()
         {
             return new ThingyMessage(
-                ThingyMessageId.With(_id),
+                ThingyMessageId.With(Id),
                 Message);
         }
 
