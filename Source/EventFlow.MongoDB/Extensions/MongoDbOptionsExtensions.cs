@@ -5,7 +5,6 @@ using EventFlow.ReadStores;
 using EventFlow.MongoDB.EventStore;
 using MongoDB.Driver;
 using System;
-using EventFlow.MongoDB.ReadStores.InsertOnly;
 
 namespace EventFlow.MongoDB.Extensions
 {
@@ -48,7 +47,6 @@ namespace EventFlow.MongoDB.Extensions
             {
                 sr.Register(f => mongoDatabaseFactory(), Lifetime.Singleton);
                 sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
-                sr.Register<IInsertOnlyReadModelDescriptionProvider, InsertOnlyReadModelDescriptionProvider>(Lifetime.Singleton, true);
                 sr.Register<IMongoDbEventSequenceStore, MongoDbEventSequenceStore>(Lifetime.Singleton);
             });
         }
@@ -78,33 +76,6 @@ namespace EventFlow.MongoDB.Extensions
                     f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMongoDbReadModelStore<TReadModel>>());
                 })
                 .UseReadStoreFor<IMongoDbReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
-        }
-
-        public static IEventFlowOptions UseMongoDbInsertOnlyReadModel<TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMongoDbInsertOnlyReadModel, new()
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IMongoDbInsertOnlyReadModelStore<TReadModel>, MongoDbInsertOnlyReadModelStore<TReadModel>>();
-                    f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMongoDbInsertOnlyReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IMongoDbInsertOnlyReadModelStore<TReadModel>, TReadModel>();
-        }
-
-        public static IEventFlowOptions UseMongoDbInsertOnlyReadModel<TReadModel, TReadModelLocator>(
-            this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMongoDbInsertOnlyReadModel, new()
-            where TReadModelLocator : IReadModelLocator
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IMongoDbInsertOnlyReadModelStore<TReadModel>, MongoDbInsertOnlyReadModelStore<TReadModel>>();
-                    f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMongoDbInsertOnlyReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IMongoDbInsertOnlyReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
     }
 }
