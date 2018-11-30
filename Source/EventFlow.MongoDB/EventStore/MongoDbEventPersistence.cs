@@ -15,7 +15,7 @@ namespace EventFlow.MongoDB.EventStore
 {
     public class MongoDbEventPersistence : IEventPersistence
     {
-        private const string _collectionName = "eventflow.events";
+        public static readonly string CollectionName = "eventflow.events";
         private readonly ILog _log;
         private readonly IMongoDatabase _mongoDatabase;
         private readonly IMongoDbEventSequenceStore _mongoDbEventSequenceStore;
@@ -56,7 +56,7 @@ namespace EventFlow.MongoDB.EventStore
             var eventDataModels = serializedEvents
                 .Select((e, i) => new MongoDbEventDataModel
                 {
-                    _id = _mongoDbEventSequenceStore.GetNextSequence(_collectionName),
+                    _id = _mongoDbEventSequenceStore.GetNextSequence(CollectionName),
                     AggregateId = id.Value,
                     AggregateName = e.Metadata[MetadataKeys.AggregateName],
                     BatchId = Guid.Parse(e.Metadata[MetadataKeys.BatchId]),
@@ -99,6 +99,6 @@ namespace EventFlow.MongoDB.EventStore
             _log.Verbose("Deleted entity with ID '{0}' by deleting all of its {1} events", id, affectedRows.DeletedCount);
         }
 
-        private IMongoCollection<MongoDbEventDataModel> MongoDbEventStoreCollection => _mongoDatabase.GetCollection<MongoDbEventDataModel>(_collectionName);
+        private IMongoCollection<MongoDbEventDataModel> MongoDbEventStoreCollection => _mongoDatabase.GetCollection<MongoDbEventDataModel>(CollectionName);
     }
 }

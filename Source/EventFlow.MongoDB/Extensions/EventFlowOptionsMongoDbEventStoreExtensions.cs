@@ -7,7 +7,9 @@ namespace EventFlow.MongoDB.Extensions
     {
         public static IEventFlowOptions UseMongoDbEventStore(this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<MongoDbEventPersistence>();
+
+            return eventFlowOptions.UseEventStore<MongoDbEventPersistence>()
+                .RegisterServices(f=> f.Register<IMongoDbEventPersistenceInitializer, MongoDbEventPersistenceInitializer>());
         }
     }
 }

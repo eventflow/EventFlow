@@ -24,22 +24,13 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 		    _runner = MongoDbRunner.Start();
             var resolver = eventFlowOptions
 				.ConfigureMongoDb(_runner.ConnectionString, "eventflow")
-				.UseEventStore<MongoDbEventPersistence>()
+				.UseMongoDbEventStore()
 				.CreateResolver();
-		    PrepareIndexes(resolver);
+		    var eventPersistenceInitializer = resolver.Resolve<IMongoDbEventPersistenceInitializer>();
+            eventPersistenceInitializer.Initialize();
+		    
 			return resolver;
 		}
-
-	    private void PrepareIndexes(IRootResolver resolver)
-	    {
-	        var mongo = resolver.Resolve<IMongoDatabase>();
-	        var events = mongo.GetCollection<MongoDbEventDataModel>("eventflow.events");
-	        IndexKeysDefinition<MongoDbEventDataModel> keys =
-	            Builders<MongoDbEventDataModel>.IndexKeys.Ascending("AggregateId")
-	                .Ascending("AggregateSequenceNumber");
-	        events.Indexes.CreateOne(
-	            new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions {Unique = true}));
-	    }
 
         [TearDown]
 		public void TearDown()
