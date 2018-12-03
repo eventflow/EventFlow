@@ -1,4 +1,8 @@
-### New in 0.68 (not released yet)
+### New in 0.69 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.68.3728 (released 2018-12-03)
 
 * Breaking: Changed name of namespace of the projects AspNetCore `EventFlow.Aspnetcore`
   to `EventFlow.AspNetCore`
