@@ -29,7 +29,7 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using Microsoft.AspNetCore.Http;
 
-namespace EventFlow.Aspnetcore.MetadataProviders
+namespace EventFlow.AspNetCore.MetadataProviders
 { 
     public class AddRequestHeadersMetadataProvider : IMetadataProvider
     {

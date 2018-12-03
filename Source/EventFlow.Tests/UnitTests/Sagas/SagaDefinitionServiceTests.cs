@@ -50,6 +50,18 @@ namespace EventFlow.Tests.UnitTests.Sagas
             sagaTypeDetails.Single().SagaType.Should().Be(typeof(ThingySaga));
         }
 
+        [Test]
+        public void LoadSagas_IgnoresMultipleLoads()
+        {
+            // Act
+            Sut.LoadSagas(typeof(ThingySaga));
+            Sut.LoadSagas(typeof(ThingySaga));
+
+            // Assert
+            var sagaDetails = Sut.GetSagaDetails(typeof(ThingySagaStartRequestedEvent)).ToList();
+            sagaDetails.Should().HaveCount(1);
+        }
+
         [TestCase(typeof(ThingyDomainErrorAfterFirstEvent))]
         [TestCase(typeof(ThingyMessageAddedEvent))]
         public void GetSagaTypeDetails_WithUnknownAggregateEvents(Type aggregateEventType)

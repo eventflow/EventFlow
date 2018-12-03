@@ -15,6 +15,10 @@ If you think your name is missing from the list, create a pull-request.
 
 * Created the current logo of EventFlow
 
+### [Edward Wilson](https://github.com/edwardwilson)
+
+* Original MongoDB author
+
 ### [Frank Ebersoll](https://github.com/frankebersoll)
 
 * Created following packages
@@ -26,11 +30,16 @@ If you think your name is missing from the list, create a pull-request.
 
 * PostgreSQL implementation
 * EntityFramework implementation
+* Build and integration test improvements
 
 ### [Jaco Coetzee](https://github.com/JC008)
 
 * Several key contributions and bug fixes
 * Donated Navicat Essentials for SQLite
+
+### [janfeyen](https://github.com/janfeyen)
+
+* Key MongoDB contributions
 
 ### [rmess](https://github.com/rmess)
 
@@ -39,4 +48,8 @@ If you think your name is missing from the list, create a pull-request.
 ### [Rasmus Mikkelsen](https://github.com/rasmus)
 
 * Original creator and author of EventFlow
+
+### [Willem Peters](https://github.com/wgtmpeters)
+
+* MongoDB cleanup and move to main repository
 
