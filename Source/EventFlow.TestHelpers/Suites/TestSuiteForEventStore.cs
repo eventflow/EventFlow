@@ -363,6 +363,28 @@ namespace EventFlow.TestHelpers.Suites
             PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(11, 10));
         }
 
+        [Test]
+        public async Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var pingIds = Many<PingId>(10);
+            await CommandBus.PublishAsync(
+                new ThingyMultiplePingsCommand(id, pingIds))
+                .ConfigureAwait(false);
+
+            await RemoveEvents(Enumerable.Range(2, 5));
+
+            // Assert
+            var result = await this.EventStore.LoadAllEventsAsync(GlobalPosition.Start, 5, CancellationToken.None);
+            result.DomainEvents.Should().HaveCount(5);
+        }
+
+        protected virtual Task<bool> RemoveEvents(IEnumerable<int> ids)
+        {
+            return Task.FromResult(false);
+        }
+
         [SetUp]
         public void TestSuiteForEventStoreSetUp()
         {

@@ -1,6 +1,8 @@
 ### New in 0.69 (not released yet)
 
-* _Nothing yet_
+* Fix: `MsSqlEventPersistence.LoadAllCommittedEvents` now correctly handles cases where
+  the `GlobalSequenceNumber` column contains gaps larger than the page size. This bug
+  lead to incomplete event application when using the `ReadModelPopulator` (see #564).
 
 ### New in 0.68.3728 (released 2018-12-03)
 
