@@ -58,6 +58,10 @@ namespace EventFlow.Autofac.Registrations
             {
                 registration.SingleInstance();
             }
+            if (lifetime == Lifetime.Scoped)
+            {
+                registration.InstancePerLifetimeScope();
+            }
 
             var serviceRegistration = _containerBuilder
                 .Register<TService>(c => c.Resolve<TImplementation>())
@@ -91,6 +95,10 @@ namespace EventFlow.Autofac.Registrations
             {
                 registration.SingleInstance();
             }
+            if (lifetime == Lifetime.Scoped)
+            {
+                registration.InstancePerLifetimeScope();
+            }
             if (keepDefault)
             {
                 registration.PreserveExistingDefaults();
@@ -115,6 +123,10 @@ namespace EventFlow.Autofac.Registrations
             {
                 registration.SingleInstance();
             }
+            if (lifetime == Lifetime.Scoped)
+            {
+                registration.InstancePerLifetimeScope();
+            }
             if (keepDefault)
             {
                 registration.PreserveExistingDefaults();
@@ -137,6 +149,10 @@ namespace EventFlow.Autofac.Registrations
             {
                 registration.SingleInstance();
             }
+            if (lifetime == Lifetime.Scoped)
+            {
+                registration.InstancePerLifetimeScope();
+            }
             if (keepDefault)
             {
                 registration.PreserveExistingDefaults();
@@ -154,6 +170,10 @@ namespace EventFlow.Autofac.Registrations
             if (lifetime == Lifetime.Singleton)
             {
                 registration.SingleInstance();
+            }
+            if (lifetime == Lifetime.Scoped)
+            {
+                registration.InstancePerLifetimeScope();
             }
         }
 

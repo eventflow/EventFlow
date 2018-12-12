@@ -94,6 +94,7 @@ Task("Build")
                         .Append("/p:ci=true")
                         .Append("/p:SourceLinkEnabled=true")
                         .AppendSwitch("/p:DebugType","=","Full")
+                        .Append("/p:TreatWarningsAsErrors=true")
 				});
         });
 

@@ -37,6 +37,7 @@ using EventFlow.Logs;
 using EventFlow.Owin.Extensions;
 using EventFlow.Owin.Middlewares;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using Owin;
 
 namespace EventFlow.Owin.Tests.IntegrationTests.Site
@@ -92,6 +93,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
                 .UseAutofacContainerBuilder(containerBuilder)
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .AddOwinMetadataProviders()
+                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
                 .RegisterServices(f => f.Register(r =>  new DirectoryCleaner(storePath), Lifetime.Singleton))
                 .CreateContainer(false);

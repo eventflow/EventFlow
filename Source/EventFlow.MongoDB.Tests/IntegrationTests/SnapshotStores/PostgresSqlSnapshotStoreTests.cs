@@ -1,7 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2018 Rida Messaoudene
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,10 +20,37 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.TestHelpers.Aggregates.Queries
+using EventFlow.Configuration;
+using EventFlow.MongoDB.Extensions;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using Mongo2Go;
+using NUnit.Framework;
+
+namespace EventFlow.MongoDB.Tests.IntegrationTests.SnapshotStores
 {
-    public interface IDbContext 
+    [Category(Categories.Integration)]
+    public class PostgreSqlSnapshotStoreTests : TestSuiteForSnapshotStore
     {
-        string Id { get; }
+        private MongoDbRunner _runner;
+
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            _runner = MongoDbRunner.Start();
+
+            var resolver = eventFlowOptions
+                .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
+                .UseMongoDbSnapshotStore()
+                .CreateResolver();
+
+
+            return resolver;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _runner.Dispose();
+        }
     }
 }

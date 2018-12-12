@@ -154,6 +154,8 @@ namespace EventFlow.DependencyInjection.Registrations
                     return ServiceLifetime.Transient;
                 case Lifetime.Singleton:
                     return ServiceLifetime.Singleton;
+                case Lifetime.Scoped:
+                    return ServiceLifetime.Scoped;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, null);
             }
