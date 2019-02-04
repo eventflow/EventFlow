@@ -1,6 +1,6 @@
 ### New in 0.69 (not released yet)
 
-* _Nothing yet_
+* Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
 
 ### New in 0.68.3728 (released 2018-12-03)
 

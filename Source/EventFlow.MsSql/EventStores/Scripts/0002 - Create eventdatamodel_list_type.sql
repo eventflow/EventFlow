@@ -1,6 +1,6 @@
 IF NOT EXISTS (SELECT * FROM SYS.TYPES WHERE is_table_type = 1 AND name = 'eventdatamodel_list_type')
 BEGIN
-	CREATE TYPE eventdatamodel_list_type AS TABLE
+	CREATE TYPE dbo.eventdatamodel_list_type AS TABLE
 	(
 		[AggregateId] [nvarchar](255) NOT NULL,
 		[AggregateName] [nvarchar](255) NOT NULL,
