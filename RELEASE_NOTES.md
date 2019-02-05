@@ -1,5 +1,6 @@
 ### New in 0.69 (not released yet)
 
+* Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
 * Fix: `MsSqlEventPersistence.LoadAllCommittedEvents` now correctly handles cases where
   the `GlobalSequenceNumber` column contains gaps larger than the page size. This bug
   lead to incomplete event application when using the `ReadModelPopulator` (see #564).
