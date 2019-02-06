@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.Connections;
@@ -58,6 +59,12 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.EventStores
         public void TearDown()
         {
             _testDatabase.Dispose();
+        }
+
+        [Test]
+        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        {
+            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
         }
     }
 }
