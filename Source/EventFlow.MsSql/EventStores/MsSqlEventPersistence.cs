@@ -69,21 +69,21 @@ namespace EventFlow.MsSql.EventStores
                 : long.Parse(globalPosition.Value);
 
             const string sql = @"
-                SELECT TOP(@Count)
+                SELECT TOP(@pageSize)
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
                 FROM EventFlow
                 WHERE
-                    GlobalSequenceNumber >= @FromId
+                    GlobalSequenceNumber >= @startPosition
                 ORDER BY
                     GlobalSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                 Label.Named("mssql-fetch-events"),
-                cancellationToken,
-                sql,
-                new
+                    cancellationToken,
+                    sql,
+                    new
                     {
-                        FromId = startPosition,
-                        Count = pageSize,
+                        startPosition,
+                        pageSize
                     })
                 .ConfigureAwait(false);
 
