@@ -68,24 +68,24 @@ namespace EventFlow.SQLite.EventStores
             var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
-            var endPosition = startPosition + pageSize;
 
             const string sql = @"
                 SELECT
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
                 FROM EventFlow
                 WHERE
-                    GlobalSequenceNumber >= @FromId AND GlobalSequenceNumber <= @ToId
+                    GlobalSequenceNumber >= @startPosition
                 ORDER BY
-                    GlobalSequenceNumber ASC";
+                    GlobalSequenceNumber ASC
+                LIMIT @pageSize";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("sqlite-fetch-events"),
-                cancellationToken,
-                sql,
-                new
+                    Label.Named("sqlite-fetch-events"),
+                    cancellationToken,
+                    sql,
+                    new
                     {
-                        FromId = startPosition,
-                        ToId = endPosition,
+                        startPosition,
+                        pageSize
                     })
                 .ConfigureAwait(false);
 

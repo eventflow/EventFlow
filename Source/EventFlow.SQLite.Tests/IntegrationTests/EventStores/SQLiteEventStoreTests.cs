@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
@@ -84,6 +85,12 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
             {
                 File.Delete(_databasePath);
             }
+        }
+
+        [Test]
+        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        {
+            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
         }
     }
 }
