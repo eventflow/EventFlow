@@ -123,7 +123,9 @@ namespace EventFlow.EventStores.Files
             while (_eventLog.TryGetValue(startPosition, out var path))
             {
                 if (File.Exists(path))
+                {
                     yield return path;
+                }
 
                 startPosition++;
             }
