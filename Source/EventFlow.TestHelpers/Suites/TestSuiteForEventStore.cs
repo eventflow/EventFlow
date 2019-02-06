@@ -363,26 +363,32 @@ namespace EventFlow.TestHelpers.Suites
             PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(11, 10));
         }
 
-        [Test]
-        public async Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        public virtual async Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
         {
             // Arrange
-            var id = ThingyId.New;
-            var pingIds = Many<PingId>(10);
-            await CommandBus.PublishAsync(
-                new ThingyMultiplePingsCommand(id, pingIds))
+            var ids = Enumerable.Range(0, 10)
+                .Select(i => ThingyId.New)
+                .ToArray();
+
+            foreach (var id in ids)
+            {
+                var command = new ThingyPingCommand(id, PingId.New);
+                await CommandBus.PublishAsync(command).ConfigureAwait(false);
+            }
+
+            foreach (var id in ids.Skip(1).Take(5))
+            {
+                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+
+            // Act
+            var result = await EventStore
+                .LoadAllEventsAsync(GlobalPosition.Start, 5, CancellationToken.None)
                 .ConfigureAwait(false);
 
-            await RemoveEvents(Enumerable.Range(2, 5));
-
             // Assert
-            var result = await this.EventStore.LoadAllEventsAsync(GlobalPosition.Start, 5, CancellationToken.None);
             result.DomainEvents.Should().HaveCount(5);
-        }
-
-        protected virtual Task<bool> RemoveEvents(IEnumerable<int> ids)
-        {
-            return Task.FromResult(false);
         }
 
         [SetUp]

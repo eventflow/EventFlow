@@ -60,11 +60,10 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
             _testDatabase.Dispose();
         }
 
-        protected override Task<bool> RemoveEvents(System.Collections.Generic.IEnumerable<int> ids)
+        [Test]
+        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
         {
-            var parameter = string.Join(",", ids);
-            _testDatabase.Execute($"DELETE FROM eventflow WHERE GLOBALSEQUENCENUMBER IN ({parameter})");
-            return Task.FromResult(true);
+            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
         }
     }
 }
