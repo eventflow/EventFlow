@@ -86,11 +86,5 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
                 File.Delete(_databasePath);
             }
         }
-
-        [Test]
-        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
-        {
-            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
-        }
     }
 }

@@ -55,11 +55,5 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
         {
             _testDatabase.DisposeSafe("Failed to delete database");
         }
-
-        [Test]
-        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
-        {
-            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
-        }
     }
 }

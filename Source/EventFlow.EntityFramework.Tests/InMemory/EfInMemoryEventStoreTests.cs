@@ -42,11 +42,5 @@ namespace EventFlow.EntityFramework.Tests.InMemory
                 .ConfigureForEventStoreTest()
                 .CreateResolver();
         }
-
-        [Test]
-        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
-        {
-            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
-        }
     }
 }

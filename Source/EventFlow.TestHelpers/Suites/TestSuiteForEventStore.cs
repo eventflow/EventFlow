@@ -363,6 +363,7 @@ namespace EventFlow.TestHelpers.Suites
             PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(11, 10));
         }
 
+        [Test]
         public virtual async Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
         {
             // Arrange

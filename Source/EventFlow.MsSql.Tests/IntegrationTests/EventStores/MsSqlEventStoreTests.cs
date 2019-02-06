@@ -59,11 +59,5 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
         {
             _testDatabase.Dispose();
         }
-
-        [Test]
-        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
-        {
-            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
-        }
     }
 }

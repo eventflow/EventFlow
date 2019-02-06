@@ -35,11 +35,5 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 		{
 			_runner.Dispose();
 		}
-
-        [Test]
-	    public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
-	    {
-	        return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
-	    }
 	}
 }

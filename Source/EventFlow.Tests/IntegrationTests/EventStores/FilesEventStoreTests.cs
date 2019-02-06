@@ -60,11 +60,5 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
         {
             Directory.Delete(_configuration.StorePath, true);
         }
-
-        [Test]
-        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
-        {
-            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
-        }
     }
 }
