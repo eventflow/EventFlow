@@ -23,6 +23,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
@@ -58,6 +59,12 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
         public void TearDown()
         {
             Directory.Delete(_configuration.StorePath, true);
+        }
+
+        [Test]
+        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        {
+            return base.LoadAllEventsAsyncFindsEventsAfterLargeGaps();
         }
     }
 }

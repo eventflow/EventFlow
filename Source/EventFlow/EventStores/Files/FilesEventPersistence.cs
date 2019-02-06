@@ -102,10 +102,7 @@ namespace EventFlow.EventStores.Files
 
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                var paths = Enumerable.Range(startPosition, pageSize)
-                    .TakeWhile(g => _eventLog.ContainsKey(g))
-                    .Select(g => _eventLog[g])
-                    .ToList();
+                var paths = EnumeratePaths(startPosition).Take(pageSize);
 
                 foreach (var path in paths)
                 {
@@ -119,6 +116,17 @@ namespace EventFlow.EventStores.Files
                 : startPosition;
 
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents);
+        }
+
+        private IEnumerable<string> EnumeratePaths(long startPosition)
+        {
+            while (_eventLog.TryGetValue(startPosition, out var path))
+            {
+                if (File.Exists(path))
+                    yield return path;
+
+                startPosition++;
+            }
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
