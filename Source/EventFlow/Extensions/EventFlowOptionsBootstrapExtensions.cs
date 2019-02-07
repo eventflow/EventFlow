@@ -1,0 +1,68 @@
+﻿// The MIT License (MIT)
+// 
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Configuration;
+
+namespace EventFlow.Extensions
+{
+    public static class EventFlowOptionsBootstrapExtensions
+    {
+        public static IEventFlowOptions RunOnStartup<TBootstrap>(this IEventFlowOptions eventFlowOptions) 
+            where TBootstrap : class, IBootstrap
+        {
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register<IBootstrap, TBootstrap>());
+        }
+
+        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, IBootstrap bootstrap) 
+        {
+            return eventFlowOptions
+                .RegisterServices(sr => sr.Register(_ => bootstrap));
+        }
+
+        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Action startupAction)
+        {
+            return eventFlowOptions
+                .RunOnStartup(new ActionBootstrap(startupAction));
+        }
+
+        private class ActionBootstrap : IBootstrap
+        {
+            private readonly Action _action;
+
+            public ActionBootstrap(Action action)
+            {
+                _action = action;
+            }
+
+            public Task BootAsync(CancellationToken cancellationToken)
+            {
+                _action();
+                return Task.FromResult(true);
+            }
+        }
+    }
+}
