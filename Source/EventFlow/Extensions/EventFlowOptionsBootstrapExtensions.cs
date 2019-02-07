@@ -43,25 +43,34 @@ namespace EventFlow.Extensions
                 .RegisterServices(sr => sr.Register(_ => bootstrap));
         }
 
-        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Action startupAction)
+        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Func<Task> startupAction)
         {
             return eventFlowOptions
                 .RunOnStartup(new ActionBootstrap(startupAction));
         }
 
+        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Action startupAction)
+        {
+            return eventFlowOptions
+                .RunOnStartup(() => 
+                { 
+                    startupAction();
+                    return Task.FromResult(true);
+                });
+        }
+
         private class ActionBootstrap : IBootstrap
         {
-            private readonly Action _action;
+            private readonly Func<Task> _action;
 
-            public ActionBootstrap(Action action)
+            public ActionBootstrap(Func<Task> action)
             {
                 _action = action;
             }
 
-            public Task BootAsync(CancellationToken cancellationToken)
+            public async Task BootAsync(CancellationToken cancellationToken)
             {
-                _action();
-                return Task.FromResult(true);
+                await _action().ConfigureAwait(false);
             }
         }
     }
