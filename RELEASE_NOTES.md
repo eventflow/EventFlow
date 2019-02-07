@@ -1,6 +1,9 @@
 ### New in 0.69 (not released yet)
 
 * Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
+* Minor: Fixed stack overflow in `ValidateRegistrations` when decorator
+  components are co-located together with other components that are registed using
+  `Add*`-methods
 
 ### New in 0.68.3728 (released 2018-12-03)
 
