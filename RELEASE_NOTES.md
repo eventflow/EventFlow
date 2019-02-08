@@ -1,6 +1,8 @@
 ### New in 0.69 (not released yet)
 
 * Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
+* Fix: `IResolver.Resolve<T>()` and `IResolver.Resolve(Type)` now throw an
+  exception for unregistered services when using `EventFlow.DependencyInjection`.
 
 ### New in 0.68.3728 (released 2018-12-03)
 
