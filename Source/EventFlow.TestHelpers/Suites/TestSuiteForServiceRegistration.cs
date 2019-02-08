@@ -161,6 +161,22 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public void ServiceViaGenericNotFoundThrowsException()
+        {
+            var resolver = Sut.CreateResolver(false);
+            Action callingResolve = () => resolver.Resolve<IMagicInterface>();
+            callingResolve.ShouldThrow<Exception>();
+        }
+
+        [Test]
+        public void ServiceViaTypeNotFoundThrowsException()
+        {
+            var resolver = Sut.CreateResolver(false);
+            Action callingResolve = () => resolver.Resolve(typeof(IMagicInterface));
+            callingResolve.ShouldThrow<Exception>();
+        }
+
+        [Test]
         public void EnumerableTypesAreResolved()
         {
             // Arrange
