@@ -126,11 +126,11 @@ namespace EventFlow.EventStores.InMemory
             var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
-            var endPosition = startPosition + pageSize;
 
             var committedDomainEvents = _eventStore
                 .SelectMany(kv => kv.Value)
-                .Where(e => e.GlobalSequenceNumber >= startPosition && e.GlobalSequenceNumber <= endPosition)
+                .Where(e => e.GlobalSequenceNumber >= startPosition)
+                .Take(pageSize)
                 .ToList();
 
             var nextPosition = committedDomainEvents.Any()

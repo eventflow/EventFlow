@@ -60,15 +60,14 @@ namespace EventFlow.EntityFramework.EventStores
             var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
-            var endPosition = startPosition + pageSize;
 
             using (var context = _contextProvider.CreateContext())
             {
                 var entities = await context
                     .Set<EventEntity>()
-                    .Where(e => e.GlobalSequenceNumber >= startPosition
-                                && e.GlobalSequenceNumber <= endPosition)
                     .OrderBy(e => e.GlobalSequenceNumber)
+                    .Where(e => e.GlobalSequenceNumber >= startPosition)
+                    .Take(pageSize)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
 

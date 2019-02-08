@@ -23,6 +23,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
