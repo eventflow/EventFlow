@@ -68,18 +68,17 @@ namespace EventFlow.ReadStores
                         if (methodInfo != null)
                         {
                             var method = ReflectionHelper
-                                .CompileMethodInvocation<Action<IReadModel, IReadModelContext, IDomainEvent>>(
-                                    readModelType, ApplyMethodName, methodSignature);
+                                .CompileMethodInvocation<Action<IReadModel, IReadModelContext, IDomainEvent>>(methodInfo);
                             return new ApplyMethod(method);
                         }
 
-                        methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyAsyncMethodName, methodSignature);
+                        var asyncMethodSignature = new[] {typeof(IReadModelContext), domainEventType, typeof(CancellationToken)};
+                        methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyAsyncMethodName, asyncMethodSignature);
 
                         if (methodInfo != null)
                         {
                             var method = ReflectionHelper
-                                .CompileMethodInvocation<Func<IReadModel, IReadModelContext, IDomainEvent, Task>>(
-                                    readModelType, ApplyAsyncMethodName, methodSignature);
+                                .CompileMethodInvocation<Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task>>(methodInfo);
                             return new ApplyMethod(method);
                         }
 
@@ -88,7 +87,7 @@ namespace EventFlow.ReadStores
 
                 if (applyMethod != null)
                 {
-                    await applyMethod.Apply(readModel, readModelContext, domainEvent);
+                    await applyMethod.Apply(readModel, readModelContext, domainEvent, cancellationToken).ConfigureAwait(false);
                     appliedAny = true;
                 }
             }
@@ -98,7 +97,7 @@ namespace EventFlow.ReadStores
 
         private class ApplyMethod
         {
-            private readonly Func<IReadModel, IReadModelContext, IDomainEvent, Task> _asyncMethod;
+            private readonly Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> _asyncMethod;
             private readonly Action<IReadModel, IReadModelContext, IDomainEvent> _syncMethod;
 
             public ApplyMethod(Action<IReadModel, IReadModelContext, IDomainEvent> syncMethod)
@@ -106,16 +105,17 @@ namespace EventFlow.ReadStores
                 _syncMethod = syncMethod;
             }
 
-            public ApplyMethod(Func<IReadModel, IReadModelContext, IDomainEvent, Task> asyncMethod)
+            public ApplyMethod(Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> asyncMethod)
             {
                 _asyncMethod = asyncMethod;
             }
 
-            public Task Apply(IReadModel readModel, IReadModelContext context, IDomainEvent domainEvent)
+            public Task Apply(IReadModel readModel, IReadModelContext context, IDomainEvent domainEvent,
+                CancellationToken cancellationToken)
             {
                 if (_asyncMethod != null)
                 {
-                    return _asyncMethod(readModel, context, domainEvent);
+                    return _asyncMethod(readModel, context, domainEvent, cancellationToken);
                 }
 
                 _syncMethod(readModel, context, domainEvent);

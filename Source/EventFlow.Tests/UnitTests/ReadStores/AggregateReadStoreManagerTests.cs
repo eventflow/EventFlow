@@ -188,7 +188,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             {
             }
 
-            public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
             {
                 return Task.FromResult(true);
             }

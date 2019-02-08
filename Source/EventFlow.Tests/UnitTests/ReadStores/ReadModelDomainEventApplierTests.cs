@@ -63,9 +63,10 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            public async Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            public async Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
             {
-                await Task.Delay(50);
+                await Task.Delay(50, cancellationToken).ConfigureAwait(false);
                 PingEventsReceived = true;
             }
         }

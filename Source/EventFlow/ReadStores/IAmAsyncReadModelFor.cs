@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
@@ -32,6 +33,6 @@ namespace EventFlow.ReadStores
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        Task ApplyAsync(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent);
+        Task ApplyAsync(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
     }
 }
