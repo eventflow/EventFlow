@@ -99,6 +99,18 @@ namespace EventFlow.Extensions
                     });
         }
 
+        internal static bool HasConstructorParameterOfType(this Type type, Predicate<Type> predicate)
+        {
+            return type.GetTypeInfo().GetConstructors()
+                .Any(c => c.GetParameters()
+                    .Any(p => predicate(p.ParameterType)));
+        }
+
+        internal static bool IsAssignableTo<T>(this Type type)
+        {
+            return typeof(T).GetTypeInfo().IsAssignableFrom(type);
+        }
+
         internal static IReadOnlyDictionary<Type, Action<T, IAggregateEvent>> GetAggregateEventApplyMethods<TAggregate, TIdentity, T>(this Type type)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
