@@ -43,7 +43,7 @@ namespace EventFlow.Extensions
                 .RegisterServices(sr => sr.Register(_ => bootstrap));
         }
 
-        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Func<Task> startupAction)
+        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Func<CancellationToken, Task> startupAction)
         {
             return eventFlowOptions
                 .RunOnStartup(new ActionBootstrap(startupAction));
@@ -52,7 +52,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Action startupAction)
         {
             return eventFlowOptions
-                .RunOnStartup(() => 
+                .RunOnStartup(_ => 
                 { 
                     startupAction();
                     return Task.FromResult(true);
@@ -61,16 +61,16 @@ namespace EventFlow.Extensions
 
         private class ActionBootstrap : IBootstrap
         {
-            private readonly Func<Task> _action;
+            private readonly Func<CancellationToken, Task> _action;
 
-            public ActionBootstrap(Func<Task> action)
+            public ActionBootstrap(Func<CancellationToken, Task> action)
             {
                 _action = action;
             }
 
             public async Task BootAsync(CancellationToken cancellationToken)
             {
-                await _action().ConfigureAwait(false);
+                await _action(cancellationToken).ConfigureAwait(false);
             }
         }
     }
