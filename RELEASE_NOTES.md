@@ -6,6 +6,9 @@
   lead to incomplete event application when using the `ReadModelPopulator` (see #564).
 * Fix: `IResolver.Resolve<T>()` and `IResolver.Resolve(Type)` now throw an
   exception for unregistered services when using `EventFlow.DependencyInjection`.
+* Minor fix: Fixed stack overflow in `ValidateRegistrations` when decorator
+  components are co-located together with other components that are registed using
+  `Add*`-methods
 
 ### New in 0.68.3728 (released 2018-12-03)
 
