@@ -21,44 +21,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using EventFlow.AspNetCore.Middlewares;
 using EventFlow.AspNetCore.Extensions;
-using EventFlow.Autofac.Extensions;
+using EventFlow.AspNetCore.Middlewares;
 using EventFlow.Configuration;
+using EventFlow.DependencyInjection.Extensions;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
 	public class Startup
 	{
-		public IServiceProvider ConfigureServices(IServiceCollection services)
+		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddMvc();
 
-			var containerBuilder = new ContainerBuilder();
-
-			var container = EventFlowOptions.New
-				.UseAutofacContainerBuilder(containerBuilder)
-				.AddDefaults(EventFlowTestHelpers.Assembly)
-			    .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .AddAspNetCoreMetadataProviders();
-
-
-			containerBuilder.Populate(services);
-
-			return new AutofacServiceProvider(containerBuilder.Build());
+		    services.AddEventFlow(o => o
+		        .AddDefaults(EventFlowTestHelpers.Assembly)
+		        .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
+		        .AddAspNetCoreMetadataProviders());
 		}
 
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+		public void Configure(IApplicationBuilder app)
 		{
 			app.UseMiddleware<CommandPublishMiddleware>();
 			app.UseMvcWithDefaultRoute();
