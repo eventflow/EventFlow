@@ -22,39 +22,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration.Serialization;
 using Newtonsoft.Json;
 
-namespace EventFlow.Core
+namespace EventFlow.Configuration.Serialization
 {
-    public class JsonSerializer : IJsonSerializer
+    public class ChainedJsonOptions : IJsonOptions
     {
-        private readonly JsonSerializerSettings _settingsNotIndented = new JsonSerializerSettings();
-        private readonly JsonSerializerSettings _settingsIndented = new JsonSerializerSettings();
+        private readonly Action<JsonSerializerSettings> _action;
+        private readonly IJsonOptions _parent;
 
-        public JsonSerializer(IJsonOptions options = null)
+        public ChainedJsonOptions(IJsonOptions parent, Action<JsonSerializerSettings> action)
         {
-            options?.Apply(_settingsIndented);
-            options?.Apply(_settingsNotIndented);
-
-            _settingsIndented.Formatting = Formatting.Indented;
-            _settingsNotIndented.Formatting = Formatting.None;
+            _parent = parent;
+            _action = action;
         }
 
-        public string Serialize(object obj, bool indented = false)
+        void IJsonOptions.Apply(JsonSerializerSettings settings)
         {
-            var settings = indented ? _settingsIndented : _settingsNotIndented;
-            return JsonConvert.SerializeObject(obj, settings);
-        }
-
-        public object Deserialize(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type, _settingsNotIndented);
-        }
-
-        public T Deserialize<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json, _settingsNotIndented);
+            _parent.Apply(settings);
+            _action.Invoke(settings);
         }
     }
 }
