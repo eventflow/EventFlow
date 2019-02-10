@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,7 @@
 using EventFlow.AspNetCore.Extensions;
 using EventFlow.AspNetCore.Middlewares;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Serialization;
 using EventFlow.DependencyInjection.Extensions;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
@@ -37,12 +38,16 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 	{
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddMvc();
+		    services.AddMvc();
 
 		    services.AddEventFlow(o => o
 		        .AddDefaults(EventFlowTestHelpers.Assembly)
 		        .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-		        .AddAspNetCoreMetadataProviders());
+		        .ConfigureJson(j => j
+		            .AddSingleValueObjects())
+		        .AddAspNetCore(c => c
+		            .RunBootstrapperOnHostStartup()
+		            .AddMvcJsonOptions()));
 		}
 
 		public void Configure(IApplicationBuilder app)

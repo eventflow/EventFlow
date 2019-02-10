@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,12 +25,14 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using EventFlow.Configuration.Serialization;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -42,14 +44,16 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 		private TestServer _server;
 		private HttpClient _client;
 		private ConsoleLog _log;
+	    private IJsonOptions _jsonOptions;
 
-		[SetUp]
+	    [SetUp]
 		public void SetUp()
 		{
 			_server = new TestServer(new WebHostBuilder()
 				.UseStartup<Startup>());
 			_client = _server.CreateClient();
 			_log = new ConsoleLog();
+		    _jsonOptions = _server.Host.Services.GetRequiredService<IJsonOptions>();
 		}
 
 		[TearDown]
@@ -106,7 +110,9 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 
 		private async Task<string> PostAsync(string url, object obj)
 		{
-			var json = JsonConvert.SerializeObject(obj);
+		    var settings = new JsonSerializerSettings();
+            _jsonOptions.Apply(settings);
+			var json = JsonConvert.SerializeObject(obj, settings);
 			var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 		
 			var response = await _client.PostAsync(url, stringContent);
