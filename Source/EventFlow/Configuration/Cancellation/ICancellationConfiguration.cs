@@ -21,28 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration.Cancellation;
+using System.Threading;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Configuration.Cancellation
 {
-    public class EventFlowConfiguration : IEventFlowConfiguration, ICancellationConfiguration
+    public interface ICancellationConfiguration
     {
-        public int PopulateReadModelEventPageSize { get; set; }
-        public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
-        public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
-        public bool ThrowSubscriberExceptions { get; set; }
-        public bool IsAsynchronousSubscribersEnabled { get; set; }
-        public CancellationBoundary CancellationBoundary { get; set; }
+        CancellationBoundary CancellationBoundary { get; }
+    }
 
-        internal EventFlowConfiguration()
+    public static class CancellationConfigurationExtensions
+    {
+        public static CancellationToken Limit(this ICancellationConfiguration configuration, CancellationToken token, CancellationBoundary currentBoundary)
         {
-            PopulateReadModelEventPageSize = 200;
-            NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
-            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
-            ThrowSubscriberExceptions = false;
-            IsAsynchronousSubscribersEnabled = false;
-            CancellationBoundary = CancellationBoundary.BeforeCommittingEvents;
+            token.ThrowIfCancellationRequested();
+            return currentBoundary < configuration.CancellationBoundary ? token : CancellationToken.None;
         }
     }
 }
