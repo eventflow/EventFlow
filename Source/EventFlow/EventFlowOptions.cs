@@ -29,6 +29,7 @@ using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Cancellation;
+using EventFlow.Configuration.Serialization;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Core.IoC;
@@ -205,7 +206,8 @@ namespace EventFlow
             serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();
             serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IQueryProcessor, QueryProcessor>();
-            serviceRegistration.Register<IJsonSerializer, JsonSerializer>();
+            serviceRegistration.Register<IJsonSerializer, JsonSerializer>(Lifetime.Singleton);
+            serviceRegistration.Register<IJsonOptions, JsonOptions>();
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();
             serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);

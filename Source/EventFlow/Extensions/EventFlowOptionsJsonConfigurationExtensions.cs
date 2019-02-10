@@ -23,38 +23,16 @@
 
 using System;
 using EventFlow.Configuration.Serialization;
-using Newtonsoft.Json;
 
-namespace EventFlow.Core
+namespace EventFlow.Extensions
 {
-    public class JsonSerializer : IJsonSerializer
+    public static class EventFlowOptionsJsonConfigurationExtensions
     {
-        private readonly JsonSerializerSettings _settingsNotIndented = new JsonSerializerSettings();
-        private readonly JsonSerializerSettings _settingsIndented = new JsonSerializerSettings();
-
-        public JsonSerializer(IJsonOptions options = null)
+        public static IEventFlowOptions ConfigureJson(this IEventFlowOptions options, Func<JsonOptions, IJsonOptions> configure)
         {
-            options?.Apply(_settingsIndented);
-            options?.Apply(_settingsNotIndented);
-
-            _settingsIndented.Formatting = Formatting.Indented;
-            _settingsNotIndented.Formatting = Formatting.None;
-        }
-
-        public string Serialize(object obj, bool indented = false)
-        {
-            var settings = indented ? _settingsIndented : _settingsNotIndented;
-            return JsonConvert.SerializeObject(obj, settings);
-        }
-
-        public object Deserialize(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type, _settingsNotIndented);
-        }
-
-        public T Deserialize<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json, _settingsNotIndented);
+            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            var config = configure(JsonOptions.New);
+            return options.RegisterServices(s => s.Register(_ => config));
         }
     }
 }
