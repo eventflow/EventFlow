@@ -6,6 +6,11 @@
   `options.Configure(c => c.CancellationBoundary = CancellationBoundary.BeforeCommittingEvents)`
 * Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script 
   `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
+* New: Added `EventFlowOptions.RunOnStartup<TBootstrap>` extension method to
+  register `IBootstrap` types that should run on application startup.
+* New: Support for async read model updates (`IAmAsyncReadModelFor`).
+  You can mix and match asynchronous and synchronous updates, 
+  as long as you don't subscribe to the same event in both ways.
 * Fix: `LoadAllCommittedEvents` now correctly handles cases where the 
   `GlobalSequenceNumber` column contains gaps larger than the page size. This bug
   lead to incomplete event application when using the `ReadModelPopulator` (see #564).
