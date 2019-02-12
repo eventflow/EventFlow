@@ -42,12 +42,12 @@ namespace EventFlow.DependencyInjection.Registrations
 
         public T Resolve<T>()
         {
-            return ServiceProvider.GetService<T>();
+            return ServiceProvider.GetRequiredService<T>();
         }
 
         public object Resolve(Type serviceType)
         {
-            return ServiceProvider.GetService(serviceType);
+            return ServiceProvider.GetRequiredService(serviceType);
         }
 
         public IEnumerable<object> ResolveAll(Type serviceType)

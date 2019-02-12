@@ -21,10 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -63,6 +70,21 @@ namespace EventFlow.Tests.IntegrationTests
                     .NotBeNull()
                     .And
                     .BeOfType<Service>();
+            }
+        }
+
+        [Test]
+        public void RegistrationDoesntCauseStackOverflow()
+        {
+            using (var resolver = EventFlowOptions.New
+                .AddDefaults(EventFlowTestHelpers.Assembly)
+                .RegisterServices(s =>
+                {
+                    s.Register<IScopedContext, ScopedContext>(Lifetime.Scoped);
+                })
+                .CreateResolver())
+            {
+                resolver.Resolve<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyAddMessageCommand>>();
             }
         }
     }
