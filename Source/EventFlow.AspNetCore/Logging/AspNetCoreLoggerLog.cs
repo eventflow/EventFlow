@@ -21,46 +21,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.AspNetCore.Extensions;
-using EventFlow.AspNetCore.Middlewares;
-using EventFlow.Configuration;
-using EventFlow.DependencyInjection.Extensions;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Queries;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+using System;
+using EventFlow.Logs;
 using Microsoft.Extensions.Logging;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
+namespace EventFlow.AspNetCore.Logging
 {
-    public class Startup
+    public class AspNetCoreLoggerLog : Log
     {
-        public void ConfigureServices(IServiceCollection services)
+        private readonly ILogger _logger;
+
+        public AspNetCoreLoggerLog(ILogger<EventFlowAspNetCore> logger)
         {
-            services.AddMvc();
-
-            services.AddLogging(logging => logging
-                .AddConsole()
-                .SetMinimumLevel(LogLevel.Debug));
-
-            services
-                .AddEventFlow(o => o
-                    .AddDefaults(EventFlowTestHelpers.Assembly)
-                    .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                    .ConfigureJson(j => j
-                        .AddSingleValueObjects())
-                    .AddAspNetCore(c => c
-                        .RunBootstrapperOnHostStartup()
-                        .AddMvcJsonOptions()
-                        .AddLogging()
-                    ));
+            _logger = logger;
         }
 
-        public void Configure(IApplicationBuilder app)
+        protected override bool IsVerboseEnabled => _logger.IsEnabled(LogLevel.Trace);
+
+        protected override bool IsInformationEnabled => _logger.IsEnabled(LogLevel.Information);
+
+        protected override bool IsDebugEnabled => _logger.IsEnabled(LogLevel.Debug);
+
+        public override void Write(Logs.LogLevel logLevel, string format, params object[] args)
         {
-            app.UseMiddleware<CommandPublishMiddleware>();
-            app.UseMvcWithDefaultRoute();
+            _logger.Log((LogLevel)logLevel, format, args);
+        }
+
+        public override void Write(Logs.LogLevel logLevel, Exception exception, string format, params object[] args)
+        {
+            _logger.Log((LogLevel)logLevel, exception, format, args);
         }
     }
 }

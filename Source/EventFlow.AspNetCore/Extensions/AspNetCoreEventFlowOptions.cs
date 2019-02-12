@@ -21,12 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.AspNetCore.Logging;
 using EventFlow.AspNetCore.MetadataProviders;
 using EventFlow.AspNetCore.ServiceProvider;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Serialization;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -56,6 +58,11 @@ namespace EventFlow.AspNetCore.Extensions
         public AspNetCoreEventFlowOptions AddUserHostAddressMetadata()
         {
             return RegisterMetadataProvider<AddUserHostAddressMetadataProvider>();
+        }
+
+        public AspNetCoreEventFlowOptions AddLogging()
+        {
+            return Register<ILog, AspNetCoreLoggerLog>();
         }
 
         public AspNetCoreEventFlowOptions UseDefaults()
