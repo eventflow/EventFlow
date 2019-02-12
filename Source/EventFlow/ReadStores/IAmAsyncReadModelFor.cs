@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,26 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.EntityFramework.Extensions;
-using EventFlow.EntityFramework.Tests.Model;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
+using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.EntityFramework.Tests.SQLite
+namespace EventFlow.ReadStores
 {
-    [Category(Categories.Integration)]
-    public class EfSqliteEventStoreTests : TestSuiteForEventStore
+    public interface IAmAsyncReadModelFor<TAggregate, in TIdentity, in TEvent>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions
-                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
-                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
-                .ConfigureForEventStoreTest()
-                .CreateResolver();
-        }
+        Task ApplyAsync(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
     }
 }

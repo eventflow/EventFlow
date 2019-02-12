@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
-using EventFlow.Extensions;
 using EventFlow.MongoDB.EventStore;
 using EventFlow.MongoDB.Extensions;
-using EventFlow.MongoDB.ValueObjects;
 using NUnit.Framework;
 using Mongo2Go;
-using MongoDB.Driver;
 
 namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 {

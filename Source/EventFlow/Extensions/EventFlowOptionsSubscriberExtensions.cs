@@ -33,6 +33,10 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSubscriberExtensions
     {
+        private static readonly Type ISubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
+        private static readonly Type ISubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
+        private static readonly Type ISubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
+
         [Obsolete("Please use the more explicit method 'AddSynchronousSubscriber<,,,>' instead")]
         public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
@@ -69,9 +73,9 @@ namespace EventFlow.Extensions
 
         public static IEventFlowOptions AddSubscribers(
             this IEventFlowOptions eventFlowOptions,
-            params Type[] subscribeSynchronousToTypes)
+            params Type[] types)
         {
-            return eventFlowOptions.AddSubscribers((IEnumerable<Type>) subscribeSynchronousToTypes);
+            return eventFlowOptions.AddSubscribers((IEnumerable<Type>) types);
         }
 
         public static IEventFlowOptions AddSubscribers(
@@ -79,45 +83,35 @@ namespace EventFlow.Extensions
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
-            var iSubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
-            var iSubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
-            var iSubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
-
             predicate = predicate ?? (t => true);
-            var subscribeSynchronousToTypes = fromAssembly
+            var types = fromAssembly
                 .GetTypes()
-                .Where(t => t
-                    .GetTypeInfo()
-                    .GetInterfaces()
-                    .Any(i =>
-                        i.GetTypeInfo().IsGenericType && (i.GetGenericTypeDefinition() == iSubscribeSynchronousToType || i.GetGenericTypeDefinition() == iSubscribeAsynchronousToType) ||
-                        i == iSubscribeSynchronousToAllType))
+                .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsSubscriberInterface))
+                .Where(t => !t.HasConstructorParameterOfType(IsSubscriberInterface))
                 .Where(t => predicate(t));
-            return eventFlowOptions.AddSubscribers(subscribeSynchronousToTypes);
+            return eventFlowOptions.AddSubscribers(types);
         }
 
         public static IEventFlowOptions AddSubscribers(
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> subscribeSynchronousToTypes)
         {
-            var iSubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
-            var iSubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
-            var iSubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
-
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
             {
                 var t = subscribeSynchronousToType;
-                if (t.GetTypeInfo().IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract)
+                {
+                    continue;
+                }
+
                 var subscribeTos = t
                     .GetTypeInfo()
                     .GetInterfaces()
-                    .Where(i =>
-                        i.GetTypeInfo().IsGenericType && (i.GetGenericTypeDefinition() == iSubscribeSynchronousToType || i.GetGenericTypeDefinition() == iSubscribeAsynchronousToType) ||
-                        i == iSubscribeSynchronousToAllType)
+                    .Where(IsSubscriberInterface)
                     .ToList();
                 if (!subscribeTos.Any())
                 {
-                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{iSubscribeSynchronousToType.PrettyPrint()}', '{iSubscribeAsynchronousToType.PrettyPrint()}' or '{iSubscribeSynchronousToAllType.PrettyPrint()}'");
+                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{ISubscribeSynchronousToType.PrettyPrint()}', '{ISubscribeAsynchronousToType.PrettyPrint()}' or '{ISubscribeSynchronousToAllType.PrettyPrint()}'");
                 }
 
                 eventFlowOptions.RegisterServices(sr =>
@@ -130,6 +124,21 @@ namespace EventFlow.Extensions
             }
 
             return eventFlowOptions;
+        }
+
+        private static bool IsSubscriberInterface(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType)
+            {
+                return false;
+            }
+
+            var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+            return genericTypeDefinition == ISubscribeSynchronousToType ||
+                   genericTypeDefinition == ISubscribeAsynchronousToType ||
+                   type == ISubscribeSynchronousToAllType;
         }
     }
 }

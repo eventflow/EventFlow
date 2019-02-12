@@ -43,7 +43,7 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
 * **Async/await first:** Every part of EventFlow is written using async/await.
 * **Highly configurable and extendable**
 * **Easy to use**
-* **No use of threads or background workers making it "web friendly"**
+* **No use of threads or background workers**
 * **Cancellation:** All methods that does IO work or might delay execution (due to
   retries), takes a `CancellationToken` argument to allow you to cancel the operation
 

@@ -2,7 +2,18 @@
 
 * New: Added `EventFlowOptions.RunOnStartup<TBootstrap>` extension method to
   register `IBootstrap` types that should run on application startup.
+* New: Support for async read model updates (`IAmAsyncReadModelFor`).
+  You can mix and match asynchronous and synchronous updates, 
+  as long as you don't subscribe to the same event in both ways.
 * Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
+* Fix: `LoadAllCommittedEvents` now correctly handles cases where the 
+  `GlobalSequenceNumber` column contains gaps larger than the page size. This bug
+  lead to incomplete event application when using the `ReadModelPopulator` (see #564).
+* Fix: `IResolver.Resolve<T>()` and `IResolver.Resolve(Type)` now throw an
+  exception for unregistered services when using `EventFlow.DependencyInjection`.
+* Minor fix: Fixed stack overflow in `ValidateRegistrations` when decorator
+  components are co-located together with other components that are registed using
+  `Add*`-methods
 
 ### New in 0.68.3728 (released 2018-12-03)
 

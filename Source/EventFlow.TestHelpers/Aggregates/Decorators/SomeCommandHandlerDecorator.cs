@@ -21,44 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.EventStores.Files;
-using EventFlow.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Core;
 
-namespace EventFlow.Tests.IntegrationTests.EventStores
+namespace EventFlow.TestHelpers.Aggregates.Decorators
 {
-    [Category(Categories.Integration)]
-    public class FilesEventStoreTests : TestSuiteForEventStore
+    /// <summary>
+    /// Caused StackOverflowException when colocated with command handlers and using options.AddDefaults().
+    /// </summary>
+    /// <seealso cref="http://github.com/eventflow/EventFlow/issues/523"/>
+    public class SomeCommandHandlerDecorator<TAggregate, TIdentity, TResult, TCommand> :
+        CommandHandler<TAggregate, TIdentity, TResult, TCommand>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TResult : IExecutionResult
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
-        private IFilesEventStoreConfiguration _configuration;
-
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        public SomeCommandHandlerDecorator(ICommandHandler<TAggregate, TIdentity, TResult, TCommand> inner)
         {
-            var storePath = Path.Combine(
-                Path.GetTempPath(),
-                Guid.NewGuid().ToString());
-
-            Directory.CreateDirectory(storePath);
-
-            var resolver = eventFlowOptions
-                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-                .CreateResolver();
-
-            _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
-
-            return resolver;
         }
 
-        [TearDown]
-        public void TearDown()
+        public override Task<TResult> ExecuteCommandAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken)
         {
-            Directory.Delete(_configuration.StorePath, true);
+            throw new System.NotImplementedException();
         }
     }
 }
