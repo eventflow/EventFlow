@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration.Cancellation;
 
 namespace EventFlow.Configuration
 {
@@ -69,5 +70,14 @@ namespace EventFlow.Configuration
         /// </summary>
         /// <remarks>Defaults to false</remarks>
         bool IsAsynchronousSubscribersEnabled { get; }
+
+        /// <summary>
+        /// The point of no return in the processing chain. Before
+        /// this point, cancellation is possible. After this point, the passed
+        /// cancellation token is ignored.
+        /// </summary>
+        /// <remarks>Defaults to
+        /// <see cref="Cancellation.CancellationBoundary.BeforeCommittingEvents"/></remarks>
+        CancellationBoundary CancellationBoundary { get; }
     }
 }

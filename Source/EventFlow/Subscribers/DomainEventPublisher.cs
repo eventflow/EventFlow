@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
@@ -42,6 +43,7 @@ namespace EventFlow.Subscribers
         private readonly IJobScheduler _jobScheduler;
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
@@ -52,13 +54,15 @@ namespace EventFlow.Subscribers
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
             IEnumerable<IReadStoreManager> readStoreManagers,
-            IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
+            IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
+            ICancellationConfiguration cancellationConfiguration)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
             _jobScheduler = jobScheduler;
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
+            _cancellationConfiguration = cancellationConfiguration;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -79,7 +83,10 @@ namespace EventFlow.Subscribers
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
+            cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingReadStores);
             await PublishToReadStoresAsync(domainEvents, cancellationToken).ConfigureAwait(false);
+
+            cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeNotifyingSubscribers);
             await PublishToSubscribersOfAllEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
 
             // Update subscriptions AFTER read stores have been updated
@@ -91,11 +98,10 @@ namespace EventFlow.Subscribers
 
         private async Task PublishToReadStoresAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken _)
+            CancellationToken cancellationToken)
         {
-            // ARGH, dilemma, should we pass the cancellation token to read model update or not?
             var updateReadStoresTasks = _readStoreManagers
-                .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, CancellationToken.None));
+                .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, cancellationToken));
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
         }
 
