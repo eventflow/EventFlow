@@ -1,5 +1,7 @@
 ### New in 0.69 (not released yet)
 
+* New: Added `EventFlowOptions.RunOnStartup<TBootstrap>` extension method to
+  register `IBootstrap` types that should run on application startup.
 * New: Support for async read model updates (`IAmAsyncReadModelFor`).
   You can mix and match asynchronous and synchronous updates, 
   as long as you don't subscribe to the same event in both ways.
