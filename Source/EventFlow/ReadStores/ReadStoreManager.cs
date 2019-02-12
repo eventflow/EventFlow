@@ -57,7 +57,7 @@ namespace EventFlow.ReadStores
             var iAmReadModelForInterfaceTypes = StaticReadModelType
                 .GetTypeInfo()
                 .GetInterfaces()
-                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAmReadModelFor<,,>))
+                .Where(IsReadModelFor)
                 .ToList();
             if (!iAmReadModelForInterfaceTypes.Any())
             {
@@ -66,6 +66,23 @@ namespace EventFlow.ReadStores
             }
 
             AggregateEventTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
+            if (AggregateEventTypes.Count != iAmReadModelForInterfaceTypes.Count)
+            {
+                throw new ArgumentException(
+                    $"Read model type '{StaticReadModelType.PrettyPrint()}' implements ambiguous '{typeof(IAmReadModelFor<,,>).PrettyPrint()}' interfaces");
+            }
+        }
+
+        private static bool IsReadModelFor(Type i)
+        {
+            if (!i.GetTypeInfo().IsGenericType)
+            {
+                return false;
+            }
+            
+            var typeDefinition = i.GetGenericTypeDefinition();
+            return typeDefinition == typeof(IAmReadModelFor<,,>) ||
+                   typeDefinition == typeof(IAmAsyncReadModelFor<,,>);
         }
 
         protected ReadStoreManager(

@@ -48,7 +48,8 @@ namespace EventFlow.Core
         /// Handles correct upcast. If no upcast was needed, then this could be exchanged to an <c>Expression.Call</c>
         /// and an <c>Expression.Lambda</c>.
         /// </summary>
-        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName, params Type[] methodSignature)
+        public static TResult CompileMethodInvocation<TResult>(Type type, string methodName,
+            params Type[] methodSignature)
         {
             var typeInfo = type.GetTypeInfo();
             var methods = typeInfo
@@ -64,6 +65,15 @@ namespace EventFlow.Core
                 throw new ArgumentException($"Type '{type.PrettyPrint()}' doesn't have a method called '{methodName}'");
             }
 
+            return CompileMethodInvocation<TResult>(methodInfo);
+        }
+
+        /// <summary>
+        /// Handles correct upcast. If no upcast was needed, then this could be exchanged to an <c>Expression.Call</c>
+        /// and an <c>Expression.Lambda</c>.
+        /// </summary>
+        public static TResult CompileMethodInvocation<TResult>(MethodInfo methodInfo)
+        {
             var genericArguments = typeof(TResult).GetTypeInfo().GetGenericArguments();
             var methodArgumentList = methodInfo.GetParameters().Select(p => p.ParameterType).ToList();
             var funcArgumentList = genericArguments.Skip(1).Take(methodArgumentList.Count).ToList();
@@ -87,6 +97,8 @@ namespace EventFlow.Core
                 {
                     instanceArgument,
                 };
+
+            var type = methodInfo.DeclaringType;
             var instanceVariable = Expression.Variable(type);
             var blockVariables = new List<ParameterExpression>
                 {
