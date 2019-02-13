@@ -21,45 +21,52 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using Microsoft.AspNetCore.Http;
+using System.Reflection;
+using System.Security.Claims;
 
 namespace EventFlow.AspNetCore.MetadataProviders
 {
-    public class AddRequestHeadersMetadataProvider : IMetadataProvider
+    public class DefaultUserClaimsMetadataOptions : IUserClaimsMetadataOptions
     {
-        private static readonly ISet<string> RequestHeadersToSkip = new HashSet<string>
-        {
-            "Authorization",
-            "Cookie"
-        };
+        private static readonly Dictionary<string, string> ClaimTypeMapping
+            = (from field in typeof(ClaimTypes)
+                    .GetFields(BindingFlags.Public | BindingFlags.Static)
+                let key = (string) field.GetValue(null)
+                let value = field.Name.ToLowerInvariant()
+                select new KeyValuePair<string, string>(key, value))
+            .ToDictionary(k => k.Key, k => k.Value);
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public AddRequestHeadersMetadataProvider(
-            IHttpContextAccessor httpContextAccessor)
+        public DefaultUserClaimsMetadataOptions(IEnumerable<string> includedClaimTypes = null)
         {
-            _httpContextAccessor = httpContextAccessor;
+            if (includedClaimTypes == null) return;
+
+            var hashSet = new HashSet<string>(includedClaimTypes);
+            if (hashSet.Any())
+            {
+                IncludedClaimTypes = hashSet;
+            }
         }
 
-        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-            TIdentity id,
-            IAggregateEvent aggregateEvent,
-            IMetadata metadata)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
+        private HashSet<string> IncludedClaimTypes { get; } = new HashSet<string>
         {
-            return _httpContextAccessor.HttpContext?.Request.Headers
-                       .Where(kv => !RequestHeadersToSkip.Contains(kv.Key))
-                       .Select(kv => new KeyValuePair<string, string>(
-                           $"request_header[{kv.Key}]",
-                           string.Join(Environment.NewLine, kv.Value)))
-                   ?? Enumerable.Empty<KeyValuePair<string, string>>();
+            ClaimTypes.Sid,
+            ClaimTypes.Role
+        };
+
+        public bool IsIncluded(string claimType)
+        {
+            return IncludedClaimTypes.Contains(claimType);
+        }
+
+        public string GetKeyForClaimType(string claimType)
+        {
+            var type = ClaimTypeMapping.TryGetValue(claimType, out var mappedType)
+                ? mappedType
+                : claimType;
+
+            return $"user_claim[{type}]";
         }
     }
 }

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.AspNetCore.Extensions;
 using EventFlow.AspNetCore.Middlewares;
 using EventFlow.Configuration;
@@ -53,12 +54,14 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
                     .AddAspNetCore(c => c
                         .RunBootstrapperOnHostStartup()
                         .AddMvcJsonOptions()
+                        .AddUserClaimsMetadata()
                         .AddLogging()
                     ));
         }
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseMiddleware<TestAuthenticationMiddleware>();
             app.UseMiddleware<CommandPublishMiddleware>();
             app.UseMvcWithDefaultRoute();
         }

@@ -60,6 +60,13 @@ namespace EventFlow.AspNetCore.Extensions
             return RegisterMetadataProvider<AddUserHostAddressMetadataProvider>();
         }
 
+        public AspNetCoreEventFlowOptions AddUserClaimsMetadata(params string[] includedClaimTypes)
+        {
+            var options = new DefaultUserClaimsMetadataOptions(includedClaimTypes);
+            _options.RegisterServices(s => s.Register<IUserClaimsMetadataOptions>(_ => options));
+            return RegisterMetadataProvider<AddUserClaimsMetadataProvider>();
+        }
+
         public AspNetCoreEventFlowOptions AddLogging()
         {
             return Register<ILog, AspNetCoreLoggerLog>();

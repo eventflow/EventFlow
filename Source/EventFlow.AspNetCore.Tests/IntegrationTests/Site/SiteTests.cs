@@ -22,12 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration.Serialization;
+using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
@@ -41,10 +46,11 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 	[Category(Categories.Integration)]
 	public class SiteTests : Test
 	{
-		private TestServer _server;
 		private HttpClient _client;
+        private IEventStore _eventStore;
+        private IJsonOptions _jsonOptions;
 		private ConsoleLog _log;
-	    private IJsonOptions _jsonOptions;
+        private TestServer _server;
 
 	    [SetUp]
 		public void SetUp()
@@ -53,7 +59,8 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 				.UseStartup<Startup>());
 			_client = _server.CreateClient();
 			_log = new ConsoleLog();
-		    _jsonOptions = _server.Host.Services.GetRequiredService<IJsonOptions>();
+            _jsonOptions = GetService<IJsonOptions>();
+            _eventStore = GetService<IEventStore>();
 		}
 
 		[TearDown]
@@ -88,6 +95,33 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 
 			action.Should().Throw<HttpRequestException>("because of command is null.");
 		}
+
+        [Test]
+        public async Task EventsContainMetadata()
+        {
+            var id = ThingyId.New;
+            // Arrange + Act
+            await GetAsync($"thingy/ping?id={id}").ConfigureAwait(false);
+
+            // Assert
+            var events = await _eventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(id, CancellationToken.None);
+            var metadata = events.Single().Metadata;
+
+            metadata.Should().Contain(new[]
+                {
+                    new KeyValuePair<string, string>("user_claim[sid]", "test-sid"),
+                    new KeyValuePair<string, string>("user_claim[role]", "test-role-1;test-role-2")
+                }
+            );
+
+            metadata.Should().NotContain(
+                new KeyValuePair<string, string>("user_claim[name]", "test-name"));
+        }
+
+        private T GetService<T>()
+        {
+            return _server.Host.Services.GetRequiredService<T>();
+        }
 
 		private async Task<string> GetAsync(string url)
 		{
