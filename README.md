@@ -67,8 +67,8 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
    [complete example](#complete-example). It features entities, a read model for 
    an entity, delete on read models, specifications and snapshots.
 
- * **[.Net Core:](https://github.com/johnny-chan/EventFlowDemo)**
-	A Web Api running .net core 2.2 using the event flow. It uses the pre-defined 
+ * **[.NET Core:](https://github.com/johnny-chan/EventFlowDemo)**
+	A Web API running .NET Core 2.2 using the event flow. It uses the pre-defined 
 	command/entities/events from the [complete example](#complete-example). There are endpoints to 
 	create a new example event, getting a data model and to replay all data models.
 	
