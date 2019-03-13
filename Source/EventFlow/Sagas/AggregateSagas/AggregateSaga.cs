@@ -30,6 +30,7 @@ using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.Exceptions;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
@@ -38,7 +39,7 @@ namespace EventFlow.Sagas.AggregateSagas
         where TIdentity : ISagaId
         where TLocator : ISagaLocator
     {
-        private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
+        private readonly ICollection<Func<ICommandBus, CancellationToken, Task<IExecutionResult>>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>();
 
         private bool _isCompleted;
 
@@ -57,7 +58,7 @@ namespace EventFlow.Sagas.AggregateSagas
             where TCommandAggregateIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
+            _unpublishedCommands.Add(async (b, c) => await b.PublishAsync(command, c).ConfigureAwait(false));
         }
 
         public SagaState State => _isCompleted
@@ -68,11 +69,20 @@ namespace EventFlow.Sagas.AggregateSagas
         {
             var commandsToPublish = _unpublishedCommands.ToList();
             _unpublishedCommands.Clear();
+            var fails = new List<IExecutionResult>();
 
             foreach (var unpublishedCommand in commandsToPublish)
             {
-                await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                var executionResult = await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                if (!executionResult.IsSuccess)
+                    fails.Add(executionResult);
             }
+
+            if (0 < fails.Count)
+                if (1 == fails.Count)
+                    throw DomainError.With(fails[0].ToString());
+                else
+                    throw new AggregateException(fails.Select(a => DomainError.With(a.ToString())));
         }
     }
 }
