@@ -31,6 +31,7 @@ using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
@@ -39,7 +40,7 @@ namespace EventFlow.Sagas.AggregateSagas
         where TIdentity : ISagaId
         where TLocator : ISagaLocator
     {
-        private readonly ICollection<Func<ICommandBus, CancellationToken, Task<IExecutionResult>>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>();
+        private readonly ICollection<Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>> _unpublishedCommands = new List<Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>>();
 
         private bool _isCompleted;
 
@@ -58,7 +59,11 @@ namespace EventFlow.Sagas.AggregateSagas
             where TCommandAggregateIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            _unpublishedCommands.Add(async (b, c) => await b.PublishAsync(command, c).ConfigureAwait(false));
+            _unpublishedCommands.Add(
+                new Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>(
+                        command,
+                        async (b, c) => await b.PublishAsync(command, c).ConfigureAwait(false))
+                );
         }
 
         public SagaState State => _isCompleted
@@ -69,20 +74,37 @@ namespace EventFlow.Sagas.AggregateSagas
         {
             var commandsToPublish = _unpublishedCommands.ToList();
             _unpublishedCommands.Clear();
-            var fails = new List<IExecutionResult>();
+            var exceptions = new List<CommandException>();
 
             foreach (var unpublishedCommand in commandsToPublish)
             {
-                var executionResult = await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                var executionResult = await unpublishedCommand.Item2(commandBus, cancellationToken).ConfigureAwait(false);
                 if (!executionResult.IsSuccess)
-                    fails.Add(executionResult);
+                {
+                    var command = unpublishedCommand.Item1;
+                    exceptions.Add(
+                        new CommandException(
+                            command,
+                            executionResult,
+                            $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'"));
+                }
             }
 
-            if (0 < fails.Count)
-                if (1 == fails.Count)
-                    throw DomainError.With(fails[0].ToString());
+            if (0 < exceptions.Count)
+            {
+                if (exceptions.Count == 1)
+                {
+                    throw exceptions[0];
+                }
                 else
-                    throw new AggregateException(fails.Select(a => DomainError.With(a.ToString())));
+                {
+                    throw new CommandException(
+                        exceptions[0].Command,
+                        exceptions[0].ExecutionResult,
+                        exceptions[0].Message,
+                        new AggregateException(exceptions.Skip(1)));
+                }
+            }
         }
     }
 }
