@@ -206,7 +206,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
                 .ToList();
 
             // Assert
-            result.ShouldAllBeEquivalentTo(expectedTypes);
+            result.Should().BeEquivalentTo(expectedTypes);
         }
 
         [Test]

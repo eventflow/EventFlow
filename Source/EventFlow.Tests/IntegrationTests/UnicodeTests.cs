@@ -46,7 +46,7 @@ namespace EventFlow.Tests.IntegrationTests
             Action action = () => new Identität1("Identität1-00000000-0000-0000-0000-000000000000");
 
             // Assert
-            action.ShouldThrow<ArgumentException>();
+            action.Should().Throw<ArgumentException>();
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace EventFlow.Tests.IntegrationTests
             Action action = () => commandDefinitions.Load(typeof(Cömmand));
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace EventFlow.Tests.IntegrationTests
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [Test]

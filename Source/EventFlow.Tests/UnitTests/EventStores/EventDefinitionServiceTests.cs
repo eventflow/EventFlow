@@ -61,7 +61,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             eventDefinitions.Should().HaveCount(3);
             eventDefinitions
                 .Select(d => $"{d.Name}-V{d.Version}")
-                .ShouldAllBeEquivalentTo(new []{"multi-names-event-V1", "MultiNamesEvent-V1", "MultiNamesEvent-V2"});
+                .Should().BeEquivalentTo(new []{"multi-names-event-V1", "MultiNamesEvent-V1", "MultiNamesEvent-V2"});
         }
 
         [EventVersion("Fancy", 42)]
