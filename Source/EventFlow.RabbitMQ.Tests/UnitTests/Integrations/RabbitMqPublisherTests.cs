@@ -29,9 +29,9 @@ using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
+using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
