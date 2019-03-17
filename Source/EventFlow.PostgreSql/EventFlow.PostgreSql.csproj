@@ -38,7 +38,7 @@
 
   <ItemGroup>
     <PackageReference Include="dbup-postgresql" Version="4.1.0" />
-    <PackageReference Include="Npgsql" Version="4.0.2" />
+    <PackageReference Include="Npgsql" Version="4.0.5" />
   </ItemGroup>
 
   <ItemGroup>
