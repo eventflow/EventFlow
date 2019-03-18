@@ -1,6 +1,37 @@
 ### New in 0.70 (not released yet)
 
-* _Nothing yet_
+* Breaking: Changed target framework for:
+  - `EventFlow`,
+  - `EventFlow.Tests`,
+  - `EventFlow.TestHelpers`,
+  - `EventFlow.AspNetCore.Tests`,
+  - `EventFlow.Autofac`,
+  - `EventFlow.Autofac.Tests`,
+  - `EventFlow.DependencyInjection.Tests`,
+  - `EventFlow.Elasticsearch`,
+  - `EventFlow.Elasticsearch.Tests`,
+  - `EventFlow.EntityFramework.Tests`,
+  - `EventFlow.Examples.Shipping`,
+  - `EventFlow.Examples.Shipping.Tests`,
+  - `EventFlow.Examples.Shipping.Queries.InMemory`,
+  - `EventFlow.Hangfire`,
+  - `EventFlow.Hangfire.Tests`,
+  - `EventFlow.MongoDB`,
+  - `EventFlow.MsSql`,
+  - `EventFlow.MsSql.Tests`,
+  - `EventFlow.Owin`,
+  - `EventFlow.Owin.Tests`,
+  - `EventFlow.PostgreSql`,
+  - `EventFlow.PostgreSql.Tests`,
+  - `EventFlow.RabbitMQ`,
+  - `EventFlow.RabbitMQ.Tests`
+  - `EventFlow.Sql`,
+  - `EventFlow.Sql.Tests`,
+  - `EventFlow.SQLite`,
+  - `EventFlow.SQLite.Tests`
+
+  to .NET 4.5.2 as required by `AutoFixture.AutoMoq` NuGet dependency and to align packages on the
+  [latest supported release](https://github.com/Microsoft/dotnet/blob/master/releases/README.md).
 
 ### New in 0.69.3772 (released 2019-02-12)
 
