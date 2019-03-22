@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.TestHelpers;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 {
@@ -206,7 +206,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
                 .ToList();
 
             // Assert
-            result.ShouldAllBeEquivalentTo(expectedTypes);
+            result.Should().BeEquivalentTo(expectedTypes);
         }
 
         [Test]

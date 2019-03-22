@@ -22,14 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using AutoFixture;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.TestHelpers
 {
     public abstract class TestsFor<TSut> : Test
     {
-        private Lazy<TSut> _lazySut; 
+        private Lazy<TSut> _lazySut;
         protected TSut Sut => _lazySut.Value;
 
         [SetUp]

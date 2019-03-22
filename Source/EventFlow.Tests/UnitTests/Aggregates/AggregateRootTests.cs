@@ -150,7 +150,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Action applyingEvents = () => Sut.ApplyEvents(new []{ domainEvent });
 
             // Assert
-            applyingEvents.ShouldThrow<InvalidOperationException>();
+            applyingEvents.Should().Throw<InvalidOperationException>();
         }
     }
 }
