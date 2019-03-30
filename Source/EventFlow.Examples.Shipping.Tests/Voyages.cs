@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects;
-using FluentAssertions;
+using FluentAssertions.Extensions;
 
 namespace EventFlow.Examples.Shipping.Tests
 {

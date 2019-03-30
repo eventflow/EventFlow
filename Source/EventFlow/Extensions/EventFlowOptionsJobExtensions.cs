@@ -45,7 +45,8 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var jobTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(IJob).GetTypeInfo().IsAssignableFrom(t))
+                .Where(type => !type.GetTypeInfo().IsAbstract && type.IsAssignableTo<IJob>())
+                .Where(t => !t.HasConstructorParameterOfType(i => i.IsAssignableTo<IJob>()))
                 .Where(t => predicate(t));
             return eventFlowOptions.AddJobs(jobTypes);
         }

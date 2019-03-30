@@ -161,6 +161,22 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public void ServiceViaGenericNotFoundThrowsException()
+        {
+            var resolver = Sut.CreateResolver(false);
+            Action callingResolve = () => resolver.Resolve<IMagicInterface>();
+            callingResolve.Should().Throw<Exception>();
+        }
+
+        [Test]
+        public void ServiceViaTypeNotFoundThrowsException()
+        {
+            var resolver = Sut.CreateResolver(false);
+            Action callingResolve = () => resolver.Resolve(typeof(IMagicInterface));
+            callingResolve.Should().Throw<Exception>();
+        }
+
+        [Test]
         public void EnumerableTypesAreResolved()
         {
             // Arrange
@@ -386,7 +402,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public static void Assert_Decorator(IServiceRegistration serviceRegistration)
@@ -429,7 +445,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public abstract class AbstractTestSubscriber :
@@ -460,7 +476,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public abstract class AbstractTestCommandHandler :
@@ -481,7 +497,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public abstract class AbstractTestEventUpgrader : IEventUpgrader<ThingyAggregate, ThingyId>
@@ -503,7 +519,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
         
         [Test]

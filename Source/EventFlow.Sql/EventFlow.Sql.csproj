@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.6;netstandard2.0</TargetFrameworks>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -33,6 +33,6 @@
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Condition="'$(TargetFramework)' == 'net451'" Include="System.ComponentModel.DataAnnotations" />
+    <Reference Condition="'$(TargetFramework)' == 'net452'" Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 </Project>

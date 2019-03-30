@@ -1,6 +1,59 @@
-### New in 0.69 (not released yet)
+### New in 0.70 (not released yet)
 
-* _Nothing yet_
+* Breaking: Changed target framework for:
+  - `EventFlow`,
+  - `EventFlow.Tests`,
+  - `EventFlow.TestHelpers`,
+  - `EventFlow.AspNetCore.Tests`,
+  - `EventFlow.Autofac`,
+  - `EventFlow.Autofac.Tests`,
+  - `EventFlow.DependencyInjection.Tests`,
+  - `EventFlow.Elasticsearch`,
+  - `EventFlow.Elasticsearch.Tests`,
+  - `EventFlow.EntityFramework.Tests`,
+  - `EventFlow.Examples.Shipping`,
+  - `EventFlow.Examples.Shipping.Tests`,
+  - `EventFlow.Examples.Shipping.Queries.InMemory`,
+  - `EventFlow.Hangfire`,
+  - `EventFlow.Hangfire.Tests`,
+  - `EventFlow.MongoDB`,
+  - `EventFlow.MsSql`,
+  - `EventFlow.MsSql.Tests`,
+  - `EventFlow.Owin`,
+  - `EventFlow.Owin.Tests`,
+  - `EventFlow.PostgreSql`,
+  - `EventFlow.PostgreSql.Tests`,
+  - `EventFlow.RabbitMQ`,
+  - `EventFlow.RabbitMQ.Tests`
+  - `EventFlow.Sql`,
+  - `EventFlow.Sql.Tests`,
+  - `EventFlow.SQLite`,
+  - `EventFlow.SQLite.Tests`
+
+  to .NET 4.5.2 as required by `AutoFixture.AutoMoq` NuGet dependency and to align packages on the
+  [latest supported release](https://github.com/Microsoft/dotnet/blob/master/releases/README.md).
+
+### New in 0.69.3772 (released 2019-02-12)
+
+* New: Added configuration option to set the "point of no return" when using
+  cancellation tokens. After this point in processing, cancellation tokens
+  are ignored: 
+  `options.Configure(c => c.CancellationBoundary = CancellationBoundary.BeforeCommittingEvents)`
+* New: Added `EventFlowOptions.RunOnStartup<TBootstrap>` extension method to
+  register `IBootstrap` types that should run on application startup.
+* New: Support for async read model updates (`IAmAsyncReadModelFor`).
+  You can mix and match asynchronous and synchronous updates, 
+  as long as you don't subscribe to the same event in both ways.
+* Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script 
+  `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
+* Fix: `LoadAllCommittedEvents` now correctly handles cases where the 
+  `GlobalSequenceNumber` column contains gaps larger than the page size. This bug
+  lead to incomplete event application when using the `ReadModelPopulator` (see #564).
+* Fix: `IResolver.Resolve<T>()` and `IResolver.Resolve(Type)` now throw an
+  exception for unregistered services when using `EventFlow.DependencyInjection`.
+* Minor fix: Fixed stack overflow in `ValidateRegistrations` when decorator
+  components are co-located together with other components that are registed using
+  `Add*`-methods
 
 ### New in 0.68.3728 (released 2018-12-03)
 

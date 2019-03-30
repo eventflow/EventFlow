@@ -21,38 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
-using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
-using EventFlow.Examples.Shipping.ExternalServices.Routing;
-using EventFlow.TestHelpers;
-using FluentAssertions;
-using FluentAssertions.Extensions;
-using NUnit.Framework;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Core;
 
-namespace EventFlow.Examples.Shipping.Tests.UnitTests.ExternalServices.Routing
+namespace EventFlow.TestHelpers.Aggregates.Decorators
 {
-    [Category(Categories.Unit)]
-    public class RoutingServiceTests : TestsFor<RoutingService>
+    /// <summary>
+    /// Caused StackOverflowException when colocated with command handlers and using options.AddDefaults().
+    /// </summary>
+    /// <seealso cref="http://github.com/eventflow/EventFlow/issues/523"/>
+    public class SomeCommandHandlerDecorator<TAggregate, TIdentity, TResult, TCommand> :
+        CommandHandler<TAggregate, TIdentity, TResult, TCommand>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+        where TResult : IExecutionResult
+        where TCommand : ICommand<TAggregate, TIdentity, TResult>
     {
-        [Test]
-        public void Itinerary()
+        public SomeCommandHandlerDecorator(ICommandHandler<TAggregate, TIdentity, TResult, TCommand> inner)
         {
-            // Arrange
-            var hongkongToNewYork = new Voyage(Voyages.HongkongToNewYorkId, Voyages.HongkongToNewYorkSchedule);
-            var newYorkToDallas = new Voyage(Voyages.NewYorkToDallasId, Voyages.NewYorkToDallasSchedule);
+        }
 
-            // Act
-            var itineraries = Sut.CalculateItineraries(
-                new Route(
-                    Locations.Tokyo,
-                    Locations.Chicago,
-                    1.October(2008).At(11, 00),
-                    1.January(2014)), 
-                new[] { hongkongToNewYork, newYorkToDallas });
-
-            // Assert
-            // TODO: Assert list of legs
-            itineraries.Should().HaveCount(1);
+        public override Task<TResult> ExecuteCommandAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

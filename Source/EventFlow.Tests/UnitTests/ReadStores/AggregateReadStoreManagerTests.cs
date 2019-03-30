@@ -22,12 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
+using EventFlow.ReadStores.InMemory;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -72,7 +74,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             // Assert
             AppliedDomainEvents.Should().HaveCount(emittedEvents.Length);
-            AppliedDomainEvents.ShouldAllBeEquivalentTo(emittedEvents);
+            AppliedDomainEvents.Should().BeEquivalentTo(emittedEvents);
         }
 
         [Test]
@@ -147,7 +149,50 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             // Assert
             AppliedDomainEvents.Should().HaveCount(storedEvents.Length);
-            AppliedDomainEvents.ShouldAllBeEquivalentTo(storedEvents);
+            AppliedDomainEvents.Should().BeEquivalentTo(storedEvents);
+        }
+
+        [Test]
+        public void ThrowsIfReadModelSubscribesNoEvents()
+        {
+            Action a = () =>
+            {
+                var _ = new SingleAggregateReadStoreManager<InMemoryReadStore<ReadModelWithoutEvents>,
+                    ReadModelWithoutEvents>(null, null, null, null, null);
+            };
+
+            a.Should().Throw<TypeInitializationException>().WithInnerException<Exception>().WithMessage("*does not implement any*");
+        }
+
+        [Test]
+        public void ThrowsIfReadModelSubscribesSameEventTwice()
+        {
+            Action a = () =>
+            {
+                var _ = new SingleAggregateReadStoreManager<InMemoryReadStore<ReadModelWithAmbigiousEvents>,
+                    ReadModelWithAmbigiousEvents>(null, null, null, null, null);
+            };
+
+            a.Should().Throw<TypeInitializationException>().WithInnerException<Exception>().WithMessage("*implements ambiguous*");
+        }
+
+        private class ReadModelWithoutEvents : IReadModel
+        {
+        }
+
+        private class ReadModelWithAmbigiousEvents : IReadModel,
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
+            IAmAsyncReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            {
+            }
+
+            public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
+            {
+                return Task.FromResult(true);
+            }
         }
     }
 }

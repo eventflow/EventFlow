@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Configuration;
+using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
@@ -48,6 +49,7 @@ namespace EventFlow.Aggregates
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
+        private readonly ICancellationConfiguration _cancellationConfiguration;
 
         public AggregateStore(
             ILog log,
@@ -55,7 +57,8 @@ namespace EventFlow.Aggregates
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
+            ICancellationConfiguration cancellationConfiguration)
         {
             _log = log;
             _resolver = resolver;
@@ -63,6 +66,7 @@ namespace EventFlow.Aggregates
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
             _transientFaultHandler = transientFaultHandler;
+            _cancellationConfiguration = cancellationConfiguration;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -119,6 +123,8 @@ namespace EventFlow.Aggregates
                             $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
                     }
 
+                    cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingAggregate);
+
                     var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
                     if (!result.IsSuccess)
                     {
@@ -127,6 +133,8 @@ namespace EventFlow.Aggregates
                             result,
                             EmptyDomainEventCollection);
                     }
+
+                    cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
                     
                     var domainEvents = await aggregate.CommitAsync(
                         _eventStore,

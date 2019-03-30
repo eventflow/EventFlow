@@ -293,7 +293,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             aggregate1 = await LoadAggregateAsync(id).ConfigureAwait(false);
-            aggregate1.PingsReceived.ShouldAllBeEquivalentTo(new[] {pingId1, pingId2});
+            aggregate1.PingsReceived.Should().BeEquivalentTo(new[] {pingId1, pingId2});
         }
 
         [Test]
@@ -322,7 +322,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             var aggregate = await LoadAggregateAsync(id).ConfigureAwait(false);
-            aggregate.PingsReceived.ShouldAllBeEquivalentTo(new []{pingId1, pingId2});
+            aggregate.PingsReceived.Should().BeEquivalentTo(new []{pingId1, pingId2});
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             PublishedDomainEvents.Count.Should().Be(10);
-            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(1, 10));
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).Should().BeEquivalentTo(Enumerable.Range(1, 10));
         }
 
         [Test]
@@ -360,7 +360,36 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             PublishedDomainEvents.Count.Should().Be(10);
-            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).ShouldAllBeEquivalentTo(Enumerable.Range(11, 10));
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).Should().BeEquivalentTo(Enumerable.Range(11, 10));
+        }
+
+        [Test]
+        public virtual async Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        {
+            // Arrange
+            var ids = Enumerable.Range(0, 10)
+                .Select(i => ThingyId.New)
+                .ToArray();
+
+            foreach (var id in ids)
+            {
+                var command = new ThingyPingCommand(id, PingId.New);
+                await CommandBus.PublishAsync(command).ConfigureAwait(false);
+            }
+
+            foreach (var id in ids.Skip(1).Take(5))
+            {
+                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+
+            // Act
+            var result = await EventStore
+                .LoadAllEventsAsync(GlobalPosition.Start, 5, CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            result.DomainEvents.Should().HaveCount(5);
         }
 
         [SetUp]

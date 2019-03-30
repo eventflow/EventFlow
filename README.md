@@ -71,7 +71,7 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
 	A Web API running .NET Core 2.2 using the event flow. It uses the pre-defined 
 	command/entities/events from the [complete example](#complete-example). There are endpoints to 
 	create a new example event, getting a data model and to replay all data models.
-    
+  
 * **[ElasticSearch/.NET Core:](https://github.com/DureSameen/EventFlowWithElasticSearch)**
 	Two Web APIs running .NET Core 2.1 using the event flow. It is configured with EventFlow, ElasticSearch, EventStore and RabbitMq. The branch "withRabbitMq" is configured a RabbitMq subscriber which listen/invoke "Domain Event Subscribers" and insert incoming data to ElasticSearch.
 	
