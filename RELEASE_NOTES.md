@@ -33,6 +33,10 @@
   to .NET 4.5.2 as required by `AutoFixture.AutoMoq` NuGet dependency and to align packages on the
   [latest supported release](https://github.com/Microsoft/dotnet/blob/master/releases/README.md).
 
+  * Fix: `DispatchToSagas.ProcessSagaAsync` use `EventId` instead of `SourceId` as `SourceId` 
+  for delivery of external event to AggregateSaga
+
+
 ### New in 0.69.3772 (released 2019-02-12)
 
 * New: Added configuration option to set the "point of no return" when using
