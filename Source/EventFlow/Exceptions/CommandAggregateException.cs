@@ -21,40 +21,45 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates.ExecutionResults;
 using System;
+using System.Collections.Generic;
 
 namespace EventFlow.Exceptions
 {
-    public class CommandException : Exception
+    public class CommandAggregateException : AggregateException
     {
-        public Type CommandType { get; }
-        public IExecutionResult ExecutionResult { get; }
+        public CommandAggregateException()
+        {
+        }
 
-        public CommandException(Type commandType, string message)
+        public CommandAggregateException(IEnumerable<Exception> innerExceptions)
+            : base(innerExceptions)
+        {
+        }
+
+        public CommandAggregateException(params Exception[] innerExceptions)
+            : base(innerExceptions)
+        {
+        }
+
+        public CommandAggregateException(string message)
             : base(message)
         {
-            CommandType = commandType;
         }
 
-        public CommandException(Type commandType, string message, Exception innerException)
+        public CommandAggregateException(string message, IEnumerable<Exception> innerExceptions)
+            : base(message, innerExceptions)
+        {
+        }
+
+        public CommandAggregateException(string message, Exception innerException)
             : base(message, innerException)
         {
-            CommandType = commandType;
         }
 
-        public CommandException(Type commandType, IExecutionResult executionResult, string message)
-            : base(message)
+        public CommandAggregateException(string message, params Exception[] innerExceptions)
+            : base(message, innerExceptions)
         {
-            CommandType = commandType;
-            ExecutionResult = executionResult;
-        }
-
-        public CommandException(Type commandType, IExecutionResult executionResult, string message, Exception innerException)
-            : base(message, innerException)
-        {
-            CommandType = commandType;
-            ExecutionResult = executionResult;
         }
     }
 }

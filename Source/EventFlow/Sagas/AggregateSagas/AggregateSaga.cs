@@ -74,36 +74,39 @@ namespace EventFlow.Sagas.AggregateSagas
         {
             var commandsToPublish = _unpublishedCommands.ToList();
             _unpublishedCommands.Clear();
-            var exceptions = new List<CommandException>();
 
+            var exceptions = new List<CommandException>();
             foreach (var unpublishedCommand in commandsToPublish)
             {
-                var executionResult = await unpublishedCommand.Item2(commandBus, cancellationToken).ConfigureAwait(false);
-                if (!executionResult.IsSuccess)
+                var command = unpublishedCommand.Item1;
+                var commandInvoker = unpublishedCommand.Item2;
+                try
                 {
-                    var command = unpublishedCommand.Item1;
+                    var executionResult = await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
+                    if (executionResult?.IsSuccess == false)
+                    {
+                        exceptions.Add(
+                            new CommandException(
+                                command.GetType(),
+                                executionResult,
+                                $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'. See ExecutionResult."));
+                    }
+                }
+                catch (Exception e)
+                {
                     exceptions.Add(
                         new CommandException(
-                            command,
-                            executionResult,
-                            $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'"));
+                            command.GetType(),
+                            $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed. See InnerException.",
+                            e));
                 }
             }
 
             if (0 < exceptions.Count)
             {
-                if (exceptions.Count == 1)
-                {
-                    throw exceptions[0];
-                }
-                else
-                {
-                    throw new CommandException(
-                        exceptions[0].Command,
-                        exceptions[0].ExecutionResult,
-                        exceptions[0].Message,
-                        new AggregateException(exceptions.Skip(1)));
-                }
+                new CommandAggregateException(
+                    $"Some commands published from a saga with ID '{Id}' failed. See InnerExceptions.",
+                    exceptions);
             }
         }
     }
