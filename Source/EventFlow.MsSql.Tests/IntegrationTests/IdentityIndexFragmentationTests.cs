@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Tests.Extensions;
@@ -46,6 +47,27 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
             fragmentation.Should().BeLessThan(10);
         }
+
+        [Test]
+        public void SanityIntLowFragmentationStoredInGuid()
+        {
+            // Arrange
+            var i = 0;
+
+            // Act
+            InsertRows(() =>
+                {
+                    Interlocked.Increment(ref i);
+                    return $"{i,5}";
+                },
+                ROWS,
+                "IndexFragmentationString");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationString");
+            fragmentation.Should().BeLessThan(10);
+        }
+
 
         [Test]
         public void SanityCombYieldsLowFragmentationStoredInGuid()
