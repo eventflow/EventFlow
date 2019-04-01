@@ -6,7 +6,6 @@ using EventFlow.MsSql.Tests.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 // ReSharper disable StringLiteralTypo
@@ -16,6 +15,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class IdentityIndexFragmentationTests : Test
     {
+        private const int ROWS = 10000;
         private IMsSqlDatabase _testDatabase;
 
         private class MagicId : Identity<MagicId>
@@ -26,22 +26,81 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         }
 
         [Test]
-        public void VerifyThereLittleFragmentation()
+        public void VerifyThereLittleFragmentationUsingString()
         {
-            // Arrange
-            var ids = Enumerable.Range(0, 1000)
-                .Select(_ => MagicId.NewComb().Value)
-                .ToList();
-
             // Act
-            foreach (var id in ids)
-            {
-                _testDatabase.Execute("INSERT INTO IndexFragmentation (Id) VALUES (@Id)", new {Id = id});
-            }
+            InsertRows(() => MagicId.NewComb().Value, ROWS, "IndexFragmentationString");
 
             // Assert
-            var fragmentation = GetIndexFragmentation("IndexFragmentation");
-            fragmentation.Should().BeLessThan(1);
+            var fragmentation = GetIndexFragmentation("IndexFragmentationString");
+            fragmentation.Should().BeLessThan(10);
+        }
+
+        [Test]
+        public void VerifyThereLittleFragmentationUsingGuid()
+        {
+            // Act
+            InsertRows(() => MagicId.NewComb().GetGuid(), ROWS, "IndexFragmentationGuid");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
+            fragmentation.Should().BeLessThan(10);
+        }
+
+        [Test]
+        public void SanityCombYieldsLowFragmentationStoredInGuid()
+        {
+            // Act
+            InsertRows(GuidFactories.Comb.Create, ROWS, "IndexFragmentationGuid");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
+            fragmentation.Should().BeLessThan(10);
+        }
+
+        [Test]
+        public void SanityCombYieldsLowFragmentationStoredInString()
+        {
+            // Act
+            InsertRows(() => GuidFactories.Comb.Create().ToString("N"), ROWS, "IndexFragmentationString");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationString");
+            fragmentation.Should().BeLessThan(10);
+        }
+
+        [Test]
+        public void SanityGuidIdentityYieldsHighFragmentationStoredInString()
+        {
+            // Act
+            InsertRows(() => MagicId.New.Value, ROWS, "IndexFragmentationString");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationString");
+            fragmentation.Should().BeGreaterThan(30); // closer to 100 in reality
+        }
+
+        [Test]
+        public void SanityGuidIdentityYieldsHighFragmentationStoredInGuid()
+        {
+            // Act
+            InsertRows(() => MagicId.New.GetGuid(), ROWS, "IndexFragmentationGuid");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
+            fragmentation.Should().BeGreaterThan(30); // closer to 100 in reality
+        }
+
+        public void InsertRows<T>(Func<T> generator, int count, string table)
+        {
+            var ids = Enumerable.Range(0, count)
+                .Select(_ => generator())
+                .ToList();
+
+            foreach (var id in ids)
+            {
+                _testDatabase.Execute($"INSERT INTO {table} (Id) VALUES (@Id)", new { Id = id });
+            }
         }
 
         private double GetIndexFragmentation(string table)
@@ -74,7 +133,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         public void SetUp()
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("index_fragmentation");
-            _testDatabase.Execute("CREATE TABLE IndexFragmentation (Id nvarchar(250) PRIMARY KEY)");
+            _testDatabase.Execute("CREATE TABLE IndexFragmentationString (Id nvarchar(250) PRIMARY KEY)");
+            _testDatabase.Execute("CREATE TABLE IndexFragmentationGuid (Id uniqueidentifier PRIMARY KEY)");
         }
 
         [TearDown]
