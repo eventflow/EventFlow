@@ -71,7 +71,9 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+#if NET452
         [Timeout(10000)]
+#endif
         public async Task AsynchronousSubscribesGetInvoked()
         {
             // Act
