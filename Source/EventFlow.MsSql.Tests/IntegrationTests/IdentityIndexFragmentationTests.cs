@@ -27,7 +27,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         }
 
         [Test]
-        public void VerifyThereLittleFragmentationUsingString()
+        public void VerifyIdentityHasThereLittleFragmentationUsingString()
         {
             // Act
             InsertRows(() => MagicId.NewComb().Value, ROWS, "IndexFragmentationString");
@@ -38,7 +38,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         }
 
         [Test]
-        public void VerifyThereLittleFragmentationUsingGuid()
+        public void VerifyIdentityHasLittleFragmentationUsingGuid()
         {
             // Act
             InsertRows(() => MagicId.NewComb().GetGuid(), ROWS, "IndexFragmentationGuid");
