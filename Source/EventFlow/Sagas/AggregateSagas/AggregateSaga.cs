@@ -88,6 +88,7 @@ namespace EventFlow.Sagas.AggregateSagas
                         exceptions.Add(
                             new CommandException(
                                 command.GetType(),
+                                command.GetSourceId(),
                                 executionResult,
                                 $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'. See ExecutionResult."));
                     }
@@ -97,7 +98,8 @@ namespace EventFlow.Sagas.AggregateSagas
                     exceptions.Add(
                         new CommandException(
                             command.GetType(),
-                            $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed. See InnerException.",
+                            command.GetSourceId(),
+                            $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{e.Message}'. See InnerException.",
                             e));
                 }
             }

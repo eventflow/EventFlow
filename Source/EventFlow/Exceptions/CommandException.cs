@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Core;
 using System;
 
 namespace EventFlow.Exceptions
@@ -29,32 +30,37 @@ namespace EventFlow.Exceptions
     public class CommandException : Exception
     {
         public Type CommandType { get; }
+        public ISourceId SourceId { get; }
         public IExecutionResult ExecutionResult { get; }
 
-        public CommandException(Type commandType, string message)
+        public CommandException(Type commandType, ISourceId sourceId, string message)
             : base(message)
         {
             CommandType = commandType;
+            SourceId = sourceId;
         }
 
-        public CommandException(Type commandType, string message, Exception innerException)
+        public CommandException(Type commandType, ISourceId sourceId, string message, Exception innerException)
             : base(message, innerException)
         {
             CommandType = commandType;
+            SourceId = sourceId;
         }
 
-        public CommandException(Type commandType, IExecutionResult executionResult, string message)
+        public CommandException(Type commandType, ISourceId sourceId, IExecutionResult executionResult, string message)
             : base(message)
         {
             CommandType = commandType;
             ExecutionResult = executionResult;
+            SourceId = sourceId;
         }
 
-        public CommandException(Type commandType, IExecutionResult executionResult, string message, Exception innerException)
+        public CommandException(Type commandType, ISourceId sourceId, IExecutionResult executionResult, string message, Exception innerException)
             : base(message, innerException)
         {
             CommandType = commandType;
             ExecutionResult = executionResult;
+            SourceId = sourceId;
         }
     }
 }
