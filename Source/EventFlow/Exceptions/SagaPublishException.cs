@@ -26,38 +26,38 @@ using System.Collections.Generic;
 
 namespace EventFlow.Exceptions
 {
-    public class CommandAggregateException : AggregateException
+    public class SagaPublishException : AggregateException
     {
-        public CommandAggregateException()
+        public SagaPublishException()
         {
         }
 
-        public CommandAggregateException(IEnumerable<Exception> innerExceptions)
+        public SagaPublishException(IEnumerable<Exception> innerExceptions)
             : base(innerExceptions)
         {
         }
 
-        public CommandAggregateException(params Exception[] innerExceptions)
+        public SagaPublishException(params Exception[] innerExceptions)
             : base(innerExceptions)
         {
         }
 
-        public CommandAggregateException(string message)
+        public SagaPublishException(string message)
             : base(message)
         {
         }
 
-        public CommandAggregateException(string message, IEnumerable<Exception> innerExceptions)
+        public SagaPublishException(string message, IEnumerable<Exception> innerExceptions)
             : base(message, innerExceptions)
         {
         }
 
-        public CommandAggregateException(string message, Exception innerException)
+        public SagaPublishException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        public CommandAggregateException(string message, params Exception[] innerExceptions)
+        public SagaPublishException(string message, params Exception[] innerExceptions)
             : base(message, innerExceptions)
         {
         }

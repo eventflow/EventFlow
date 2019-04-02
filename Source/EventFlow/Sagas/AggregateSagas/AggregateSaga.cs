@@ -116,7 +116,7 @@ namespace EventFlow.Sagas.AggregateSagas
             if (ThrowExceptionsOnFailedPublish
                     && 0 < exceptions.Count)
             {
-                new CommandAggregateException(
+                new SagaPublishException(
                     $"Some commands published from a saga with ID '{Id}' failed. See InnerExceptions.",
                     exceptions);
             }
