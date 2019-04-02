@@ -44,6 +44,8 @@ namespace EventFlow.Sagas.AggregateSagas
 
         private bool _isCompleted;
 
+        protected bool ThrowExceptionsOnFailedPublish { get; set; } = true;
+
         protected AggregateSaga(TIdentity id) : base(id)
         {
         }
@@ -80,31 +82,39 @@ namespace EventFlow.Sagas.AggregateSagas
             {
                 var command = unpublishedCommand.Item1;
                 var commandInvoker = unpublishedCommand.Item2;
-                try
+                if (ThrowExceptionsOnFailedPublish)
                 {
-                    var executionResult = await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
-                    if (executionResult?.IsSuccess == false)
+                    try
+                    {
+                        var executionResult = await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
+                        if (executionResult?.IsSuccess == false)
+                        {
+                            exceptions.Add(
+                                new CommandException(
+                                    command.GetType(),
+                                    command.GetSourceId(),
+                                    executionResult,
+                                    $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'. See ExecutionResult."));
+                        }
+                    }
+                    catch (Exception e)
                     {
                         exceptions.Add(
                             new CommandException(
                                 command.GetType(),
                                 command.GetSourceId(),
-                                executionResult,
-                                $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'. See ExecutionResult."));
+                                $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{e.Message}'. See InnerException.",
+                                e));
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    exceptions.Add(
-                        new CommandException(
-                            command.GetType(),
-                            command.GetSourceId(),
-                            $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{e.Message}'. See InnerException.",
-                            e));
+                    await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
                 }
             }
 
-            if (0 < exceptions.Count)
+            if (ThrowExceptionsOnFailedPublish
+                    && 0 < exceptions.Count)
             {
                 new CommandAggregateException(
                     $"Some commands published from a saga with ID '{Id}' failed. See InnerExceptions.",
