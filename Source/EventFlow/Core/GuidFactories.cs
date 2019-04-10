@@ -48,8 +48,35 @@ namespace EventFlow.Core
                 return new Guid(
                     new[]
                         {
-                            uid[0], uid[1], uid[2], uid[3], uid[4], uid[5], uid[6], (byte)(0xc0 | (0xf & uid[7])),
-                            binDate[1], binDate[0], binDate[7], binDate[6], binDate[5], binDate[4], binDate[3], binDate[2]
+                            uid[0], uid[1], uid[2], uid[3],
+                            uid[4], uid[5],
+                            uid[6], (byte)(0xc0 | (0xf & uid[7])),
+                            binDate[1], binDate[0],
+                            binDate[7], binDate[6], binDate[5], binDate[4], binDate[3], binDate[2]
+                        });
+            }
+
+            public static Guid CreateForString()
+            {
+                /*
+                    From: https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray 
+                    Note that the order of bytes in the returned byte array is different from the string
+                    representation of a Guid value. The order of the beginning four-byte group and the
+                    next two two-byte groups is reversed, whereas the order of the last two-byte group
+                    and the closing six-byte group is the same.
+                */
+
+                var uid = Guid.NewGuid().ToByteArray();
+                var binDate = BitConverter.GetBytes(GetTicks());
+
+                return new Guid(
+                    new[]
+                        {
+                            binDate[0], binDate[1], binDate[2], binDate[3],
+                            binDate[4], binDate[5],
+                            binDate[6], binDate[7],
+                            uid[0], uid[1],
+                            uid[2], uid[3], uid[4], uid[5], uid[6], (byte)(0xc0 | (0xf & uid[7])),
                         });
             }
         }

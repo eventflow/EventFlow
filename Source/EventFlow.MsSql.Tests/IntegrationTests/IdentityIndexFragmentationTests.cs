@@ -37,16 +37,6 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             fragmentation.Should().BeLessThan(10);
         }
 
-        [Test]
-        public void VerifyIdentityHasLittleFragmentationUsingGuid()
-        {
-            // Act
-            InsertRows(() => MagicId.NewComb().GetGuid(), ROWS, "IndexFragmentationGuid");
-
-            // Assert
-            var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
-            fragmentation.Should().BeLessThan(10);
-        }
 
         [Test]
         public void SanityIntLowFragmentationStoredInGuid()
@@ -59,6 +49,26 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
                 {
                     Interlocked.Increment(ref i);
                     return $"{i,5}";
+                },
+                ROWS,
+                "IndexFragmentationString");
+
+            // Assert
+            var fragmentation = GetIndexFragmentation("IndexFragmentationString");
+            fragmentation.Should().BeLessThan(10);
+        }
+
+        [Test]
+        public void SanityIntAsHexLowFragmentationStoredInGuid()
+        {
+            // Arrange
+            var i = 0;
+
+            // Act
+            InsertRows(() =>
+                {
+                    Interlocked.Increment(ref i);
+                    return $"{i,5:X}";
                 },
                 ROWS,
                 "IndexFragmentationString");
@@ -81,14 +91,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         }
 
         [Test]
-        public void SanityCombYieldsLowFragmentationStoredInString()
+        public void SanityCombYieldsHighFragmentationStoredInString()
         {
             // Act
             InsertRows(() => GuidFactories.Comb.Create().ToString("N"), ROWS, "IndexFragmentationString");
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationString");
-            fragmentation.Should().BeLessThan(10);
+            fragmentation.Should().BeGreaterThan(90);
         }
 
         [Test]
@@ -118,6 +128,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             var ids = Enumerable.Range(0, count)
                 .Select(_ => generator())
                 .ToList();
+
+            foreach (var id in ids.Take(20))
+            {
+                Console.WriteLine(id);
+            }
 
             foreach (var id in ids)
             {
