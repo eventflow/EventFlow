@@ -18,6 +18,8 @@
   - `EventFlow.Sql`
   - `EventFlow.SQLite`
 * New: Added [SourceLink](https://github.com/dotnet/sourcelink) support
+* Fix: `Identity<T>.NewComb()` now produces string values that doesn't cause
+  too much index fragmentation in MSSQL string columns
 
 ### New in 0.69.3772 (released 2019-02-12)
 
