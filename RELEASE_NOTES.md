@@ -18,10 +18,8 @@
   - `EventFlow.Sql`
   - `EventFlow.SQLite`
 * New: Added [SourceLink](https://github.com/dotnet/sourcelink) support
-
-  * Fix: `DispatchToSagas.ProcessSagaAsync` use `EventId` instead of `SourceId` as `SourceId` 
+* Fix: `DispatchToSagas.ProcessSagaAsync` use `EventId` instead of `SourceId` as `SourceId` 
   for delivery of external event to AggregateSaga
-
 
 ### New in 0.69.3772 (released 2019-02-12)
 
