@@ -1,37 +1,23 @@
 ### New in 0.70 (not released yet)
 
-* Breaking: Changed target framework for:
-  - `EventFlow`,
-  - `EventFlow.Tests`,
-  - `EventFlow.TestHelpers`,
-  - `EventFlow.AspNetCore.Tests`,
-  - `EventFlow.Autofac`,
-  - `EventFlow.Autofac.Tests`,
-  - `EventFlow.DependencyInjection.Tests`,
-  - `EventFlow.Elasticsearch`,
-  - `EventFlow.Elasticsearch.Tests`,
-  - `EventFlow.EntityFramework.Tests`,
-  - `EventFlow.Examples.Shipping`,
-  - `EventFlow.Examples.Shipping.Tests`,
-  - `EventFlow.Examples.Shipping.Queries.InMemory`,
-  - `EventFlow.Hangfire`,
-  - `EventFlow.Hangfire.Tests`,
-  - `EventFlow.MongoDB`,
-  - `EventFlow.MsSql`,
-  - `EventFlow.MsSql.Tests`,
-  - `EventFlow.Owin`,
-  - `EventFlow.Owin.Tests`,
-  - `EventFlow.PostgreSql`,
-  - `EventFlow.PostgreSql.Tests`,
-  - `EventFlow.RabbitMQ`,
-  - `EventFlow.RabbitMQ.Tests`
-  - `EventFlow.Sql`,
-  - `EventFlow.Sql.Tests`,
-  - `EventFlow.SQLite`,
-  - `EventFlow.SQLite.Tests`
-
-  to .NET 4.5.2 as required by `AutoFixture.AutoMoq` NuGet dependency and to align packages on the
-  [latest supported release](https://github.com/Microsoft/dotnet/blob/master/releases/README.md).
+* Breaking: Changed target framework to to .NET Framework 4.5.2 for the following NuGet packages,
+  as Microsoft has [discontinued](https://github.com/Microsoft/dotnet/blob/master/releases/README.md)
+  support for .NET Framework 4.5.1
+  - `EventFlow`
+  - `EventFlow.TestHelpers`
+  - `EventFlow.Autofac`
+  - `EventFlow.Elasticsearch`
+  - `EventFlow.Examples.Shipping`
+  - `EventFlow.Examples.Shipping.Queries.InMemory`
+  - `EventFlow.Hangfire`
+  - `EventFlow.MongoDB`
+  - `EventFlow.MsSql`
+  - `EventFlow.Owin`
+  - `EventFlow.PostgreSql`
+  - `EventFlow.RabbitMQ`
+  - `EventFlow.Sql`
+  - `EventFlow.SQLite`
+* New: Added [SourceLink](https://github.com/dotnet/sourcelink) support
 
   * Fix: `DispatchToSagas.ProcessSagaAsync` use `EventId` instead of `SourceId` as `SourceId` 
   for delivery of external event to AggregateSaga
