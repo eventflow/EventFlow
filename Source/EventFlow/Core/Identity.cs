@@ -64,7 +64,7 @@ namespace EventFlow.Core
 
         public static T NewComb()
         {
-            var guid = GuidFactories.Comb.Create();
+            var guid = GuidFactories.Comb.CreateForString();
             return With(guid);
         }
 
