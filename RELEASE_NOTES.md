@@ -20,6 +20,8 @@
 * New: Added [SourceLink](https://github.com/dotnet/sourcelink) support
 * Fix: `DispatchToSagas.ProcessSagaAsync` use `EventId` instead of `SourceId` as `SourceId` 
   for delivery of external event to AggregateSaga
+* Fix: `Identity<T>.NewComb()` now produces string values that doesn't cause
+  too much index fragmentation in MSSQL string columns
 
 ### New in 0.69.3772 (released 2019-02-12)
 
