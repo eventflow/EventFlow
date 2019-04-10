@@ -40,6 +40,17 @@ namespace EventFlow.Core
                 return DateTime.UtcNow.Ticks + i;
             }
 
+            /// <summary>
+            /// Generates a GUID values that causes less index fragmentation when stored
+            /// in e.g. <c>uniqueidentifier</c> columns in MSSQL.
+            /// </summary>
+            /// <example>
+            /// 2825c1d8-4587-cc55-08c1-08d6bde2765b
+            /// 901337ba-c64b-c6d4-08c2-08d6bde2765b
+            /// 45d57ba2-acc5-ce80-08c3-08d6bde2765b
+            /// 36528acf-352a-c28c-08c4-08d6bde2765b
+            /// 6fc88b5e-3782-c8fd-08c5-08d6bde2765b
+            /// </example>
             public static Guid Create()
             {
                 var uid = Guid.NewGuid().ToByteArray();
@@ -56,6 +67,17 @@ namespace EventFlow.Core
                         });
             }
 
+            /// <summary>
+            /// Generates a GUID values that causes less index fragmentation when stored
+            /// in e.g. <c>nvarchar(n)</c> columns in MSSQL.
+            /// </summary>
+            /// <example>
+            /// 899ee1b9-bde2-08d6-20d8-b7e20375c7c9
+            /// 899f09b9-bde2-08d6-fd1c-5ec8f3349bcf
+            /// 899f09ba-bde2-08d6-1521-51d781607ac4
+            /// 899f09bb-bde2-08d6-7e6a-fe84f5237dc4
+            /// 899f09bc-bde2-08d6-c2f0-276123e06fcf
+            /// </example>
             public static Guid CreateForString()
             {
                 /*
