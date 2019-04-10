@@ -72,6 +72,9 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
 	command/entities/events from the [complete example](#complete-example). There are endpoints to 
 	create a new example event, getting a data model and to replay all data models.
 	
+* **[ElasticSearch/.NET Core:](https://github.com/DureSameen/EventFlowWithElasticSearch)**
+	It is configured with EventFlow, ElasticSearch, EventStore and RabbitMq. See "withRabbitMq" branch for #384.
+	
 ### Overview
 
 Here is a list of the EventFlow concepts. Use the links to navigate
