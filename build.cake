@@ -325,7 +325,7 @@ void ExecuteTest(string files, string resultsFile)
         {
             ArgumentCustomization = aggs => aggs.Append("-returntargetcode"),
             OldStyle = true,
-            MergeOutput = true            
+            MergeOutput = true
         }
         .WithFilter("+[EventFlow*]*")
         .WithFilter("-[*Tests]*")
