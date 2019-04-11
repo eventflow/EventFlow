@@ -104,7 +104,7 @@ namespace EventFlow.Sagas
                 await _sagaStore.UpdateAsync(
                     sagaId,
                     details.SagaType,
-                    domainEvent.Metadata.SourceId,
+                    domainEvent.Metadata.EventId,
                     (s, c) => UpdateSagaAsync(s, domainEvent, details, c),
                     cancellationToken)
                     .ConfigureAwait(false);
