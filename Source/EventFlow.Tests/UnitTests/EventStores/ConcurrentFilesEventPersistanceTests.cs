@@ -97,7 +97,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Action action = () => Task.WaitAll(tasks.ToArray());
 
             // Assert
-            action.ShouldThrow<IOException>("because of concurrent access to the same files.");
+            action.Should().Throw<IOException>("because of concurrent access to the same files.");
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Action action = () => Task.WaitAll(tasks.ToArray());
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Action action = () => Task.WaitAll(tasks.ToArray());
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         private IFilesEventStoreConfiguration ConfigurePath(string storePath)

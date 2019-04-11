@@ -35,9 +35,9 @@ using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -113,7 +113,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
-            returnedThingyMessages.ShouldAllBeEquivalentTo(thingyMessages);
+            returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             thingy.PingsReceived.Should().Be(pingIds.Count);
-            returnedThingyMessages.ShouldAllBeEquivalentTo(returnedThingyMessages);
+            returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
         }
 
         [Test]
@@ -306,7 +306,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
-            returnedThingyMessages.ShouldAllBeEquivalentTo(thingyMessages);
+            returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
         }
 
         private class WaitState

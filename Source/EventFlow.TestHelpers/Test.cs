@@ -30,10 +30,10 @@ using EventFlow.EventStores;
 using EventFlow.Logs;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
 
 namespace EventFlow.TestHelpers
 {
@@ -120,6 +120,7 @@ namespace EventFlow.TestHelpers
                 {
                     Timestamp = A<DateTimeOffset>(),
                     SourceId = A<SourceId>(),
+                    EventId = A<EventId>(),
                 };
 
             if (aggregateSequenceNumber == 0)

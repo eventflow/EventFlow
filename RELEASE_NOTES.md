@@ -1,16 +1,41 @@
-### New in 0.69 (not released yet)
+### New in 0.70 (not released yet)
+
+* Breaking: Changed target framework to to .NET Framework 4.5.2 for the following NuGet packages,
+  as Microsoft has [discontinued](https://github.com/Microsoft/dotnet/blob/master/releases/README.md)
+  support for .NET Framework 4.5.1
+  - `EventFlow`
+  - `EventFlow.TestHelpers`
+  - `EventFlow.Autofac`
+  - `EventFlow.Elasticsearch`
+  - `EventFlow.Examples.Shipping`
+  - `EventFlow.Examples.Shipping.Queries.InMemory`
+  - `EventFlow.Hangfire`
+  - `EventFlow.MongoDB`
+  - `EventFlow.MsSql`
+  - `EventFlow.Owin`
+  - `EventFlow.PostgreSql`
+  - `EventFlow.RabbitMQ`
+  - `EventFlow.Sql`
+  - `EventFlow.SQLite`
+* New: Added [SourceLink](https://github.com/dotnet/sourcelink) support
+* Fix: `DispatchToSagas.ProcessSagaAsync` use `EventId` instead of `SourceId` as `SourceId` 
+  for delivery of external event to AggregateSaga
+* Fix: `Identity<T>.NewComb()` now produces string values that doesn't cause
+  too much index fragmentation in MSSQL string columns
+
+### New in 0.69.3772 (released 2019-02-12)
 
 * New: Added configuration option to set the "point of no return" when using
   cancellation tokens. After this point in processing, cancellation tokens
   are ignored: 
   `options.Configure(c => c.CancellationBoundary = CancellationBoundary.BeforeCommittingEvents)`
-* Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script 
-  `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
 * New: Added `EventFlowOptions.RunOnStartup<TBootstrap>` extension method to
   register `IBootstrap` types that should run on application startup.
 * New: Support for async read model updates (`IAmAsyncReadModelFor`).
   You can mix and match asynchronous and synchronous updates, 
   as long as you don't subscribe to the same event in both ways.
+* Fix: Added the schema `dbo` to the `eventdatamodel_list_type` in script 
+  `0002 - Create eventdatamodel_list_type.sql` for `EventFlow.MsSql`.
 * Fix: `LoadAllCommittedEvents` now correctly handles cases where the 
   `GlobalSequenceNumber` column contains gaps larger than the page size. This bug
   lead to incomplete event application when using the `ReadModelPopulator` (see #564).

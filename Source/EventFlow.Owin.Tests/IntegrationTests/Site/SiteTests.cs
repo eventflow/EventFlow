@@ -76,7 +76,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
             // Arrange + Act
             Action action = () => Task.WaitAll(PostAsync("commands/ThingyPing/1", null));
 
-            action.ShouldThrow<HttpRequestException>("because of command is null.");
+            action.Should().Throw<HttpRequestException>("because of command is null.");
         }
 
         private Task<string> GetAsync(string url)

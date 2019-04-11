@@ -27,6 +27,7 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CargoModel.Speficications

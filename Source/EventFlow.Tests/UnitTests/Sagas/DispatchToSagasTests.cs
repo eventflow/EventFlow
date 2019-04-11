@@ -92,6 +92,23 @@ namespace EventFlow.Tests.UnitTests.Sagas
         }
 
         [Test]
+        public async Task SagaStoreReceivesEventIdAsSourceId()
+        {
+            // Arrange
+            var sagaMock = Arrange_Woking_SagaStore(SagaState.Running);
+            var domainEvent = ADomainEvent<ThingyPingEvent>();
+
+            // Act
+            await Sut.ProcessAsync(new[] { domainEvent }, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            _sagaStoreMock.Verify(a => a.UpdateAsync(It.IsAny<ISagaId>(), It.IsAny<Type>(),
+                domainEvent.Metadata.EventId,
+                It.IsAny<Func<ISaga, CancellationToken, Task>>(),
+                It.IsAny<CancellationToken>()));
+        }
+
+        [Test]
         public async Task SagaErrorHandlerIsInvokedCorrectly()
         {
             // Arrange

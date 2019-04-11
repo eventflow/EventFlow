@@ -64,7 +64,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
+            orderedSingleValueObjects.Select(v => v.Value).Should().BeEquivalentTo(
                 orderedValues,
                 o => o.WithStrictOrdering());
         }
@@ -82,7 +82,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).ShouldAllBeEquivalentTo(
+            orderedSingleValueObjects.Select(v => v.Value).Should().BeEquivalentTo(
                 orderedValues,
                 o => o.WithStrictOrdering());
         }
@@ -115,7 +115,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
                 .ToList();
             
             // Assert
-            orderedValues.ShouldAllBeEquivalentTo(
+            orderedValues.Should().BeEquivalentTo(
                 new []
                 {
                     MagicEnum.Zero,

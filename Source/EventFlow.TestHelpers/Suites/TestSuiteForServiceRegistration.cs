@@ -165,7 +165,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             var resolver = Sut.CreateResolver(false);
             Action callingResolve = () => resolver.Resolve<IMagicInterface>();
-            callingResolve.ShouldThrow<Exception>();
+            callingResolve.Should().Throw<Exception>();
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace EventFlow.TestHelpers.Suites
         {
             var resolver = Sut.CreateResolver(false);
             Action callingResolve = () => resolver.Resolve(typeof(IMagicInterface));
-            callingResolve.ShouldThrow<Exception>();
+            callingResolve.Should().Throw<Exception>();
         }
 
         [Test]
@@ -402,7 +402,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public static void Assert_Decorator(IServiceRegistration serviceRegistration)
@@ -445,7 +445,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public abstract class AbstractTestSubscriber :
@@ -476,7 +476,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public abstract class AbstractTestCommandHandler :
@@ -497,7 +497,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
 
         public abstract class AbstractTestEventUpgrader : IEventUpgrader<ThingyAggregate, ThingyId>
@@ -519,7 +519,7 @@ namespace EventFlow.TestHelpers.Suites
             });
 
             // Assert
-            act.ShouldNotThrow<ArgumentException>();
+            act.Should().NotThrow<ArgumentException>();
         }
         
         [Test]

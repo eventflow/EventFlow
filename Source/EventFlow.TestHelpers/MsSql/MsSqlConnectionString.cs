@@ -73,6 +73,7 @@ namespace EventFlow.TestHelpers.MsSql
                 }
             });
         }
+
         public void WithConnection(Action<SqlConnection> action)
         {
             WithConnection(c =>

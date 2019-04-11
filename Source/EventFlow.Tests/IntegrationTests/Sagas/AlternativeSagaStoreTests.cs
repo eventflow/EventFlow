@@ -115,7 +115,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             Action action = () => _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
             
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [Test]
