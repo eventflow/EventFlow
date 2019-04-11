@@ -1,4 +1,8 @@
-### New in 0.70 (not released yet)
+### New in 0.71 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.70.3824 (released 2019-04-11)
 
 * Breaking: Changed target framework to to .NET Framework 4.5.2 for the following NuGet packages,
   as Microsoft has [discontinued](https://github.com/Microsoft/dotnet/blob/master/releases/README.md)

@@ -1,7 +1,7 @@
 init:
   - git config --global core.autocrlf input
 
-version: 0.70.{build}
+version: 0.71.{build}
 
 skip_tags: true
 
