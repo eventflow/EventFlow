@@ -1,6 +1,24 @@
 ### New in 0.71 (not released yet)
 
-* _Nothing yet_
+* Breaking: Commands published from AggregateSaga which return `false` 
+  in `IExecutionResult.IsSuccess` will newly lead to an exception being thrown.
+  For disabling all new changes just set protected property
+  `AggregateSaga.ThrowExceptionsOnFailedPublish` to `false` in your AggregateSaga constructor.
+  Also an Exception thrown from any command won't prevent other commands from being executed.
+  All exceptions will be collected and then re-thrown in SagaPublishException (even in case 
+  of just one Exception). The exception structure is following:
+  - SagaPublishException : AggregateException
+    - .InnerExceptions
+      - CommandException : Exception
+        - .CommandType
+        - .SourceId
+        - .InnerException # in case of an exception thrown from the command
+      - CommandException : Exception
+        - .CommandType
+        - .SourceId
+        - .ExecutionResult # in case of returned `false` in `IExecutionResult.IsSuccess`
+  You need to update your `ISagaErrorHandler` implementation to reflect new exception structure,
+  unless you disable this new feature.
 
 ### New in 0.70.3824 (released 2019-04-11)
 
@@ -26,27 +44,6 @@
   for delivery of external event to AggregateSaga
 * Fix: `Identity<T>.NewComb()` now produces string values that doesn't cause
   too much index fragmentation in MSSQL string columns
-
-* Breaking: Commands published from AggregateSaga which return `false` 
-  in `IExecutionResult.IsSuccess` will newly lead to an exception being thrown.
-  For disabling all new changes just set protected property
-  `AggregateSaga.ThrowExceptionsOnFailedPublish` to `false` in your AggregateSaga constructor.
-  Also an Exception thrown from any command won't prevent other commands from being executed.
-  All exceptions will be collected and then re-thrown in AggregateException (even in case 
-  of just one Exception). The exception structure is following:
-  - SagaPublishException : AggregateException
-    - .InnerExceptions
-      - CommandException : Exception
-        - .CommandType
-        - .SourceId
-        - .InnerException # in case of an exception thrown from the command
-      - CommandException : Exception
-        - .CommandType
-        - .SourceId
-        - .ExecutionResult # in case of returned `false` in `IExecutionResult.IsSuccess`
-  You need to update your `ISagaErrorHandler` implementation to reflect new exception structure,
-  unless you disable this new feature.
-
 
 ### New in 0.69.3772 (released 2019-02-12)
 
