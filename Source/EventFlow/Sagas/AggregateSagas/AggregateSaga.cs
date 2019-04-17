@@ -30,6 +30,8 @@ using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.Exceptions;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
@@ -38,9 +40,11 @@ namespace EventFlow.Sagas.AggregateSagas
         where TIdentity : ISagaId
         where TLocator : ISagaLocator
     {
-        private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
+        private readonly ICollection<Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>> _unpublishedCommands = new List<Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>>();
 
         private bool _isCompleted;
+
+        protected virtual bool ThrowExceptionsOnFailedPublish { get; set; } = true;
 
         protected AggregateSaga(TIdentity id) : base(id)
         {
@@ -57,7 +61,11 @@ namespace EventFlow.Sagas.AggregateSagas
             where TCommandAggregateIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            _unpublishedCommands.Add((b, c) => b.PublishAsync(command, c));
+            _unpublishedCommands.Add(
+                new Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>(
+                        command,
+                        async (b, c) => await b.PublishAsync(command, c).ConfigureAwait(false))
+                );
         }
 
         public SagaState State => _isCompleted
@@ -69,9 +77,47 @@ namespace EventFlow.Sagas.AggregateSagas
             var commandsToPublish = _unpublishedCommands.ToList();
             _unpublishedCommands.Clear();
 
+            var exceptions = new List<CommandException>();
             foreach (var unpublishedCommand in commandsToPublish)
             {
-                await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                var command = unpublishedCommand.Item1;
+                var commandInvoker = unpublishedCommand.Item2;
+                if (ThrowExceptionsOnFailedPublish)
+                {
+                    try
+                    {
+                        var executionResult = await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
+                        if (executionResult?.IsSuccess == false)
+                        {
+                            exceptions.Add(
+                                new CommandException(
+                                    command.GetType(),
+                                    command.GetSourceId(),
+                                    executionResult,
+                                    $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{executionResult}'. See ExecutionResult."));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        exceptions.Add(
+                            new CommandException(
+                                command.GetType(),
+                                command.GetSourceId(),
+                                $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{e.Message}'. See InnerException.",
+                                e));
+                    }
+                }
+                else
+                {
+                    await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            if (0 < exceptions.Count)
+            {
+                throw new SagaPublishException(
+                    $"Some commands published from a saga with ID '{Id}' failed. See InnerExceptions.",
+                    exceptions);
             }
         }
     }
