@@ -44,7 +44,7 @@ namespace EventFlow.Sagas.AggregateSagas
 
         private bool _isCompleted;
 
-        protected bool ThrowExceptionsOnFailedPublish { get; set; } = true;
+        protected virtual bool ThrowExceptionsOnFailedPublish { get; set; } = true;
 
         protected AggregateSaga(TIdentity id) : base(id)
         {
