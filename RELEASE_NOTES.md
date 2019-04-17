@@ -19,6 +19,7 @@
         - .ExecutionResult # in case of returned `false` in `IExecutionResult.IsSuccess`
   You need to update your `ISagaErrorHandler` implementation to reflect new exception structure,
   unless you disable this new feature.
+* Fix: MongoDB read store no longer throws an exception on non-existing read models (#625)
 
 ### New in 0.70.3824 (released 2019-04-11)
 
