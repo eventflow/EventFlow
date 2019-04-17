@@ -1,4 +1,27 @@
-### New in 0.70 (not released yet)
+### New in 0.71 (not released yet)
+
+* Breaking: Commands published from AggregateSaga which return `false` 
+  in `IExecutionResult.IsSuccess` will newly lead to an exception being thrown.
+  For disabling all new changes just set protected property
+  `AggregateSaga.ThrowExceptionsOnFailedPublish` to `false` in your AggregateSaga constructor.
+  Also an Exception thrown from any command won't prevent other commands from being executed.
+  All exceptions will be collected and then re-thrown in SagaPublishException (even in case 
+  of just one Exception). The exception structure is following:
+  - SagaPublishException : AggregateException
+    - .InnerExceptions
+      - CommandException : Exception
+        - .CommandType
+        - .SourceId
+        - .InnerException # in case of an exception thrown from the command
+      - CommandException : Exception
+        - .CommandType
+        - .SourceId
+        - .ExecutionResult # in case of returned `false` in `IExecutionResult.IsSuccess`
+  You need to update your `ISagaErrorHandler` implementation to reflect new exception structure,
+  unless you disable this new feature.
+* Fix: MongoDB read store no longer throws an exception on non-existing read models (#625)
+
+### New in 0.70.3824 (released 2019-04-11)
 
 * Breaking: Changed target framework to to .NET Framework 4.5.2 for the following NuGet packages,
   as Microsoft has [discontinued](https://github.com/Microsoft/dotnet/blob/master/releases/README.md)
