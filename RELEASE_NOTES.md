@@ -1,4 +1,8 @@
-### New in 0.71 (not released yet)
+### New in 0.72 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.71.3834 (released 2019-04-17)
 
 * Breaking: Commands published from AggregateSaga which return `false` 
   in `IExecutionResult.IsSuccess` will newly lead to an exception being thrown.
