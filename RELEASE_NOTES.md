@@ -1,6 +1,6 @@
 ### New in 0.71 (not released yet)
 
-* _Nothing yet_
+* Fix: MongoDB read store no longer throws an exception on non-existing read models (#625)
 
 ### New in 0.70.3824 (released 2019-04-11)
 
