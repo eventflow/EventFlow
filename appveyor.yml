@@ -16,7 +16,7 @@ environment:
 test: off
 
 artifacts:
-  - path: Build\Packages\*.nupkg
+  - path: Build\Packages\*nupkg
 
 services:
   - mssql2014
