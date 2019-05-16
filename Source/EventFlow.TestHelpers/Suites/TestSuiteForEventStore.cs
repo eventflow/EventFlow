@@ -35,6 +35,7 @@ using EventFlow.Extensions;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
@@ -101,6 +102,24 @@ namespace EventFlow.TestHelpers.Suites
             loadedTestAggregate.IsNew.Should().BeFalse();
             loadedTestAggregate.Version.Should().Be(1);
             loadedTestAggregate.PingsReceived.Count.Should().Be(1);
+        }
+
+        [Test]
+        public async Task EventsCanContainUnicodeCharacters()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var testAggregate = await LoadAggregateAsync(id).ConfigureAwait(false);
+            var message = new ThingyMessage(ThingyMessageId.New, "😉");
+
+            testAggregate.AddMessage(message);
+            await testAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+
+            // Act
+            var loadedTestAggregate = await LoadAggregateAsync(id).ConfigureAwait(false);
+
+            // Assert
+            loadedTestAggregate.Messages.Single().Message.Should().Be("😉");
         }
 
         [Test]
