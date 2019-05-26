@@ -72,6 +72,14 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
 	command/entities/events from the [complete example](#complete-example). There are endpoints to 
 	create a new example event, getting a data model and to replay all data models.
 	
+* **[ElasticSearch/.NET Core:](https://github.com/DureSameen/EventFlowWithElasticSearch)**
+	It is configured with EventFlow, ElasticSearch, EventStore and RabbitMq. See "withRabbitMq" branch for #384.
+
+ * **[Vehicle Tracking:](https://github.com/MongkonEiadon/VehicleTracker)**
+	A Microservice on .NET Core 2.2 with docker based, you can up the service with docker compose, this project using various
+  tools to up the services aka. Linux Docker based on .NET Core, RabbitMq, EntityFramework with SQL Server and using EventFlow following CQRS-ES architecture
+  and all microservice can accessing through ApiGateway which using Ocelot
+	
 ### Overview
 
 Here is a list of the EventFlow concepts. Use the links to navigate

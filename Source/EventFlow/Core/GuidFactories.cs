@@ -24,33 +24,82 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace EventFlow.Core
 {
     public static class GuidFactories
     {
-        /// <summary>
-        /// Creates a sequential Guid that can be used to avoid database fragmentation
-        /// http://stackoverflow.com/a/2187898
-        /// </summary>
         public static class Comb
         {
+            private static int _counter;
+
+            private static long GetTicks()
+            {
+                var i = Interlocked.Increment(ref _counter);
+                return DateTime.UtcNow.Ticks + i;
+            }
+
+            /// <summary>
+            /// Generates a GUID values that causes less index fragmentation when stored
+            /// in e.g. <c>uniqueidentifier</c> columns in MSSQL.
+            /// </summary>
+            /// <example>
+            /// 2825c1d8-4587-cc55-08c1-08d6bde2765b
+            /// 901337ba-c64b-c6d4-08c2-08d6bde2765b
+            /// 45d57ba2-acc5-ce80-08c3-08d6bde2765b
+            /// 36528acf-352a-c28c-08c4-08d6bde2765b
+            /// 6fc88b5e-3782-c8fd-08c5-08d6bde2765b
+            /// </example>
             public static Guid Create()
             {
-                var destinationArray = Guid.NewGuid().ToByteArray();
-                var time = new DateTime(0x76c, 1, 1);
-                var now = DateTime.Now;
-                var span = new TimeSpan(now.Ticks - time.Ticks);
-                var timeOfDay = now.TimeOfDay;
-                var bytes = BitConverter.GetBytes(span.Days);
-                var array = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
+                var uid = Guid.NewGuid().ToByteArray();
+                var binDate = BitConverter.GetBytes(GetTicks());
 
-                Array.Reverse(bytes);
-                Array.Reverse(array);
-                Array.Copy(bytes, bytes.Length - 2, destinationArray, destinationArray.Length - 6, 2);
-                Array.Copy(array, array.Length - 4, destinationArray, destinationArray.Length - 4, 4);
+                return new Guid(
+                    new[]
+                        {
+                            uid[0], uid[1], uid[2], uid[3],
+                            uid[4], uid[5],
+                            uid[6], (byte)(0xc0 | (0xf & uid[7])),
+                            binDate[1], binDate[0],
+                            binDate[7], binDate[6], binDate[5], binDate[4], binDate[3], binDate[2]
+                        });
+            }
 
-                return new Guid(destinationArray);
+            /// <summary>
+            /// Generates a GUID values that causes less index fragmentation when stored
+            /// in e.g. <c>nvarchar(n)</c> columns in MSSQL.
+            /// </summary>
+            /// <example>
+            /// 899ee1b9-bde2-08d6-20d8-b7e20375c7c9
+            /// 899f09b9-bde2-08d6-fd1c-5ec8f3349bcf
+            /// 899f09ba-bde2-08d6-1521-51d781607ac4
+            /// 899f09bb-bde2-08d6-7e6a-fe84f5237dc4
+            /// 899f09bc-bde2-08d6-c2f0-276123e06fcf
+            /// </example>
+            public static Guid CreateForString()
+            {
+                /*
+                    From: https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray 
+                    Note that the order of bytes in the returned byte array is different from the string
+                    representation of a Guid value. The order of the beginning four-byte group and the
+                    next two two-byte groups is reversed, whereas the order of the last two-byte group
+                    and the closing six-byte group is the same.
+                */
+
+                var uid = Guid.NewGuid().ToByteArray();
+                var binDate = BitConverter.GetBytes(GetTicks());
+
+                return new Guid(
+                    new[]
+                        {
+                            binDate[0], binDate[1], binDate[2], binDate[3],
+                            binDate[4], binDate[5],
+                            binDate[6], binDate[7],
+                            uid[0], uid[1],
+                            uid[2], uid[3], uid[4], uid[5], uid[6], (byte)(0xc0 | (0xf & uid[7])),
+                        });
             }
         }
 

@@ -120,6 +120,7 @@ namespace EventFlow.TestHelpers
                 {
                     Timestamp = A<DateTimeOffset>(),
                     SourceId = A<SourceId>(),
+                    EventId = A<EventId>(),
                 };
 
             if (aggregateSequenceNumber == 0)
