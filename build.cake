@@ -150,7 +150,6 @@ Task("ValidateSourceLink")
     .IsDependentOn("Package")
     .Does(() =>
         {
-            //var files = GetFiles($"*/**/bin/{CONFIGURATION}/*/EventFlow*.nupkg");
             var files = GetFiles($"*/**/bin/Debug/EventFlow*.nupkg");
             if (!files.Any())
             {
