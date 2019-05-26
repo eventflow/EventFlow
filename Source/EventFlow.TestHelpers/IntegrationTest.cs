@@ -100,9 +100,11 @@ namespace EventFlow.TestHelpers
             return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(thingyId);
         }
 
-        protected async Task<PingId> PublishPingCommandAsync(ThingyId thingyId)
+        protected async Task<PingId> PublishPingCommandAsync(
+            ThingyId thingyId,
+            CancellationToken cancellationToken = default)
         {
-            var pingIds = await PublishPingCommandsAsync(thingyId, 1).ConfigureAwait(false);
+            var pingIds = await PublishPingCommandsAsync(thingyId, 1, cancellationToken).ConfigureAwait(false);
             return pingIds.Single();
         }
 

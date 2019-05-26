@@ -71,17 +71,17 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
-#if NET452
-        [Timeout(10000)]
-#endif
         public async Task AsynchronousSubscribesGetInvoked()
         {
-            // Act
-            var pingId = await PublishPingCommandAsync(A<ThingyId>()).ConfigureAwait(false);
+            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            {
+                // Act
+                var pingId = await PublishPingCommandAsync(A<ThingyId>(), cts.Token).ConfigureAwait(false);
 
-            // Assert
-            var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take()).ConfigureAwait(false);
-            receivedPingId.Should().IsSameOrEqualTo(pingId);
+                // Assert
+                var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
+                receivedPingId.Should().IsSameOrEqualTo(pingId);
+            }
         }
 
         [Test]
