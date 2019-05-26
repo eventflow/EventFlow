@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <DebugType>embedded</DebugType>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
