@@ -31,6 +31,10 @@
   </tr>
 </table>
 
+NuGet feeds
+- Official releases: https://www.nuget.org/packages/EventFlow/
+- Builds: https://ci.appveyor.com/nuget/eventflow
+
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
 Have a look at our [getting started guide](http://docs.geteventflow.net/GettingStarted.html),
