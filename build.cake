@@ -166,7 +166,8 @@ Task("ValidateSourceLink")
 
 // =====================================================================================================
 Task("All")
-    .IsDependentOn("Package", "ValidateSourceLink")
+    .IsDependentOn("Package")
+    .IsDependentOn("ValidateSourceLink")
     .Does(() =>
         {
 
