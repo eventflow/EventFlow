@@ -151,9 +151,15 @@ Task("ValidateSourceLink")
         {
             //var files = GetFiles($"*/**/bin/{CONFIGURATION}/*/EventFlow*.nupkg");
             var files = GetFiles($"*/**/bin/Debug/EventFlow*.nupkg");
+            if (!files.Any())
+            {
+                throw new Exception("No NuGet packages found!");
+            }
+
             foreach(var file in files)
             {
-                Information("File: {0}", file);
+                Information("Validating SourceLink for NuGet file: {0}", file);
+                ExecuteCommand("sourcelink", $"test \"{file}\"");
             }
         });
 
@@ -299,12 +305,13 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
             throw new Exception("Failed to stop process!");
         }
 
-        Debug(output);
-
         if (process.ExitCode != 0)
         {
+            Error(output);
             throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
         }
+
+        Debug(output);
 
         return output;
     }
