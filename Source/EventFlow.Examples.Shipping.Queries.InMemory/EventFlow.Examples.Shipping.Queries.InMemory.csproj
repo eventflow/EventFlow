@@ -4,6 +4,7 @@
     <TargetFramework>net452</TargetFramework>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <IsPackable>False</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
