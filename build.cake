@@ -25,8 +25,10 @@
 #r "System.IO.Compression.FileSystem"
 #r "System.Xml"
 
+#module nuget:?package=Cake.DotNetTool.Module
 #tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
+#tool "dotnet:?package=sourcelink"
 
 using System.IO.Compression;
 using System.Net;
@@ -141,6 +143,18 @@ Task("Package")
 						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
 					});
 			}
+        });
+
+// =====================================================================================================
+Task("ValidateSourceLink")
+    .Does(() =>
+        {
+            //var files = GetFiles($"*/**/bin/{CONFIGURATION}/*/EventFlow*.nupkg");
+            var files = GetFiles($"*/**/bin/Debug/EventFlow*.nupkg");
+            foreach(var file in files)
+            {
+                Information("File: {0}", file);
+            }
         });
 
 // =====================================================================================================
