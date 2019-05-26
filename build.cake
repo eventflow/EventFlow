@@ -147,6 +147,7 @@ Task("Package")
 
 // =====================================================================================================
 Task("ValidateSourceLink")
+    .IsDependentOn("Package")
     .Does(() =>
         {
             //var files = GetFiles($"*/**/bin/{CONFIGURATION}/*/EventFlow*.nupkg");
@@ -165,7 +166,7 @@ Task("ValidateSourceLink")
 
 // =====================================================================================================
 Task("All")
-    .IsDependentOn("Package")
+    .IsDependentOn("Package", "ValidateSourceLink")
     .Does(() =>
         {
 
