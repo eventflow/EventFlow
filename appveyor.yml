@@ -16,7 +16,7 @@ environment:
 test: off
 
 artifacts:
-  - path: Build\Packages\*.nupkg
+  - path: Build\Packages\*nupkg
 
 services:
   - mssql2014
@@ -36,10 +36,11 @@ deploy:
     api_key:
       secure: +YlrKmWps7RJVPU4s7B4HWNL9cZXaUVdiNJInli9IZPlTP+J0CyHsUvcDY8haE+b
     skip_symbols: false
+    artifact: /.*\.(nupkg|snupkg)/
     on:
       branch: master
   - provider: GitHub
-    artifact: /.*\.(nupkg|zip)/
+    artifact: /.*\.(nupkg|zip|snupkg)/
     auth_token:
       secure: f+y+RL1ETsxIbYKlliZrmXpfr1wvEVNhGGEOYyl2K8ryz02WxXL+kLe7pu53Kc8r
     tag: v$(appveyor_build_version)
