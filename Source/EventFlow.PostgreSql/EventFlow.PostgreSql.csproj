@@ -16,13 +16,10 @@
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
     <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Remove="EventStores\Scripts\0001 - Create table EventFlow.sql" />
@@ -38,7 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="dbup-postgresql" Version="4.1.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All" />
     <PackageReference Include="Npgsql" Version="4.0.2" />
   </ItemGroup>
 

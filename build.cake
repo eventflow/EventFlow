@@ -25,8 +25,10 @@
 #r "System.IO.Compression.FileSystem"
 #r "System.Xml"
 
+#module nuget:?package=Cake.DotNetTool.Module
 #tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
+#tool "dotnet:?package=sourcelink"
 
 using System.IO.Compression;
 using System.Net;
@@ -93,7 +95,6 @@ Task("Build")
                         .Append(GetDotNetCoreArgsVersions())
                         .Append("/p:ci=true")
                         .Append("/p:SourceLinkEnabled=true")
-                        .AppendSwitch("/p:DebugType","=","Full")
                         .Append("/p:TreatWarningsAsErrors=true")
 				});
         });
@@ -144,8 +145,28 @@ Task("Package")
         });
 
 // =====================================================================================================
+Task("ValidateSourceLink")
+    .IsDependentOn("Package")
+    .Does(() =>
+        {
+            var files = GetFiles($"./Build/Packages/EventFlow*.nupkg");
+            if (!files.Any())
+            {
+                throw new Exception("No NuGet packages found!");
+            }
+
+            foreach(var file in files)
+            {
+                var filePath = $"{file}".Replace("/", "\\");		   
+                Information("Validating SourceLink for NuGet file: {0}", filePath);
+                ExecuteCommand("sourcelink", $"test {filePath}");
+            }
+        });
+
+// =====================================================================================================
 Task("All")
     .IsDependentOn("Package")
+    //.IsDependentOn("ValidateSourceLink") builds on AppVeyor fail for some unknown reason
     .Does(() =>
         {
 
@@ -171,27 +192,33 @@ void SetReleaseNotes(string filePath)
 {
     var releaseNotes = string.Join(Environment.NewLine, RELEASE_NOTES.Notes);
 
+    SetXmlNode(
+        filePath,
+        "Project/PropertyGroup/PackageReleaseNotes",
+        releaseNotes);
+}
+
+void SetXmlNode(string filePath, string xmlPath, string content)
+{
     var xmlDocument = new XmlDocument();
     xmlDocument.Load(filePath);
 
-    var node = xmlDocument.SelectSingleNode("Project/PropertyGroup/PackageReleaseNotes") as XmlElement;
+    var node = xmlDocument.SelectSingleNode(xmlPath) as XmlElement;
     if (node == null)
     {
-        throw new Exception(string.Format(
-            "Project {0} does not have a `<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>` property",
-            filePath));
+        throw new Exception($"Project {filePath} does not have a {xmlPath} property");
     }
 
     if (!AppVeyor.IsRunningOnAppVeyor)
     {
-        Information("Skipping update of release notes");
+        Information($"Skipping update {xmlPath} in {filePath}");
         return;
     } 
     else
     {
-        Information(string.Format("Setting release notes in '{0}'", filePath));
+        Information($"Setting {xmlPath} in {filePath}");
         
-        node.InnerText = releaseNotes;
+        node.InnerText = content;
 
         xmlDocument.Save(filePath);
     }
@@ -285,12 +312,13 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
             throw new Exception("Failed to stop process!");
         }
 
-        Debug(output);
-
         if (process.ExitCode != 0)
         {
+            Error(output);
             throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
         }
+
+        Debug(output);
 
         return output;
     }

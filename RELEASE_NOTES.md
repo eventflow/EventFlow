@@ -3,6 +3,7 @@
 * New: `EventFlow.TestHelpers` are now released as .NET Standard as well
 * Fix: Storing events in MS SQL Server using `MsSqlEventPersistence` now correctly
   handles non-ANSI unicode characters in strings.
+* Fix: Source link integration now works correctly
 
 ### New in 0.71.3834 (released 2019-04-17)
 
