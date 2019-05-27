@@ -95,7 +95,6 @@ Task("Build")
                         .Append(GetDotNetCoreArgsVersions())
                         .Append("/p:ci=true")
                         .Append("/p:SourceLinkEnabled=true")
-                        .AppendSwitch("/p:DebugType","=","Full")
                         .Append("/p:TreatWarningsAsErrors=true")
 				});
         });
@@ -193,27 +192,33 @@ void SetReleaseNotes(string filePath)
 {
     var releaseNotes = string.Join(Environment.NewLine, RELEASE_NOTES.Notes);
 
+    SetXmlNode(
+        filePath,
+        "Project/PropertyGroup/PackageReleaseNotes",
+        releaseNotes);
+}
+
+void SetXmlNode(string filePath, string xmlPath, string content)
+{
     var xmlDocument = new XmlDocument();
     xmlDocument.Load(filePath);
 
-    var node = xmlDocument.SelectSingleNode("Project/PropertyGroup/PackageReleaseNotes") as XmlElement;
+    var node = xmlDocument.SelectSingleNode(xmlPath) as XmlElement;
     if (node == null)
     {
-        throw new Exception(string.Format(
-            "Project {0} does not have a `<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>` property",
-            filePath));
+        throw new Exception($"Project {filePath} does not have a {xmlPath} property");
     }
 
     if (!AppVeyor.IsRunningOnAppVeyor)
     {
-        Information("Skipping update of release notes");
+        Information($"Skipping update {xmlPath} in {filePath}");
         return;
     } 
     else
     {
-        Information(string.Format("Setting release notes in '{0}'", filePath));
+        Information($"Setting {xmlPath} in {filePath}");
         
-        node.InnerText = releaseNotes;
+        node.InnerText = content;
 
         xmlDocument.Save(filePath);
     }
