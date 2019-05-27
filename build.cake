@@ -158,9 +158,9 @@ Task("ValidateSourceLink")
 
             foreach(var file in files)
             {
-                file = file.Replace("/", "\\");		   
-                Information("Validating SourceLink for NuGet file: {0}", file);
-                ExecuteCommand("sourcelink", $"test {file}");
+                var filePath = $"{file}".Replace("/", "\\");		   
+                Information("Validating SourceLink for NuGet file: {0}", filePath);
+                ExecuteCommand("sourcelink", $"test {filePath}");
             }
         });
 
