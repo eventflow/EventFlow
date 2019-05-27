@@ -159,7 +159,7 @@ Task("ValidateSourceLink")
             foreach(var file in files)
             {
                 Information("Validating SourceLink for NuGet file: {0}", file);
-                ExecuteCommand("sourcelink", $"test \"{file}\"");
+                ExecuteCommand("sourcelink", $"test {file}");
             }
         });
 
