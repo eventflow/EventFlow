@@ -2,6 +2,7 @@
   <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
+    <IsPackable>False</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
