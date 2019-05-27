@@ -1,5 +1,6 @@
 ### New in 0.72 (not released yet)
 
+* New: `EventFlow.TestHelpers` are now released as .NET Standard as well
 * Fix: Storing events in MS SQL Server using `MsSqlEventPersistence` now correctly
   handles non-ANSI unicode characters in strings.
 
