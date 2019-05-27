@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
     <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
@@ -24,7 +24,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

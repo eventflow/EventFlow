@@ -4,6 +4,7 @@
     <TargetFramework>net452</TargetFramework>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <IsPackable>False</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="IntegrationTests\ReadStores\Scripts\0001 - Create table ReadModel-ThingyAggregate.sql" />
