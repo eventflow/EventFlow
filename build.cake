@@ -150,7 +150,7 @@ Task("ValidateSourceLink")
     .IsDependentOn("Package")
     .Does(() =>
         {
-            var files = GetFiles($"*/**/bin/{CONFIGURATION}/EventFlow*.nupkg");
+            var files = GetFiles($"./Build/Packages/EventFlow*.nupkg");
             if (!files.Any())
             {
                 throw new Exception("No NuGet packages found!");
