@@ -20,16 +20,9 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <PackageReference Include="EventStore.Client" Version="4.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.0.23" />
-  </ItemGroup>
-
+   
   <ItemGroup>
+    <PackageReference Include="EventStore.Client" Version="5.0.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All" />
   </ItemGroup>
 
