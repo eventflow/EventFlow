@@ -100,9 +100,11 @@ namespace EventFlow.TestHelpers
             return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(thingyId);
         }
 
-        protected async Task<PingId> PublishPingCommandAsync(ThingyId thingyId)
+        protected async Task<PingId> PublishPingCommandAsync(
+            ThingyId thingyId,
+            CancellationToken cancellationToken = default)
         {
-            var pingIds = await PublishPingCommandsAsync(thingyId, 1).ConfigureAwait(false);
+            var pingIds = await PublishPingCommandsAsync(thingyId, 1, cancellationToken).ConfigureAwait(false);
             return pingIds.Single();
         }
 
@@ -116,7 +118,10 @@ namespace EventFlow.TestHelpers
                 CancellationToken.None);
         }
 
-        protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(ThingyId thingyId, int count)
+        protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(
+            ThingyId thingyId,
+            int count, 
+            CancellationToken cancellationToken = default)
         {
             if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
 
@@ -125,7 +130,7 @@ namespace EventFlow.TestHelpers
             for (var i = 0; i < count; i++)
             {
                 var pingId = PingId.New;
-                await CommandBus.PublishAsync(new ThingyPingCommand(thingyId, pingId), CancellationToken.None).ConfigureAwait(false);
+                await CommandBus.PublishAsync(new ThingyPingCommand(thingyId, pingId), cancellationToken).ConfigureAwait(false);
                 pingIds.Add(pingId);
             }
 

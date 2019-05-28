@@ -239,7 +239,7 @@ namespace EventFlow.TestHelpers.Suites
             }
         }
 
-        [Test, Timeout(10000)]
+        [Test]
         public virtual async Task OptimisticConcurrencyCheck()
         {
             // Simulates a state in which two read models have been loaded to memory
@@ -250,23 +250,26 @@ namespace EventFlow.TestHelpers.Suites
             // a controlled delay and a set of AutoResetEvent is used to ensure
             // that the read store is in the desired state before continuing
 
-            // Arrange
-            var id = ThingyId.New;
-            var waitState = new WaitState();
-            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
+            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            {
+                // Arrange
+                var id = ThingyId.New;
+                var waitState = new WaitState();
+                await PublishPingCommandsAsync(id, 1, cts.Token).ConfigureAwait(false);
 
-            // Arrange
-            _waitStates[id.Value] = waitState;
-            var delayedPublishTask = Task.Run(() => PublishPingCommandsAsync(id, 1));
-            waitState.ReadStoreReady.WaitOne();
-            _waitStates.Remove(id.Value);
-            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
-            waitState.ReadStoreContinue.Set();
-            await delayedPublishTask.ConfigureAwait(false);
+                // Arrange
+                _waitStates[id.Value] = waitState;
+                var delayedPublishTask = Task.Run(() => PublishPingCommandsAsync(id, 1, cts.Token), cts.Token);
+                waitState.ReadStoreReady.WaitOne(TimeSpan.FromSeconds(10));
+                _waitStates.Remove(id.Value);
+                await PublishPingCommandsAsync(id, 1, cts.Token).ConfigureAwait(false);
+                waitState.ReadStoreContinue.Set();
+                await delayedPublishTask.ConfigureAwait(false);
 
-            // Assert
-            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
-            readModel.PingsReceived.Should().Be(3);
+                // Assert
+                var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), cts.Token).ConfigureAwait(false);
+                readModel.PingsReceived.Should().Be(3);
+            }
         }
 
         [Test]

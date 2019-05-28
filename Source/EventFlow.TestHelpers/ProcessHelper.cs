@@ -24,7 +24,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Management;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Extensions;
@@ -91,8 +90,9 @@ namespace EventFlow.TestHelpers
                     {
                         process.OutputDataReceived -= OutHandler;
                         process.ErrorDataReceived -= ErrHandler;
-
+#if NET452
                         KillProcessAndChildren(process.Id);
+#endif
                     }
                     catch (Exception e)
                     {
@@ -105,14 +105,15 @@ namespace EventFlow.TestHelpers
                 });
         }
 
+#if NET452
         private static void KillProcessAndChildren(int pid)
         {
-            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
+            var searcher = new System.Management.ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
             var moc = searcher.Get();
 
             foreach (var o in moc)
             {
-                var mo = (ManagementObject)o;
+                var mo = (System.Management.ManagementObject)o;
                 KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
             }
 
@@ -128,5 +129,6 @@ namespace EventFlow.TestHelpers
                 // Process already exited.
             }
         }
+#endif
     }
 }
