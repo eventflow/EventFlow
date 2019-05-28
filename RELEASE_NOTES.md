@@ -1,5 +1,6 @@
 ### New in 0.72 (not released yet)
 
+* Fix: Upgrade `EventStore.Client` to v5.0.1 and use it for both .NET Framework and .NET Core
 * Fix: Storing events in MS SQL Server using `MsSqlEventPersistence` now correctly
   handles non-ANSI unicode characters in strings.
 * Fix: Source link integration now works correctly
