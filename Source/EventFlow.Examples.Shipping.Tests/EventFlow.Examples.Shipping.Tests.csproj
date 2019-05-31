@@ -10,6 +10,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\EventFlow.Examples.Shipping.Queries.InMemory\EventFlow.Examples.Shipping.Queries.InMemory.csproj" />
     <ProjectReference Include="..\EventFlow.Examples.Shipping\EventFlow.Examples.Shipping.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />

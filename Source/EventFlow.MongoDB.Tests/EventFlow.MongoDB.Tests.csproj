@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.7.2" />
     <PackageReference Include="Mongo2Go" Version="2.2.8" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
   </ItemGroup>
   
   <ItemGroup>
