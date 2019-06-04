@@ -10,6 +10,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.109.1" />
   </ItemGroup>
   <ItemGroup>
