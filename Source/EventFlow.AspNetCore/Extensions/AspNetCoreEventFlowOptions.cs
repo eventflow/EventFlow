@@ -21,8 +21,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using EventFlow.AspNetCore.Configuration;
 using EventFlow.AspNetCore.Logging;
 using EventFlow.AspNetCore.MetadataProviders;
+using EventFlow.AspNetCore.ModelBinding;
 using EventFlow.AspNetCore.ServiceProvider;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Serialization;
@@ -32,6 +35,7 @@ using EventFlow.Logs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.AspNetCore.Extensions
 {
@@ -67,7 +71,7 @@ namespace EventFlow.AspNetCore.Extensions
             return RegisterMetadataProvider<AddUserClaimsMetadataProvider>();
         }
 
-        public AspNetCoreEventFlowOptions AddLogging()
+        public AspNetCoreEventFlowOptions UseLogging()
         {
             return Register<ILog, AspNetCoreLoggerLog>();
         }
@@ -88,18 +92,18 @@ namespace EventFlow.AspNetCore.Extensions
             return this;
         }
 
-        public AspNetCoreEventFlowOptions AddMvcJsonOptions()
+        public AspNetCoreEventFlowOptions UseMvcJsonOptions()
         {
-            _options.RegisterServices(s => s.Register(CreateMvcOptions, Lifetime.Singleton));
+            _options.RegisterServices(s => s.Register<IConfigureOptions<MvcJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
             return this;
         }
 
-        private MvcJsonOptions CreateMvcOptions(IResolverContext context)
+        public AspNetCoreEventFlowOptions UseModelBinding(Action<EventFlowModelBindingMvcConfiguration> configureModelBinding = null)
         {
-            var result = new MvcJsonOptions();
-            var jsonOptions = context.Resolver.Resolve<IJsonOptions>();
-            jsonOptions.Apply(result.SerializerSettings);
-            return result;
+            var modelBindingOptions = new EventFlowModelBindingMvcConfiguration();
+            configureModelBinding?.Invoke(modelBindingOptions);
+            _options.RegisterServices(s => s.Register<IConfigureOptions<MvcOptions>>(c => modelBindingOptions));
+            return this;
         }
 
         private AspNetCoreEventFlowOptions RegisterMetadataProvider<T>() where T : class, IMetadataProvider

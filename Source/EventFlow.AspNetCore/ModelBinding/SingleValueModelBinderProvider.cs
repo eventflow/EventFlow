@@ -21,52 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using System;
 using EventFlow.ValueObjects;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
+namespace EventFlow.AspNetCore.ModelBinding
 {
-	using Microsoft.AspNetCore.Mvc;
+    internal class SingleValueModelBinderProvider : IModelBinderProvider
+    {
+        public IModelBinder GetBinder(ModelBinderProviderContext context)
+        {
+            Type modelType = context.Metadata.ModelType;
 
-	[Route("thingy")]
-	public class ThingyController : Controller
-	{
-		private readonly ICommandBus _commandBus;
-
-		public ThingyController(
-			ICommandBus commandBus)
-		{
-			_commandBus = commandBus;
-		}
-
-		[HttpGet("ping")]
-		public async Task<IActionResult> Ping(ThingyId id)
-		{
-			var pingCommand = new ThingyPingCommand(id, PingId.New);
-			await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
-			return Ok();
-		}
-
-	    [HttpGet("singlevalue/{value}")]
-	    public IActionResult SingleValue(TestValue value)
-	    {
-	        if (!ModelState.IsValid)
-	        {
-	            return BadRequest(ModelState);
-	        }
-
-	        return Ok(value);
-	    }
-
-	    public class TestValue : SingleValueObject<int>
-	    {
-	        public TestValue(int value) : base(value)
-	        {
-	        }
-	    }
-	}
+            return typeof(ISingleValueObject).IsAssignableFrom(modelType) 
+                ? new SingleValueModelBinder() 
+                : null;
+        }
+    }
 }

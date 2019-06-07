@@ -77,6 +77,23 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 			await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
 		}
 
+	    [Test]
+	    public async Task ValidSingleValue()
+	    {
+            // Act
+	        var result = await GetAsync("thingy/singlevalue/123").ConfigureAwait(false);
+	        result.Should().Be("123");
+	    }
+
+	    [Test]
+	    public void InvalidSingleValue()
+	    {
+	        // Arrange + Act
+	        Func<Task> call = async () => await GetAsync("thingy/singlevalue/asdf").ConfigureAwait(false);
+
+	        call.Should().Throw<HttpRequestException>();
+	    }
+
 		[Test]
 		public async Task PublishCommand()
 		{

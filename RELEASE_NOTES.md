@@ -1,5 +1,30 @@
 ### New in 0.72 (not released yet)
 
+* New: ASP.NET Core enhancements:
+  - New fluent configuration API for ASP.NET Core components:
+    `services.AddEventFlow(o => o.AddAspNetCore(c => {...}));` (old syntax
+    `AddAspNetCoreMetadataProviders` is now deprecated).
+  - `.RunBootstrapperOnHostStartup()` runs bootstrappers together with ASP.NET
+    host startup. Previously, this was done in `AddAspNetCoreMetadataProviders`
+    and led to some confusion.
+  - `.UseMvcJsonOptions()` adds EventFlow JSON configuration (see below) to ASP.NET Core,
+    so you can accept and return Single Value Objects as plain strings for example.
+  - `.Add{Whatever}Metadata()` configures specific metadata provider.
+  - `.AddUserClaimsMetadata(params string claimTypes)` configures the new claims metadata
+    provider (for auditing or "ChangedBy" in read models).
+  - `.UseLogging()` configures an adapter for Microsoft.Extensions.Logging
+  - `.UseModelBinding()` adds model binding support for Single Value Objects:
+    ```csharp
+	    [HttpGet("customers/{id}")]
+	    public async Task<IActionResult> SingleValue(CustomerId id)
+	    {
+	        if (!ModelState.IsValid)
+	        {
+	            return BadRequest(ModelState);
+	        }
+    ```
+    
+
 * New: Configure JSON serialization: 
   ```csharp
   EventFlowOptions.New.
@@ -9,6 +34,8 @@
     )
   ```
 * New: `EventFlow.TestHelpers` are now released as .NET Standard as well
+* Fix: ASP.NET Core `AddRequestHeadersMetadataProvider` doesn't throw when
+  HttpContext is null.
 * Fix: Upgrade `EventStore.Client` to v5.0.1 and use it for both .NET Framework and .NET Core
 * Fix: Storing events in MS SQL Server using `MsSqlEventPersistence` now correctly
   handles non-ANSI unicode characters in strings.

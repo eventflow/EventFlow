@@ -53,9 +53,10 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
                         .AddSingleValueObjects())
                     .AddAspNetCore(c => c
                         .RunBootstrapperOnHostStartup()
-                        .AddMvcJsonOptions()
+                        .UseMvcJsonOptions()
+                        .UseModelBinding()
                         .AddUserClaimsMetadata()
-                        .AddLogging()
+                        .UseLogging()
                     ));
         }
 

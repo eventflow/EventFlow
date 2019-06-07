@@ -21,52 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Commands;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using EventFlow.ValueObjects;
+using EventFlow.Configuration.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
-namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
+namespace EventFlow.AspNetCore.Configuration
 {
-	using Microsoft.AspNetCore.Mvc;
+    public class EventFlowJsonOptionsMvcConfiguration : IConfigureOptions<MvcJsonOptions>
+    {
+        private readonly IJsonOptions _jsonOptions;
 
-	[Route("thingy")]
-	public class ThingyController : Controller
-	{
-		private readonly ICommandBus _commandBus;
+        public EventFlowJsonOptionsMvcConfiguration(IJsonOptions jsonOptions)
+        {
+            _jsonOptions = jsonOptions;
+        }
 
-		public ThingyController(
-			ICommandBus commandBus)
-		{
-			_commandBus = commandBus;
-		}
-
-		[HttpGet("ping")]
-		public async Task<IActionResult> Ping(ThingyId id)
-		{
-			var pingCommand = new ThingyPingCommand(id, PingId.New);
-			await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
-			return Ok();
-		}
-
-	    [HttpGet("singlevalue/{value}")]
-	    public IActionResult SingleValue(TestValue value)
-	    {
-	        if (!ModelState.IsValid)
-	        {
-	            return BadRequest(ModelState);
-	        }
-
-	        return Ok(value);
-	    }
-
-	    public class TestValue : SingleValueObject<int>
-	    {
-	        public TestValue(int value) : base(value)
-	        {
-	        }
-	    }
-	}
+        public void Configure(MvcJsonOptions options)
+        {
+            _jsonOptions.Apply(options.SerializerSettings);
+        }
+    }
 }
