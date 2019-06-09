@@ -44,8 +44,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public class AggregateReadStoreManagerTests : ReadStoreManagerTestSuite<AggregateReadStoreManager<
         ThingyAggregate,
         ThingyId,
-        IReadModelStore<TReadModel>,
-        TReadModel>>
+        IReadModelStore<TestReadModel>,
+        TestReadModel>>
     {
         private Mock<IEventStore> _eventStoreMock;
 
@@ -64,9 +64,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
                 };
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TestReadModel>.With(
                 thingyId.Value,
-                A<TReadModel>(),
+                A<TestReadModel>(),
                 2));
 
             // Act
@@ -86,9 +86,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 3),
                 };
-            var resultingReadModelUpdates = Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
+            var resultingReadModelUpdates = Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TestReadModel>.With(
                 thingyId.Value,
-                A<TReadModel>(),
+                A<TestReadModel>(),
                 3));
 
             // Act
@@ -108,9 +108,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 {
                     ToDomainEvent(thingyId, A<ThingyPingEvent>(), 1),
                 };
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TestReadModel>.With(
                 thingyId.Value,
-                A<TReadModel>(),
+                A<TestReadModel>(),
                 3));
 
             // Act
@@ -138,9 +138,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .Concat(missingEvents)
                 .Concat(emittedEvents)
                 .ToArray();
-            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TReadModel>.With(
+            Arrange_ReadModelStore_UpdateAsync(ReadModelEnvelope<TestReadModel>.With(
                 thingyId.Value,
-                A<TReadModel>(),
+                A<TestReadModel>(),
                 1));
             _eventStoreMock.Arrange_LoadEventsAsync(storedEvents);
 

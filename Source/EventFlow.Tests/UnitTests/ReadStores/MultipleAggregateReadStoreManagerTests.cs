@@ -36,7 +36,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
     [Category(Categories.Unit)]
-    public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<TReadModel>, TReadModel, IReadModelLocator>>
+    public class MultipleAggregateReadStoreManagerTests : ReadStoreManagerTestSuite<MultipleAggregateReadStoreManager<IReadModelStore<TestReadModel>, TestReadModel, IReadModelLocator>>
     {
         private Mock<IReadModelLocator> _readModelLocator;
 
@@ -100,7 +100,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 s => s.UpdateAsync(
                     It.IsAny<IReadOnlyCollection<ReadModelUpdate>>(),
                     It.IsAny<IReadModelContextFactory>(),
-                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>>>(),
+                    It.IsAny<Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TestReadModel>, CancellationToken, Task<ReadModelUpdateResult<TestReadModel>>>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never);
         }
