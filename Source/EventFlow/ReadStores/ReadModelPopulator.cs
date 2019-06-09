@@ -98,10 +98,17 @@ namespace EventFlow.ReadStores
             var stopwatch = Stopwatch.StartNew();
             var readStoreManagers = ResolveReadStoreManagers(readModelType);
 
+            var readModelTypes = new[]
+            {
+                typeof( IAmReadModelFor<,,> ),
+                typeof( IAmAsyncReadModelFor<,,> )
+            };
+
             var aggregateEventTypes = new HashSet<Type>(readModelType
                 .GetTypeInfo()
                 .GetInterfaces()
-                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAmReadModelFor<,,>))
+                .Where(i => i.GetTypeInfo().IsGenericType 
+                            && readModelTypes.Contains(i.GetGenericTypeDefinition()))
                 .Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
 
             _log.Verbose(() => string.Format(
