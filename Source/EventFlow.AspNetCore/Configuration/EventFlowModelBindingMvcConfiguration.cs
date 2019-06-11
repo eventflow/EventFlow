@@ -21,39 +21,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using Microsoft.AspNetCore.Http;
+using EventFlow.AspNetCore.ModelBinding;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
-namespace EventFlow.AspNetCore.MetadataProviders
+namespace EventFlow.AspNetCore.Configuration
 {
-	public class AddUriMetadataProvider : IMetadataProvider
-	{
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class EventFlowModelBindingMvcConfiguration : IConfigureOptions<MvcOptions>
+    {
+        public bool UseSingleValueModelBinding { get; set; } = true;
 
-		public AddUriMetadataProvider(
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpContextAccessor = httpContextAccessor;
-		}
-
-		public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-			TIdentity id,
-			IAggregateEvent aggregateEvent,
-			IMetadata metadata)
-			where TAggregate : IAggregateRoot<TIdentity>
-			where TIdentity : IIdentity
-		{
-		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
-
-		    var request = httpContext.Request;
-		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
-			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
-			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());
-		}
-	}
+        public void Configure(MvcOptions options)
+        {
+            if (UseSingleValueModelBinding)
+            {
+                options.ModelBinderProviders.Insert(0, new SingleValueModelBinderProvider());
+            }
+        }
+    }
 }

@@ -21,39 +21,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using Microsoft.AspNetCore.Http;
+using System;
+using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace EventFlow.AspNetCore.MetadataProviders
+namespace EventFlow.AspNetCore.Logging
 {
-	public class AddUriMetadataProvider : IMetadataProvider
-	{
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class AspNetCoreLoggerLog : Log
+    {
+        private readonly ILogger _logger;
 
-		public AddUriMetadataProvider(
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpContextAccessor = httpContextAccessor;
-		}
+        public AspNetCoreLoggerLog(ILogger<EventFlowAspNetCore> logger)
+        {
+            _logger = logger;
+        }
 
-		public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-			TIdentity id,
-			IAggregateEvent aggregateEvent,
-			IMetadata metadata)
-			where TAggregate : IAggregateRoot<TIdentity>
-			where TIdentity : IIdentity
-		{
-		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
+        protected override bool IsVerboseEnabled => _logger.IsEnabled(LogLevel.Trace);
 
-		    var request = httpContext.Request;
-		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
-			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
-			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());
-		}
-	}
+        protected override bool IsInformationEnabled => _logger.IsEnabled(LogLevel.Information);
+
+        protected override bool IsDebugEnabled => _logger.IsEnabled(LogLevel.Debug);
+
+        public override void Write(Logs.LogLevel logLevel, string format, params object[] args)
+        {
+            _logger.Log((LogLevel)logLevel, format, args);
+        }
+
+        public override void Write(Logs.LogLevel logLevel, Exception exception, string format, params object[] args)
+        {
+            _logger.Log((LogLevel)logLevel, exception, format, args);
+        }
+    }
 }

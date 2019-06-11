@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,46 +22,49 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using EventFlow.AspNetCore.Middlewares;
 using EventFlow.AspNetCore.Extensions;
-using EventFlow.Autofac.Extensions;
+using EventFlow.AspNetCore.Middlewares;
 using EventFlow.Configuration;
+using EventFlow.DependencyInjection.Extensions;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
-	public class Startup
-	{
-		public IServiceProvider ConfigureServices(IServiceCollection services)
-		{
-			services.AddMvc();
+    public class Startup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc();
 
-			var containerBuilder = new ContainerBuilder();
+            services.AddLogging(logging => logging
+                .AddConsole()
+                .SetMinimumLevel(LogLevel.Debug));
 
-			var container = EventFlowOptions.New
-				.UseAutofacContainerBuilder(containerBuilder)
-				.AddDefaults(EventFlowTestHelpers.Assembly)
-			    .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .AddAspNetCoreMetadataProviders();
+            services
+                .AddEventFlow(o => o
+                    .AddDefaults(EventFlowTestHelpers.Assembly)
+                    .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
+                    .ConfigureJson(j => j
+                        .AddSingleValueObjects())
+                    .AddAspNetCore(c => c
+                        .RunBootstrapperOnHostStartup()
+                        .UseMvcJsonOptions()
+                        .UseModelBinding()
+                        .AddUserClaimsMetadata()
+                        .UseLogging()
+                    ));
+        }
 
-
-			containerBuilder.Populate(services);
-
-			return new AutofacServiceProvider(containerBuilder.Build());
-		}
-
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
-		{
-			app.UseMiddleware<CommandPublishMiddleware>();
-			app.UseMvcWithDefaultRoute();
-		}
-	}
+        public void Configure(IApplicationBuilder app)
+        {
+            app.UseMiddleware<TestAuthenticationMiddleware>();
+            app.UseMiddleware<CommandPublishMiddleware>();
+            app.UseMvcWithDefaultRoute();
+        }
+    }
 }
