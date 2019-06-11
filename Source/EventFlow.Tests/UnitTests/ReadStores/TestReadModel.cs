@@ -28,7 +28,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    public class TReadModel : IReadModel,
+    public class TestReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
