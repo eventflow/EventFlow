@@ -122,7 +122,10 @@ namespace EventFlow.Extensions
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(mi =>
                     {
-                        if (mi.Name != "Apply") return false;
+                        if (mi.Name != "Apply" && !mi.Name.EndsWith(".Apply"))
+                        {
+                            return false;
+                        }
                         var parameters = mi.GetParameters();
                         return
                             parameters.Length == 1 &&
@@ -130,7 +133,7 @@ namespace EventFlow.Extensions
                     })
                 .ToDictionary(
                     mi => mi.GetParameters()[0].ParameterType,
-                    mi => ReflectionHelper.CompileMethodInvocation<Action<T, IAggregateEvent>>(type, "Apply", mi.GetParameters()[0].ParameterType));
+                    mi => ReflectionHelper.CompileMethodInvocation<Action<T, IAggregateEvent>>(type, mi.Name, mi.GetParameters()[0].ParameterType));
         }
     }
 }

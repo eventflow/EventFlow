@@ -40,7 +40,8 @@ namespace EventFlow.TestHelpers.Aggregates
 {
     [AggregateName("Thingy")]
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
-        IEmit<ThingyDomainErrorAfterFirstEvent>
+        IEmit<ThingyDomainErrorAfterFirstEvent>,
+        IEmit<ThingyDeletedEvent>
     {
         // ReSharper disable once NotAccessedField.Local
         private readonly IScopedContext _scopedContext;
@@ -55,6 +56,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
+        public bool IsDeleted { get; private set; }
 
         public ThingyAggregate(ThingyId id, IScopedContext scopedContext)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
@@ -65,7 +67,6 @@ namespace EventFlow.TestHelpers.Aggregates
             Register<ThingyMessageHistoryAddedEvent>(e => _messages.AddRange(e.ThingyMessages));
             Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
             Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
-            Register<ThingyDeletedEvent>(e => {/* do nothing */});
         }
 
         public void DomainErrorAfterFirst()
@@ -126,6 +127,11 @@ namespace EventFlow.TestHelpers.Aggregates
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        void IEmit<ThingyDeletedEvent>.Apply(ThingyDeletedEvent e)
+        {
+            IsDeleted = true;
         }
 
         protected override Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
