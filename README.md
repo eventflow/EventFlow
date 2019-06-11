@@ -13,7 +13,7 @@
         <a href="https://www.nuget.org/packages/EventFlow/"><img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
       </p>
       <p>
-        <a href="http://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
+        <a href="https://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
       </p>
     </td>
     <td  width="25%">
@@ -37,9 +37,9 @@ NuGet feeds
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
-Have a look at our [getting started guide](http://docs.geteventflow.net/GettingStarted.html),
-the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
-[FAQ](http://docs.geteventflow.net/FAQ.html).
+Have a look at our [getting started guide](https://docs.geteventflow.net/GettingStarted.html),
+the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and the
+[FAQ](https://docs.geteventflow.net/FAQ.html).
 
 ### Features
 
@@ -89,12 +89,12 @@ the [do’s and don’ts](http://docs.geteventflow.net/DosAndDonts.html) and the
 Here is a list of the EventFlow concepts. Use the links to navigate
 to the documentation.
 
-* [**Aggregates:**](http://docs.geteventflow.net/Aggregates.html)
+* [**Aggregates:**](https://docs.geteventflow.net/Aggregates.html)
   Domains object that guarantees the consistency of changes being made within
   each aggregate
-* [**Command bus and commands:**](http://docs.geteventflow.net/Commands.html)
+* [**Command bus and commands:**](https://docs.geteventflow.net/Commands.html)
   Entry point for all command/operation execution.
-* [**Event store:**](http://docs.geteventflow.net/EventStore.html)
+* [**Event store:**](https://docs.geteventflow.net/EventStore.html)
   Storage of the event stream for aggregates. Currently there is support for
   these storage types.
   * In-memory - only for test
@@ -104,53 +104,53 @@ to the documentation.
   * SQLite
   * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
-* [**Subscribers:**](http://docs.geteventflow.net/Subscribers.html)
+* [**Subscribers:**](https://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
-* [**Read models:**](http://docs.geteventflow.net/ReadStores.html)
+* [**Read models:**](https://docs.geteventflow.net/ReadStores.html)
   Denormalized representation  of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
-  * [Elasticsearch](http://docs.geteventflow.net/ReadStores.html#elasticsearch)
-  * [In-memory](http://docs.geteventflow.net/ReadStores.html#in-memory) - only for test
-  * [Microsoft SQL Server](http://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
+  * [Elasticsearch](https://docs.geteventflow.net/ReadStores.html#elasticsearch)
+  * [In-memory](https//docs.geteventflow.net/ReadStores.html#in-memory) - only for test
+  * [Microsoft SQL Server](https://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
   * Entity Framework Core
   * SQLite
   * PostgreSQL
-* [**Snapshots:**](http://docs.geteventflow.net/Snapshots.html)
+* [**Snapshots:**](https://docs.geteventflow.net/Snapshots.html)
   Instead of reading the entire event stream every single time, a snapshot can
   be created every so often that contains the aggregate state. EventFlow
   supports upgrading existing snapshots, which is useful for long-lived
   aggregates. Snapshots in EventFlow are opt-in and EventFlow has support for
-  * [In-memory](http://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
-  * [Microsoft SQL Server](http://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
+  * [In-memory](https://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
+  * [Microsoft SQL Server](https://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
   * Entity Framework Core
   * SQLite
   * PostgreSQL
-* [**Sagas:**](http://docs.geteventflow.net/Sagas.html)
+* [**Sagas:**](https://docs.geteventflow.net/Sagas.html)
   Also known as _process managers_, coordinates and routes messages between
   bounded contexts and aggregates
-* [**Queries:**](http://docs.geteventflow.net/Queries.html)
+* [**Queries:**](https://docs.geteventflow.net/Queries.html)
   Value objects that represent a query without specifying how its executed,
   that is let to a query handler
-* [**Jobs:**](http://docs.geteventflow.net/Jobs.html) Perform scheduled tasks at
+* [**Jobs:**](https://docs.geteventflow.net/Jobs.html) Perform scheduled tasks at
   a later time, e.g. publish a command. EventFlow provides support for these
   job schedulers
-  * [Hangfire](http://docs.geteventflow.net/Jobs.html#hangfire) - [home page](http://hangfire.io/)
-* [**Event upgrade:**](http://docs.geteventflow.net/EventUpgrade.html)
+  * [Hangfire](https://docs.geteventflow.net/Jobs.html#hangfire) - [home page](http://hangfire.io/)
+* [**Event upgrade:**](https://docs.geteventflow.net/EventUpgrade.html)
   As events committed to the event store is never changed, EventFlow uses the
   concept of event upgraders to deprecate events and replace them with new
   during aggregate load.
 * **Event publishing:** Sometimes you want other applications or services to
   consume and act on domains. For this EventFlow supports event publishing.
- * [RabbitMQ](http://docs.geteventflow.net/Subscribers.html#rabbitmq)
-* [**Metadata:**](http://docs.geteventflow.net/Metadata.html)
+ * [RabbitMQ](https://docs.geteventflow.net/Subscribers.html#rabbitmq)
+* [**Metadata:**](https://docs.geteventflow.net/Metadata.html)
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.
-* [**Value objects:**](http://docs.geteventflow.net/ValueObjects.html)
+* [**Value objects:**](https://docs.geteventflow.net/ValueObjects.html)
   Data containing classes used to validate and hold domain data, e.g. a
   username or e-mail.
-* [**Customize:**](http://docs.geteventflow.net/Customize.html) Almost every
+* [**Customize:**](https://docs.geteventflow.net/Customize.html) Almost every
   single part of EventFlow can be swapped with a custom implementation through
   the embedded IoC container.
 
