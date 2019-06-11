@@ -33,6 +33,7 @@
     ```
 * Fix: ASP.NET Core `AddRequestHeadersMetadataProvider` doesn't throw when
   HttpContext is null.
+* Fix: `ReadModelRepopulator` now correctly populates `IAmAsyncReadModelFor`
 
 ### New in 0.72.3914 (released 2019-05-28)
 
