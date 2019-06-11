@@ -31,12 +31,12 @@
 	            return BadRequest(ModelState);
 	        }
     ```
+* Fix: ASP.NET Core `AddRequestHeadersMetadataProvider` doesn't throw when
+  HttpContext is null.
 
 ### New in 0.72.3914 (released 2019-05-28)
 
 * New: `EventFlow.TestHelpers` are now released as .NET Standard as well
-* Fix: ASP.NET Core `AddRequestHeadersMetadataProvider` doesn't throw when
-  HttpContext is null.
 * Fix: Upgrade `EventStore.Client` to v5.0.1 and use it for both .NET Framework and .NET Core
 * Fix: Storing events in MS SQL Server using `MsSqlEventPersistence` now correctly
   handles non-ANSI unicode characters in strings.
