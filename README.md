@@ -10,7 +10,7 @@
         <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
       </p>
       <p>
-        <a href="https://www.nuget.org/packages/EventFlow/"><img src="http://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
+        <a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
       </p>
       <p>
         <a href="https://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
@@ -135,7 +135,7 @@ to the documentation.
 * [**Jobs:**](https://docs.geteventflow.net/Jobs.html) Perform scheduled tasks at
   a later time, e.g. publish a command. EventFlow provides support for these
   job schedulers
-  * [Hangfire](https://docs.geteventflow.net/Jobs.html#hangfire) - [home page](http://hangfire.io/)
+  * [Hangfire](https://docs.geteventflow.net/Jobs.html#hangfire) - [home page](https://hangfire.io/)
 * [**Event upgrade:**](https://docs.geteventflow.net/EventUpgrade.html)
   As events committed to the event store is never changed, EventFlow uses the
   concept of event upgraders to deprecate events and replace them with new
@@ -329,12 +329,12 @@ share it by creating an issue with the link.
 * **Domain-Driven Design**
   * [Domain-Driven Design Reference](https://domainlanguage.com/ddd/reference/)
     by Eric Evans
-  * [DDD Decoded - Bounded Contexts Explained](http://blog.sapiensworks.com/post/2016/08/12/DDD-Bounded-Contexts-Explained)
+  * [DDD Decoded - Bounded Contexts Explained](https://blog.sapiensworks.com/post/2016/08/12/DDD-Bounded-Contexts-Explained)
   * [Going "Events-First" for Microservices with Event Storming and DDD](http://www.russmiles.com/essais/going-events-first-for-microservices-with-event-storming-and-ddd)
 * **General CQRS+ES**
   * [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
     published by Microsoft
-  * [An In-Depth Look At CQRS](http://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
+  * [An In-Depth Look At CQRS](https://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
     by Mike Mogosanu
   * [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
     by Greg Young
@@ -342,15 +342,15 @@ share it by creating an issue with the link.
     by Jimmy Bogard
   * [CQRS applied](https://lostechies.com/gabrielschenker/2015/04/12/cqrs-applied/)
     by Gabriel Schenker
-  * [DDD Decoded - Entities and Value Objects Explained](http://blog.sapiensworks.com/post/2016/07/29/DDD-Entities-Value-Objects-Explained)
+  * [DDD Decoded - Entities and Value Objects Explained](https://blog.sapiensworks.com/post/2016/07/29/DDD-Entities-Value-Objects-Explained)
 * **Eventual consistency**
-  * [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](http://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
+  * [How To Ensure Idempotency In An Eventual Consistent DDD/CQRS Application](https://blog.sapiensworks.com/post/2015/08/26/How-To-Ensure-Idempotency)
    by Mike Mogosanu
-  * [DDD Decoded - Don't Fear Eventual Consistency](http://blog.sapiensworks.com/post/2016/07/23/DDD-Eventual-Consistency)
+  * [DDD Decoded - Don't Fear Eventual Consistency](https://blog.sapiensworks.com/post/2016/07/23/DDD-Eventual-Consistency)
 * **Why _not_ to implement "unit of work" in DDD**
-  * [Unit Of Work is the new Singleton](http://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
+  * [Unit Of Work is the new Singleton](https://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
     by Mike Mogosanu
-  * [The Unit of Work and Transactions In Domain Driven Design](http://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+  * [The Unit of Work and Transactions In Domain Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
     by Mike Mogosanu
 
 
@@ -386,7 +386,7 @@ category.
 * [Contributors](https://github.com/eventflow/EventFlow/graphs/contributors)
 * [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
 * [olholm](https://github.com/olholm): Current logo
-* [iconmonstr](http://iconmonstr.com/network-6-icon/): First logo
+* [iconmonstr](https://iconmonstr.com/network-6-icon/): First logo
 * [JC008](https://github.com/JC008): License for Navicat Essentials for SQLite
 
 ## License
