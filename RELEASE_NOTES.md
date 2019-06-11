@@ -1,4 +1,8 @@
-### New in 0.73 (not released yet)
+### New in 0.74 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.73.3933 (released 2019-06-11)
 
 * New: Configure JSON serialization: 
   ```csharp
