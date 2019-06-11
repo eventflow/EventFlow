@@ -8,9 +8,6 @@
       .AddConverter<SomeConverter>()
     )
   ```
-
-### New in 0.72.3914 (released 2019-05-28)
-
 * New: ASP.NET Core enhancements:
   - New fluent configuration API for ASP.NET Core components:
     `services.AddEventFlow(o => o.AddAspNetCore(c => {...}));` (old syntax
@@ -34,16 +31,9 @@
 	            return BadRequest(ModelState);
 	        }
     ```
-    
 
-* New: Configure JSON serialization: 
-  ```csharp
-  EventFlowOptions.New.
-    .ConfigureJson(json => json
-      .AddSingleValueObjects()
-      .AddConverter<SomeConverter>()
-    )
-  ```
+### New in 0.72.3914 (released 2019-05-28)
+
 * New: `EventFlow.TestHelpers` are now released as .NET Standard as well
 * Fix: ASP.NET Core `AddRequestHeadersMetadataProvider` doesn't throw when
   HttpContext is null.
