@@ -21,39 +21,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace EventFlow.AspNetCore.MetadataProviders
+namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
-	public class AddUriMetadataProvider : IMetadataProvider
-	{
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class TestAuthenticationMiddleware
+    {
+        private readonly RequestDelegate _next;
 
-		public AddUriMetadataProvider(
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpContextAccessor = httpContextAccessor;
-		}
+        public TestAuthenticationMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
 
-		public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-			TIdentity id,
-			IAggregateEvent aggregateEvent,
-			IMetadata metadata)
-			where TAggregate : IAggregateRoot<TIdentity>
-			where TIdentity : IIdentity
-		{
-		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
+        public Task InvokeAsync(HttpContext context)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Sid, "test-sid"),
+                new Claim(ClaimTypes.Name, "test-name"),
+                new Claim(ClaimTypes.Role, "test-role-1"),
+                new Claim(ClaimTypes.Role, "test-role-2"),
+            };
 
-		    var request = httpContext.Request;
-		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
-			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
-			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());
-		}
-	}
+            var identity = new ClaimsIdentity(claims);
+            context.User = new ClaimsPrincipal(identity);
+
+            return _next(context);
+        }
+    }
 }

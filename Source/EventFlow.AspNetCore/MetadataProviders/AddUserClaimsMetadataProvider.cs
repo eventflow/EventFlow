@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -29,31 +30,35 @@ using Microsoft.AspNetCore.Http;
 
 namespace EventFlow.AspNetCore.MetadataProviders
 {
-	public class AddUriMetadataProvider : IMetadataProvider
-	{
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class AddUserClaimsMetadataProvider : IMetadataProvider
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserClaimsMetadataOptions _options;
 
-		public AddUriMetadataProvider(
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpContextAccessor = httpContextAccessor;
-		}
+        public AddUserClaimsMetadataProvider(
+            IHttpContextAccessor httpContextAccessor,
+            IUserClaimsMetadataOptions options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _options = options;
+        }
 
-		public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-			TIdentity id,
-			IAggregateEvent aggregateEvent,
-			IMetadata metadata)
-			where TAggregate : IAggregateRoot<TIdentity>
-			where TIdentity : IIdentity
-		{
-		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(TIdentity id,
+            IAggregateEvent aggregateEvent, IMetadata metadata) where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user == null)
+                return Enumerable.Empty<KeyValuePair<string, string>>();
 
-		    var request = httpContext.Request;
-		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
-			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
-			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());
-		}
-	}
+            return from claim in user.Claims
+                where _options.IsIncluded(claim.Type)
+                group claim by claim.Type
+                into claimGroup
+                let key = _options.GetKeyForClaimType(claimGroup.Key)
+                let values = claimGroup.Select(c => c.Value)
+                let joinedValues = string.Join(";", values)
+                select new KeyValuePair<string, string>(key, joinedValues);
+        }
+    }
 }

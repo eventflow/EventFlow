@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,35 +22,39 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration.Serialization;
 using Newtonsoft.Json;
 
 namespace EventFlow.Core
 {
     public class JsonSerializer : IJsonSerializer
     {
-        private static readonly JsonSerializerSettings SettingsNotIndented = new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-            };
-        private static readonly JsonSerializerSettings SettingsIndented = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-            };
+        private readonly JsonSerializerSettings _settingsNotIndented = new JsonSerializerSettings();
+        private readonly JsonSerializerSettings _settingsIndented = new JsonSerializerSettings();
+
+        public JsonSerializer(IJsonOptions options = null)
+        {
+            options?.Apply(_settingsIndented);
+            options?.Apply(_settingsNotIndented);
+
+            _settingsIndented.Formatting = Formatting.Indented;
+            _settingsNotIndented.Formatting = Formatting.None;
+        }
 
         public string Serialize(object obj, bool indented = false)
         {
-            var settings = indented ? SettingsIndented : SettingsNotIndented;
+            var settings = indented ? _settingsIndented : _settingsNotIndented;
             return JsonConvert.SerializeObject(obj, settings);
         }
 
         public object Deserialize(string json, Type type)
         {
-            return JsonConvert.DeserializeObject(json, type);
+            return JsonConvert.DeserializeObject(json, type, _settingsNotIndented);
         }
 
         public T Deserialize<T>(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json);
+            return JsonConvert.DeserializeObject<T>(json, _settingsNotIndented);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -56,13 +56,16 @@ namespace EventFlow.AspNetCore.MetadataProviders
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            yield return new KeyValuePair<string, string>("remote_ip_address", _httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString());
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+                yield break;
+            
+            yield return new KeyValuePair<string, string>("remote_ip_address", httpContext.Connection.RemoteIpAddress?.ToString());
 
             var headerInfo = HeaderPriority
                 .Select(h =>
                     {
-                        StringValues value;
-                        var address = _httpContextAccessor.HttpContext.Request.Headers.TryGetValue(h, out value)
+                        var address = httpContext.Request.Headers.TryGetValue(h, out var value)
                             ? string.Join(string.Empty, value)
                             : string.Empty;
                         return new {Header = h, Address = address};

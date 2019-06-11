@@ -21,39 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using Microsoft.AspNetCore.Http;
+using System;
+using EventFlow.Configuration.Serialization;
 
-namespace EventFlow.AspNetCore.MetadataProviders
+namespace EventFlow.Extensions
 {
-	public class AddUriMetadataProvider : IMetadataProvider
-	{
-		private readonly IHttpContextAccessor _httpContextAccessor;
-
-		public AddUriMetadataProvider(
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpContextAccessor = httpContextAccessor;
-		}
-
-		public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-			TIdentity id,
-			IAggregateEvent aggregateEvent,
-			IMetadata metadata)
-			where TAggregate : IAggregateRoot<TIdentity>
-			where TIdentity : IIdentity
-		{
-		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
-
-		    var request = httpContext.Request;
-		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
-			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
-			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());
-		}
-	}
+    public static class EventFlowOptionsJsonConfigurationExtensions
+    {
+        public static IEventFlowOptions ConfigureJson(this IEventFlowOptions options, Func<JsonOptions, IJsonOptions> configure)
+        {
+            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            var config = configure(JsonOptions.New);
+            return options.RegisterServices(s => s.Register(_ => config));
+        }
+    }
 }

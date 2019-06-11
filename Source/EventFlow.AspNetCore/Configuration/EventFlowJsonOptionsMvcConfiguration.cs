@@ -21,39 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.EventStores;
-using Microsoft.AspNetCore.Http;
+using EventFlow.Configuration.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
-namespace EventFlow.AspNetCore.MetadataProviders
+namespace EventFlow.AspNetCore.Configuration
 {
-	public class AddUriMetadataProvider : IMetadataProvider
-	{
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class EventFlowJsonOptionsMvcConfiguration : IConfigureOptions<MvcJsonOptions>
+    {
+        private readonly IJsonOptions _jsonOptions;
 
-		public AddUriMetadataProvider(
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpContextAccessor = httpContextAccessor;
-		}
+        public EventFlowJsonOptionsMvcConfiguration(IJsonOptions jsonOptions)
+        {
+            _jsonOptions = jsonOptions;
+        }
 
-		public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
-			TIdentity id,
-			IAggregateEvent aggregateEvent,
-			IMetadata metadata)
-			where TAggregate : IAggregateRoot<TIdentity>
-			where TIdentity : IIdentity
-		{
-		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
-
-		    var request = httpContext.Request;
-		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
-			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
-			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());
-		}
-	}
+        public void Configure(MvcJsonOptions options)
+        {
+            _jsonOptions.Apply(options.SerializerSettings);
+        }
+    }
 }

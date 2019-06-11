@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,27 +21,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.AspNetCore.ServiceProvider;
-using EventFlow.Extensions;
-using Microsoft.Extensions.Hosting;
+using System;
 
 namespace EventFlow.AspNetCore.Extensions
 {
-	using Configuration;
-	using Microsoft.AspNetCore.Http;
+    public static class EventFlowOptionsExtensions
+    {
+        public static IEventFlowOptions AddAspNetCore(
+            this IEventFlowOptions options,
+            Action<AspNetCoreEventFlowOptions> configuratioAction = null)
+        {
+            var aspNetCoreOptions = new AspNetCoreEventFlowOptions(options);
+            if (configuratioAction == null) configuratioAction = o => o.UseDefaults();
 
-	public static class EventFlowOptionsExtensions
-	{
-		public static IEventFlowOptions AddAspNetCoreMetadataProviders(
-			this IEventFlowOptions eventFlowOptions)
-		{
-			return eventFlowOptions
-				.RegisterServices(sr =>
-			    {
-			        sr.Register(typeof(IHttpContextAccessor), typeof(HttpContextAccessor), Lifetime.Singleton);
-			        sr.Register(typeof(IHostedService), typeof(HostedBootstrapper), Lifetime.Singleton);
-			    })
-				.AddMetadataProviders(EventFlowAspNetCore.Assembly);
-		}
-	}
+            configuratioAction(aspNetCoreOptions);
+
+            return options;
+        }
+
+        [Obsolete("Use AddAspNetCore(o => o...)")]
+        public static IEventFlowOptions AddAspNetCoreMetadataProviders(
+            this IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.AddAspNetCore();
+        }
+    }
 }

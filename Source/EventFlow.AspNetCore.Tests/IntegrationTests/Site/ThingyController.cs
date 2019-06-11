@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.ValueObjects;
 
 namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
@@ -42,14 +43,30 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 			_commandBus = commandBus;
 		}
 
-		[HttpGet]
-		[Route("ping")]
-		public async Task<IActionResult> Ping(string id)
+		[HttpGet("ping")]
+		public async Task<IActionResult> Ping(ThingyId id)
 		{
-			var testId = ThingyId.With(id);
-			var pingCommand = new ThingyPingCommand(testId, PingId.New);
+			var pingCommand = new ThingyPingCommand(id, PingId.New);
 			await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
 			return Ok();
 		}
+
+	    [HttpGet("singlevalue/{value}")]
+	    public IActionResult SingleValue(TestValue value)
+	    {
+	        if (!ModelState.IsValid)
+	        {
+	            return BadRequest(ModelState);
+	        }
+
+	        return Ok(value);
+	    }
+
+	    public class TestValue : SingleValueObject<int>
+	    {
+	        public TestValue(int value) : base(value)
+	        {
+	        }
+	    }
 	}
 }

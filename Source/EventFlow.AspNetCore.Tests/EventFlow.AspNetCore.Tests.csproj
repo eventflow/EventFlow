@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
@@ -13,11 +13,12 @@
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.AspNetCore\EventFlow.AspNetCore.csproj" />
-    <ProjectReference Include="..\EventFlow.Autofac\EventFlow.Autofac.csproj" />
+    <ProjectReference Include="..\EventFlow.DependencyInjection\EventFlow.DependencyInjection.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
 
