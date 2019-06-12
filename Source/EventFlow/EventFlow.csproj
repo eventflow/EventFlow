@@ -10,11 +10,11 @@
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
-    <Description>Async/await first CQRS+ES and DDD framework for .NET - http://geteventflow.net/</Description>
+    <Description>Async/await first CQRS+ES and DDD framework for .NET - https://geteventflow.net/</Description>
     <PackageTags>CQRS ES event sourcing</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
-    <PackageProjectUrl>http://docs.geteventflow.net/</PackageProjectUrl>
+    <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
