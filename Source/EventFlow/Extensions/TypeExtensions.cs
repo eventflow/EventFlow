@@ -122,10 +122,12 @@ namespace EventFlow.Extensions
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(mi =>
                     {
-                        if (mi.Name != "Apply" && !mi.Name.EndsWith(".Apply"))
+                        if (!string.Equals(mi.Name, "Apply", StringComparison.Ordinal) &&
+                            !mi.Name.EndsWith(".Apply", StringComparison.Ordinal))
                         {
                             return false;
                         }
+
                         var parameters = mi.GetParameters();
                         return
                             parameters.Length == 1 &&
