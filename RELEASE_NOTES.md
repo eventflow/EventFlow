@@ -1,6 +1,6 @@
 ### New in 0.74 (not released yet)
 
-* _Nothing yet_
+* Fix: Allow explicit implementations of `IEmit<>` in aggregate roots
 
 ### New in 0.73.3933 (released 2019-06-11)
 

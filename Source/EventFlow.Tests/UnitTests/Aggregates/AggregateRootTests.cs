@@ -24,7 +24,6 @@
 using System;
 using System.Linq;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -102,7 +101,17 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         }
 
         [Test]
-        public void UncomittedEventIdsShouldBeDistinct()
+        public void ApplyIsInvokedForExplicitImplementations()
+        {
+            // Act
+            Sut.Delete();
+
+            // Assert
+            Sut.IsDeleted.Should().BeTrue();
+        }
+
+        [Test]
+        public void UncommittedEventIdsShouldBeDistinct()
         {
             // Act
             Sut.Ping(A<PingId>());
@@ -115,7 +124,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         }
 
         [Test]
-        public void UncomittedEventIdsShouldBeDeterministic()
+        public void UncommittedEventIdsShouldBeDeterministic()
         {
             // Arrange
             Inject(ThingyId.With("thingy-75e925aa-9b01-4615-89ee-2a2ecf91d7e8"));
