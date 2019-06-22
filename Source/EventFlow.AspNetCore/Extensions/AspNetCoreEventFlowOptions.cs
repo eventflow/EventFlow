@@ -25,10 +25,8 @@ using System;
 using EventFlow.AspNetCore.Configuration;
 using EventFlow.AspNetCore.Logging;
 using EventFlow.AspNetCore.MetadataProviders;
-using EventFlow.AspNetCore.ModelBinding;
 using EventFlow.AspNetCore.ServiceProvider;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Serialization;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -42,7 +40,6 @@ namespace EventFlow.AspNetCore.Extensions
     public class AspNetCoreEventFlowOptions
     {
         private readonly IEventFlowOptions _options;
-        private bool _hasHttpContextAccessor;
 
         public AspNetCoreEventFlowOptions(IEventFlowOptions options)
         {
@@ -73,32 +70,38 @@ namespace EventFlow.AspNetCore.Extensions
 
         public AspNetCoreEventFlowOptions UseLogging()
         {
-            return Register<ILog, AspNetCoreLoggerLog>();
+            _options.RegisterServices(s => s.Register<ILog, AspNetCoreLoggerLog>());
+            return this;
         }
 
         public AspNetCoreEventFlowOptions UseDefaults()
         {
-            return RunBootstrapperOnHostStartup().AddMetadataProviders();
+            return RunBootstrapperOnHostStartup().AddDefaultMetadataProviders();
         }
 
         public AspNetCoreEventFlowOptions RunBootstrapperOnHostStartup()
         {
-            return Register<IHostedService, HostedBootstrapper>(Lifetime.Singleton);
+            _options.RegisterServices(s => s.Register<IHostedService, HostedBootstrapper>(Lifetime.Singleton));
+            return this;
         }
 
-        public AspNetCoreEventFlowOptions AddMetadataProviders()
+        public AspNetCoreEventFlowOptions AddDefaultMetadataProviders()
         {
-            _options.AddMetadataProviders(typeof(AspNetCoreEventFlowOptions).Assembly);
+            AddRequestHeadersMetadata();
+            AddUriMetadata();
+            AddUserHostAddressMetadata();
             return this;
         }
 
         public AspNetCoreEventFlowOptions UseMvcJsonOptions()
         {
-            _options.RegisterServices(s => s.Register<IConfigureOptions<MvcJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
+            _options.RegisterServices(s =>
+                s.Register<IConfigureOptions<MvcJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
             return this;
         }
 
-        public AspNetCoreEventFlowOptions UseModelBinding(Action<EventFlowModelBindingMvcConfiguration> configureModelBinding = null)
+        public AspNetCoreEventFlowOptions UseModelBinding(
+            Action<EventFlowModelBindingMvcConfiguration> configureModelBinding = null)
         {
             var modelBindingOptions = new EventFlowModelBindingMvcConfiguration();
             configureModelBinding?.Invoke(modelBindingOptions);
@@ -108,21 +111,11 @@ namespace EventFlow.AspNetCore.Extensions
 
         private AspNetCoreEventFlowOptions RegisterMetadataProvider<T>() where T : class, IMetadataProvider
         {
-            if (!_hasHttpContextAccessor)
-            {
-                Register<IHttpContextAccessor, HttpContextAccessor>(Lifetime.Singleton);
-                _hasHttpContextAccessor = true;
-            }
+            _options
+                .AddMetadataProvider<T>()
+                .RegisterServices(s =>
+                    s.Register<IHttpContextAccessor, HttpContextAccessor>(Lifetime.Singleton, true));
 
-            _options.AddMetadataProvider<T>();
-            return this;
-        }
-
-        private AspNetCoreEventFlowOptions Register<TService, T>(Lifetime lifetime = Lifetime.AlwaysUnique)
-            where T : class, TService
-            where TService : class
-        {
-            _options.RegisterServices(s => s.Register<TService, T>(lifetime));
             return this;
         }
     }

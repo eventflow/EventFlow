@@ -27,46 +27,50 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.ValueObjects;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
-	using Microsoft.AspNetCore.Mvc;
+    [Route("thingy")]
+    public class ThingyController : Controller
+    {
+        private readonly ICommandBus _commandBus;
 
-	[Route("thingy")]
-	public class ThingyController : Controller
-	{
-		private readonly ICommandBus _commandBus;
+        public ThingyController(
+            ICommandBus commandBus)
+        {
+            _commandBus = commandBus;
+        }
 
-		public ThingyController(
-			ICommandBus commandBus)
-		{
-			_commandBus = commandBus;
-		}
+        [HttpGet("ping")]
+        public async Task<IActionResult> Ping(string id)
+        {
+            ThingyPingCommand pingCommand = new ThingyPingCommand(ThingyId.With(id), PingId.New);
+            await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
+            return Ok();
+        }
 
-		[HttpGet("ping")]
-		public async Task<IActionResult> Ping(ThingyId id)
-		{
-			var pingCommand = new ThingyPingCommand(id, PingId.New);
-			await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
-			return Ok();
-		}
+        [HttpGet("pingWithModelBinding")]
+        public async Task<IActionResult> PingWithModelBinding(ThingyId id)
+        {
+            ThingyPingCommand pingCommand = new ThingyPingCommand(id, PingId.New);
+            await _commandBus.PublishAsync(pingCommand, CancellationToken.None).ConfigureAwait(false);
+            return Ok();
+        }
 
-	    [HttpGet("singlevalue/{value}")]
-	    public IActionResult SingleValue(TestValue value)
-	    {
-	        if (!ModelState.IsValid)
-	        {
-	            return BadRequest(ModelState);
-	        }
+        [HttpGet("singlevalue/{value}")]
+        public IActionResult SingleValue(TestValue value)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-	        return Ok(value);
-	    }
+            return Ok(value);
+        }
 
-	    public class TestValue : SingleValueObject<int>
-	    {
-	        public TestValue(int value) : base(value)
-	        {
-	        }
-	    }
-	}
+        public class TestValue : SingleValueObject<int>
+        {
+            public TestValue(int value) : base(value)
+            {
+            }
+        }
+    }
 }
