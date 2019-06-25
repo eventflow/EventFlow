@@ -22,49 +22,49 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using EventFlow.AspNetCore.Extensions;
-using EventFlow.AspNetCore.Middlewares;
-using EventFlow.Configuration;
-using EventFlow.DependencyInjection.Extensions;
-using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Queries;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
 {
-    public class Startup
+    [Category(Categories.Integration)]
+    public class DefaultConfigurationTests : SiteTestsBase
     {
-        public void ConfigureServices(IServiceCollection services)
+        [Test]
+        public async Task Ping()
         {
-            services.AddMvc();
-
-            services.AddLogging(logging => logging
-                .AddConsole()
-                .SetMinimumLevel(LogLevel.Debug));
-
-            services
-                .AddEventFlow(o => o
-                    .AddDefaults(EventFlowTestHelpers.Assembly)
-                    .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                    .ConfigureJson(j => j
-                        .AddSingleValueObjects())
-                    .AddAspNetCore(c => c
-                        .RunBootstrapperOnHostStartup()
-                        .UseMvcJsonOptions()
-                        .UseModelBinding()
-                        .AddUserClaimsMetadata()
-                        .UseLogging()
-                    ));
+            // Act
+            await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
+            await GetAsync("thingy/ping?id=thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3").ConfigureAwait(false);
         }
 
-        public void Configure(IApplicationBuilder app)
+        [Test]
+        public async Task PublishCommand()
         {
-            app.UseMiddleware<TestAuthenticationMiddleware>();
-            app.UseMiddleware<CommandPublishMiddleware>();
-            app.UseMvcWithDefaultRoute();
+            // Arrange
+            ThingyPingCommand pingCommand = A<ThingyPingCommand>();
+
+            // Act
+            await PostAsync("commands/ThingyPing/1", pingCommand).ConfigureAwait(false);
+        }
+
+        [Test]
+        public void PublishCommand_WithNull_ThrowsException()
+        {
+            // Arrange + Act
+            Action action = () => Task.WaitAll(PostAsync("commands/ThingyPing/1", null));
+
+            action.Should().Throw<HttpRequestException>("because of command is null.");
+        }
+
+        protected override void ConfigureAspNetCore(AspNetCoreEventFlowOptions options)
+        {
+            options.UseDefaults();
         }
     }
 }

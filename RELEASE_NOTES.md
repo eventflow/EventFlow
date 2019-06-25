@@ -1,6 +1,11 @@
 ### New in 0.74 (not released yet)
 
+* Breaking: Renamed `AspNetCoreEventFlowOptions.AddMetadataProviders()` 
+  to `AddDefaultMetadataProviders()` and made `AddUserClaimsMetadata` opt-in
+  in order to prevent policy issues. 
 * Fix: Allow explicit implementations of `IEmit<>` in aggregate roots
+* Fix: Using `.AddAspNetCore()` with defaults now doesn't throw a DI
+  exception.
 
 ### New in 0.73.3933 (released 2019-06-11)
 

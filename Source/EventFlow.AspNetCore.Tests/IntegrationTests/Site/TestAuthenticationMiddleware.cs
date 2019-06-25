@@ -43,10 +43,10 @@ namespace EventFlow.AspNetCore.Tests.IntegrationTests.Site
                 new Claim(ClaimTypes.Sid, "test-sid"),
                 new Claim(ClaimTypes.Name, "test-name"),
                 new Claim(ClaimTypes.Role, "test-role-1"),
-                new Claim(ClaimTypes.Role, "test-role-2"),
+                new Claim(ClaimTypes.Role, "test-role-2")
             };
 
-            var identity = new ClaimsIdentity(claims);
+            ClaimsIdentity identity = new ClaimsIdentity(claims);
             context.User = new ClaimsPrincipal(identity);
 
             return _next(context);
