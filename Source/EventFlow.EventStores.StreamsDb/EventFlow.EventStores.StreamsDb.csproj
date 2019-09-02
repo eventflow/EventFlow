@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EventFlow" Version="0.74.3948" />
+    <PackageReference Include="StreamsDB.Driver" Version="0.9.3-dev.23" />
+  </ItemGroup>
+
+</Project>
