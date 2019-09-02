@@ -166,6 +166,11 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             obj1.Equals(obj2).Should().BeFalse();
         }
 
+        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
         [JsonConverter(typeof(SingleValueObjectConverter))]
         public class IntSingleValue : SingleValueObject<int>
         {
@@ -184,7 +189,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         }
 
         [Test]
-        public void NullableIntWithoutValue()
+        public void DeserializeNullableIntWithoutValue()
         {
             // Arrange
             var json = JsonConvert.SerializeObject(new { });
@@ -198,7 +203,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         }
 
         [Test]
-        public void NullableIntWithValue()
+        public void DeserializeNullableIntWithValue()
         {
             // Arrange
             var i = A<int>();
@@ -210,6 +215,32 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Assert
             with.Should().NotBeNull();
             with.I.Value.Should().Be(i);
+        }
+
+        [Test]
+        public void SerializeNullableIntWithoutValue()
+        {
+            // Arrange
+            var with = new WithNullableIntSingleValue(null);
+
+            // Act
+            var json = JsonConvert.SerializeObject(with, Settings);
+
+            // Assert
+            json.Should().Be("{}");
+        }
+
+        [Test]
+        public void SerializeNullableIntWithValue()
+        {
+            // Arrange
+            var with = new WithNullableIntSingleValue(new IntSingleValue(42));
+
+            // Act
+            var json = JsonConvert.SerializeObject(with, Settings);
+
+            // Assert
+            json.Should().Be("{\"I\":42}");
         }
     }
 }
