@@ -26,6 +26,7 @@ using System.Linq;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
@@ -163,6 +164,52 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Assert
             (obj1 == obj2).Should().BeFalse();
             obj1.Equals(obj2).Should().BeFalse();
+        }
+
+        [JsonConverter(typeof(SingleValueObjectConverter))]
+        public class IntSingleValue : SingleValueObject<int>
+        {
+            public IntSingleValue(int value) : base(value) { }
+        }
+
+        public class WithNullableIntSingleValue
+        {
+            public IntSingleValue I { get; }
+
+            public WithNullableIntSingleValue(
+                IntSingleValue i)
+            {
+                I = i;
+            }
+        }
+
+        [Test]
+        public void NullableIntWithoutValue()
+        {
+            // Arrange
+            var json = JsonConvert.SerializeObject(new { });
+
+            // Act
+            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+
+            // Assert
+            with.Should().NotBeNull();
+            with.I.Should().BeNull();
+        }
+
+        [Test]
+        public void NullableIntWithValue()
+        {
+            // Arrange
+            var i = A<int>();
+            var json = JsonConvert.SerializeObject(new { i });
+
+            // Act
+            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+
+            // Assert
+            with.Should().NotBeNull();
+            with.I.Value.Should().Be(i);
         }
     }
 }
