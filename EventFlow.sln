@@ -101,6 +101,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB", "Source
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB.Tests", "Source\EventFlow.MongoDB.Tests\EventFlow.MongoDB.Tests.csproj", "{2D837E47-E92B-422E-AC29-AB5607E9E6D1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StreamsDb", "StreamsDb", "{5031948C-F60C-477A-BEDE-ABEC84A38BCE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.EventStores.StreamsDb", "Source\EventFlow.EventStores.StreamsDb\EventFlow.EventStores.StreamsDb.csproj", "{68118439-8371-4AB4-B4B2-13FFFF430390}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -243,6 +247,10 @@ Global
 		{2D837E47-E92B-422E-AC29-AB5607E9E6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D837E47-E92B-422E-AC29-AB5607E9E6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D837E47-E92B-422E-AC29-AB5607E9E6D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68118439-8371-4AB4-B4B2-13FFFF430390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68118439-8371-4AB4-B4B2-13FFFF430390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68118439-8371-4AB4-B4B2-13FFFF430390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68118439-8371-4AB4-B4B2-13FFFF430390}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -282,6 +290,7 @@ Global
 		{5B2706DA-B66C-4CD9-8441-8C9BDACB8348} = {92F3C263-8C0C-4D12-B41A-452E48D2E5E8}
 		{C34BFD0C-E7CD-4DEE-A1F4-8FBE9DE0B239} = {7832AC5E-5CE2-4694-BA43-E53222B75EDC}
 		{2D837E47-E92B-422E-AC29-AB5607E9E6D1} = {7832AC5E-5CE2-4694-BA43-E53222B75EDC}
+		{68118439-8371-4AB4-B4B2-13FFFF430390} = {5031948C-F60C-477A-BEDE-ABEC84A38BCE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17607E2C-4E8E-45A2-85BD-0A5808E1C0F3}
