@@ -128,6 +128,11 @@ namespace EventFlow.Extensions
 
         private static bool IsSubscriberInterface(Type type)
         {
+            if (type == ISubscribeSynchronousToAllType)
+            {
+                return true;
+            }
+
             var typeInfo = type.GetTypeInfo();
             if (!typeInfo.IsGenericType)
             {
@@ -137,8 +142,7 @@ namespace EventFlow.Extensions
             var genericTypeDefinition = type.GetGenericTypeDefinition();
 
             return genericTypeDefinition == ISubscribeSynchronousToType ||
-                   genericTypeDefinition == ISubscribeAsynchronousToType ||
-                   type == ISubscribeSynchronousToAllType;
+                   genericTypeDefinition == ISubscribeAsynchronousToType;
         }
     }
 }
