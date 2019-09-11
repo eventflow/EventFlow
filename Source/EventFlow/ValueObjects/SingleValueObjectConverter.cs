@@ -31,7 +31,7 @@ namespace EventFlow.ValueObjects
 {
     public class SingleValueObjectConverter : JsonConverter
     {
-        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumenTypes = new ConcurrentDictionary<Type, Type>();
+        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumentTypes = new ConcurrentDictionary<Type, Type>();
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -45,7 +45,7 @@ namespace EventFlow.ValueObjects
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var parameterType = ConstructorArgumenTypes.GetOrAdd(
+            var parameterType = ConstructorArgumentTypes.GetOrAdd(
                 objectType,
                 t =>
                     {

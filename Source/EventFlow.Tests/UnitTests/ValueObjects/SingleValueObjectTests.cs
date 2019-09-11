@@ -203,6 +203,20 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         }
 
         [Test]
+        public void DeserializeNullableIntWithNullValue()
+        {
+            // Arrange
+            var json = "{\"i\":null}";
+
+            // Act
+            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+
+            // Assert
+            with.Should().NotBeNull();
+            with.I.Should().BeNull();
+        }
+
+        [Test]
         public void DeserializeNullableIntWithValue()
         {
             // Arrange
