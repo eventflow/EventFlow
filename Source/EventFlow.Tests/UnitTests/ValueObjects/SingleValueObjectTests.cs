@@ -168,7 +168,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
 
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
             {
-                DefaultValueHandling = DefaultValueHandling.Ignore
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
             };
 
         [JsonConverter(typeof(SingleValueObjectConverter))]

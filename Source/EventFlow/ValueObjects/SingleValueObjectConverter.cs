@@ -35,16 +35,21 @@ namespace EventFlow.ValueObjects
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var singleValueObject = value as ISingleValueObject;
-            if (singleValueObject == null)
+            if (!(value is ISingleValueObject singleValueObject))
             {
                 return;
             }
+
             serializer.Serialize(writer, singleValueObject.GetValue());
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            if (reader.Value == null)
+            {
+                return null;
+            }
+
             var parameterType = ConstructorArgumentTypes.GetOrAdd(
                 objectType,
                 t =>
@@ -55,7 +60,8 @@ namespace EventFlow.ValueObjects
                     });
 
             var value = serializer.Deserialize(reader, parameterType);
-            return Activator.CreateInstance(objectType, new[] { value });
+
+            return Activator.CreateInstance(objectType, value);
         }
 
         public override bool CanConvert(Type objectType)
