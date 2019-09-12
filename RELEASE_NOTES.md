@@ -1,4 +1,8 @@
-### New in 0.75 (not released yet)
+### New in 0.76 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.75.3970 (released 2019-09-12)
 
 * Fix: When deserializing the JSON value `"null"` into a struct value like
   `int`, the `SingleValueObjectConverter` threw an exception instead of
