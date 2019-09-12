@@ -168,7 +168,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
 
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
             {
-                DefaultValueHandling = DefaultValueHandling.Ignore
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
             };
 
         [JsonConverter(typeof(SingleValueObjectConverter))]
@@ -193,6 +194,20 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         {
             // Arrange
             var json = JsonConvert.SerializeObject(new { });
+
+            // Act
+            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+
+            // Assert
+            with.Should().NotBeNull();
+            with.I.Should().BeNull();
+        }
+
+        [Test]
+        public void DeserializeNullableIntWithNullValue()
+        {
+            // Arrange
+            var json = "{\"i\":null}";
 
             // Act
             var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
