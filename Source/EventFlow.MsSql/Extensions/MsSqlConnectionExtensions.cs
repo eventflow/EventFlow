@@ -21,21 +21,44 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Sql.Connections;
 
-namespace EventFlow.MsSql
+namespace EventFlow.MsSql.Extensions
 {
-    public interface IMsSqlConnection : ISqlConnection
+    public static class MsSqlConnectionExtensions
     {
-        Task<long> BulkCopyAsync<T>(
+        public static Task<long> BulkCopyAsync<T>(
+            this IMsSqlConnection msSqlConnection,
             Label label,
             string tableName,
-            Func<CancellationToken, Task<IReadOnlyCollection<T>>> factory,
-            CancellationToken cancellationToken);
+            IReadOnlyCollection<T> bulk,
+            CancellationToken cancellationToken)
+        {
+            return BulkCopyAsync(
+                msSqlConnection,
+                label,
+                tableName,
+                new Queue<IReadOnlyCollection<T>>(new []{ bulk }),
+                cancellationToken);
+        }
+
+        public static Task<long> BulkCopyAsync<T>(
+            this IMsSqlConnection msSqlConnection,
+            Label label,
+            string tableName,
+            Queue<IReadOnlyCollection<T>> bulks,
+            CancellationToken cancellationToken)
+        {
+            return msSqlConnection.BulkCopyAsync(
+                label,
+                tableName,
+                c => bulks.Count != 0
+                    ? Task.FromResult(bulks.Dequeue())
+                    : Task.FromResult<IReadOnlyCollection<T>>(null),
+                cancellationToken);
+        }
     }
 }
