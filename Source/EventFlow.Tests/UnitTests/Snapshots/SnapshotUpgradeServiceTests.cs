@@ -23,6 +23,7 @@
 
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
@@ -50,7 +51,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         }
 
         [Test]
-        public void UpgradeAsync_UpgradesSnapshot()
+        public async Task UpgradeAsync_UpgradesSnapshot()
         {
             // Arrange
             var pingIds = Many<PingId>();
@@ -58,7 +59,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             _snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
 
             // Act
-            var snapshot = Sut.UpgradeAsync(new ThingySnapshotV1(pingIds), CancellationToken.None).Result;
+            var snapshot = await Sut.UpgradeAsync(new ThingySnapshotV1(pingIds), CancellationToken.None);
 
             // Assert
             snapshot.Should().BeOfType<ThingySnapshot>();
