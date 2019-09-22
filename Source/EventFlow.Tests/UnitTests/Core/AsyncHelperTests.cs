@@ -141,14 +141,14 @@ namespace EventFlow.Tests.UnitTests.Core
         }
 
         [Test, Explicit("For reference: Will deadlock!")]
-        public void ReferenceDeadlockImplementation1()
+        public async Task ReferenceDeadlockImplementation1()
         {
             // Arrange
             var synchronizationContext = new DispatcherSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(synchronizationContext);
 
             // Act
-            var result = PotentialDeadlockAsync("deadlock").Result;
+            var result = await PotentialDeadlockAsync("deadlock");
 
             // Assert
             // Will NOT be thrown
@@ -156,14 +156,14 @@ namespace EventFlow.Tests.UnitTests.Core
         }
 
         [Test, Explicit("For reference: Will deadlock!")]
-        public void ReferenceDeadlockImplementation2()
+        public async Task ReferenceDeadlockImplementation2()
         {
             // Arrange
             var synchronizationContext = new DispatcherSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(synchronizationContext);
 
             // Act
-            var result = PotentialDeadlockAsync("deadlock").GetAwaiter().GetResult();
+            var result = await PotentialDeadlockAsync("deadlock");
 
             // Assert
             // Will NOT be thrown

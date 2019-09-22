@@ -53,24 +53,24 @@ namespace EventFlow.TestHelpers.Suites
         public void DeleteSnapshotAsync_GetSnapshotAsync_NoneExistingSnapshotDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => SnapshotPersistence.DeleteSnapshotAsync(
+            Assert.DoesNotThrowAsync(async () => await SnapshotPersistence.DeleteSnapshotAsync(
                 typeof(ThingyAggregate),
                 ThingyId.New,
-                CancellationToken.None).Wait());
+                CancellationToken.None));
         }
 
         [Test]
         public void PurgeSnapshotsAsync_NoneExistingSnapshotDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => SnapshotPersistence.PurgeSnapshotsAsync(typeof(ThingyAggregate), CancellationToken.None).Wait());
+            Assert.DoesNotThrowAsync(async () => await SnapshotPersistence.PurgeSnapshotsAsync(typeof(ThingyAggregate), CancellationToken.None));
         }
 
         [Test]
         public void PurgeSnapshotsAsync_EmptySnapshotStoreDoesNotThrow()
         {
             // Act + Assert
-            Assert.DoesNotThrow(() => SnapshotPersistence.PurgeSnapshotsAsync(CancellationToken.None).Wait());
+            Assert.DoesNotThrowAsync(async () => await SnapshotPersistence.PurgeSnapshotsAsync(CancellationToken.None));
         }
 
         [Test]
