@@ -28,6 +28,8 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots.Stores;
 
+#nullable disable
+
 namespace EventFlow.Snapshots
 {
     public class SnapshotStore : ISnapshotStore

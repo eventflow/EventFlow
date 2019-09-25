@@ -31,7 +31,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddDefaults(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
             return eventFlowOptions
                 .AddEvents(fromAssembly, predicate)

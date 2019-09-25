@@ -28,6 +28,8 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.Snapshots.Stores.Null
 {
     public class NullSnapshotPersistence : ISnapshotPersistence

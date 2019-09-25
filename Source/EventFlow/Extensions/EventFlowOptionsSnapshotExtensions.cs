@@ -44,9 +44,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddSnapshots(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var snapshotTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISnapshot).GetTypeInfo().IsAssignableFrom(t))
@@ -57,10 +57,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddSnapshotUpgraders(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
-
+            predicate ??= t => true;
             var snapshotUpgraderTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.GetTypeInfo().IsAbstract)

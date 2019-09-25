@@ -145,8 +145,16 @@ namespace EventFlow
 
         private class CommandExecutionDetails
         {
-            public Type CommandHandlerType { get; set; }
-            public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; set; } 
+            public Type CommandHandlerType { get; }
+            public Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> Invoker { get; }
+
+            public CommandExecutionDetails(
+                Type commandHandlerType,
+                Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task> invoker)
+            {
+                CommandHandlerType = commandHandlerType;
+                Invoker = invoker;
+            }
         }
 
         private const string NameOfExecuteCommand = nameof(
@@ -177,11 +185,7 @@ namespace EventFlow
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
                             commandHandlerType, NameOfExecuteCommand);
 
-                        return Task.FromResult(new CommandExecutionDetails
-                            {
-                                CommandHandlerType = commandHandlerType,
-                                Invoker = invokeExecuteAsync
-                            });
+                        return Task.FromResult(new CommandExecutionDetails(commandHandlerType, invokeExecuteAsync));
                     },
                 cancellationToken);
         }

@@ -75,7 +75,7 @@ namespace EventFlow.Aggregates
             return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
 
-        protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
+        protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata? metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
             if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
@@ -188,7 +188,7 @@ namespace EventFlow.Aggregates
                         $"Aggregate '{Name}' does have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
                 }
 
-                applyMethod(this as TAggregate, aggregateEvent);
+                applyMethod((this as TAggregate)!, aggregateEvent);
             }
 
             Version++;

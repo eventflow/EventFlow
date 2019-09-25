@@ -24,6 +24,8 @@
 using System;
 using EventFlow.Configuration;
 
+#nullable disable
+
 namespace EventFlow.Core.IoC.Factories
 {
     internal class LambdaFactory<TService> : IFactory

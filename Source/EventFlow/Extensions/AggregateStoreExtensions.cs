@@ -48,7 +48,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregate = default(TAggregate);
+            var aggregate = default(TAggregate)!;
 
             using (var a = AsyncHelper.Wait)
             {
@@ -86,7 +86,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            IReadOnlyCollection<IDomainEvent> domainEvents = null;
+            IReadOnlyCollection<IDomainEvent> domainEvents = null!;
 
             using (var a = AsyncHelper.Wait)
             {
@@ -114,7 +114,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            IReadOnlyCollection<IDomainEvent> domainEvents = null;
+            IReadOnlyCollection<IDomainEvent> domainEvents = null!;
 
             using (var a = AsyncHelper.Wait)
             {

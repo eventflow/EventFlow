@@ -49,12 +49,28 @@ namespace EventFlow.EventStores.InMemory
 
         private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
         {
-            public long GlobalSequenceNumber { get; set; }
-            public string AggregateId { get; set; }
-            public string AggregateName { private get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
-            public int AggregateSequenceNumber { get; set; }
+            public long GlobalSequenceNumber { get; }
+            public string AggregateId { get; }
+            public string AggregateName { get; }
+            public string Data { get; }
+            public string Metadata { get; }
+            public int AggregateSequenceNumber { get; }
+
+            public InMemoryCommittedDomainEvent(
+                long globalSequenceNumber,
+                string aggregateId,
+                string data,
+                string metadata,
+                int aggregateSequenceNumber,
+                string aggregateName)
+            {
+                GlobalSequenceNumber = globalSequenceNumber;
+                AggregateId = aggregateId;
+                Data = data;
+                Metadata = metadata;
+                AggregateSequenceNumber = aggregateSequenceNumber;
+                AggregateName = aggregateName;
+            }
 
             public override string ToString()
             {
@@ -157,16 +173,14 @@ namespace EventFlow.EventStores.InMemory
                 var newCommittedDomainEvents = serializedEvents
                     .Select((e, i) =>
                         {
-                            var committedDomainEvent = new InMemoryCommittedDomainEvent
-                                {
-                                    AggregateId = id.Value,
-                                    AggregateName = e.Metadata[MetadataKeys.AggregateName],
-                                    AggregateSequenceNumber = e.AggregateSequenceNumber,
-                                    Data = e.SerializedData,
-                                    Metadata = e.SerializedMetadata,
-                                    GlobalSequenceNumber = globalCount + i + 1,
-                                };
-                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                            var committedDomainEvent = new InMemoryCommittedDomainEvent(
+                                globalCount + 1,
+                                id.Value,
+                                e.SerializedData,
+                                e.SerializedMetadata,
+                                e.AggregateSequenceNumber,
+                                e.Metadata[MetadataKeys.AggregateName]);
+                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent);
                             return committedDomainEvent;
                         })
                     .ToList();

@@ -29,6 +29,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.Core.Caching
 {
     public class MemoryCache : Cache, IMemoryCache, IDisposable

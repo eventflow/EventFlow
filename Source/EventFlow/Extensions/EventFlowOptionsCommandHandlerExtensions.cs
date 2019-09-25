@@ -34,9 +34,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddCommandHandlers(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var commandHandlerTypes = fromAssembly
                 .GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsCommandHandlerInterface))

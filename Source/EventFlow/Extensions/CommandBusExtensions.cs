@@ -49,7 +49,7 @@ namespace EventFlow.Extensions
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            var result = default(TExecutionResult);
+            var result = default(TExecutionResult)!;
 
             using (var a = AsyncHelper.Wait)
             {

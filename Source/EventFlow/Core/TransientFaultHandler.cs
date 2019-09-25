@@ -28,6 +28,8 @@ using System.Threading.Tasks;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.Core
 {
     public class TransientFaultHandler<TRetryStrategy> : ITransientFaultHandler<TRetryStrategy>

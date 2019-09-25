@@ -55,9 +55,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddEventUpgraders(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var eventUpgraderTypes = fromAssembly
                 .GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsEventUpgraderInterface))

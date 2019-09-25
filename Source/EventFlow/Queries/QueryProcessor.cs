@@ -32,6 +32,8 @@ using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.Queries
 {
     public class QueryProcessor : IQueryProcessor
@@ -75,7 +77,7 @@ namespace EventFlow.Queries
             IQuery<TResult> query,
             CancellationToken cancellationToken)
         {
-            var result = default(TResult);
+            var result = default(TResult)!;
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(ProcessAsync(query, cancellationToken), r => result = r);

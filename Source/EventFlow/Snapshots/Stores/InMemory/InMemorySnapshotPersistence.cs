@@ -29,6 +29,8 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.Snapshots.Stores.InMemory
 {
     public class InMemorySnapshotPersistence : ISnapshotPersistence
@@ -50,14 +52,12 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     return null;
                 }
 
-                CommittedSnapshot committedSnapshot;
-                return snapshots.TryGetValue(identity.Value, out committedSnapshot)
+                return snapshots.TryGetValue(identity.Value, out var committedSnapshot)
                     ? committedSnapshot
                     : null;
             }
@@ -73,8 +73,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
             {
                 _log.Verbose(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     snapshots = new Dictionary<string, CommittedSnapshot>();
                     _snapshots[aggregateType] = snapshots;
@@ -93,8 +92,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
             {
                 _log.Verbose(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     return;
                 }

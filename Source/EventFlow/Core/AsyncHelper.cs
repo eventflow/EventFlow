@@ -29,6 +29,8 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
+#nullable disable
+
 namespace EventFlow.Core
 {
     using EventTask = Tuple<SendOrPostCallback, object>;

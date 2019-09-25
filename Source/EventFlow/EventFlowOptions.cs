@@ -49,6 +49,8 @@ using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;
 using EventFlow.Subscribers;
 
+#nullable disable
+
 namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions

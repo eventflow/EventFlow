@@ -34,6 +34,8 @@ using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.Subscribers
 {
     public class DispatchToEventSubscribers : IDispatchToEventSubscribers

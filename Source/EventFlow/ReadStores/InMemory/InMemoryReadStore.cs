@@ -30,6 +30,8 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Logs;
 
+#nullable disable
+
 namespace EventFlow.ReadStores.InMemory
 {
     public class InMemoryReadStore<TReadModel> : ReadModelStore<TReadModel>, IInMemoryReadStore<TReadModel>

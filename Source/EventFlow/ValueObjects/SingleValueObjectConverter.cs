@@ -27,6 +27,8 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 
+#nullable disable
+
 namespace EventFlow.ValueObjects
 {
     public class SingleValueObjectConverter : JsonConverter

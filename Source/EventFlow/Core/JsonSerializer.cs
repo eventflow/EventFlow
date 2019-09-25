@@ -32,7 +32,7 @@ namespace EventFlow.Core
         private readonly JsonSerializerSettings _settingsNotIndented = new JsonSerializerSettings();
         private readonly JsonSerializerSettings _settingsIndented = new JsonSerializerSettings();
 
-        public JsonSerializer(IJsonOptions options = null)
+        public JsonSerializer(IJsonOptions? options = null)
         {
             options?.Apply(_settingsIndented);
             options?.Apply(_settingsNotIndented);

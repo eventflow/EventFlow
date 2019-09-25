@@ -81,9 +81,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddSubscribers(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var types = fromAssembly
                 .GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsSubscriberInterface))

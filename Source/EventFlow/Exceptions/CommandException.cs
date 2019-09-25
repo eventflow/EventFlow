@@ -31,7 +31,7 @@ namespace EventFlow.Exceptions
     {
         public Type CommandType { get; }
         public ISourceId SourceId { get; }
-        public IExecutionResult ExecutionResult { get; }
+        public IExecutionResult? ExecutionResult { get; }
 
         public CommandException(Type commandType, ISourceId sourceId, string message)
             : base(message)

@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+#nullable disable
+
 namespace EventFlow.Configuration.Decorators
 {
     public class DecoratorService : IDecoratorService

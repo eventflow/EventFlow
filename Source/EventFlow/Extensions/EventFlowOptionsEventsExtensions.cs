@@ -34,9 +34,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddEvents(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var aggregateEventTypes = fromAssembly
                 .GetTypes()
                 .Where(t => !t.GetTypeInfo().IsAbstract && typeof(IAggregateEvent).GetTypeInfo().IsAssignableFrom(t))

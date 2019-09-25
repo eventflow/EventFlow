@@ -45,17 +45,39 @@ namespace EventFlow.EventStores.Files
 
         public class FileEventData : ICommittedDomainEvent
         {
-            public long GlobalSequenceNumber { get; set; }
-            public string AggregateId { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
-            public int AggregateSequenceNumber { get; set; }
+            public long GlobalSequenceNumber { get; }
+            public string AggregateId { get; }
+            public string Data { get; }
+            public string Metadata { get; }
+            public int AggregateSequenceNumber { get; }
+
+            public FileEventData(
+                long globalSequenceNumber,
+                string aggregateId,
+                string data,
+                string metadata,
+                int aggregateSequenceNumber)
+            {
+                GlobalSequenceNumber = globalSequenceNumber;
+                AggregateId = aggregateId;
+                Data = data;
+                Metadata = metadata;
+                AggregateSequenceNumber = aggregateSequenceNumber;
+            }
         }
 
         public class EventStoreLog
         {
-            public long GlobalSequenceNumber { get; set; }
-            public Dictionary<long, string> Log { get; set; }
+            public long GlobalSequenceNumber { get; }
+            public Dictionary<long, string> Log { get; }
+
+            public EventStoreLog(
+                long globalSequenceNumber,
+                Dictionary<long, string> log)
+            {
+                GlobalSequenceNumber = globalSequenceNumber;
+                Log = log;
+            }
         }
 
         public FilesEventPersistence(
@@ -152,14 +174,12 @@ namespace EventFlow.EventStores.Files
                     _globalSequenceNumber++;
                     _eventLog[_globalSequenceNumber] = eventPath;
 
-                    var fileEventData = new FileEventData
-                    {
-                        AggregateId = id.Value,
-                        AggregateSequenceNumber = serializedEvent.AggregateSequenceNumber,
-                        Data = serializedEvent.SerializedData,
-                        Metadata = serializedEvent.SerializedMetadata,
-                        GlobalSequenceNumber = _globalSequenceNumber,
-                    };
+                    var fileEventData = new FileEventData(
+                        _globalSequenceNumber,
+                        id.Value,
+                        serializedEvent.SerializedData,
+                        serializedEvent.SerializedMetadata,
+                        serializedEvent.AggregateSequenceNumber);
 
                     var json = _jsonSerializer.Serialize(fileEventData, true);
 
@@ -179,11 +199,7 @@ namespace EventFlow.EventStores.Files
                         _globalSequenceNumber,
                         _logFilePath);
                     var json = _jsonSerializer.Serialize(
-                        new EventStoreLog
-                        {
-                            GlobalSequenceNumber = _globalSequenceNumber,
-                            Log = _eventLog
-                        },
+                        new EventStoreLog(_globalSequenceNumber, _eventLog),
                         true);
                     await streamWriter.WriteAsync(json).ConfigureAwait(false);
                 }
@@ -269,11 +285,9 @@ namespace EventFlow.EventStores.Files
                 })
                 .ToDictionary(a => a.GlobalSequenceNumber, a => a.Path);
 
-            return new EventStoreLog
-            {
-                GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
-                Log = directory,
-            };
+            return new EventStoreLog(
+                directory.Keys.Any() ? directory.Keys.Max() : 0,
+                directory);
         }
     }
 }

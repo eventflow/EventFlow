@@ -52,9 +52,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddMetadataProviders(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type>? predicate = null)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var metadataProviderTypes = fromAssembly
                 .GetTypes()
                 .Where(IsMetadataProvider)

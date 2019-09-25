@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.ReadStores;
 
+#nullable disable
+
 namespace EventFlow.Queries
 {
     public class ReadModelByIdQuery<TReadModel> : IQuery<TReadModel>

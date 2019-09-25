@@ -46,14 +46,14 @@ namespace EventFlow.ReadStores
     {
         private ReadModelEnvelope(
             string readModelId,
-            TReadModel readModel,
+            TReadModel? readModel,
             long? version)
             : base(readModelId, version)
         {
             ReadModel = readModel;
         }
 
-        public TReadModel ReadModel { get; }
+        public TReadModel? ReadModel { get; }
 
         public static ReadModelEnvelope<TReadModel> Empty(string readModelId)
         {

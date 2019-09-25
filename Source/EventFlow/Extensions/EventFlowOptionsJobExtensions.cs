@@ -40,9 +40,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddJobs(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate)
+            Predicate<Type>? predicate)
         {
-            predicate = predicate ?? (t => true);
+            predicate ??= t => true;
             var jobTypes = fromAssembly
                 .GetTypes()
                 .Where(type => !type.GetTypeInfo().IsAbstract && type.IsAssignableTo<IJob>())

@@ -48,7 +48,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents = null;
+            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents = null!;
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(eventStore.LoadEventsAsync<TAggregate, TIdentity>(id, cancellationToken), d => domainEvents = d);
@@ -70,7 +70,7 @@ namespace EventFlow.Extensions
             int pageSize,
             CancellationToken cancellationToken)
         {
-            AllEventsPage allEventsPage = null;
+            AllEventsPage allEventsPage = null!;
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(eventStore.LoadAllEventsAsync(globalPosition, pageSize, cancellationToken), p => allEventsPage = p);
@@ -86,7 +86,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            var aggregate = default(TAggregate);
+            var aggregate = default(TAggregate)!;
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(eventStore.LoadAggregateAsync<TAggregate, TIdentity>(id, cancellationToken), r => aggregate = r);
