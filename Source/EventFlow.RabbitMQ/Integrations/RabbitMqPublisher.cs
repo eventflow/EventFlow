@@ -97,8 +97,7 @@ namespace EventFlow.RabbitMQ.Integrations
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                IRabbitConnection rabbitConnection;
-                if (_connections.TryGetValue(uri, out rabbitConnection))
+                if (_connections.TryGetValue(uri, out var rabbitConnection))
                 {
                     return rabbitConnection;
                 }

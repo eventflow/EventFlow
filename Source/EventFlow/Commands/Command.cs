@@ -49,10 +49,9 @@ namespace EventFlow.Commands
         protected Command(TIdentity aggregateId, ISourceId sourceId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
-            if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
 
             AggregateId = aggregateId;
-            SourceId = sourceId;
+            SourceId = sourceId ?? throw new ArgumentNullException(nameof(aggregateId));
         }
 
         public async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)

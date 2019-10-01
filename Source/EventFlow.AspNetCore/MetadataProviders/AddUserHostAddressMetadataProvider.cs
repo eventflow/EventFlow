@@ -27,7 +27,6 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 
 namespace EventFlow.AspNetCore.MetadataProviders
 {

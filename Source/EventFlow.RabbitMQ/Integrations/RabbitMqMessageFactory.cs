@@ -50,11 +50,8 @@ namespace EventFlow.RabbitMQ.Integrations
                 domainEvent.GetAggregateEvent(),
                 domainEvent.Metadata);
 
-            var routingKey = new RoutingKey(string.Format(
-                "eventflow.domainevent.{0}.{1}.{2}",
-                domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug(),
-                domainEvent.Metadata.EventName.ToSlug(),
-                domainEvent.Metadata.EventVersion));
+            var routingKey = new RoutingKey(
+                $"eventflow.domainevent.{domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug()}.{domainEvent.Metadata.EventName.ToSlug()}.{domainEvent.Metadata.EventVersion}");
             var exchange = new Exchange(_rabbitMqConfiguration.Exchange);
 
             var rabbitMqMessage = new RabbitMqMessage(

@@ -99,7 +99,7 @@ namespace EventFlow.Core.VersionedTypes
 
             var methodInfo = versionedTypeUpgraderType.GetTypeInfo().GetMethod("UpgradeAsync");
 
-            var task = (Task) methodInfo.Invoke(versionedTypeUpgrader, new object[] { versionedType, cancellationToken });
+            var task = (Task) methodInfo?.Invoke(versionedTypeUpgrader, new object[] { versionedType, cancellationToken });
 
             await task.ConfigureAwait(false);
 

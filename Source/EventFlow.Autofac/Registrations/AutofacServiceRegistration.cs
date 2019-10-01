@@ -54,13 +54,14 @@ namespace EventFlow.Autofac.Registrations
             where TService : class
         {
             var registration = _containerBuilder.RegisterType<TImplementation>().AsSelf();
-            if (lifetime == Lifetime.Singleton)
+            switch (lifetime)
             {
-                registration.SingleInstance();
-            }
-            if (lifetime == Lifetime.Scoped)
-            {
-                registration.InstancePerLifetimeScope();
+                case Lifetime.Singleton:
+                    registration.SingleInstance();
+                    break;
+                case Lifetime.Scoped:
+                    registration.InstancePerLifetimeScope();
+                    break;
             }
 
             var serviceRegistration = _containerBuilder
@@ -91,14 +92,16 @@ namespace EventFlow.Autofac.Registrations
                         var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
-            if (lifetime == Lifetime.Singleton)
+            switch (lifetime)
             {
-                registration.SingleInstance();
+                case Lifetime.Singleton:
+                    registration.SingleInstance();
+                    break;
+                case Lifetime.Scoped:
+                    registration.InstancePerLifetimeScope();
+                    break;
             }
-            if (lifetime == Lifetime.Scoped)
-            {
-                registration.InstancePerLifetimeScope();
-            }
+
             if (keepDefault)
             {
                 registration.PreserveExistingDefaults();
@@ -119,14 +122,16 @@ namespace EventFlow.Autofac.Registrations
                         var instance = _decoratorService.Decorate(serviceType, args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
-            if (lifetime == Lifetime.Singleton)
+            switch (lifetime)
             {
-                registration.SingleInstance();
+                case Lifetime.Singleton:
+                    registration.SingleInstance();
+                    break;
+                case Lifetime.Scoped:
+                    registration.InstancePerLifetimeScope();
+                    break;
             }
-            if (lifetime == Lifetime.Scoped)
-            {
-                registration.InstancePerLifetimeScope();
-            }
+
             if (keepDefault)
             {
                 registration.PreserveExistingDefaults();
@@ -145,14 +150,16 @@ namespace EventFlow.Autofac.Registrations
                         var instance = _decoratorService.Decorate(args.Instance, new ResolverContext(new AutofacResolver(args.Context)));
                         args.ReplaceInstance(instance);
                     });
-            if (lifetime == Lifetime.Singleton)
+            switch (lifetime)
             {
-                registration.SingleInstance();
+                case Lifetime.Singleton:
+                    registration.SingleInstance();
+                    break;
+                case Lifetime.Scoped:
+                    registration.InstancePerLifetimeScope();
+                    break;
             }
-            if (lifetime == Lifetime.Scoped)
-            {
-                registration.InstancePerLifetimeScope();
-            }
+
             if (keepDefault)
             {
                 registration.PreserveExistingDefaults();
@@ -167,13 +174,14 @@ namespace EventFlow.Autofac.Registrations
         {
             var registration = _containerBuilder
                 .RegisterGeneric(implementationType).As(serviceType);
-            if (lifetime == Lifetime.Singleton)
+            switch (lifetime)
             {
-                registration.SingleInstance();
-            }
-            if (lifetime == Lifetime.Scoped)
-            {
-                registration.InstancePerLifetimeScope();
+                case Lifetime.Singleton:
+                    registration.SingleInstance();
+                    break;
+                case Lifetime.Scoped:
+                    registration.InstancePerLifetimeScope();
+                    break;
             }
         }
 
@@ -193,12 +201,11 @@ namespace EventFlow.Autofac.Registrations
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             var container = _containerBuilder.Build();
-            var autofacRootResolver = new AutofacRootResolver(container);
-
-            if (validateRegistrations)
-            {
-                autofacRootResolver.ValidateRegistrations();
-            }
+            using (var autofacRootResolver = new AutofacRootResolver(container))
+                if (validateRegistrations)
+                {
+                    autofacRootResolver.ValidateRegistrations();
+                }
 
             return new AutofacRootResolver(container);
         }

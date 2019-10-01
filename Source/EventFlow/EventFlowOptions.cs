@@ -73,7 +73,7 @@ namespace EventFlow
 
         public IModuleRegistration ModuleRegistration { get; }
 
-        public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
+        public IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
         {
             _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
             _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;

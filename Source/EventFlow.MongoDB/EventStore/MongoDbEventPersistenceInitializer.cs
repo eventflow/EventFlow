@@ -15,7 +15,7 @@ namespace EventFlow.MongoDB.EventStore
         public void Initialize()
         {
             var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
+            var keys =
                 Builders<MongoDbEventDataModel>.IndexKeys.Ascending("AggregateId")
                     .Ascending("AggregateSequenceNumber");
             events.Indexes.CreateOne(

@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.ValueObjects;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -31,7 +30,7 @@ namespace EventFlow.AspNetCore.ModelBinding
     {
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
-            Type modelType = context.Metadata.ModelType;
+            var modelType = context.Metadata.ModelType;
 
             return typeof(ISingleValueObject).IsAssignableFrom(modelType) 
                 ? new SingleValueModelBinder() 

@@ -199,8 +199,7 @@ namespace EventFlow.Core
 
             public ExclusiveSynchronizationContext(SynchronizationContext old)
             {
-                var oldEx = old as ExclusiveSynchronizationContext;
-                _items = null != oldEx ? oldEx._items : new EventQueue();
+                _items = old is ExclusiveSynchronizationContext oldEx ? oldEx._items : new EventQueue();
             }
 
             public override void Send(SendOrPostCallback d, object state)
@@ -223,9 +222,7 @@ namespace EventFlow.Core
             {
                 while (!_done)
                 {
-                    EventTask task;
-
-                    if (!_items.TryDequeue(out task))
+                    if (!_items.TryDequeue(out var task))
                     {
                         task = null;
                     }

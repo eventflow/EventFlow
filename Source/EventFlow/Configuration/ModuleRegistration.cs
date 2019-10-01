@@ -61,8 +61,7 @@ namespace EventFlow.Configuration
         public TModule GetModule<TModule>()
             where TModule : IModule
         {
-            TModule module;
-            if (!TryGetModule(out module))
+            if (!TryGetModule(out TModule module))
             {
                 throw new ArgumentException($"Module '{typeof(TModule).PrettyPrint()}' is not registered");
             }
@@ -74,8 +73,7 @@ namespace EventFlow.Configuration
             where TModule : IModule
         {
             var moduleType = typeof(TModule);
-            IModule iModule;
-            if (!_modules.TryGetValue(moduleType, out iModule))
+            if (!_modules.TryGetValue(moduleType, out var iModule))
             {
                 module = default(TModule);
                 return false;

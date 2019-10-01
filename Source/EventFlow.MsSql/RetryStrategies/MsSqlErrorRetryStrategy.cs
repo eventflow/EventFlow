@@ -156,8 +156,7 @@ namespace EventFlow.MsSql.RetryStrategies
             // due to bugs in the gateway code, a dropped database with a pooled connection
             // when reset results in a timeout error instead of immediate failure.
 
-            var win32Exception = sqlException.InnerException as Win32Exception;
-            if (win32Exception == null) yield break;
+            if (!(sqlException.InnerException is Win32Exception win32Exception)) yield break;
 
             if (win32Exception.NativeErrorCode == 0x102 || win32Exception.NativeErrorCode == 0x121)
             {

@@ -27,9 +27,6 @@ namespace EventFlow.Aggregates.ExecutionResults
     {
         public override bool IsSuccess { get; } = true;
 
-        public override string ToString()
-        {
-            return "Successful execution";
-        }
+        public override string ToString() => "Successful execution";
     }
 }

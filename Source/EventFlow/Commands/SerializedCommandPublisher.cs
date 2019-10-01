@@ -48,7 +48,7 @@ namespace EventFlow.Commands
             _commandBus = commandBus;
         }
 
-        public async Task<ISourceId> PublishSerilizedCommandAsync(
+        public async Task<ISourceId> PublishSerializedCommandAsync(
             string name,
             int version,
             string json,

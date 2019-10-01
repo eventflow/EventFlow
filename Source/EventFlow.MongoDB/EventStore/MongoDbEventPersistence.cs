@@ -52,17 +52,17 @@ namespace EventFlow.MongoDB.EventStore
 
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize, CancellationToken cancellationToken)
         {
-            long startPosition = globalPosition.IsStart
+            var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
 
-            List<MongoDbEventDataModel> eventDataModels = await MongoDbEventStoreCollection
+            var eventDataModels = await MongoDbEventStoreCollection
                 .Find(model => model._id >= startPosition)
                 .Limit(pageSize)
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
             
-            long nextPosition = eventDataModels.Any()
+            var nextPosition = eventDataModels.Any()
                 ? eventDataModels.Max(e => e._id) + 1
                 : startPosition;
 
@@ -115,7 +115,7 @@ namespace EventFlow.MongoDB.EventStore
 
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            DeleteResult affectedRows = await MongoDbEventStoreCollection
+            var affectedRows = await MongoDbEventStoreCollection
                 .DeleteManyAsync(x => x.AggregateId == id.Value, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 

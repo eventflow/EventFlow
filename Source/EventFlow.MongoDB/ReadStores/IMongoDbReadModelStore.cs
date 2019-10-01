@@ -13,6 +13,6 @@ namespace EventFlow.MongoDB.ReadStores
 		Task<IAsyncCursor<TReadModel>> FindAsync(
 			Expression<Func<TReadModel, bool>> filter,
 			FindOptions<TReadModel, TReadModel> options = null,
-			CancellationToken cancellationToken = default(CancellationToken));
+			CancellationToken cancellationToken = default);
 	}
 }

@@ -24,7 +24,6 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -35,13 +34,13 @@ namespace EventFlow.AspNetCore.ModelBinding
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            Type modelType = bindingContext.ModelType;
-            ConstructorInfo constructor = modelType.GetConstructors().Single();
-            Type parameterType = constructor.GetParameters().Single().ParameterType;
+            var modelType = bindingContext.ModelType;
+            var constructor = modelType.GetConstructors().Single();
+            var parameterType = constructor.GetParameters().Single().ParameterType;
 
             var modelName = bindingContext.ModelName;
 
-            ValueProviderResult valueProviderResult = bindingContext.ValueProvider.GetValue(modelName);
+            var valueProviderResult = bindingContext.ValueProvider.GetValue(modelName);
             if (valueProviderResult == ValueProviderResult.None)
             {
                 return Task.CompletedTask;

@@ -78,7 +78,7 @@ namespace EventFlow.EventStores.EventStore
             var eventStoreEvents = Map(resolvedEvents);
 
             return new AllCommittedEventsPage(
-                new GlobalPosition(string.Format("{0}-{1}", nextPosition.CommitPosition, nextPosition.PreparePosition)),
+                new GlobalPosition($"{nextPosition.CommitPosition}-{nextPosition.PreparePosition}"),
                 eventStoreEvents);
         }
 
@@ -92,9 +92,8 @@ namespace EventFlow.EventStores.EventStore
             var parts = globalPosition.Value.Split('-');
             if (parts.Length != 2)
             {
-                throw new ArgumentException(string.Format(
-                    "Unknown structure for global position '{0}'. Expected it to be empty or in the form 'L-L'",
-                    globalPosition.Value));
+                throw new ArgumentException(
+                    $"Unknown structure for global position '{globalPosition.Value}'. Expected it to be empty or in the form 'L-L'");
             }
 
             var commitPosition = long.Parse(parts[0]);
@@ -126,7 +125,8 @@ namespace EventFlow.EventStores.EventStore
                         // as EventStore won't detect optimistic concurrency exceptions then
                         var guid = Guid.NewGuid();
 
-                        var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
+                        var eventType =
+                            $"{e.Metadata[MetadataKeys.AggregateName]}.{e.Metadata.EventName}.{e.Metadata.EventVersion}";
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
                         return new EventData(guid, eventType, true, data, meta);

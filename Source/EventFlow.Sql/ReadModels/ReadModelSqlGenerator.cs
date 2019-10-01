@@ -58,8 +58,7 @@ namespace EventFlow.Sql.ReadModels
             where TReadModel : IReadModel
         {
             var readModelType = typeof(TReadModel);
-            string sql;
-            if (_insertSqls.TryGetValue(readModelType, out sql))
+            if (_insertSqls.TryGetValue(readModelType, out var sql))
             {
                 return sql;
             }

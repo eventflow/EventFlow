@@ -15,7 +15,7 @@ namespace EventFlow.MongoDB.Extensions
             string url,
             string database)
         {
-            MongoUrl mongoUrl = new MongoUrl(url);
+            var mongoUrl = new MongoUrl(url);
             var mongoClient = new MongoClient(mongoUrl);
             return eventFlowOptions
                 .ConfigureMongoDb(mongoClient, database);

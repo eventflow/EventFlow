@@ -1,0 +1,7 @@
+{
+  "GlobalSequenceNumber": 1,
+  "AggregateId": "thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7",
+  "Data": "{\"PingId\":{\"Value\":\"99a5eda6-6cae-4de9-9f65-7c286bbb92da\"}}",
+  "Metadata": "{\"timestamp\":\"2019-10-01T22:40:10.3300779+01:00\",\"aggregate_sequence_number\":\"3\",\"aggregate_name\":\"Thingy\",\"aggregate_id\":\"thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7\",\"event_id\":\"event-63388cab-196b-59b7-b38c-5cef856830ac\",\"timestamp_epoch\":\"1569966010\",\"batch_id\":\"ffc8d8c1-46a4-4778-b096-8c9e050ec68b\",\"source_id\":\"command-db7bfd01-14e2-4112-bd1f-ddd846aea2ce\",\"event_name\":\"ThingyPing\",\"event_version\":\"1\"}",
+  "AggregateSequenceNumber": 3
+}

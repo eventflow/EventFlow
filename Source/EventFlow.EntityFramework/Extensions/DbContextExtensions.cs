@@ -43,12 +43,12 @@ namespace EventFlow.EntityFramework.Extensions
             where TContext : DbContext 
             where TEntity : class, new()
         {
-            int rowsAffected = 0;
+            var rowsAffected = 0;
 
             while (!cancellationToken.IsCancellationRequested)
                 using (var dbContext = contextProvider.CreateContext())
                 {
-                    IQueryable<TEntity> query = dbContext
+                    var query = dbContext
                         .Set<TEntity>()
                         .AsNoTracking();
 

@@ -46,7 +46,7 @@ namespace EventFlow.Sql.Extensions
                 .OrderBy(n => n))
             {
                 using (var manifestResourceStream = assembly.GetManifestResourceStream(manifestResourceName))
-                using (var streamReader = new StreamReader(manifestResourceStream))
+                using (var streamReader = new StreamReader(manifestResourceStream ?? throw new InvalidOperationException()))
                 {
                     var name = manifestResourceName.Replace(removeFromName, string.Empty);
                     var content = streamReader.ReadToEnd();

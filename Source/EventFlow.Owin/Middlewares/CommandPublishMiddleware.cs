@@ -89,7 +89,7 @@ namespace EventFlow.Owin.Middlewares
 
             try
             {
-                var sourceId = await _serializedCommandPublisher.PublishSerilizedCommandAsync(
+                var sourceId = await _serializedCommandPublisher.PublishSerializedCommandAsync(
                     name,
                     version,
                     requestJson,

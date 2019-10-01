@@ -60,8 +60,7 @@ namespace EventFlow.Owin.MetadataProviders
             var headerInfo = HeaderPriority
                 .Select(h =>
                     {
-                        string[] value;
-                        var address = _owinContext.Request.Headers.TryGetValue(h, out value)
+                        var address = _owinContext.Request.Headers.TryGetValue(h, out var value)
                             ? string.Join(string.Empty, value)
                             : string.Empty;
                         return new {Header = h, Address = address};

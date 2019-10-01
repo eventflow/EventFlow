@@ -65,11 +65,7 @@ namespace EventFlow.MongoDB.ReadStores
             var filter = Builders<TReadModel>.Filter.Eq(readModel => readModel.Id, id);
             var result = await collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
             
-            if(result == null){
-                return ReadModelEnvelope<TReadModel>.Empty(id);
-            }
-
-            return ReadModelEnvelope<TReadModel>.With(id, result);
+            return result == null ? ReadModelEnvelope<TReadModel>.Empty(id) : ReadModelEnvelope<TReadModel>.With(id, result);
         }
 
         

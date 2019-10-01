@@ -42,8 +42,7 @@ namespace EventFlow.Aggregates
 
         protected AggregateState()
         {
-            var me = this as TEventApplier;
-            if (me == null)
+            if (!(this is TEventApplier me))
             {
                 throw new InvalidOperationException(
                     $"Event applier of type '{GetType().PrettyPrint()}' has a wrong generic argument '{typeof(TEventApplier).PrettyPrint()}'");

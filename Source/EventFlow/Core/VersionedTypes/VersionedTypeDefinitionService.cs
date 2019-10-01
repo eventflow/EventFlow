@@ -183,7 +183,7 @@ namespace EventFlow.Core.VersionedTypes
         {
             if (!TryGetDefinitions(type, out var definitions))
             {
-                definition = default(TDefinition);
+                definition = default;
                 return false;
             }
 
@@ -202,7 +202,7 @@ namespace EventFlow.Core.VersionedTypes
 
             if (!_definitionsByType.TryGetValue(type, out var list))
             {
-                definitions = default(IReadOnlyCollection<TDefinition>);
+                definitions = default;
                 return false;
             }
 

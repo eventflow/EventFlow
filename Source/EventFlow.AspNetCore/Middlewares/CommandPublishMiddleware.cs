@@ -90,7 +90,7 @@ namespace EventFlow.AspNetCore.Middlewares
 
             try
             {
-                var sourceId = await _serializedCommandPublisher.PublishSerilizedCommandAsync(
+                var sourceId = await _serializedCommandPublisher.PublishSerializedCommandAsync(
                     name,
                     version,
                     requestJson,

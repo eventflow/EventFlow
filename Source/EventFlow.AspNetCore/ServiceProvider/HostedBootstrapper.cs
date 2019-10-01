@@ -34,7 +34,7 @@ namespace EventFlow.AspNetCore.ServiceProvider
     ///     instance and <see cref="CreateResolver" /> is not used.
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Local
-    class HostedBootstrapper : IHostedService
+    internal class HostedBootstrapper : IHostedService
     {
         private readonly IBootstrapper _bootstrapper;
 

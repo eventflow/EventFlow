@@ -36,11 +36,7 @@ namespace EventFlow.MsSql.ReadStores
 
         public override string ToString()
         {
-            return string.Format(
-                "Read model '{0}' for '{1} v{2}'",
-                GetType().PrettyPrint(),
-                AggregateId,
-                LastAggregateSequenceNumber);
+            return $"Read model '{GetType().PrettyPrint()}' for '{AggregateId} v{LastAggregateSequenceNumber}'";
         }
     }
 }

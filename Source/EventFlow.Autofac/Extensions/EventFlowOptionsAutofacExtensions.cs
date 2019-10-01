@@ -56,8 +56,7 @@ namespace EventFlow.Autofac.Extensions
             bool validateRegistrations = true)
         {
             var rootResolver = eventFlowOptions.CreateResolver(validateRegistrations);
-            var autofacRootResolver = rootResolver as AutofacRootResolver;
-            if (autofacRootResolver == null)
+            if (!(rootResolver is AutofacRootResolver autofacRootResolver))
             {
                 throw new InvalidOperationException(
                     "Make sure to configure the EventFlowOptions for Autofac using the .UseAutofacContainerBuilder(...)");

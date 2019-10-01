@@ -98,7 +98,7 @@ namespace EventFlow.Sql.Connections
             where TRow : class
         {
             Log.Debug(
-                "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
+                "Insert multiple not optimized, inserting one row at a time using SQL '{0}'",
                 sql);
 
             return WithConnectionAsync<IReadOnlyCollection<TResult>>(

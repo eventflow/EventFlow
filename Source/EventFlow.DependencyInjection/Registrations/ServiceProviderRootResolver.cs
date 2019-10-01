@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,7 +29,7 @@ namespace EventFlow.DependencyInjection.Registrations
 {
     internal class ServiceProviderRootResolver : ServiceProviderResolver, IRootResolver
     {
-        public ServiceProviderRootResolver(Microsoft.Extensions.DependencyInjection.ServiceProvider serviceProvider,
+        public ServiceProviderRootResolver(IServiceProvider serviceProvider,
             IServiceCollection serviceCollection)
             : base(serviceProvider, serviceCollection)
         {
@@ -36,7 +37,7 @@ namespace EventFlow.DependencyInjection.Registrations
 
         public void Dispose()
         {
-            ((Microsoft.Extensions.DependencyInjection.ServiceProvider) ServiceProvider).Dispose();
+            ((ServiceProvider) ServiceProvider).Dispose();
         }
 
         public IScopeResolver BeginScope()

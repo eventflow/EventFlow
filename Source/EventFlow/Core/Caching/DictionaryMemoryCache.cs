@@ -71,7 +71,7 @@ namespace EventFlow.Core.Caching
         {
             return Task.FromResult(_cache.TryGetValue(cacheKey.Value, out var value)
                 ? value as T
-                : default(T));
+                : default);
         }
     }
 }
