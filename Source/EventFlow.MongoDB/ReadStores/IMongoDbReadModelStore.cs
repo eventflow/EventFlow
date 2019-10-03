@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using System.Linq;
 
 namespace EventFlow.MongoDB.ReadStores
 {
