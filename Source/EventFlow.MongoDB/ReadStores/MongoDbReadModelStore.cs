@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+﻿using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
@@ -13,10 +7,16 @@ using EventFlow.Logs;
 using EventFlow.MongoDB.ValueObjects;
 using EventFlow.ReadStores;
 using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.MongoDB.ReadStores
 {
-	public class MongoDbReadModelStore<TReadModel> : IMongoDbReadModelStore<TReadModel>
+    public class MongoDbReadModelStore<TReadModel> : IMongoDbReadModelStore<TReadModel>
         where TReadModel : class, IMongoDbReadModel, new()
     {
         private readonly ILog _log;
@@ -67,9 +67,6 @@ namespace EventFlow.MongoDB.ReadStores
             
             return result == null ? ReadModelEnvelope<TReadModel>.Empty(id) : ReadModelEnvelope<TReadModel>.With(id, result);
         }
-
-        
-
         public async Task<IAsyncCursor<TReadModel>> FindAsync(Expression<Func<TReadModel, bool>> filter, FindOptions<TReadModel, TReadModel> options = null, CancellationToken cancellationToken = new CancellationToken())
 	    {
 			var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
