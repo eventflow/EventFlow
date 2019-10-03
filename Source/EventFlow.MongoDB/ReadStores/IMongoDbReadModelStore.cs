@@ -15,5 +15,7 @@ namespace EventFlow.MongoDB.ReadStores
 			Expression<Func<TReadModel, bool>> filter,
 			FindOptions<TReadModel, TReadModel> options = null,
 			CancellationToken cancellationToken = default);
-	}
+
+        IQueryable<TReadModel> AsQueryable();
+    }
 }

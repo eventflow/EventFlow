@@ -1,7 +1,6 @@
-using System.Linq;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.Queries;
-using EventFlow.TestHelpers.Aggregates;
+using System.Linq;
 
 namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.Queries
 {
