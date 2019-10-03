@@ -47,7 +47,7 @@ namespace EventFlow.RabbitMQ.Integrations
             if (messageId == null) throw new ArgumentNullException(nameof(messageId));
 
             Message = message;
-            Headers = headers ?? throw new ArgumentNullException(nameof(headers));
+            Headers = headers;
             Exchange = exchange;
             RoutingKey = routingKey;
             MessageId = messageId;
