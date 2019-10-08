@@ -81,10 +81,23 @@ namespace EventFlow.EventStores.EventStore.Extensions
             Uri uri,
             ConnectionSettings connectionSettings)
         {
+            return UseEventStoreEventStore(eventFlowOptions, uri, connectionSettings);
+        }
+
+        public static IEventFlowOptions UseEventStoreEventStore(
+            this IEventFlowOptions eventFlowOptions,
+            Uri uri,
+            ConnectionSettings connectionSettings,
+            string connectionNamePrefix)
+        {
+            var sanitizedConnectionNamePrefix = string.IsNullOrEmpty(connectionNamePrefix)
+                ? string.Empty
+                : connectionNamePrefix + " - ";
+
             var eventStoreConnection = EventStoreConnection.Create(
                 connectionSettings,
                 uri,
-                $"EventFlow v{typeof(EventFlowOptionsExtensions).Assembly.GetName().Version}");
+                $"{sanitizedConnectionNamePrefix}EventFlow v{typeof(EventFlowOptionsExtensions).Assembly.GetName().Version}");
 
             using (var a = AsyncHelper.Wait)
             {
