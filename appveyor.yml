@@ -19,7 +19,7 @@ artifacts:
   - path: Build\Packages\*nupkg
 
 services:
-  - mssql2014
+  - mssql2017
   - postgresql101
 
 on_success:
