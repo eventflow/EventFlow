@@ -1,10 +1,3 @@
-# functions
-Function Get-Container-Ip($containername)
-{
-	docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" $containername
-}
-# end functions
-
 # Switch to linux containers
 [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
 Restart-Service docker
@@ -20,13 +13,13 @@ sal curl (Join-Path $env:ChocolateyInstall "bin\curl.exe") -O AllScope
 # Set connection url to environment variable
 # RabbitMQ
 $rabbitmq_ip = Get-Container-Ip rabbitmq-ef
-$env:RABBITMQ_URL = "amqp://guest:guest@${rabbitmq_ip}:5672"
+$env:RABBITMQ_URL = "amqp://guest:guest@$localhost:5672"
 # Elasticsearch
 $elasticsearch_ip = Get-Container-Ip elasticsearch-ef
-$env:ELASTICSEARCH_URL = "http://${elasticsearch_ip}:9200"
+$env:ELASTICSEARCH_URL = "http://localhost:9200"
 # Event Store
 $eventstore_ip = Get-Container-Ip eventstore-ef
-$env:EVENTSTORE_URL = "tcp://admin:changeit@${eventstore_ip}:1113"
+$env:EVENTSTORE_URL = "tcp://admin:changeit@$localhost:1113"
 
 # Helth check
 # Event Store
