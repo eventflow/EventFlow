@@ -12,11 +12,11 @@ sal curl (Join-Path $env:ChocolateyInstall "bin\curl.exe") -O AllScope
 
 # Set connection url to environment variable
 # RabbitMQ
-$env:RABBITMQ_URL = "amqp://guest:guest@$localhost:5672"
+$env:RABBITMQ_URL = "amqp://guest:guest@localhost:5672"
 # Elasticsearch
 $env:ELASTICSEARCH_URL = "http://localhost:9200"
 # Event Store
-$env:EVENTSTORE_URL = "tcp://admin:changeit@$localhost:1113"
+$env:EVENTSTORE_URL = "tcp://admin:changeit@localhost:1113"
 
 # Helth check
 # Event Store

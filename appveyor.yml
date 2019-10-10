@@ -12,7 +12,7 @@ image: Visual Studio 2019
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
-  HELPZ_MSSQL_SERVER: (local)\SQL2017
+  HELPZ_MSSQL_SERVER: localhost
   HELPZ_MSSQL_USER: sa
   HELPZ_MSSQL_PASS: Password12!
 
@@ -22,7 +22,6 @@ artifacts:
   - path: Build\Packages\*nupkg
 
 services:
-  - mssql2017
   - postgresql101
 
 on_success:
