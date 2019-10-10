@@ -1,6 +1,16 @@
-### New in 0.75 (not released yet)
+### New in 0.76 (not released yet)
 
-* _Nothing yet_
+* New: Mongo DB read model store Queryable:
+  ```csharp
+  MongoDbReadModelStore readModelStore;
+  IQueryable<TReadModel> queryable = readModelStore.AsQueryable();
+  ```
+
+### New in 0.75.3970 (released 2019-09-12)
+
+* Fix: When deserializing the JSON value `"null"` into a struct value like
+  `int`, the `SingleValueObjectConverter` threw an exception instead of
+  merely returning `null` representing an absent `SingleValueObject<int>` value
 
 ### New in 0.74.3948 (released 2019-07-01)
 

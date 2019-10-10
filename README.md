@@ -145,7 +145,7 @@ to the documentation.
   during aggregate load.
 * **Event publishing:** Sometimes you want other applications or services to
   consume and act on domains. For this EventFlow supports event publishing.
- * [RabbitMQ](https://docs.geteventflow.net/Subscribers.html#rabbitmq)
+  * [RabbitMQ](https://docs.geteventflow.net/Subscribers.html#rabbitmq)
 * [**Metadata:**](https://docs.geteventflow.net/Metadata.html)
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
