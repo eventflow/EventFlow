@@ -70,25 +70,9 @@ namespace EventFlow.EventStores.EventStore.Extensions
 
         public static IEventFlowOptions UseEventStoreEventStore(
             this IEventFlowOptions eventFlowOptions,
-            Uri uri)
-        {
-            return eventFlowOptions
-                .UseEventStoreEventStore(uri, ConnectionSettings.Default);
-        }
-
-        public static IEventFlowOptions UseEventStoreEventStore(
-            this IEventFlowOptions eventFlowOptions,
-            Uri uri,
-            ConnectionSettings connectionSettings)
-        {
-            return UseEventStoreEventStore(eventFlowOptions, uri, connectionSettings);
-        }
-
-        public static IEventFlowOptions UseEventStoreEventStore(
-            this IEventFlowOptions eventFlowOptions,
             Uri uri,
             ConnectionSettings connectionSettings,
-            string connectionNamePrefix)
+            string connectionNamePrefix = null)
         {
             var sanitizedConnectionNamePrefix = string.IsNullOrEmpty(connectionNamePrefix)
                 ? string.Empty
