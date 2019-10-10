@@ -12,6 +12,9 @@ image: Visual Studio 2019
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
+  HELPZ_MSSQL_SERVER: (local)\SQL2017
+  HELPZ_MSSQL_USER: sa
+  HELPZ_MSSQL_PASS: Password12!
 
 test: off
 
