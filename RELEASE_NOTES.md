@@ -1,4 +1,8 @@
-### New in 0.74 (not released yet)
+### New in 0.75 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.74.3948 (released 2019-07-01)
 
 * Breaking: Renamed `AspNetCoreEventFlowOptions.AddMetadataProviders()` 
   to `AddDefaultMetadataProviders()` and made `AddUserClaimsMetadata` opt-in
