@@ -201,11 +201,12 @@ namespace EventFlow.Autofac.Registrations
         public IRootResolver CreateResolver(bool validateRegistrations)
         {
             var container = _containerBuilder.Build();
-            using (var autofacRootResolver = new AutofacRootResolver(container))
-                if (validateRegistrations)
-                {
-                    autofacRootResolver.ValidateRegistrations();
-                }
+            var autofacRootResolver = new AutofacRootResolver(container);
+            
+            if (validateRegistrations)
+            {
+                autofacRootResolver.ValidateRegistrations();
+            }
 
             return new AutofacRootResolver(container);
         }
