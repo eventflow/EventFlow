@@ -1,6 +1,9 @@
 init:
-  - git config --global core.autocrlf input
-
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: git config --global core.autocrlf input
+  - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
+  - ps: Restart-Service docker
+  
 version: 0.76.{build}
 
 skip_tags: true
@@ -12,7 +15,7 @@ image: Visual Studio 2019
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
-  HELPZ_MSSQL_SERVER: localhost
+  HELPZ_MSSQL_SERVER: (local)\SQL2017
   HELPZ_MSSQL_USER: sa
   HELPZ_MSSQL_PASS: Password12!
 
@@ -23,6 +26,7 @@ artifacts:
 
 services:
   - postgresql101
+  - mssql2017
 
 on_success:
 - choco install codecov

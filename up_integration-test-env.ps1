@@ -1,10 +1,6 @@
-# Switch to linux containers
-[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
-Restart-Service docker
-
 # Up containers
-docker-compose -f docker-compose.ci.yml pull
-docker-compose -f docker-compose.ci.yml up -d
+docker-compose --compatibility -f docker-compose.ci.yml pull
+docker-compose --compatibility -f docker-compose.ci.yml up -d
 
 # Install curl
 cinst curl -y --no-progress

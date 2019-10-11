@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.4'
 
 services:
   rabbitmq:
@@ -9,13 +9,15 @@ services:
       - "15672:15672"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.16
     container_name: elasticsearch-ef
     environment:
       - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
     ports:
       - "9200:9200"
       - "9300:9300"
+    mem_limit: 4g
 
   eventstore:
     image: eventstore/eventstore
@@ -23,12 +25,3 @@ services:
     ports:
       - "1113:1113"
       - "2113:2113"
-      
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2017-latest
-    container_name: sqlserver-ef
-    environment:
-      - SA_PASSWORD=Password12!
-      - ACCEPT_EULA=Y
-    ports:
-      - "1433:1433"
