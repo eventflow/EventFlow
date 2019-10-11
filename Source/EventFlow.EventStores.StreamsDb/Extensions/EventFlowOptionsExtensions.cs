@@ -1,6 +1,7 @@
 ﻿using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
+using Microsoft.Extensions.Hosting;
 using StreamsDB.Driver;
 
 namespace EventFlow.EventStores.StreamsDb.Extensions
@@ -19,7 +20,11 @@ namespace EventFlow.EventStores.StreamsDb.Extensions
 			}
 
 			return eventFlowOptions
-				.RegisterServices(f => f.Register(r => client, Lifetime.Singleton))
+				.RegisterServices(f =>
+				{
+					f.Register(r => client, Lifetime.Singleton);
+					f.Register(typeof(IHostedService), typeof(GroupSubscriber), Lifetime.Singleton);
+				})
 				.UseEventStore<StreamsDbEventPersistence>();
 		}
 	}
