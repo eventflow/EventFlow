@@ -105,7 +105,7 @@ namespace EventFlow.EventStores.StreamsDb
 
 			do
 			{
-                currentSlice = await _client.DB().ReadStreamForward(id.Value, fromEventSequenceNumber, int.MaxValue).ConfigureAwait(false);
+				currentSlice = await _client.DB().ReadStreamForward(id.Value, fromEventSequenceNumber, 1000).ConfigureAwait(false);
 				fromEventSequenceNumber = (int)currentSlice.Next;
 				streamEvents.AddRange(currentSlice.Messages);
 			}
