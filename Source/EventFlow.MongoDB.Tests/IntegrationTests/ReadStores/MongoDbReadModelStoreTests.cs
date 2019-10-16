@@ -22,15 +22,21 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MongoDB.Extensions;
+using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.Queries;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.MongoDB.ValueObjects;
 using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.Suites;
+using FluentAssertions;
 using Mongo2Go;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -58,12 +64,26 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
                 .AddQueryHandlers(
                     typeof(MongoDbThingyGetQueryHandler),
                     typeof(MongoDbThingyGetVersionQueryHandler),
-                    typeof(MongoDbThingyGetMessagesQueryHandler))
+                    typeof(MongoDbThingyGetMessagesQueryHandler),
+                    typeof(MongoDbThingyGetWithLinqQueryHandler)
+                       )
                 .CreateResolver();
 
             return resolver;
         }
 
+        [Test]
+        public async Task AsQueryableShouldNotBeEmpty()
+        {
+
+            var id = ThingyId.New;
+
+            await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
+
+            var result = await QueryProcessor.ProcessAsync(new MongoDbThingyGetWithLinqQuery()).ConfigureAwait(false);
+
+            result.ToList().Should().NotBeEmpty();
+        }
 
         [TearDown]
         public void TearDown()

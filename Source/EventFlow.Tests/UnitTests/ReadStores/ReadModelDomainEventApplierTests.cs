@@ -161,7 +161,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void UpdateReturnsFalseIfNoEventsWasApplied()
+        public async Task UpdateReturnsFalseIfNoEventsWasApplied()
         {
             // Arrange
             var events = new[]
@@ -170,19 +170,18 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 };
 
             // Act
-            var appliedAny = Sut.UpdateReadModelAsync(
+            var appliedAny = await Sut.UpdateReadModelAsync(
                 new PingReadModel(),
                 events,
                 A<IReadModelContext>(), 
-                CancellationToken.None)
-                .Result;
+                CancellationToken.None);
 
             // Assert
             appliedAny.Should().BeFalse();
         }
 
         [Test]
-        public void UpdateReturnsTrueIfEventsWereApplied()
+        public async Task UpdateReturnsTrueIfEventsWereApplied()
         {
             // Arrange
             var events = new[]
@@ -191,12 +190,11 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 };
 
             // Act
-            var appliedAny = Sut.UpdateReadModelAsync(
+            var appliedAny = await Sut.UpdateReadModelAsync(
                 new PingReadModel(),
                 events,
                 A<IReadModelContext>(),
-                CancellationToken.None)
-                .Result;
+                CancellationToken.None);
 
             // Assert
             appliedAny.Should().BeTrue();

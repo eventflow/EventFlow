@@ -31,21 +31,26 @@ namespace EventFlow.ValueObjects
 {
     public class SingleValueObjectConverter : JsonConverter
     {
-        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumenTypes = new ConcurrentDictionary<Type, Type>();
+        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumentTypes = new ConcurrentDictionary<Type, Type>();
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var singleValueObject = value as ISingleValueObject;
-            if (singleValueObject == null)
+            if (!(value is ISingleValueObject singleValueObject))
             {
                 return;
             }
+
             serializer.Serialize(writer, singleValueObject.GetValue());
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var parameterType = ConstructorArgumenTypes.GetOrAdd(
+            if (reader.Value == null)
+            {
+                return null;
+            }
+
+            var parameterType = ConstructorArgumentTypes.GetOrAdd(
                 objectType,
                 t =>
                     {
@@ -55,7 +60,8 @@ namespace EventFlow.ValueObjects
                     });
 
             var value = serializer.Deserialize(reader, parameterType);
-            return Activator.CreateInstance(objectType, new[] { value });
+
+            return Activator.CreateInstance(objectType, value);
         }
 
         public override bool CanConvert(Type objectType)

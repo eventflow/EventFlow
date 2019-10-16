@@ -16,7 +16,7 @@ using MongoDB.Driver;
 
 namespace EventFlow.MongoDB.ReadStores
 {
-	public class MongoDbReadModelStore<TReadModel> : IMongoDbReadModelStore<TReadModel>
+    public class MongoDbReadModelStore<TReadModel> : IMongoDbReadModelStore<TReadModel>
         where TReadModel : class, IMongoDbReadModel
     {
         private readonly ILog _log;
@@ -28,7 +28,7 @@ namespace EventFlow.MongoDB.ReadStores
             ILog log,
             IMongoDatabase mongoDatabase,
             IReadModelDescriptionProvider readModelDescriptionProvider,
-		    ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
         {
             _log = log;
             _mongoDatabase = mongoDatabase;
@@ -36,17 +36,17 @@ namespace EventFlow.MongoDB.ReadStores
             _transientFaultHandler = transientFaultHandler;
         }
 
-	    public async Task DeleteAsync(string id, CancellationToken cancellationToken)
-	    {
-			var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+        public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+        {
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-		    _log.Information($"Deleting '{typeof(TReadModel).PrettyPrint()}' with id '{id}', from '{readModelDescription.RootCollectionName}'!");
+            _log.Information($"Deleting '{typeof(TReadModel).PrettyPrint()}' with id '{id}', from '{readModelDescription.RootCollectionName}'!");
 
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-		    await collection.DeleteOneAsync(x => x.Id == id, cancellationToken);
-		}
+            await collection.DeleteOneAsync(x => x.Id == id, cancellationToken);
+        }
 
-		public async Task DeleteAllAsync(CancellationToken cancellationToken)
+        public async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
@@ -64,25 +64,26 @@ namespace EventFlow.MongoDB.ReadStores
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
             var filter = Builders<TReadModel>.Filter.Eq(readModel => readModel.Id, id);
             var result = await collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
-            
-            if(result == null){
+
+            if (result == null)
+            {
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             return ReadModelEnvelope<TReadModel>.With(id, result);
         }
 
-        
+
 
         public async Task<IAsyncCursor<TReadModel>> FindAsync(Expression<Func<TReadModel, bool>> filter, FindOptions<TReadModel, TReadModel> options = null, CancellationToken cancellationToken = new CancellationToken())
-	    {
-			var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-		    var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
+        {
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
 
-		    _log.Verbose(() => $"Finding read model '{typeof(TReadModel).PrettyPrint()}' with expression '{filter}' from collection '{readModelDescription.RootCollectionName}'");
-			
-			return await collection.FindAsync(filter, options, cancellationToken);
-		}
+            _log.Verbose(() => $"Finding read model '{typeof(TReadModel).PrettyPrint()}' with expression '{filter}' from collection '{readModelDescription.RootCollectionName}'");
+
+            return await collection.FindAsync(filter, options, cancellationToken);
+        }
 
         private async Task UpdateReadModelAsync(ReadModelDescription readModelDescription,
             ReadModelUpdate readModelUpdate,
@@ -127,7 +128,7 @@ namespace EventFlow.MongoDB.ReadStores
                 await collection.ReplaceOneAsync<TReadModel>(
                     x => x.Id == readModelUpdate.ReadModelId && x.Version == originalVersion,
                     readModelEnvelope.ReadModel,
-                    new UpdateOptions() {IsUpsert = true},
+                    new UpdateOptions() { IsUpsert = true },
                     cancellationToken);
             }
             catch (MongoWriteException e)
@@ -139,7 +140,7 @@ namespace EventFlow.MongoDB.ReadStores
 
             }
         }
-        
+
         public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
@@ -147,7 +148,7 @@ namespace EventFlow.MongoDB.ReadStores
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
-            
+
             _log.Verbose(() =>
             {
                 var readModelIds = readModelUpdates
@@ -157,7 +158,7 @@ namespace EventFlow.MongoDB.ReadStores
                     .ToList();
                 return $"Updating read models of type '{typeof(TReadModel).PrettyPrint()}' with _ids '{string.Join(", ", readModelIds)}' in collection '{readModelDescription.RootCollectionName}'";
             });
-            
+
             foreach (var readModelUpdate in readModelUpdates)
             {
                 await _transientFaultHandler.TryAsync(
@@ -166,6 +167,13 @@ namespace EventFlow.MongoDB.ReadStores
                         cancellationToken)
                     .ConfigureAwait(false);
             }
+        }
+
+        public IQueryable<TReadModel> AsQueryable()
+        {
+            var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
+            return collection.AsQueryable<TReadModel>();
         }
     }
 }
