@@ -77,12 +77,12 @@ the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and th
 	create a new example event, getting a data model and to replay all data models.
 	
 * **[ElasticSearch/.NET Core:](https://github.com/DureSameen/EventFlowWithElasticSearch)**
-	It is configured with EventFlow, ElasticSearch, EventStore and RabbitMq. See "withRabbitMq" branch for #384.
+	It is configured with EventFlow, ElasticSearch, EventStore, and RabbitMq. See "withRabbitMq" branch for #384.
 
  * **[Vehicle Tracking:](https://github.com/MongkonEiadon/VehicleTracker)**
-	A Microservice on .NET Core 2.2 with docker based, you can up the service with docker compose, this project using various
+	A Microservice on .NET Core 2.2 with docker based, you can up the service with docker-compose, this project using various
   tools to up the services aka. Linux Docker based on .NET Core, RabbitMq, EntityFramework with SQL Server and using EventFlow following CQRS-ES architecture
-  and all microservice can accessing through ApiGateway which using Ocelot
+  and all microservice can access through ApiGateway which using Ocelot
 
   * **[RestAirline:](https://github.com/twzhangyang/RestAirline)**
 	A classic DDD with CQRS-ES, Hypermedia API project based on EventFlow. It's targeted to ASP.NET Core 2.2 and can be deployed to docker and k8s.
@@ -111,7 +111,7 @@ to the documentation.
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
 * [**Read models:**](https://docs.geteventflow.net/ReadStores.html)
-  Denormalized representation  of aggregate events optimized for reading fast.
+  Denormalized representation of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
   * [Elasticsearch](https://docs.geteventflow.net/ReadStores.html#elasticsearch)
   * [In-memory](https//docs.geteventflow.net/ReadStores.html#in-memory) - only for test
@@ -317,9 +317,9 @@ EventFlow is still under development, especially the parts regarding
 how read models are re-populated.
 
 EventFlow  _is_ currently used in production environments and performs very well,
-but it need to mature before key APIs are stable.
+but it needs to mature before key APIs are stable.
 
-EventFlow is greatly opinionated, but its possible to create new implementations
+EventFlow is greatly opinionated, but it's possible to create new implementations
 for almost every part of EventFlow by registering a different implementation of
 an interface.
 
@@ -353,12 +353,12 @@ share it by creating an issue with the link.
 * **Why _not_ to implement "unit of work" in DDD**
   * [Unit Of Work is the new Singleton](https://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
     by Mike Mogosanu
-  * [The Unit of Work and Transactions In Domain Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+  * [The Unit of Work and Transactions In Domain-Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
     by Mike Mogosanu
 
 
 ### Integration tests
-EventFlow has several tests that verify that its able to use the systems it
+EventFlow has several tests that verify that its ability to use the systems it
 integrates with correctly.
 
  * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) run as Docker [Windows Container](https://docs.microsoft.com//virtualization/windowscontainers/about/). if use in local, requires its environment and `docker-compose` tool, and execute `PS> up_integration-test-env.ps1`
@@ -373,7 +373,7 @@ integrates with correctly.
 There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
 [here](https://github.com/rasmus/Vagrant.Boxes).
 
-Alternatively you can skip the NUnit tests marked with the `integration`
+Alternatively, you can skip the NUnit tests marked with the `integration`
 category.
 
 ## Thanks
