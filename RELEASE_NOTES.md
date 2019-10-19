@@ -1,4 +1,8 @@
-### New in 0.76 (not released yet)
+### New in 0.77 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.76.4014 (released 2019-10-19)
 
 * New: Mongo DB read model store Queryable:
   ```csharp
