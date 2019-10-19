@@ -5,6 +5,10 @@
   MongoDbReadModelStore readModelStore;
   IQueryable<TReadModel> queryable = readModelStore.AsQueryable();
   ```
+* New: Moved publish of messages in `RabbitMqPublisher` to a new virtual
+  method to ease reuse and customization
+* Fixed: MongoDB read models no longer has the `new()` generic requirement,
+  which aligns read model requirements with the rest of EventFlow
 
 ### New in 0.75.3970 (released 2019-09-12)
 
