@@ -8,9 +8,6 @@
     <PackageReference Include="EventFlow" Version="0.74.3948" />
     <PackageReference Include="StreamsDB.Driver" Version="0.9.3-dev.23" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ReadStores\" />
+    <PackageReference Include="System.Threading.Channels" Version="4.6.0" />
   </ItemGroup>
 </Project>

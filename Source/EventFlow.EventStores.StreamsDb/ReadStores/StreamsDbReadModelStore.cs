@@ -125,6 +125,18 @@ namespace EventFlow.EventStores.StreamsDb
 
 			try
 			{
+				if (readModelUpdate is CursorBasedReadModelUpdate cursorBasedReadModelUpdate)
+				{
+					var cursorsMessageInput = new MessageInput
+					{
+						ID = Guid.NewGuid().ToString(),
+						Type = "cursors",
+						Value = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(cursorBasedReadModelUpdate.Cursors))
+					};
+
+					// todo: use transaction 
+				}
+
 				await _client.DB().AppendStream(stream, ConcurrencyCheck.ExpectStreamVersion(originalVersion.GetValueOrDefault()), messageInput).ConfigureAwait(false);
 			}
 			catch (OperationCanceledException e)
