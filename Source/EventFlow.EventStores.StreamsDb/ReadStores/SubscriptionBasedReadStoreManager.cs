@@ -3,6 +3,7 @@ using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.ReadStores;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using StreamsDB.Driver;
 using System;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow.EventStores.StreamsDb
 {
-	public class SubscriptionBasedReadStoreManager<TReadModelStore, TReadModel, TReadModelLocator> : IReadStoreManager<TReadModel>
+	public class SubscriptionBasedReadStoreManager<TReadModelStore, TReadModel, TReadModelLocator> : IReadStoreManager<TReadModel>, IHostedService
 		where TReadModelStore : IReadModelStore<TReadModel>
 		where TReadModel : class, IReadModel
 		where TReadModelLocator : IReadModelLocator
@@ -28,6 +29,7 @@ namespace EventFlow.EventStores.StreamsDb
 		private static readonly ISet<Type> AggregateTypes;
 		// ReSharper enable StaticMemberInGenericType
 
+		private string _cursorsStream;
 		private Dictionary<string, long> _cursors;
 
 		protected ILog Log { get; }
@@ -38,6 +40,7 @@ namespace EventFlow.EventStores.StreamsDb
 		public TReadModelLocator ReadModelLocator { get; }
 		public IEventJsonSerializer EventJsonSerializer { get; }
 		protected StreamsDBClient Client { get; }
+
 
 		public Type ReadModelType => StaticReadModelType;
 
@@ -62,7 +65,7 @@ namespace EventFlow.EventStores.StreamsDb
 					$"Read model type '{StaticReadModelType.PrettyPrint()}' implements ambiguous '{typeof(IAmReadModelFor<,,>).PrettyPrint()}' interfaces");
 			}
 
-			AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0])); 
+			AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0]));
 		}
 
 		private static bool IsReadModelFor(Type i)
@@ -77,7 +80,7 @@ namespace EventFlow.EventStores.StreamsDb
 				   typeDefinition == typeof(IAmAsyncReadModelFor<,,>);
 		}
 
-		protected SubscriptionBasedReadStoreManager(
+		public SubscriptionBasedReadStoreManager(
 			ILog log,
 			IResolver resolver,
 			TReadModelStore readModelStore,
@@ -96,7 +99,7 @@ namespace EventFlow.EventStores.StreamsDb
 			EventJsonSerializer = eventJsonSerializer;
 			Client = client;
 
-			
+			_cursorsStream = $"{typeof(TReadModel).Name.ToLowerInvariant()}-cursors";
 		}
 
 		public Task UpdateReadStoresAsync(
@@ -107,17 +110,20 @@ namespace EventFlow.EventStores.StreamsDb
 			return Task.CompletedTask;
 		}
 
-		public async Task StartAsync()
+		public async Task StartAsync(CancellationToken cancellationToken)
 		{
 			await InitializeCursors();
 			Subscribe();
 		}
 
+		public Task StopAsync(CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
 		private async Task InitializeCursors()
 		{
-			var readModelCursorsStream = $"{typeof(TReadModel).Name.ToLowerInvariant()}-cursors";
-
-			var (message, found) = await Client.DB().ReadLastMessageFromStream(readModelCursorsStream);
+			var (message, found) = await Client.DB().ReadLastMessageFromStream(_cursorsStream);
 
 			if (found)
 			{
@@ -132,7 +138,7 @@ namespace EventFlow.EventStores.StreamsDb
 					var groupStream = GetGroupStream(aggregateType);
 					_cursors[groupStream] = 0;
 				}
-			}			
+			}
 		}
 
 		private void Subscribe()
@@ -179,7 +185,7 @@ namespace EventFlow.EventStores.StreamsDb
 
 		private string GetGroupStream(Type aggregateType)
 		{
-			var aggregateName = aggregateType.GetAggregateName();
+			var aggregateName = aggregateType.Name.Substring(0, aggregateType.Name.Length - "aggregate".Length).ToLowerInvariant();
 			var groupStream = $"#{aggregateName}";
 			return groupStream;
 		}
@@ -238,7 +244,7 @@ namespace EventFlow.EventStores.StreamsDb
 			   let readModelIds = ReadModelLocator.GetReadModelIds(de)
 			   from rid in readModelIds
 			   group de by rid into g
-			   select new CursorBasedReadModelUpdate(g.Key, g.OrderBy(d => d.Timestamp).ThenBy(d => d.AggregateSequenceNumber).ToList(), _cursors)
+			   select new CursorBasedReadModelUpdate(g.Key, g.OrderBy(d => d.Timestamp).ThenBy(d => d.AggregateSequenceNumber).ToList(), _cursors, _cursorsStream)
 			   ).ToList();
 			return readModelUpdates;
 		}

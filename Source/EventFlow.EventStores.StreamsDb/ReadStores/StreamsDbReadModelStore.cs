@@ -14,23 +14,23 @@ using StreamsDB.Driver;
 
 namespace EventFlow.EventStores.StreamsDb
 {
-    public class StreamsDbReadModelStore<TReadModel> :
-        ReadModelStore<TReadModel>,
-        IStreamsDbReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel
-    {
-        private readonly StreamsDBClient _client;
+	public class StreamsDbReadModelStore<TReadModel> :
+		ReadModelStore<TReadModel>,
+		IStreamsDbReadModelStore<TReadModel>
+		where TReadModel : class, IReadModel
+	{
+		private readonly StreamsDBClient _client;
 
 		private readonly IReadModelFactory<TReadModel> _readModelFactory;
 
-		public StreamsDbReadModelStore(StreamsDBClient client, IReadModelFactory<TReadModel> readModelFactory, ILog log): base(log)
-        {
-            _client = client;
+		public StreamsDbReadModelStore(StreamsDBClient client, IReadModelFactory<TReadModel> readModelFactory, ILog log) : base(log)
+		{
+			_client = client;
 			_readModelFactory = readModelFactory;
 		}
 
-        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
-        {
+		public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
+		{
 			var readModelType = typeof(TReadModel);
 			var stream = $"{readModelType.Name.ToLowerInvariant()}-{id}";
 
@@ -38,21 +38,26 @@ namespace EventFlow.EventStores.StreamsDb
 
 			if (!found)
 			{
+				Log.Verbose(() => $"Could not find any StreamsDb read model '{readModelType.PrettyPrint()}' with ID '{id}'");
 				return ReadModelEnvelope<TReadModel>.Empty(id);
 			}
 
 			var json = Encoding.UTF8.GetString(lastMessage.Value);
-			var result = JsonConvert.DeserializeObject<TReadModel>(json);
+			var readModel = JsonConvert.DeserializeObject<TReadModel>(json);
 
-			return ReadModelEnvelope<TReadModel>.With(id, result);
-        }
+			var readModelVersion = lastMessage.Position;
 
-        public override async Task UpdateAsync(
-			IReadOnlyCollection<ReadModelUpdate> readModelUpdates, 
-			IReadModelContextFactory readModelContextFactory, 
-			Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel, 
+			Log.Verbose(() => $"Found StreamsDb read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{readModelVersion}'");
+
+			return ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion);
+		}
+
+		public override async Task UpdateAsync(
+			IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+			IReadModelContextFactory readModelContextFactory,
+			Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
 			CancellationToken cancellationToken)
-        {
+		{
 			var readModelType = typeof(TReadModel);
 
 			Log.Verbose(() =>
@@ -135,26 +140,27 @@ namespace EventFlow.EventStores.StreamsDb
 					};
 
 					// todo: use transaction 
+					await _client.DB().AppendStream(cursorBasedReadModelUpdate.CursorsStream, cursorsMessageInput).ConfigureAwait(false);
 				}
 
 				await _client.DB().AppendStream(stream, ConcurrencyCheck.ExpectStreamVersion(originalVersion.GetValueOrDefault()), messageInput).ConfigureAwait(false);
 			}
-			catch (OperationCanceledException e)
+			catch (Exception e)
 			{
 				throw new OptimisticConcurrencyException($"Read model '{readModelEnvelope.ReadModelId}' updated by another", e);
-			}			
+			}
 
 			Log.Verbose(() => $"Updated StreamsDB read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
 		}
 
 		public override Task DeleteAsync(string id, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+		{
+			throw new NotImplementedException();
+		}
 
-        public override Task DeleteAllAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public override Task DeleteAllAsync(CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
