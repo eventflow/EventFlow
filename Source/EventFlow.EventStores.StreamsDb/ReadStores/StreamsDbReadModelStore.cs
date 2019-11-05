@@ -14,27 +14,30 @@ using StreamsDB.Driver;
 
 namespace EventFlow.EventStores.StreamsDb
 {
-	public class StreamsDbReadModelStore<TReadModel> :
-		ReadModelStore<TReadModel>,
-		IStreamsDbReadModelStore<TReadModel>
-		where TReadModel : class, IReadModel
-	{
-		private readonly StreamsDBClient _client;
+    public class StreamsDbReadModelStore<TReadModel> :
+        ReadModelStore<TReadModel>,
+        IStreamsDbReadModelStore<TReadModel>
+        where TReadModel : class, IReadModel
+    {
+        private readonly StreamsDBClient _client;
 
 		private readonly IReadModelFactory<TReadModel> _readModelFactory;
 
-		public StreamsDbReadModelStore(StreamsDBClient client, IReadModelFactory<TReadModel> readModelFactory, ILog log) : base(log)
-		{
-			_client = client;
+		public StreamsDbReadModelStore(StreamsDBClient client, IReadModelFactory<TReadModel> readModelFactory, ILog log): base(log)
+        {
+            _client = client;
 			_readModelFactory = readModelFactory;
 		}
 
-		public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
-		{
+        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
+        {
 			var readModelType = typeof(TReadModel);
-			var stream = $"{readModelType.Name.ToLowerInvariant()}-{id}";
 
-			var (lastMessage, found) = await _client.DB().ReadLastMessageFromStream(stream);
+            var stream = id == "null"
+              ? readModelType.Name.ToLowerInvariant()
+              : $"{readModelType.Name.ToLowerInvariant()}-{id}";
+
+            var (lastMessage, found) = await _client.DB().ReadLastMessageFromStream(stream);
 
 			if (!found)
 			{
@@ -52,12 +55,12 @@ namespace EventFlow.EventStores.StreamsDb
 			return ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion);
 		}
 
-		public override async Task UpdateAsync(
-			IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
-			IReadModelContextFactory readModelContextFactory,
-			Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
+        public override async Task UpdateAsync(
+			IReadOnlyCollection<ReadModelUpdate> readModelUpdates, 
+			IReadModelContextFactory readModelContextFactory, 
+			Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel, 
 			CancellationToken cancellationToken)
-		{
+        {
 			var readModelType = typeof(TReadModel);
 
 			Log.Verbose(() =>
@@ -119,7 +122,10 @@ namespace EventFlow.EventStores.StreamsDb
 			}
 
 			var readModelType = typeof(TReadModel);
-			var stream = $"{readModelType.Name.ToLowerInvariant()}-{readModelId}";
+
+            var stream = readModelId == "null"
+               ? readModelType.Name.ToLowerInvariant()
+               : $"{readModelType.Name.ToLowerInvariant()}-{readModelId}";
 
 			var messageInput = new MessageInput
 			{
@@ -139,28 +145,32 @@ namespace EventFlow.EventStores.StreamsDb
 						Value = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(cursorBasedReadModelUpdate.Cursors))
 					};
 
-					// todo: use transaction 
-					await _client.DB().AppendStream(cursorBasedReadModelUpdate.CursorsStream, cursorsMessageInput).ConfigureAwait(false);
+                    await _client.DB().AppendStreams(
+                        new StreamInput(cursorBasedReadModelUpdate.CursorsStream, new List<MessageInput> { cursorsMessageInput }),
+                        new StreamInput(stream, ConcurrencyCheck.ExpectStreamVersion(originalVersion.GetValueOrDefault()), new List<MessageInput> { messageInput })
+                    ).ConfigureAwait(false);
 				}
-
-				await _client.DB().AppendStream(stream, ConcurrencyCheck.ExpectStreamVersion(originalVersion.GetValueOrDefault()), messageInput).ConfigureAwait(false);
+                else
+                {
+                    await _client.DB().AppendStream(stream, ConcurrencyCheck.ExpectStreamVersion(originalVersion.GetValueOrDefault()), messageInput).ConfigureAwait(false);
+                }
 			}
 			catch (Exception e)
 			{
 				throw new OptimisticConcurrencyException($"Read model '{readModelEnvelope.ReadModelId}' updated by another", e);
-			}
+			}			
 
 			Log.Verbose(() => $"Updated StreamsDB read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
 		}
 
 		public override Task DeleteAsync(string id, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
+        {
+            throw new NotImplementedException();
+        }
 
-		public override Task DeleteAllAsync(CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-	}
+        public override Task DeleteAllAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

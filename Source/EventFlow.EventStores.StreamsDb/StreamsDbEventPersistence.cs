@@ -12,18 +12,10 @@ using StreamsDB.Driver;
 
 namespace EventFlow.EventStores.StreamsDb
 {
-	public class StreamsDbEventPersistence : IEventPersistence
+    public class StreamsDbEventPersistence : IEventPersistence
 	{
 		private readonly ILog _log;
 		private readonly StreamsDBClient _client;
-
-		private class EventFlowEvent : ICommittedDomainEvent
-		{
-			public string AggregateId { get; set; }
-			public string Data { get; set; }
-			public string Metadata { get; set; }
-			public int AggregateSequenceNumber { get; set; }
-		}
 
 		public StreamsDbEventPersistence(ILog log, StreamsDBClient client)
 		{
@@ -38,7 +30,7 @@ namespace EventFlow.EventStores.StreamsDb
 			IGlobalSlice currentSlice;
 			var from = globalPosition.IsStart
 				? StreamsDB.Driver.GlobalPosition.Begin
-				: StreamsDB.Driver.GlobalPosition.Begin.Parse(globalPosition.Value);
+				: StreamsDB.Driver.GlobalPosition.Parse(globalPosition.Value);
 
 			do
 			{
@@ -56,7 +48,7 @@ namespace EventFlow.EventStores.StreamsDb
 		public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
 		{
 			var eventFlowEvents = serializedEvents
-				.Select(e => new EventFlowEvent
+				.Select(e => new StreamsDbEvent
 				{
 					AggregateSequenceNumber = e.AggregateSequenceNumber,
 					Metadata = e.SerializedMetadata,
@@ -119,10 +111,10 @@ namespace EventFlow.EventStores.StreamsDb
 			throw new NotSupportedException();
 		}
 
-		private static IReadOnlyCollection<EventFlowEvent> Map(IEnumerable<Message> resolvedEvents)
+		private static IReadOnlyCollection<StreamsDbEvent> Map(IEnumerable<Message> resolvedEvents)
 		{
 			return resolvedEvents
-				.Select(e => new EventFlowEvent
+				.Select(e => new StreamsDbEvent
 				{
 					AggregateSequenceNumber = (int)e.Position,
 					Metadata = Encoding.UTF8.GetString(e.Header),

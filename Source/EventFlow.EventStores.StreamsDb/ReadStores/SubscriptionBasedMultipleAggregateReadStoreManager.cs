@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow.EventStores.StreamsDb
 {
-	public class SubscriptionBasedReadStoreManager<TReadModelStore, TReadModel, TReadModelLocator> : IReadStoreManager<TReadModel>, IHostedService
+	public class SubscriptionBasedMultipleAggregateReadStoreManager<TReadModelStore, TReadModel, TReadModelLocator> : IReadStoreManager<TReadModel>, IHostedService
 		where TReadModelStore : IReadModelStore<TReadModel>
 		where TReadModel : class, IReadModel
 		where TReadModelLocator : IReadModelLocator
@@ -40,11 +40,11 @@ namespace EventFlow.EventStores.StreamsDb
 		public TReadModelLocator ReadModelLocator { get; }
 		public IEventJsonSerializer EventJsonSerializer { get; }
 		protected StreamsDBClient Client { get; }
-
+		
 
 		public Type ReadModelType => StaticReadModelType;
 
-		static SubscriptionBasedReadStoreManager()
+		static SubscriptionBasedMultipleAggregateReadStoreManager()
 		{
 			var iAmReadModelForInterfaceTypes = StaticReadModelType
 				.GetTypeInfo()
@@ -65,7 +65,7 @@ namespace EventFlow.EventStores.StreamsDb
 					$"Read model type '{StaticReadModelType.PrettyPrint()}' implements ambiguous '{typeof(IAmReadModelFor<,,>).PrettyPrint()}' interfaces");
 			}
 
-			AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0]));
+			AggregateTypes = new HashSet<Type>(iAmReadModelForInterfaceTypes.Select(i => i.GetTypeInfo().GetGenericArguments()[0])); 
 		}
 
 		private static bool IsReadModelFor(Type i)
@@ -80,7 +80,7 @@ namespace EventFlow.EventStores.StreamsDb
 				   typeDefinition == typeof(IAmAsyncReadModelFor<,,>);
 		}
 
-		public SubscriptionBasedReadStoreManager(
+		public SubscriptionBasedMultipleAggregateReadStoreManager(
 			ILog log,
 			IResolver resolver,
 			TReadModelStore readModelStore,
@@ -138,7 +138,7 @@ namespace EventFlow.EventStores.StreamsDb
 					var groupStream = GetGroupStream(aggregateType);
 					_cursors[groupStream] = 0;
 				}
-			}
+			}			
 		}
 
 		private void Subscribe()

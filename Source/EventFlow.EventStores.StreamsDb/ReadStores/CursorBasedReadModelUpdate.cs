@@ -9,7 +9,7 @@ namespace EventFlow.EventStores.StreamsDb
 		public Dictionary<string, long> Cursors { get; }
 		public string CursorsStream { get; }
 
-		public CursorBasedReadModelUpdate(string readModelId, IReadOnlyCollection<IDomainEvent> domainEvents, Dictionary<string, long> cursors, string cursorsStream)
+		public CursorBasedReadModelUpdate(string readModelId, IReadOnlyCollection<IDomainEvent> domainEvents, Dictionary<string, long> cursors, string cursorsStream) 
 			: base(readModelId, domainEvents)
 		{
 			Cursors = cursors;

@@ -1,4 +1,6 @@
-﻿using EventFlow.ReadStores;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.ReadStores;
 
 namespace EventFlow.EventStores.StreamsDb
 {

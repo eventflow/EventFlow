@@ -5,9 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StreamsDB.Driver" Version="0.9.3-dev.23" />
+    <PackageReference Include="StreamsDB.Driver" Version="0.9.5-dev.31" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="System.Threading.Channels" Version="4.6.0" />
+    <PackageReference Include="Polly" Version="7.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
   <ItemGroup>
