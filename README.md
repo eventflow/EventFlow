@@ -223,7 +223,7 @@ public class ExampleAggregate : AggregateRoot<ExampleAggregate, ExampleId>,
   public ExampleAggregate(ExampleId id) : base(id) { }
 
   // Method invoked by our command
-  public void SetMagicNumer(int magicNumber)
+  public void SetMagicNumber(int magicNumber)
   {
     if (_magicNumber.HasValue)
       throw DomainError.With("Magic number already set");
@@ -288,7 +288,7 @@ public class ExampleCommandHandler
     ExampleCommand command,
     CancellationToken cancellationToken)
   {
-    aggregate.SetMagicNumer(command.MagicNumber);
+    aggregate.SetMagicNumber(command.MagicNumber);
     return Task.FromResult(0);
   }
 }
