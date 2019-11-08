@@ -17,7 +17,7 @@ using MongoDB.Driver;
 namespace EventFlow.MongoDB.ReadStores
 {
     public class MongoDbReadModelStore<TReadModel> : IMongoDbReadModelStore<TReadModel>
-        where TReadModel : class, IMongoDbReadModel, new()
+        where TReadModel : class, IMongoDbReadModel
     {
         private readonly ILog _log;
         private readonly IMongoDatabase _mongoDatabase;

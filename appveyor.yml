@@ -3,7 +3,7 @@ init:
   - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
   - ps: Restart-Service docker
   
-version: 0.76.{build}
+version: 0.77.{build}
 
 skip_tags: true
 
