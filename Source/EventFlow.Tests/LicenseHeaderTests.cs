@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
@@ -41,6 +42,14 @@ namespace EventFlow.Tests
                 Path.Combine("EventFlow", "Core", "HashHelper.cs"),
                 Path.Combine("EventFlow", "Logs", "Internals", "ImportedLibLog.cs")
             };
+        private static readonly ISet<string> ValidCopyrightNames = new HashSet<string>
+            {
+                "Rasmus Mikkelsen",
+                "eBay Software Foundation"
+            };
+        private static readonly Regex CopyrightLineExtractor = new Regex(
+            @"Copyright \(c\) 20\d{2}\-20\d{2} (?<name>.*)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         [Test]
         public async Task EveryFileHasCorrectLicenseHeader()
@@ -62,7 +71,7 @@ namespace EventFlow.Tests
 
             // Missing name in header as defined by the CLA (current license)
             var missingNameInHeader = sourceFiles
-                .Where(s => !s.License.Any(l => l.Contains("Rasmus Mikkelsen")) || !s.License.Any(l => l.Contains("eBay Software Foundation")))
+                .Where(s => !s.Copyright.All(ValidCopyrightNames.Contains))
                 .Where(s => !ExternalFiles.Contains(PathRelativeTo(sourceRoot, s.Path)))
                 .ToList();
             Console.WriteLine("File with incorrect name in header according to CLA");
@@ -105,22 +114,32 @@ namespace EventFlow.Tests
                 .TakeWhile(l => l.StartsWith("//"))
                 .ToList();
 
+            var copyright = license
+                .Select(l => CopyrightLineExtractor.Match(l))
+                .Where(m => m.Success)
+                .Select(m => m.Groups["name"].Value)
+                .ToList();
+
             return new SourceFile(
                 path,
-                license);
+                license,
+                copyright);
         }
 
         private class SourceFile
         {
             public string Path { get; }
             public IReadOnlyCollection<string> License { get; }
+            public IReadOnlyCollection<string> Copyright { get; }
 
             public SourceFile(
                 string path,
-                IReadOnlyCollection<string> license)
+                IReadOnlyCollection<string> license,
+                IReadOnlyCollection<string> copyright)
             {
                 Path = path;
                 License = license;
+                Copyright = copyright;
             }
 
             public override string ToString()
