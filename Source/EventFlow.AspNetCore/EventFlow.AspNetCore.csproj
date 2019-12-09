@@ -9,7 +9,7 @@
     <Title>EventFlow.AspNetCore</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
     <Description>AspNetCore support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing AspNetCore</PackageTags>
     <RepositoryType>git</RepositoryType>

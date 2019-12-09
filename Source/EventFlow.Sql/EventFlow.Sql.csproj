@@ -9,7 +9,7 @@
     <Title>EventFlow.Sql</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
     <Description>Generic SQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing SQL</PackageTags>
     <RepositoryType>git</RepositoryType>
