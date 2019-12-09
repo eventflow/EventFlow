@@ -1,5 +1,7 @@
 init:
-  - git config --global core.autocrlf input
+  - ps: git config --global core.autocrlf input
+  - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
+  - ps: Restart-Service docker
 
 version: 0.77.{build}
 

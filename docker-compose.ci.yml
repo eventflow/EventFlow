@@ -1,19 +1,27 @@
-version: '3'
+version: '2.4'
 
 services:
   rabbitmq:
-    image: idubnori/rabbitmq-windows:3.6.9
+    image: rabbitmq:3-management-alpine
     container_name: rabbitmq-ef
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   elasticsearch:
-    image: sixeyed/elasticsearch:5.6.0-nanoserver-sac2016
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.3
     container_name: elasticsearch-ef
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    mem_limit: 4g
 
   eventstore:
-    image: idubnori/eventstore:4.1.1-hotfix1-windowsservercore
+    image: eventstore/eventstore
     container_name: eventstore-ef
-
-networks:
-  default:
-    external:
-      name: nat
+    ports:
+      - "1113:1113"
+      - "2113:2113"
