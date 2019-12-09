@@ -22,7 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 
 namespace EventFlow.TestHelpers.MsSql
 {
@@ -43,34 +44,36 @@ namespace EventFlow.TestHelpers.MsSql
         {
             var databaseName = $"{label}_{DateTime.Now:yyyy-MM-dd-HH-mm}_{Guid.NewGuid():N}";
 
-            // TODO: Move to connection string builder
-
-            var connectionStringParts = new List<string>
+            var connectionStringBuilder = new SqlConnectionStringBuilder()
                 {
-                    $"Database={databaseName}"
+                    InitialCatalog = databaseName,
+                    DataSource = FirstNonEmpty(
+                        Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
+                        ".")
                 };
 
-            var environmentServer = Environment.GetEnvironmentVariable("HELPZ_MSSQL_SERVER");
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PASS");
-            var environmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER");
+            var password = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_PASS");
+            var username = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_USER");
 
-            connectionStringParts.Add(string.IsNullOrEmpty(environmentServer)
-                ? @"Server=."
-                : $"Server={environmentServer}");
-            connectionStringParts.Add(string.IsNullOrEmpty(environmentUsername)
-                ? @"Integrated Security=True"
-                : $"User Id={environmentUsername}");
-            connectionStringParts.Add("Connection Timeout=60");
-            if (!string.IsNullOrEmpty(environmentPassword))
+            if (!string.IsNullOrEmpty(username) &&
+                !string.IsNullOrEmpty(password))
             {
-                connectionStringParts.Add($"Password={environmentPassword}");
+                connectionStringBuilder.UserID = username;
+                connectionStringBuilder.Password = password;
+            }
+            else
+            {
+                connectionStringBuilder.IntegratedSecurity = true;
             }
 
-            var connectionString = string.Join(";", connectionStringParts);
+            Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
 
-            Console.WriteLine($"Using connection string for tests: {connectionString}");
+            return new MsSqlConnectionString(connectionStringBuilder.ConnectionString);
+        }
 
-            return new MsSqlConnectionString(connectionString);
+        private static string FirstNonEmpty(params string[] parts)
+        {
+            return parts.First(s => !string.IsNullOrEmpty(s));
         }
     }
 }
