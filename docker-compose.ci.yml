@@ -20,7 +20,7 @@ services:
     mem_limit: 4g
 
   eventstore:
-    image: eventstore/eventstore
+    image: eventstore/eventstore:release-4.1.3
     container_name: eventstore-ef
     ports:
       - "1113:1113"

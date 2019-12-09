@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,12 +35,14 @@ using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
+// ReSharper disable ClassNeverInstantiated.Local
+
 namespace EventFlow.Tests.IntegrationTests.ReadStores
 {
     [Category(Categories.Integration)]
     public class MultipleAggregateReadStoreManagerTests : IntegrationTest
     {
-        private const string ReadModeld = "the one";
+        private const string ReadModelId = "the one";
         
         [Test]
         public async Task EventOrdering()
@@ -62,7 +64,10 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
             await ReadModelPopulator.PopulateAsync(typeof(ReadModelAB), CancellationToken.None);
             
             // Assert
-            var readModelAb = await QueryProcessor.ProcessAsync(new ReadModelByIdQuery<ReadModelAB>(ReadModeld), CancellationToken.None);
+            var readModelAb = await QueryProcessor.ProcessAsync(
+                new ReadModelByIdQuery<ReadModelAB>(ReadModelId),
+                CancellationToken.None);
+            
             readModelAb.Indexes.Should().BeEquivalentTo(
                 new []{0, 1, 2, 3},
                 o => o.WithStrictOrdering());
@@ -175,7 +180,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
         {
             public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
             {
-                return new[] {ReadModeld};
+                return new[] {ReadModelId};
             }
         }
 
@@ -184,7 +189,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
             IAmReadModelFor<AggregateB, IdB, EventB>
         {
             private readonly List<int> _indexes = new List<int>();
-            public IReadOnlyCollection<int> Indexes => _indexes;
+            public IEnumerable<int> Indexes => _indexes;
             
             public void Apply(IReadModelContext context, IDomainEvent<AggregateA, IdA, EventA> domainEvent)
             {
