@@ -8,18 +8,24 @@ skip_tags: true
 build_script:
   - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 --bootstrap; .\build.ps1 -Target All;"
 
-image: Visual Studio 2017
+# https://www.appveyor.com/docs/services-databases/
+# https://www.appveyor.com/docs/windows-images-software/
+
+image: Visual Studio 2019
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
-
+  HELPZ_MSSQL_SERVER: (local)\SQL2017
+  HELPZ_MSSQL_USER: sa
+  HELPZ_MSSQL_PASS: Password12!
+  
 test: off
 
 artifacts:
   - path: Build\Packages\*nupkg
 
 services:
-  - mssql2014
+  - mssql2017
   - postgresql101
 
 on_success:
