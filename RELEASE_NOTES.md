@@ -1,6 +1,6 @@
 ### New in 0.77 (not released yet)
 
-* _Nothing yet_
+* New: The `EventFlow.AspNetCore` NuGet package now has ASPNET Core 3 support
 
 ### New in 0.76.4014 (released 2019-10-19)
 
