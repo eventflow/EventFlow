@@ -1,6 +1,6 @@
-# Contributers
+# Contributors
 
-List of notable contributers to EventFlow sorted alphabetically. For a
+List of notable contributors to EventFlow sorted alphabetically. For a
 complete list of all contributions to EventFlow, have look at the
 [contributors](https://github.com/eventflow/EventFlow/graphs/contributors)
 graph.
@@ -18,6 +18,11 @@ If you think your name is missing from the list, create a pull-request.
 ### [Edward Wilson](https://github.com/edwardwilson)
 
 * Original MongoDB author
+
+### [Emanuele Curati](https://github.com/ProH4Ck)
+
+* ASP.NET Core 3 
+* Docker integration test cleanup
 
 ### [Frank Ebersoll](https://github.com/frankebersoll)
 
@@ -37,17 +42,17 @@ If you think your name is missing from the list, create a pull-request.
 * Several key contributions and bug fixes
 * Donated Navicat Essentials for SQLite
 
-### [janfeyen](https://github.com/janfeyen)
+### [Jan Feyen](https://github.com/janfeyen)
 
 * Key MongoDB contributions
-
-### [rmess](https://github.com/rmess)
-
-* PostgreSQL implementation
 
 ### [Rasmus Mikkelsen](https://github.com/rasmus)
 
 * Original creator and author of EventFlow
+
+### [Rida Messaoudene](https://github.com/rmess)
+
+* PostgreSQL implementation
 
 ### [Willem Peters](https://github.com/wgtmpeters)
 
