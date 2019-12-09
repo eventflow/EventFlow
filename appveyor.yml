@@ -20,7 +20,7 @@ environment:
   EVENTFLOW_MSSQL_SERVER: (local)\SQL2017
   EVENTFLOW_MSSQL_USER: sa
   EVENTFLOW_MSSQL_PASS: Password12!
-  
+
 test: off
 
 artifacts:
