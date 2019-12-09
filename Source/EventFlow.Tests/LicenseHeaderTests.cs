@@ -28,27 +28,54 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 
+// ReSharper disable StringLiteralTypo
+
 namespace EventFlow.Tests
 {
     public class LicenseHeaderTests
     {
         private static readonly char[] LineSplitters = {'\n', '\r'};
+        private static readonly ISet<string> ExternalFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                Path.Combine("EventFlow", "Core", "HashHelper.cs"),
+                Path.Combine("EventFlow", "Logs", "Internals", "ImportedLibLog.cs")
+            };
 
         [Test]
-        public async Task EveryFileHasLicenseHeader()
+        public async Task EveryFileHasCorrectLicenseHeader()
         {
-            var projectRoot = Helpers.GetProjectRoot();
-            var sourceFilesPaths = GetSourceFilePaths(projectRoot);
+            var sourceRoot = Path.Combine(Helpers.GetProjectRoot(), "Source");
+            var sourceFilesPaths = GetSourceFilePaths(sourceRoot);
 
             var sourceFiles = await Task.WhenAll(sourceFilesPaths.Select(GetSourceFileAsync));
 
+            // Sanity asserts
+            sourceFiles.Should().HaveCountGreaterThan(800);
+
+            // Missing headers
             var missingHeaders = sourceFiles
                 .Where(s => s.License.Count < 20)
                 .ToList();
-            
+            Console.WriteLine("File with missing license header");
             missingHeaders.ForEach(Console.WriteLine);
 
+            // Missing name in header as defined by the CLA (current license)
+            var missingNameInHeader = sourceFiles
+                .Where(s => s.License.All(l => !l.Contains("Rasmus Mikkelsen")))
+                .Where(s => !ExternalFiles.Contains(PathRelativeTo(sourceRoot, s.Path)))
+                .ToList();
+            Console.WriteLine("File with incorrect name in header according to CLA");
+            missingNameInHeader.ForEach(Console.WriteLine);
+
+            // Asserts
             missingHeaders.Should().BeEmpty();
+            missingNameInHeader.Should().BeEmpty();
+        }
+
+        private static string PathRelativeTo(string root, string fullPath)
+        {
+            var path = fullPath.Replace(root, string.Empty).Trim(Path.DirectorySeparatorChar);
+            return path;
         }
 
         private static IEnumerable<string> GetSourceFilePaths(
