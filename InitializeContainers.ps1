@@ -1,6 +1,8 @@
+$stopwatch = [Diagnostics.Stopwatch]::StartNew()
+
 # Up containers
 docker-compose --compatibility pull
-docker-compose --compatibility up -d
+docker-compose --compatibility up -d --force-recreate
 
 # Wait for containers to become healthy
 while ($true) {
@@ -12,7 +14,9 @@ while ($true) {
 
     Write-Host "Containers not ready $count"
     . docker ps --format="{{.ID}}" | ForEach-Object { . docker inspect --format="{{ .Name }}: {{ .State.Health.Status }}" $_ } | ForEach-Object { Write-Host $_ }
-    Start-Sleep -s 2
+    Start-Sleep -s 3
 }
 
-Write-Host "All containers are ready"
+
+Write-Host "All containers are ready after"
+$stopwatch.Elapsed
