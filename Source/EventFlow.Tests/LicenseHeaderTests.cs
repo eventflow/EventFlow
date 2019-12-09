@@ -1,6 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -61,7 +62,7 @@ namespace EventFlow.Tests
 
             // Missing name in header as defined by the CLA (current license)
             var missingNameInHeader = sourceFiles
-                .Where(s => s.License.All(l => !l.Contains("Rasmus Mikkelsen")))
+                .Where(s => !s.License.Any(l => l.Contains("Rasmus Mikkelsen")) || !s.License.Any(l => l.Contains("eBay Software Foundation")))
                 .Where(s => !ExternalFiles.Contains(PathRelativeTo(sourceRoot, s.Path)))
                 .ToList();
             Console.WriteLine("File with incorrect name in header according to CLA");
