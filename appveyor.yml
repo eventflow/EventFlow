@@ -8,7 +8,7 @@ version: 0.77.{build}
 skip_tags: true
 
 build_script:
-  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 --bootstrap; .\build.ps1 -Target All;"
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\InitializeContainers.ps1; .\build.ps1 --bootstrap; .\build.ps1 -Target All;"
 
 # https://www.appveyor.com/docs/services-databases/
 # https://www.appveyor.com/docs/windows-images-software/
