@@ -26,6 +26,7 @@ using EventFlow.Extensions;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.PostgreSql.EventStores;
 using EventFlow.PostgreSql.Extensions;
+using EventFlow.PostgreSql.Tests.TestHelpers;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;

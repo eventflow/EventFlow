@@ -28,7 +28,6 @@ artifacts:
 
 services:
   - mssql2017
-  - postgresql101
 
 on_success:
 - choco install codecov

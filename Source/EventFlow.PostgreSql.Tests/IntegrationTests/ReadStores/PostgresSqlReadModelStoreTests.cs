@@ -29,6 +29,7 @@ using EventFlow.PostgreSql.EventStores;
 using EventFlow.PostgreSql.Extensions;
 using EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.PostgreSql.Tests.TestHelpers;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;

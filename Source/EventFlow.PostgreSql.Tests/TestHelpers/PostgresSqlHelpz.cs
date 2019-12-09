@@ -22,9 +22,9 @@
 
 using System;
 using System.Collections.Generic;
+using EventFlow.PostgreSql.TestsHelpers;
 
-namespace EventFlow.PostgreSql.TestsHelpers
-
+namespace EventFlow.PostgreSql.Tests.TestHelpers
 {
     public static class PostgreSqlHelpz
     {
@@ -43,36 +43,40 @@ namespace EventFlow.PostgreSql.TestsHelpers
         {
             var databaseName = $"{label}_{DateTime.Now:yyyy-MM-dd-HH-mm}_{Guid.NewGuid():N}";
 
-            var connectionstringParts = new List<string>
-            {
-                $"Database={databaseName}"
-            };
+            var connectionStringParts = new List<string>
+                {
+                    $"Database={databaseName}"
+                };
 
-            var environmentServer = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_SERVER", EnvironmentVariableTarget.Machine);
-            var environmentPort = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PORT", EnvironmentVariableTarget.Machine);
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS");
-            var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_USER", EnvironmentVariableTarget.Machine);
+            var server = GetEnvironmentVariableOrDefault("EVENTFLOW_POSTGRESQL_SERVER", "localhost");
+            var port = GetEnvironmentVariableOrDefault("EVENTFLOW_POSTGRESQL_PORT", "5432");
+            var password = GetEnvironmentVariableOrDefault("EVENTFLOW_POSTGRESQL_PASS", "postgres");
+            var username = GetEnvironmentVariableOrDefault("EVENTFLOW_POSTGRESQL_USER", "Password12!");
 
-
-            environmentServer = "localhost";
-            environmentPort = "5432";
-            envrionmentUsername = "postgres";
-
-            connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
+            connectionStringParts.Add(string.IsNullOrEmpty(server)
                 ? @"Server=localhost"
-                : $"Server={environmentServer}");
-            connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
+                : $"Server={server}");
+            connectionStringParts.Add(string.IsNullOrEmpty(username)
                 ? @"User Id=postgres"
-                : $"User Id={envrionmentUsername}");
-            connectionstringParts.Add(string.IsNullOrEmpty(environmentPort)
+                : $"User Id={username}");
+            connectionStringParts.Add(string.IsNullOrEmpty(port)
                 ? @"Port=5432"
-                : $"Port={environmentPort}");
-            if (!string.IsNullOrEmpty(environmentPassword))
+                : $"Port={port}");
+
+            if (!string.IsNullOrEmpty(password))
             {
-                connectionstringParts.Add($"Password={environmentPassword}");
+                connectionStringParts.Add($"Password={password}");
             }
 
-            return new PostgreSqlConnectionString(string.Join(";", connectionstringParts));
+            return new PostgreSqlConnectionString(string.Join(";", connectionStringParts));
+        }
+
+        private static string GetEnvironmentVariableOrDefault(
+            string key,
+            string defaultValue)
+        {
+            var value = Environment.GetEnvironmentVariable(key);
+            return string.IsNullOrEmpty(value) ? defaultValue : value;
         }
     }
 }

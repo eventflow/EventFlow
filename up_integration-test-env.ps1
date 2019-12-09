@@ -1,6 +1,6 @@
 # Up containers
-docker-compose --compatibility -f docker-compose.ci.yml pull
-docker-compose --compatibility -f docker-compose.ci.yml up -d
+docker-compose --compatibility pull
+docker-compose --compatibility up -d
 
 # Install curl
 cinst curl -y --no-progress

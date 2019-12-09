@@ -26,6 +26,7 @@ using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
+using EventFlow.PostgreSql.Tests.TestHelpers;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;

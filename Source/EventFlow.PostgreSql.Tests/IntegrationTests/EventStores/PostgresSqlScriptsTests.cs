@@ -24,6 +24,7 @@ using System.Linq;
 
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.EventStores;
+using EventFlow.PostgreSql.Tests.TestHelpers;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 
