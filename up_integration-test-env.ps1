@@ -14,7 +14,7 @@ $env:ELASTICSEARCH_URL = "http://localhost:9200"
 # Event Store
 $env:EVENTSTORE_URL = "tcp://admin:changeit@localhost:1113"
 
-# Helth check
+# Health checks
 # Event Store
 curl --connect-timeout 60 --retry 5 -sL "http://localhost:2113"
 # Elasticsearch
