@@ -53,7 +53,7 @@ namespace EventFlow.MongoDB.Extensions
 
         public static IEventFlowOptions UseMongoDbReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMongoDbReadModel, new()
+            where TReadModel : class, IMongoDbReadModel
         {
             return eventFlowOptions
                 .RegisterServices(f =>
@@ -66,7 +66,7 @@ namespace EventFlow.MongoDB.Extensions
 
         public static IEventFlowOptions UseMongoDbReadModel<TReadModel, TReadModelLocator>(
             this IEventFlowOptions eventFlowOptions)
-            where TReadModel : class, IMongoDbReadModel, new()
+            where TReadModel : class, IMongoDbReadModel
             where TReadModelLocator : IReadModelLocator
         {
             return eventFlowOptions
