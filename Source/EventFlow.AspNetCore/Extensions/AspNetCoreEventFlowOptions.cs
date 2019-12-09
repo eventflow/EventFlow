@@ -93,12 +93,22 @@ namespace EventFlow.AspNetCore.Extensions
             return this;
         }
 
+#if NETSTANDARD2_0
         public AspNetCoreEventFlowOptions UseMvcJsonOptions()
         {
             _options.RegisterServices(s =>
                 s.Register<IConfigureOptions<MvcJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
             return this;
         }
+#endif
+#if NETCOREAPP3_0
+        public AspNetCoreEventFlowOptions UseMvcJsonOptions()
+        {
+            _options.RegisterServices(s =>
+                s.Register<IConfigureOptions<MvcNewtonsoftJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
+            return this;
+        }
+#endif
 
         public AspNetCoreEventFlowOptions UseModelBinding(
             Action<EventFlowModelBindingMvcConfiguration> configureModelBinding = null)
