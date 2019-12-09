@@ -45,6 +45,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
         private const string ReadModelId = "the one";
         
         [Test]
+        [Ignore("Test unstable, issue #710")]
         public async Task EventOrdering()
         {
             // Repopulating read models that span multiple aggregates should have their events
