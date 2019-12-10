@@ -8,8 +8,8 @@
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow.PostgreSql</Title>
     <Authors>Rida Messaoudene</Authors>
-    <Company>Rida Messaoudene</Company>
-    <Copyright>Copyright (c) Rida Messaoudene 2015 - 2018</Copyright>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
     <Description>POSTGRESQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing POSTGRESQL</PackageTags>
     <RepositoryType>git</RepositoryType>

@@ -1,6 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rida Messaoudene
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +23,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-
 using EventFlow.Sql.Extensions;
 using EventFlow.Sql.Migrations;
 
