@@ -57,7 +57,7 @@ namespace EventFlow.Aggregates
             return Task.FromResult((TAggregate)aggregate);
         }
 
-        private static AggregateConstruction CreateAggregateConstruction<TAggregate, TIdentity>()
+        private AggregateConstruction CreateAggregateConstruction<TAggregate, TIdentity>()
         {
             var constructorInfos = typeof(TAggregate)
                 .GetTypeInfo()
@@ -66,7 +66,16 @@ namespace EventFlow.Aggregates
 
             if (constructorInfos.Count != 1)
             {
-                throw new ArgumentException($"Aggregate type '{typeof(TAggregate).PrettyPrint()}' doesn't have just one constructor");
+                if (!_resolver.GetRegisteredServices().Contains(typeof(TAggregate)))
+                {
+                    throw new ArgumentException($"Aggregate type '{typeof(TAggregate).PrettyPrint()}' doesn't have just one constructor");
+                }
+
+                constructorInfos = _resolver.Resolve<TAggregate>()
+                    .GetType()
+                    .GetTypeInfo()
+                    .GetConstructors()
+                    .ToList();
             }
 
             var constructorInfo = constructorInfos.Single();
