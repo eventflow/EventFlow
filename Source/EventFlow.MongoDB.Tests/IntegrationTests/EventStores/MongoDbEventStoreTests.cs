@@ -33,7 +33,6 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 {
 	[Category(Categories.Integration)]
 	[TestFixture]
-	[NUnit.Framework.Timeout(30000)]
     public class MongoDbEventStoreTests : TestSuiteForEventStore
 	{
 		private MongoDbRunner _runner;

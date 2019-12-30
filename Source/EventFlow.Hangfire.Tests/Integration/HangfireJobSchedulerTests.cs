@@ -36,10 +36,11 @@ using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Hangfire.SqlServer;
-using Microsoft.Owin.Hosting;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
+    // TODO: Implement using ASP.NET Core
+    /*
     [Category(Categories.Integration)]
     public class HangfireJobSchedulerTests : TestSuiteForScheduler
     {
@@ -120,4 +121,5 @@ namespace EventFlow.Hangfire.Tests.Integration
             }
         }
     }
+    */
 }

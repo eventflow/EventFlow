@@ -32,6 +32,8 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests
 {
+    /*
+     TODO: Implement alternative
     [Category(Categories.Integration)]
     public class VerifyTests
     {
@@ -89,4 +91,5 @@ namespace EventFlow.Tests
             }
         }
     }
+    */
 }

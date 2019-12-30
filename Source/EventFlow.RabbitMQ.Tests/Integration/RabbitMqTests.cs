@@ -42,6 +42,8 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
+// ReSharper disable StringLiteralTypo
+
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
     [Category(Categories.Integration)]
@@ -61,7 +63,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             _uri = new Uri(url);
         }
 
-        [Test, Timeout(10000), Retry(3)]
+        [Test]
+        [Retry(3)]
         public async Task Scenario()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
@@ -86,7 +89,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        [Test, Timeout(60000), Retry(3)]
+        [Test]
+        [Retry(3)]
         public async Task PublisherPerformance()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
@@ -141,7 +145,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
 
         private IRootResolver BuildResolver(Exchange exchange, Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
-            configure = configure ?? (e => e);
+            configure ??= (e => e);
 
             return configure(EventFlowOptions.New
                 .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
