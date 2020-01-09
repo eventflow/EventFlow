@@ -22,12 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -43,12 +43,12 @@ namespace EventFlow.ReadStores
 
         public MultipleAggregateReadStoreManager(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             TReadModelLocator readModelLocator,
             IReadModelFactory<TReadModel> readModelFactory)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(log, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _readModelLocator = readModelLocator;
         }

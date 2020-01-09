@@ -21,9 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 
@@ -33,14 +33,14 @@ namespace EventFlow.Jobs
     {
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
         public JobRunner(
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IJobDefinitionService jobDefinitionService,
             IJsonSerializer jsonSerializer)
         {
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _jobDefinitionService = jobDefinitionService;
             _jsonSerializer = jsonSerializer;
         }
@@ -60,14 +60,13 @@ namespace EventFlow.Jobs
 
         public Task ExecuteAsync(string jobName, int version, string json, CancellationToken cancellationToken)
         {
-            JobDefinition jobDefinition;
-            if (!_jobDefinitionService.TryGetDefinition(jobName, version, out jobDefinition))
+            if (!_jobDefinitionService.TryGetDefinition(jobName, version, out var jobDefinition))
             {
                 throw UnknownJobException.With(jobName, version);
             }
 
             var executeCommandJob = (IJob) _jsonSerializer.Deserialize(json, jobDefinition.Type);
-            return executeCommandJob.ExecuteAsync(_resolver, cancellationToken);
+            return executeCommandJob.ExecuteAsync(_serviceProvider, cancellationToken);
         }
     }
 }

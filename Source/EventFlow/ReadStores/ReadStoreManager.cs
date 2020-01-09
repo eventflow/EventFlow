@@ -29,7 +29,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -45,7 +44,7 @@ namespace EventFlow.ReadStores
         // ReSharper enable StaticMemberInGenericType
 
         protected ILog Log { get; }
-        protected IResolver Resolver { get; }
+        protected IServiceProvider ServiceProvider { get; }
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
@@ -87,13 +86,13 @@ namespace EventFlow.ReadStores
 
         protected ReadStoreManager(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             IReadModelFactory<TReadModel> readModelFactory)
         {
             Log = log;
-            Resolver = resolver;
+            ServiceProvider = serviceProvider;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
             ReadModelFactory = readModelFactory;
@@ -122,7 +121,7 @@ namespace EventFlow.ReadStores
                 typeof(TReadModelStore).PrettyPrint(),
                 string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
 
-            var contextFactory = new ReadModelContextFactory(Resolver);
+            var contextFactory = new ReadModelContextFactory(ServiceProvider);
 
             var readModelUpdates = BuildReadModelUpdates(relevantDomainEvents);
 

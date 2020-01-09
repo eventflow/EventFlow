@@ -22,9 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -32,18 +32,18 @@ namespace EventFlow.Extensions
     {
         public static IEventFlowOptions UseEventStore(
             this IEventFlowOptions eventFlowOptions,
-            Func<IResolverContext, IEventStore> eventStoreResolver,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            Func<IServiceProvider, IEventStore> eventStoreResolver,
+            ServiceLifetime lifetime = ServiceLifetime.Transient)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register(eventStoreResolver, lifetime));
+            throw new NotImplementedException();
         }
 
         public static IEventFlowOptions UseEventStore<TEventStore>(
             this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            ServiceLifetime lifetime = ServiceLifetime.Transient)
             where TEventStore : class, IEventPersistence
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventPersistence, TEventStore>(lifetime));
+            throw new NotImplementedException();
         }
 
         public static IEventFlowOptions UseFilesEventStore(
@@ -52,9 +52,9 @@ namespace EventFlow.Extensions
         {
             return eventFlowOptions.RegisterServices(f =>
                 {
-                    f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton);
-                    f.Register<IEventPersistence, FilesEventPersistence>(Lifetime.Singleton);
-                    f.Register<IFilesEventLocator, FilesEventLocator>();
+                    f.AddSingleton(filesEventStoreConfiguration);
+                    f.AddSingleton<IEventPersistence, FilesEventPersistence>();
+                    f.AddTransient<IFilesEventLocator, FilesEventLocator>();
                 });
         }
     }

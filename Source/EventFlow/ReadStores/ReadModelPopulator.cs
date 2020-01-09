@@ -32,6 +32,7 @@ using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.ReadStores
 {
@@ -40,18 +41,18 @@ namespace EventFlow.ReadStores
         private readonly ILog _log;
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
         public ReadModelPopulator(
             ILog log,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
             _log = log;
             _configuration = configuration;
             _eventStore = eventStore;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public Task PurgeAsync<TReadModel>(
@@ -169,7 +170,7 @@ namespace EventFlow.ReadStores
             Type readModelType)
         {
             var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
-            var readModelStores = _resolver.ResolveAll(readModelStoreType)
+            var readModelStores = _serviceProvider.GetServices(readModelStoreType)
                 .Select(s => (IReadModelStore)s)
                 .ToList();
 
@@ -184,7 +185,7 @@ namespace EventFlow.ReadStores
         private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManagers(
             Type readModelType)
         {
-            var readStoreManagers = _resolver.Resolve<IEnumerable<IReadStoreManager>>()
+            var readStoreManagers = _serviceProvider.GetServices<IReadStoreManager>()
                 .Where(m => m.ReadModelType == readModelType)
                 .ToList();
 

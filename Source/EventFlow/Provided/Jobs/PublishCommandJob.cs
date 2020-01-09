@@ -21,12 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Jobs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Provided.Jobs
 {
@@ -47,11 +48,11 @@ namespace EventFlow.Provided.Jobs
         public string Name { get; }
         public int Version { get; }
 
-        public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+        public Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
-            var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
-            var commandBus = resolver.Resolve<ICommandBus>();
+            var commandDefinitionService = serviceProvider.GetRequiredService<ICommandDefinitionService>();
+            var jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
+            var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
 
             var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
             var command = (ICommand) jsonSerializer.Deserialize(Data, commandDefinition.Type);
@@ -61,10 +62,10 @@ namespace EventFlow.Provided.Jobs
 
         public static PublishCommandJob Create(
             ICommand command,
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
-            var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
+            var commandDefinitionService = serviceProvider.GetRequiredService<ICommandDefinitionService>();
+            var jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
 
             return Create(command, commandDefinitionService, jsonSerializer);
         }

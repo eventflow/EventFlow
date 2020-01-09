@@ -29,7 +29,7 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsAggregatesExtensions
     {
-        [Obsolete("Resolver aggregate factory is the default, simply remove this call")]
+        [Obsolete("ServiceProvider aggregate factory is the default, simply remove this call")]
         public static IEventFlowOptions UseResolverAggregateRootFactory(
             this IEventFlowOptions eventFlowOptions)
         {

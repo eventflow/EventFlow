@@ -30,9 +30,10 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Subscribers
 {
@@ -42,11 +43,11 @@ namespace EventFlow.Subscribers
         private static readonly Type SubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
 
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IMemoryCache _memoryCache;
 
-        private class SubscriberInfomation
+        private class SubscriberInformation
         {
             public Type SubscriberType { get; set; }
             public Func<object, IDomainEvent, CancellationToken, Task> HandleMethod { get; set; }
@@ -54,12 +55,12 @@ namespace EventFlow.Subscribers
 
         public DispatchToEventSubscribers(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IEventFlowConfiguration eventFlowConfiguration,
             IMemoryCache memoryCache)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _eventFlowConfiguration = eventFlowConfiguration;
             _memoryCache = memoryCache;
         }
@@ -92,12 +93,10 @@ namespace EventFlow.Subscribers
             bool swallowException,
             CancellationToken cancellationToken)
         {
-            var subscriberInfomation = await GetSubscriberInfomationAsync(
+            var subscriberInformation = GetSubscriberInformation(
                     domainEvent.GetType(),
-                    subscriberType,
-                    cancellationToken)
-                .ConfigureAwait(false);
-            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType).ToList();
+                    subscriberType);
+            var subscribers = _serviceProvider.GetServices(subscriberInformation.SubscriberType).ToList();
 
             if (!subscribers.Any())
             {
@@ -112,26 +111,25 @@ namespace EventFlow.Subscribers
 
                 try
                 {
-                    await subscriberInfomation.HandleMethod(subscriber, domainEvent, cancellationToken).ConfigureAwait(false);
+                    await subscriberInformation.HandleMethod(subscriber, domainEvent, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e) when (swallowException)
                 {
-                    _log.Error(e, $"Subscriber '{subscriberInfomation.SubscriberType.PrettyPrint()}' threw " +
+                    _log.Error(e, $"Subscriber '{subscriberInformation.SubscriberType.PrettyPrint()}' threw " +
                                   $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
                 }
             }
         }
 
-        private Task<SubscriberInfomation> GetSubscriberInfomationAsync(
+        private SubscriberInformation GetSubscriberInformation(
             Type domainEventType,
-            Type subscriberType,
-            CancellationToken cancellationToken)
+            Type subscriberType)
         {
-            return _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), domainEventType.GetCacheKey(), subscriberType.GetCacheKey()),
-                TimeSpan.FromDays(1), 
-                _ =>
+            return _memoryCache.GetOrCreate(
+                null, //TODO: CacheKey.With(GetType(), domainEventType.GetCacheKey(), subscriberType.GetCacheKey()),
+                e =>
                     {
+                        e.SlidingExpiration = TimeSpan.FromDays(1);
                         var arguments = domainEventType
                             .GetTypeInfo()
                             .GetInterfaces()
@@ -142,13 +140,12 @@ namespace EventFlow.Subscribers
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);
                         var invokeHandleAsync = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, CancellationToken, Task>>(handlerType, "HandleAsync");
                         
-                        return Task.FromResult(new SubscriberInfomation
+                        return new SubscriberInformation
                             {
                                 SubscriberType = handlerType,
                                 HandleMethod = invokeHandleAsync,
-                            });
-                    },
-                cancellationToken);
+                            };
+                    });
         }
     }
 }

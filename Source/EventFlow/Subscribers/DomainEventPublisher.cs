@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace EventFlow.Subscribers
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IDispatchToSagas _dispatchToSagas;
         private readonly IJobScheduler _jobScheduler;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
@@ -51,7 +52,7 @@ namespace EventFlow.Subscribers
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IDispatchToSagas dispatchToSagas,
             IJobScheduler jobScheduler,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IEventFlowConfiguration eventFlowConfiguration,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
@@ -60,7 +61,7 @@ namespace EventFlow.Subscribers
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
             _jobScheduler = jobScheduler;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
@@ -129,7 +130,7 @@ namespace EventFlow.Subscribers
             {
                 await Task.WhenAll(domainEvents.Select(
                         d => _jobScheduler.ScheduleNowAsync(
-                            DispatchToAsynchronousEventSubscribersJob.Create(d, _resolver), cancellationToken)))
+                            DispatchToAsynchronousEventSubscribersJob.Create(d, _serviceProvider), cancellationToken)))
                     .ConfigureAwait(false);
             }
         }

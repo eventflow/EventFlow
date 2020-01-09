@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.EventStores
 {
@@ -51,14 +51,14 @@ namespace EventFlow.EventStores
         }
 
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
         public EventUpgradeManager(
             ILog log,
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents)
@@ -84,7 +84,7 @@ namespace EventFlow.EventStores
                     t =>
                         {
                             var cache = GetCache(t);
-                            var upgraders = _resolver.ResolveAll(cache.EventUpgraderType).OrderBy(u => u.GetType().Name).ToList();
+                            var upgraders = _serviceProvider.GetServices(cache.EventUpgraderType).OrderBy(u => u.GetType().Name).ToList();
                             return new
                                 {
                                     EventUpgraders = upgraders,

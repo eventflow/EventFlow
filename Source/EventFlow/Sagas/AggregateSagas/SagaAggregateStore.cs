@@ -28,25 +28,25 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
     public class SagaAggregateStore : SagaStore
     {
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public SagaAggregateStore(
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;
         }
@@ -82,7 +82,7 @@ namespace EventFlow.Sagas.AggregateSagas
                 return null;
             }
 
-            var commandBus = _resolver.Resolve<ICommandBus>();
+            var commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
             await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
 
             return saga;
