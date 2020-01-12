@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,33 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Reflection;
+using System.Linq;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Core
 {
-    /* TODO
-    public static class EventFlowOptionsDefaultExtensions
+    public static class CacheKey
     {
-        public static IEventFlowOptions AddDefaults(
-            this IEventFlowOptions eventFlowOptions,
-            Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+        public static object Get(params object[] keys)
         {
-            return eventFlowOptions
-                .AddEvents(fromAssembly, predicate)
-                .AddJobs(fromAssembly, predicate)
-                .AddCommands(fromAssembly, predicate)
-                .AddCommandHandlers(fromAssembly, predicate)
-                .AddMetadataProviders(fromAssembly, predicate)
-                .AddSubscribers(fromAssembly, predicate)
-                //.AddEventUpgraders(fromAssembly, predicate)
-                .AddQueryHandlers(fromAssembly, predicate)
-                .AddSnapshots(fromAssembly, predicate)
-                //.AddSnapshotUpgraders(fromAssembly, predicate)
-                .AddSagas(fromAssembly, predicate)
-                .AddSagaLocators(fromAssembly, predicate);
+            // TODO: Simple placeholder for find some other way of creating keys
+            return keys.Select(o => o.GetHashCode()).Aggregate(5381, (current, hashCode) => ((current << 5) + current) ^ hashCode);
         }
     }
-    */
 }

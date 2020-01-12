@@ -31,6 +31,7 @@ using EventFlow.Subscribers;
 
 namespace EventFlow.Extensions
 {
+    /* TODO
     public static class EventFlowOptionsSubscriberExtensions
     {
         private static readonly Type ISubscribeSynchronousToType = typeof(ISubscribeSynchronousTo<,,>);
@@ -145,4 +146,5 @@ namespace EventFlow.Extensions
                    genericTypeDefinition == ISubscribeAsynchronousToType;
         }
     }
+    */
 }

@@ -60,7 +60,7 @@ namespace EventFlow.Queries
             CancellationToken cancellationToken)
         {
             var queryType = query.GetType();
-            var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
+            var cacheItem = GetCacheItem(queryType);
 
             var queryHandler = (IQueryHandler) _serviceProvider.GetService(cacheItem.QueryHandlerType);
             _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
@@ -82,14 +82,11 @@ namespace EventFlow.Queries
             return result;
         }
 
-        private Task<CacheItem> GetCacheItemAsync(
-            Type queryType,
-            CancellationToken cancellationToken)
+        private CacheItem GetCacheItem(Type queryType)
         {
-            return _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), queryType.GetCacheKey()),
-                TimeSpan.FromDays(1),
-                _ =>
+            return _memoryCache.GetOrCreate(
+                CacheKey.Get(GetType(), queryType),
+                e =>
                     {
                         var queryInterfaceType = queryType
                             .GetTypeInfo()
@@ -100,13 +97,12 @@ namespace EventFlow.Queries
                             queryHandlerType,
                             "ExecuteQueryAsync",
                             queryType, typeof(CancellationToken));
-                        return Task.FromResult(new CacheItem
+                        return new CacheItem
                             {
                                 QueryHandlerType = queryHandlerType,
                                 HandlerFunc = invokeExecuteQueryAsync
-                            });
-                    },
-                cancellationToken);
+                            };
+                    });
         }
     }
 }

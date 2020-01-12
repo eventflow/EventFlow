@@ -26,6 +26,7 @@ using EventFlow.Configuration.Serialization;
 
 namespace EventFlow.Extensions
 {
+    /* TODO
     public static class EventFlowOptionsJsonConfigurationExtensions
     {
         public static IEventFlowOptions ConfigureJson(this IEventFlowOptions options, Func<JsonOptions, IJsonOptions> configure)
@@ -35,4 +36,5 @@ namespace EventFlow.Extensions
             return options.RegisterServices(s => s.Register(_ => config));
         }
     }
+    */
 }

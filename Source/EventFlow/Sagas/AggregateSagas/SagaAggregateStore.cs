@@ -60,10 +60,7 @@ namespace EventFlow.Sagas.AggregateSagas
         {
             var saga = null as ISaga;
 
-            var storeAggregateSagaAsync = await GetUpdateAsync(
-                    sagaType,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var storeAggregateSagaAsync = GetUpdate(sagaType);
 
             await storeAggregateSagaAsync(
                     this,
@@ -88,13 +85,11 @@ namespace EventFlow.Sagas.AggregateSagas
             return saga;
         }
 
-        private async Task<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetUpdateAsync(
-            Type sagaType,
-            CancellationToken cancellationToken)
+        private Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>> GetUpdate(
+            Type sagaType)
         {
-            var value = await _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), sagaType.GetCacheKey()), 
-                TimeSpan.FromDays(1),
+            return _memoryCache.GetOrCreate(
+                CacheKey.Get(GetType(), sagaType), 
                 _ =>
                 {
                     var aggregateRootType = sagaType
@@ -108,13 +103,9 @@ namespace EventFlow.Sagas.AggregateSagas
                     var methodInfo = GetType().GetTypeInfo().GetMethod(nameof(UpdateAggregateAsync));
                     var identityType = aggregateRootType.GetTypeInfo().GetGenericArguments()[0];
                     var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
-                    return Task.FromResult<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
+                    return (Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>)(
                         (sas, id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(sas, new object[] { id, sid, u, c }));
-                },
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            return value;
+                });
         }
 
         // ReSharper disable once MemberCanBePrivate.Global

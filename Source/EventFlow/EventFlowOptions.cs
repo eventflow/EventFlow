@@ -136,6 +136,11 @@ namespace EventFlow
             return this;
         }
 
+        public IEventFlowOptions RegisterServices(Action<IServiceCollection> action)
+        {
+            throw new NotImplementedException();
+        }
+
         private void Register(IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton<ILog, ConsoleLog>();

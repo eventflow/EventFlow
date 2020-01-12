@@ -32,6 +32,7 @@ using EventFlow.EventStores;
 
 namespace EventFlow.Extensions
 {
+    /*
     public static class EventFlowOptionsEventUpgradersExtensions
     {
         public static IEventFlowOptions AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
@@ -49,6 +50,7 @@ namespace EventFlow.Extensions
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
+            TODO: Implement this
             return eventFlowOptions.RegisterServices(f => f.Register(factory));
         }
 
@@ -103,4 +105,5 @@ namespace EventFlow.Extensions
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>);
         }
     }
+    */
 }

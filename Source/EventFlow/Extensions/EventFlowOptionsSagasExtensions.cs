@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Sagas;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -86,7 +87,7 @@ namespace EventFlow.Extensions
                         {
                             throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
                         }
-                        sr.RegisterType(sagaLocatorType);
+                        sr.AddTransient(sagaLocatorType);
                     }
                 });
         }

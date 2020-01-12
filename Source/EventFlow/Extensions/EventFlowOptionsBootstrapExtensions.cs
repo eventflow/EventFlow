@@ -28,6 +28,7 @@ using EventFlow.Configuration;
 
 namespace EventFlow.Extensions
 {
+    /*
     public static class EventFlowOptionsBootstrapExtensions
     {
         public static IEventFlowOptions RunOnStartup<TBootstrap>(this IEventFlowOptions eventFlowOptions) 
@@ -74,4 +75,5 @@ namespace EventFlow.Extensions
             }
         }
     }
+    */
 }

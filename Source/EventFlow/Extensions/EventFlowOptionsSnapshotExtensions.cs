@@ -32,6 +32,7 @@ using EventFlow.Snapshots.Stores.InMemory;
 
 namespace EventFlow.Extensions
 {
+    /* TODO
     public static class EventFlowOptionsSnapshotExtensions
     {
         public static IEventFlowOptions AddSnapshots(
@@ -114,4 +115,5 @@ namespace EventFlow.Extensions
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>);
         }
     }
+    */
 }

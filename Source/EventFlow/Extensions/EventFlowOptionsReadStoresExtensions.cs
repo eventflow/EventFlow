@@ -33,6 +33,7 @@ using EventFlow.ReadStores.InMemory.Queries;
 
 namespace EventFlow.Extensions
 {
+    /* TODO
     public static class EventFlowOptionsReadStoresExtensions
     {
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
@@ -112,5 +113,5 @@ namespace EventFlow.Extensions
             serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
             serviceRegistration.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
         }
-    }
+    }*/
 }

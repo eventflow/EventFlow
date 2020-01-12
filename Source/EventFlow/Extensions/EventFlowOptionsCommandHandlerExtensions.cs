@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Commands;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -74,7 +75,7 @@ namespace EventFlow.Extensions
                     {
                         foreach (var handlesCommandType in handlesCommandTypes)
                         {
-                            sr.Register(handlesCommandType, t);
+                            sr.AddTransient(handlesCommandType, t);
                         }
                     });
             }

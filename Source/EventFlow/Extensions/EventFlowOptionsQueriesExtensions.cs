@@ -29,6 +29,7 @@ using EventFlow.Queries;
 
 namespace EventFlow.Extensions
 {
+    /* TODO
     public static class EventFlowOptionsQueriesExtensions
     {
         public static IEventFlowOptions AddQueryHandler<TQueryHandler, TQuery, TResult>(
@@ -96,4 +97,5 @@ namespace EventFlow.Extensions
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryHandler<,>);
         }
     }
+    */
 }
