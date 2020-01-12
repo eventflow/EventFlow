@@ -35,6 +35,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Common;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -61,11 +62,12 @@ namespace EventFlow.TestHelpers.Suites
             _jobScheduler = Resolver.Resolve<IJobScheduler>();
         }
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions,
+            IServiceCollection serviceCollection)
         {
             _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
 
-            return base.Options(eventFlowOptions)
+            return base.Options(eventFlowOptions, serviceCollection)
                 .RegisterServices(sr => sr.Register(c => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
                 .Configure(c => c.IsAsynchronousSubscribersEnabled = true);
         }

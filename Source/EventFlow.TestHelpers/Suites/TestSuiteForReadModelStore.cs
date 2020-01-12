@@ -37,6 +37,7 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -320,11 +321,12 @@ namespace EventFlow.TestHelpers.Suites
 
         private readonly Dictionary<string, WaitState> _waitStates = new Dictionary<string, WaitState>();
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions,
+            IServiceCollection serviceCollection)
         {
             _waitStates.Clear();
 
-            return base.Options(eventFlowOptions)
+            return base.Options(eventFlowOptions, serviceCollection)
                 .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
                     (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));
         }

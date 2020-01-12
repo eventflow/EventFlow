@@ -40,6 +40,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 
@@ -417,7 +418,8 @@ namespace EventFlow.TestHelpers.Suites
             _publishedDomainEvents.Clear();
         }
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions,
+            IServiceCollection serviceCollection)
         {
             var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();
 
@@ -426,7 +428,7 @@ namespace EventFlow.TestHelpers.Suites
                 .Callback<IReadOnlyCollection<IDomainEvent>, CancellationToken>((d, c) => _publishedDomainEvents.AddRange(d))
                 .Returns(Task.FromResult(0));
 
-            return base.Options(eventFlowOptions)
+            return base.Options(eventFlowOptions, serviceCollection)
                 .RegisterServices(sr => sr.Register(r => subscribeSynchronousToAllMock.Object, Lifetime.Singleton));
         }
 
