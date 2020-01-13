@@ -39,13 +39,13 @@ namespace EventFlow.EventStores
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IEventPersistence _eventPersistence;
-        private readonly IReliableEventPersistance _reliableEventPersistance;
+        private readonly IReliableEventPersistence _reliableEventPersistence;
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
 
-        public bool IsReliable => _reliableEventPersistance != null;
+        public bool IsReliable => _reliableEventPersistence != null;
 
         public EventStoreBase(
             ILog log,
@@ -54,11 +54,11 @@ namespace EventFlow.EventStores
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
             IEventPersistence eventPersistence,
-            IReliableEventPersistance reliableEventPersistance,
+            IReliableEventPersistence reliableEventPersistence,
             ISnapshotStore snapshotStore)
         {
             _eventPersistence = eventPersistence;
-            _reliableEventPersistance = reliableEventPersistance;
+            _reliableEventPersistence = reliableEventPersistence;
             _snapshotStore = snapshotStore;
             _log = log;
             _aggregateFactory = aggregateFactory;
@@ -80,7 +80,7 @@ namespace EventFlow.EventStores
 
             if (uncommittedDomainEvents == null || !uncommittedDomainEvents.Any())
             {
-                return new IDomainEvent<TAggregate, TIdentity>[] {};
+                return new IDomainEvent<TAggregate, TIdentity>[] { };
             }
 
             var aggregateType = typeof(TAggregate);
@@ -131,7 +131,7 @@ namespace EventFlow.EventStores
             var aggregateType = typeof(TAggregate);
             _log.Verbose(() => $"Marking {eventIds.Count} events as delivered for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
-            await _reliableEventPersistance.MarkEventsDeliveredAsync(id, eventIds, cancellationToken)
+            await _reliableEventPersistence.MarkEventsDeliveredAsync(id, eventIds, cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -161,7 +161,7 @@ namespace EventFlow.EventStores
         {
             if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-            var allCommittedEventsPage = await _reliableEventPersistance.LoadAllUndeliveredEvents(
+            var allCommittedEventsPage = await _reliableEventPersistence.LoadAllUndeliveredEvents(
                 globalPosition,
                 pageSize,
                 cancellationToken)
@@ -222,7 +222,7 @@ namespace EventFlow.EventStores
         {
             if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
 
-            var committedDomainEvents = await _reliableEventPersistance.LoadUndeliveredEventsAsync(
+            var committedDomainEvents = await _reliableEventPersistence.LoadUndeliveredEventsAsync(
                 id,
                 fromEventSequenceNumber,
                 cancellationToken)

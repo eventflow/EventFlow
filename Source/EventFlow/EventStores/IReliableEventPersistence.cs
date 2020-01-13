@@ -6,7 +6,7 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IReliableEventPersistance: IEventPersistence
+    public interface IReliableEventPersistence: IEventPersistence
     {
         Task MarkEventsDeliveredAsync(
             IIdentity id,
