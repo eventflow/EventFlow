@@ -35,5 +35,6 @@ namespace EventFlow.EntityFramework.EventStores
         public string Data { get; set; }
         public string Metadata { get; set; }
         public int AggregateSequenceNumber { get; set; }
+        public bool Confirmed { get; set; }
     }
 }

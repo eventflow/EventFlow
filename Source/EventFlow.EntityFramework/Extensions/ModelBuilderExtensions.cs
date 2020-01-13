@@ -34,6 +34,7 @@ namespace EventFlow.EntityFramework.Extensions
             var eventEntity = modelBuilder.Entity<EventEntity>();
             eventEntity.HasKey(e => e.GlobalSequenceNumber);
             eventEntity.HasIndex(e => new {e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
+            eventEntity.HasIndex(e => e.Confirmed);
             return modelBuilder;
         }
 

@@ -36,7 +36,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.EventStores
 {
-    public class EntityFrameworkEventPersistence<TDbContext> : IEventPersistence
+    public class EntityFrameworkEventPersistence<TDbContext>: IEventPersistence, IReliableEventPersistence
         where TDbContext : DbContext
     {
         private readonly IDbContextProvider<TDbContext> _contextProvider;
@@ -57,16 +57,32 @@ namespace EventFlow.EntityFramework.EventStores
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
             CancellationToken cancellationToken)
         {
+            return await LoadAllEvents(globalPosition, pageSize, null, cancellationToken);
+        }
+
+        public async Task<AllCommittedEventsPage> LoadAllUnconfirmedEvents(GlobalPosition globalPosition, int pageSize, CancellationToken cancellationToken)
+        {
+            return await LoadAllEvents(globalPosition, pageSize, false, cancellationToken);
+        }
+
+        protected async Task<AllCommittedEventsPage> LoadAllEvents(GlobalPosition globalPosition, int pageSize,
+            bool? confirmed, CancellationToken cancellationToken)
+        {
             var startPosition = globalPosition.IsStart
                 ? 0
                 : long.Parse(globalPosition.Value);
 
             using (var context = _contextProvider.CreateContext())
             {
-                var entities = await context
+                var query = context
                     .Set<EventEntity>()
                     .OrderBy(e => e.GlobalSequenceNumber)
-                    .Where(e => e.GlobalSequenceNumber >= startPosition)
+                    .Where(e => e.GlobalSequenceNumber >= startPosition);
+
+                if (confirmed.HasValue)
+                    query = query.Where(a => a.Confirmed == confirmed.Value);
+
+                var entities = await query
                     .Take(pageSize)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
@@ -122,15 +138,63 @@ namespace EventFlow.EntityFramework.EventStores
             return entities;
         }
 
+        public async Task ConfirmEventsAsync(IIdentity id, IReadOnlyCollection<IMetadata> eventsMetadata, CancellationToken cancellationToken)
+        {
+            if (eventsMetadata.Count == 0)
+                return;
+
+            _log.Verbose(
+                "Confirming {0} events to EntityFramework event store for entity with ID '{1}'",
+                eventsMetadata.Count,
+                id);
+
+            using (var context = _contextProvider.CreateContext())
+            {
+                var sequenceNumbers = eventsMetadata.Select(a => a.AggregateSequenceNumber);
+                var events = await context
+                    .Set<EventEntity>()
+                    .Where(e => e.AggregateId == id.Value
+                                && sequenceNumbers.Contains(e.AggregateSequenceNumber))
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var @event in events)
+                    @event.Confirmed = true;
+
+                context
+                    .Set<EventEntity>()
+                    .UpdateRange(events);
+
+                await context.SaveChangesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
             int fromEventSequenceNumber, CancellationToken cancellationToken)
         {
+            return await LoadEventsAsync(id, fromEventSequenceNumber, null, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadUnconfirmedEventsAsync(IIdentity id, int fromEventSequenceNumber, CancellationToken cancellationToken)
+        {
+            return await LoadEventsAsync(id, fromEventSequenceNumber, false, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        protected async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadEventsAsync(IIdentity id,
+            int fromEventSequenceNumber, bool? confirmed, CancellationToken cancellationToken)
+        {
             using (var context = _contextProvider.CreateContext())
             {
-                var entities = await context
+                var query = context
                     .Set<EventEntity>()
                     .Where(e => e.AggregateId == id.Value
-                                && e.AggregateSequenceNumber >= fromEventSequenceNumber)
+                                && e.AggregateSequenceNumber >= fromEventSequenceNumber);
+                if (confirmed.HasValue)
+                    query = query.Where(a => a.Confirmed == confirmed.Value);
+                var entities = await query
                     .OrderBy(e => e.AggregateSequenceNumber)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
