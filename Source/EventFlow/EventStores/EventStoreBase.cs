@@ -119,19 +119,19 @@ namespace EventFlow.EventStores
 
         public async Task MarkEventsDeliveredAsync<TAggregate, TIdentity>(
             TIdentity id,
-            IReadOnlyCollection<IEventId> eventIds,
+            IReadOnlyCollection<IMetadata> eventMetadata,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
-            if (eventIds == null || eventIds.Count <= 0)
+            if (eventMetadata == null || eventMetadata.Count <= 0)
                 return;
 
             var aggregateType = typeof(TAggregate);
-            _log.Verbose(() => $"Marking {eventIds.Count} events as delivered for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
+            _log.Verbose(() => $"Marking {eventMetadata.Count} events as delivered for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
-            await _reliableEventPersistence.MarkEventsDeliveredAsync(id, eventIds, cancellationToken)
+            await _reliableEventPersistence.MarkEventsDeliveredAsync(id, eventMetadata, cancellationToken)
                 .ConfigureAwait(false);
         }
 

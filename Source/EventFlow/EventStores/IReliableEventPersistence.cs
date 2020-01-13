@@ -10,7 +10,7 @@ namespace EventFlow.EventStores
     {
         Task MarkEventsDeliveredAsync(
             IIdentity id,
-            IReadOnlyCollection<IEventId> eventIds,
+            IReadOnlyCollection<IMetadata> eventMetadata,
             CancellationToken cancellationToken);
 
         Task<AllCommittedEventsPage> LoadAllUndeliveredEvents(

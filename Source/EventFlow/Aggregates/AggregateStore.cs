@@ -169,7 +169,7 @@ namespace EventFlow.Aggregates
                 if (_eventStore.IsReliable)
                 {
                     await _eventStore.MarkEventsDeliveredAsync<TAggregate, TIdentity>(
-                        id, aggregateUpdateResult.DomainEvents.Select(a => a.Metadata.EventId).ToArray(), cancellationToken)
+                        id, aggregateUpdateResult.DomainEvents.Select(a => a.Metadata).ToArray(), cancellationToken)
                         .ConfigureAwait(false);
                 }
             }

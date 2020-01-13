@@ -44,7 +44,7 @@ namespace EventFlow.EventStores
 
         Task MarkEventsDeliveredAsync<TAggregate, TIdentity>(
             TIdentity id,
-            IReadOnlyCollection<IEventId> eventIds,
+            IReadOnlyCollection<IMetadata> eventMetadata,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
