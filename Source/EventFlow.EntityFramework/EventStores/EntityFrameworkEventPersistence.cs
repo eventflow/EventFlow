@@ -57,12 +57,14 @@ namespace EventFlow.EntityFramework.EventStores
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
             CancellationToken cancellationToken)
         {
-            return await LoadAllEvents(globalPosition, pageSize, null, cancellationToken);
+            return await LoadAllEvents(globalPosition, pageSize, null, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         public async Task<AllCommittedEventsPage> LoadAllUnconfirmedEvents(GlobalPosition globalPosition, int pageSize, CancellationToken cancellationToken)
         {
-            return await LoadAllEvents(globalPosition, pageSize, false, cancellationToken);
+            return await LoadAllEvents(globalPosition, pageSize, false, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         protected async Task<AllCommittedEventsPage> LoadAllEvents(GlobalPosition globalPosition, int pageSize,
