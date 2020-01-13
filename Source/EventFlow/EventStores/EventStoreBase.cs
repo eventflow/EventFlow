@@ -39,10 +39,13 @@ namespace EventFlow.EventStores
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IEventPersistence _eventPersistence;
+        private readonly IReliableEventPersistance _reliableEventPersistance;
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
+
+        public bool IsReliable => _reliableEventPersistance != null;
 
         public EventStoreBase(
             ILog log,
@@ -51,9 +54,11 @@ namespace EventFlow.EventStores
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
             IEventPersistence eventPersistence,
+            IReliableEventPersistance reliableEventPersistance,
             ISnapshotStore snapshotStore)
         {
             _eventPersistence = eventPersistence;
+            _reliableEventPersistance = reliableEventPersistance;
             _snapshotStore = snapshotStore;
             _log = log;
             _aggregateFactory = aggregateFactory;
@@ -112,6 +117,24 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
+        public async Task MarkEventsDeliveredAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<IEventId> eventIds,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (eventIds == null || eventIds.Count <= 0)
+                return;
+
+            var aggregateType = typeof(TAggregate);
+            _log.Verbose(() => $"Marking {eventIds.Count} events as delivered for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
+
+            await _reliableEventPersistance.MarkEventsDeliveredAsync(id, eventIds, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         public async Task<AllEventsPage> LoadAllEventsAsync(
             GlobalPosition globalPosition,
             int pageSize,
@@ -124,7 +147,26 @@ namespace EventFlow.EventStores
                 pageSize,
                 cancellationToken)
                 .ConfigureAwait(false);
-            var domainEvents = (IReadOnlyCollection<IDomainEvent>) allCommittedEventsPage.CommittedDomainEvents
+            var domainEvents = (IReadOnlyCollection<IDomainEvent>)allCommittedEventsPage.CommittedDomainEvents
+                .Select(e => _eventJsonSerializer.Deserialize(e))
+                .ToList();
+            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
+            return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
+        }
+
+        public async Task<AllEventsPage> LoadAllUndeliveredEvents(
+            GlobalPosition globalPosition,
+            int pageSize,
+            CancellationToken cancellationToken)
+        {
+            if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
+
+            var allCommittedEventsPage = await _reliableEventPersistance.LoadAllUndeliveredEvents(
+                globalPosition,
+                pageSize,
+                cancellationToken)
+                .ConfigureAwait(false);
+            var domainEvents = (IReadOnlyCollection<IDomainEvent>)allCommittedEventsPage.CommittedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize(e))
                 .ToList();
             domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
@@ -153,6 +195,34 @@ namespace EventFlow.EventStores
             if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
 
             var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
+                id,
+                fromEventSequenceNumber,
+                cancellationToken)
+                .ConfigureAwait(false);
+            var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
+                .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                .ToList();
+
+            if (!domainEvents.Any())
+            {
+                return domainEvents;
+            }
+
+            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
+
+            return domainEvents;
+        }
+
+        public async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadUndeliveredEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+        {
+            if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
+
+            var committedDomainEvents = await _reliableEventPersistance.LoadUndeliveredEventsAsync(
                 id,
                 fromEventSequenceNumber,
                 cancellationToken)

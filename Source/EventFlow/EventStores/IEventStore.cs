@@ -32,6 +32,8 @@ namespace EventFlow.EventStores
 {
     public interface IEventStore
     {
+        bool IsReliable { get; }
+
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> StoreAsync<TAggregate, TIdentity>(
             TIdentity id,
             IReadOnlyCollection<IUncommittedEvent> uncommittedDomainEvents,
@@ -40,7 +42,19 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
+        Task MarkEventsDeliveredAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            IReadOnlyCollection<IEventId> eventIds,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
         Task<AllEventsPage> LoadAllEventsAsync(
+            GlobalPosition globalPosition,
+            int pageSize,
+            CancellationToken cancellationToken);
+
+        Task<AllEventsPage> LoadAllUndeliveredEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken);
@@ -52,6 +66,13 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity;
 
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity;
+
+        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadUndeliveredEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)

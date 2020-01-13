@@ -143,6 +143,12 @@ namespace EventFlow.Aggregates
                         cancellationToken)
                         .ConfigureAwait(false);
 
+                    if (_eventStore.IsReliable)
+                    {
+                        domainEvents = await _eventStore.LoadUndeliveredEventsAsync<TAggregate, TIdentity>(
+                            id, 1, cancellationToken).ConfigureAwait(false);
+                    }
+
                     return new AggregateUpdateResult<TExecutionResult>(
                         result,
                         domainEvents);
@@ -159,6 +165,13 @@ namespace EventFlow.Aggregates
                     aggregateUpdateResult.DomainEvents,
                     cancellationToken)
                     .ConfigureAwait(false);
+
+                if (_eventStore.IsReliable)
+                {
+                    await _eventStore.MarkEventsDeliveredAsync<TAggregate, TIdentity>(
+                        id, aggregateUpdateResult.DomainEvents.Select(a => a.Metadata.EventId).ToArray(), cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             return aggregateUpdateResult;
