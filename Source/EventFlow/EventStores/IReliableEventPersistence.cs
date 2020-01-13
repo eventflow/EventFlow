@@ -8,17 +8,17 @@ namespace EventFlow.EventStores
 {
     public interface IReliableEventPersistence: IEventPersistence
     {
-        Task MarkEventsDeliveredAsync(
+        Task ConfirmEventsAsync(
             IIdentity id,
-            IReadOnlyCollection<IMetadata> eventMetadata,
+            IReadOnlyCollection<IMetadata> eventsMetadata,
             CancellationToken cancellationToken);
 
-        Task<AllCommittedEventsPage> LoadAllUndeliveredEvents(
+        Task<AllCommittedEventsPage> LoadAllUnconfirmedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadUndeliveredEventsAsync(
+        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadUnconfirmedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken);

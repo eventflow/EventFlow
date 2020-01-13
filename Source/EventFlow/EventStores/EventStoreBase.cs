@@ -117,21 +117,21 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
-        public async Task MarkEventsDeliveredAsync<TAggregate, TIdentity>(
+        public async Task ConfirmEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
-            IReadOnlyCollection<IMetadata> eventMetadata,
+            IReadOnlyCollection<IMetadata> eventsMetadata,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             if (id == null) throw new ArgumentNullException(nameof(id));
-            if (eventMetadata == null || eventMetadata.Count <= 0)
+            if (eventsMetadata == null || eventsMetadata.Count <= 0)
                 return;
 
             var aggregateType = typeof(TAggregate);
-            _log.Verbose(() => $"Marking {eventMetadata.Count} events as delivered for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
+            _log.Verbose(() => $"Confirming {eventsMetadata.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
 
-            await _reliableEventPersistence.MarkEventsDeliveredAsync(id, eventMetadata, cancellationToken)
+            await _reliableEventPersistence.ConfirmEventsAsync(id, eventsMetadata, cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -154,14 +154,14 @@ namespace EventFlow.EventStores
             return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
         }
 
-        public async Task<AllEventsPage> LoadAllUndeliveredEvents(
+        public async Task<AllEventsPage> LoadAllUnconfirmedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
         {
             if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-            var allCommittedEventsPage = await _reliableEventPersistence.LoadAllUndeliveredEvents(
+            var allCommittedEventsPage = await _reliableEventPersistence.LoadAllUnconfirmedEvents(
                 globalPosition,
                 pageSize,
                 cancellationToken)
@@ -213,7 +213,7 @@ namespace EventFlow.EventStores
             return domainEvents;
         }
 
-        public async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadUndeliveredEventsAsync<TAggregate, TIdentity>(
+        public async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadUnconfirmedEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
@@ -222,7 +222,7 @@ namespace EventFlow.EventStores
         {
             if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
 
-            var committedDomainEvents = await _reliableEventPersistence.LoadUndeliveredEventsAsync(
+            var committedDomainEvents = await _reliableEventPersistence.LoadUnconfirmedEventsAsync(
                 id,
                 fromEventSequenceNumber,
                 cancellationToken)

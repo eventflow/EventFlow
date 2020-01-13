@@ -145,7 +145,7 @@ namespace EventFlow.Aggregates
 
                     if (_eventStore.IsReliable)
                     {
-                        domainEvents = await _eventStore.LoadUndeliveredEventsAsync<TAggregate, TIdentity>(
+                        domainEvents = await _eventStore.LoadUnconfirmedEventsAsync<TAggregate, TIdentity>(
                             id, 1, cancellationToken).ConfigureAwait(false);
                     }
 
@@ -168,7 +168,7 @@ namespace EventFlow.Aggregates
 
                 if (_eventStore.IsReliable)
                 {
-                    await _eventStore.MarkEventsDeliveredAsync<TAggregate, TIdentity>(
+                    await _eventStore.ConfirmEventsAsync<TAggregate, TIdentity>(
                         id, aggregateUpdateResult.DomainEvents.Select(a => a.Metadata).ToArray(), cancellationToken)
                         .ConfigureAwait(false);
                 }

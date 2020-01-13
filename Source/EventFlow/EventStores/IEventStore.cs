@@ -42,9 +42,9 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        Task MarkEventsDeliveredAsync<TAggregate, TIdentity>(
+        Task ConfirmEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
-            IReadOnlyCollection<IMetadata> eventMetadata,
+            IReadOnlyCollection<IMetadata> eventsMetadata,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
@@ -54,7 +54,7 @@ namespace EventFlow.EventStores
             int pageSize,
             CancellationToken cancellationToken);
 
-        Task<AllEventsPage> LoadAllUndeliveredEvents(
+        Task<AllEventsPage> LoadAllUnconfirmedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken);
@@ -72,7 +72,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadUndeliveredEventsAsync<TAggregate, TIdentity>(
+        Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadUnconfirmedEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
