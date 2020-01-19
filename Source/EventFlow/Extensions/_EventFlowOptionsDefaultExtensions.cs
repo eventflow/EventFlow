@@ -26,7 +26,6 @@ using System.Reflection;
 
 namespace EventFlow.Extensions
 {
-    /* TODO
     public static class EventFlowOptionsDefaultExtensions
     {
         public static IEventFlowBuilder AddDefaults(
@@ -41,13 +40,12 @@ namespace EventFlow.Extensions
                 .AddCommandHandlers(fromAssembly, predicate)
                 .AddMetadataProviders(fromAssembly, predicate)
                 .AddSubscribers(fromAssembly, predicate)
-                //.AddEventUpgraders(fromAssembly, predicate)
+                .AddEventUpgraders(fromAssembly, predicate)
                 .AddQueryHandlers(fromAssembly, predicate)
                 .AddSnapshots(fromAssembly, predicate)
-                //.AddSnapshotUpgraders(fromAssembly, predicate)
+                .AddSnapshotUpgraders(fromAssembly, predicate)
                 .AddSagas(fromAssembly, predicate)
                 .AddSagaLocators(fromAssembly, predicate);
         }
     }
-    */
 }

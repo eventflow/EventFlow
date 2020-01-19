@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,18 +26,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Queries;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    /* TODO
-    public static class EventFlowOptionsQueriesExtensions
+    public static class EventFlowBuilderQueriesExtensions
     {
         public static IEventFlowBuilder AddQueryHandler<TQueryHandler, TQuery, TResult>(
             this IEventFlowBuilder eventFlowBuilder)
             where TQueryHandler : class, IQueryHandler<TQuery, TResult>
             where TQuery : IQuery<TResult>
         {
-            return eventFlowBuilder.RegisterServices(sr => sr.Register<IQueryHandler<TQuery, TResult>, TQueryHandler>());
+            eventFlowBuilder.Services
+                .AddTransient<IQueryHandler<TQuery, TResult>, TQueryHandler>();
+            return eventFlowBuilder;
         }
 
         public static IEventFlowBuilder AddQueryHandlers(
@@ -66,6 +68,7 @@ namespace EventFlow.Extensions
             this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> queryHandlerTypes)
         {
+            var serviceCollection = eventFlowBuilder.Services;
             foreach (var queryHandlerType in queryHandlerTypes)
             {
                 var t = queryHandlerType;
@@ -80,13 +83,10 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
                 }
 
-                eventFlowBuilder.RegisterServices(sr =>
-                    {
-                        foreach (var queryHandlerInterface in queryHandlerInterfaces)
-                        {
-                            sr.Register(queryHandlerInterface, t);
-                        }
-                    });
+                foreach (var queryHandlerInterface in queryHandlerInterfaces)
+                {
+                    serviceCollection.AddTransient(queryHandlerInterface, t);
+                }
             }
 
             return eventFlowBuilder;
@@ -97,5 +97,4 @@ namespace EventFlow.Extensions
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryHandler<,>);
         }
     }
-    */
 }

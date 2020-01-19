@@ -21,9 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
@@ -33,59 +33,40 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
 {
     [TestFixture]
     [Category(Categories.Integration)]
-    public class AggregateFactoryTests
+    public class AggregateFactoryTests : IntegrationTest
     {
         [Test]
         public async Task CreatesNewAggregateWithIdParameter()
         {
             // Arrange
-            using (var resolver = EventFlowSetup.New
-                .CreateResolver())
-            {
-                var id = ThingyId.New;
-                var sut = resolver.Resolve<IAggregateFactory>();
+            var id = ThingyId.New;
 
-                // Act
-                var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
+            // Act
+            var aggregateWithIdParameter = await AggregateFactory.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
 
-                // Assert
-                aggregateWithIdParameter.Id.Should().Be(id);
-            }
+            // Assert
+            aggregateWithIdParameter.Id.Should().Be(id);
         }
 
         [Test]
         public async Task CreatesNewAggregateWithIdAndInterfaceParameters()
         {
-            // Arrange
-            using (var resolver = EventFlowSetup.New
-                .CreateResolver())
-            {
-                var sut = resolver.Resolve<IAggregateFactory>();
+            // Act
+            var aggregateWithIdAndInterfaceParameters = await AggregateFactory.CreateNewAggregateAsync<TestAggregateWithResolver, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
-                // Act
-                var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, ThingyId>(ThingyId.New).ConfigureAwait(false);
-
-                // Assert
-                aggregateWithIdAndInterfaceParameters.Resolver.Should().BeAssignableTo<IResolver>();
-            }
+            // Assert
+            aggregateWithIdAndInterfaceParameters.ServiceProvider.Should()
+                .NotBeNull().And.BeAssignableTo<IServiceProvider>();
         }
 
         [Test]
         public async Task CreatesNewAggregateWithIdAndTypeParameters()
         {
-            // Arrange
-            using (var resolver = EventFlowSetup.New
-                .RegisterServices(f => f.RegisterType(typeof(Pinger)))
-                .CreateResolver())
-            {
-                var sut = resolver.Resolve<IAggregateFactory>();
+            // Act
+            var aggregateWithIdAndTypeParameters = await AggregateFactory.CreateNewAggregateAsync<TestAggregateWithPinger, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
-                // Act
-                var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, ThingyId>(ThingyId.New).ConfigureAwait(false);
-
-                // Assert
-                aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
-            }
+            // Assert
+            aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
         }
 
         public class Pinger
@@ -113,13 +94,13 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
 
         public class TestAggregateWithResolver : AggregateRoot<TestAggregateWithResolver, ThingyId>
         {
-            public TestAggregateWithResolver(ThingyId id, IResolver resolver)
+            public TestAggregateWithResolver(ThingyId id, IServiceProvider serviceProvider)
                 : base(id)
             {
-                Resolver = resolver;
+                ServiceProvider = serviceProvider;
             }
 
-            public IResolver Resolver { get; }
+            public IServiceProvider ServiceProvider { get; }
         }
     }
 }

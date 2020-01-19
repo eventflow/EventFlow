@@ -133,5 +133,11 @@ namespace EventFlow
 
             return this;
         }
+
+        public IEventFlowBuilder RegisterServices(Action<IServiceCollection> register)
+        {
+            register(Services);
+            return this;
+        }
     }
 }

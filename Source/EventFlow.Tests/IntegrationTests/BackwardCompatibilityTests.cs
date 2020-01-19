@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,15 +24,12 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
-using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
@@ -40,35 +37,26 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class BackwardCompatibilityTests : Test
+    public class BackwardCompatibilityTests : IntegrationTest
     {
         private readonly ThingyId _thingyId = ThingyId.With("thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7");
-        private IResolver _resolver;
-        private ICommandBus _commandBus;
-        private IAggregateStore _aggregateStore;
 
-        [SetUp]
-        public void SetUp()
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
             var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "..", "TestData", "FilesEventStore"));
 
-            _resolver = EventFlowSetup.New
+            return base.Options(eventFlowSetup)
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
                 .AddEvents(EventFlowTestHelpers.Assembly)
-                .AddCommandHandlers(EventFlowTestHelpers.Assembly)
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .CreateResolver();
-
-            _commandBus = _resolver.Resolve<ICommandBus>();
-            _aggregateStore = _resolver.Resolve<IAggregateStore>();
+                .AddCommandHandlers(EventFlowTestHelpers.Assembly);
         }
 
         [Test]
         public async Task ValidateTestAggregate()
         {
             // Act
-            var testAggregate = await _aggregateStore.LoadAsync<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
+            var testAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
 
             // Assert
             testAggregate.Version.Should().Be(2);
@@ -79,7 +67,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test, Explicit]
         public void CreateEventHelper()
         {
-            _commandBus.Publish(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
+            CommandBus.PublishAsync(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,11 +59,10 @@ namespace EventFlow.TestHelpers.Suites
         [SetUp]
         public void TestSuiteForSchedulerSetUp()
         {
-            _jobScheduler = Resolver.GetRequiredService<IJobScheduler>();
+            _jobScheduler = ServiceProvider.GetRequiredService<IJobScheduler>();
         }
 
-        protected override IEventFlowSetup Options(IEventFlowSetup eventFlowSetup,
-            IServiceCollection serviceCollection)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
 
@@ -113,7 +112,7 @@ namespace EventFlow.TestHelpers.Suites
             // Arrange
             var testId = ThingyId.New;
             var pingId = PingId.New;
-            var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), Resolver);
+            var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), ServiceProvider);
 
             // Act
             var jobId = await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);

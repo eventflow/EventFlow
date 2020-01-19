@@ -25,15 +25,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Configuration;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.InMemory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    /* TODO
-    public static class EventFlowOptionsSnapshotExtensions
+    public static class EventFlowBuilderSnapshotExtensions
     {
         public static IEventFlowBuilder AddSnapshots(
             this IEventFlowBuilder eventFlowBuilder,
@@ -83,31 +82,33 @@ namespace EventFlow.Extensions
             this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> snapshotUpgraderTypes)
         {
-            return eventFlowBuilder.RegisterServices(sr =>
-                {
-                    foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
-                    {
-                        var interfaceType = snapshotUpgraderType
-                            .GetTypeInfo()
-                            .GetInterfaces()
-                            .Single(IsSnapshotUpgraderInterface);
-                        sr.Register(interfaceType, snapshotUpgraderType);
-                    }
-                });
+            var serviceCollection = eventFlowBuilder.Services;
+            foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
+            {
+                var interfaceType = snapshotUpgraderType
+                    .GetTypeInfo()
+                    .GetInterfaces()
+                    .Single(IsSnapshotUpgraderInterface);
+                serviceCollection.AddTransient(interfaceType, snapshotUpgraderType);
+            }
+
+            return eventFlowBuilder;
         }
 
         public static IEventFlowBuilder UseSnapshotStore<TSnapshotStore>(
             this IEventFlowBuilder eventFlowBuilder,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            ServiceLifetime lifetime = ServiceLifetime.Transient)
             where TSnapshotStore : class, ISnapshotPersistence
         {
-            return eventFlowBuilder.RegisterServices(sr => sr.Register<ISnapshotPersistence, TSnapshotStore>(lifetime));
+            eventFlowBuilder.Services
+                .Add(new ServiceDescriptor(typeof(ISnapshotPersistence), typeof(TSnapshotStore), lifetime));
+            return eventFlowBuilder;
         }
 
         public static IEventFlowBuilder UseInMemorySnapshotStore(
             this IEventFlowBuilder eventFlowBuilder)
         {
-            return eventFlowBuilder.UseSnapshotStore<InMemorySnapshotPersistence>(Lifetime.Singleton);
+            return eventFlowBuilder.UseSnapshotStore<InMemorySnapshotPersistence>(ServiceLifetime.Singleton);
         }
 
         private static bool IsSnapshotUpgraderInterface(Type type)
@@ -115,5 +116,4 @@ namespace EventFlow.Extensions
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>);
         }
     }
-    */
 }

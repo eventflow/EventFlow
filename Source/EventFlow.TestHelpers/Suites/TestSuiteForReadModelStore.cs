@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -321,15 +321,14 @@ namespace EventFlow.TestHelpers.Suites
 
         private readonly Dictionary<string, WaitState> _waitStates = new Dictionary<string, WaitState>();
 
-        protected override IEventFlowSetup Options(IEventFlowSetup eventFlowSetup,
-            IServiceCollection serviceCollection)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             _waitStates.Clear();
 
             /* TODO
             return base.Options(eventFlowSetup, serviceCollection)
                 .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
-                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));*/
+                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.ServiceProvider.Resolve<ILog>())));*/
 
             return null;
         }

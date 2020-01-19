@@ -325,14 +325,14 @@ namespace EventFlow.TestHelpers.Suites
             var pingId2 = PingId.New;
 
             // Act
-            using (var scopedResolver = Resolver.CreateScope())
+            using (var scopedResolver = ServiceProvider.CreateScope())
             {
                 var commandBus = scopedResolver.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(
                     new ThingyPingCommand(id, pingId1))
                     .ConfigureAwait(false);
             }
-            using (var scopedResolver = Resolver.CreateScope())
+            using (var scopedResolver = ServiceProvider.CreateScope())
             {
                 var commandBus = scopedResolver.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(
@@ -418,8 +418,7 @@ namespace EventFlow.TestHelpers.Suites
             _publishedDomainEvents.Clear();
         }
 
-        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup,
-            IServiceCollection serviceCollection)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();
 

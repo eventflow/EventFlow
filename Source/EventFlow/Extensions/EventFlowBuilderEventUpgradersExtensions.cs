@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,14 +26,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    /*
-    public static class EventFlowOptionsEventUpgradersExtensions
+    public static class EventFlowBuilderEventUpgradersExtensions
     {
         public static IEventFlowBuilder AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
             this IEventFlowBuilder eventFlowBuilder)
@@ -41,17 +40,10 @@ namespace EventFlow.Extensions
             where TIdentity : IIdentity
             where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
         {
-            return eventFlowBuilder.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
-        }
+            eventFlowBuilder.Services
+                .AddTransient<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>();
 
-        public static IEventFlowBuilder AddEventUpgrader<TAggregate, TIdentity>(
-            this IEventFlowBuilder eventFlowBuilder,
-            Func<IResolverContext, IEventUpgrader<TAggregate, TIdentity>> factory)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            TODO: Implement this
-            return eventFlowBuilder.RegisterServices(f => f.Register(factory));
+            return eventFlowBuilder;
         }
 
         public static IEventFlowBuilder AddEventUpgraders(
@@ -81,10 +73,15 @@ namespace EventFlow.Extensions
             this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> eventUpgraderTypes)
         {
+            var serviceRegistry = eventFlowBuilder.Services;
             foreach (var eventUpgraderType in eventUpgraderTypes)
             {
                 var t = eventUpgraderType;
-                if (t.GetTypeInfo().IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract)
+                {
+                    continue;
+                }
+
                 var eventUpgraderForAggregateType = t
                     .GetTypeInfo()
                     .GetInterfaces()
@@ -94,7 +91,7 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{eventUpgraderType.Name}' does not have the '{typeof(IEventUpgrader<,>).PrettyPrint()}' interface");
                 }
 
-                eventFlowBuilder.RegisterServices(sr => sr.Register(eventUpgraderForAggregateType, t));
+                serviceRegistry.AddTransient(eventUpgraderForAggregateType, t);
             }
 
             return eventFlowBuilder;
@@ -102,8 +99,7 @@ namespace EventFlow.Extensions
 
         private static bool IsEventUpgraderInterface(Type type)
         {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>);
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEventUpgrader<,>);
         }
     }
-    */
 }

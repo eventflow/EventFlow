@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,27 +24,26 @@
 
 using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.ReadStores.InMemory.Queries;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    /* TODO
-    public static class EventFlowOptionsReadStoresExtensions
+    public static class EventFlowBuilderReadStoresExtensions
     {
         public static IEventFlowBuilder UseReadStoreFor<TReadStore, TReadModel>(
             this IEventFlowBuilder eventFlowBuilder)
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel
         {
-            return eventFlowBuilder.RegisterServices(f =>
+            return eventFlowBuilder.RegisterServices(c =>
                 {
-                    f.Register<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                    c.AddTransient<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
+                    c.AddTransient<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
 
@@ -55,10 +54,10 @@ namespace EventFlow.Extensions
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel
         {
-            return eventFlowBuilder.RegisterServices(f =>
+            return eventFlowBuilder.RegisterServices(c =>
                 {
-                    f.Register<IReadStoreManager, AggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                    c.AddTransient<IReadStoreManager, AggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
+                    c.AddTransient<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
 
@@ -68,10 +67,10 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
-            return eventFlowBuilder.RegisterServices(f =>
+            return eventFlowBuilder.RegisterServices(c =>
                 {
-                    f.Register<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                    c.AddTransient<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
+                    c.AddTransient<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
 
@@ -106,12 +105,12 @@ namespace EventFlow.Extensions
         }
 
         private static void RegisterInMemoryReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
+            IServiceCollection serviceCollection)
             where TReadModel : class, IReadModel
         {
-            serviceRegistration.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(Lifetime.Singleton);
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
-            serviceRegistration.Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
+            serviceCollection.AddSingleton<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>();
+            serviceCollection.AddTransient<IReadModelStore<TReadModel>>(p => p.GetRequiredService<IInMemoryReadStore<TReadModel>>());
+            serviceCollection.AddTransient<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
         }
-    }*/
+    }
 }

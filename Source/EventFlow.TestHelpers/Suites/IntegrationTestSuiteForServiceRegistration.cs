@@ -43,12 +43,12 @@ namespace EventFlow.TestHelpers.Suites
             var thingyId = A<ThingyId>();
 
             // Act
-            using (var scope = Resolver.CreateScope())
+            using (var scope = ServiceProvider.CreateScope())
             {
                 var commandBus = scope.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
             }
-            using (var scope = Resolver.CreateScope())
+            using (var scope = ServiceProvider.CreateScope())
             {
                 var commandBus = scope.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(new ThingyRequestSagaCompleteCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
@@ -62,7 +62,7 @@ namespace EventFlow.TestHelpers.Suites
         [Test]
         public virtual async Task QueryingUsesScopedDbContext()
         {
-            using (var scope = Resolver.CreateScope())
+            using (var scope = ServiceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<IScopedContext>();
                 var queryProcessor = scope.ServiceProvider.GetRequiredService<IQueryProcessor>();

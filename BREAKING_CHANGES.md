@@ -10,7 +10,7 @@ from version 0.x to 1.x.
 * **No .NET Framework support**
   * **Reason:** With the announcement of .NET 5, Microsoft stated that
     .NET Framework is basically legacy, or will be in the very near future.
-    This, and the fact that maintaining boot .NET (Core) and .NET Framework
+    This, and the fact that maintaining both .NET (Core) and .NET Framework
     will clutter the codebase significantly, going forward EventFlow will
     no longer support .NET Framework.
 
@@ -25,7 +25,15 @@ from version 0.x to 1.x.
     have any custom IoC container, but focus on its core concepts and
     rely on the standard defined by Microsoft 
 
+* **Custom logging deleted and replaced with structured logging using
+  `Microsoft.Extensions.Logging`**
+
+* **Custom in-memory caching deleted and replaced with `Microsoft.Extensions.Caching.Abstractions`**
+
 * **Remove all non-async methods**
-  * **Reason:** ...
 
+* **Removed `EventFlow.Autofac`**
 
+* **Removed `EventFlow.DependencyInjection`**
+
+* **Removed `EventFlow.Owin`**

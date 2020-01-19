@@ -25,19 +25,19 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
-    [Category(Categories.Integration), Timeout(20000)]
+    [Category(Categories.Integration)]
     public class AlternativeSagaStoreTests
     {
-        private IRootResolver _resolver;
+        private IServiceProvider _resolver;
         private ICommandBus _commandBus;
         private IAggregateStore _aggregateStore;
         private AlternativeSagaStoreTestClasses.InMemorySagaStore _sagaStore;
@@ -45,7 +45,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         [SetUp]
         public void SetUp()
         {
-            _resolver = EventFlowSetup.New
+            _resolver = EventFlowTestHelpers.Setup()
                 .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),
@@ -57,20 +57,20 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
                 {
-                    sr.RegisterType(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
-                    sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
+                    sr.AddTransient(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
+                    sr.AddSingleton<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>();
                 })
-                .CreateResolver(false);
+                .Services.BuildServiceProvider(true);
 
-            _commandBus = _resolver.Resolve<ICommandBus>();
-            _aggregateStore = _resolver.Resolve<IAggregateStore>();
-            _sagaStore = (AlternativeSagaStoreTestClasses.InMemorySagaStore) _resolver.Resolve<ISagaStore>();
+            _commandBus = _resolver.GetRequiredService<ICommandBus>();
+            _aggregateStore = _resolver.GetRequiredService<IAggregateStore>();
+            _sagaStore = (AlternativeSagaStoreTestClasses.InMemorySagaStore) _resolver.GetRequiredService<ISagaStore>();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _resolver.Dispose();
+            (_resolver as IDisposable)?.Dispose();
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.New;
 
             // Act
-            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
+            await _commandBus.PublishAsync(new AlternativeSagaStoreTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
 
             // Assert
             var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
@@ -96,7 +96,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.New;
 
             // Act
-            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            await _commandBus.PublishAsync(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
 
             // Assert
             var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
@@ -112,20 +112,17 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
 
             // Act
-            Action action = () => _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
-            
-            // Assert
-            action.Should().NotThrow();
+            Assert.DoesNotThrowAsync(() => _commandBus.PublishAsync(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None));
         }
 
         [Test]
-        public void SagaLocatorReturningNullDoesntCallSagaStore()
+        public async Task SagaLocatorReturningNullDoesntCallSagaStore()
         {
             // Arrange
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
 
             // Act
-            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            await _commandBus.PublishAsync(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
             
             // Assert
             _sagaStore.UpdateShouldNotHaveBeenCalled();

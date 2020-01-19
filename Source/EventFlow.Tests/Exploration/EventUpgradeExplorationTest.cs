@@ -26,32 +26,22 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.Exploration
 {
-    public class EventUpgradeExplorationTest
+    public class EventUpgradeExplorationTest : IntegrationTest
     {
-        private IResolver _resolver;
-
-        [SetUp]
-        public void SetUp()
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
-            _resolver = EventFlowSetup.New
+            return base.Options(eventFlowSetup)
                 .AddEvents(new []{ typeof(UpgradeEventV1), typeof(UpgradeEventV2) })
-                .AddEventUpgraders(typeof(UpgradeV1ToV2))
-                .CreateResolver();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            (_resolver as IDisposable)?.Dispose();
+                .AddEventUpgraders(typeof(UpgradeV1ToV2));
         }
 
         [Test]
@@ -59,10 +49,9 @@ namespace EventFlow.Tests.Exploration
         {
             // Arrange
             var id = UpgradeId.New;
-            var aggregateStore = _resolver.Resolve<IAggregateStore>();
 
             // Act
-            await aggregateStore.UpdateAsync<UpgradeAggregate, UpgradeId>(
+            await AggregateStore.UpdateAsync<UpgradeAggregate, UpgradeId>(
                 id,
                 new SourceId(),
                 (a, c) =>
@@ -73,7 +62,7 @@ namespace EventFlow.Tests.Exploration
                 CancellationToken.None);
 
             // Assert
-            var aggregate = await aggregateStore.LoadAsync<UpgradeAggregate, UpgradeId>(
+            var aggregate = await AggregateStore.LoadAsync<UpgradeAggregate, UpgradeId>(
                 id,
                 CancellationToken.None);
             aggregate.V2Applied.Should().BeTrue();
@@ -135,8 +124,7 @@ namespace EventFlow.Tests.Exploration
             public IEnumerable<IDomainEvent<UpgradeAggregate, UpgradeId>> Upgrade(
                 IDomainEvent<UpgradeAggregate, UpgradeId> domainEvent)
             {
-                var v1 = domainEvent as IDomainEvent<UpgradeAggregate, UpgradeId, UpgradeEventV1>;
-                yield return v1 == null
+                yield return !(domainEvent is IDomainEvent<UpgradeAggregate, UpgradeId, UpgradeEventV1> _)
                     ? domainEvent
                     : _domainEventFactory.Upgrade<UpgradeAggregate, UpgradeId>(domainEvent, new UpgradeEventV2());
             }

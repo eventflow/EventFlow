@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using EventFlow.Core;
-using EventFlow.Extensions;
 using EventFlow.TestHelpers.Extensions;
 
 namespace EventFlow.TestHelpers
@@ -90,45 +89,13 @@ namespace EventFlow.TestHelpers
                     {
                         process.OutputDataReceived -= OutHandler;
                         process.ErrorDataReceived -= ErrHandler;
-#if NET452
-                        KillProcessAndChildren(process.Id);
-#endif
+                        process.Dispose();
                     }
                     catch (Exception e)
                     {
                         LogHelper.Log.Error($"Failed to kill process: {e.Message}");
                     }
-                    finally
-                    {
-                        process.DisposeSafe("Process");
-                    }
                 });
         }
-
-#if NET452
-        private static void KillProcessAndChildren(int pid)
-        {
-            var searcher = new System.Management.ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-            var moc = searcher.Get();
-
-            foreach (var o in moc)
-            {
-                var mo = (System.Management.ManagementObject)o;
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
-
-            try
-            {
-                LogHelper.Log.Information($"Killing process {pid}");
-
-                var proc = Process.GetProcessById(pid);
-                proc.Kill();
-            }
-            catch (ArgumentException)
-            {
-                // Process already exited.
-            }
-        }
-#endif
     }
 }

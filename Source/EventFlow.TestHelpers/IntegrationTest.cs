@@ -47,7 +47,7 @@ namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTest: Test
     {
-        protected IServiceProvider Resolver { get; private set; }
+        protected IServiceProvider ServiceProvider { get; private set; }
         protected IAggregateStore AggregateStore { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ISnapshotStore SnapshotStore { get; private set; }
@@ -58,6 +58,7 @@ namespace EventFlow.TestHelpers
         protected ICommandBus CommandBus { get; private set; }
         protected ISagaStore SagaStore { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
+        protected IAggregateFactory AggregateFactory { get; private set; }
 
         [SetUp]
         public void SetUpIntegrationTest()
@@ -65,30 +66,30 @@ namespace EventFlow.TestHelpers
             var serviceCollection = new ServiceCollection()
                 .AddScoped<IScopedContext, ScopedContext>();
 
-            Options(serviceCollection.AddEventFlow());
+            Options(serviceCollection
+                .AddEventFlow()
+                .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
+                .AddDefaults(EventFlowTestHelpers.Assembly, type => type != typeof(DbContextQueryHandler)));
 
-                //.AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>() TODO
-                /*.AddDefaults(EventFlowTestHelpers.Assembly, 
-                    type => type != typeof(DbContextQueryHandler))*/;
+            ServiceProvider = serviceCollection.BuildServiceProvider(true);
 
-            Resolver = serviceCollection.BuildServiceProvider(true);
-
-            AggregateStore = Resolver.GetRequiredService<IAggregateStore>();
-            EventStore = Resolver.GetRequiredService<IEventStore>();
-            SnapshotStore = Resolver.GetRequiredService<ISnapshotStore>();
-            SnapshotPersistence = Resolver.GetRequiredService<ISnapshotPersistence>();
-            SnapshotDefinitionService = Resolver.GetRequiredService<ISnapshotDefinitionService>();
-            EventPersistence = Resolver.GetRequiredService<IEventPersistence>();
-            CommandBus = Resolver.GetRequiredService<ICommandBus>();
-            QueryProcessor = Resolver.GetRequiredService<IQueryProcessor>();
-            ReadModelPopulator = Resolver.GetRequiredService<IReadModelPopulator>();
-            SagaStore = Resolver.GetRequiredService<ISagaStore>();
+            AggregateStore = ServiceProvider.GetRequiredService<IAggregateStore>();
+            EventStore = ServiceProvider.GetRequiredService<IEventStore>();
+            SnapshotStore = ServiceProvider.GetRequiredService<ISnapshotStore>();
+            SnapshotPersistence = ServiceProvider.GetRequiredService<ISnapshotPersistence>();
+            SnapshotDefinitionService = ServiceProvider.GetRequiredService<ISnapshotDefinitionService>();
+            EventPersistence = ServiceProvider.GetRequiredService<IEventPersistence>();
+            CommandBus = ServiceProvider.GetRequiredService<ICommandBus>();
+            QueryProcessor = ServiceProvider.GetRequiredService<IQueryProcessor>();
+            ReadModelPopulator = ServiceProvider.GetRequiredService<IReadModelPopulator>();
+            SagaStore = ServiceProvider.GetRequiredService<ISagaStore>();
+            AggregateFactory = ServiceProvider.GetRequiredService<IAggregateFactory>();
         }
 
         [TearDown]
         public void TearDownIntegrationTest()
         {
-            (Resolver as IDisposable)?.Dispose();
+            (ServiceProvider as IDisposable)?.Dispose();
         }
 
         protected virtual IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)

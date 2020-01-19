@@ -21,12 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Reflection;
+using EventFlow.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.TestHelpers
 {
     public static class EventFlowTestHelpers
     {
         public static Assembly Assembly { get; } = typeof(EventFlowTestHelpers).Assembly;
+
+        public static IEventFlowBuilder Setup(Action<IEventFlowBuilder> action = null)
+        {
+            var serviceCollection = new ServiceCollection();
+            var eventFlowBuilder = serviceCollection.AddEventFlow();
+            action?.Invoke(eventFlowBuilder);
+            return eventFlowBuilder;
+        }
     }
 }
