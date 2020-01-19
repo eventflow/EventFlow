@@ -32,11 +32,12 @@ namespace EventFlow.TestHelpers
     {
         public static Assembly Assembly { get; } = typeof(EventFlowTestHelpers).Assembly;
 
-        public static IEventFlowBuilder Setup(Action<IEventFlowBuilder> action = null)
+        public static IEventFlowBuilder Setup(
+            Action<EventFlowOptions> configure = null)
         {
-            var serviceCollection = new ServiceCollection();
-            var eventFlowBuilder = serviceCollection.AddEventFlow();
-            action?.Invoke(eventFlowBuilder);
+            var serviceCollection = new ServiceCollection()
+                .AddMemoryCache();
+            var eventFlowBuilder = serviceCollection.AddEventFlow(configure);
             return eventFlowBuilder;
         }
     }

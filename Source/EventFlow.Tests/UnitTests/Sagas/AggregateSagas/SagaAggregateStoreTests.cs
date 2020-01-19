@@ -22,13 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -49,8 +47,6 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
         {
             _thingySagaId = A<ThingySagaId>();
             _thingySaga = InjectMock<ThingySaga>(_thingySagaId);
-
-            Inject<IMemoryCache>(A<MemoryCache>());
         }
 
         [Test]

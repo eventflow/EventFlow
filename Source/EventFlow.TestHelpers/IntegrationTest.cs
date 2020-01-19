@@ -63,15 +63,14 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            var serviceCollection = new ServiceCollection()
-                .AddScoped<IScopedContext, ScopedContext>();
+            var eventFlowBuilder = EventFlowTestHelpers.Setup();
 
-            Options(serviceCollection
-                .AddEventFlow()
+            Options(eventFlowBuilder
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
+                .RegisterServices(c => c.AddScoped<IScopedContext, ScopedContext>())
                 .AddDefaults(EventFlowTestHelpers.Assembly, type => type != typeof(DbContextQueryHandler)));
 
-            ServiceProvider = serviceCollection.BuildServiceProvider(true);
+            ServiceProvider = eventFlowBuilder.Services.BuildServiceProvider(true);
 
             AggregateStore = ServiceProvider.GetRequiredService<IAggregateStore>();
             EventStore = ServiceProvider.GetRequiredService<IEventStore>();

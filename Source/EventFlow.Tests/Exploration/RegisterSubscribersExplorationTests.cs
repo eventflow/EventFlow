@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Subscribers;
@@ -34,9 +33,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.Exploration
@@ -50,20 +49,19 @@ namespace EventFlow.Tests.Exploration
             var wasHandled = false;
             TestSubscriber.OnHandleAction = () => wasHandled = true;
             using (new DisposableAction(() => TestSubscriber.OnHandleAction = null))
-            using (var resolver =  register(EventFlowSetup.New)
-                .AddCommands(typeof(ThingyPingCommand))
-                .AddCommandHandlers(typeof(ThingyPingCommandHandler))
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .AddEvents(typeof(ThingyPingEvent))
-                .Configure(c => c.IsAsynchronousSubscribersEnabled = true)
-                .CreateResolver(false))
             {
-                var commandBus = resolver.Resolve<ICommandBus>();
+                using var resolver =  register(EventFlowTestHelpers.Setup(o => o.IsAsynchronousSubscribersEnabled = true))
+                    .AddCommands(typeof(ThingyPingCommand))
+                    .AddCommandHandlers(typeof(ThingyPingCommandHandler))
+                    .AddEvents(typeof(ThingyPingEvent))
+                    .Services.BuildServiceProvider(true);
+
+                var commandBus = resolver.GetRequiredService<ICommandBus>();
 
                 // Act
                 await commandBus.PublishAsync(
-                    new ThingyPingCommand(A<ThingyId>(), A<PingId>()),
-                    CancellationToken.None)
+                        new ThingyPingCommand(A<ThingyId>(), A<PingId>()),
+                        CancellationToken.None)
                     .ConfigureAwait(false);
             }
 
