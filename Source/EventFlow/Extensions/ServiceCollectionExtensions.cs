@@ -86,7 +86,6 @@ namespace EventFlow.Extensions
             serviceCollection.TryAddTransient<IJobScheduler, InstantJobScheduler>();
             serviceCollection.TryAddTransient<IJobRunner, JobRunner>();
             serviceCollection.TryAddTransient<IAggregateFactory, AggregateFactory>();
-            serviceCollection.TryAddTransient<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
             serviceCollection.TryAddTransient<IDomainEventPublisher, DomainEventPublisher>();
             serviceCollection.TryAddTransient<ISerializedCommandPublisher, SerializedCommandPublisher>();
             serviceCollection.TryAddTransient<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
@@ -98,6 +97,7 @@ namespace EventFlow.Extensions
             serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             
             // Add singleton services
+            serviceCollection.TryAddSingleton<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
             serviceCollection.TryAddSingleton<ILog, ConsoleLog>();
             serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
             serviceCollection.TryAddSingleton<ISnapshotDefinitionService, SnapshotDefinitionService>();

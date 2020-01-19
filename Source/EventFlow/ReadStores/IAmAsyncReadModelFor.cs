@@ -33,6 +33,9 @@ namespace EventFlow.ReadStores
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>
     {
-        Task ApplyAsync(IReadModelContext context, IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
+        Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent,
+            CancellationToken cancellationToken);
     }
 }

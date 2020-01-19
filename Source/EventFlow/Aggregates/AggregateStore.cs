@@ -37,6 +37,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.Aggregates
 {
@@ -49,7 +50,7 @@ namespace EventFlow.Aggregates
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
-        private readonly ICancellationConfiguration _cancellationConfiguration;
+        private readonly IOptions<EventFlowOptions> _options;
 
         public AggregateStore(
             ILog log,
@@ -58,7 +59,7 @@ namespace EventFlow.Aggregates
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
-            ICancellationConfiguration cancellationConfiguration)
+            IOptions<EventFlowOptions> options)
         {
             _log = log;
             _serviceProvider = serviceProvider;
@@ -66,7 +67,7 @@ namespace EventFlow.Aggregates
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
             _transientFaultHandler = transientFaultHandler;
-            _cancellationConfiguration = cancellationConfiguration;
+            _options = options;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -123,7 +124,7 @@ namespace EventFlow.Aggregates
                             $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
                     }
 
-                    cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingAggregate);
+                    cancellationToken = _options.Value.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingAggregate);
 
                     var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
                     if (!result.IsSuccess)
@@ -134,7 +135,7 @@ namespace EventFlow.Aggregates
                             EmptyDomainEventCollection);
                     }
 
-                    cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
+                    cancellationToken = _options.Value.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
                     
                     var domainEvents = await aggregate.CommitAsync(
                         _eventStore,

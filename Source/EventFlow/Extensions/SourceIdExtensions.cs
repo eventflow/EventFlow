@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,34 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsEventsExtensions
+    public static class SourceIdExtensions
     {
-        public static IEventFlowBuilder AddEvents(
-            this IEventFlowBuilder eventFlowBuilder,
-            Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+        public static bool IsNone(this ISourceId sourceId)
         {
-            predicate = predicate ?? (t => true);
-            var aggregateEventTypes = fromAssembly
-                .GetTypes()
-                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(IAggregateEvent).GetTypeInfo().IsAssignableFrom(t))
-                .Where(t => predicate(t));
-            return eventFlowBuilder.AddEvents(aggregateEventTypes);
-        }
-
-        public static IEventFlowBuilder AddEvents(
-            this IEventFlowBuilder eventFlowBuilder,
-            params Type[] aggregateEventTypes)
-        {
-            return eventFlowBuilder.AddEvents((IEnumerable<Type>)aggregateEventTypes);
+            return string.IsNullOrEmpty(sourceId?.Value);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,13 +27,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.Subscribers
 {
@@ -43,8 +43,7 @@ namespace EventFlow.Subscribers
         private readonly IDispatchToSagas _dispatchToSagas;
         private readonly IJobScheduler _jobScheduler;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IEventFlowOptions _eventFlowOptions;
-        private readonly ICancellationConfiguration _cancellationConfiguration;
+        private readonly IOptions<EventFlowOptions> _options;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
@@ -53,17 +52,15 @@ namespace EventFlow.Subscribers
             IDispatchToSagas dispatchToSagas,
             IJobScheduler jobScheduler,
             IServiceProvider serviceProvider,
-            IEventFlowOptions eventFlowOptions,
+            IOptions<EventFlowOptions> options,
             IEnumerable<IReadStoreManager> readStoreManagers,
-            IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
-            ICancellationConfiguration cancellationConfiguration)
+            IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
             _jobScheduler = jobScheduler;
             _serviceProvider = serviceProvider;
-            _eventFlowOptions = eventFlowOptions;
-            _cancellationConfiguration = cancellationConfiguration;
+            _options = options;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -84,10 +81,10 @@ namespace EventFlow.Subscribers
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingReadStores);
+            cancellationToken = _options.Value.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingReadStores);
             await PublishToReadStoresAsync(domainEvents, cancellationToken).ConfigureAwait(false);
 
-            cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeNotifyingSubscribers);
+            cancellationToken = _options.Value.Limit(cancellationToken, CancellationBoundary.BeforeNotifyingSubscribers);
             await PublishToSubscribersOfAllEventsAsync(domainEvents, cancellationToken).ConfigureAwait(false);
 
             // Update subscriptions AFTER read stores have been updated
@@ -126,7 +123,7 @@ namespace EventFlow.Subscribers
             IEnumerable<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            if (_eventFlowOptions.IsAsynchronousSubscribersEnabled)
+            if (_options.Value.IsAsynchronousSubscribersEnabled)
             {
                 await Task.WhenAll(domainEvents.Select(
                         d => _jobScheduler.ScheduleNowAsync(

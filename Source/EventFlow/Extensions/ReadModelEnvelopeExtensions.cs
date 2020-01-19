@@ -21,35 +21,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Logs;
+using EventFlow.ReadStores;
 
 namespace EventFlow.Extensions
 {
-    public static class DisposableExtensions
+    public static class ReadModelEnvelopeExtensions
     {
-        public static void DisposeSafe(
-            this IDisposable disposable,
-            string message)
+        public static ReadModelUpdateResult<TReadModel> AsUnmodifiedResult<TReadModel>(
+            this ReadModelEnvelope<TReadModel> readModelEnvelope)
+            where TReadModel: class, IReadModel
         {
-            DisposeSafe(disposable, new ConsoleLog(), message);
+            return ReadModelUpdateResult<TReadModel>.With(
+                readModelEnvelope,
+                false);
         }
 
-        public static void DisposeSafe(
-            this IDisposable disposable, 
-            ILog log,
-            string message)
+        public static ReadModelUpdateResult<TReadModel> AsModifiedResult<TReadModel>(
+            this ReadModelEnvelope<TReadModel> readModelEnvelope,
+            TReadModel readModel,
+            long? version = null)
+            where TReadModel: class, IReadModel
         {
-            if (disposable == null) return;
-
-            try
-            {
-                disposable.Dispose();
-            }
-            catch (Exception e)
-            {
-                log.Warning(e, message);
-            }
+            return ReadModelUpdateResult<TReadModel>.With(
+                ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, version), 
+                true);
         }
     }
 }

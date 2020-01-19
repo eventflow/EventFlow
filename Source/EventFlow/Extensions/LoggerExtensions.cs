@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,30 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.ReadStores;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Extensions
 {
-    public static class ReadModelEnvelopeExtensions
+    public static class LoggerExtensions
     {
-        public static ReadModelUpdateResult<TReadModel> AsUnmodifedResult<TReadModel>(
-            this ReadModelEnvelope<TReadModel> readModelEnvelope)
-            where TReadModel: class, IReadModel
+        public static void DoIfLogLevel<T>(
+            this T logger,
+            LogLevel logLevel,
+            Action<T> action)
+            where T : ILogger
         {
-            return ReadModelUpdateResult<TReadModel>.With(
-                readModelEnvelope,
-                false);
-        }
+            if (!logger.IsEnabled(logLevel))
+            {
+                return;
+            }
 
-        public static ReadModelUpdateResult<TReadModel> AsModifedResult<TReadModel>(
-            this ReadModelEnvelope<TReadModel> readModelEnvelope,
-            TReadModel readModel,
-            long? version = null)
-            where TReadModel: class, IReadModel
-        {
-            return ReadModelUpdateResult<TReadModel>.With(
-                ReadModelEnvelope<TReadModel>.With(readModelEnvelope.ReadModelId, readModel, version), 
-                true);
+            action(logger);
         }
     }
 }

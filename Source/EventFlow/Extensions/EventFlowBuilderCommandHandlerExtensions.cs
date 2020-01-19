@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsCommandHandlerExtensions
+    public static class EventFlowBuilderCommandHandlerExtensions
     {
         public static IEventFlowBuilder AddCommandHandlers(
             this IEventFlowBuilder eventFlowBuilder,
@@ -43,6 +43,7 @@ namespace EventFlow.Extensions
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsCommandHandlerInterface))
                 .Where(t => !t.HasConstructorParameterOfType(IsCommandHandlerInterface))
                 .Where(t => predicate(t));
+
             return eventFlowBuilder.AddCommandHandlers(commandHandlerTypes);
         }
 
@@ -60,7 +61,11 @@ namespace EventFlow.Extensions
             foreach (var commandHandlerType in commandHandlerTypes)
             {
                 var t = commandHandlerType;
-                if (t.GetTypeInfo().IsAbstract) continue;
+                if (t.GetTypeInfo().IsAbstract)
+                {
+                    continue;
+                }
+
                 var handlesCommandTypes = t
                     .GetTypeInfo()
                     .GetInterfaces()
@@ -71,13 +76,11 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{commandHandlerType.PrettyPrint()}' does not implement '{typeof(ICommandHandler<,,,>).PrettyPrint()}'");
                 }
 
-                eventFlowBuilder.RegisterServices(sr =>
-                    {
-                        foreach (var handlesCommandType in handlesCommandTypes)
-                        {
-                            sr.AddTransient(handlesCommandType, t);
-                        }
-                    });
+                var serviceCollection = eventFlowBuilder.Services;
+                foreach (var handlesCommandType in handlesCommandTypes)
+                {
+                    serviceCollection.AddTransient(handlesCommandType, t);
+                }
             }
 
             return eventFlowBuilder;
@@ -85,7 +88,7 @@ namespace EventFlow.Extensions
 
         private static bool IsCommandHandlerInterface(this Type type)
         {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(ICommandHandler<,,,>);
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICommandHandler<,,,>);
         }
     }
 }

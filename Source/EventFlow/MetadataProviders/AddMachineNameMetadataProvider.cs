@@ -37,7 +37,7 @@ namespace EventFlow.MetadataProviders
         {
             Metadata = new[]
                 {
-                    new KeyValuePair<string, string>("environment_machinename", Environment.MachineName), 
+                    new KeyValuePair<string, string>("environment_machine_name", Environment.MachineName), 
                 };
         }
 

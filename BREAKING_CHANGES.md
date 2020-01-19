@@ -25,3 +25,7 @@ from version 0.x to 1.x.
     have any custom IoC container, but focus on its core concepts and
     rely on the standard defined by Microsoft 
 
+* **Remove all non-async methods**
+  * **Reason:** ...
+
+

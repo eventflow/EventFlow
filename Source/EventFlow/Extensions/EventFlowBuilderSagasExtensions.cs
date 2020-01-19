@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsSagasExtensions
+    public static class EventFlowBuilderSagasExtensions
     {
         public static IEventFlowBuilder AddSagas(
             this IEventFlowBuilder eventFlowBuilder,
@@ -40,7 +40,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var sagaTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.GetTypeInfo().IsAbstract && t.IsAssignableTo<ISaga>())
+                .Where(t => !t.IsAbstract && t.IsAssignableTo<ISaga>())
                 .Where(t => predicate(t));
 
             return eventFlowBuilder.AddSagas(sagaTypes);
@@ -61,7 +61,7 @@ namespace EventFlow.Extensions
             predicate = predicate ?? (t => true);
             var sagaTypes = fromAssembly
                 .GetTypes()
-                .Where(t => !t.GetTypeInfo().IsAbstract && t.IsAssignableTo<ISagaLocator>())
+                .Where(t => !t.IsAbstract && t.IsAssignableTo<ISagaLocator>())
                 .Where(t => !t.HasConstructorParameterOfType(x => x.IsAssignableTo<ISagaLocator>()))
                 .Where(t => predicate(t));
 
@@ -79,17 +79,20 @@ namespace EventFlow.Extensions
             this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> sagaLocatorTypes)
         {
-            return eventFlowBuilder.RegisterServices(sr =>
+            var serviceCollection = eventFlowBuilder.Services;
+            var sagaLocatorTypeInfo = typeof(ISagaLocator).GetTypeInfo();
+
+            foreach (var sagaLocatorType in sagaLocatorTypes)
+            {
+                if (!sagaLocatorTypeInfo.IsAssignableFrom(sagaLocatorType))
                 {
-                    foreach (var sagaLocatorType in sagaLocatorTypes)
-                    {
-                        if (!typeof(ISagaLocator).GetTypeInfo().IsAssignableFrom(sagaLocatorType))
-                        {
-                            throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
-                        }
-                        sr.AddTransient(sagaLocatorType);
-                    }
-                });
+                    throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
+                }
+
+                serviceCollection.AddTransient(sagaLocatorType);
+            }
+
+            return eventFlowBuilder;
         }
     }
 }

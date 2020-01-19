@@ -26,17 +26,19 @@ using System.Collections.Generic;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Sagas;
 using EventFlow.Snapshots;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow
 {
     internal class EventFlowBuilder : IEventFlowBuilder
     {
-        private readonly List<Type> _aggregateEventTypes = new List<Type>();
+        private readonly List<Type> _eventTypes = new List<Type>();
         private readonly List<Type> _sagaTypes = new List<Type>(); 
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly List<Type> _jobTypes = new List<Type>();
@@ -48,6 +50,13 @@ namespace EventFlow
             IServiceCollection serviceCollection)
         {
             Services = serviceCollection;
+
+            serviceCollection.TryAddSingleton<ILoadedVersionedTypes>(_ => new LoadedVersionedTypes(
+                _jobTypes,
+                _commandTypes,
+                _eventTypes,
+                _sagaTypes,
+                _snapshotTypes));
         }
 
         public IEventFlowBuilder AddEvents(IEnumerable<Type> aggregateEventTypes)
@@ -59,7 +68,7 @@ namespace EventFlow
                     throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof(IAggregateEvent).PrettyPrint()}");
                 }
 
-                _aggregateEventTypes.Add(aggregateEventType);
+                _eventTypes.Add(aggregateEventType);
             }
 
             return this;
@@ -118,6 +127,7 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
                 }
+
                 _snapshotTypes.Add(snapshotType);
             }
 

@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
+using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
@@ -61,14 +62,16 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            var serviceCollection = new ServiceCollection();
-            var eventFlowOptions = Options(EventFlowSetup.New(serviceCollection), new ServiceCollection())
-                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
+            var serviceCollection = new ServiceCollection()
+                .AddScoped<IScopedContext, ScopedContext>();
+
+            Options(serviceCollection.AddEventFlow());
+
                 //.AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>() TODO
                 /*.AddDefaults(EventFlowTestHelpers.Assembly, 
                     type => type != typeof(DbContextQueryHandler))*/;
 
-            Resolver = CreateRootResolver(eventFlowOptions, serviceCollection);
+            Resolver = serviceCollection.BuildServiceProvider(true);
 
             AggregateStore = Resolver.GetRequiredService<IAggregateStore>();
             EventStore = Resolver.GetRequiredService<IEventStore>();
@@ -88,16 +91,10 @@ namespace EventFlow.TestHelpers
             (Resolver as IDisposable)?.Dispose();
         }
 
-        protected virtual IEventFlowSetup Options(
-            IEventFlowSetup eventFlowSetup,
-            IServiceCollection serviceCollection)
+        protected virtual IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             return eventFlowSetup;
         }
-
-        protected abstract IServiceProvider CreateRootResolver(
-            IEventFlowSetup eventFlowSetup,
-            IServiceCollection serviceCollection);
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
         {
@@ -127,7 +124,10 @@ namespace EventFlow.TestHelpers
             int count, 
             CancellationToken cancellationToken = default)
         {
-            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
+            if (count <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
 
             var pingIds = new List<PingId>();
 

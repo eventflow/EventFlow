@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,15 +30,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsMetadataProvidersExtensions
+    public static class EventFlowBuilderMetadataProvidersExtensions
     {
         public static IEventFlowBuilder AddMetadataProvider<TMetadataProvider>(
             this IEventFlowBuilder eventFlowBuilder,
             ServiceLifetime lifetime = ServiceLifetime.Transient)
             where TMetadataProvider : class, IMetadataProvider
         {
-            return eventFlowBuilder
-                .RegisterServices(f => f.Add(new ServiceDescriptor(typeof(IMetadataProvider), typeof(TMetadataProvider), lifetime)));
+            eventFlowBuilder.Services
+                .Add(new ServiceDescriptor(typeof(IMetadataProvider), typeof(TMetadataProvider), lifetime));
+            return eventFlowBuilder;
         }
 
         public static IEventFlowBuilder AddMetadataProviders(
@@ -67,16 +68,21 @@ namespace EventFlow.Extensions
             this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> metadataProviderTypes)
         {
+            var serviceCollection = eventFlowBuilder.Services;
             foreach (var t in metadataProviderTypes)
             {
-                if (t.GetTypeInfo().IsAbstract) continue;
+                if (t.IsAbstract)
+                {
+                    continue;
+                }
                 if (!t.IsMetadataProvider())
                 {
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");
                 }
 
-                eventFlowBuilder.RegisterServices(sr => sr.Add(new ServiceDescriptor(typeof(IMetadataProvider), t, ServiceLifetime.Transient)));
+                serviceCollection.AddTransient(typeof(IMetadataProvider), t);
             }
+
             return eventFlowBuilder;
         }
 

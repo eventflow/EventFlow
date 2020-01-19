@@ -21,22 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
+using System.Text;
+using EventFlow.Core;
 
-namespace EventFlow.Logs
+namespace EventFlow.Extensions
 {
-    public class NullLog : Log
+    public static class IdentityExtensions
     {
-        protected override bool IsVerboseEnabled => false;
-        protected override bool IsInformationEnabled => false;
-        protected override bool IsDebugEnabled => false;
-
-        public override void Write(LogLevel logLevel, string format, params object[] args)
+        public static byte[] GetBytes(this IIdentity identity)
         {
-        }
-
-        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
-        {
+            return Encoding.UTF8.GetBytes(identity.Value);
         }
     }
 }

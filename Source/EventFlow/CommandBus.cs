@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -32,26 +33,26 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
-        private readonly ILog _log;
+        private readonly ILogger<CommandBus> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public CommandBus(
-            ILog log,
+            ILogger<CommandBus> logger,
             IServiceProvider serviceProvider,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
-            _log = log;
+            _logger = logger;
             _serviceProvider = serviceProvider;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;
@@ -64,44 +65,55 @@ namespace EventFlow
             where TIdentity : IIdentity
             where TResult : IExecutionResult
         {
-            if (command == null) throw new ArgumentNullException(nameof(command));
-
-            _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
-
-            IAggregateUpdateResult<TResult> aggregateUpdateResult;
-            try
+            if (command == null)
             {
-                aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Debug(
-                    exception,
-                    "Execution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
-                    command.GetType().PrettyPrint(),
-                    command.SourceId,
-                    typeof(TAggregate),
-                    exception.GetType().PrettyPrint(),
-                    exception.Message);
-                throw;
+                throw new ArgumentNullException(nameof(command));
             }
 
-            _log.Verbose(() => !aggregateUpdateResult.DomainEvents.Any()
-                ? string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events, was success:{3}",
-                    command.GetType().PrettyPrint(),
-                    command.SourceId,
-                    typeof(TAggregate).PrettyPrint(),
-                    aggregateUpdateResult.Result?.IsSuccess)
-                : string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}, was success: {4}",
-                    command.GetType().PrettyPrint(),
-                    command.SourceId,
-                    typeof(TAggregate),
-                    string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint())),
-                    aggregateUpdateResult.Result?.IsSuccess));
+            using (_logger.BeginScope(new Dictionary<string, object>
+                {
+                    ["CommandTypeName"] = command.GetType().PrettyPrint(),
+                    ["AggregateTypeName"] = typeof(TAggregate).PrettyPrint(),
+                    ["CommandSourceId"] = command.SourceId.Value,
+                }))
+            {
+                IAggregateUpdateResult<TResult> aggregateUpdateResult;
+                try
+                {
+                    aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogDebug(
+                        exception,
+                        "Execution of command failed due to exception {ExceptionType} with message: {ExceptionMessage}",
+                        exception.GetType().PrettyPrint(),
+                        exception.Message);
 
-            return aggregateUpdateResult.Result;
+                    throw;
+                }
+
+                _logger.DoIfLogLevel(
+                    LogLevel.Trace,
+                    l =>
+                    {
+                        if (aggregateUpdateResult.DomainEvents.Any())
+                        {
+                            l.LogTrace(
+                                "Execution command resulted in these events: {DomainEvents}, was success: {WasSuccess}",
+                                string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint())),
+                                aggregateUpdateResult.Result?.IsSuccess);
+                        }
+                        else
+                        {
+                            l.LogTrace(
+                                "Execution command did NOT result in any domain events, was success: {WasSuccess}", 
+                                aggregateUpdateResult.Result?.IsSuccess);
+                        }
+                    });
+
+                return aggregateUpdateResult.Result;
+            }
         }
 
         private async Task<IAggregateUpdateResult<TResult>> ExecuteCommandAsync<TAggregate, TIdentity, TResult>(
@@ -119,18 +131,16 @@ namespace EventFlow
                 .ToList();
             if (!commandHandlers.Any())
             {
-                throw new NoCommandHandlersException(string.Format(
-                    "No command handlers registered for the command '{0}' on aggregate '{1}'",
-                    commandType.PrettyPrint(),
-                    typeof(TAggregate).PrettyPrint()));
+                throw new NoCommandHandlersException(
+                    $"No command handlers registered for the command '{commandType.PrettyPrint()}' " +
+                    $"on aggregate '{typeof(TAggregate).PrettyPrint()}'");
             }
             if (commandHandlers.Count > 1)
             {
-                throw new InvalidOperationException(string.Format(
-                    "Too many command handlers the command '{0}' on aggregate '{1}'. These were found: {2}",
-                    commandType.PrettyPrint(),
-                    typeof(TAggregate).PrettyPrint(),
-                    string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))));
+                throw new InvalidOperationException(
+                    $"Too many command handlers the command '{commandType.PrettyPrint()}' on " +
+                    $"aggregate '{typeof(TAggregate).PrettyPrint()}'. These were found: " +
+                    $"{string.Join(", ", commandHandlers.Select(h => h.GetType().PrettyPrint()))}");
             }
 
             var commandHandler = commandHandlers.Single();
@@ -163,7 +173,6 @@ namespace EventFlow
                 commandType,
                 e =>
                     {
-                        e.SlidingExpiration = TimeSpan.FromDays(1);
                         var commandInterfaceType = commandType
                             .GetTypeInfo()
                             .GetInterfaces()
@@ -172,8 +181,6 @@ namespace EventFlow
 
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
-                        
-                        _log.Verbose(() => $"Command '{commandType.PrettyPrint()}' is resolved by '{commandHandlerType.PrettyPrint()}'");
 
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
                             commandHandlerType, NameOfExecuteCommand);

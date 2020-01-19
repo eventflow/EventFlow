@@ -30,6 +30,7 @@ namespace EventFlow.ReadStores
     public interface IReadModelContext
     {
         IServiceProvider ServiceProvider { get; }
+
         void MarkForDeletion();
         bool IsMarkedForDeletion { get; }
         string ReadModelId { get; }

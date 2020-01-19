@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,31 +24,31 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Jobs;
+using EventFlow.Commands;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsJobExtensions
+    public static class EventFlowBuilderCommandExtensions
     {
-        public static IEventFlowBuilder AddJobs(
+        public static IEventFlowBuilder AddCommands(
             this IEventFlowBuilder eventFlowBuilder,
-            params Type[] jobTypes)
+            params Type[] commandTypes)
         {
-            return eventFlowBuilder.AddJobs(jobTypes);
+            return eventFlowBuilder.AddCommands(commandTypes);
         }
 
-        public static IEventFlowBuilder AddJobs(
+        public static IEventFlowBuilder AddCommands(
             this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate)
         {
             predicate = predicate ?? (t => true);
-            var jobTypes = fromAssembly
+            var commandTypeInfo = typeof(ICommand).GetTypeInfo();
+            var commandTypes = fromAssembly
                 .GetTypes()
-                .Where(type => !type.GetTypeInfo().IsAbstract && type.IsAssignableTo<IJob>())
-                .Where(t => !t.HasConstructorParameterOfType(i => i.IsAssignableTo<IJob>()))
+                .Where(t => !t.IsAbstract && commandTypeInfo.IsAssignableFrom(t))
                 .Where(t => predicate(t));
-            return eventFlowBuilder.AddJobs(jobTypes);
+            return eventFlowBuilder.AddCommands(commandTypes);
         }
     }
 }

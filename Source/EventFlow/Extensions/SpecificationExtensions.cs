@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,11 +48,11 @@ namespace EventFlow.Extensions
         {
             if (specification == null) throw new ArgumentNullException(nameof(specification));
 
-            var whyIsNotStatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
-            if (whyIsNotStatisfiedBy.Any())
+            var whyIsNotSatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
+            if (whyIsNotSatisfiedBy.Any())
             {
                 throw DomainError.With(
-                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotStatisfiedBy)}");
+                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotSatisfiedBy)}");
             }
         }
 
@@ -60,12 +60,12 @@ namespace EventFlow.Extensions
             this ISpecification<T> specification,
             T obj)
         {
-            var whyIsNotStatisfiedBy = specification
+            var whyIsNotSatisfiedBy = specification
                 .WhyIsNotSatisfiedBy(obj)
                 .ToList();
             
-            return whyIsNotStatisfiedBy.Any()
-                ? ExecutionResult.Failed(whyIsNotStatisfiedBy)
+            return whyIsNotSatisfiedBy.Any()
+                ? ExecutionResult.Failed(whyIsNotSatisfiedBy)
                 : ExecutionResult.Success();
         }
 

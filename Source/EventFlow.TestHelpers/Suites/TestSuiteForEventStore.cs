@@ -418,7 +418,7 @@ namespace EventFlow.TestHelpers.Suites
             _publishedDomainEvents.Clear();
         }
 
-        protected override IEventFlowSetup Options(IEventFlowSetup eventFlowSetup,
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup,
             IServiceCollection serviceCollection)
         {
             var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();

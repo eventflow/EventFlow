@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,12 +50,12 @@ namespace EventFlow.Extensions
             this IEventFlowBuilder eventFlowBuilder,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
-            return eventFlowBuilder.RegisterServices(f =>
-                {
-                    f.AddSingleton(filesEventStoreConfiguration);
-                    f.AddSingleton<IEventPersistence, FilesEventPersistence>();
-                    f.AddTransient<IFilesEventLocator, FilesEventLocator>();
-                });
+            eventFlowBuilder.Services
+                .AddSingleton(filesEventStoreConfiguration)
+                .AddSingleton<IEventPersistence, FilesEventPersistence>()
+                .AddTransient<IFilesEventLocator, FilesEventLocator>();
+
+            return eventFlowBuilder;
         }
     }
 }

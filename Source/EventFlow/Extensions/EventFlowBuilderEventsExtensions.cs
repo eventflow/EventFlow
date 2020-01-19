@@ -21,16 +21,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Text;
-using EventFlow.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Aggregates;
 
 namespace EventFlow.Extensions
 {
-    public static class IdentityExtensions
+    public static class EventFlowBuilderEventsExtensions
     {
-        public static byte[] GetBytes(this IIdentity identity)
+        public static IEventFlowBuilder AddEvents(
+            this IEventFlowBuilder eventFlowBuilder,
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
-            return Encoding.UTF8.GetBytes(identity.Value);
+            predicate = predicate ?? (t => true);
+            var aggregateEventTypeInfo = typeof(IAggregateEvent).GetTypeInfo();
+            var aggregateEventTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && aggregateEventTypeInfo.IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowBuilder.AddEvents(aggregateEventTypes);
+        }
+
+        public static IEventFlowBuilder AddEvents(
+            this IEventFlowBuilder eventFlowBuilder,
+            params Type[] aggregateEventTypes)
+        {
+            return eventFlowBuilder.AddEvents((IEnumerable<Type>)aggregateEventTypes);
         }
     }
 }
