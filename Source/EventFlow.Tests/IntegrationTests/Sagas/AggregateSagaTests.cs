@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Sagas;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
@@ -35,6 +34,7 @@ using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.Sagas.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 
@@ -170,16 +170,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             receivedSagaPingIds.Should().BeEquivalentTo(pingsWithRunningSaga);
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();
             _thingySagaStartedSubscriber
                 .Setup(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(0));
 
-            return eventFlowSetup
-                .RegisterServices(sr => sr.Register(_ => _thingySagaStartedSubscriber.Object))
-                .CreateResolver();
+            return base.Options(eventFlowSetup)
+                .RegisterServices(sr => sr.AddTransient(_ => _thingySagaStartedSubscriber.Object));
         }
     }
 }

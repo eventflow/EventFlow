@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +23,6 @@
 
 using System;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -31,6 +30,7 @@ using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.ReadStores
@@ -40,26 +40,23 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
     {
         protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
 
-        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
-            var resolver = eventFlowSetup
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
+            return base.Options(eventFlowSetup)
+                .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))
                 .UseInMemoryReadStoreFor<ThingyAggregate, ThingyId, InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(InMemoryThingyGetQueryHandler),
                     typeof(InMemoryThingyGetVersionQueryHandler),
-                    typeof(InMemoryThingyGetMessagesQueryHandler))
-                .CreateResolver();
-
-            return resolver;
+                    typeof(InMemoryThingyGetMessagesQueryHandler));
         }
 
         [Test]
         public override Task OptimisticConcurrencyCheck()
         {
             // The in-memory uses a global lock on all read models making concurrency impossible
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

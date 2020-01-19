@@ -27,15 +27,15 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -46,14 +46,14 @@ namespace EventFlow.Tests.UnitTests
     public class CommandBusTests : TestsFor<CommandBus>
     {
         private Mock<IAggregateStore> _aggregateStoreMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
 
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+            Inject<IMemoryCache>(new MemoryCache(new OptionsWrapper<MemoryCacheOptions>(new MemoryCacheOptions())));
 
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _aggregateStoreMock = InjectMock<IAggregateStore>();
         }
 
@@ -91,8 +91,8 @@ namespace EventFlow.Tests.UnitTests
             where TCommand : ICommand<TAggregate, TIdentity, TExecutionResult>
             where TExecutionResult : IExecutionResult
         {
-            _resolverMock
-                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>)))
+            _serviceProviderMock
+                .Setup(r => r.GetServices(typeof(ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>)))
                 .Returns(new[] { commandHandler });
         }
 

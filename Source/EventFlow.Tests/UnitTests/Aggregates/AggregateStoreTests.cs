@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,13 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
@@ -40,6 +40,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -50,7 +51,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
     {
         private Mock<IEventStore> _eventStoreMock;
         private Mock<IAggregateFactory> _aggregateFactoryMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IDomainEventPublisher> _domainEventPublisherMock;
 
         [SetUp]
@@ -59,15 +60,15 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Fixture.Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
                 new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
                     Fixture.Create<ILog>(),
-                    new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
+                    new OptimisticConcurrencyRetryStrategy(new OptionsWrapper<EventFlowOptions>(new EventFlowOptions()))));
 
             _eventStoreMock = InjectMock<IEventStore>();
             _aggregateFactoryMock = InjectMock<IAggregateFactory>();
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
 
             _domainEventPublisherMock = new Mock<IDomainEventPublisher>();
-            _resolverMock
-                .Setup(r => r.Resolve<IDomainEventPublisher>())
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IDomainEventPublisher)))
                 .Returns(_domainEventPublisherMock.Object);
 
             _aggregateFactoryMock

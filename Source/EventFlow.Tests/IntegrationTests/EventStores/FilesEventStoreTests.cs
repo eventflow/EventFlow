@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,12 +23,11 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
@@ -36,9 +35,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     [Category(Categories.Integration)]
     public class FilesEventStoreTests : TestSuiteForEventStore
     {
-        private IFilesEventStoreConfiguration _configuration;
-
-        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
         {
             var storePath = Path.Combine(
                 Path.GetTempPath(),
@@ -46,19 +43,14 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
 
             Directory.CreateDirectory(storePath);
 
-            var resolver = eventFlowSetup
-                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-                .CreateResolver();
-
-            _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
-
-            return resolver;
+            return base.Options(eventFlowSetup)
+                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath));
         }
 
         [TearDown]
         public void TearDown()
         {
-            Directory.Delete(_configuration.StorePath, true);
+            Directory.Delete(ServiceProvider.GetRequiredService<IFilesEventStoreConfiguration>().StorePath, true);
         }
     }
 }
