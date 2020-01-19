@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,9 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -39,17 +39,17 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
     [Category(Categories.Unit)]
     public class SnapshotUpgradeServiceTests : TestsFor<SnapshotUpgradeService>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
 
         [SetUp]
         public void SetUp()
         {
-            _resolverMock = InjectMock<IResolver>();
-            _resolverMock
-                .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
+            _serviceProviderMock = InjectMock<IServiceProvider>();
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(ISnapshotUpgrader<ThingySnapshotV1, ThingySnapshotV2>)))
                 .Returns(() => new ThingySnapshotV1ToV2Upgrader());
-            _resolverMock
-                .Setup(r => r.Resolve(typeof(ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>)))
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>)))
                 .Returns(() => new ThingySnapshotV2ToV3Upgrader());
 
             var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());

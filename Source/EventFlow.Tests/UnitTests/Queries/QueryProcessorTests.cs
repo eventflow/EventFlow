@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,12 +24,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Core.Caching;
-using EventFlow.Logs;
 using EventFlow.Queries;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -38,7 +37,7 @@ namespace EventFlow.Tests.UnitTests.Queries
     [Category(Categories.Unit)]
     public class QueryProcessorTests : TestsFor<QueryProcessor>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IQueryHandler<IQuery<int>, int>> _queryHandlerMock;
     
         public class TestQuery : IQuery<int> { }
@@ -46,13 +45,13 @@ namespace EventFlow.Tests.UnitTests.Queries
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+            Inject<IMemoryCache>(new MemoryCache(new OptionsWrapper<MemoryCacheOptions>(new MemoryCacheOptions())));
 
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _queryHandlerMock = new Mock<IQueryHandler<IQuery<int>, int>>();
 
-            _resolverMock
-                .Setup(r => r.Resolve(It.Is<Type>(t => t == typeof(IQueryHandler<TestQuery, int>))))
+            _serviceProviderMock
+                .Setup(r => r.GetService(It.Is<Type>(t => t == typeof(IQueryHandler<TestQuery, int>))))
                 .Returns(() => _queryHandlerMock.Object);
             _queryHandlerMock
                 .Setup(h => h.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()))

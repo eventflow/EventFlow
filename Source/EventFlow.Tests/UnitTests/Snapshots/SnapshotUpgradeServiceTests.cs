@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,10 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -40,13 +40,13 @@ namespace EventFlow.Tests.UnitTests.Snapshots
     [Category(Categories.Unit)]
     public class SnapshotUpgradeServiceTests : TestsFor<SnapshotUpgradeService>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private ISnapshotDefinitionService _snapshotDefinitionService;
 
         [SetUp]
         public void SetUp()
         {
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _snapshotDefinitionService = Inject<ISnapshotDefinitionService>(new SnapshotDefinitionService(A<ILog>()));
         }
 
@@ -84,8 +84,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                     .GetInterfaces()
                     .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISnapshotUpgrader<,>));
 
-                _resolverMock
-                    .Setup(r => r.Resolve(snapshotUpgraderInterfaceType))
+                _serviceProviderMock
+                    .Setup(r => r.GetService(snapshotUpgraderInterfaceType))
                     .Returns(snapshotUpgrader);
             }
         }

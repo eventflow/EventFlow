@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,9 +41,13 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
             {
                 PingEventsReceived = true;
+                return Task.CompletedTask;
             }
         }
 
@@ -52,9 +56,13 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
             {
                 PingEventsReceived = true;
+                return Task.CompletedTask;
             }
         }
 
@@ -76,9 +84,13 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool DomainErrorAfterFirstEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent,
+                CancellationToken cancellationToken)
             {
                 DomainErrorAfterFirstEventsReceived = true;
+                return Task.CompletedTask;
             }
         }
 

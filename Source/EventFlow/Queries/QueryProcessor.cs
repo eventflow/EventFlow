@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,18 +68,6 @@ namespace EventFlow.Queries
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
 
             return await task.ConfigureAwait(false);
-        }
-
-        public TResult Process<TResult>(
-            IQuery<TResult> query,
-            CancellationToken cancellationToken)
-        {
-            var result = default(TResult);
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(ProcessAsync(query, cancellationToken), r => result = r);
-            }
-            return result;
         }
 
         private CacheItem GetCacheItem(Type queryType)

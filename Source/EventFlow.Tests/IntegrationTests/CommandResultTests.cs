@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,13 +25,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.Tests.UnitTests.Specifications;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -94,28 +93,25 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task CommandResult()
         {
-            using (var resolver = EventFlowSetup.New
+            using var resolver = EventFlowTestHelpers.Setup()
                 .AddCommandHandlers(
                     typeof(TestSuccessResultCommandHandler),
                     typeof(TestFailedResultCommandHandler))
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .CreateResolver(false))
-            {
-                var commandBus = resolver.Resolve<ICommandBus>();
+                .Services.BuildServiceProvider();
+            var commandBus = resolver.GetRequiredService<ICommandBus>();
 
-                var success = await commandBus.PublishAsync(
+            var success = await commandBus.PublishAsync(
                     new TestSuccessResultCommand(ThingyId.New),
                     CancellationToken.None)
-                    .ConfigureAwait(false);
-                success.IsSuccess.Should().BeTrue();
-                success.MagicNumber.Should().Be(42);
+                .ConfigureAwait(false);
+            success.IsSuccess.Should().BeTrue();
+            success.MagicNumber.Should().Be(42);
                 
-                var failed = await commandBus.PublishAsync(
-                        new TestFailedResultCommand(ThingyId.New),
-                        CancellationToken.None)
-                    .ConfigureAwait(false);
-                failed.IsSuccess.Should().BeFalse();
-            }
+            var failed = await commandBus.PublishAsync(
+                    new TestFailedResultCommand(ThingyId.New),
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+            failed.IsSuccess.Should().BeFalse();
         }
     }
 }

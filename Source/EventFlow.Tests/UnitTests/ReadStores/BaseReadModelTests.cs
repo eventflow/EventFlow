@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,17 +27,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
-    [Timeout(5000)]
     [Category(Categories.Unit)]
     public abstract class BaseReadModelTests<TReadModel> : TestsFor<ReadModelPopulator>
         where TReadModel : class, IReadModel
@@ -46,9 +45,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
         private Mock<IReadModelStore<TReadModel>> _readModelStoreMock;
         private Mock<IReadStoreManager<TReadModel>> _readStoreManagerMock;
-        private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
         private Mock<IEventStore> _eventStoreMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _resolverMock;
         private List<IDomainEvent> _eventStoreData;
 
         [SetUp]
@@ -56,22 +54,20 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             _eventStoreMock = InjectMock<IEventStore>();
             _eventStoreData = null;
-            _resolverMock = InjectMock<IResolver>();
+            _resolverMock = InjectMock<IServiceProvider>();
             _readModelStoreMock = new Mock<IReadModelStore<TReadModel>>();
             _readStoreManagerMock = new Mock<IReadStoreManager<TReadModel>>();
-            _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
+            
+            InjectMock<IOptions<EventFlowOptions>>()
+                .Setup(m => m.Value)
+                .Returns(new EventFlowOptions
+                    {
+                        PopulateReadModelEventPageSize = ReadModelPageSize
+                    });
 
             _resolverMock
-                .Setup(r => r.Resolve<IEnumerable<IReadStoreManager>>())
+                .Setup(r => r.GetService(typeof(IEnumerable<IReadStoreManager>)))
                 .Returns(new[] { _readStoreManagerMock.Object });
-            _resolverMock
-                .Setup(r => r.ResolveAll(typeof(IReadModelStore<TReadModel>)))
-                .Returns(new[] { _readModelStoreMock.Object });
-
-            _eventFlowConfigurationMock
-                .Setup(c => c.PopulateReadModelEventPageSize)
-                .Returns(ReadModelPageSize);
-
             _eventStoreMock
                 .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns<GlobalPosition, int, CancellationToken>((s, p, c) => Task.FromResult(GetEvents(s, p)));

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,18 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
-using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -55,36 +53,30 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task ResolverAggregatesFactoryCanResolve()
         {
-            using (var resolver = EventFlowSetup.New
-                .RegisterServices(sr => sr.RegisterType(typeof(Service)))
-                .CreateResolver())
-            {
-                // Arrange
-                var aggregateFactory = resolver.Resolve<IAggregateFactory>();
+            // Arrange
+            using var resolver = EventFlowTestHelpers.Setup()
+                .RegisterServices(sr => sr.AddTransient(typeof(Service)))
+                .Services.BuildServiceProvider();
+            var aggregateFactory = resolver.GetRequiredService<IAggregateFactory>();
 
-                // Act
-                var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
+            // Act
+            var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
-                // Assert
-                serviceDependentAggregate.Service.Should()
-                    .NotBeNull()
-                    .And
-                    .BeOfType<Service>();
-            }
+            // Assert
+            serviceDependentAggregate.Service.Should()
+                .NotBeNull()
+                .And
+                .BeOfType<Service>();
         }
 
         [Test]
         public void RegistrationDoesntCauseStackOverflow()
         {
-            using (var resolver = EventFlowSetup.New
+            using (var resolver = EventFlowTestHelpers.Setup()
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(s =>
-                {
-                    s.Register<IScopedContext, ScopedContext>(Lifetime.Scoped);
-                })
-                .CreateResolver())
+                .Services.BuildServiceProvider())
             {
-                resolver.Resolve<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyAddMessageCommand>>();
+                resolver.GetRequiredService<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyAddMessageCommand>>();
             }
         }
     }

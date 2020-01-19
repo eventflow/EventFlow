@@ -30,6 +30,7 @@ namespace EventFlow.Jobs
 {
     public interface IJob : IVersionedType
     {
+        // TODO: consider putting in a context instead
         Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken);
     }
 }

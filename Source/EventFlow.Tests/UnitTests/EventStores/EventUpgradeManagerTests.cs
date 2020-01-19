@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,9 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -38,24 +38,16 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class EventUpgradeManagerTests : TestsFor<EventUpgradeManager>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
 
         [SetUp]
         public void SetUp()
         {
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
 
-            _resolverMock
-                .Setup(r => r.Resolve<IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>>())
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>)))
                 .Returns(new IEventUpgrader<ThingyAggregate, ThingyId>[]
-                    {
-                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
-                        new DamagedEventRemover(),
-                    });
-            _resolverMock
-                .Setup(r => r.ResolveAll(typeof(IEventUpgrader<ThingyAggregate, ThingyId>)))
-                .Returns(new object[]
                     {
                         new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
                         new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 

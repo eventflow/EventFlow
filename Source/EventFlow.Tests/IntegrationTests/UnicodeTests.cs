@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,10 +28,11 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Extensions;
 using EventFlow.Logs;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -73,7 +74,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeCommands()
         {
             // Arrange
-            var commandDefinitions = new CommandDefinitionService(new NullLog());
+            var commandDefinitions = new CommandDefinitionService(new ConsoleLog());
 
             // Act
             Action action = () => commandDefinitions.Load(typeof(Cömmand));
@@ -86,7 +87,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeEvents()
         {
             // Arrange
-            var eventDefinitionService = new EventDefinitionService(new NullLog());
+            var eventDefinitionService = new EventDefinitionService(new ConsoleLog());
 
             // Act
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));
@@ -96,16 +97,16 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test]
-        public void UnicodeIntegration()
+        public async Task UnicodeIntegration()
         {
-            var resolver = EventFlowSetup.New
+            using var resolver = EventFlowTestHelpers.Setup()
                 .AddEvents(typeof(Püng1Event))
                 .AddCommands(typeof(Cömmand))
                 .AddCommandHandlers(typeof(CömmandHändler))
-                .CreateResolver();
+                .Services.BuildServiceProvider();
 
-            var bus = resolver.Resolve<ICommandBus>();
-            bus.Publish(new Cömmand());
+            var bus = resolver.GetRequiredService<ICommandBus>();
+            await bus.PublishAsync(new Cömmand(), CancellationToken.None);
         }
 
         private class Identität1 : Identity<Identität1>

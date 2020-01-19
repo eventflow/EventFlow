@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,19 +43,6 @@ namespace EventFlow.Jobs
             _serviceProvider = serviceProvider;
             _jobDefinitionService = jobDefinitionService;
             _jsonSerializer = jsonSerializer;
-        }
-
-        public void Execute(string jobName, int version, string job)
-        {
-            Execute(jobName, version, job, CancellationToken.None);
-        }
-
-        public void Execute(string jobName, int version, string json, CancellationToken cancellationToken)
-        {
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(ExecuteAsync(jobName, version, json, cancellationToken));
-            }
         }
 
         public Task ExecuteAsync(string jobName, int version, string json, CancellationToken cancellationToken)

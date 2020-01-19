@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,11 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -35,19 +35,21 @@ namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
     [Category(Categories.Unit)]
     public class OptimisticConcurrencyRetryStrategyTests : TestsFor<OptimisticConcurrencyRetryStrategy>
     {
-        private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
+        private EventFlowOptions _eventFlowOptions;
+        private Mock<IOptions<EventFlowOptions>> _eventFlowConfigurationMock;
 
         [SetUp]
         public void SetUp()
         {
-            _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
-
+            _eventFlowOptions = new EventFlowOptions
+                {
+                    NumberOfRetriesOnOptimisticConcurrencyExceptions = 3,
+                    DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(10),
+                };
+            _eventFlowConfigurationMock = InjectMock<IOptions<EventFlowOptions>>();
             _eventFlowConfigurationMock
-                .Setup(c => c.NumberOfRetriesOnOptimisticConcurrencyExceptions)
-                .Returns(3);
-            _eventFlowConfigurationMock
-                .Setup(c => c.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
-                .Returns(TimeSpan.FromMilliseconds(10));
+                .Setup(m => m.Value)
+                .Returns(() => _eventFlowOptions);
         }
 
         [TestCase(0, true)]

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,10 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Jobs;
 using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
@@ -38,7 +38,7 @@ namespace EventFlow.Tests.UnitTests.Jobs
         [JobVersion("Fancy", 42)]
         public class TestJobWithLongName : IJob
         {
-            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            public Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }
@@ -46,7 +46,7 @@ namespace EventFlow.Tests.UnitTests.Jobs
 
         public class TestJob : IJob
         {
-            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            public Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }
@@ -54,7 +54,7 @@ namespace EventFlow.Tests.UnitTests.Jobs
 
         public class TestJobV2 : IJob
         {
-            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            public Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }
@@ -62,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.Jobs
 
         public class OldTestJobV5 : IJob
         {
-            public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+            public Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }

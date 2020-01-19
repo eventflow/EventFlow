@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/rasmus/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.Exploration
@@ -36,19 +37,16 @@ namespace EventFlow.Tests.Exploration
         [Test]
         public async Task AggregatesCanHaveCustomImplementedIdentity()
         {
-            using (var resolver = EventFlowSetup.New
-                .CreateResolver(false))
-            {
-                // Arrange
-                var customId = new CustomId(A<string>());
-                var aggregateStore = resolver.Resolve<IAggregateStore>();
+            // Arrange
+            using var resolver = EventFlowTestHelpers.Setup().Services.BuildServiceProvider(true);
+            var customId = new CustomId(A<string>());
+            var aggregateStore = resolver.GetRequiredService<IAggregateStore>();
 
-                // Act
-               var customAggregate = await aggregateStore.LoadAsync<CustomAggregate, CustomId>(customId, CancellationToken.None).ConfigureAwait(false);
+            // Act
+            var customAggregate = await aggregateStore.LoadAsync<CustomAggregate, CustomId>(customId, CancellationToken.None).ConfigureAwait(false);
 
-                // Assert
-                customAggregate.Id.Value.Should().Be(customId.Value);
-            }
+            // Assert
+            customAggregate.Id.Value.Should().Be(customId.Value);
         }
 
         public class CustomId : IIdentity
