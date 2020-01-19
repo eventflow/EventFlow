@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,19 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.Exceptions;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.Core.RetryStrategies
 {
     public class OptimisticConcurrencyRetryStrategy : IOptimisticConcurrencyRetryStrategy
     {
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private readonly IOptions<EventFlowOptions> _eventFlowOptions;
 
         public OptimisticConcurrencyRetryStrategy(
-            IEventFlowConfiguration eventFlowConfiguration)
+            IOptions<EventFlowOptions> eventFlowOptions)
         {
-            _eventFlowConfiguration = eventFlowConfiguration;
+            _eventFlowOptions = eventFlowOptions;
         }
 
         public Retry ShouldThisBeRetried(Exception exception, TimeSpan totalExecutionTime, int currentRetryCount)
@@ -44,8 +44,8 @@ namespace EventFlow.Core.RetryStrategies
                 return Retry.No;
             }
 
-            return _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions >= currentRetryCount
-                ? Retry.YesAfter(_eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
+            return _eventFlowOptions.Value.NumberOfRetriesOnOptimisticConcurrencyExceptions >= currentRetryCount
+                ? Retry.YesAfter(_eventFlowOptions.Value.DelayBeforeRetryOnOptimisticConcurrencyExceptions)
                 : Retry.No;
         }
     }

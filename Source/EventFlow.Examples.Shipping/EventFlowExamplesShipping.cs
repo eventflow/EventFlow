@@ -33,9 +33,9 @@ namespace EventFlow.Examples.Shipping
     {
         public static Assembly Assembly { get; } = typeof(EventFlowExamplesShipping).Assembly;
 
-        public static IEventFlowOptions ConfigureShippingDomain(this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowSetup ConfigureShippingDomain(this IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .AddDefaults(Assembly)
                 .RegisterServices(sr =>
                     {

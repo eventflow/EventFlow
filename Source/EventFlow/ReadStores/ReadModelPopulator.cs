@@ -28,30 +28,31 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelPopulator : IReadModelPopulator
     {
         private readonly ILog _log;
-        private readonly IEventFlowConfiguration _configuration;
+        private readonly IOptions<EventFlowOptions> _options;
         private readonly IEventStore _eventStore;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
         public ReadModelPopulator(
             ILog log,
-            IEventFlowConfiguration configuration,
+            IOptions<EventFlowOptions> options,
             IEventStore eventStore,
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
             _log = log;
-            _configuration = configuration;
+            _options = options;
             _eventStore = eventStore;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public Task PurgeAsync<TReadModel>(
@@ -125,11 +126,11 @@ namespace EventFlow.ReadStores
                 _log.Verbose(() => string.Format(
                     "Loading events starting from {0} and the next {1} for populating '{2}'",
                     currentPosition,
-                    _configuration.PopulateReadModelEventPageSize,
+                    _options.Value.PopulateReadModelEventPageSize,
                     readModelType.PrettyPrint()));
                 var allEventsPage = await _eventStore.LoadAllEventsAsync(
                     currentPosition,
-                    _configuration.PopulateReadModelEventPageSize,
+                    _options.Value.PopulateReadModelEventPageSize,
                     cancellationToken)
                     .ConfigureAwait(false);
                 totalEvents += allEventsPage.DomainEvents.Count;
@@ -169,7 +170,7 @@ namespace EventFlow.ReadStores
             Type readModelType)
         {
             var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
-            var readModelStores = _resolver.ResolveAll(readModelStoreType)
+            var readModelStores = _serviceProvider.GetServices(readModelStoreType)
                 .Select(s => (IReadModelStore)s)
                 .ToList();
 
@@ -184,7 +185,7 @@ namespace EventFlow.ReadStores
         private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManagers(
             Type readModelType)
         {
-            var readStoreManagers = _resolver.Resolve<IEnumerable<IReadStoreManager>>()
+            var readStoreManagers = _serviceProvider.GetServices<IReadStoreManager>()
                 .Where(m => m.ReadModelType == readModelType)
                 .ToList();
 

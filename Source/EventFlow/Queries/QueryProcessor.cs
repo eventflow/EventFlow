@@ -26,11 +26,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EventFlow.Queries
 {
@@ -43,16 +42,16 @@ namespace EventFlow.Queries
         }
 
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMemoryCache _memoryCache;
 
         public QueryProcessor(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IMemoryCache memoryCache)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _memoryCache = memoryCache;
         }
 
@@ -61,9 +60,9 @@ namespace EventFlow.Queries
             CancellationToken cancellationToken)
         {
             var queryType = query.GetType();
-            var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
+            var cacheItem = GetCacheItem(queryType);
 
-            var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
+            var queryHandler = (IQueryHandler) _serviceProvider.GetService(cacheItem.QueryHandlerType);
             _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
 
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
@@ -83,14 +82,11 @@ namespace EventFlow.Queries
             return result;
         }
 
-        private Task<CacheItem> GetCacheItemAsync(
-            Type queryType,
-            CancellationToken cancellationToken)
+        private CacheItem GetCacheItem(Type queryType)
         {
-            return _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), queryType.GetCacheKey()),
-                TimeSpan.FromDays(1),
-                _ =>
+            return _memoryCache.GetOrCreate(
+                CacheKey.Get(GetType(), queryType),
+                e =>
                     {
                         var queryInterfaceType = queryType
                             .GetTypeInfo()
@@ -101,13 +97,12 @@ namespace EventFlow.Queries
                             queryHandlerType,
                             "ExecuteQueryAsync",
                             queryType, typeof(CancellationToken));
-                        return Task.FromResult(new CacheItem
+                        return new CacheItem
                             {
                                 QueryHandlerType = queryHandlerType,
                                 HandlerFunc = invokeExecuteQueryAsync
-                            });
-                    },
-                cancellationToken);
+                            };
+                    });
         }
     }
 }

@@ -65,9 +65,9 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        private static IRootResolver SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        private static IRootResolver SetupEventFlow(Func<IEventFlowSetup, IEventFlowSetup> configure = null)
         {
-            var eventFlowOptions = EventFlowOptions.New
+            var eventFlowOptions = EventFlowSetup.New
                 .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
                 .AddDefaults(EventFlowTestHelpers.Assembly);
 

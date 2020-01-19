@@ -46,13 +46,13 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
 
         private string _databasePath;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
             using (File.Create(_databasePath)) { }
 
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
                 .UseSQLiteReadModelFor<ThingyAggregate, ThingyId, SQLiteThingyReadModel>()

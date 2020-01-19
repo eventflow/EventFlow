@@ -38,11 +38,11 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     {
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
-            return eventFlowOptions
+            return eventFlowSetup
                 .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()

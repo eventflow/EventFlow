@@ -33,9 +33,9 @@ namespace EventFlow.EntityFramework.Tests.InMemory
     [Category(Categories.Integration)]
     public class EfInMemorySnapshotTests : TestSuiteForSnapshotStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(Lifetime.Singleton)
                 .ConfigureForSnapshotStoreTest()

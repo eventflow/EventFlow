@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,30 +29,30 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public CommandBus(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;
         }
@@ -112,9 +112,9 @@ namespace EventFlow
             where TResult : IExecutionResult
         {
             var commandType = command.GetType();
-            var commandExecutionDetails = await GetCommandExecutionDetailsAsync(commandType, cancellationToken).ConfigureAwait(false);
+            var commandExecutionDetails = GetCommandExecutionDetails(commandType);
 
-            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType)
+            var commandHandlers = _serviceProvider.GetServices(commandExecutionDetails.CommandHandlerType)
                 .Cast<ICommandHandler>()
                 .ToList();
             if (!commandHandlers.Any())
@@ -156,13 +156,14 @@ namespace EventFlow
                 IExecutionResult,
                 ICommand<IAggregateRoot<IIdentity>, IIdentity, IExecutionResult>
             >.ExecuteCommandAsync);
-        private Task<CommandExecutionDetails> GetCommandExecutionDetailsAsync(Type commandType, CancellationToken cancellationToken)
+
+        private CommandExecutionDetails GetCommandExecutionDetails(Type commandType)
         {
-            return _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), commandType.GetCacheKey()),
-                TimeSpan.FromDays(1), 
-                _ =>
+            return _memoryCache.GetOrCreate(
+                commandType,
+                e =>
                     {
+                        e.SlidingExpiration = TimeSpan.FromDays(1);
                         var commandInterfaceType = commandType
                             .GetTypeInfo()
                             .GetInterfaces()
@@ -177,13 +178,12 @@ namespace EventFlow
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
                             commandHandlerType, NameOfExecuteCommand);
 
-                        return Task.FromResult(new CommandExecutionDetails
+                        return new CommandExecutionDetails
                             {
                                 CommandHandlerType = commandHandlerType,
                                 Invoker = invokeExecuteAsync
-                            });
-                    },
-                cancellationToken);
+                            };
+                    });
         }
     }
 }

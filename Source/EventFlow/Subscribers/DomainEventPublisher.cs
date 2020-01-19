@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -41,8 +42,8 @@ namespace EventFlow.Subscribers
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IDispatchToSagas _dispatchToSagas;
         private readonly IJobScheduler _jobScheduler;
-        private readonly IResolver _resolver;
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IEventFlowOptions _eventFlowOptions;
         private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
@@ -51,8 +52,8 @@ namespace EventFlow.Subscribers
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IDispatchToSagas dispatchToSagas,
             IJobScheduler jobScheduler,
-            IResolver resolver,
-            IEventFlowConfiguration eventFlowConfiguration,
+            IServiceProvider serviceProvider,
+            IEventFlowOptions eventFlowOptions,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
             ICancellationConfiguration cancellationConfiguration)
@@ -60,8 +61,8 @@ namespace EventFlow.Subscribers
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
             _jobScheduler = jobScheduler;
-            _resolver = resolver;
-            _eventFlowConfiguration = eventFlowConfiguration;
+            _serviceProvider = serviceProvider;
+            _eventFlowOptions = eventFlowOptions;
             _cancellationConfiguration = cancellationConfiguration;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
@@ -125,11 +126,11 @@ namespace EventFlow.Subscribers
             IEnumerable<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            if (_eventFlowConfiguration.IsAsynchronousSubscribersEnabled)
+            if (_eventFlowOptions.IsAsynchronousSubscribersEnabled)
             {
                 await Task.WhenAll(domainEvents.Select(
                         d => _jobScheduler.ScheduleNowAsync(
-                            DispatchToAsynchronousEventSubscribersJob.Create(d, _resolver), cancellationToken)))
+                            DispatchToAsynchronousEventSubscribersJob.Create(d, _serviceProvider), cancellationToken)))
                     .ConfigureAwait(false);
             }
         }

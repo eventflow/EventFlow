@@ -40,7 +40,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL"));
 
@@ -51,7 +51,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
                 .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
                 .Build();
 
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .UseEventStoreEventStore(eventStoreUri, connectionSettings)
                 .CreateResolver();

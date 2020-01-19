@@ -33,9 +33,9 @@ namespace EventFlow.EntityFramework.Tests.SQLite
     [Category(Categories.Integration)]
     public class EfSqliteSnapshotTests : TestSuiteForSnapshotStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
                 .ConfigureForSnapshotStoreTest()

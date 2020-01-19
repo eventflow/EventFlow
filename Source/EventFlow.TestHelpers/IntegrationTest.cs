@@ -27,9 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
-using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
@@ -41,13 +39,14 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTest: Test
     {
-        protected IRootResolver Resolver { get; private set; }
+        protected IServiceProvider Resolver { get; private set; }
         protected IAggregateStore AggregateStore { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ISnapshotStore SnapshotStore { get; private set; }
@@ -62,38 +61,43 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            var eventFlowOptions = Options(EventFlowOptions.New)
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
-                .AddDefaults(EventFlowTestHelpers.Assembly, 
-                    type => type != typeof(DbContextQueryHandler));
+            var serviceCollection = new ServiceCollection();
+            var eventFlowOptions = Options(EventFlowSetup.New(serviceCollection), new ServiceCollection())
+                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
+                //.AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>() TODO
+                /*.AddDefaults(EventFlowTestHelpers.Assembly, 
+                    type => type != typeof(DbContextQueryHandler))*/;
 
-            Resolver = CreateRootResolver(eventFlowOptions);
+            Resolver = CreateRootResolver(eventFlowOptions, serviceCollection);
 
-            AggregateStore = Resolver.Resolve<IAggregateStore>();
-            EventStore = Resolver.Resolve<IEventStore>();
-            SnapshotStore = Resolver.Resolve<ISnapshotStore>();
-            SnapshotPersistence = Resolver.Resolve<ISnapshotPersistence>();
-            SnapshotDefinitionService = Resolver.Resolve<ISnapshotDefinitionService>();
-            EventPersistence = Resolver.Resolve<IEventPersistence>();
-            CommandBus = Resolver.Resolve<ICommandBus>();
-            QueryProcessor = Resolver.Resolve<IQueryProcessor>();
-            ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
-            SagaStore = Resolver.Resolve<ISagaStore>();
+            AggregateStore = Resolver.GetRequiredService<IAggregateStore>();
+            EventStore = Resolver.GetRequiredService<IEventStore>();
+            SnapshotStore = Resolver.GetRequiredService<ISnapshotStore>();
+            SnapshotPersistence = Resolver.GetRequiredService<ISnapshotPersistence>();
+            SnapshotDefinitionService = Resolver.GetRequiredService<ISnapshotDefinitionService>();
+            EventPersistence = Resolver.GetRequiredService<IEventPersistence>();
+            CommandBus = Resolver.GetRequiredService<ICommandBus>();
+            QueryProcessor = Resolver.GetRequiredService<IQueryProcessor>();
+            ReadModelPopulator = Resolver.GetRequiredService<IReadModelPopulator>();
+            SagaStore = Resolver.GetRequiredService<ISagaStore>();
         }
 
         [TearDown]
         public void TearDownIntegrationTest()
         {
-            Resolver?.Dispose();
+            (Resolver as IDisposable)?.Dispose();
         }
 
-        protected virtual IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected virtual IEventFlowSetup Options(
+            IEventFlowSetup eventFlowSetup,
+            IServiceCollection serviceCollection)
         {
-            return eventFlowOptions;
+            return eventFlowSetup;
         }
 
-        protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
+        protected abstract IServiceProvider CreateRootResolver(
+            IEventFlowSetup eventFlowSetup,
+            IServiceCollection serviceCollection);
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
         {

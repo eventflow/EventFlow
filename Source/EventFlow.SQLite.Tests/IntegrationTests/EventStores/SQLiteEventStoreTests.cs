@@ -42,13 +42,13 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
     {
         private string _databasePath;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
             using (File.Create(_databasePath)){ }
 
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
                 .UseSQLiteEventStore()

@@ -39,7 +39,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdParameter()
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .CreateResolver())
             {
                 var id = ThingyId.New;
@@ -57,7 +57,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdAndInterfaceParameters()
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .CreateResolver())
             {
                 var sut = resolver.Resolve<IAggregateFactory>();
@@ -74,7 +74,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdAndTypeParameters()
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .RegisterServices(f => f.RegisterType(typeof(Pinger)))
                 .CreateResolver())
             {

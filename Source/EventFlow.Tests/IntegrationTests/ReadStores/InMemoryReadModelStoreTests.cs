@@ -40,9 +40,9 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
     {
         protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .UseInMemoryReadStoreFor<ThingyAggregate, ThingyId, InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()

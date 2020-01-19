@@ -31,9 +31,9 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     [Category(Categories.Integration)]
     public class InMemoryEventStoreTests : TestSuiteForEventStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions.CreateResolver();
+            return eventFlowSetup.CreateResolver();
         }
     }
 }

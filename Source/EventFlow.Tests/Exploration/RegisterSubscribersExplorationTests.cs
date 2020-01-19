@@ -44,13 +44,13 @@ namespace EventFlow.Tests.Exploration
     public class RegisterSubscribersExplorationTests : Test
     {
         [TestCaseSource(nameof(TestCases))]
-        public async Task TestRegisterAsynchronousSubscribersAsync(Func<IEventFlowOptions, IEventFlowOptions> register)
+        public async Task TestRegisterAsynchronousSubscribersAsync(Func<IEventFlowSetup, IEventFlowSetup> register)
         {
             // Arrange
             var wasHandled = false;
             TestSubscriber.OnHandleAction = () => wasHandled = true;
             using (new DisposableAction(() => TestSubscriber.OnHandleAction = null))
-            using (var resolver =  register(EventFlowOptions.New)
+            using (var resolver =  register(EventFlowSetup.New)
                 .AddCommands(typeof(ThingyPingCommand))
                 .AddCommandHandlers(typeof(ThingyPingCommandHandler))
                 .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
@@ -71,7 +71,7 @@ namespace EventFlow.Tests.Exploration
             wasHandled.Should().BeTrue();
         }
 
-        public static IEnumerable<Func<IEventFlowOptions, IEventFlowOptions>> TestCases()
+        public static IEnumerable<Func<IEventFlowSetup, IEventFlowSetup>> TestCases()
         {
             yield return o =>
                 {

@@ -53,11 +53,11 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         private readonly List<string> _indexes = new List<string>();
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             var elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
            
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
                 .ConfigureElasticsearch(elasticsearchUrl)
                 .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()

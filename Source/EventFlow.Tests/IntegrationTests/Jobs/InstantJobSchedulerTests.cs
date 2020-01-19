@@ -31,9 +31,9 @@ namespace EventFlow.Tests.IntegrationTests.Jobs
     [Category(Categories.Integration)]
     public class InstantJobSchedulerTests : TestSuiteForScheduler
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions.CreateResolver(false);
+            return eventFlowSetup.CreateResolver(false);
         }
     }
 }

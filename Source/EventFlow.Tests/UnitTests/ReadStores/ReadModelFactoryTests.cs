@@ -47,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             const int expectedMagicNumberForReadModelC = 0;
 
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .RegisterServices(sr =>
                     {
                         sr.Register<IReadModelFactory<FancyReadModelA>>(r => new FancyReadModelFactory<FancyReadModelA>(expectedMagicNumberForReadModelA));

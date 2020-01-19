@@ -74,9 +74,9 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 o => o.WithStrictOrdering());
         }
         
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .AddCommands(new []{typeof(CommandA), typeof(CommandA)})
                 .AddCommandHandlers(typeof(CommandHandlerA), typeof(CommandHandlerB))
                 .AddEvents(typeof(EventA), typeof(EventB))

@@ -38,10 +38,10 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 	{
 		private MongoDbRunner _runner;
 		
-		protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+		protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
 		{
 		    _runner = MongoDbRunner.Start();
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
 				.ConfigureMongoDb(_runner.ConnectionString, "eventflow")
 				.UseMongoDbEventStore()
 				.CreateResolver();

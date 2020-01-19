@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 
@@ -34,9 +33,9 @@ namespace EventFlow.Snapshots
     {
         public SnapshotUpgradeService(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             ISnapshotDefinitionService definitionService)
-            : base(log, resolver, definitionService)
+            : base(log, serviceProvider, definitionService)
         {
         }
 

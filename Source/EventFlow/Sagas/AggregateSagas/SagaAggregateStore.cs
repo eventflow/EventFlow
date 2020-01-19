@@ -28,25 +28,25 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
     public class SagaAggregateStore : SagaStore
     {
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public SagaAggregateStore(
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;
         }
@@ -60,10 +60,7 @@ namespace EventFlow.Sagas.AggregateSagas
         {
             var saga = null as ISaga;
 
-            var storeAggregateSagaAsync = await GetUpdateAsync(
-                    sagaType,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var storeAggregateSagaAsync = GetUpdate(sagaType);
 
             await storeAggregateSagaAsync(
                     this,
@@ -82,19 +79,17 @@ namespace EventFlow.Sagas.AggregateSagas
                 return null;
             }
 
-            var commandBus = _resolver.Resolve<ICommandBus>();
+            var commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
             await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
 
             return saga;
         }
 
-        private async Task<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>> GetUpdateAsync(
-            Type sagaType,
-            CancellationToken cancellationToken)
+        private Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>> GetUpdate(
+            Type sagaType)
         {
-            var value = await _memoryCache.GetOrAddAsync(
-                CacheKey.With(GetType(), sagaType.GetCacheKey()), 
-                TimeSpan.FromDays(1),
+            return _memoryCache.GetOrCreate(
+                CacheKey.Get(GetType(), sagaType), 
                 _ =>
                 {
                     var aggregateRootType = sagaType
@@ -108,13 +103,9 @@ namespace EventFlow.Sagas.AggregateSagas
                     var methodInfo = GetType().GetTypeInfo().GetMethod(nameof(UpdateAggregateAsync));
                     var identityType = aggregateRootType.GetTypeInfo().GetGenericArguments()[0];
                     var genericMethodInfo = methodInfo.MakeGenericMethod(sagaType, identityType);
-                    return Task.FromResult<Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>>(
+                    return (Func<SagaAggregateStore, ISagaId, ISourceId, Func<ISaga, CancellationToken, Task>, CancellationToken, Task<IReadOnlyCollection<IDomainEvent>>>)(
                         (sas, id, sid, u, c) => (Task<IReadOnlyCollection<IDomainEvent>>)genericMethodInfo.Invoke(sas, new object[] { id, sid, u, c }));
-                },
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            return value;
+                });
         }
 
         // ReSharper disable once MemberCanBePrivate.Global

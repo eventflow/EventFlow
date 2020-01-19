@@ -29,6 +29,7 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -42,14 +43,14 @@ namespace EventFlow.TestHelpers.Suites
             var thingyId = A<ThingyId>();
 
             // Act
-            using (var scope = Resolver.BeginScope())
+            using (var scope = Resolver.CreateScope())
             {
-                var commandBus = scope.Resolve<ICommandBus>();
+                var commandBus = scope.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
             }
-            using (var scope = Resolver.BeginScope())
+            using (var scope = Resolver.CreateScope())
             {
-                var commandBus = scope.Resolve<ICommandBus>();
+                var commandBus = scope.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(new ThingyRequestSagaCompleteCommand(thingyId), CancellationToken.None).ConfigureAwait(false);
             }
 
@@ -61,10 +62,10 @@ namespace EventFlow.TestHelpers.Suites
         [Test]
         public virtual async Task QueryingUsesScopedDbContext()
         {
-            using (var scope = Resolver.BeginScope())
+            using (var scope = Resolver.CreateScope())
             {
-                var dbContext = scope.Resolve<IScopedContext>();
-                var queryProcessor = scope.Resolve<IQueryProcessor>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<IScopedContext>();
+                var queryProcessor = scope.ServiceProvider.GetRequiredService<IQueryProcessor>();
 
                 var result = await queryProcessor.ProcessAsync(new DbContextQuery(), CancellationToken.None);
                 result.Should().Be(dbContext.Id);

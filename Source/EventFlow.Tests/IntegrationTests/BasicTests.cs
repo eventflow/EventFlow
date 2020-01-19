@@ -86,10 +86,10 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [TestCaseSource(nameof(TestCases))]
-        public async Task BasicFlow(IEventFlowOptions eventFlowOptions)
+        public async Task BasicFlow(IEventFlowSetup eventFlowSetup)
         {
             // Arrange
-            using (var resolver = eventFlowOptions
+            using (var resolver = eventFlowSetup
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
                 .RegisterServices(f => f.Register<IPingReadModelLocator, PingReadModelLocator>())
@@ -130,9 +130,9 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        public static IEnumerable<IEventFlowOptions> TestCases()
+        public static IEnumerable<IEventFlowSetup> TestCases()
         {
-            yield return EventFlowOptions.New;
+            yield return EventFlowSetup.New;
         }
     }
 }

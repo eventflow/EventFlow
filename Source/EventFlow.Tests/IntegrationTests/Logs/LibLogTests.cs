@@ -56,7 +56,7 @@ namespace EventFlow.Tests.IntegrationTests.Logs
                 .WriteTo.Sink(new DummySink(messages))
                 .CreateLogger();
 
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .UseLibLog(LibLogProviders.Serilog)
                 .CreateResolver())
             {

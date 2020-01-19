@@ -21,15 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
+
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace EventFlow.ReadStores
 {
     public interface IReadModelContext
     {
-        IResolver Resolver { get; }
+        IServiceProvider ServiceProvider { get; }
         void MarkForDeletion();
         bool IsMarkedForDeletion { get; }
         string ReadModelId { get; }
+        bool IsNew { get; }
     }
 }

@@ -43,15 +43,15 @@ namespace EventFlow.AspNetCore.Configuration
         }
 
 #if NETSTANDARD2_0
-        public void Configure(MvcJsonOptions options)
+        public void Configure(MvcJsonOptions setup)
         {
-            _jsonOptions.Apply(options.SerializerSettings);
+            _jsonOptions.Apply(setup.SerializerSettings);
         }
 #endif
 #if NETCOREAPP3_0
-        public void Configure(MvcNewtonsoftJsonOptions options)
+        public void Configure(MvcNewtonsoftJsonOptions setup)
         {
-            _jsonOptions.Apply(options.SerializerSettings);
+            _jsonOptions.Apply(setup.SerializerSettings);
         }
 #endif
     }

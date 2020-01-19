@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 
@@ -35,13 +34,13 @@ namespace EventFlow.Aggregates
 {
     public class AggregateFactory : IAggregateFactory
     {
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private static readonly ConcurrentDictionary<Type, AggregateConstruction> AggregateConstructions = new ConcurrentDictionary<Type, AggregateConstruction>();
 
         public AggregateFactory(
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public Task<TAggregate> CreateNewAggregateAsync<TAggregate, TIdentity>(TIdentity id)
@@ -52,7 +51,7 @@ namespace EventFlow.Aggregates
                 typeof(TAggregate),
                 _ => CreateAggregateConstruction<TAggregate, TIdentity>());
 
-            var aggregate = aggregateConstruction.CreateInstance(id, _resolver);
+            var aggregate = aggregateConstruction.CreateInstance(id, _serviceProvider);
 
             return Task.FromResult((TAggregate)aggregate);
         }
@@ -96,7 +95,7 @@ namespace EventFlow.Aggregates
                 _identityType = identityType;
             }
 
-            public object CreateInstance(IIdentity identity, IResolver resolver)
+            public object CreateInstance(IIdentity identity, IServiceProvider resolver)
             {
                 var parameters = new object[_parameterInfos.Count];
                 foreach (var parameterInfo in _parameterInfos)
@@ -107,7 +106,7 @@ namespace EventFlow.Aggregates
                     }
                     else
                     {
-                        parameters[parameterInfo.Position] = resolver.Resolve(parameterInfo.ParameterType);
+                        parameters[parameterInfo.Position] = resolver.GetService(parameterInfo.ParameterType);
                     }
                 }
 

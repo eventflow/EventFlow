@@ -36,9 +36,9 @@ namespace EventFlow.EntityFramework.Tests.SQLite
     {
         protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
                 .ConfigureForReadStoreTest()

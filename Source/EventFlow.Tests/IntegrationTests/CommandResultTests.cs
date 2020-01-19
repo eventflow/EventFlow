@@ -94,7 +94,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task CommandResult()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .AddCommandHandlers(
                     typeof(TestSuccessResultCommandHandler),
                     typeof(TestFailedResultCommandHandler))

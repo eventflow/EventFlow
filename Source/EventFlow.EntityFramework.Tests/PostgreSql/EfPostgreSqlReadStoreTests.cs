@@ -40,11 +40,11 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
 
         protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
 
-            return eventFlowOptions
+            return eventFlowSetup
                 .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
