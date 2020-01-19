@@ -62,7 +62,7 @@ namespace EventFlow.TestHelpers
         public void SetUpIntegrationTest()
         {
             var serviceCollection = new ServiceCollection();
-            var eventFlowOptions = Options(EventFlowOptions.New(serviceCollection), new ServiceCollection())
+            var eventFlowOptions = Options(EventFlowSetup.New(serviceCollection), new ServiceCollection())
                 .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
                 //.AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>() TODO
                 /*.AddDefaults(EventFlowTestHelpers.Assembly, 
@@ -88,15 +88,15 @@ namespace EventFlow.TestHelpers
             (Resolver as IDisposable)?.Dispose();
         }
 
-        protected virtual IEventFlowOptions Options(
-            IEventFlowOptions eventFlowOptions,
+        protected virtual IEventFlowSetup Options(
+            IEventFlowSetup eventFlowSetup,
             IServiceCollection serviceCollection)
         {
-            return eventFlowOptions;
+            return eventFlowSetup;
         }
 
         protected abstract IServiceProvider CreateRootResolver(
-            IEventFlowOptions eventFlowOptions,
+            IEventFlowSetup eventFlowSetup,
             IServiceCollection serviceCollection);
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)

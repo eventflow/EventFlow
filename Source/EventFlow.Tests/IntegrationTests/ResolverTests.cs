@@ -55,7 +55,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task ResolverAggregatesFactoryCanResolve()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .RegisterServices(sr => sr.RegisterType(typeof(Service)))
                 .CreateResolver())
             {
@@ -76,7 +76,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public void RegistrationDoesntCauseStackOverflow()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .RegisterServices(s =>
                 {

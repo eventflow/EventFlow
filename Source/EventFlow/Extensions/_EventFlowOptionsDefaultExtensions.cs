@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,21 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
+using System;
+using System.Reflection;
 
-namespace EventFlow.Configuration.Cancellation
+namespace EventFlow.Extensions
 {
-    public interface ICancellationConfiguration
+    /* TODO
+    public static class EventFlowOptionsDefaultExtensions
     {
-        CancellationBoundary CancellationBoundary { get; }
-    }
-
-    public static class CancellationConfigurationExtensions
-    {
-        public static CancellationToken Limit(this ICancellationConfiguration configuration, CancellationToken token, CancellationBoundary currentBoundary)
+        public static IEventFlowBuilder AddDefaults(
+            this IEventFlowBuilder eventFlowBuilder,
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
-            token.ThrowIfCancellationRequested();
-            return currentBoundary < configuration.CancellationBoundary ? token : CancellationToken.None;
+            return eventFlowBuilder
+                .AddEvents(fromAssembly, predicate)
+                .AddJobs(fromAssembly, predicate)
+                .AddCommands(fromAssembly, predicate)
+                .AddCommandHandlers(fromAssembly, predicate)
+                .AddMetadataProviders(fromAssembly, predicate)
+                .AddSubscribers(fromAssembly, predicate)
+                //.AddEventUpgraders(fromAssembly, predicate)
+                .AddQueryHandlers(fromAssembly, predicate)
+                .AddSnapshots(fromAssembly, predicate)
+                //.AddSnapshotUpgraders(fromAssembly, predicate)
+                .AddSagas(fromAssembly, predicate)
+                .AddSagaLocators(fromAssembly, predicate);
         }
     }
+    */
 }

@@ -28,12 +28,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.Subscribers
 {
@@ -44,7 +44,7 @@ namespace EventFlow.Subscribers
 
         private readonly ILog _log;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private readonly IOptions<EventFlowOptions> _options;
         private readonly IMemoryCache _memoryCache;
 
         private class SubscriberInformation
@@ -56,12 +56,12 @@ namespace EventFlow.Subscribers
         public DispatchToEventSubscribers(
             ILog log,
             IServiceProvider serviceProvider,
-            IEventFlowConfiguration eventFlowConfiguration,
+            IOptions<EventFlowOptions> options,
             IMemoryCache memoryCache)
         {
             _log = log;
             _serviceProvider = serviceProvider;
-            _eventFlowConfiguration = eventFlowConfiguration;
+            _options = options;
             _memoryCache = memoryCache;
         }
 
@@ -74,7 +74,7 @@ namespace EventFlow.Subscribers
                 await DispatchToSubscribersAsync(
                         domainEvent,
                         SubscribeSynchronousToType,
-                        !_eventFlowConfiguration.ThrowSubscriberExceptions,
+                        !_options.Value.ThrowSubscriberExceptions,
                         cancellationToken)
                     .ConfigureAwait(false);
             }

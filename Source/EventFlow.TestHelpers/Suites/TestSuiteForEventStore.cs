@@ -325,16 +325,16 @@ namespace EventFlow.TestHelpers.Suites
             var pingId2 = PingId.New;
 
             // Act
-            using (var scopedResolver = Resolver.BeginScope())
+            using (var scopedResolver = Resolver.CreateScope())
             {
-                var commandBus = scopedResolver.Resolve<ICommandBus>();
+                var commandBus = scopedResolver.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(
                     new ThingyPingCommand(id, pingId1))
                     .ConfigureAwait(false);
             }
-            using (var scopedResolver = Resolver.BeginScope())
+            using (var scopedResolver = Resolver.CreateScope())
             {
-                var commandBus = scopedResolver.Resolve<ICommandBus>();
+                var commandBus = scopedResolver.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(
                         new ThingyPingCommand(id, pingId2))
                     .ConfigureAwait(false);
@@ -418,7 +418,7 @@ namespace EventFlow.TestHelpers.Suites
             _publishedDomainEvents.Clear();
         }
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions,
+        protected override IEventFlowSetup Options(IEventFlowSetup eventFlowSetup,
             IServiceCollection serviceCollection)
         {
             var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();
@@ -428,8 +428,12 @@ namespace EventFlow.TestHelpers.Suites
                 .Callback<IReadOnlyCollection<IDomainEvent>, CancellationToken>((d, c) => _publishedDomainEvents.AddRange(d))
                 .Returns(Task.FromResult(0));
 
-            return base.Options(eventFlowOptions, serviceCollection)
-                .RegisterServices(sr => sr.Register(r => subscribeSynchronousToAllMock.Object, Lifetime.Singleton));
+            /*
+             TODO
+            return base.Options(eventFlowSetup, serviceCollection)
+                .RegisterServices(sr => sr.Register(r => subscribeSynchronousToAllMock.Object, Lifetime.Singleton));*/
+
+            return null;
         }
 
         private static async Task ThrowsExceptionAsync<TException>(Func<Task> action)

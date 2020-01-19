@@ -98,7 +98,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public void UnicodeIntegration()
         {
-            var resolver = EventFlowOptions.New
+            var resolver = EventFlowSetup.New
                 .AddEvents(typeof(Püng1Event))
                 .AddCommands(typeof(Cömmand))
                 .AddCommandHandlers(typeof(CömmandHändler))

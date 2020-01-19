@@ -139,11 +139,11 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        private IRootResolver BuildResolver(Exchange exchange, Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        private IRootResolver BuildResolver(Exchange exchange, Func<IEventFlowSetup, IEventFlowSetup> configure = null)
         {
             configure = configure ?? (e => e);
 
-            return configure(EventFlowOptions.New
+            return configure(EventFlowSetup.New
                 .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
                 .AddDefaults(EventFlowTestHelpers.Assembly))
                 .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))

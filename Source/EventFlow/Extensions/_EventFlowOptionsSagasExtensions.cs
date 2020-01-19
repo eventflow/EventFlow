@@ -32,8 +32,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSagasExtensions
     {
-        public static IEventFlowOptions AddSagas(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSagas(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -43,18 +43,18 @@ namespace EventFlow.Extensions
                 .Where(t => !t.GetTypeInfo().IsAbstract && t.IsAssignableTo<ISaga>())
                 .Where(t => predicate(t));
 
-            return eventFlowOptions.AddSagas(sagaTypes);
+            return eventFlowBuilder.AddSagas(sagaTypes);
         }
 
-        public static IEventFlowOptions AddSagas(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSagas(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] sagaTypes)
         {
-            return eventFlowOptions.AddSagas(sagaTypes);
+            return eventFlowBuilder.AddSagas(sagaTypes);
         }
 
-        public static IEventFlowOptions AddSagaLocators(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSagaLocators(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -65,21 +65,21 @@ namespace EventFlow.Extensions
                 .Where(t => !t.HasConstructorParameterOfType(x => x.IsAssignableTo<ISagaLocator>()))
                 .Where(t => predicate(t));
 
-            return eventFlowOptions.AddSagaLocators(sagaTypes);
+            return eventFlowBuilder.AddSagaLocators(sagaTypes);
         }
 
-        public static IEventFlowOptions AddSagaLocators(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSagaLocators(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] sagaLocatorTypes)
         {
-            return eventFlowOptions.AddSagaLocators((IEnumerable<Type>)sagaLocatorTypes);
+            return eventFlowBuilder.AddSagaLocators((IEnumerable<Type>)sagaLocatorTypes);
         }
 
-        public static IEventFlowOptions AddSagaLocators(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSagaLocators(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> sagaLocatorTypes)
         {
-            return eventFlowOptions.RegisterServices(sr =>
+            return eventFlowBuilder.RegisterServices(sr =>
                 {
                     foreach (var sagaLocatorType in sagaLocatorTypes)
                     {

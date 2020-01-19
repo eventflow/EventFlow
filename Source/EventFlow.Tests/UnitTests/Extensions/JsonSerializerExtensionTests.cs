@@ -63,7 +63,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         public void JsonSerializerCanBeConfigured()
         {
             // Arrange
-            var resolver = EventFlowOptions.New
+            var resolver = EventFlowSetup.New
                 .ConfigureJson(json => json
                     .AddSingleValueObjects()
                     .AddConverter<MyClassConverter>()

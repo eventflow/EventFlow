@@ -53,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests
             var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
             var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "..", "TestData", "FilesEventStore"));
 
-            _resolver = EventFlowOptions.New
+            _resolver = EventFlowSetup.New
                 .UseFilesEventStore(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)

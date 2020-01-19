@@ -52,7 +52,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
         [SetUp]
         public void SetUp()
         {
-            _resolver = EventFlowOptions.New
+            _resolver = EventFlowSetup.New
                 .ConfigureShippingDomain()
                 .ConfigureShippingQueriesInMemory()
                 .CreateResolver();

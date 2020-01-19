@@ -31,7 +31,7 @@ using EventFlow.Core;
 namespace EventFlow.TestHelpers.Aggregates.Decorators
 {
     /// <summary>
-    /// Caused StackOverflowException when colocated with command handlers and using options.AddDefaults().
+    /// Caused StackOverflowException when colocated with command handlers and using setup.AddDefaults().
     /// </summary>
     /// <seealso cref="http://github.com/eventflow/EventFlow/issues/523"/>
     public class SomeCommandHandlerDecorator<TAggregate, TIdentity, TResult, TCommand> :

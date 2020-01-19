@@ -35,15 +35,15 @@ namespace EventFlow.Extensions
     /* TODO
     public static class EventFlowOptionsSnapshotExtensions
     {
-        public static IEventFlowOptions AddSnapshots(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSnapshots(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] snapshotTypes)
         {
-            return eventFlowOptions.AddSnapshots(snapshotTypes);
+            return eventFlowBuilder.AddSnapshots(snapshotTypes);
         }
 
-        public static IEventFlowOptions AddSnapshots(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSnapshots(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -52,11 +52,11 @@ namespace EventFlow.Extensions
                 .GetTypes()
                 .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ISnapshot).GetTypeInfo().IsAssignableFrom(t))
                 .Where(t => predicate(t));
-            return eventFlowOptions.AddSnapshots(snapshotTypes);
+            return eventFlowBuilder.AddSnapshots(snapshotTypes);
         }
 
-        public static IEventFlowOptions AddSnapshotUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSnapshotUpgraders(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -69,21 +69,21 @@ namespace EventFlow.Extensions
                 .Where(t => !t.HasConstructorParameterOfType(IsSnapshotUpgraderInterface))
                 .Where(t => predicate(t));
 
-            return eventFlowOptions.AddSnapshotUpgraders(snapshotUpgraderTypes);
+            return eventFlowBuilder.AddSnapshotUpgraders(snapshotUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddSnapshotUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSnapshotUpgraders(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] snapshotUpgraderTypes)
         {
-            return eventFlowOptions.AddSnapshotUpgraders((IEnumerable<Type>)snapshotUpgraderTypes);
+            return eventFlowBuilder.AddSnapshotUpgraders((IEnumerable<Type>)snapshotUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddSnapshotUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSnapshotUpgraders(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> snapshotUpgraderTypes)
         {
-            return eventFlowOptions.RegisterServices(sr =>
+            return eventFlowBuilder.RegisterServices(sr =>
                 {
                     foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
                     {
@@ -96,18 +96,18 @@ namespace EventFlow.Extensions
                 });
         }
 
-        public static IEventFlowOptions UseSnapshotStore<TSnapshotStore>(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder UseSnapshotStore<TSnapshotStore>(
+            this IEventFlowBuilder eventFlowBuilder,
             Lifetime lifetime = Lifetime.AlwaysUnique)
             where TSnapshotStore : class, ISnapshotPersistence
         {
-            return eventFlowOptions.RegisterServices(sr => sr.Register<ISnapshotPersistence, TSnapshotStore>(lifetime));
+            return eventFlowBuilder.RegisterServices(sr => sr.Register<ISnapshotPersistence, TSnapshotStore>(lifetime));
         }
 
-        public static IEventFlowOptions UseInMemorySnapshotStore(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder UseInMemorySnapshotStore(
+            this IEventFlowBuilder eventFlowBuilder)
         {
-            return eventFlowOptions.UseSnapshotStore<InMemorySnapshotPersistence>(Lifetime.Singleton);
+            return eventFlowBuilder.UseSnapshotStore<InMemorySnapshotPersistence>(Lifetime.Singleton);
         }
 
         private static bool IsSnapshotUpgraderInterface(Type type)

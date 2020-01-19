@@ -32,8 +32,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsCommandHandlerExtensions
     {
-        public static IEventFlowOptions AddCommandHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddCommandHandlers(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -43,18 +43,18 @@ namespace EventFlow.Extensions
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsCommandHandlerInterface))
                 .Where(t => !t.HasConstructorParameterOfType(IsCommandHandlerInterface))
                 .Where(t => predicate(t));
-            return eventFlowOptions.AddCommandHandlers(commandHandlerTypes);
+            return eventFlowBuilder.AddCommandHandlers(commandHandlerTypes);
         }
 
-        public static IEventFlowOptions AddCommandHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddCommandHandlers(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] commandHandlerTypes)
         {
-            return eventFlowOptions.AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
+            return eventFlowBuilder.AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
         }
 
-        public static IEventFlowOptions AddCommandHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddCommandHandlers(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> commandHandlerTypes)
         {
             foreach (var commandHandlerType in commandHandlerTypes)
@@ -71,7 +71,7 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{commandHandlerType.PrettyPrint()}' does not implement '{typeof(ICommandHandler<,,,>).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr =>
+                eventFlowBuilder.RegisterServices(sr =>
                     {
                         foreach (var handlesCommandType in handlesCommandTypes)
                         {
@@ -80,7 +80,7 @@ namespace EventFlow.Extensions
                     });
             }
 
-            return eventFlowOptions;
+            return eventFlowBuilder;
         }
 
         private static bool IsCommandHandlerInterface(this Type type)

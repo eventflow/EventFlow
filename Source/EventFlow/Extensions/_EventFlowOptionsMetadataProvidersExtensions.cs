@@ -32,25 +32,25 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsMetadataProvidersExtensions
     {
-        public static IEventFlowOptions AddMetadataProvider<TMetadataProvider>(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddMetadataProvider<TMetadataProvider>(
+            this IEventFlowBuilder eventFlowBuilder,
             ServiceLifetime lifetime = ServiceLifetime.Transient)
             where TMetadataProvider : class, IMetadataProvider
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RegisterServices(f => f.Add(new ServiceDescriptor(typeof(IMetadataProvider), typeof(TMetadataProvider), lifetime)));
         }
 
-        public static IEventFlowOptions AddMetadataProviders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddMetadataProviders(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] metadataProviderTypes)
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .AddMetadataProviders((IEnumerable<Type>) metadataProviderTypes);
         }
 
-        public static IEventFlowOptions AddMetadataProviders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddMetadataProviders(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -60,11 +60,11 @@ namespace EventFlow.Extensions
                 .Where(IsMetadataProvider)
                 .Where(t => !t.HasConstructorParameterOfType(IsMetadataProvider))
                 .Where(t => predicate(t));
-            return eventFlowOptions.AddMetadataProviders(metadataProviderTypes);
+            return eventFlowBuilder.AddMetadataProviders(metadataProviderTypes);
         }
 
-        public static IEventFlowOptions AddMetadataProviders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddMetadataProviders(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> metadataProviderTypes)
         {
             foreach (var t in metadataProviderTypes)
@@ -75,9 +75,9 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Add(new ServiceDescriptor(typeof(IMetadataProvider), t, ServiceLifetime.Transient)));
+                eventFlowBuilder.RegisterServices(sr => sr.Add(new ServiceDescriptor(typeof(IMetadataProvider), t, ServiceLifetime.Transient)));
             }
-            return eventFlowOptions;
+            return eventFlowBuilder;
         }
 
         private static bool IsMetadataProvider(this Type type)

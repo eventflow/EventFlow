@@ -28,29 +28,29 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelPopulator : IReadModelPopulator
     {
         private readonly ILog _log;
-        private readonly IEventFlowConfiguration _configuration;
+        private readonly IOptions<EventFlowOptions> _options;
         private readonly IEventStore _eventStore;
         private readonly IServiceProvider _serviceProvider;
 
         public ReadModelPopulator(
             ILog log,
-            IEventFlowConfiguration configuration,
+            IOptions<EventFlowOptions> options,
             IEventStore eventStore,
             IServiceProvider serviceProvider)
         {
             _log = log;
-            _configuration = configuration;
+            _options = options;
             _eventStore = eventStore;
             _serviceProvider = serviceProvider;
         }
@@ -126,11 +126,11 @@ namespace EventFlow.ReadStores
                 _log.Verbose(() => string.Format(
                     "Loading events starting from {0} and the next {1} for populating '{2}'",
                     currentPosition,
-                    _configuration.PopulateReadModelEventPageSize,
+                    _options.Value.PopulateReadModelEventPageSize,
                     readModelType.PrettyPrint()));
                 var allEventsPage = await _eventStore.LoadAllEventsAsync(
                     currentPosition,
-                    _configuration.PopulateReadModelEventPageSize,
+                    _options.Value.PopulateReadModelEventPageSize,
                     cancellationToken)
                     .ConfigureAwait(false);
                 totalEvents += allEventsPage.DomainEvents.Count;

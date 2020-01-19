@@ -39,7 +39,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         {
             bool hasBeenInvoked = false;
 
-            EventFlowOptions.New
+            EventFlowSetup.New
                 .RunOnStartup(() => hasBeenInvoked = true)
                 .CreateResolver(false);
 
@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
         [Test]
         public void BootstrapIsInvokedOnStartup()
         {
-            var check = EventFlowOptions.New
+            var check = EventFlowSetup.New
                 .RegisterServices(s => s.Register<BootstrapCheck, BootstrapCheck>(Lifetime.Singleton))
                 .RunOnStartup<TestBootstrap>()
                 .CreateResolver(false)

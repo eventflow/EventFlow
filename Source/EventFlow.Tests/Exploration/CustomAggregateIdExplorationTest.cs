@@ -36,7 +36,7 @@ namespace EventFlow.Tests.Exploration
         [Test]
         public async Task AggregatesCanHaveCustomImplementedIdentity()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowSetup.New
                 .CreateResolver(false))
             {
                 // Arrange

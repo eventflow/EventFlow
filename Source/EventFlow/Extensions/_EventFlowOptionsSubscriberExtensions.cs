@@ -39,48 +39,48 @@ namespace EventFlow.Extensions
         private static readonly Type ISubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
 
         [Obsolete("Please use the more explicit method 'AddSynchronousSubscriber<,,,>' instead")]
-        public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowBuilder eventFlowBuilder)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
             where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
-        public static IEventFlowOptions AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowBuilder eventFlowBuilder)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
             where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RegisterServices(sr => sr.Register<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
-        public static IEventFlowOptions AddAsynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder AddAsynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this IEventFlowBuilder eventFlowBuilder)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
             where TSubscriber : class, ISubscribeAsynchronousTo<TAggregate, TIdentity, TEvent>
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RegisterServices(sr => sr.Register<ISubscribeAsynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>());
         }
 
-        public static IEventFlowOptions AddSubscribers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSubscribers(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] types)
         {
-            return eventFlowOptions.AddSubscribers((IEnumerable<Type>) types);
+            return eventFlowBuilder.AddSubscribers((IEnumerable<Type>) types);
         }
 
-        public static IEventFlowOptions AddSubscribers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSubscribers(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -90,11 +90,11 @@ namespace EventFlow.Extensions
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsSubscriberInterface))
                 .Where(t => !t.HasConstructorParameterOfType(IsSubscriberInterface))
                 .Where(t => predicate(t));
-            return eventFlowOptions.AddSubscribers(types);
+            return eventFlowBuilder.AddSubscribers(types);
         }
 
-        public static IEventFlowOptions AddSubscribers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddSubscribers(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> subscribeSynchronousToTypes)
         {
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)
@@ -115,7 +115,7 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{ISubscribeSynchronousToType.PrettyPrint()}', '{ISubscribeAsynchronousToType.PrettyPrint()}' or '{ISubscribeSynchronousToAllType.PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr =>
+                eventFlowBuilder.RegisterServices(sr =>
                     {
                         foreach (var subscribeTo in subscribeTos)
                         {
@@ -124,7 +124,7 @@ namespace EventFlow.Extensions
                     });
             }
 
-            return eventFlowOptions;
+            return eventFlowBuilder;
         }
 
         private static bool IsSubscriberInterface(Type type)

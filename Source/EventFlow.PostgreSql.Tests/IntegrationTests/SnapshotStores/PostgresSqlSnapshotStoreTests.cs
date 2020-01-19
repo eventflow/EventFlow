@@ -38,11 +38,11 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores
     {
         private IPostgreSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow-snapshots");
 
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UsePostgreSqlSnapshotStore()
                 .CreateResolver();

@@ -43,7 +43,7 @@ namespace EventFlow.Subscribers
         private readonly IDispatchToSagas _dispatchToSagas;
         private readonly IJobScheduler _jobScheduler;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private readonly IEventFlowOptions _eventFlowOptions;
         private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
@@ -53,7 +53,7 @@ namespace EventFlow.Subscribers
             IDispatchToSagas dispatchToSagas,
             IJobScheduler jobScheduler,
             IServiceProvider serviceProvider,
-            IEventFlowConfiguration eventFlowConfiguration,
+            IEventFlowOptions eventFlowOptions,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
             ICancellationConfiguration cancellationConfiguration)
@@ -62,7 +62,7 @@ namespace EventFlow.Subscribers
             _dispatchToSagas = dispatchToSagas;
             _jobScheduler = jobScheduler;
             _serviceProvider = serviceProvider;
-            _eventFlowConfiguration = eventFlowConfiguration;
+            _eventFlowOptions = eventFlowOptions;
             _cancellationConfiguration = cancellationConfiguration;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
@@ -126,7 +126,7 @@ namespace EventFlow.Subscribers
             IEnumerable<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            if (_eventFlowConfiguration.IsAsynchronousSubscribersEnabled)
+            if (_eventFlowOptions.IsAsynchronousSubscribersEnabled)
             {
                 await Task.WhenAll(domainEvents.Select(
                         d => _jobScheduler.ScheduleNowAsync(

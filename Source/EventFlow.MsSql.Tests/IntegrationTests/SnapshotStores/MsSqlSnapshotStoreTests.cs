@@ -37,11 +37,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
     {
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
 
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UseMsSqlSnapshotStore()
                 .CreateResolver();

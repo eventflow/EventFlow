@@ -59,9 +59,9 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
             thingyAggregate.Version.Should().Be(expectedAggregateVersion);
         }
         
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions.CreateResolver();
+            return eventFlowSetup.CreateResolver();
         }
     }
 }

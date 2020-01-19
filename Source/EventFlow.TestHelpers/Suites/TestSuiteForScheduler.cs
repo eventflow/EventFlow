@@ -59,17 +59,21 @@ namespace EventFlow.TestHelpers.Suites
         [SetUp]
         public void TestSuiteForSchedulerSetUp()
         {
-            _jobScheduler = Resolver.Resolve<IJobScheduler>();
+            _jobScheduler = Resolver.GetRequiredService<IJobScheduler>();
         }
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions,
+        protected override IEventFlowSetup Options(IEventFlowSetup eventFlowSetup,
             IServiceCollection serviceCollection)
         {
             _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
 
-            return base.Options(eventFlowOptions, serviceCollection)
+            /*
+             TODO
+            return base.Options(eventFlowSetup, serviceCollection)
                 .RegisterServices(sr => sr.Register(c => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
-                .Configure(c => c.IsAsynchronousSubscribersEnabled = true);
+                .Configure(c => c.IsAsynchronousSubscribersEnabled = true);*/
+
+            return null;
         }
 
         [Test]

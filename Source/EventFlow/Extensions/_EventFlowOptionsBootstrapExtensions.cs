@@ -31,28 +31,28 @@ namespace EventFlow.Extensions
     /*
     public static class EventFlowOptionsBootstrapExtensions
     {
-        public static IEventFlowOptions RunOnStartup<TBootstrap>(this IEventFlowOptions eventFlowOptions) 
+        public static IEventFlowBuilder RunOnStartup<TBootstrap>(this IEventFlowBuilder eventFlowBuilder) 
             where TBootstrap : class, IBootstrap
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RegisterServices(sr => sr.Register<IBootstrap, TBootstrap>());
         }
 
-        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, IBootstrap bootstrap) 
+        public static IEventFlowBuilder RunOnStartup(this IEventFlowBuilder eventFlowBuilder, IBootstrap bootstrap) 
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RegisterServices(sr => sr.Register(_ => bootstrap));
         }
 
-        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Func<CancellationToken, Task> startupAction)
+        public static IEventFlowBuilder RunOnStartup(this IEventFlowBuilder eventFlowBuilder, Func<CancellationToken, Task> startupAction)
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RunOnStartup(new ActionBootstrap(startupAction));
         }
 
-        public static IEventFlowOptions RunOnStartup(this IEventFlowOptions eventFlowOptions, Action startupAction)
+        public static IEventFlowBuilder RunOnStartup(this IEventFlowBuilder eventFlowBuilder, Action startupAction)
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .RunOnStartup(_ => 
                 { 
                     startupAction();

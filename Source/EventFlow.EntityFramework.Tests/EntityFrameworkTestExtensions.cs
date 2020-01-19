@@ -30,21 +30,21 @@ namespace EventFlow.EntityFramework.Tests
 {
     public static class EntityFrameworkTestExtensions
     {
-        public static IEventFlowOptions ConfigureForEventStoreTest(this IEventFlowOptions options)
+        public static IEventFlowSetup ConfigureForEventStoreTest(this IEventFlowSetup setup)
         {
-            return options
+            return setup
                 .UseEntityFrameworkEventStore<TestDbContext>();
         }
 
-        public static IEventFlowOptions ConfigureForSnapshotStoreTest(this IEventFlowOptions options)
+        public static IEventFlowSetup ConfigureForSnapshotStoreTest(this IEventFlowSetup setup)
         {
-            return options
+            return setup
                 .UseEntityFrameworkSnapshotStore<TestDbContext>();
         }
 
-        public static IEventFlowOptions ConfigureForReadStoreTest(this IEventFlowOptions options)
+        public static IEventFlowSetup ConfigureForReadStoreTest(this IEventFlowSetup setup)
         {
-            return options
+            return setup
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .UseEntityFrameworkReadModel<ThingyReadModelEntity, TestDbContext>()
                 .UseEntityFrameworkReadModel<ThingyMessageReadModelEntity, TestDbContext, ThingyMessageLocator>()

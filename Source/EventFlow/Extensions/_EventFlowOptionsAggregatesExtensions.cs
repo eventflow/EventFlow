@@ -22,33 +22,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
-using EventFlow.Jobs;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsJobExtensions
+    public static class EventFlowOptionsAggregatesExtensions
     {
-        public static IEventFlowOptions AddJobs(
-            this IEventFlowOptions eventFlowOptions,
-            params Type[] jobTypes)
+        [Obsolete("ServiceProvider aggregate factory is the default, simply remove this call")]
+        public static IEventFlowBuilder UseResolverAggregateRootFactory(
+            this IEventFlowBuilder eventFlowBuilder)
         {
-            return eventFlowOptions.AddJobs(jobTypes);
+            return eventFlowBuilder;
         }
 
-        public static IEventFlowOptions AddJobs(
-            this IEventFlowOptions eventFlowOptions,
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
+        public static IEventFlowBuilder AddAggregateRoots(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
-            Predicate<Type> predicate)
+            Predicate<Type> predicate = null)
         {
-            predicate = predicate ?? (t => true);
-            var jobTypes = fromAssembly
-                .GetTypes()
-                .Where(type => !type.GetTypeInfo().IsAbstract && type.IsAssignableTo<IJob>())
-                .Where(t => !t.HasConstructorParameterOfType(i => i.IsAssignableTo<IJob>()))
-                .Where(t => predicate(t));
-            return eventFlowOptions.AddJobs(jobTypes);
+            return eventFlowBuilder;
+        }
+
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
+        public static IEventFlowBuilder AddAggregateRoots(
+            this IEventFlowBuilder eventFlowBuilder,
+            params Type[] aggregateRootTypes)
+        {
+            return eventFlowBuilder;
+        }
+
+        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
+        public static IEventFlowBuilder AddAggregateRoots(
+            this IEventFlowBuilder eventFlowBuilder,
+            IEnumerable<Type> aggregateRootTypes)
+        {
+            return eventFlowBuilder;
         }
     }
 }

@@ -35,27 +35,27 @@ namespace EventFlow.Extensions
     /*
     public static class EventFlowOptionsEventUpgradersExtensions
     {
-        public static IEventFlowOptions AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
+            this IEventFlowBuilder eventFlowBuilder)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
+            return eventFlowBuilder.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
         }
 
-        public static IEventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddEventUpgrader<TAggregate, TIdentity>(
+            this IEventFlowBuilder eventFlowBuilder,
             Func<IResolverContext, IEventUpgrader<TAggregate, TIdentity>> factory)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
             TODO: Implement this
-            return eventFlowOptions.RegisterServices(f => f.Register(factory));
+            return eventFlowBuilder.RegisterServices(f => f.Register(factory));
         }
 
-        public static IEventFlowOptions AddEventUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddEventUpgraders(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -65,20 +65,20 @@ namespace EventFlow.Extensions
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsEventUpgraderInterface))
                 .Where(t => !t.HasConstructorParameterOfType(IsEventUpgraderInterface))
                 .Where(t => predicate(t));
-            return eventFlowOptions
+            return eventFlowBuilder
                 .AddEventUpgraders(eventUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddEventUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddEventUpgraders(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] eventUpgraderTypes)
         {
-            return eventFlowOptions
+            return eventFlowBuilder
                 .AddEventUpgraders((IEnumerable<Type>)eventUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddEventUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddEventUpgraders(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> eventUpgraderTypes)
         {
             foreach (var eventUpgraderType in eventUpgraderTypes)
@@ -94,10 +94,10 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{eventUpgraderType.Name}' does not have the '{typeof(IEventUpgrader<,>).PrettyPrint()}' interface");
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(eventUpgraderForAggregateType, t));
+                eventFlowBuilder.RegisterServices(sr => sr.Register(eventUpgraderForAggregateType, t));
             }
 
-            return eventFlowOptions;
+            return eventFlowBuilder;
         }
 
         private static bool IsEventUpgraderInterface(Type type)

@@ -32,10 +32,10 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory
     {
         public static Assembly Assembly { get; } = typeof(EventFlowExamplesShippingQueriesInMemory).Assembly;
 
-        public static IEventFlowOptions ConfigureShippingQueriesInMemory(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowSetup ConfigureShippingQueriesInMemory(
+            this IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .AddQueryHandlers(Assembly)
                 .UseInMemoryReadStoreFor<VoyageReadModel>()
                 .UseInMemoryReadStoreFor<CargoReadModel>();

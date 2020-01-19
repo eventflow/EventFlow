@@ -32,9 +32,9 @@ namespace EventFlow.Tests.IntegrationTests.SnapshotStores
     [Category(Categories.Integration)]
     public class InMemorySnapshotStoreTests : TestSuiteForSnapshotStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .UseInMemorySnapshotStore()
                 .CreateResolver();
         }

@@ -22,32 +22,40 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Reflection;
+using EventFlow.EventStores;
+using EventFlow.EventStores.Files;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    /* TODO
-    public static class EventFlowOptionsDefaultExtensions
+    public static class EventFlowOptionsEventStoresExtensions
     {
-        public static IEventFlowOptions AddDefaults(
-            this IEventFlowOptions eventFlowOptions,
-            Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+        public static IEventFlowBuilder UseEventStore(
+            this IEventFlowBuilder eventFlowBuilder,
+            Func<IServiceProvider, IEventStore> eventStoreResolver,
+            ServiceLifetime lifetime = ServiceLifetime.Transient)
         {
-            return eventFlowOptions
-                .AddEvents(fromAssembly, predicate)
-                .AddJobs(fromAssembly, predicate)
-                .AddCommands(fromAssembly, predicate)
-                .AddCommandHandlers(fromAssembly, predicate)
-                .AddMetadataProviders(fromAssembly, predicate)
-                .AddSubscribers(fromAssembly, predicate)
-                //.AddEventUpgraders(fromAssembly, predicate)
-                .AddQueryHandlers(fromAssembly, predicate)
-                .AddSnapshots(fromAssembly, predicate)
-                //.AddSnapshotUpgraders(fromAssembly, predicate)
-                .AddSagas(fromAssembly, predicate)
-                .AddSagaLocators(fromAssembly, predicate);
+            throw new NotImplementedException();
+        }
+
+        public static IEventFlowBuilder UseEventStore<TEventStore>(
+            this IEventFlowBuilder eventFlowBuilder,
+            ServiceLifetime lifetime = ServiceLifetime.Transient)
+            where TEventStore : class, IEventPersistence
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IEventFlowBuilder UseFilesEventStore(
+            this IEventFlowBuilder eventFlowBuilder,
+            IFilesEventStoreConfiguration filesEventStoreConfiguration)
+        {
+            return eventFlowBuilder.RegisterServices(f =>
+                {
+                    f.AddSingleton(filesEventStoreConfiguration);
+                    f.AddSingleton<IEventPersistence, FilesEventPersistence>();
+                    f.AddTransient<IFilesEventLocator, FilesEventLocator>();
+                });
         }
     }
-    */
 }

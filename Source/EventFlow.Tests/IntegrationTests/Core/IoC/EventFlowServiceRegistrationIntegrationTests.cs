@@ -31,9 +31,9 @@ namespace EventFlow.Tests.IntegrationTests.Core.IoC
     [Category(Categories.Integration)]
     public class EventFlowServiceRegistrationIntegrationTests : IntegrationTestSuiteForServiceRegistration
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .CreateResolver();
         }
     }

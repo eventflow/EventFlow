@@ -170,14 +170,14 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             receivedSagaPingIds.Should().BeEquivalentTo(pingsWithRunningSaga);
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();
             _thingySagaStartedSubscriber
                 .Setup(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(0));
 
-            return eventFlowOptions
+            return eventFlowSetup
                 .RegisterServices(sr => sr.Register(_ => _thingySagaStartedSubscriber.Object))
                 .CreateResolver();
         }

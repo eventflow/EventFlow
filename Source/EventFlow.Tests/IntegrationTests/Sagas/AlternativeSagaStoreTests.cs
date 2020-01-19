@@ -45,7 +45,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         [SetUp]
         public void SetUp()
         {
-            _resolver = EventFlowOptions.New
+            _resolver = EventFlowSetup.New
                 .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),

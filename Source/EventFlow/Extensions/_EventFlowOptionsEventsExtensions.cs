@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2018 Rasmus Mikkelsen
 // Copyright (c) 2015-2018 eBay Software Foundation
@@ -21,25 +21,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using EventFlow.Configuration.Bootstraps;
-using EventFlow.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Aggregates;
 
 namespace EventFlow.Extensions
 {
-    public static class BootstrapperExtensions
+    public static class EventFlowOptionsEventsExtensions
     {
-        public static void Start(this IBootstrapper bootstrapper)
+        public static IEventFlowBuilder AddEvents(
+            this IEventFlowBuilder eventFlowBuilder,
+            Assembly fromAssembly,
+            Predicate<Type> predicate = null)
         {
-            if (bootstrapper is Bootstrapper b && b.HasBeenRun)
-            {
-                return;
-            }
+            predicate = predicate ?? (t => true);
+            var aggregateEventTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(IAggregateEvent).GetTypeInfo().IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowBuilder.AddEvents(aggregateEventTypes);
+        }
 
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(bootstrapper.StartAsync(CancellationToken.None));
-            }
+        public static IEventFlowBuilder AddEvents(
+            this IEventFlowBuilder eventFlowBuilder,
+            params Type[] aggregateEventTypes)
+        {
+            return eventFlowBuilder.AddEvents((IEnumerable<Type>)aggregateEventTypes);
         }
     }
 }

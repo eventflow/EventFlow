@@ -180,7 +180,7 @@ namespace EventFlow.Tests.IntegrationTests
             _eventPersistence = null;
             _readStore = null;
 
-            var resolver = EventFlowOptions
+            var resolver = EventFlowSetup
                 .New
                 .AddCommands(typeof(ThingyPingCommand))
                 .AddEvents(typeof(ThingyPingEvent))

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2018 Rasmus Mikkelsen
 // Copyright (c) 2015-2018 eBay Software Foundation
@@ -21,13 +21,33 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
+using System;
+using System.Linq;
+using System.Reflection;
+using EventFlow.Commands;
 
-namespace EventFlow.Configuration.Bootstraps
+namespace EventFlow.Extensions
 {
-    public interface IBootstrapper
+    public static class EventFlowOptionsCommandExtensions
     {
-        Task StartAsync(CancellationToken cancellationToken);
+        public static IEventFlowBuilder AddCommands(
+            this IEventFlowBuilder eventFlowBuilder,
+            params Type[] commandTypes)
+        {
+            return eventFlowBuilder.AddCommands(commandTypes);
+        }
+
+        public static IEventFlowBuilder AddCommands(
+            this IEventFlowBuilder eventFlowBuilder,
+            Assembly fromAssembly,
+            Predicate<Type> predicate)
+        {
+            predicate = predicate ?? (t => true);
+            var commandTypes = fromAssembly
+                .GetTypes()
+                .Where(t => !t.GetTypeInfo().IsAbstract && typeof(ICommand).GetTypeInfo().IsAssignableFrom(t))
+                .Where(t => predicate(t));
+            return eventFlowBuilder.AddCommands(commandTypes);
+        }
     }
 }

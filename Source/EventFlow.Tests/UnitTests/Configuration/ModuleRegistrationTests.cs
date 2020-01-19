@@ -43,7 +43,7 @@ namespace EventFlow.Tests.UnitTests.Configuration
             Sut.Register(moduleA.Object);
 
             // Assert
-            moduleA.Verify(m => m.Register(It.IsAny<IEventFlowOptions>()), Times.Once);
+            moduleA.Verify(m => m.Register(It.IsAny<IEventFlowSetup>()), Times.Once);
         }
 
         [Test]

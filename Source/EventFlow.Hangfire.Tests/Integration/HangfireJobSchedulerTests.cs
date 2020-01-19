@@ -94,9 +94,9 @@ namespace EventFlow.Hangfire.Tests.Integration
             }
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .UseHangfireJobScheduler()
                 .CreateResolver(false);
 

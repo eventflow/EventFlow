@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,14 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// ReSharper disable UnusedMember.Global
+
 namespace EventFlow.Configuration.Cancellation
 {
     public enum CancellationBoundary
     {
-        BeforeUpdatingAggregate,
-        BeforeCommittingEvents,
-        BeforeUpdatingReadStores,
-        BeforeNotifyingSubscribers,
-        CancelAlways
+        BeforeUpdatingAggregate    = 1000,
+        BeforeCommittingEvents     = 2000,
+        BeforeUpdatingReadStores   = 3000,
+        BeforeNotifyingSubscribers = 4000,
+        CancelAlways               = 5000,
     }
 }

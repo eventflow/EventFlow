@@ -44,11 +44,11 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores
 
         private IPostgreSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            var resolver = eventFlowSetup
                 .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
                 .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UsePostgreSqlReadModel<PostgreSqlThingyReadModel>()

@@ -36,9 +36,9 @@ namespace EventFlow.EntityFramework.Tests.InMemory
     {
         protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IRootResolver CreateRootResolver(IEventFlowSetup eventFlowSetup)
         {
-            return eventFlowOptions
+            return eventFlowSetup
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(Lifetime.Singleton)
                 .ConfigureForReadStoreTest()

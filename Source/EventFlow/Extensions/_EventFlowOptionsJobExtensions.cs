@@ -22,43 +22,33 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using EventFlow.Jobs;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsAggregatesExtensions
+    public static class EventFlowOptionsJobExtensions
     {
-        [Obsolete("ServiceProvider aggregate factory is the default, simply remove this call")]
-        public static IEventFlowOptions UseResolverAggregateRootFactory(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder AddJobs(
+            this IEventFlowBuilder eventFlowBuilder,
+            params Type[] jobTypes)
         {
-            return eventFlowOptions;
+            return eventFlowBuilder.AddJobs(jobTypes);
         }
 
-        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
-        public static IEventFlowOptions AddAggregateRoots(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddJobs(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
-            Predicate<Type> predicate = null)
+            Predicate<Type> predicate)
         {
-            return eventFlowOptions;
-        }
-
-        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
-        public static IEventFlowOptions AddAggregateRoots(
-            this IEventFlowOptions eventFlowOptions,
-            params Type[] aggregateRootTypes)
-        {
-            return eventFlowOptions;
-        }
-
-        [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
-        public static IEventFlowOptions AddAggregateRoots(
-            this IEventFlowOptions eventFlowOptions,
-            IEnumerable<Type> aggregateRootTypes)
-        {
-            return eventFlowOptions;
+            predicate = predicate ?? (t => true);
+            var jobTypes = fromAssembly
+                .GetTypes()
+                .Where(type => !type.GetTypeInfo().IsAbstract && type.IsAssignableTo<IJob>())
+                .Where(t => !t.HasConstructorParameterOfType(i => i.IsAssignableTo<IJob>()))
+                .Where(t => predicate(t));
+            return eventFlowBuilder.AddJobs(jobTypes);
         }
     }
 }

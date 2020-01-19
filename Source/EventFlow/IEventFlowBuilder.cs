@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,27 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration.Cancellation;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.Configuration
+namespace EventFlow
 {
-    public class EventFlowConfiguration : IEventFlowConfiguration, ICancellationConfiguration
+    public interface IEventFlowBuilder
     {
-        public int PopulateReadModelEventPageSize { get; set; }
-        public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
-        public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
-        public bool ThrowSubscriberExceptions { get; set; }
-        public bool IsAsynchronousSubscribersEnabled { get; set; }
-        public CancellationBoundary CancellationBoundary { get; set; }
+        IServiceCollection Services { get; }
 
-        internal EventFlowConfiguration()
-        {
-            PopulateReadModelEventPageSize = 200;
-            NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
-            DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
-            ThrowSubscriberExceptions = false;
-            IsAsynchronousSubscribersEnabled = false;
-            CancellationBoundary = CancellationBoundary.BeforeCommittingEvents;
-        }
+        IEventFlowBuilder AddEvents(IEnumerable<Type> aggregateEventTypes);
+        IEventFlowBuilder AddSagas(IEnumerable<Type> sagaTypes);
+        IEventFlowBuilder AddCommands(IEnumerable<Type> commandTypes);
+        IEventFlowBuilder AddJobs(IEnumerable<Type> jobTypes);
+        IEventFlowBuilder AddSnapshots(IEnumerable<Type> snapshotTypes);
     }
 }

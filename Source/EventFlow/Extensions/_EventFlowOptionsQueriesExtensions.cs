@@ -32,23 +32,23 @@ namespace EventFlow.Extensions
     /* TODO
     public static class EventFlowOptionsQueriesExtensions
     {
-        public static IEventFlowOptions AddQueryHandler<TQueryHandler, TQuery, TResult>(
-            this IEventFlowOptions eventFlowOptions)
+        public static IEventFlowBuilder AddQueryHandler<TQueryHandler, TQuery, TResult>(
+            this IEventFlowBuilder eventFlowBuilder)
             where TQueryHandler : class, IQueryHandler<TQuery, TResult>
             where TQuery : IQuery<TResult>
         {
-            return eventFlowOptions.RegisterServices(sr => sr.Register<IQueryHandler<TQuery, TResult>, TQueryHandler>());
+            return eventFlowBuilder.RegisterServices(sr => sr.Register<IQueryHandler<TQuery, TResult>, TQueryHandler>());
         }
 
-        public static IEventFlowOptions AddQueryHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddQueryHandlers(
+            this IEventFlowBuilder eventFlowBuilder,
             params Type[] queryHandlerTypes)
         {
-            return eventFlowOptions.AddQueryHandlers((IEnumerable<Type>)queryHandlerTypes);
+            return eventFlowBuilder.AddQueryHandlers((IEnumerable<Type>)queryHandlerTypes);
         }
 
-        public static IEventFlowOptions AddQueryHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddQueryHandlers(
+            this IEventFlowBuilder eventFlowBuilder,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -58,12 +58,12 @@ namespace EventFlow.Extensions
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsQueryHandlerInterface))
                 .Where(t => !t.HasConstructorParameterOfType(IsQueryHandlerInterface))
                 .Where(t => predicate(t));
-            return eventFlowOptions
+            return eventFlowBuilder
                 .AddQueryHandlers(subscribeSynchronousToTypes);
         }
 
-        public static IEventFlowOptions AddQueryHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static IEventFlowBuilder AddQueryHandlers(
+            this IEventFlowBuilder eventFlowBuilder,
             IEnumerable<Type> queryHandlerTypes)
         {
             foreach (var queryHandlerType in queryHandlerTypes)
@@ -80,7 +80,7 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr =>
+                eventFlowBuilder.RegisterServices(sr =>
                     {
                         foreach (var queryHandlerInterface in queryHandlerInterfaces)
                         {
@@ -89,7 +89,7 @@ namespace EventFlow.Extensions
                     });
             }
 
-            return eventFlowOptions;
+            return eventFlowBuilder;
         }
 
         private static bool IsQueryHandlerInterface(this Type type)

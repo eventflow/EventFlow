@@ -321,14 +321,17 @@ namespace EventFlow.TestHelpers.Suites
 
         private readonly Dictionary<string, WaitState> _waitStates = new Dictionary<string, WaitState>();
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions,
+        protected override IEventFlowSetup Options(IEventFlowSetup eventFlowSetup,
             IServiceCollection serviceCollection)
         {
             _waitStates.Clear();
 
-            return base.Options(eventFlowOptions, serviceCollection)
+            /* TODO
+            return base.Options(eventFlowSetup, serviceCollection)
                 .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
-                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));
+                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));*/
+
+            return null;
         }
 
         private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)
