@@ -7,9 +7,6 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-      </p>
-      <p>
         <a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
       </p>
       <p>
@@ -21,8 +18,13 @@
         <a href="https://ci.appveyor.com/project/eventflow/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
+        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+      </p>
+     <!--
+      <p>
         <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
       </p>
+      -->
     </td>
     <td  width="25%">
       Think EventFlow is great,<br/>
