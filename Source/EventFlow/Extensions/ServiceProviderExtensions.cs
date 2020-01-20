@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,28 +25,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Extensions
 {
-    public class LoadedVersionedTypes : ILoadedVersionedTypes
+    public static class ServiceProviderExtensions
     {
-        public LoadedVersionedTypes(
-            IEnumerable<Type> jobTypes,
-            IEnumerable<Type> commandTypes,
-            IEnumerable<Type> eventTypes,
-            IEnumerable<Type> sagaTypes,
-            IEnumerable<Type> snapshotTypes)
+        public static IEnumerable<object> GetOptionalServices(this IServiceProvider provider, Type serviceType)
         {
-            Jobs = jobTypes.ToList();
-            Commands = commandTypes.ToList();
-            Events = eventTypes.ToList();
-            Sagas = sagaTypes.ToList();
-            SnapshotTypes = snapshotTypes.ToList();
-        }
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
 
-        public IReadOnlyCollection<Type> Jobs { get; }
-        public IReadOnlyCollection<Type> Commands { get; }
-        public IReadOnlyCollection<Type> Events { get; }
-        public IReadOnlyCollection<Type> Sagas { get; }
-        public IReadOnlyCollection<Type> SnapshotTypes { get; }
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
+            var genericEnumerable = typeof(IEnumerable<>).MakeGenericType(serviceType);
+            return (IEnumerable<object>) provider.GetService(genericEnumerable) ?? Enumerable.Empty<object>();
+        }
     }
 }

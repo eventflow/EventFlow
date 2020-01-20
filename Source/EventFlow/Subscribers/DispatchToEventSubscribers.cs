@@ -32,7 +32,6 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace EventFlow.Subscribers
@@ -96,7 +95,7 @@ namespace EventFlow.Subscribers
             var subscriberInformation = GetSubscriberInformation(
                     domainEvent.GetType(),
                     subscriberType);
-            var subscribers = _serviceProvider.GetServices(subscriberInformation.SubscriberType).ToList();
+            var subscribers = _serviceProvider.GetOptionalServices(subscriberInformation.SubscriberType).ToList();
 
             if (!subscribers.Any())
             {
@@ -126,7 +125,7 @@ namespace EventFlow.Subscribers
             Type subscriberType)
         {
             return _memoryCache.GetOrCreate(
-                null, //TODO: CacheKey.With(GetType(), domainEventType.GetCacheKey(), subscriberType.GetCacheKey()),
+                CacheKey.Get(GetType(), domainEventType, subscriberType),
                 e =>
                     {
                         e.SlidingExpiration = TimeSpan.FromDays(1);

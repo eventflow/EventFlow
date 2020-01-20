@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -92,7 +93,7 @@ namespace EventFlow.Tests.UnitTests
             where TExecutionResult : IExecutionResult
         {
             _serviceProviderMock
-                .Setup(r => r.GetServices(typeof(ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>)))
+                .Setup(r => r.GetService(typeof(IEnumerable<ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>>)))
                 .Returns(new[] { commandHandler });
         }
 

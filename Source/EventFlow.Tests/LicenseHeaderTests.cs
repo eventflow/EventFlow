@@ -40,7 +40,6 @@ namespace EventFlow.Tests
         private static readonly ISet<string> ExternalFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 Path.Combine("EventFlow", "Core", "HashHelper.cs"),
-                Path.Combine("EventFlow", "Logs", "Internals", "ImportedLibLog.cs")
             };
         private static readonly ISet<string> ValidCopyrightNames = new HashSet<string>
             {
