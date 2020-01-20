@@ -70,7 +70,7 @@ namespace EventFlow.TestHelpers
                 .RegisterServices(c => c.AddScoped<IScopedContext, ScopedContext>())
                 .AddDefaults(EventFlowTestHelpers.Assembly, type => type != typeof(DbContextQueryHandler)));
 
-            ServiceProvider = eventFlowBuilder.Services.BuildServiceProvider(true);
+            ServiceProvider = eventFlowBuilder.Services.BuildServiceProvider();
 
             AggregateStore = ServiceProvider.GetRequiredService<IAggregateStore>();
             EventStore = ServiceProvider.GetRequiredService<IEventStore>();
@@ -91,9 +91,9 @@ namespace EventFlow.TestHelpers
             (ServiceProvider as IDisposable)?.Dispose();
         }
 
-        protected virtual IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
+        protected virtual IEventFlowBuilder Options(IEventFlowBuilder eventFlowBuilder)
         {
-            return eventFlowSetup;
+            return eventFlowBuilder;
         }
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)

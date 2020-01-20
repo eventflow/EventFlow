@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,30 +23,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Core
 {
-    public class LoadedVersionedTypes : ILoadedVersionedTypes
+    // TODO: This might be a very bad design...
+    public class VersionedTypesOption
     {
-        public LoadedVersionedTypes(
-            IEnumerable<Type> jobTypes,
-            IEnumerable<Type> commandTypes,
-            IEnumerable<Type> eventTypes,
-            IEnumerable<Type> sagaTypes,
-            IEnumerable<Type> snapshotTypes)
-        {
-            Jobs = jobTypes.ToList();
-            Commands = commandTypes.ToList();
-            Events = eventTypes.ToList();
-            Sagas = sagaTypes.ToList();
-            SnapshotTypes = snapshotTypes.ToList();
-        }
-
-        public IReadOnlyCollection<Type> Jobs { get; }
-        public IReadOnlyCollection<Type> Commands { get; }
-        public IReadOnlyCollection<Type> Events { get; }
-        public IReadOnlyCollection<Type> Sagas { get; }
-        public IReadOnlyCollection<Type> SnapshotTypes { get; }
+        public List<Type> Events { get; } = new List<Type>();
     }
 }

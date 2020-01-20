@@ -170,7 +170,7 @@ namespace EventFlow.ReadStores
             Type readModelType)
         {
             var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
-            var readModelStores = _serviceProvider.GetServices(readModelStoreType)
+            var readModelStores = _serviceProvider.GetOptionalServices(readModelStoreType)
                 .Select(s => (IReadModelStore)s)
                 .ToList();
 

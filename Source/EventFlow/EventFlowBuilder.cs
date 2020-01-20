@@ -26,13 +26,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
-using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Sagas;
 using EventFlow.Snapshots;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow
 {
@@ -51,12 +50,19 @@ namespace EventFlow
         {
             Services = serviceCollection;
 
+            // TODO: Rework this
+            serviceCollection.Configure<VersionedTypesOption>(o =>
+                {
+                    o.Events.AddRange(_eventTypes);
+                });
+
+            /*
             serviceCollection.TryAddSingleton<ILoadedVersionedTypes>(_ => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
                 _eventTypes,
                 _sagaTypes,
-                _snapshotTypes));
+                _snapshotTypes));*/
         }
 
         public IEventFlowBuilder AddEvents(IEnumerable<Type> aggregateEventTypes)

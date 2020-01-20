@@ -95,19 +95,21 @@ namespace EventFlow.Extensions
             serviceCollection.TryAddTransient<IDispatchToSagas, DispatchToSagas>();
             serviceCollection.TryAddTransient(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
             serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
-            
+
+            // Add type definition singleton services
+            serviceCollection.TryAddSingleton<ISnapshotDefinitionService, SnapshotDefinitionService>();
+            serviceCollection.TryAddSingleton<IEventDefinitionService, EventDefinitionService>();
+            serviceCollection.TryAddSingleton<IJobDefinitionService, JobDefinitionService>();
+            serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
+            serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
+
             // Add singleton services
             serviceCollection.TryAddSingleton<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
             serviceCollection.TryAddSingleton<ILog, ConsoleLog>();
             serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
-            serviceCollection.TryAddSingleton<ISnapshotDefinitionService, SnapshotDefinitionService>();
-            serviceCollection.TryAddSingleton<IEventDefinitionService, EventDefinitionService>();
             serviceCollection.TryAddSingleton<IJsonSerializer, JsonSerializer>();
-            serviceCollection.TryAddSingleton<IJobDefinitionService, JobDefinitionService>();
             serviceCollection.TryAddSingleton<IEventUpgradeManager, EventUpgradeManager>();
-            serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
             serviceCollection.TryAddSingleton<IDomainEventFactory, DomainEventFactory>();
-            serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
             serviceCollection.TryAddSingleton(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>));
 
             return serviceCollection;

@@ -23,16 +23,20 @@
 
 using System;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.EventStores
 {
     public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
     {
-        public EventDefinitionService(ILog log)
+        public EventDefinitionService(
+            ILog log, IOptions<VersionedTypesOption> options)
             : base(log)
         {
+            Load(options.Value.Events);
         }
 
         protected override EventDefinition CreateDefinition(int version, Type type, string name)

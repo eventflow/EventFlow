@@ -62,7 +62,7 @@ namespace EventFlow.TestHelpers.Suites
             _jobScheduler = ServiceProvider.GetRequiredService<IJobScheduler>();
         }
 
-        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowBuilder)
         {
             _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
 

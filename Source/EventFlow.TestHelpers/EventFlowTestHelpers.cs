@@ -25,6 +25,7 @@ using System;
 using System.Reflection;
 using EventFlow.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.TestHelpers
 {
@@ -36,7 +37,8 @@ namespace EventFlow.TestHelpers
             Action<EventFlowOptions> configure = null)
         {
             var serviceCollection = new ServiceCollection()
-                .AddMemoryCache();
+                .AddMemoryCache()
+                .AddLogging(b => b.AddDebug());
             var eventFlowBuilder = serviceCollection.AddEventFlow(configure);
             return eventFlowBuilder;
         }

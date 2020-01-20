@@ -418,7 +418,7 @@ namespace EventFlow.TestHelpers.Suites
             _publishedDomainEvents.Clear();
         }
 
-        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowSetup)
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowBuilder)
         {
             var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();
 
@@ -427,12 +427,8 @@ namespace EventFlow.TestHelpers.Suites
                 .Callback<IReadOnlyCollection<IDomainEvent>, CancellationToken>((d, c) => _publishedDomainEvents.AddRange(d))
                 .Returns(Task.FromResult(0));
 
-            /*
-             TODO
-            return base.Options(eventFlowSetup, serviceCollection)
-                .RegisterServices(sr => sr.Register(r => subscribeSynchronousToAllMock.Object, Lifetime.Singleton));*/
-
-            return null;
+            return base.Options(eventFlowBuilder)
+                .RegisterServices(sr => sr.AddSingleton(r => subscribeSynchronousToAllMock.Object));
         }
 
         private static async Task ThrowsExceptionAsync<TException>(Func<Task> action)

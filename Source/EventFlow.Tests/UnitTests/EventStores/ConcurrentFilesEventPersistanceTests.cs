@@ -39,6 +39,7 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -61,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void SetUp()
         {
             var factory = new DomainEventFactory();
-            var definitionService = new EventDefinitionService(new ConsoleLog());
+            var definitionService = new EventDefinitionService(new ConsoleLog(), new OptionsWrapper<VersionedTypesOption>(new VersionedTypesOption()));
             definitionService.Load(typeof(ThingyPingEvent));
 
             _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);

@@ -33,6 +33,7 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -87,7 +88,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeEvents()
         {
             // Arrange
-            var eventDefinitionService = new EventDefinitionService(new ConsoleLog());
+            var eventDefinitionService = new EventDefinitionService(new ConsoleLog(), new OptionsWrapper<VersionedTypesOption>(new VersionedTypesOption()));
 
             // Act
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));
