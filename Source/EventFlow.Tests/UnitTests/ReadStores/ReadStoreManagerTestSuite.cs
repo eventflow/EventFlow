@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Logs;
@@ -35,6 +34,7 @@ using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -53,7 +53,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
                 new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
                     Mock<ILog>(),
-                    new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
+                    new OptimisticConcurrencyRetryStrategy(new OptionsWrapper<EventFlowOptions>(new EventFlowOptions()))));
 
             ReadModelStoreMock = InjectMock<IReadModelStore<TestReadModel>>();
 

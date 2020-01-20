@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void SetUp()
         {
             var factory = new DomainEventFactory();
-            var definitionService = new EventDefinitionService(new NullLog());
+            var definitionService = new EventDefinitionService(new ConsoleLog());
             definitionService.Load(typeof(ThingyPingEvent));
 
             _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
@@ -142,7 +142,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private FilesEventPersistence CreatePersistence(string storePath = "")
         {
-            var log = new NullLog();
+            var log = new ConsoleLog();
             var serializer = new JsonSerializer();
             var config = ConfigurePath(storePath);
             var locator = new FilesEventLocator(config);

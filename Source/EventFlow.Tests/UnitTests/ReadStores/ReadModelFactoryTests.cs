@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,6 +28,7 @@ using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -47,18 +48,18 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             const int expectedMagicNumberForReadModelC = 0;
 
             // Arrange
-            using (var resolver = EventFlowSetup.New
+            using (var resolver = EventFlowTestHelpers.Setup()
                 .RegisterServices(sr =>
                     {
-                        sr.Register<IReadModelFactory<FancyReadModelA>>(r => new FancyReadModelFactory<FancyReadModelA>(expectedMagicNumberForReadModelA));
-                        sr.Register<IReadModelFactory<FancyReadModelB>>(r => new FancyReadModelFactory<FancyReadModelB>(expectedMagicNumberForReadModelB));
+                        sr.AddTransient<IReadModelFactory<FancyReadModelA>>(r => new FancyReadModelFactory<FancyReadModelA>(expectedMagicNumberForReadModelA));
+                        sr.AddTransient<IReadModelFactory<FancyReadModelB>>(r => new FancyReadModelFactory<FancyReadModelB>(expectedMagicNumberForReadModelB));
                     })
-                .CreateResolver())
+                .Services.BuildServiceProvider())
             {
                 // Act
-                var readModelA = await resolver.Resolve<IReadModelFactory<FancyReadModelA>>().CreateAsync(A<string>(), CancellationToken.None);
-                var readModelB = await resolver.Resolve<IReadModelFactory<FancyReadModelB>>().CreateAsync(A<string>(), CancellationToken.None);
-                var readModelC = await resolver.Resolve<IReadModelFactory<FancyReadModelC>>().CreateAsync(A<string>(), CancellationToken.None);
+                var readModelA = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelA>>().CreateAsync(A<string>(), CancellationToken.None);
+                var readModelB = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelB>>().CreateAsync(A<string>(), CancellationToken.None);
+                var readModelC = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelC>>().CreateAsync(A<string>(), CancellationToken.None);
 
                 // Assert
                 readModelA.MagicNumber.Should().Be(expectedMagicNumberForReadModelA);

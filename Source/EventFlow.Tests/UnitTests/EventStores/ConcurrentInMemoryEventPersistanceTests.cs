@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -79,13 +78,13 @@ namespace EventFlow.Tests.UnitTests.EventStores
         private EventStoreBase CreateStore()
         {
             var aggregateFactory = Mock.Of<IAggregateFactory>();
-            var resolver = Mock.Of<IResolver>();
+            var serviceProvider = Mock.Of<IServiceProvider>();
             var metadataProviders = Enumerable.Empty<IMetadataProvider>();
             var snapshotStore = Mock.Of<ISnapshotStore>();
-            var log = new NullLog();
+            var log = new ConsoleLog();
             var factory = new DomainEventFactory();
             var persistence = new InMemoryEventPersistence(log);
-            var upgradeManager = new EventUpgradeManager(log, resolver);
+            var upgradeManager = new EventUpgradeManager(log, serviceProvider);
             var definitionService = new EventDefinitionService(log);
             definitionService.Load(typeof(ThingyPingEvent));
             var serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
