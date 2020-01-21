@@ -29,6 +29,7 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
+using EventFlow.Provided.Jobs;
 using EventFlow.Sagas;
 using EventFlow.Snapshots;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +41,11 @@ namespace EventFlow
         private readonly List<Type> _eventTypes = new List<Type>();
         private readonly List<Type> _sagaTypes = new List<Type>(); 
         private readonly List<Type> _commandTypes = new List<Type>();
-        private readonly List<Type> _jobTypes = new List<Type>();
+        private readonly List<Type> _jobTypes = new List<Type>
+            {
+                typeof(DispatchToAsynchronousEventSubscribersJob),
+                typeof(PublishCommandJob),
+            };
         private readonly List<Type> _snapshotTypes = new List<Type>();
 
         public IServiceCollection Services { get; }
@@ -54,15 +59,11 @@ namespace EventFlow
             serviceCollection.Configure<VersionedTypesOption>(o =>
                 {
                     o.Events.AddRange(_eventTypes);
+                    o.Commands.AddRange(_commandTypes);
+                    o.Jobs.AddRange(_jobTypes);
+                    o.Sagas.AddRange(_sagaTypes);
+                    o.Snapshots.AddRange(_snapshotTypes);
                 });
-
-            /*
-            serviceCollection.TryAddSingleton<ILoadedVersionedTypes>(_ => new LoadedVersionedTypes(
-                _jobTypes,
-                _commandTypes,
-                _eventTypes,
-                _sagaTypes,
-                _snapshotTypes));*/
         }
 
         public IEventFlowBuilder AddEvents(IEnumerable<Type> aggregateEventTypes)
@@ -143,6 +144,12 @@ namespace EventFlow
         public IEventFlowBuilder RegisterServices(Action<IServiceCollection> register)
         {
             register(Services);
+            return this;
+        }
+
+        public IEventFlowBuilder Configure(Action<EventFlowOptions> configure)
+        {
+            Services.Configure(configure);
             return this;
         }
     }

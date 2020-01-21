@@ -95,13 +95,16 @@ namespace EventFlow.Tests.IntegrationTests
             using var serviceProvider = EventFlowTestHelpers.Setup()
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
-                .RegisterServices(f => f.AddTransient<IPingReadModelLocator, PingReadModelLocator>())
+                .RegisterServices(c =>
+                {
+                    c.AddTransient<IPingReadModelLocator, PingReadModelLocator>();
+                    c.AddTransient<IScopedContext, ScopedContext>();
+                })
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<PingReadModel, IPingReadModelLocator>()
-                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
                 .AddSubscribers(typeof(Subscriber))
                 .Services.BuildServiceProvider(true);
             var commandBus = serviceProvider.GetRequiredService<ICommandBus>();

@@ -29,6 +29,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Aggregates
 {
@@ -106,7 +107,7 @@ namespace EventFlow.Aggregates
                     }
                     else
                     {
-                        parameters[parameterInfo.Position] = resolver.GetService(parameterInfo.ParameterType);
+                        parameters[parameterInfo.Position] = resolver.GetRequiredService(parameterInfo.ParameterType);
                     }
                 }
 

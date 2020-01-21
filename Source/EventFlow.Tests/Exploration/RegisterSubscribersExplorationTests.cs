@@ -33,6 +33,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,7 @@ namespace EventFlow.Tests.Exploration
             {
                 using var resolver =  register(EventFlowTestHelpers.Setup(o => o.IsAsynchronousSubscribersEnabled = true))
                     .AddCommands(typeof(ThingyPingCommand))
+                    .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>())
                     .AddCommandHandlers(typeof(ThingyPingCommandHandler))
                     .AddEvents(typeof(ThingyPingEvent))
                     .Services.BuildServiceProvider(true);

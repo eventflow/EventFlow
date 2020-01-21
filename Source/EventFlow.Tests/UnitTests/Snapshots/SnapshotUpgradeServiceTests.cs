@@ -25,6 +25,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -32,6 +33,7 @@ using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -47,7 +49,9 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         public void SetUp()
         {
             _serviceProviderMock = InjectMock<IServiceProvider>();
-            _snapshotDefinitionService = Inject<ISnapshotDefinitionService>(new SnapshotDefinitionService(A<ILog>()));
+            _snapshotDefinitionService = Inject<ISnapshotDefinitionService>(new SnapshotDefinitionService(
+                A<ILog>(),
+                new OptionsWrapper<VersionedTypesOption>(new VersionedTypesOption())));
         }
 
         [Test]

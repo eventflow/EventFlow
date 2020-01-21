@@ -28,6 +28,7 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
@@ -65,7 +66,8 @@ namespace EventFlow.Tests.IntegrationTests
         {
             return EventFlowTestHelpers.Setup()
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .Services.BuildServiceProvider(true);
+                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>())
+                .Services.BuildServiceProvider();
         }
     }
 }

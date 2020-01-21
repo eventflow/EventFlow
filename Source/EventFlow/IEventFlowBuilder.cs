@@ -37,5 +37,6 @@ namespace EventFlow
         IEventFlowBuilder AddJobs(IEnumerable<Type> jobTypes);
         IEventFlowBuilder AddSnapshots(IEnumerable<Type> snapshotTypes);
         IEventFlowBuilder RegisterServices(Action<IServiceCollection> register);
+        IEventFlowBuilder Configure(Action<EventFlowOptions> configure);
     }
 }

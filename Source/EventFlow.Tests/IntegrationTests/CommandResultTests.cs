@@ -28,6 +28,7 @@ using EventFlow.Commands;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.Tests.UnitTests.Specifications;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -94,6 +95,7 @@ namespace EventFlow.Tests.IntegrationTests
         public async Task CommandResult()
         {
             using var resolver = EventFlowTestHelpers.Setup()
+                .RegisterServices(s => s.AddTransient<IScopedContext, ScopedContext>())
                 .AddCommandHandlers(
                     typeof(TestSuccessResultCommandHandler),
                     typeof(TestFailedResultCommandHandler))

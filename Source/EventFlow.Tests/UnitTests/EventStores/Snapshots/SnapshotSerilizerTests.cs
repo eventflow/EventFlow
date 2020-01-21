@@ -21,11 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Core;
 using NUnit.Framework;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
+using Microsoft.Extensions.Options;
 
 namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
@@ -34,7 +36,9 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
         [SetUp]
         public void SetUp()
         {
-            var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
+            var snapshotDefinitionService = new SnapshotDefinitionService(
+                Mock<ILog>(),
+                new OptionsWrapper<VersionedTypesOption>(new VersionedTypesOption()));
             snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
             Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
         }

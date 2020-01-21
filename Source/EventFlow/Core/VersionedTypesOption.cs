@@ -26,9 +26,13 @@ using System.Collections.Generic;
 
 namespace EventFlow.Core
 {
-    // TODO: This might be a very bad design...
+    // TODO: This seems to be a very bad design... but it helps move forward
     public class VersionedTypesOption
     {
         public List<Type> Events { get; } = new List<Type>();
+        public List<Type> Commands { get; } = new List<Type>();
+        public List<Type> Jobs { get; } = new List<Type>();
+        public List<Type> Sagas { get; } = new List<Type>();
+        public List<Type> Snapshots { get; } = new List<Type>();
     }
 }

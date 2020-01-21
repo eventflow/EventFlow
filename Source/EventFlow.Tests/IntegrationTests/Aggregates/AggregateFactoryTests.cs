@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Aggregates
@@ -67,6 +68,12 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
 
             // Assert
             aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
+        }
+
+        protected override IEventFlowBuilder Options(IEventFlowBuilder eventFlowBuilder)
+        {
+            return base.Options(eventFlowBuilder)
+                .RegisterServices(c => c.AddTransient(typeof(Pinger)));
         }
 
         public class Pinger

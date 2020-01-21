@@ -325,12 +325,9 @@ namespace EventFlow.TestHelpers.Suites
         {
             _waitStates.Clear();
 
-            /* TODO
-            return base.Options(eventFlowSetup, serviceCollection)
+            return base.Options(eventFlowBuilder)
                 .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
-                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.ServiceProvider.Resolve<ILog>())));*/
-
-            return null;
+                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.GetRequiredService<ILog>())));
         }
 
         private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)

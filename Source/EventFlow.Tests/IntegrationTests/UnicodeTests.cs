@@ -75,7 +75,9 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeCommands()
         {
             // Arrange
-            var commandDefinitions = new CommandDefinitionService(new ConsoleLog());
+            var commandDefinitions = new CommandDefinitionService(
+                new ConsoleLog(),
+                new OptionsWrapper<VersionedTypesOption>(new VersionedTypesOption()));
 
             // Act
             Action action = () => commandDefinitions.Load(typeof(Cömmand));

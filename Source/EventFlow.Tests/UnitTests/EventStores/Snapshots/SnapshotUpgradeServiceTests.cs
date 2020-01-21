@@ -24,6 +24,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -31,6 +32,7 @@ using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -52,7 +54,9 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
                 .Setup(r => r.GetService(typeof(ISnapshotUpgrader<ThingySnapshotV2, ThingySnapshot>)))
                 .Returns(() => new ThingySnapshotV2ToV3Upgrader());
 
-            var snapshotDefinitionService = new SnapshotDefinitionService(Mock<ILog>());
+            var snapshotDefinitionService = new SnapshotDefinitionService(
+                Mock<ILog>(),
+                new OptionsWrapper<VersionedTypesOption>(new VersionedTypesOption()));
             snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
             Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
         }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -23,7 +23,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
