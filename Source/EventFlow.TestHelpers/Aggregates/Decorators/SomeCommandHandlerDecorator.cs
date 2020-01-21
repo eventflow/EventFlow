@@ -33,7 +33,7 @@ namespace EventFlow.TestHelpers.Aggregates.Decorators
     /// <summary>
     /// Caused StackOverflowException when colocated with command handlers and using setup.AddDefaults().
     /// </summary>
-    /// <seealso cref="http://github.com/eventflow/EventFlow/issues/523"/>
+    /// <seealso href="http://github.com/eventflow/EventFlow/issues/523"/>
     public class SomeCommandHandlerDecorator<TAggregate, TIdentity, TResult, TCommand> :
         CommandHandler<TAggregate, TIdentity, TResult, TCommand>
         where TAggregate : IAggregateRoot<TIdentity>

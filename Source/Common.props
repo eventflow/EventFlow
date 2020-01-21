@@ -1,11 +1,8 @@
 <Project>
   <PropertyGroup>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <DebugType>portable</DebugType>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 </Project>
