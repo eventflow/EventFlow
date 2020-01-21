@@ -4,12 +4,17 @@ skip_tags: true
 
 build_script:
   - cmd: dotnet build
-  - cmd: dotnet test -f netcoreapp2.1
-  - cmd: dotnet test -f netcoreapp3.1
+  - cmd: dotnet test --no-build --no-restore -f netcoreapp2.1
+  - cmd: dotnet test --no-build --no-restore -f netcoreapp3.1
+  - cmd: dotnet pack --no-build --no-restore -o ./build/packages/
 
 image: Ubuntu
 
 test: off
+
+artifacts:
+  - path: build/packages/*nupkg
+  - path: build/packages/*nupkg
 
 nuget:
   account_feed: false
