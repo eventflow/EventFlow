@@ -14,7 +14,7 @@ test: off
 
 artifacts:
   - path: build/packages/*nupkg
-  - path: build/packages/*nupkg
+  - path: build/packages/*snupkg
 
 nuget:
   account_feed: false
