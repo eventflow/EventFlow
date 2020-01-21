@@ -3,7 +3,9 @@ version: 1.0.{build}
 skip_tags: true
 
 build_script:
-  - cmd: dotnet test
+  - cmd: dotnet build
+  - cmd: dotnet test -f netcoreapp2.1
+  - cmd: dotnet test -f netcoreapp3.1
 
 image: Ubuntu
 

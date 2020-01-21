@@ -21,6 +21,7 @@
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591</NoWarn>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
