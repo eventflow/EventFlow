@@ -78,13 +78,13 @@ namespace EventFlow.TestHelpers.Suites
         [Test]
         public async Task AsynchronousSubscribesGetInvoked()
         {
-            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3)))
             {
                 // Act
                 var pingId = await PublishPingCommandAsync(A<ThingyId>(), cts.Token).ConfigureAwait(false);
 
                 // Assert
-                var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
+                var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(cts.Token), cts.Token).ConfigureAwait(false);
                 receivedPingId.Should().IsSameOrEqualTo(pingId);
             }
         }
