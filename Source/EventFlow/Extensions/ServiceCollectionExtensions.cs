@@ -105,7 +105,7 @@ namespace EventFlow.Extensions
 
             // Add singleton services
             serviceCollection.TryAddSingleton<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
-            serviceCollection.TryAddSingleton<ILog, ConsoleLog>();
+            serviceCollection.TryAddSingleton<ILog, Logger>();
             serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
             serviceCollection.TryAddSingleton<IJsonSerializer, JsonSerializer>();
             serviceCollection.TryAddSingleton<IEventUpgradeManager, EventUpgradeManager>();

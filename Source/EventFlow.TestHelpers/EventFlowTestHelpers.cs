@@ -26,6 +26,7 @@ using System.Reflection;
 using EventFlow.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace EventFlow.TestHelpers
 {
@@ -36,9 +37,20 @@ namespace EventFlow.TestHelpers
         public static IEventFlowBuilder Setup(
             Action<EventFlowOptions> configure = null)
         {
+            // Serilog can write out the context to console
+
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}  {Properties:j}{NewLine}{Exception}{NewLine}")
+                .CreateLogger();
+
             var serviceCollection = new ServiceCollection()
                 .AddMemoryCache()
-                .AddLogging(b => b.AddDebug());
+                .AddLogging(
+                    b => b
+                        .SetMinimumLevel(LogLevel.Trace)
+                        .AddSerilog(logger));
             var eventFlowBuilder = serviceCollection.AddEventFlow(configure);
             return eventFlowBuilder;
         }

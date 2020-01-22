@@ -70,7 +70,7 @@ namespace EventFlow
                 throw new ArgumentNullException(nameof(command));
             }
 
-            using (_logger.BeginScope(new Dictionary<string, object>
+            using (_logger.BeginScope(new PrettyPrintDictionary
                 {
                     ["CommandTypeName"] = command.GetType().PrettyPrint(),
                     ["AggregateTypeName"] = typeof(TAggregate).PrettyPrint(),
