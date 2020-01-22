@@ -72,7 +72,8 @@ namespace EventFlow.EventStores.Files
             if (File.Exists(_logFilePath))
             {
                 var json = File.ReadAllText(_logFilePath);
-                var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json);
+                var eventStoreLog = _jsonSerializer.Deserialize<EventStoreLog>(json) ?? new EventStoreLog();
+
                 _globalSequenceNumber = eventStoreLog.GlobalSequenceNumber;
                 _eventLog = eventStoreLog.Log ?? new Dictionary<long, string>();
 
@@ -83,7 +84,8 @@ namespace EventFlow.EventStores.Files
                     _eventLog = eventStoreLog.Log;
                 }
             }
-            else
+
+            if (_eventLog == null)
             {
                 _eventLog = new Dictionary<long, string>();
             }
