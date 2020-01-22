@@ -2,7 +2,6 @@
   <Import Project="./Common.props" />
   <PropertyGroup>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <DebugType>portable</DebugType>
@@ -16,6 +15,7 @@
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
     <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
+    <PackageIcon>icon-128.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -26,4 +26,8 @@
     <IsPackable>True</IsPackable>
 
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../icon-128.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 </Project>
