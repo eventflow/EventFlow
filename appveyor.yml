@@ -11,8 +11,7 @@ build_script:
   - dotnet pack --no-build --no-restore -o ./build/packages/
 
 test_script:
-  - dotnet test --no-build --no-restore -f netcoreapp2.1
-  - dotnet test --no-build --no-restore -f netcoreapp3.1
+  - dotnet test --no-build --no-restore
 
 artifacts:
   - path: build/packages/*nupkg
