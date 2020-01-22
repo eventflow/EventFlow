@@ -49,7 +49,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
     {
         // Higher values have exponential effect on duration
         // due to OptimsticConcurrency and retry
-        private const int DegreeOfParallelism = 15;
+        private const int DegreeOfParallelism = 42;
         private const int NumberOfEventsPerBatch = 10;
 
         // All threads operate on same thingy

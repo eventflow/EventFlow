@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -193,7 +192,7 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        private StreamWriter CreateNewTextFile(string path, FileEventData fileEventData)
+        private static StreamWriter CreateNewTextFile(string path, FileEventData fileEventData)
         {
             try
             {
@@ -246,11 +245,10 @@ namespace EventFlow.EventStores.Files
 
         private async Task<FileEventData> LoadFileEventDataFile(string eventPath)
         {
-            using (var streamReader = File.OpenText(eventPath))
-            {
-                var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                return _jsonSerializer.Deserialize<FileEventData>(json);
-            }
+            using var streamReader = File.OpenText(eventPath);
+
+            var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+            return _jsonSerializer.Deserialize<FileEventData>(json);
         }
 
         private EventStoreLog RecreateEventStoreLog(string path)
@@ -259,22 +257,19 @@ namespace EventFlow.EventStores.Files
                 .SelectMany(Directory.GetDirectories)
                 .SelectMany(Directory.GetFiles)
                 .Select(f =>
-                {
-                    Console.WriteLine(f);
-                    using (var streamReader = File.OpenText(f))
                     {
+                        using var streamReader = File.OpenText(f);
                         var json = streamReader.ReadToEnd();
                         var fileEventData = _jsonSerializer.Deserialize<FileEventData>(json);
                         return new { fileEventData.GlobalSequenceNumber, Path = f };
-                    }
-                })
+                    })
                 .ToDictionary(a => a.GlobalSequenceNumber, a => a.Path);
 
             return new EventStoreLog
-            {
-                GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
-                Log = directory,
-            };
+                {
+                    GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
+                    Log = directory,
+                };
         }
     }
 }
