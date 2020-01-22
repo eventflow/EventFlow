@@ -84,8 +84,7 @@ namespace EventFlow.EventStores.Files
                     _eventLog = eventStoreLog.Log;
                 }
             }
-
-            if (_eventLog == null)
+            else
             {
                 _eventLog = new Dictionary<long, string>();
             }
