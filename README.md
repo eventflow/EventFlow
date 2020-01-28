@@ -355,7 +355,7 @@ share it by creating an issue with the link.
 * **Why _not_ to implement "unit of work" in DDD**
   * [Unit Of Work is the new Singleton](https://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
     by Mike Mogosanu
-  * [The Unit of Work and Transactions In Domain-Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+  * [The Unit of Work and Transactions In Domain-Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW)
     by Mike Mogosanu
 
 
