@@ -42,7 +42,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateInsertSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be("INSERT INTO [ReadModel-TestAttributes] (Id, UpdatedTime) VALUES (@Id, @UpdatedTime)");
+            sql.Should().Be("INSERT INTO [ReadModel-TestAttributes] ([Id], [UpdatedTime]) VALUES (@Id, @UpdatedTime)");
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateUpdateSql<TestAttributesReadModel>().Trim();
 
             // Assert
-            sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET UpdatedTime = @UpdatedTime WHERE Id = @Id");
+            sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET [UpdatedTime] = @UpdatedTime WHERE [Id] = @Id");
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateUpdateSql<TestVersionedAttributesReadModel>().Trim();
 
             // Assert
-            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET FancyVersion = @FancyVersion WHERE CoolId = @CoolId AND FancyVersion = @_PREVIOUS_VERSION");
+            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET [FancyVersion] WHERE [CoolId] = @CoolId AND [FancyVersion] = @_PREVIOUS_VERSION");
         }
 
         [Test]
