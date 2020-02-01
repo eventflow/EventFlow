@@ -54,11 +54,17 @@ namespace EventFlow.PostgreSql.TestsHelpers
             var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS");
             var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_USER", EnvironmentVariableTarget.Machine);
 
+            
 
             environmentServer = "localhost";
             environmentPort = "5432";
             envrionmentUsername = "postgres";
 
+            environmentServer = "event-flow2.postgres.database.azure.com";
+            environmentPort = "5432";
+            environmentPassword = "event@Flow123";
+            envrionmentUsername = "eventFlow@event-flow2";
+            
             connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
                 ? @"Server=localhost"
                 : $"Server={environmentServer}");

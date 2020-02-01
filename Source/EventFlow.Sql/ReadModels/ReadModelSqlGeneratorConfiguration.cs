@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2018 Rasmus Mikkelsen
+// Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,16 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Sql.ReadModels;
-
-namespace EventFlow.PostgreSql.ReadModels
+namespace EventFlow.Sql.ReadModels
 {
-    public class PostgresReadModelSqlGenerator : ReadModelSqlGenerator
+    public class ReadModelSqlGeneratorConfiguration
     {
-        public PostgresReadModelSqlGenerator()
-            : base(new ReadModelSqlGeneratorConfiguration("\"", "\"", string.Empty, string.Empty))
+        public ReadModelSqlGeneratorConfiguration(
+            string tableQuotedIdentifierPrefix,
+            string tableQuotedIdentifierSuffix,
+            string columnQuotedIdentifierPrefix,
+            string columnQuotedIdentifierSuffix)
         {
+            TableQuotedIdentifierPrefix = tableQuotedIdentifierPrefix;
+            TableQuotedIdentifierSuffix = tableQuotedIdentifierSuffix;
+            ColumnQuotedIdentifierPrefix = columnQuotedIdentifierPrefix;
+            ColumnQuotedIdentifierSuffix = columnQuotedIdentifierSuffix;
         }
+
+        public string TableQuotedIdentifierPrefix { get; set; }
+
+        public string TableQuotedIdentifierSuffix { get; set; }
+
+        public string ColumnQuotedIdentifierPrefix { get; set; }
+
+        public string ColumnQuotedIdentifierSuffix { get; set; }
     }
 }

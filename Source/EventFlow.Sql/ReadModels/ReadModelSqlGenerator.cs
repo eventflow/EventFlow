@@ -36,8 +36,7 @@ namespace EventFlow.Sql.ReadModels
 {
     public class ReadModelSqlGenerator : IReadModelSqlGenerator
     {
-        protected string QuotedIdentifierPrefix;
-        protected string QuotedIdentifierSuffix;
+        protected ReadModelSqlGeneratorConfiguration Configuration;
 
         private static readonly ConcurrentDictionary<Type, string>
             TableNames = new ConcurrentDictionary<Type, string>();
@@ -59,8 +58,12 @@ namespace EventFlow.Sql.ReadModels
 
         public ReadModelSqlGenerator()
         {
-            QuotedIdentifierPrefix = "[";
-            QuotedIdentifierSuffix = "]";
+            Configuration = new ReadModelSqlGeneratorConfiguration("[", "]", "[", "]");
+        }
+
+        protected ReadModelSqlGenerator(ReadModelSqlGeneratorConfiguration configuration)
+        {
+            Configuration = configuration;
         }
 
         public string CreateInsertSql<TReadModel>() where TReadModel : IReadModel
@@ -74,7 +77,9 @@ namespace EventFlow.Sql.ReadModels
 
             var insertColumns = GetInsertColumns<TReadModel>().ToList();
 
-            var columnList = insertColumns.SelectToQuotedColumns(QuotedIdentifierPrefix, QuotedIdentifierSuffix)
+            var columnList = insertColumns.SelectToQuotedColumns(
+                    Configuration.ColumnQuotedIdentifierPrefix,
+                    Configuration.ColumnQuotedIdentifierSuffix)
                 .JoinToSql();
             var parameterList = insertColumns.SelectToSqlParameters().JoinToSql();
 
@@ -96,9 +101,9 @@ namespace EventFlow.Sql.ReadModels
 
             var tableName = GetTableName<TReadModel>();
             var identityColumn = GetIdentityColumn<TReadModel>();
-            
+
             sql = $"SELECT * FROM {tableName} WHERE {identityColumn} = @EventFlowReadModelId";
-            
+
             _selectSqls[readModelType] = sql;
 
             return sql;
@@ -113,7 +118,7 @@ namespace EventFlow.Sql.ReadModels
             }
 
             sql =
-                $"DELETE FROM {GetTableName<TReadModel>()} WHERE [{GetIdentityColumn<TReadModel>()}] = @EventFlowReadModelId";
+                $"DELETE FROM {GetTableName<TReadModel>()} WHERE {Configuration.ColumnQuotedIdentifierPrefix}{GetIdentityColumn<TReadModel>()}{Configuration.ColumnQuotedIdentifierSuffix} = @EventFlowReadModelId";
             _deleteSqls[readModelType] = sql;
 
             return sql;
@@ -131,15 +136,17 @@ namespace EventFlow.Sql.ReadModels
             var versionColumn = GetVersionColumn<TReadModel>();
             var versionCheck = string.IsNullOrEmpty(versionColumn)
                 ? string.Empty
-                : $"AND [{versionColumn}] = @_PREVIOUS_VERSION";
+                : $"AND {Configuration.ColumnQuotedIdentifierPrefix}{versionColumn}{Configuration.ColumnQuotedIdentifierSuffix} = @_PREVIOUS_VERSION";
 
             var updateColumns = GetUpdateColumns<TReadModel>()
-                .SelectToUpdateQuotedColumnsByParameters(QuotedIdentifierPrefix, QuotedIdentifierSuffix)
+                .SelectToUpdateQuotedColumnsByParameters(
+                    Configuration.ColumnQuotedIdentifierPrefix,
+                    Configuration.ColumnQuotedIdentifierSuffix)
                 .JoinToSql();
 
             var tableName = GetTableName<TReadModel>();
-            
-            sql = $"UPDATE {tableName} SET {updateColumns} WHERE [{identityColumn}] = @{identityColumn} {versionCheck}";
+
+            sql = $"UPDATE {tableName} SET {updateColumns} WHERE {Configuration.ColumnQuotedIdentifierPrefix}{identityColumn}{Configuration.ColumnQuotedIdentifierSuffix} = @{identityColumn} {versionCheck}";
 
             _updateSqls[readModelType] = sql;
 
@@ -173,8 +180,8 @@ namespace EventFlow.Sql.ReadModels
                 readModelType,
                 t =>
                 {
-                    var qip = QuotedIdentifierPrefix;
-                    var qis = QuotedIdentifierSuffix;
+                    var qip = Configuration.TableQuotedIdentifierPrefix;
+                    var qis = Configuration.TableQuotedIdentifierSuffix;
 
                     var tableAttribute = t.GetTypeInfo().GetCustomAttribute<TableAttribute>(false);
                     var table = string.IsNullOrEmpty(tableAttribute?.Name)
