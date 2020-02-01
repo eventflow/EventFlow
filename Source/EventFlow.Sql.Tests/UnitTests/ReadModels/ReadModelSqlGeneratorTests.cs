@@ -62,7 +62,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateUpdateSql<TestVersionedAttributesReadModel>().Trim();
 
             // Assert
-            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET [FancyVersion] WHERE [CoolId] = @CoolId AND [FancyVersion] = @_PREVIOUS_VERSION");
+            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET [FancyVersion] = @FancyVersion WHERE [CoolId] = @CoolId AND [FancyVersion] = @_PREVIOUS_VERSION");
         }
 
         [Test]
