@@ -1,6 +1,7 @@
 ### New in 0.78 (not released yet)
 
-* _Nothing yet_
+* Updated LibLog provider to support structured logging with NLog 4.5. 
+  Reduced memory allocations for log4net-provider.
 
 ### New in 0.77.4077 (released 2019-12-10)
 
