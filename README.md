@@ -115,6 +115,7 @@ to the documentation.
 * [**Read models:**](https://docs.geteventflow.net/ReadStores.html)
   Denormalized representation of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
+  For the SQL storage types the queries are being generated automatically with quoted columns and table names.
   * [Elasticsearch](https://docs.geteventflow.net/ReadStores.html#elasticsearch)
   * [In-memory](https//docs.geteventflow.net/ReadStores.html#in-memory) - only for test
   * [Microsoft SQL Server](https://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
