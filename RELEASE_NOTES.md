@@ -2,6 +2,18 @@
 
 * Updated LibLog provider to support structured logging with NLog 4.5. 
   Reduced memory allocations for log4net-provider.
+* Added quoting to the SQL query generator for the column names
+```sql
+  -- query before the fix
+    UPDATE [ReadModel-TestAttributes]
+    SET UpdatedTime = @UpdatedTime
+    WHERE Id = @Id
+  
+  -- query after the fix
+    UPDATE [ReadModel-TestAttributes]
+    SET [UpdatedTime] = @UpdatedTime
+    WHERE [Id] = @Id
+  ```
 
 ### New in 0.77.4077 (released 2019-12-10)
 

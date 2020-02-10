@@ -58,3 +58,6 @@ If you think your name is missing from the list, create a pull-request.
 
 * MongoDB cleanup and move to main repository
 
+### [Przemysław Andruszewski](https://github.com/przemyslawandruszewski)
+
+* SQL Server and PostgreSQL query generation cleanup
