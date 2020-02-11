@@ -89,6 +89,19 @@ the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and th
   * **[RestAirline:](https://github.com/twzhangyang/RestAirline)**
 	A classic DDD with CQRS-ES, Hypermedia API project based on EventFlow. It's targeted to ASP.NET Core 2.2 and can be deployed to docker and k8s.
 	
+* **[Full Example:](https://github.com/OKTAYKIR/EventFlow.Example)**
+	A console application on .NET Core 2.2. You can up the services using [docker-compose file](https://github.com/OKTAYKIR/EventFlow.Example/blob/master/build/docker-compose.yml). Docker-compose file include EventStore, RabbitMq, MongoDb, and PostgreSQL. It include following EventFlow concepts:
+	* Aggregates
+	* Command bus and commands
+	* Synchronous subscriber
+	* Event store ([GES](https://eventstore.com/))
+	* In-memory read model.
+	* Snapshots ([MongoDb](https://www.mongodb.com/))
+	* Sagas
+	* Event publising (In-memory, [RabbitMq](https://www.rabbitmq.com/))
+	* Metadata
+	* Command bus decorator, custom value object, custom execution result, ...
+	
 ### Overview
 
 Here is a list of the EventFlow concepts. Use the links to navigate
