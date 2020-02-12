@@ -14,6 +14,8 @@
     SET [UpdatedTime] = @UpdatedTime
     WHERE [Id] = @Id
   ```
+* Fixed: Do not log about event upgraders if none is found for an event
+* Fixed: Add default `null` predicate to `AddCommands` and `AddJobs`
 
 ### New in 0.77.4077 (released 2019-12-10)
 
