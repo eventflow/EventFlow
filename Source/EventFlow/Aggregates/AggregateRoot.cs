@@ -42,10 +42,10 @@ namespace EventFlow.Aggregates
         private readonly List<IUncommittedEvent> _uncommittedEvents = new List<IUncommittedEvent>();
         private CircularBuffer<ISourceId> _previousSourceIds = new CircularBuffer<ISourceId>(10);
 
-        public IAggregateName Name => AggregateName;
+        public virtual IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
         public int Version { get; protected set; }
-        public bool IsNew => Version <= 0;
+        public virtual bool IsNew => Version <= 0;
         public IEnumerable<IUncommittedEvent> UncommittedEvents => _uncommittedEvents;
 
         static AggregateRoot()
@@ -55,8 +55,11 @@ namespace EventFlow.Aggregates
 
         protected AggregateRoot(TIdentity id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
-            if ((this as TAggregate) == null)
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            if (!(this is TAggregate))
             {
                 throw new InvalidOperationException(
                     $"Aggregate '{GetType().PrettyPrint()}' specifies '{typeof(TAggregate).PrettyPrint()}' as generic argument, it should be its own type");
@@ -70,7 +73,7 @@ namespace EventFlow.Aggregates
             _previousSourceIds = new CircularBuffer<ISourceId>(count);
         }
 
-        public bool HasSourceId(ISourceId sourceId)
+        public virtual bool HasSourceId(ISourceId sourceId)
         {
             return !sourceId.IsNone() && _previousSourceIds.Any(s => s.Value == sourceId.Value);
         }
@@ -78,7 +81,10 @@ namespace EventFlow.Aggregates
         protected virtual void Emit<TEvent>(TEvent aggregateEvent, IMetadata metadata = null)
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
         {
-            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
+            if (aggregateEvent == null)
+            {
+                throw new ArgumentNullException(nameof(aggregateEvent));
+            }
 
             var aggregateSequenceNumber = Version + 1;
             var eventId = EventId.NewDeterministic(
@@ -135,9 +141,12 @@ namespace EventFlow.Aggregates
             return domainEvents;
         }
 
-        public void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
+        public virtual void ApplyEvents(IReadOnlyCollection<IDomainEvent> domainEvents)
         {
-            if (domainEvents == null) throw new ArgumentNullException(nameof(domainEvents));
+            if (domainEvents == null)
+            {
+                throw new ArgumentNullException(nameof(domainEvents));
+            }
 
             foreach (var domainEvent in domainEvents)
             {
@@ -169,7 +178,10 @@ namespace EventFlow.Aggregates
 
         protected virtual void ApplyEvent(IAggregateEvent<TAggregate, TIdentity> aggregateEvent)
         {
-            if (aggregateEvent == null) throw new ArgumentNullException(nameof(aggregateEvent));
+            if (aggregateEvent == null)
+            {
+                throw new ArgumentNullException(nameof(aggregateEvent));
+            }
 
             var eventType = aggregateEvent.GetType();
             if (_eventHandlers.ContainsKey(eventType))

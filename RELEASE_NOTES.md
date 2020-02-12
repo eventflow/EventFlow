@@ -2,6 +2,8 @@
 
 * New: Updated LibLog provider to support structured logging with NLog 4.5. 
   Reduced memory allocations for log4net-provider
+* New: Made several methods in `AggregateRoot<,>` `virtual` to allow
+  easier customization
 * Fixed: Added quoting to the SQL query generator for the column names
 ```sql
   -- query before the fix
