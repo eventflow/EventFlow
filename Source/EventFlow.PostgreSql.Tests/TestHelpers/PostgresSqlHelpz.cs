@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,8 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.PostgreSql.TestsHelpers;
+
+// ReSharper disable StringLiteralTypo
 
 namespace EventFlow.PostgreSql.Tests.TestHelpers
 {
@@ -54,20 +56,10 @@ namespace EventFlow.PostgreSql.Tests.TestHelpers
             var password = GetEnvironmentVariableOrDefault("EVENTFLOW_POSTGRESQL_PASS", "postgres");
             var username = GetEnvironmentVariableOrDefault("EVENTFLOW_POSTGRESQL_USER", "Password12!");
 
-            connectionStringParts.Add(string.IsNullOrEmpty(server)
-                ? @"Server=localhost"
-                : $"Server={server}");
-            connectionStringParts.Add(string.IsNullOrEmpty(username)
-                ? @"User Id=postgres"
-                : $"User Id={username}");
-            connectionStringParts.Add(string.IsNullOrEmpty(port)
-                ? @"Port=5432"
-                : $"Port={port}");
-
-            if (!string.IsNullOrEmpty(password))
-            {
-                connectionStringParts.Add($"Password={password}");
-            }
+            connectionStringParts.Add($"Server={server}");
+            connectionStringParts.Add($"User Id={username}");
+            connectionStringParts.Add($"Port={port}");
+            connectionStringParts.Add($"Password={password}");
 
             return new PostgreSqlConnectionString(string.Join(";", connectionStringParts));
         }
