@@ -1,5 +1,7 @@
 ### New in 0.78 (not released yet)
 
+* New: Added .NET Core 3.1 target for the `EventFlow`
+  and `EventFlow.EntityFramework` packages
 * Updated LibLog provider to support structured logging with NLog 4.5. 
   Reduced memory allocations for log4net-provider.
 * Added quoting to the SQL query generator for the column names
