@@ -28,19 +28,15 @@ using System.Net;
 using System.Reflection;
 using EventFlow.Configuration;
 using EventFlow.Elasticsearch.Extensions;
-using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
-using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
-using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Nest;
 using NUnit.Framework;
-using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 {
@@ -56,6 +52,10 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             var elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+            if (string.IsNullOrEmpty(elasticsearchUrl))
+            {
+                elasticsearchUrl = "http://localhost:9200";
+            }
            
             var resolver = eventFlowOptions
                 .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
