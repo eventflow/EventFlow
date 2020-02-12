@@ -1,6 +1,23 @@
-### New in 0.77 (not released yet)
+### New in 0.78 (not released yet)
 
-* New: The `EventFlow.AspNetCore` NuGet package now has ASPNET Core 3 support
+* Updated LibLog provider to support structured logging with NLog 4.5. 
+  Reduced memory allocations for log4net-provider.
+* Added quoting to the SQL query generator for the column names
+```sql
+  -- query before the fix
+    UPDATE [ReadModel-TestAttributes]
+    SET UpdatedTime = @UpdatedTime
+    WHERE Id = @Id
+  
+  -- query after the fix
+    UPDATE [ReadModel-TestAttributes]
+    SET [UpdatedTime] = @UpdatedTime
+    WHERE [Id] = @Id
+  ```
+
+### New in 0.77.4077 (released 2019-12-10)
+
+* New: The `EventFlow.AspNetCore` NuGet package now has ASP.NET Core 3 support
 
 ### New in 0.76.4014 (released 2019-10-19)
 

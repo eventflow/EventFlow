@@ -7,9 +7,6 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-      </p>
-      <p>
         <a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
       </p>
       <p>
@@ -21,8 +18,13 @@
         <a href="https://ci.appveyor.com/project/eventflow/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
       </p>
       <p>
+        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+      </p>
+     <!--
+      <p>
         <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
       </p>
+      -->
     </td>
     <td  width="25%">
       Think EventFlow is great,<br/>
@@ -87,6 +89,19 @@ the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and th
   * **[RestAirline:](https://github.com/twzhangyang/RestAirline)**
 	A classic DDD with CQRS-ES, Hypermedia API project based on EventFlow. It's targeted to ASP.NET Core 2.2 and can be deployed to docker and k8s.
 	
+* **[Full Example:](https://github.com/OKTAYKIR/EventFlow.Example)**
+	A console application on .NET Core 2.2. You can up the services using [docker-compose file](https://github.com/OKTAYKIR/EventFlow.Example/blob/master/build/docker-compose.yml). Docker-compose file include EventStore, RabbitMq, MongoDb, and PostgreSQL. It include following EventFlow concepts:
+	* Aggregates
+	* Command bus and commands
+	* Synchronous subscriber
+	* Event store ([GES](https://eventstore.com/))
+	* In-memory read model.
+	* Snapshots ([MongoDb](https://www.mongodb.com/))
+	* Sagas
+	* Event publising (In-memory, [RabbitMq](https://www.rabbitmq.com/))
+	* Metadata
+	* Command bus decorator, custom value object, custom execution result, ...
+	
 ### Overview
 
 Here is a list of the EventFlow concepts. Use the links to navigate
@@ -113,6 +128,7 @@ to the documentation.
 * [**Read models:**](https://docs.geteventflow.net/ReadStores.html)
   Denormalized representation of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
+  For the SQL storage types the queries are being generated automatically with quoted columns and table names.
   * [Elasticsearch](https://docs.geteventflow.net/ReadStores.html#elasticsearch)
   * [In-memory](https//docs.geteventflow.net/ReadStores.html#in-memory) - only for test
   * [Microsoft SQL Server](https://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
@@ -353,7 +369,7 @@ share it by creating an issue with the link.
 * **Why _not_ to implement "unit of work" in DDD**
   * [Unit Of Work is the new Singleton](https://blog.sapiensworks.com/post/2014/06/04/Unit-Of-Work-is-the-new-Singleton.aspx)
     by Mike Mogosanu
-  * [The Unit of Work and Transactions In Domain-Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW/)
+  * [The Unit of Work and Transactions In Domain-Driven Design](https://blog.sapiensworks.com/post/2015/09/02/DDD-and-UoW)
     by Mike Mogosanu
 
 

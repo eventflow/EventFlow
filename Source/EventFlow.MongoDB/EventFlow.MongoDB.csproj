@@ -8,8 +8,9 @@
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow.MongoDB</Title>
     <Authors>Jan Feyen, Warren Pieterse</Authors>
-    <Owners>Jan Feyen, Warren Pieterse</Owners>
-    <Copyright>Copyright (c) Jan Feyen/Warren Pieterse 2015 - 2017</Copyright>
+    <Owners>Rasmus Mikkelsen</Owners>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
     <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
     <RepositoryType>git</RepositoryType>
