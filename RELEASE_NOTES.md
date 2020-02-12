@@ -1,8 +1,8 @@
 ### New in 0.78 (not released yet)
 
-* Updated LibLog provider to support structured logging with NLog 4.5. 
-  Reduced memory allocations for log4net-provider.
-* Added quoting to the SQL query generator for the column names
+* New: Updated LibLog provider to support structured logging with NLog 4.5. 
+  Reduced memory allocations for log4net-provider
+* Fixed: Added quoting to the SQL query generator for the column names
 ```sql
   -- query before the fix
     UPDATE [ReadModel-TestAttributes]
