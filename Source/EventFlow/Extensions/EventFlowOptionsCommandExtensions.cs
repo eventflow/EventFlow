@@ -40,7 +40,7 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions AddCommands(
             this IEventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
-            Predicate<Type> predicate)
+            Predicate<Type> predicate = null)
         {
             predicate = predicate ?? (t => true);
             var commandTypes = fromAssembly
