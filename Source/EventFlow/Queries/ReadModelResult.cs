@@ -21,48 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Core;
 using EventFlow.ReadStores;
 
 namespace EventFlow.Queries
 {
-    public class ReadModelByIdQuery<TReadModel> : IQuery<ReadModelResult<TReadModel>>
+    public class ReadModelResult<TReadModel>
         where TReadModel : class, IReadModel
     {
-        public string Id { get; }
+        public bool HasResult => ReadModel != null;
+        public TReadModel ReadModel { get; }
 
-        public ReadModelByIdQuery(IIdentity identity)
-            : this(identity.Value)
+        public ReadModelResult(TReadModel readModel)
         {
-        }
-
-        public ReadModelByIdQuery(string id)
-        {
-            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-
-            Id = id;
-        }
-    }
-
-    public class ReadModelByIdQueryHandler<TReadStore, TReadModel> : IQueryHandler<ReadModelByIdQuery<TReadModel>, ReadModelResult<TReadModel>>
-        where TReadStore : IReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel
-    {
-        private readonly TReadStore _readStore;
-
-        public ReadModelByIdQueryHandler(
-            TReadStore readStore)
-        {
-            _readStore = readStore;
-        }
-
-        public async Task<ReadModelResult<TReadModel>> ExecuteQueryAsync(ReadModelByIdQuery<TReadModel> query, CancellationToken cancellationToken)
-        {
-            var readModelEnvelope = await _readStore.GetAsync(query.Id, cancellationToken).ConfigureAwait(false);
-            return new ReadModelResult<TReadModel>(readModelEnvelope.ReadModel);
+            ReadModel = readModel;
         }
     }
 }

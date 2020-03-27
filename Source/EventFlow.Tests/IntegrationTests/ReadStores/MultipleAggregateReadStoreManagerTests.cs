@@ -68,8 +68,9 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
             var readModelAb = await QueryProcessor.ProcessAsync(
                 new ReadModelByIdQuery<ReadModelAB>(ReadModelId),
                 CancellationToken.None);
-            
-            readModelAb.Indexes.Should().BeEquivalentTo(
+
+            readModelAb.HasResult.Should().BeTrue();
+            readModelAb.ReadModel.Indexes.Should().BeEquivalentTo(
                 new []{0, 1, 2, 3},
                 o => o.WithStrictOrdering());
         }

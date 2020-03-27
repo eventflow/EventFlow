@@ -43,7 +43,7 @@ namespace EventFlow.Extensions
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IReadStoreManager, SingleAggregateReadStoreManager<TReadStore, TReadModel>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>,ReadModelResult<TReadModel>>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
 
@@ -57,7 +57,7 @@ namespace EventFlow.Extensions
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IReadStoreManager, AggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, ReadModelResult<TReadModel>>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
 
@@ -70,7 +70,7 @@ namespace EventFlow.Extensions
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
-                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+                    f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, ReadModelResult<TReadModel>>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
                 });
         }
 

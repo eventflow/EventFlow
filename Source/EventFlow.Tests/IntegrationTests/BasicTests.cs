@@ -125,7 +125,8 @@ namespace EventFlow.Tests.IntegrationTests
                 // Assert
                 pingReadModels.Should().HaveCount(2);
                 testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModelFromQuery1.DomainErrorAfterFirstReceived.Should().BeTrue();
+                testReadModelFromQuery1.HasResult.Should().BeTrue();
+                testReadModelFromQuery1.ReadModel.DomainErrorAfterFirstReceived.Should().BeTrue();
                 testReadModelFromQuery2.Should().NotBeNull();
             }
         }
