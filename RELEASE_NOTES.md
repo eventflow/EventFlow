@@ -2,9 +2,12 @@
 
 * New: Added .NET Core 3.1 target for the `EventFlow`
   and `EventFlow.EntityFramework` packages
-* Updated LibLog provider to support structured logging with NLog 4.5. 
-  Reduced memory allocations for log4net-provider.
 * Added quoting to the SQL query generator for the column names
+* New: Updated LibLog provider to support structured logging with NLog 4.5. 
+  Reduced memory allocations for log4net-provider
+* New: Made several methods in `AggregateRoot<,>` `virtual` to allow
+  easier customization
+* Fixed: Added quoting to the SQL query generator for the column names
 ```sql
   -- query before the fix
     UPDATE [ReadModel-TestAttributes]
@@ -16,6 +19,8 @@
     SET [UpdatedTime] = @UpdatedTime
     WHERE [Id] = @Id
   ```
+* Fixed: Do not log about event upgraders if none is found for an event
+* Fixed: Add default `null` predicate to `AddCommands` and `AddJobs`
 
 ### New in 0.77.4077 (released 2019-12-10)
 
