@@ -73,6 +73,12 @@ the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and th
    [complete example](#complete-example). It features entities, a read model for 
    an entity, delete on read models, specifications and snapshots.
 
+   * **[Racetimes for Azure Functions:](https://github.com/craignicol/Eventflow.Example.Racetimes)**
+     Extends the above example to support the HTTP access via Azure Functions
+     
+   * **[Racetimes for Azure Functions and Event Grid:](https://github.com/craignicol/Eventflow.Example.Racetimes/tree/feature/event-grid-as-extension)**
+     Further extends the Azure Functions Example to publish to Event Grid, following the RabbitMQ pattern
+
  * **[.NET Core:](https://github.com/johnny-chan/EventFlowDemo)**
 	A Web API running .NET Core 2.2 using the event flow. It uses the pre-defined 
 	command/entities/events from the [complete example](#complete-example). There are endpoints to 
