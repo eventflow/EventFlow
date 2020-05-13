@@ -29,6 +29,9 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
+// Disable Obsolete warning
+#pragma warning disable 612 
+
 namespace EventFlow.Core
 {
     using EventTask = Tuple<SendOrPostCallback, object>;
@@ -42,6 +45,7 @@ namespace EventFlow.Core
         /// <summary>
         /// A class to bridge synchronous asynchronous methods
         /// </summary>
+        [Obsolete]
         public class AsyncBridge : IDisposable
         {
             private readonly ExclusiveSynchronizationContext _currentContext;

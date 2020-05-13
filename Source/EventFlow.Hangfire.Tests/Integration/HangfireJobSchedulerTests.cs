@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,6 @@ using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Hangfire.SqlServer;
-using Microsoft.Owin.Hosting;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
@@ -44,7 +43,7 @@ namespace EventFlow.Hangfire.Tests.Integration
     public class HangfireJobSchedulerTests : TestSuiteForScheduler
     {
         private IMsSqlDatabase _msSqlDatabase;
-        private IDisposable _webApp;
+        //private IDisposable _webApp;
         private BackgroundJobServer _backgroundJobServer;
         private EventFlowResolverActivator _eventFlowResolverActivator;
 
@@ -66,7 +65,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                 .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value, sqlServerStorageOptions)
                 .UseActivator(new DelegatingActivator(() => _eventFlowResolverActivator));
 
-            _webApp = WebApp.Start("http://127.0.0.1:9001", app => app.UseHangfireDashboard());
+            //_webApp = WebApp.Start("http://127.0.0.1:9001", app => app.UseHangfireDashboard());
             _backgroundJobServer = new BackgroundJobServer(backgroundJobServerOptions);
         }
 
@@ -74,7 +73,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         public void OneTimeTearDown()
         {
             _backgroundJobServer.DisposeSafe("Hangfire background job server");
-            _webApp.DisposeSafe("Web APP");
+            //_webApp.DisposeSafe("Web APP");
             _msSqlDatabase.DisposeSafe("MSSQL database");
         }
 
