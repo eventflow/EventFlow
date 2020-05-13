@@ -91,8 +91,7 @@ namespace EventFlow.RabbitMQ.Tests
                     throw new TimeoutException($"Timed out after {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
                 }
 
-                BasicDeliverEventArgs basicDeliverEventArgs;
-                if (!_receivedMessages.TryTake(out basicDeliverEventArgs, TimeSpan.FromMilliseconds(100)))
+                if (!_receivedMessages.TryTake(out var basicDeliverEventArgs, TimeSpan.FromMilliseconds(100)))
                 {
                     continue;
                 }

@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,6 @@ using EventFlow.MongoDB.Extensions;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.Queries;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels;
-using EventFlow.MongoDB.ValueObjects;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
@@ -38,14 +37,12 @@ using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Mongo2Go;
-using MongoDB.Driver;
 using NUnit.Framework;
 
 namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
 {
     [Category(Categories.Integration)]
     [TestFixture]
-    [NUnit.Framework.Timeout(30000)]
     public class MongoDbReadModelStoreTests : TestSuiteForReadModelStore
     {
         protected override Type ReadModelType { get; } = typeof(MongoDbThingyReadModel);
