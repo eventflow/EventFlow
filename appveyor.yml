@@ -1,17 +1,25 @@
 init:
-  - git config --global core.autocrlf input
+  - ps: git config --global core.autocrlf input
+  - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
+  - ps: Restart-Service docker
 
-version: 0.76.{build}
+version: 0.79.{build}
 
 skip_tags: true
 
 build_script:
   - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 --bootstrap; .\build.ps1 -Target All;"
 
-image: Visual Studio 2017
+# https://www.appveyor.com/docs/services-databases/
+# https://www.appveyor.com/docs/windows-images-software/
+
+image: Visual Studio 2019
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
+  EVENTFLOW_MSSQL_SERVER: (local)\SQL2017
+  EVENTFLOW_MSSQL_USER: sa
+  EVENTFLOW_MSSQL_PASS: Password12!
 
 test: off
 
@@ -19,7 +27,7 @@ artifacts:
   - path: Build\Packages\*nupkg
 
 services:
-  - mssql2014
+  - mssql2017
   - postgresql101
 
 on_success:

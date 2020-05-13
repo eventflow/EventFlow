@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 
 namespace EventFlow.TestHelpers.MsSql
 {
@@ -43,28 +44,36 @@ namespace EventFlow.TestHelpers.MsSql
         {
             var databaseName = $"{label}_{DateTime.Now:yyyy-MM-dd-HH-mm}_{Guid.NewGuid():N}";
 
-            var connectionstringParts = new List<string>
+            var connectionStringBuilder = new SqlConnectionStringBuilder()
                 {
-                    $"Database={databaseName}"
+                    InitialCatalog = databaseName,
+                    DataSource = FirstNonEmpty(
+                        Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
+                        ".")
                 };
 
-            var environmentServer = Environment.GetEnvironmentVariable("HELPZ_MSSQL_SERVER");
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PASS");
-            var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER");
+            var password = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_PASS");
+            var username = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_USER");
 
-            connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
-                ? @"Server=."
-                : $"Server={environmentServer}");
-            connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
-                ? @"Integrated Security=True"
-                : $"User Id={envrionmentUsername}");
-            connectionstringParts.Add("Connection Timeout=60");
-            if (!string.IsNullOrEmpty(environmentPassword))
+            if (!string.IsNullOrEmpty(username) &&
+                !string.IsNullOrEmpty(password))
             {
-                connectionstringParts.Add($"Password={environmentPassword}");
+                connectionStringBuilder.UserID = username;
+                connectionStringBuilder.Password = password;
+            }
+            else
+            {
+                connectionStringBuilder.IntegratedSecurity = true;
             }
 
-            return new MsSqlConnectionString(string.Join(";", connectionstringParts));
+            Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
+
+            return new MsSqlConnectionString(connectionStringBuilder.ConnectionString);
+        }
+
+        private static string FirstNonEmpty(params string[] parts)
+        {
+            return parts.First(s => !string.IsNullOrEmpty(s));
         }
     }
 }

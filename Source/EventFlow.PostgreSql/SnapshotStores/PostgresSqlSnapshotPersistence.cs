@@ -1,6 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rida Messaoudene
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,11 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Logs;

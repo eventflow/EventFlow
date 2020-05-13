@@ -130,12 +130,16 @@ namespace EventFlow.RabbitMQ.Integrations
                 basicProperties.ContentEncoding = "utf-8";
                 basicProperties.ContentType = "application/json";
                 basicProperties.MessageId = message.MessageId.Value;
-
-                // TODO: Evil or not evil? Do a Task.Run here?
-                model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, basicProperties, bytes);
+                PublishSingleMessage(model, message, bytes, basicProperties);
             }
 
             return Task.FromResult(0);
+        }
+
+        protected virtual void PublishSingleMessage(IModel model, RabbitMqMessage message, byte[] bytes, IBasicProperties basicProperties)
+        {
+            // TODO: Evil or not evil? Do a Task.Run here?
+            model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, basicProperties, bytes);
         }
 
         public void Dispose()

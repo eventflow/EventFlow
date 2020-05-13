@@ -1,6 +1,45 @@
-### New in 0.76 (not released yet)
+### New in 0.79 (not released yet)
 
-* _Nothing yet_
+* New: Added .NET Core 3.1 target for the `EventFlow`
+  and `EventFlow.EntityFramework` packages
+* Added quoting to the SQL query generator for the column names
+
+### New in 0.78.4205 (released 2020-05-11)
+
+* New: Updated LibLog provider to support structured logging with NLog 4.5. 
+  Reduced memory allocations for log4net-provider
+* New: Made several methods in `AggregateRoot<,>` `virtual` to allow
+  easier customization
+* Fixed: Added quoting to the SQL query generator for the column names
+```sql
+  -- query before the fix
+    UPDATE [ReadModel-TestAttributes]
+    SET UpdatedTime = @UpdatedTime
+    WHERE Id = @Id
+  
+  -- query after the fix
+    UPDATE [ReadModel-TestAttributes]
+    SET [UpdatedTime] = @UpdatedTime
+    WHERE [Id] = @Id
+  ```
+* Fixed: Do not log about event upgraders if none is found for an event
+* Fixed: Add default `null` predicate to `AddCommands` and `AddJobs`
+
+### New in 0.77.4077 (released 2019-12-10)
+
+* New: The `EventFlow.AspNetCore` NuGet package now has ASP.NET Core 3 support
+
+### New in 0.76.4014 (released 2019-10-19)
+
+* New: Mongo DB read model store Queryable:
+  ```csharp
+  MongoDbReadModelStore readModelStore;
+  IQueryable<TReadModel> queryable = readModelStore.AsQueryable();
+  ```
+* New: Moved publish of messages in `RabbitMqPublisher` to a new virtual
+  method to ease reuse and customization
+* Fixed: MongoDB read models no longer has the `new()` generic requirement,
+  which aligns read model requirements with the rest of EventFlow
 
 ### New in 0.75.3970 (released 2019-09-12)
 

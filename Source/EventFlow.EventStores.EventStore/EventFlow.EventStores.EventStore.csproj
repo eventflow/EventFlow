@@ -9,7 +9,7 @@
     <Title>EventFlow.EventStores.EventStore</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2018</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
     <Description>Event Store event store for EventFlow. Download it from https://geteventstore.com/</Description>
     <PackageTags>CQRS ES event sourcing EventStore</PackageTags>
     <RepositoryType>git</RepositoryType>
@@ -23,7 +23,7 @@
    
   <ItemGroup>
     <PackageReference Include="EventStore.Client" Version="5.0.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
