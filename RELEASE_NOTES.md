@@ -1,6 +1,8 @@
 ### New in 0.79 (not released yet)
 
-* _Nothing yet_
+* New: Added .NET Core 3.1 target for the `EventFlow`
+  and `EventFlow.EntityFramework` packages
+* Added quoting to the SQL query generator for the column names
 
 ### New in 0.78.4205 (released 2020-05-11)
 
