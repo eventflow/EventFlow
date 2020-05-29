@@ -42,7 +42,7 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL"));
+            var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL") ?? "tcp://admin:changeit@localhost:1113");
 
             var connectionSettings = ConnectionSettings.Create()
                 .EnableVerboseLogging()

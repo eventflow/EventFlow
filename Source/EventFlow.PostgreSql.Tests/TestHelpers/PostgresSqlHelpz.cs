@@ -51,7 +51,7 @@ namespace EventFlow.PostgreSql.TestsHelpers
 
             var environmentServer = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_SERVER", EnvironmentVariableTarget.Machine);
             var environmentPort = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PORT", EnvironmentVariableTarget.Machine);
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS");
+            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS") ?? "Password12!";
             var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_USER", EnvironmentVariableTarget.Machine);
 
             
