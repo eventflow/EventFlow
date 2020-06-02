@@ -141,7 +141,7 @@ namespace EventFlow.Tests.IntegrationTests
                     v => v.Should().BeTrue(),
                     v => v.Should().BeFalse()),
 
-                new Step<IReadOnlyCollection<ICommittedDomainEvent>>(
+                new Step<IReadOnlyCollection<ICommittedDomainEvent<string>>>(
                     CancellationBoundary.BeforeUpdatingReadStores,
                     _eventPersistence.CommitCompletionSource,
                     () => _eventPersistence.LoadCommittedEventsAsync(id, 0, CancellationToken.None),
@@ -190,7 +190,7 @@ namespace EventFlow.Tests.IntegrationTests
                 {
                     s.Decorate<IInMemoryReadStore<InMemoryThingyReadModel>>((c, i) =>
                         _readStore ?? (_readStore = new ManualReadStore(i)));
-                    s.Decorate<IEventPersistence>((c, i) =>
+                    s.Decorate<IEventPersistence<string>>((c, i) =>
                         _eventPersistence ?? (_eventPersistence = new ManualEventPersistence(i)));
                     s.Register<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyPingCommand>>(c =>
                         _commandHandler);
@@ -348,11 +348,11 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        private class ManualEventPersistence : IEventPersistence
+        private class ManualEventPersistence : IEventPersistence<string>
         {
-            private readonly IEventPersistence _inner;
+            private readonly IEventPersistence<string> _inner;
 
-            public ManualEventPersistence(IEventPersistence inner)
+            public ManualEventPersistence(IEventPersistence<string> inner)
             {
                 _inner = inner;
             }
@@ -366,7 +366,7 @@ namespace EventFlow.Tests.IntegrationTests
                 return _inner.LoadAllCommittedEvents(globalPosition, pageSize, cancellationToken);
             }
 
-            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id,
+            public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(IIdentity id,
                 IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
             {
                 var result = await _inner.CommitEventsAsync(id, serializedEvents, cancellationToken);
@@ -374,7 +374,7 @@ namespace EventFlow.Tests.IntegrationTests
                 return result;
             }
 
-            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
+            public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(IIdentity id,
                 int fromEventSequenceNumber, CancellationToken cancellationToken)
             {
                 var result = await _inner.LoadCommittedEventsAsync(id, fromEventSequenceNumber, cancellationToken);

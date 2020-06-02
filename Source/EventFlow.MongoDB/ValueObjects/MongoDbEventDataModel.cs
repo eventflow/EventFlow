@@ -29,7 +29,7 @@ using Newtonsoft.Json;
 
 namespace EventFlow.MongoDB.ValueObjects
 {
-    public class MongoDbEventDataModel : ValueObject, ICommittedDomainEvent
+    public class MongoDbEventDataModel : ValueObject, ICommittedDomainEvent<string>
     {
         [BsonElement("_id")]
         public long _id { get; set; }

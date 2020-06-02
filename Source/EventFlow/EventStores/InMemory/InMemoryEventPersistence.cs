@@ -38,7 +38,7 @@ using Newtonsoft.Json;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventPersistence : IEventPersistence, IDisposable
+    public class InMemoryEventPersistence : IEventPersistence<string>, IDisposable
     {
         private readonly ILog _log;
 
@@ -47,7 +47,7 @@ namespace EventFlow.EventStores.InMemory
 
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        private class InMemoryCommittedDomainEvent : ICommittedDomainEvent
+        private class InMemoryCommittedDomainEvent : ICommittedDomainEvent<string>
         {
             public long GlobalSequenceNumber { get; set; }
             public string AggregateId { get; set; }
@@ -141,14 +141,14 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
-                return new List<ICommittedDomainEvent>();
+                return new List<ICommittedDomainEvent<string>>();
             }
 
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -189,16 +189,16 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        public Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
-            IReadOnlyCollection<ICommittedDomainEvent> result;
+            IReadOnlyCollection<ICommittedDomainEvent<string>> result;
 
             if (_eventStore.TryGetValue(id.Value, out var committedDomainEvent))
                 result = fromEventSequenceNumber <= 1
-                    ? (IReadOnlyCollection<ICommittedDomainEvent>) committedDomainEvent
+                    ? (IReadOnlyCollection<ICommittedDomainEvent<string>>) committedDomainEvent
                     : committedDomainEvent.Where(e => e.AggregateSequenceNumber >= fromEventSequenceNumber).ToList();
             else
                 result = new List<InMemoryCommittedDomainEvent>();

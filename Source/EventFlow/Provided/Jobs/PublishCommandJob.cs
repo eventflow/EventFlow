@@ -50,11 +50,11 @@ namespace EventFlow.Provided.Jobs
         public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
             var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
+            var serializer = resolver.Resolve<ISerializer<string>>();
             var commandBus = resolver.Resolve<ICommandBus>();
 
             var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
-            var command = (ICommand) jsonSerializer.Deserialize(Data, commandDefinition.Type);
+            var command = (ICommand) serializer.Deserialize(Data, commandDefinition.Type);
 
             return command.PublishAsync(commandBus, cancellationToken);
         }
@@ -64,17 +64,17 @@ namespace EventFlow.Provided.Jobs
             IResolver resolver)
         {
             var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var jsonSerializer = resolver.Resolve<IJsonSerializer>();
+            var serializer = resolver.Resolve<ISerializer<string>>();
 
-            return Create(command, commandDefinitionService, jsonSerializer);
+            return Create(command, commandDefinitionService, serializer);
         }
 
         public static PublishCommandJob Create(
             ICommand command,
             ICommandDefinitionService commandDefinitionService,
-            IJsonSerializer jsonSerializer)
+            ISerializer<string> serializer)
         {
-            var data = jsonSerializer.Serialize(command);
+            var data = serializer.Serialize(command);
             var commandDefinition = commandDefinitionService.GetDefinition(command.GetType());
 
             return new PublishCommandJob(

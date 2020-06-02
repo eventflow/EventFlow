@@ -24,11 +24,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using EventFlow.Core;
-using Newtonsoft.Json;
 
 namespace EventFlow.Snapshots
 {
+    [DataContract]
     public class SnapshotMetadata : MetadataContainer, ISnapshotMetadata
     {
         public SnapshotMetadata()
@@ -50,35 +51,30 @@ namespace EventFlow.Snapshots
         {
         }
 
-        [JsonIgnore]
         public string AggregateId
         {
             get { return GetMetadataValue(SnapshotMetadataKeys.AggregateId); }
             set { Add(SnapshotMetadataKeys.AggregateId, value); }
         }
 
-        [JsonIgnore]
         public string AggregateName
         {
             get { return GetMetadataValue(SnapshotMetadataKeys.AggregateName); }
             set { Add(SnapshotMetadataKeys.AggregateName, value); }
         }
 
-        [JsonIgnore]
         public int AggregateSequenceNumber
         {
             get { return GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse); }
             set { Add(SnapshotMetadataKeys.AggregateSequenceNumber, value.ToString(CultureInfo.InvariantCulture)); }
         }
 
-        [JsonIgnore]
         public string SnapshotName
         {
             get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotName); }
             set { Add(SnapshotMetadataKeys.SnapshotName, value); }
         }
 
-        [JsonIgnore]
         public int SnapshotVersion
         {
             get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse); }

@@ -37,8 +37,8 @@ namespace EventFlow.EventStores
     public class EventStoreBase : IEventStore
     {
         private readonly IAggregateFactory _aggregateFactory;
-        private readonly IEventJsonSerializer _eventJsonSerializer;
-        private readonly IEventPersistence _eventPersistence;
+        private readonly IEventSerializer<string> _eventJsonSerializer;
+        private readonly IEventPersistence<string> _eventPersistence;
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
@@ -47,10 +47,10 @@ namespace EventFlow.EventStores
         public EventStoreBase(
             ILog log,
             IAggregateFactory aggregateFactory,
-            IEventJsonSerializer eventJsonSerializer,
+            IEventSerializer<string> eventJsonSerializer,
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
-            IEventPersistence eventPersistence,
+            IEventPersistence<string> eventPersistence,
             ISnapshotStore snapshotStore)
         {
             _eventPersistence = eventPersistence;

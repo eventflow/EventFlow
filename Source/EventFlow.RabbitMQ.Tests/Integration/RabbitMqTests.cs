@@ -69,7 +69,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             using (var resolver = BuildResolver(exchange))
             {
                 var commandBus = resolver.Resolve<ICommandBus>();
-                var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+                var eventJsonSerializer = resolver.Resolve<IEventSerializer<string>>();
 
                 var pingId = PingId.New;
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);

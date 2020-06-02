@@ -26,7 +26,7 @@ using EventFlow.EventStores;
 
 namespace EventFlow.EntityFramework.EventStores
 {
-    public class EventEntity : ICommittedDomainEvent
+    public class EventEntity : ICommittedDomainEvent<string>
     {
         public long GlobalSequenceNumber { get; set; }
         public Guid BatchId { get; set; }

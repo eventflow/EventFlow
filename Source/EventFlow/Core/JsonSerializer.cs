@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 
 namespace EventFlow.Core
 {
-    public class JsonSerializer : IJsonSerializer
+    public class JsonSerializer : ISerializer<string>
     {
         private readonly JsonSerializerSettings _settingsNotIndented = new JsonSerializerSettings();
         private readonly JsonSerializerSettings _settingsIndented = new JsonSerializerSettings();

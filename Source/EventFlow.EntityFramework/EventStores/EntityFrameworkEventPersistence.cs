@@ -36,7 +36,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.EventStores
 {
-    public class EntityFrameworkEventPersistence<TDbContext> : IEventPersistence
+    public class EntityFrameworkEventPersistence<TDbContext> : IEventPersistence<string>
         where TDbContext : DbContext
     {
         private readonly IDbContextProvider<TDbContext> _contextProvider;
@@ -79,11 +79,11 @@ namespace EventFlow.EntityFramework.EventStores
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
-                return new ICommittedDomainEvent[0];
+                return new ICommittedDomainEvent<string>[0];
 
             var entities = serializedEvents
                 .Select((e, i) => new EventEntity
@@ -122,7 +122,7 @@ namespace EventFlow.EntityFramework.EventStores
             return entities;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(IIdentity id,
             int fromEventSequenceNumber, CancellationToken cancellationToken)
         {
             using (var context = _contextProvider.CreateContext())

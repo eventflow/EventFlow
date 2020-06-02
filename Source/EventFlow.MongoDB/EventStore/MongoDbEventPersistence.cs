@@ -36,7 +36,7 @@ using MongoDB.Driver;
 
 namespace EventFlow.MongoDB.EventStore
 {
-    public class MongoDbEventPersistence : IEventPersistence
+    public class MongoDbEventPersistence : IEventPersistence<string>
     {
         public static readonly string CollectionName = "eventflow.events";
         private readonly ILog _log;
@@ -69,11 +69,11 @@ namespace EventFlow.MongoDB.EventStore
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
-                return new ICommittedDomainEvent[] { };
+                return new ICommittedDomainEvent<string>[] { };
             }
 
             var eventDataModels = serializedEvents
@@ -105,7 +105,7 @@ namespace EventFlow.MongoDB.EventStore
             return eventDataModels;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, CancellationToken cancellationToken)
         {
             return await MongoDbEventStoreCollection
                 .Find(model => model.AggregateId == id.Value && model.AggregateSequenceNumber >= fromEventSequenceNumber)

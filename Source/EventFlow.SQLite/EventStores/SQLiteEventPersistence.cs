@@ -36,9 +36,9 @@ using EventFlow.SQLite.Connections;
 
 namespace EventFlow.SQLite.EventStores
 {
-    public class SQLiteEventPersistence : IEventPersistence
+    public class SQLiteEventPersistence : IEventPersistence<string>
     {
-        public class EventDataModel : ICommittedDomainEvent
+        public class EventDataModel : ICommittedDomainEvent<string>
         {
             public long GlobalSequenceNumber { get; set; }
             public Guid BatchId { get; set; }
@@ -96,14 +96,14 @@ namespace EventFlow.SQLite.EventStores
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
-                return new ICommittedDomainEvent[] { };
+                return new ICommittedDomainEvent<string>[] { };
             }
 
             var eventDataModels = serializedEvents
@@ -165,7 +165,7 @@ namespace EventFlow.SQLite.EventStores
             return eventDataModels;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)

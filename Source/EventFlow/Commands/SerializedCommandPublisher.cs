@@ -33,18 +33,18 @@ namespace EventFlow.Commands
     {
         private readonly ILog _log;
         private readonly ICommandDefinitionService _commandDefinitionService;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISerializer<string> _serializer;
         private readonly ICommandBus _commandBus;
 
         public SerializedCommandPublisher(
             ILog log,
             ICommandDefinitionService commandDefinitionService,
-            IJsonSerializer jsonSerializer,
+            ISerializer<string> serializer,
             ICommandBus commandBus)
         {
             _log = log;
             _commandDefinitionService = commandDefinitionService;
-            _jsonSerializer = jsonSerializer;
+            _serializer = serializer;
             _commandBus = commandBus;
         }
 
@@ -69,7 +69,7 @@ namespace EventFlow.Commands
             ICommand command;
             try
             {
-                command = (ICommand)_jsonSerializer.Deserialize(json, commandDefinition.Type);
+                command = (ICommand)_serializer.Deserialize(json, commandDefinition.Type);
             }
             catch (Exception e)
             {

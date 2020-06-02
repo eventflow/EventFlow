@@ -28,11 +28,11 @@ namespace EventFlow.EventStores
     public class AllCommittedEventsPage
     {
         public GlobalPosition NextGlobalPosition { get; }
-        public IReadOnlyCollection<ICommittedDomainEvent> CommittedDomainEvents { get; }
+        public IReadOnlyCollection<ICommittedDomainEvent<string>> CommittedDomainEvents { get; }
 
         public AllCommittedEventsPage(
             GlobalPosition nextGlobalPosition,
-            IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents)
+            IReadOnlyCollection<ICommittedDomainEvent<string>> committedDomainEvents)
         {
             NextGlobalPosition = nextGlobalPosition;
             CommittedDomainEvents = committedDomainEvents;

@@ -24,12 +24,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using Newtonsoft.Json;
 
 namespace EventFlow.Aggregates
 {
+    [DataContract]
     public class Metadata : MetadataContainer, IMetadata
     {
         public static IMetadata Empty { get; } = new Metadata();
@@ -49,61 +50,52 @@ namespace EventFlow.Aggregates
             return new Metadata(keyValuePairs);
         }
 
-        [JsonIgnore]
         public ISourceId SourceId
         {
             get => GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v));
             set => Add(MetadataKeys.SourceId, value.Value);
         }
 
-        [JsonIgnore]
         public string EventName
         {
             get => GetMetadataValue(MetadataKeys.EventName);
             set => Add(MetadataKeys.EventName, value);
         }
 
-        [JsonIgnore]
         public int EventVersion
         {
             get => GetMetadataValue(MetadataKeys.EventVersion, int.Parse);
             set => Add(MetadataKeys.EventVersion, value.ToString());
         }
 
-        [JsonIgnore]
         public DateTimeOffset Timestamp
         {
             get => GetMetadataValue(MetadataKeys.Timestamp, DateTimeOffset.Parse);
             set => Add(MetadataKeys.Timestamp, value.ToString("O"));
         }
 
-        [JsonIgnore]
         public long TimestampEpoch => TryGetValue(MetadataKeys.TimestampEpoch, out var timestampEpoch)
             ? long.Parse(timestampEpoch)
             : Timestamp.ToUnixTime();
 
-        [JsonIgnore]
         public int AggregateSequenceNumber
         {
             get => GetMetadataValue(MetadataKeys.AggregateSequenceNumber, int.Parse);
             set => Add(MetadataKeys.AggregateSequenceNumber, value.ToString());
         }
 
-        [JsonIgnore]
         public string AggregateId
         {
             get => GetMetadataValue(MetadataKeys.AggregateId);
             set => Add(MetadataKeys.AggregateId, value);
         }
 
-        [JsonIgnore]
         public IEventId EventId
         {
             get => GetMetadataValue(MetadataKeys.EventId, Aggregates.EventId.With);
             set => Add(MetadataKeys.EventId, value.Value);
         }
 
-        [JsonIgnore]
         public string AggregateName
         {
             get => GetMetadataValue(MetadataKeys.AggregateName);

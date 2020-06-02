@@ -53,7 +53,7 @@ namespace EventFlow.Provided.Jobs
             IResolver resolver,
             CancellationToken cancellationToken)
         {
-            var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+            var eventJsonSerializer = resolver.Resolve<IEventSerializer<string>>();
             var dispatchToEventSubscribers = resolver.Resolve<IDispatchToEventSubscribers>();
             var domainEvent = eventJsonSerializer.Deserialize(Event, Metadata);
 
@@ -66,7 +66,7 @@ namespace EventFlow.Provided.Jobs
             IDomainEvent domainEvent,
             IResolver resolver)
         {
-            var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+            var eventJsonSerializer = resolver.Resolve<IEventSerializer<string>>();
             var serializedEvent = eventJsonSerializer.Serialize(domainEvent);
 
             return new DispatchToAsynchronousEventSubscribersJob(

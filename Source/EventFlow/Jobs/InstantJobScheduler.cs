@@ -34,17 +34,17 @@ namespace EventFlow.Jobs
     {
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJobRunner _jobRunner;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISerializer<string> _serializer;
         private readonly ILog _log;
 
         public InstantJobScheduler(
             ILog log,
-            IJsonSerializer jsonSerializer,
+            ISerializer<string> serializer,
             IJobRunner jobRunner,
             IJobDefinitionService jobDefinitionService)
         {
             _log = log;
-            _jsonSerializer = jsonSerializer;
+            _serializer = serializer;
             _jobRunner = jobRunner;
             _jobDefinitionService = jobDefinitionService;
         }
@@ -57,7 +57,7 @@ namespace EventFlow.Jobs
 
             try
             {
-                var json = _jsonSerializer.Serialize(job);
+                var json = _serializer.Serialize(job);
 
                 _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
 

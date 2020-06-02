@@ -27,7 +27,7 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventJsonSerializer
+    public interface IEventSerializer<TSerialized>
     {
         SerializedEvent Serialize(
             IDomainEvent domainEvent);
@@ -36,17 +36,17 @@ namespace EventFlow.EventStores
             IAggregateEvent aggregateEvent,
             IEnumerable<KeyValuePair<string, string>> metadatas);
 
-        IDomainEvent Deserialize(string json, IMetadata metadata);
+        IDomainEvent Deserialize(TSerialized serialized, IMetadata metadata);
 
         IDomainEvent Deserialize(
-            ICommittedDomainEvent committedDomainEvent);
+            ICommittedDomainEvent<TSerialized> committedDomainEvent);
 
         IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
             TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
+            ICommittedDomainEvent<TSerialized> committedDomainEvent)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
 
-        IDomainEvent Deserialize(string eventJson, string metadataJson);
+        IDomainEvent Deserialize(TSerialized serializedEvent, TSerialized serializedMetadata);
     }
 }

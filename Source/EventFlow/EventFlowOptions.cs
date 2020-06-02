@@ -194,7 +194,7 @@ namespace EventFlow
         {
             serviceRegistration.Register<ILog, ConsoleLog>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
-            serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
+            serviceRegistration.Register<IEventPersistence<string>, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
             serviceRegistration.Register<IAggregateStore, AggregateStore>();
             serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
@@ -203,10 +203,10 @@ namespace EventFlow
             serviceRegistration.Register<ISnapshotUpgradeService, SnapshotUpgradeService>();
             serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
-            serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();
+            serviceRegistration.Register<IEventSerializer<string>, EventJsonSerializer>();
             serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IQueryProcessor, QueryProcessor>();
-            serviceRegistration.Register<IJsonSerializer, JsonSerializer>(Lifetime.Singleton);
+            serviceRegistration.Register<ISerializer<string>, JsonSerializer>(Lifetime.Singleton);
             serviceRegistration.Register<IJsonOptions, JsonOptions>();
             serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
             serviceRegistration.Register<IJobRunner, JobRunner>();

@@ -28,19 +28,19 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventPersistence
+    public interface IEventPersistence<TSerialized>
     {
         Task<AllCommittedEventsPage> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+        Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> CommitEventsAsync(
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken);

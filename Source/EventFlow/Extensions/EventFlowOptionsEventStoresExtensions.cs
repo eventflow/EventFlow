@@ -41,9 +41,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseEventStore<TEventStore>(
             this IEventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventStore : class, IEventPersistence
+            where TEventStore : class, IEventPersistence<string>
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventPersistence, TEventStore>(lifetime));
+            return eventFlowOptions.RegisterServices(f => f.Register<IEventPersistence<string>, TEventStore>(lifetime));
         }
 
         public static IEventFlowOptions UseFilesEventStore(
@@ -53,7 +53,7 @@ namespace EventFlow.Extensions
             return eventFlowOptions.RegisterServices(f =>
                 {
                     f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton);
-                    f.Register<IEventPersistence, FilesEventPersistence>(Lifetime.Singleton);
+                    f.Register<IEventPersistence<string>, FilesEventPersistence>(Lifetime.Singleton);
                     f.Register<IFilesEventLocator, FilesEventLocator>();
                 });
         }

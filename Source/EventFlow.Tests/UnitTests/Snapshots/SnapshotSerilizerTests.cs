@@ -42,7 +42,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
     {
         private Mock<ISnapshotUpgradeService> _snapshotUpgradeServiceMock;
         private Mock<ISnapshotDefinitionService> _snapshotDefinitionService;
-        private Mock<IJsonSerializer> _jsonSerializer;
+        private Mock<ISerializer<string>> _serializer;
 
         [Test]
         public async Task SerilizeAsync_ReturnsSomething()
@@ -91,12 +91,12 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         {
             _snapshotUpgradeServiceMock = InjectMock<ISnapshotUpgradeService>();
             _snapshotDefinitionService = InjectMock<ISnapshotDefinitionService>();
-            _jsonSerializer = InjectMock<IJsonSerializer>();
+            _serializer = InjectMock<ISerializer<string>>();
 
-            _jsonSerializer
+            _serializer
                 .Setup(s => s.Serialize(It.IsAny<object>(), It.IsAny<bool>()))
                 .Returns<object, bool>((o, b) => JsonConvert.SerializeObject(o));
-            _jsonSerializer
+            _serializer
                 .Setup(s => s.Deserialize<SnapshotMetadata>(It.IsAny<string>()))
                 .Returns<string>(JsonConvert.DeserializeObject<SnapshotMetadata>);
             _snapshotUpgradeServiceMock

@@ -35,18 +35,18 @@ namespace EventFlow.Snapshots
     public class SnapshotSerilizer : ISnapshotSerilizer
     {
         private readonly ILog _log;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISerializer<string> _serializer;
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
 
         public SnapshotSerilizer(
             ILog log,
-            IJsonSerializer jsonSerializer,
+            ISerializer<string> serializer,
             ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotDefinitionService snapshotDefinitionService)
         {
             _log = log;
-            _jsonSerializer = jsonSerializer;
+            _serializer = serializer;
             _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotDefinitionService = snapshotDefinitionService;
         }
@@ -68,8 +68,8 @@ namespace EventFlow.Snapshots
                     {SnapshotMetadataKeys.SnapshotVersion, snapsnotDefinition.Version.ToString()},
                 }));
 
-            var serializedMetadata = _jsonSerializer.Serialize(updatedSnapshotMetadata);
-            var serializedData = _jsonSerializer.Serialize(snapshotContainer.Snapshot);
+            var serializedMetadata = _serializer.Serialize(updatedSnapshotMetadata);
+            var serializedData = _serializer.Serialize(snapshotContainer.Snapshot);
 
             return Task.FromResult(new SerializedSnapshot(
                 serializedMetadata,
@@ -86,12 +86,12 @@ namespace EventFlow.Snapshots
         {
             if (committedSnapshot == null) throw new ArgumentNullException(nameof(committedSnapshot));
 
-            var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
+            var metadata = _serializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
             var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
 
             _log.Verbose(() => $"Deserializing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
 
-            var snapshot = (ISnapshot)_jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
+            var snapshot = (ISnapshot)_serializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
             var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
             return new SnapshotContainer(upgradedSnapshot, metadata);

@@ -29,18 +29,18 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public class EventJsonSerializer : IEventJsonSerializer
+    public class EventJsonSerializer : IEventSerializer<string>
     {
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISerializer<string> _serializer;
         private readonly IEventDefinitionService _eventDefinitionService;
         private readonly IDomainEventFactory _domainEventFactory;
 
         public EventJsonSerializer(
-            IJsonSerializer jsonSerializer,
+            ISerializer<string> serializer,
             IEventDefinitionService eventDefinitionService,
             IDomainEventFactory domainEventFactory)
         {
-            _jsonSerializer = jsonSerializer;
+            _serializer = serializer;
             _eventDefinitionService = eventDefinitionService;
             _domainEventFactory = domainEventFactory;
         }
@@ -63,8 +63,8 @@ namespace EventFlow.EventStores
                         new KeyValuePair<string, string>(MetadataKeys.EventVersion, eventDefinition.Version.ToString(CultureInfo.InvariantCulture)),
                     }));
 
-            var dataJson = _jsonSerializer.Serialize(aggregateEvent);
-            var metaJson = _jsonSerializer.Serialize(metadata);
+            var dataJson = _serializer.Serialize(aggregateEvent);
+            var metaJson = _serializer.Serialize(metadata);
 
             return new SerializedEvent(
                 metaJson,
@@ -75,7 +75,7 @@ namespace EventFlow.EventStores
 
         public IDomainEvent Deserialize(string eventJson, string metadataJson)
         {
-            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(metadataJson);
+            var metadata = (IMetadata)_serializer.Deserialize<Metadata>(metadataJson);
             return Deserialize(eventJson, metadata);
         }
 
@@ -84,15 +84,15 @@ namespace EventFlow.EventStores
             return Deserialize(metadata.AggregateId, json, metadata);
         }
 
-        public IDomainEvent Deserialize(ICommittedDomainEvent committedDomainEvent)
+        public IDomainEvent Deserialize(ICommittedDomainEvent<string> committedDomainEvent)
         {
-            var metadata = (IMetadata)_jsonSerializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
+            var metadata = (IMetadata)_serializer.Deserialize<Metadata>(committedDomainEvent.Metadata);
             return Deserialize(committedDomainEvent.AggregateId, committedDomainEvent.Data, metadata);
         }
 
         public IDomainEvent<TAggregate, TIdentity> Deserialize<TAggregate, TIdentity>(
             TIdentity id,
-            ICommittedDomainEvent committedDomainEvent)
+            ICommittedDomainEvent<string> committedDomainEvent)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
@@ -105,7 +105,7 @@ namespace EventFlow.EventStores
                 metadata.EventName,
                 metadata.EventVersion);
 
-            var aggregateEvent = (IAggregateEvent)_jsonSerializer.Deserialize(json, eventDefinition.Type);
+            var aggregateEvent = (IAggregateEvent)_serializer.Deserialize(json, eventDefinition.Type);
 
             var domainEvent = _domainEventFactory.Create(
                 aggregateEvent,

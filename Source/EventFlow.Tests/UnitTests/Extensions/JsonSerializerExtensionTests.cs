@@ -69,7 +69,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
                     .AddConverter<MyClassConverter>()
                 )
                 .CreateResolver();
-            var serializer = resolver.Resolve<IJsonSerializer>();
+            var serializer = resolver.Resolve<ISerializer<string>>();
 
             // Act
             var myClassSerialized = serializer.Serialize(new MyClass() { DateTime = new DateTime(1000000) });

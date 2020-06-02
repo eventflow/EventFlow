@@ -35,20 +35,20 @@ namespace EventFlow.Hangfire.Integration
     {
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IJobDefinitionService _jobDefinitionService;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISerializer<string> _serializer;
         private readonly ILog _log;
         private readonly IJobDisplayNameBuilder _jobDisplayNameBuilder;
 
         public HangfireJobScheduler(
             ILog log,
             IJobDisplayNameBuilder jobDisplayNameBuilder,
-            IJsonSerializer jsonSerializer,
+            ISerializer<string> serializer,
             IBackgroundJobClient backgroundJobClient,
             IJobDefinitionService jobDefinitionService)
         {
             _log = log;
             _jobDisplayNameBuilder = jobDisplayNameBuilder;
-            _jsonSerializer = jsonSerializer;
+            _serializer = serializer;
             _backgroundJobClient = backgroundJobClient;
             _jobDefinitionService = jobDefinitionService;
         }
@@ -83,7 +83,7 @@ namespace EventFlow.Hangfire.Integration
             Func<IBackgroundJobClient, JobDefinition, string, string, string> schedule)
         {
             var jobDefinition = _jobDefinitionService.GetDefinition(job.GetType());
-            var json = _jsonSerializer.Serialize(job);
+            var json = _serializer.Serialize(job);
             var name = await _jobDisplayNameBuilder.GetDisplayNameAsync(job, jobDefinition, cancellationToken).ConfigureAwait(false);
 
             var id = schedule(_backgroundJobClient, jobDefinition, name, json);

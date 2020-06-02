@@ -36,12 +36,12 @@ using EventStore.ClientAPI.Exceptions;
 
 namespace EventFlow.EventStores.EventStore
 {
-    public class EventStoreEventPersistence : IEventPersistence
+    public class EventStoreEventPersistence : IEventPersistence<string>
     {
         private readonly ILog _log;
         private readonly IEventStoreConnection _connection;
 
-        private class EventStoreEvent : ICommittedDomainEvent
+        private class EventStoreEvent : ICommittedDomainEvent<string>
         {
             public string AggregateId { get; set; }
             public string Data { get; set; }
@@ -103,7 +103,7 @@ namespace EventFlow.EventStores.EventStore
             return new Position(commitPosition, preparePosition);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
@@ -156,7 +156,7 @@ namespace EventFlow.EventStores.EventStore
             return committedDomainEvents;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)

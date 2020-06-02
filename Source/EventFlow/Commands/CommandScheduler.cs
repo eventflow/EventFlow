@@ -34,16 +34,16 @@ namespace EventFlow.Commands
     {
         private readonly IJobScheduler _jobScheduler;
         private readonly ICommandDefinitionService _commandDefinitionService;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ISerializer<string> _serializer;
 
         public CommandScheduler(
             IJobScheduler jobScheduler,
             ICommandDefinitionService commandDefinitionService,
-            IJsonSerializer jsonSerializer)
+            ISerializer<string> serializer)
         {
             _jobScheduler = jobScheduler;
             _commandDefinitionService = commandDefinitionService;
-            _jsonSerializer = jsonSerializer;
+            _serializer = serializer;
         }
 
         public Task ScheduleAsync(ICommand command, DateTimeOffset runAt, CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ namespace EventFlow.Commands
             var publishCommandJob = PublishCommandJob.Create(
                 command,
                 _commandDefinitionService,
-                _jsonSerializer);
+                _serializer);
             return _jobScheduler.ScheduleAsync(publishCommandJob, runAt, cancellationToken);
         }
 
@@ -60,7 +60,7 @@ namespace EventFlow.Commands
             var publishCommandJob = PublishCommandJob.Create(
                 command,
                 _commandDefinitionService,
-                _jsonSerializer);
+                _serializer);
             return _jobScheduler.ScheduleAsync(publishCommandJob, delay, cancellationToken);
         }
     }
