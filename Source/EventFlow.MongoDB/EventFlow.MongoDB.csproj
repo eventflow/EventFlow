@@ -2,7 +2,6 @@
   <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
-    <PackageId>EventFlow.MongoDB</PackageId>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>

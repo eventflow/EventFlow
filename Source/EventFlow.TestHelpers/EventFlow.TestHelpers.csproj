@@ -32,6 +32,7 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="NUnit" Version="3.11.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
   </ItemGroup>
    
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -39,6 +40,7 @@
   </ItemGroup>
    
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.15" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>

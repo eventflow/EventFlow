@@ -24,28 +24,30 @@
 
 #r "System.IO.Compression.FileSystem"
 #r "System.Xml"
+#r "System.Text.RegularExpressions"
 
 #module nuget:?package=Cake.DotNetTool.Module
-#tool "nuget:?package=NUnit.ConsoleRunner"
-#tool "nuget:?package=OpenCover"
-#tool "dotnet:?package=sourcelink"
 
 using System.IO.Compression;
 using System.Net;
 using System.Xml;
+using System.Text.RegularExpressions;
+//Can't use argument wit name VERSION due to cake internal usage
+var VERSION = Argument<string>("ARG_VERSION", "1.0.1-local");
+var NUGET_SOURCE = Argument<string>("ARG_NUGET_SOURCE", "http://nuget.monopoly.su/nuget/Nuget-Push/");
+var NUGET_APIKEY = Argument<string>("ARG_NUGET_APIKEY", "Don't push key!");
 
-var VERSION = GetArgumentVersion();
-var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
+
+
+var PROJECT_DIR = System.IO.Directory.GetCurrentDirectory();
 var CONFIGURATION = "Release";
 
 // IMPORTANT DIRECTORIES
 var DIR_OUTPUT_PACKAGES = System.IO.Path.Combine(PROJECT_DIR, "Build", "Packages");
 var DIR_OUTPUT_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports");
 
+
 // IMPORTANT FILES
-var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
-var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
-var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
 var FILE_SOLUTION = System.IO.Path.Combine(PROJECT_DIR, "EventFlow.sln");
 
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
@@ -63,129 +65,160 @@ Task("Clean")
                     DIR_OUTPUT_PACKAGES,
                     DIR_OUTPUT_REPORTS,
                 });
-				
-			DeleteDirectories(GetDirectories("**/bin"), true);
-			DeleteDirectories(GetDirectories("**/obj"), true);
+                
+            DeleteDirectories(GetDirectories("**/bin"), true);
+            DeleteDirectories(GetDirectories("**/obj"), true);
         });
-	
+    
 // =====================================================================================================
 Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
         {
-			DotNetCoreRestore(
-				".", 
-				new DotNetCoreRestoreSettings()
-				{
-					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
-				});
+            DotNetCoreRestore(
+                ".", 
+                new DotNetCoreRestoreSettings()
+                {
+                    ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+                });
         });
-		
+        
 // =====================================================================================================
 Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
         {
             DotNetCoreBuild(
-				".", 
-				new DotNetCoreBuildSettings()
-				{
-					Configuration = CONFIGURATION,
-					ArgumentCustomization = aggs => aggs
+                ".", 
+                new DotNetCoreBuildSettings()
+                {
+                    Configuration = CONFIGURATION,
+                    ArgumentCustomization = aggs => aggs
                         .Append(GetDotNetCoreArgsVersions())
                         .Append("/p:ci=true")
                         .Append("/p:SourceLinkEnabled=true")
                         .Append("/p:TreatWarningsAsErrors=true")
-				});
+                });
         });
 
 // =====================================================================================================
+
 Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
+    {
+        var projects = GetFiles("./**/EventFlow*Tests.csproj");
+        foreach(var project in projects)
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/**/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
-        })
-	.Finally(() =>
-        {
-            UploadArtifact(FILE_NUNIT_TXT_REPORT);
-            UploadTestResults(FILE_NUNIT_XML_REPORT);
-        });
+            DotNetCoreTest(
+                project.FullPath,
+                new DotNetCoreTestSettings()
+                {
+                    Configuration = CONFIGURATION,
+                    Filter = "Category!=integration",
+                    Logger = "TeamCity",
+                    TestAdapterPath = ".",
+                    NoBuild = true
+                });
+        }
+    });
 
 // =====================================================================================================
 Task("Package")
-    .IsDependentOn("Test")
+    .IsDependentOn("Build")
     .Does(() =>
         {
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-			foreach (var project in GetFiles("./Source/**/*.csproj"))
-			{
-				var name = project.GetDirectory().FullPath;
-				var version = VERSION.ToString();
-				
-				if ((name.Contains("Test") && !name.Contains("TestHelpers")) || name.Contains("Example"))
-				{
-					continue;
-				}
+            foreach (var project in GetFiles("./Source/**/*.csproj"))
+            {
+                var name = project.GetDirectory().FullPath;
+                var version = VERSION;
+                
+                if ((name.Contains("Test") && !name.Contains("TestHelpers")) || name.Contains("Example"))
+                {
+                    continue;
+                }
 
                 SetReleaseNotes(project.ToString());
-							
-				DotNetCorePack(
-					name,
-					new DotNetCorePackSettings()
-					{
-						Configuration = CONFIGURATION,
-						OutputDirectory = DIR_OUTPUT_PACKAGES,
-						NoBuild = true,
-						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
-					});
-			}
+                            
+                DotNetCorePack(
+                    name,
+                    new DotNetCorePackSettings()
+                    {
+                        Configuration = CONFIGURATION,
+                        OutputDirectory = DIR_OUTPUT_PACKAGES,
+                        NoBuild = true,
+                        ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+                    });
+            }
         });
 
 // =====================================================================================================
-Task("ValidateSourceLink")
+Task("LibraryNugetPush")
     .IsDependentOn("Package")
-    .Does(() =>
-        {
-            var files = GetFiles($"./Build/Packages/EventFlow*.nupkg");
-            if (!files.Any())
-            {
-                throw new Exception("No NuGet packages found!");
-            }
+    .WithCriteria(TeamCity.IsRunningOnTeamCity)
+    .Does(() => {
 
-            foreach(var file in files)
-            {
-                var filePath = $"{file}".Replace("/", "\\");		   
-                Information("Validating SourceLink for NuGet file: {0}", filePath);
-                ExecuteCommand("sourcelink", $"test {filePath}");
-            }
+        var pushSettings = new DotNetCoreNuGetPushSettings 
+        {
+            Source = NUGET_SOURCE,
+            ApiKey = NUGET_APIKEY,
+            ArgumentCustomization = args=>args.Append("--skip-duplicate")
+        };
+        
+        var pkgs = GetFiles($"{DIR_OUTPUT_PACKAGES}\\*.nupkg");
+        foreach(var pkg in pkgs) 
+        {
+                DotNetCoreNuGetPush(pkg.FullPath, pushSettings);  
+        }
+    });
+// =====================================================================================================
+Task("TeamCityPublishArtifacts")
+    .IsDependentOn("LibraryNugetPush")
+    .WithCriteria(TeamCity.IsRunningOnTeamCity)
+    .Does(() => {
+            //create lightweight html artifact for teamcity
+            foreach (var Nuget in GetFiles($"{DIR_OUTPUT_PACKAGES}\\*.nupkg"))
+                {   
+                string NugetFileName = Nuget.Segments.LastOrDefault();
+                //Based on https://github.com/semver/semver/blob/master/semver.md#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+                Regex NugetRegex = new Regex(@"^(?<PackageName>.*?).(?<PackageVersion>(?<Major>0|[1-9]\d*)\.(?<Minor>0|[1-9]\d*)\.(?<Patch>0|[1-9]\d*)(?:-(?<PreRelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<BuildMetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)\.nupkg$");
+                Match Match = NugetRegex.Match(NugetFileName);
+                string PackageName = Match.Groups["PackageName"].Value;
+                string PackageVersion = Match.Groups["PackageVersion"].Value;
+                string HtmlArtifactFileName = PackageName + $".{PackageVersion}.nupkg.html";
+                string HtmlArtifactFullName =DIR_OUTPUT_PACKAGES + $"\\{HtmlArtifactFileName}";
+                using (System.IO.StreamWriter sw = System.IO.File.CreateText(HtmlArtifactFullName)){    
+                 sw.WriteLine($@"
+                 <head>
+                 <meta http-equiv=""refresh"" content=""1;URL=http://nuget.monopoly.su/feeds/Nuget-Push/{PackageName}/{VERSION}"" />
+                 </head>");
+                 sw.Close();
+                 TeamCity.PublishArtifacts(HtmlArtifactFullName);
+                 }
+                }
         });
 
 // =====================================================================================================
 Task("All")
-    .IsDependentOn("Package")
-    //.IsDependentOn("ValidateSourceLink") builds on AppVeyor fail for some unknown reason
+    .IsDependentOn("TeamCityPublishArtifacts")
     .Does(() =>
         {
 
         });
-
 // =====================================================================================================
 
-Version GetArgumentVersion()
-{
-    return Version.Parse(EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "0.0.1");
-}
+
 
 string GetDotNetCoreArgsVersions()
 {
-	var version = GetArgumentVersion().ToString();
-	
-	return string.Format(
-		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0}",
-		version);
+    var version = VERSION;
+    var versionWithoutPreReleaseTag = version.Split('-')[0];
+    return string.Format(
+        @"/p:Version={0} /p:AssemblyVersion={1} /p:FileVersion={1} /p:ProductVersion={0}",
+        version,versionWithoutPreReleaseTag);
 }
 
 void SetReleaseNotes(string filePath)
@@ -224,141 +257,27 @@ void SetXmlNode(string filePath, string xmlPath, string content)
     }
 }
 
-void UploadArtifact(string filePath)
+
+
+
+TaskSetup(setupContext =>
 {
-    if (!FileExists(filePath))
-    {
-        Information("Skipping uploading of artifact, does not exist: {0}", filePath);
-        return;
-    }
+   if (TeamCity.IsRunningOnTeamCity)
+   {
+      TeamCity.WriteStartBuildBlock(setupContext.Task.Description ?? setupContext.Task.Name);
 
-    if (AppVeyor.IsRunningOnAppVeyor)
-    {
-        Information("Uploading artifact: {0}", filePath);
+      TeamCity.WriteStartProgress(setupContext.Task.Description ?? setupContext.Task.Name);
+   }
+});
 
-        AppVeyor.UploadArtifact(filePath);
-    }
-    else
-    {
-        Information("Not on AppVeyor, skipping artifact upload of: {0}", filePath);
-    }
-}
-
-void UploadTestResults(string filePath)
+TaskTeardown(teardownContext =>
 {
-    if (!FileExists(filePath))
-    {
-        Information("Skipping uploading of test results, does not exist: {0}", filePath);
-        return;
-    }
+   if (TeamCity.IsRunningOnTeamCity)
+   {
+      TeamCity.WriteEndProgress(teardownContext.Task.Description ?? teardownContext.Task.Name);
 
-    if (AppVeyor.IsRunningOnAppVeyor)
-    {
-        Information("Uploading test results: {0}", filePath);
+      TeamCity.WriteEndBuildBlock(teardownContext.Task.Description ?? teardownContext.Task.Name);
+   }
+});
 
-        try
-        {
-            using (var webClient = new WebClient())
-            {
-                webClient.UploadFile(
-                    string.Format(
-                        "https://ci.appveyor.com/api/testresults/nunit3/{0}",
-                        Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
-                    filePath);
-            }
-        }
-        catch (Exception e)
-        {
-            Error(
-                "Failed to upload '{0}' due to {1} - {2}: {3}",
-                filePath,
-                e.Message,
-                e.GetType().Name,
-                e.ToString());
-        }
-        
-        /*
-        // This should work, but doesn't seem to
-        AppVeyor.UploadTestResults(
-            filePath,
-            AppVeyorTestResultsType.NUnit3);*/
-    }    
-    else
-    {
-        Information("Not on AppVeyor, skipping test result upload of: {0}", filePath);
-    }
-}
-
-string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
-{
-    Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
-
-    using (var process = new System.Diagnostics.Process())
-    {
-        process.StartInfo = new System.Diagnostics.ProcessStartInfo
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                FileName = exePath,
-                Arguments = arguments,
-                WorkingDirectory = workingDirectory,
-            };
-        process.Start();
-
-        var output = process.StandardOutput.ReadToEnd();
-
-        if (!process.WaitForExit(30000))
-        {
-            throw new Exception("Failed to stop process!");
-        }
-
-        if (process.ExitCode != 0)
-        {
-            Error(output);
-            throw new Exception(string.Format("Error code {0} was returned", process.ExitCode));
-        }
-
-        Debug(output);
-
-        return output;
-    }
-}
-
-void ExecuteTest(string files, string resultsFile)
-{
-	OpenCover(tool => 
-		{
-			tool.NUnit3(
-				files,
-				new NUnit3Settings
-					{
-						Framework = "net-4.5",
-						Timeout = 600000,
-						ShadowCopy = false,
-						NoHeader = true,
-						NoColor = true,
-						DisposeRunners = true,
-						OutputFile = FILE_NUNIT_TXT_REPORT,
-						Results = new []
-                            {
-                                new NUnit3Result
-                                    {
-                                        FileName = resultsFile,
-                                    }
-                            }
-					});
-        },
-    new FilePath(FILE_OPENCOVER_REPORT),
-    new OpenCoverSettings
-        {
-            ArgumentCustomization = aggs => aggs.Append("-returntargetcode"),
-            OldStyle = true,
-            MergeOutput = true
-        }
-        .WithFilter("+[EventFlow*]*")
-        .WithFilter("-[*Tests]*")
-        .WithFilter("-[*TestHelpers]*")
-        .WithFilter("-[*Shipping*]*"));
-}
-
-RunTarget(Argument<string>("target", "Package"));
+RunTarget(Argument<string>("target", "All"));
