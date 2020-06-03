@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -45,6 +46,7 @@ namespace EventFlow.MongoDB.EventStore
     }
 
     public class MongoDbEventPersistence<TSerialized> : IEventPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         public static readonly string CollectionName = "eventflow.events";
         private readonly ILog _log;

@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
@@ -45,6 +46,7 @@ namespace EventFlow.SQLite.EventStores
     }
 
     public class SQLiteEventPersistence<TSerialized> : IEventPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private class EventDataModel : ICommittedDomainEvent<TSerialized>
         {

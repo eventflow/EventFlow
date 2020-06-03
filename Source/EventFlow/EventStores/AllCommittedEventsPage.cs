@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections;
 using System.Collections.Generic;
 
 namespace EventFlow.EventStores
@@ -34,6 +35,7 @@ namespace EventFlow.EventStores
     }
 
     public class AllCommittedEventsPage<TSerialized>
+        where TSerialized : IEnumerable
     {
         public GlobalPosition NextGlobalPosition { get; }
         public IReadOnlyCollection<ICommittedDomainEvent<TSerialized>> CommittedDomainEvents { get; }

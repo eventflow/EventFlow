@@ -47,6 +47,7 @@ namespace EventFlow.EventStores.InMemory
     }
 
     public class InMemoryEventPersistence<TSerialized> : IEventPersistence<TSerialized>, IDisposable
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
 

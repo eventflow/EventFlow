@@ -23,13 +23,21 @@
 
 namespace EventFlow.Snapshots
 {
-    public class SerializedSnapshot : CommittedSnapshot
+    public class SerializedSnapshot : SerializedSnapshot<string>
+    {
+        public SerializedSnapshot(string serializedMetadata, string serializedData, ISnapshotMetadata metadata)
+            : base(serializedMetadata, serializedData, metadata)
+        {
+        }
+    }
+
+    public class SerializedSnapshot<TSerialized> : CommittedSnapshot<TSerialized>
     {
         public ISnapshotMetadata Metadata { get; }
 
         public SerializedSnapshot(
-            string serializedMetadata,
-            string serializedData,
+            TSerialized serializedMetadata,
+            TSerialized serializedData,
             ISnapshotMetadata metadata)
             : base(serializedMetadata, serializedData)
         {

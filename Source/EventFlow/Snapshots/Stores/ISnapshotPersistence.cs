@@ -22,15 +22,21 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 
 namespace EventFlow.Snapshots.Stores
 {
-    public interface ISnapshotPersistence
+    public interface ISnapshotPersistence : ISnapshotPersistence<string>
     {
-        Task<CommittedSnapshot> GetSnapshotAsync(
+    }
+
+    public interface ISnapshotPersistence<TSerialized>
+        where TSerialized : IEnumerable
+    {
+        Task<CommittedSnapshot<TSerialized>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken);
@@ -38,7 +44,7 @@ namespace EventFlow.Snapshots.Stores
         Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<TSerialized> serializedSnapshot,
             CancellationToken cancellationToken);
 
         Task DeleteSnapshotAsync(

@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 
 namespace EventFlow.Core
 {
@@ -29,7 +30,8 @@ namespace EventFlow.Core
     {
     }
 
-    public interface ISerializer<TSerialized>
+    public interface ISerializer<TSerialized> 
+        where TSerialized : IEnumerable
     {
         TSerialized Serialize(object obj, bool indented = false);
         object Deserialize(TSerialized serialized, Type type);

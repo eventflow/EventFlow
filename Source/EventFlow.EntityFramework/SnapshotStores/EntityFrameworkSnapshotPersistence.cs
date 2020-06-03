@@ -52,7 +52,7 @@ namespace EventFlow.EntityFramework.SnapshotStores
             _deletionBatchSize = bulkOperationConfiguration.DeletionBatchSize;
         }
 
-        public async Task<CommittedSnapshot> GetSnapshotAsync(
+        public async Task<CommittedSnapshot<string>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
@@ -76,14 +76,14 @@ namespace EventFlow.EntityFramework.SnapshotStores
 
                 return snapshot == null 
                     ? null 
-                    : new CommittedSnapshot(snapshot.Metadata, snapshot.Data);
+                    : new CommittedSnapshot<string>(snapshot.Metadata, snapshot.Data);
             }
         }
 
         public async Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<string> serializedSnapshot,
             CancellationToken cancellationToken)
         {
             var entity = new SnapshotEntity

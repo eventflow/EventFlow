@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,6 +46,7 @@ namespace EventFlow.EventStores.EventStore
     }
 
     public class EventStoreEventPersistence<TSerialized> : IEventPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
         private readonly IEventStoreConnection _connection;

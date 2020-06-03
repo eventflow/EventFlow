@@ -21,15 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 
 namespace EventFlow.Snapshots
 {
-    public interface ISnapshotSerilizer
+    public interface ISnapshotSerilizer : ISnapshotSerilizer<string>
     {
-        Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+    }
+
+    public interface ISnapshotSerilizer<TSerialized>
+        where TSerialized : IEnumerable
+    {
+        Task<SerializedSnapshot<TSerialized>> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
             SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
@@ -37,7 +43,7 @@ namespace EventFlow.Snapshots
             where TSnapshot : ISnapshot;
 
         Task<SnapshotContainer> DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
-            CommittedSnapshot committedSnapshot,
+            CommittedSnapshot<TSerialized> committedSnapshot,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity

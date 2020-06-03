@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,7 +34,7 @@ using EventFlow.Logs;
 
 namespace EventFlow.EventStores.Files
 {
-    public class FilesEventPersistence : FilesEventPersistence<string>
+    public class FilesEventPersistence : FilesEventPersistence<string>, IEventPersistence
     {
         public FilesEventPersistence(ILog log,
             IJsonSerializer jsonSerializer,
@@ -45,6 +46,7 @@ namespace EventFlow.EventStores.Files
     }
 
     public class FilesEventPersistence<TSerialized> : IEventPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
         private readonly ISerializer<TSerialized> _serializer;

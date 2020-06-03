@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using EventFlow.EventStores;
 using EventFlow.ValueObjects;
 using MongoDB.Bson.Serialization.Attributes;
@@ -34,6 +35,7 @@ namespace EventFlow.MongoDB.ValueObjects
     }
 
     public class MongoDbEventDataModel<TSerialized> : ValueObject, ICommittedDomainEvent<TSerialized>
+        where TSerialized : IEnumerable
     {
         [BsonElement("_id")]
         public long _id { get; set; }

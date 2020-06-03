@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,16 @@ using Npgsql;
 
 namespace EventFlow.PostgreSql.SnapshotStores
 {
-    public class PostgreSqlSnapshotPersistence : ISnapshotPersistence
+    public class PostgreSqlSnapshotPersistence : PostgreSqlSnapshotPersistence<string>, ISnapshotPersistence
+    {
+        public PostgreSqlSnapshotPersistence(ILog log, IPostgreSqlConnection postgreSqlConnection)
+            : base(log, postgreSqlConnection)
+        {
+        }
+    }
+
+    public class PostgreSqlSnapshotPersistence<TSerialized> : ISnapshotPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
         private readonly IPostgreSqlConnection _postgreSqlConnection;
@@ -48,7 +58,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
             _postgreSqlConnection = postgreSqlConnection;
         }
 
-        public async Task<CommittedSnapshot> GetSnapshotAsync(
+        public async Task<CommittedSnapshot<TSerialized>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
@@ -68,7 +78,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
             }
 
             var postgreSqlSnapshotDataModel = postgreSqlSnapshotDataModels.Single();
-            return new CommittedSnapshot(
+            return new CommittedSnapshot<TSerialized>(
                 postgreSqlSnapshotDataModel.Metadata,
                 postgreSqlSnapshotDataModel.Data);
         }
@@ -76,7 +86,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
         public async Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<TSerialized> serializedSnapshot,
             CancellationToken cancellationToken)
         {
             var postgreSqlSnapshotDataModel = new PostgreSqlSnapshotDataModel
@@ -146,8 +156,8 @@ namespace EventFlow.PostgreSql.SnapshotStores
             public string AggregateId { get; set; }
             public string AggregateName { get; set; }
             public int AggregateSequenceNumber { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
+            public TSerialized Data { get; set; }
+            public TSerialized Metadata { get; set; }
         }
     }
 }

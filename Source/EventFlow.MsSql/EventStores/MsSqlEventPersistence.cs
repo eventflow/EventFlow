@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -44,6 +45,7 @@ namespace EventFlow.MsSql.EventStores
     }
 
     public class MsSqlEventPersistence<TSerialized> : IEventPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private class EventDataModel : ICommittedDomainEvent<TSerialized>
         {

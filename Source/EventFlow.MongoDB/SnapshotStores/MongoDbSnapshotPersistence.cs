@@ -30,12 +30,22 @@ using EventFlow.Snapshots.Stores;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventFlow.MongoDB.SnapshotStores
 {
-    public class MongoDbSnapshotPersistence : ISnapshotPersistence
+    public class MongoDbSnapshotPersistence : MongoDbSnapshotPersistence<string>, ISnapshotPersistence
+    {
+        public MongoDbSnapshotPersistence(ILog log, IMongoDatabase mongoDatabase)
+            : base(log, mongoDatabase)
+        {
+        }
+    }
+
+    public class MongoDbSnapshotPersistence<TSerialized> : ISnapshotPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private static string SnapShotsCollectionName = "snapShots";
         private readonly ILog _log;
@@ -49,18 +59,18 @@ namespace EventFlow.MongoDB.SnapshotStores
             _mongoDatabase = mongoDatabase;
         }
 
-        public async Task<CommittedSnapshot> GetSnapshotAsync(
+        public async Task<CommittedSnapshot<TSerialized>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
         {
-            var collection = _mongoDatabase.GetCollection<MongoDbSnapshotDataModel>(SnapShotsCollectionName);
-            var filterBuilder = Builders<MongoDbSnapshotDataModel>.Filter;
+            var collection = _mongoDatabase.GetCollection<MongoDbSnapshotDataModel<TSerialized>>(SnapShotsCollectionName);
+            var filterBuilder = Builders<MongoDbSnapshotDataModel<TSerialized>>.Filter;
 
             var filter = filterBuilder.Eq(model => model.AggregateName, aggregateType.GetAggregateName().Value) &
                          filterBuilder.Eq(model => model.AggregateId, identity.Value);
 
-            var sort = Builders<MongoDbSnapshotDataModel>.Sort.Descending(model => model.AggregateSequenceNumber);
+            var sort = Builders<MongoDbSnapshotDataModel<TSerialized>>.Sort.Descending(model => model.AggregateSequenceNumber);
             var mongoDbSnapshotDataModel = await collection
                 .Find(filter)
                 .Sort(sort)
@@ -71,7 +81,7 @@ namespace EventFlow.MongoDB.SnapshotStores
                 return null;
             }
 
-            return new CommittedSnapshot(
+            return new CommittedSnapshot<TSerialized>(
                 mongoDbSnapshotDataModel.Metadata,
                 mongoDbSnapshotDataModel.Data);
         }
@@ -79,10 +89,10 @@ namespace EventFlow.MongoDB.SnapshotStores
         public async Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<TSerialized> serializedSnapshot,
             CancellationToken cancellationToken)
         {
-            var mongoDbSnapshotDataModel = new MongoDbSnapshotDataModel
+            var mongoDbSnapshotDataModel = new MongoDbSnapshotDataModel<TSerialized>
             {
                 _id = ObjectId.GenerateNewId(DateTime.UtcNow),
                 AggregateId = identity.Value,
@@ -92,8 +102,8 @@ namespace EventFlow.MongoDB.SnapshotStores
                 Data = serializedSnapshot.SerializedData,
             };
 
-            var collection = _mongoDatabase.GetCollection<MongoDbSnapshotDataModel>(SnapShotsCollectionName);
-            var filterBuilder = Builders<MongoDbSnapshotDataModel>.Filter;
+            var collection = _mongoDatabase.GetCollection<MongoDbSnapshotDataModel<TSerialized>>(SnapShotsCollectionName);
+            var filterBuilder = Builders<MongoDbSnapshotDataModel<TSerialized>>.Filter;
 
             var filter = filterBuilder.Eq(model => model.AggregateName, aggregateType.GetAggregateName().Value) &
                          filterBuilder.Eq(model => model.AggregateId, identity.Value) &

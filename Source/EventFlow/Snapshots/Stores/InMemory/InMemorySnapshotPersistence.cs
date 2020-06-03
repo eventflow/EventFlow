@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,11 +32,20 @@ using EventFlow.Logs;
 
 namespace EventFlow.Snapshots.Stores.InMemory
 {
-    public class InMemorySnapshotPersistence : ISnapshotPersistence
+    public class InMemorySnapshotPersistence : InMemorySnapshotPersistence<string>, ISnapshotPersistence
+    {
+        public InMemorySnapshotPersistence(ILog log)
+            : base(log)
+        {
+        }
+    }
+
+    public class InMemorySnapshotPersistence<TSerialized> : ISnapshotPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
         private readonly AsyncLock _asyncLock = new AsyncLock();
-        private readonly Dictionary<Type, Dictionary<string, CommittedSnapshot>> _snapshots = new Dictionary<Type, Dictionary<string, CommittedSnapshot>>();
+        private readonly Dictionary<Type, Dictionary<string, CommittedSnapshot<TSerialized>>> _snapshots = new Dictionary<Type, Dictionary<string, CommittedSnapshot<TSerialized>>>();
 
         public InMemorySnapshotPersistence(
             ILog log)
@@ -43,21 +53,19 @@ namespace EventFlow.Snapshots.Stores.InMemory
             _log = log;
         }
 
-        public async Task<CommittedSnapshot> GetSnapshotAsync(
+        public async Task<CommittedSnapshot<TSerialized>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     return null;
                 }
 
-                CommittedSnapshot committedSnapshot;
-                return snapshots.TryGetValue(identity.Value, out committedSnapshot)
+                return snapshots.TryGetValue(identity.Value, out var committedSnapshot)
                     ? committedSnapshot
                     : null;
             }
@@ -66,17 +74,16 @@ namespace EventFlow.Snapshots.Stores.InMemory
         public async Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<TSerialized> serializedSnapshot,
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 _log.Verbose(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
-                    snapshots = new Dictionary<string, CommittedSnapshot>();
+                    snapshots = new Dictionary<string, CommittedSnapshot<TSerialized>>();
                     _snapshots[aggregateType] = snapshots;
                 }
 
@@ -93,8 +100,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
             {
                 _log.Verbose(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
 
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     return;
                 }

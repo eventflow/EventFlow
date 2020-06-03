@@ -350,7 +350,7 @@ namespace EventFlow.Tests.IntegrationTests
 
         private class ManualEventPersistence : IEventPersistence
         {
-            private readonly IEventPersistence<string> _inner;
+            private readonly IEventPersistence _inner;
 
             public ManualEventPersistence(IEventPersistence inner)
             {

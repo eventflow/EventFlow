@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -33,7 +34,16 @@ using EventFlow.Snapshots.Stores;
 
 namespace EventFlow.MsSql.SnapshotStores
 {
-    public class MsSqlSnapshotPersistence : ISnapshotPersistence
+    public class MsSqlSnapshotPersistence : MsSqlSnapshotPersistence<string>, ISnapshotPersistence
+    {
+        public MsSqlSnapshotPersistence(IMsSqlConnection msSqlConnection)
+            : base(msSqlConnection)
+        {
+        }
+    }
+
+    public class MsSqlSnapshotPersistence<TSerialized> : ISnapshotPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly IMsSqlConnection _msSqlConnection;
 
@@ -43,7 +53,7 @@ namespace EventFlow.MsSql.SnapshotStores
             _msSqlConnection = msSqlConnection;
         }
 
-        public async Task<CommittedSnapshot> GetSnapshotAsync(
+        public async Task<CommittedSnapshot<TSerialized>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
@@ -61,7 +71,7 @@ namespace EventFlow.MsSql.SnapshotStores
             }
 
             var msSqlSnapshotDataModel = msSqlSnapshotDataModels.Single();
-            return new CommittedSnapshot(
+            return new CommittedSnapshot<TSerialized>(
                 msSqlSnapshotDataModel.Metadata,
                 msSqlSnapshotDataModel.Data);
         }
@@ -69,11 +79,11 @@ namespace EventFlow.MsSql.SnapshotStores
         public async Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<TSerialized> serializedSnapshot,
             CancellationToken cancellationToken)
         {
             var msSqlSnapshotDataModel = new MsSqlSnapshotDataModel
-                {
+            {
                     AggregateId = identity.Value,
                     AggregateName = aggregateType.GetAggregateName().Value,
                     AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
@@ -131,13 +141,13 @@ namespace EventFlow.MsSql.SnapshotStores
                 "DELETE FROM [dbo].[EventFlowSnapshots]");
         }
 
-        public class MsSqlSnapshotDataModel
+        private class MsSqlSnapshotDataModel
         {
             public string AggregateId { get; set; }
             public string AggregateName { get; set; }
             public int AggregateSequenceNumber { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
+            public TSerialized Data { get; set; }
+            public TSerialized Metadata { get; set; }
         }
     }
 }

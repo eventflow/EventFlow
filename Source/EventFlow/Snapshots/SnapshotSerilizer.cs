@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,16 +33,26 @@ using EventFlow.Logs;
 
 namespace EventFlow.Snapshots
 {
-    public class SnapshotSerilizer : ISnapshotSerilizer
+    public class SnapshotSerilizer : SnapshotSerilizer<string>, ISnapshotSerilizer
+    {
+        public SnapshotSerilizer(ILog log, IJsonSerializer serializer, ISnapshotUpgradeService snapshotUpgradeService,
+            ISnapshotDefinitionService snapshotDefinitionService)
+            : base(log, serializer, snapshotUpgradeService, snapshotDefinitionService)
+        {
+        }
+    }
+
+    public class SnapshotSerilizer<TSerialized> : ISnapshotSerilizer<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
-        private readonly IJsonSerializer _serializer;
+        private readonly ISerializer<TSerialized> _serializer;
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
 
         public SnapshotSerilizer(
             ILog log,
-            IJsonSerializer serializer,
+            ISerializer<TSerialized> serializer,
             ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotDefinitionService snapshotDefinitionService)
         {
@@ -51,7 +62,7 @@ namespace EventFlow.Snapshots
             _snapshotDefinitionService = snapshotDefinitionService;
         }
 
-        public Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+        public Task<SerializedSnapshot<TSerialized>> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
             SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
@@ -71,14 +82,14 @@ namespace EventFlow.Snapshots
             var serializedMetadata = _serializer.Serialize(updatedSnapshotMetadata);
             var serializedData = _serializer.Serialize(snapshotContainer.Snapshot);
 
-            return Task.FromResult(new SerializedSnapshot(
+            return Task.FromResult(new SerializedSnapshot<TSerialized>(
                 serializedMetadata,
                 serializedData,
                 updatedSnapshotMetadata));
         }
 
         public async Task<SnapshotContainer> DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
-            CommittedSnapshot committedSnapshot,
+            CommittedSnapshot<TSerialized> committedSnapshot,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
             where TIdentity : IIdentity

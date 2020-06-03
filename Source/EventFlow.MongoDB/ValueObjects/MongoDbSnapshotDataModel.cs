@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections;
 using EventFlow.ValueObjects;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -28,7 +29,12 @@ using Newtonsoft.Json;
 
 namespace EventFlow.MongoDB.ValueObjects
 {
-    public class MongoDbSnapshotDataModel : ValueObject
+    public class MongoDbSnapshotDataModel : MongoDbSnapshotDataModel<string>
+    {
+    }
+
+    public class MongoDbSnapshotDataModel<TSerialized> : ValueObject
+        where TSerialized : IEnumerable
     {
         [BsonElement("_id")]
         public ObjectId _id { get; set; }
@@ -40,8 +46,8 @@ namespace EventFlow.MongoDB.ValueObjects
         [JsonProperty("aggregateSequenceNumber")]
         public int AggregateSequenceNumber { get; set; }
         [JsonProperty("data")]
-        public string Data { get; set; }
+        public TSerialized Data { get; set; }
         [JsonProperty("metaData")]
-        public string Metadata { get; set; }
+        public TSerialized Metadata { get; set; }
     }
 }

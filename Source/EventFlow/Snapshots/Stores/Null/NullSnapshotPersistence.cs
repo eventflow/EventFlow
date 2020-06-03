@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -30,7 +31,16 @@ using EventFlow.Logs;
 
 namespace EventFlow.Snapshots.Stores.Null
 {
-    public class NullSnapshotPersistence : ISnapshotPersistence
+    public class NullSnapshotPersistence : NullSnapshotPersistence<string>, ISnapshotPersistence
+    {
+        public NullSnapshotPersistence(ILog log)
+            : base(log)
+        {
+        }
+    }
+
+    public class NullSnapshotPersistence<TSerialized> : ISnapshotPersistence<TSerialized>
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
 
@@ -40,18 +50,18 @@ namespace EventFlow.Snapshots.Stores.Null
             _log = log;
         }
 
-        public Task<CommittedSnapshot> GetSnapshotAsync(
+        public Task<CommittedSnapshot<TSerialized>> GetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(null as CommittedSnapshot);
+            return Task.FromResult(null as CommittedSnapshot<TSerialized>);
         }
 
         public Task SetSnapshotAsync(
             Type aggregateType,
             IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
+            SerializedSnapshot<TSerialized> serializedSnapshot,
             CancellationToken cancellationToken)
         {
             _log.Warning($"Trying to store aggregate snapshot '{aggregateType.PrettyPrint()}' with ID '{identity}' in the NULL store. Configure another store!");

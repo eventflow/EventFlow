@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -39,6 +40,7 @@ namespace EventFlow.Commands
     }
 
     public class CommandScheduler<TSerialized> : ICommandScheduler
+        where TSerialized : IEnumerable
     {
         private readonly IJobScheduler _jobScheduler;
         private readonly ICommandDefinitionService _commandDefinitionService;

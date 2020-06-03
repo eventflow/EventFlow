@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -30,16 +31,25 @@ using EventFlow.Snapshots.Stores;
 
 namespace EventFlow.Snapshots
 {
-    public class SnapshotStore : ISnapshotStore
+    public class SnapshotStore : SnapshotStore<string>
+    {
+        public SnapshotStore(ILog log, ISnapshotSerilizer snapshotSerilizer, ISnapshotPersistence snapshotPersistence)
+            : base(log, snapshotSerilizer, snapshotPersistence)
+        {
+        }
+    }
+
+    public class SnapshotStore<TSerialized> : ISnapshotStore
+        where TSerialized : IEnumerable
     {
         private readonly ILog _log;
-        private readonly ISnapshotSerilizer _snapshotSerilizer;
-        private readonly ISnapshotPersistence _snapshotPersistence;
+        private readonly ISnapshotSerilizer<TSerialized> _snapshotSerilizer;
+        private readonly ISnapshotPersistence<TSerialized> _snapshotPersistence;
 
         public SnapshotStore(
             ILog log,
-            ISnapshotSerilizer snapshotSerilizer,
-            ISnapshotPersistence snapshotPersistence)
+            ISnapshotSerilizer<TSerialized> snapshotSerilizer,
+            ISnapshotPersistence<TSerialized> snapshotPersistence)
         {
             _log = log;
             _snapshotSerilizer = snapshotSerilizer;
