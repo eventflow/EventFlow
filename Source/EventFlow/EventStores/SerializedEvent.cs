@@ -25,16 +25,25 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
-    public class SerializedEvent : ISerializedEvent<string>
+    public class SerializedEvent : SerializedEvent<string>, ISerializedEvent
     {
-        public string SerializedMetadata { get; }
-        public string SerializedData { get; }
+        public SerializedEvent(string serializedMetadata, string serializedData, int aggregateSequenceNumber,
+            IMetadata metadata)
+            : base(serializedMetadata, serializedData, aggregateSequenceNumber, metadata)
+        {
+        }
+    }
+
+    public class SerializedEvent<TSerialized> : ISerializedEvent<TSerialized>
+    {
+        public TSerialized SerializedMetadata { get; }
+        public TSerialized SerializedData { get; }
         public int AggregateSequenceNumber { get; }
         public IMetadata Metadata { get; }
 
         public SerializedEvent(
-            string serializedMetadata,
-            string serializedData,
+            TSerialized serializedMetadata,
+            TSerialized serializedData,
             int aggregateSequenceNumber,
             IMetadata metadata)
         {
