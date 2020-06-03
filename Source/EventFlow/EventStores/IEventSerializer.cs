@@ -27,7 +27,11 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventSerializer<TSerialized>
+    public interface IEventSerializer : IEventSerializer<string>
+    {
+    }
+
+    public interface IEventSerializer<in TSerialized>
     {
         SerializedEvent Serialize(
             IDomainEvent domainEvent);

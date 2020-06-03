@@ -28,6 +28,10 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
+    public interface IEventPersistence : IEventPersistence<string>
+    {
+    }
+
     public interface IEventPersistence<TSerialized>
     {
         Task<AllCommittedEventsPage> LoadAllCommittedEvents(

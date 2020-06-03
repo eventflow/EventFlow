@@ -23,7 +23,11 @@
 
 namespace EventFlow.EventStores
 {
-    public interface ICommittedDomainEvent<TSerialized>
+    public interface ICommittedDomainEvent : ICommittedDomainEvent<string>
+    {
+    }
+
+    public interface ICommittedDomainEvent<out TSerialized>
     {
         string AggregateId { get; }
         TSerialized Data { get; }

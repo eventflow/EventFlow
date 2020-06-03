@@ -25,6 +25,10 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.EventStores
 {
+    public interface ISerializedEvent : ISerializedEvent<string>
+    {
+    }
+
     public interface ISerializedEvent<out TSerialized>
     {
         TSerialized SerializedMetadata { get; }
