@@ -36,16 +36,24 @@ using EventStore.ClientAPI.Exceptions;
 
 namespace EventFlow.EventStores.EventStore
 {
-    public class EventStoreEventPersistence : IEventPersistence<string>
+    public class EventStoreEventPersistence : EventStoreEventPersistence<string>, IEventPersistence
+    {
+        public EventStoreEventPersistence(ILog log, IEventStoreConnection connection)
+            : base(log, connection)
+        {
+        }
+    }
+
+    public class EventStoreEventPersistence<TSerialized> : IEventPersistence<TSerialized>
     {
         private readonly ILog _log;
         private readonly IEventStoreConnection _connection;
 
-        private class EventStoreEvent : ICommittedDomainEvent<string>
+        private class EventDataModel : ICommittedDomainEvent<TSerialized>
         {
             public string AggregateId { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
+            public TSerialized Data { get; set; }
+            public TSerialized Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
         }
 
@@ -57,7 +65,7 @@ namespace EventFlow.EventStores.EventStore
             _connection = connection;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
+        public async Task<AllCommittedEventsPage<TSerialized>> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -77,7 +85,7 @@ namespace EventFlow.EventStores.EventStore
 
             var eventStoreEvents = Map(resolvedEvents);
 
-            return new AllCommittedEventsPage(
+            return new AllCommittedEventsPage<TSerialized>(
                 new GlobalPosition(string.Format("{0}-{1}", nextPosition.CommitPosition, nextPosition.PreparePosition)),
                 eventStoreEvents);
         }
@@ -103,13 +111,13 @@ namespace EventFlow.EventStores.EventStore
             return new Position(commitPosition, preparePosition);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> CommitEventsAsync(
             IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            IReadOnlyCollection<SerializedEvent<TSerialized>> serializedEvents,
             CancellationToken cancellationToken)
         {
             var committedDomainEvents = serializedEvents
-                .Select(e => new EventStoreEvent
+                .Select(e => new EventDataModel
                     {
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
                         Metadata = e.SerializedMetadata,
@@ -120,16 +128,31 @@ namespace EventFlow.EventStores.EventStore
 
             var expectedVersion = Math.Max(serializedEvents.Min(e => e.AggregateSequenceNumber) - 2, ExpectedVersion.NoStream);
             var eventDatas = serializedEvents
-                .Select(e =>
+                .Select(serializedEvent =>
                     {
                         // While it might be tempting to use e.Metadata.EventId here, we can't
                         // as EventStore won't detect optimistic concurrency exceptions then
                         var guid = Guid.NewGuid();
 
-                        var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
-                        var data = Encoding.UTF8.GetBytes(e.SerializedData);
-                        var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
-                        return new EventData(guid, eventType, true, data, meta);
+                        var eventType = string.Format("{0}.{1}.{2}", serializedEvent.Metadata[MetadataKeys.AggregateName], serializedEvent.Metadata.EventName, serializedEvent.Metadata.EventVersion);
+
+                        switch (serializedEvent)
+                        {
+                            case ISerializedEvent<byte[]> binarySerializedEvents:
+                            {
+                                var data = binarySerializedEvents.SerializedData;
+                                var meta = binarySerializedEvents.SerializedMetadata;
+                                return new EventData(guid, eventType, true, data, meta);
+                            }
+                            case ISerializedEvent<string> stringSerializedEvent:
+                            {
+                                var data = Encoding.UTF8.GetBytes(stringSerializedEvent.SerializedData);
+                                var meta = Encoding.UTF8.GetBytes(stringSerializedEvent.SerializedMetadata);
+                                return new EventData(guid, eventType, true, data, meta);
+                            }
+                        }
+
+                        return default;
                     })
                 .ToList();
 
@@ -156,7 +179,7 @@ namespace EventFlow.EventStores.EventStore
             return committedDomainEvents;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
@@ -190,16 +213,35 @@ namespace EventFlow.EventStores.EventStore
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
         }
 
-        private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
+        private IReadOnlyCollection<EventDataModel> Map(IEnumerable<ResolvedEvent> resolvedEvents)
         {
             return resolvedEvents
-                .Select(e => new EventStoreEvent
+                .Select(e =>
+                {
+                    var eventDataModel = new EventDataModel
                     {
-                        AggregateSequenceNumber = (int)(e.Event.EventNumber + 1), // Starts from zero
-                        Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
+                        AggregateSequenceNumber = (int) (e.Event.EventNumber + 1), // Starts from zero
                         AggregateId = e.OriginalStreamId,
-                        Data = Encoding.UTF8.GetString(e.Event.Data),
-                    })
+                    };
+
+                    switch (eventDataModel)
+                    {
+                        case ICommittedDomainEvent<byte[]> binaryEventDataModel:
+                        {
+                            binaryEventDataModel.Metadata = e.Event.Metadata;
+                            binaryEventDataModel.Data = e.Event.Data;
+                            break;
+                        }
+                        case ICommittedDomainEvent<string> stringEventDataModel:
+                        {
+                            stringEventDataModel.Metadata = Encoding.UTF8.GetString(e.Event.Metadata);
+                            stringEventDataModel.Data = Encoding.UTF8.GetString(e.Event.Data);
+                            break;
+                        }
+                    }
+
+                    return eventDataModel;
+                })
                 .ToList();
         }
     }

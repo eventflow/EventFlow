@@ -25,14 +25,22 @@ using System.Collections.Generic;
 
 namespace EventFlow.EventStores
 {
-    public class AllCommittedEventsPage
+    public class AllCommittedEventsPage : AllCommittedEventsPage<string>
+    {
+        public AllCommittedEventsPage(GlobalPosition nextGlobalPosition, IReadOnlyCollection<ICommittedDomainEvent<string>> committedDomainEvents)
+            : base(nextGlobalPosition, committedDomainEvents)
+        {
+        }
+    }
+
+    public class AllCommittedEventsPage<TSerialized>
     {
         public GlobalPosition NextGlobalPosition { get; }
-        public IReadOnlyCollection<ICommittedDomainEvent<string>> CommittedDomainEvents { get; }
+        public IReadOnlyCollection<ICommittedDomainEvent<TSerialized>> CommittedDomainEvents { get; }
 
         public AllCommittedEventsPage(
             GlobalPosition nextGlobalPosition,
-            IReadOnlyCollection<ICommittedDomainEvent<string>> committedDomainEvents)
+            IReadOnlyCollection<ICommittedDomainEvent<TSerialized>> committedDomainEvents)
         {
             NextGlobalPosition = nextGlobalPosition;
             CommittedDomainEvents = committedDomainEvents;

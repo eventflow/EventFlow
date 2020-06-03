@@ -32,13 +32,13 @@ namespace EventFlow.Jobs
     public class JobRunner : IJobRunner
     {
         private readonly IJobDefinitionService _jobDefinitionService;
-        private readonly ISerializer<string> _serializer;
+        private readonly IJsonSerializer _serializer;
         private readonly IResolver _resolver;
 
         public JobRunner(
             IResolver resolver,
             IJobDefinitionService jobDefinitionService,
-            ISerializer<string> serializer)
+            IJsonSerializer serializer)
         {
             _resolver = resolver;
             _jobDefinitionService = jobDefinitionService;

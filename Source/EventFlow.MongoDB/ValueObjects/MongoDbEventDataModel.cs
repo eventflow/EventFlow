@@ -29,7 +29,11 @@ using Newtonsoft.Json;
 
 namespace EventFlow.MongoDB.ValueObjects
 {
-    public class MongoDbEventDataModel : ValueObject, ICommittedDomainEvent<string>
+    public class MongoDbEventDataModel : MongoDbEventDataModel<string>
+    {
+    }
+
+    public class MongoDbEventDataModel<TSerialized> : ValueObject, ICommittedDomainEvent<TSerialized>
     {
         [BsonElement("_id")]
         public long _id { get; set; }
@@ -49,9 +53,9 @@ namespace EventFlow.MongoDB.ValueObjects
         public int AggregateSequenceNumber { get; set; }
 
         [JsonProperty("data")]
-        public string Data { get; set; }
+        public TSerialized Data { get; set; }
 
         [JsonProperty("metaData")]
-        public string Metadata { get; set; }
+        public TSerialized Metadata { get; set; }
     }
 }

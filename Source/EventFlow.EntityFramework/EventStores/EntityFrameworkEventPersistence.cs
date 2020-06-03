@@ -36,7 +36,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.EventStores
 {
-    public class EntityFrameworkEventPersistence<TDbContext> : IEventPersistence<string>
+    public class EntityFrameworkEventPersistence<TDbContext> : EntityFrameworkEventPersistence<TDbContext, string>, IEventPersistence
+        where TDbContext : DbContext
+    {
+        public EntityFrameworkEventPersistence(ILog log, IDbContextProvider<TDbContext> contextProvider, IUniqueConstraintDetectionStrategy strategy)
+            : base(log, contextProvider, strategy)
+        {
+        }
+    }
+
+    public class EntityFrameworkEventPersistence<TDbContext, TSerialized> : IEventPersistence<TSerialized>
         where TDbContext : DbContext
     {
         private readonly IDbContextProvider<TDbContext> _contextProvider;
@@ -54,7 +63,7 @@ namespace EventFlow.EntityFramework.EventStores
             _strategy = strategy;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
+        public async Task<AllCommittedEventsPage<TSerialized>> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
             CancellationToken cancellationToken)
         {
             var startPosition = globalPosition.IsStart
@@ -64,7 +73,7 @@ namespace EventFlow.EntityFramework.EventStores
             using (var context = _contextProvider.CreateContext())
             {
                 var entities = await context
-                    .Set<EventEntity>()
+                    .Set<EventEntity<TSerialized>>()
                     .OrderBy(e => e.GlobalSequenceNumber)
                     .Where(e => e.GlobalSequenceNumber >= startPosition)
                     .Take(pageSize)
@@ -75,18 +84,18 @@ namespace EventFlow.EntityFramework.EventStores
                     ? entities.Max(e => e.GlobalSequenceNumber) + 1
                     : startPosition;
 
-                return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), entities);
+                return new AllCommittedEventsPage<TSerialized>(new GlobalPosition(nextPosition.ToString()), entities);
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> CommitEventsAsync(IIdentity id,
+            IReadOnlyCollection<SerializedEvent<TSerialized>> serializedEvents, CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
-                return new ICommittedDomainEvent<string>[0];
+                return new ICommittedDomainEvent<TSerialized>[0];
 
             var entities = serializedEvents
-                .Select((e, i) => new EventEntity
+                .Select((e, i) => new EventEntity<TSerialized>
                 {
                     AggregateId = id.Value,
                     AggregateName = e.Metadata[MetadataKeys.AggregateName],
@@ -122,13 +131,13 @@ namespace EventFlow.EntityFramework.EventStores
             return entities;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(IIdentity id,
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> LoadCommittedEventsAsync(IIdentity id,
             int fromEventSequenceNumber, CancellationToken cancellationToken)
         {
             using (var context = _contextProvider.CreateContext())
             {
                 var entities = await context
-                    .Set<EventEntity>()
+                    .Set<EventEntity<TSerialized>>()
                     .Where(e => e.AggregateId == id.Value
                                 && e.AggregateSequenceNumber >= fromEventSequenceNumber)
                     .OrderBy(e => e.AggregateSequenceNumber)
@@ -143,7 +152,7 @@ namespace EventFlow.EntityFramework.EventStores
         {
             using (var context = _contextProvider.CreateContext())
             {
-                var entities = await context.Set<EventEntity>()
+                var entities = await context.Set<EventEntity<TSerialized>>()
                     .Where(e => e.AggregateId == id.Value)
                     .Select(e => new EventEntity {GlobalSequenceNumber = e.GlobalSequenceNumber})
                     .ToListAsync(cancellationToken)

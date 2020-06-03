@@ -31,12 +31,12 @@ namespace EventFlow.RabbitMQ.Integrations
     public class RabbitMqMessageFactory : IRabbitMqMessageFactory
     {
         private readonly ILog _log;
-        private readonly IEventSerializer<string> _eventJsonSerializer;
+        private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IRabbitMqConfiguration _rabbitMqConfiguration;
 
         public RabbitMqMessageFactory(
             ILog log,
-            IEventSerializer<string> eventJsonSerializer,
+            IEventJsonSerializer eventJsonSerializer,
             IRabbitMqConfiguration rabbitMqConfiguration)
         {
             _log = log;

@@ -190,7 +190,7 @@ namespace EventFlow.Tests.IntegrationTests
                 {
                     s.Decorate<IInMemoryReadStore<InMemoryThingyReadModel>>((c, i) =>
                         _readStore ?? (_readStore = new ManualReadStore(i)));
-                    s.Decorate<IEventPersistence<string>>((c, i) =>
+                    s.Decorate<IEventPersistence>((c, i) =>
                         _eventPersistence ?? (_eventPersistence = new ManualEventPersistence(i)));
                     s.Register<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyPingCommand>>(c =>
                         _commandHandler);
@@ -348,11 +348,11 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        private class ManualEventPersistence : IEventPersistence<string>
+        private class ManualEventPersistence : IEventPersistence
         {
             private readonly IEventPersistence<string> _inner;
 
-            public ManualEventPersistence(IEventPersistence<string> inner)
+            public ManualEventPersistence(IEventPersistence inner)
             {
                 _inner = inner;
             }
@@ -360,14 +360,14 @@ namespace EventFlow.Tests.IntegrationTests
             public TaskCompletionSource<bool> CommitCompletionSource { get; } = new TaskCompletionSource<bool>();
             public TaskCompletionSource<bool> LoadCompletionSource { get; } = new TaskCompletionSource<bool>();
 
-            public Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
+            public Task<AllCommittedEventsPage<string>> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
                 CancellationToken cancellationToken)
             {
                 return _inner.LoadAllCommittedEvents(globalPosition, pageSize, cancellationToken);
             }
 
             public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(IIdentity id,
-                IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+                IReadOnlyCollection<SerializedEvent<string>> serializedEvents, CancellationToken cancellationToken)
             {
                 var result = await _inner.CommitEventsAsync(id, serializedEvents, cancellationToken);
                 await CommitCompletionSource.Task;

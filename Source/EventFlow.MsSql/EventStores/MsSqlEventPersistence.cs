@@ -35,16 +35,24 @@ using EventFlow.Logs;
 
 namespace EventFlow.MsSql.EventStores
 {
-    public class MsSqlEventPersistence : IEventPersistence<string>
+    public class MsSqlEventPersistence : MsSqlEventPersistence<string>, IEventPersistence
     {
-        public class EventDataModel : ICommittedDomainEvent<string>
+        public MsSqlEventPersistence(ILog log, IMsSqlConnection connection)
+            : base(log, connection)
+        {
+        }
+    }
+
+    public class MsSqlEventPersistence<TSerialized> : IEventPersistence<TSerialized>
+    {
+        private class EventDataModel : ICommittedDomainEvent<TSerialized>
         {
             public long GlobalSequenceNumber { get; set; }
             public Guid BatchId { get; set; }
             public string AggregateId { get; set; }
             public string AggregateName { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
+            public TSerialized Data { get; set; }
+            public TSerialized Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
         }
 
@@ -59,7 +67,7 @@ namespace EventFlow.MsSql.EventStores
             _connection = connection;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
+        public async Task<AllCommittedEventsPage<TSerialized>> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -91,17 +99,17 @@ namespace EventFlow.MsSql.EventStores
                 ? eventDataModels.Max(e => e.GlobalSequenceNumber) + 1
                 : startPosition;
 
-            return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
+            return new AllCommittedEventsPage<TSerialized>(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> CommitEventsAsync(
             IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            IReadOnlyCollection<SerializedEvent<TSerialized>> serializedEvents,
             CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
-                return new ICommittedDomainEvent<string>[] {};
+                return new ICommittedDomainEvent<TSerialized>[] {};
             }
 
             var eventDataModels = serializedEvents
@@ -168,7 +176,7 @@ namespace EventFlow.MsSql.EventStores
             return eventDataModels;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)

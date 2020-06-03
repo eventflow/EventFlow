@@ -34,14 +34,14 @@ namespace EventFlow.EventStores
 
     public interface IEventPersistence<TSerialized>
     {
-        Task<AllCommittedEventsPage> LoadAllCommittedEvents(
+        Task<AllCommittedEventsPage<TSerialized>> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> CommitEventsAsync(
             IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            IReadOnlyCollection<SerializedEvent<TSerialized>> serializedEvents,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> LoadCommittedEventsAsync(

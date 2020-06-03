@@ -53,7 +53,7 @@ namespace EventFlow.TestHelpers
         protected ISnapshotStore SnapshotStore { get; private set; }
         protected ISnapshotPersistence SnapshotPersistence { get; private set; }
         protected ISnapshotDefinitionService SnapshotDefinitionService { get; private set; }
-        protected IEventPersistence<string> EventPersistence { get; private set; }
+        protected IEventPersistence EventPersistence { get; private set; }
         protected IQueryProcessor QueryProcessor { get; private set; }
         protected ICommandBus CommandBus { get; private set; }
         protected ISagaStore SagaStore { get; private set; }
@@ -75,7 +75,7 @@ namespace EventFlow.TestHelpers
             SnapshotStore = Resolver.Resolve<ISnapshotStore>();
             SnapshotPersistence = Resolver.Resolve<ISnapshotPersistence>();
             SnapshotDefinitionService = Resolver.Resolve<ISnapshotDefinitionService>();
-            EventPersistence = Resolver.Resolve<IEventPersistence<string>>();
+            EventPersistence = Resolver.Resolve<IEventPersistence>();
             CommandBus = Resolver.Resolve<ICommandBus>();
             QueryProcessor = Resolver.Resolve<IQueryProcessor>();
             ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();

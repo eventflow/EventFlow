@@ -35,13 +35,13 @@ namespace EventFlow.Snapshots
     public class SnapshotSerilizer : ISnapshotSerilizer
     {
         private readonly ILog _log;
-        private readonly ISerializer<string> _serializer;
+        private readonly IJsonSerializer _serializer;
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
 
         public SnapshotSerilizer(
             ILog log,
-            ISerializer<string> serializer,
+            IJsonSerializer serializer,
             ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotDefinitionService snapshotDefinitionService)
         {

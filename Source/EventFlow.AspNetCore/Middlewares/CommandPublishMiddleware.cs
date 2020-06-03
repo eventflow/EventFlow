@@ -43,18 +43,18 @@ namespace EventFlow.AspNetCore.Middlewares
 
         private readonly RequestDelegate _next;
         private readonly ILog _log;
-        private readonly ISerializer<string> _serializer;
+        private readonly IJsonSerializer _jsonSerializer;
         private readonly ISerializedCommandPublisher _serializedCommandPublisher;
 
         public CommandPublishMiddleware(
             RequestDelegate next,
             ILog log,
-            ISerializer<string> serializer,
+            IJsonSerializer jsonSerializer,
             ISerializedCommandPublisher serializedCommandPublisher)
         {
             _next = next;
             _log = log;
-            _serializer = serializer;
+            _jsonSerializer = jsonSerializer;
             _serializedCommandPublisher = serializedCommandPublisher;
         }
 
@@ -123,7 +123,7 @@ namespace EventFlow.AspNetCore.Middlewares
 
         private async Task WriteAsync(object obj, HttpStatusCode statusCode, HttpContext context)
         {
-            var json = _serializer.Serialize(obj);
+            var json = _jsonSerializer.Serialize(obj);
             context.Response.StatusCode = (int) statusCode;
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }

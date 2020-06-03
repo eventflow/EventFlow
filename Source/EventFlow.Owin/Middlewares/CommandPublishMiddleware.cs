@@ -42,18 +42,18 @@ namespace EventFlow.Owin.Middlewares
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly ILog _log;
-        private readonly ISerializer<string> _serializer;
+        private readonly IJsonSerializer _jsonSerializer;
         private readonly ISerializedCommandPublisher _serializedCommandPublisher;
 
         public CommandPublishMiddleware(
             OwinMiddleware next,
             ILog log,
-            ISerializer<string> serializer,
+            IJsonSerializer jsonSerializer,
             ISerializedCommandPublisher serializedCommandPublisher)
             : base(next)
         {
             _log = log;
-            _serializer = serializer;
+            _jsonSerializer = jsonSerializer;
             _serializedCommandPublisher = serializedCommandPublisher;
         }
 
@@ -122,7 +122,7 @@ namespace EventFlow.Owin.Middlewares
 
         private async Task WriteAsync(object obj, HttpStatusCode statusCode, IOwinContext owinContext)
         {
-            var json = _serializer.Serialize(obj);
+            var json = _jsonSerializer.Serialize(obj);
             owinContext.Response.StatusCode = (int) statusCode;
             await owinContext.Response.WriteAsync(json).ConfigureAwait(false);
         }

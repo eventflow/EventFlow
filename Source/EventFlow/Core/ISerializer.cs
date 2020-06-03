@@ -25,6 +25,10 @@ using System;
 
 namespace EventFlow.Core
 {
+    public interface IJsonSerializer : ISerializer<string>
+    {
+    }
+
     public interface ISerializer<TSerialized>
     {
         TSerialized Serialize(object obj, bool indented = false);

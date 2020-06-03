@@ -31,10 +31,19 @@ using EventFlow.Jobs;
 namespace EventFlow.Provided.Jobs
 {
     [JobVersion("PublishCommand", 1)]
-    public class PublishCommandJob : IJob
+    public class PublishCommandJob : PublishCommandJob<string>
+    {
+        public PublishCommandJob(string data, string name, int version)
+            : base(data, name, version)
+        {
+        }
+    }
+
+    [JobVersion("PublishCommand", 1)]
+    public class PublishCommandJob<TSerialized> : IJob
     {
         public PublishCommandJob(
-            string data,
+            TSerialized data,
             string name,
             int version)
         {
@@ -43,14 +52,14 @@ namespace EventFlow.Provided.Jobs
             Version = version;
         }
 
-        public string Data { get; }
+        public TSerialized Data { get; }
         public string Name { get; }
         public int Version { get; }
 
         public Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
         {
             var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var serializer = resolver.Resolve<ISerializer<string>>();
+            var serializer = resolver.Resolve<ISerializer<TSerialized>>();
             var commandBus = resolver.Resolve<ICommandBus>();
 
             var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
@@ -64,20 +73,26 @@ namespace EventFlow.Provided.Jobs
             IResolver resolver)
         {
             var commandDefinitionService = resolver.Resolve<ICommandDefinitionService>();
-            var serializer = resolver.Resolve<ISerializer<string>>();
+            var serializer = resolver.Resolve<IJsonSerializer>();
 
-            return Create(command, commandDefinitionService, serializer);
-        }
-
-        public static PublishCommandJob Create(
-            ICommand command,
-            ICommandDefinitionService commandDefinitionService,
-            ISerializer<string> serializer)
-        {
             var data = serializer.Serialize(command);
             var commandDefinition = commandDefinitionService.GetDefinition(command.GetType());
 
             return new PublishCommandJob(
+                data,
+                commandDefinition.Name,
+                commandDefinition.Version);
+        }
+
+        public static PublishCommandJob<TSerialized> Create(
+            ICommand command,
+            ICommandDefinitionService commandDefinitionService,
+            ISerializer<TSerialized> serializer)
+        {
+            var data = serializer.Serialize(command);
+            var commandDefinition = commandDefinitionService.GetDefinition(command.GetType());
+
+            return new PublishCommandJob<TSerialized>(
                 data,
                 commandDefinition.Name,
                 commandDefinition.Version);

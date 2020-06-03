@@ -34,11 +34,23 @@ using EventFlow.Snapshots;
 
 namespace EventFlow.EventStores
 {
-    public class EventStoreBase : IEventStore
+    public class EventStoreBase : EventStoreBase<string>
+    {
+        public EventStoreBase(ILog log, IAggregateFactory aggregateFactory, IEventJsonSerializer eventJsonSerializer,
+            IEventUpgradeManager eventUpgradeManager,
+            IEnumerable<IMetadataProvider> metadataProviders,
+            IEventPersistence eventPersistence,
+            ISnapshotStore snapshotStore)
+            : base(log, aggregateFactory, eventJsonSerializer, eventUpgradeManager, metadataProviders, eventPersistence, snapshotStore)
+        {
+        }
+    }
+
+    public class EventStoreBase<TSerialized> : IEventStore
     {
         private readonly IAggregateFactory _aggregateFactory;
-        private readonly IEventSerializer<string> _eventJsonSerializer;
-        private readonly IEventPersistence<string> _eventPersistence;
+        private readonly IEventSerializer<TSerialized> _eventSerializer;
+        private readonly IEventPersistence<TSerialized> _eventPersistence;
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventUpgradeManager _eventUpgradeManager;
         private readonly ILog _log;
@@ -47,17 +59,17 @@ namespace EventFlow.EventStores
         public EventStoreBase(
             ILog log,
             IAggregateFactory aggregateFactory,
-            IEventSerializer<string> eventJsonSerializer,
+            IEventSerializer<TSerialized> eventSerializer,
             IEventUpgradeManager eventUpgradeManager,
             IEnumerable<IMetadataProvider> metadataProviders,
-            IEventPersistence<string> eventPersistence,
+            IEventPersistence<TSerialized> eventPersistence,
             ISnapshotStore snapshotStore)
         {
             _eventPersistence = eventPersistence;
             _snapshotStore = snapshotStore;
             _log = log;
             _aggregateFactory = aggregateFactory;
-            _eventJsonSerializer = eventJsonSerializer;
+            _eventSerializer = eventSerializer;
             _eventUpgradeManager = eventUpgradeManager;
             _metadataProviders = metadataProviders.ToList();
         }
@@ -95,7 +107,7 @@ namespace EventFlow.EventStores
                             .SelectMany(p => p.ProvideMetadata<TAggregate, TIdentity>(id, e.AggregateEvent, e.Metadata))
                             .Concat(e.Metadata)
                             .Concat(storeMetadata);
-                        return _eventJsonSerializer.Serialize(e.AggregateEvent, md);
+                        return _eventSerializer.Serialize(e.AggregateEvent, md);
                     })
                 .ToList();
 
@@ -106,7 +118,7 @@ namespace EventFlow.EventStores
                 .ConfigureAwait(false);
 
             var domainEvents = committedDomainEvents
-                .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                .Select(e => _eventSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
             return domainEvents;
@@ -125,7 +137,7 @@ namespace EventFlow.EventStores
                 cancellationToken)
                 .ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent>) allCommittedEventsPage.CommittedDomainEvents
-                .Select(e => _eventJsonSerializer.Deserialize(e))
+                .Select(e => _eventSerializer.Deserialize(e))
                 .ToList();
             domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
             return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
@@ -158,7 +170,7 @@ namespace EventFlow.EventStores
                 cancellationToken)
                 .ConfigureAwait(false);
             var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
-                .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
+                .Select(e => _eventSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();
 
             if (!domainEvents.Any())

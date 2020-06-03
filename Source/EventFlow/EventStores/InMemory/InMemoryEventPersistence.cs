@@ -38,7 +38,15 @@ using Newtonsoft.Json;
 
 namespace EventFlow.EventStores.InMemory
 {
-    public class InMemoryEventPersistence : IEventPersistence<string>, IDisposable
+    public class InMemoryEventPersistence : InMemoryEventPersistence<string>, IEventPersistence
+    {
+        public InMemoryEventPersistence(ILog log)
+            : base(log)
+        {
+        }
+    }
+
+    public class InMemoryEventPersistence<TSerialized> : IEventPersistence<TSerialized>, IDisposable
     {
         private readonly ILog _log;
 
@@ -47,13 +55,13 @@ namespace EventFlow.EventStores.InMemory
 
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        private class InMemoryCommittedDomainEvent : ICommittedDomainEvent<string>
+        private class InMemoryCommittedDomainEvent : ICommittedDomainEvent<TSerialized>
         {
             public long GlobalSequenceNumber { get; set; }
             public string AggregateId { get; set; }
             public string AggregateName { private get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
+            public TSerialized Data { get; set; }
+            public TSerialized Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
 
             public override string ToString()
@@ -61,9 +69,9 @@ namespace EventFlow.EventStores.InMemory
                 return new StringBuilder()
                     .AppendLineFormat("{0} v{1} ==================================", AggregateName,
                         AggregateSequenceNumber)
-                    .AppendLine(PrettifyJson(Metadata))
+                    .AppendLine(PrettifyJson(Metadata.ToString()))
                     .AppendLine("---------------------------------")
-                    .AppendLine(PrettifyJson(Data))
+                    .AppendLine(PrettifyJson(Data.ToString()))
                     .Append("---------------------------------")
                     .ToString();
             }
@@ -118,7 +126,7 @@ namespace EventFlow.EventStores.InMemory
             _log = log;
         }
 
-        public Task<AllCommittedEventsPage> LoadAllCommittedEvents(
+        public Task<AllCommittedEventsPage<TSerialized>> LoadAllCommittedEvents(
             GlobalPosition globalPosition,
             int pageSize,
             CancellationToken cancellationToken)
@@ -138,17 +146,17 @@ namespace EventFlow.EventStores.InMemory
                 ? committedDomainEvents.Max(e => e.GlobalSequenceNumber) + 1
                 : startPosition;
 
-            return Task.FromResult(new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
+            return Task.FromResult(new AllCommittedEventsPage<TSerialized>(new GlobalPosition(nextPosition.ToString()), committedDomainEvents));
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> CommitEventsAsync(
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> CommitEventsAsync(
             IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            IReadOnlyCollection<SerializedEvent<TSerialized>> serializedEvents,
             CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
-                return new List<ICommittedDomainEvent<string>>();
+                return new List<ICommittedDomainEvent<TSerialized>>();
             }
 
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -159,7 +167,7 @@ namespace EventFlow.EventStores.InMemory
                     .Select((e, i) =>
                         {
                             var committedDomainEvent = new InMemoryCommittedDomainEvent
-                                {
+                            {
                                     AggregateId = id.Value,
                                     AggregateName = e.Metadata[MetadataKeys.AggregateName],
                                     AggregateSequenceNumber = e.AggregateSequenceNumber,
@@ -189,16 +197,16 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public Task<IReadOnlyCollection<ICommittedDomainEvent<string>>> LoadCommittedEventsAsync(
+        public Task<IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
-            IReadOnlyCollection<ICommittedDomainEvent<string>> result;
+            IReadOnlyCollection<ICommittedDomainEvent<TSerialized>> result;
 
             if (_eventStore.TryGetValue(id.Value, out var committedDomainEvent))
                 result = fromEventSequenceNumber <= 1
-                    ? (IReadOnlyCollection<ICommittedDomainEvent<string>>) committedDomainEvent
+                    ? (IReadOnlyCollection<ICommittedDomainEvent<TSerialized>>) committedDomainEvent
                     : committedDomainEvent.Where(e => e.AggregateSequenceNumber >= fromEventSequenceNumber).ToList();
             else
                 result = new List<InMemoryCommittedDomainEvent>();

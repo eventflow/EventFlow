@@ -41,9 +41,9 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseEventStore<TEventStore>(
             this IEventFlowOptions eventFlowOptions,
             Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventStore : class, IEventPersistence<string>
+            where TEventStore : class, IEventPersistence
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventPersistence<string>, TEventStore>(lifetime));
+            return eventFlowOptions.RegisterServices(f => f.Register<IEventPersistence, TEventStore>(lifetime));
         }
 
         public static IEventFlowOptions UseEventStore<TEventStore, TSerialized>(

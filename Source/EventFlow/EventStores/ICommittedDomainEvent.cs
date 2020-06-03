@@ -27,11 +27,11 @@ namespace EventFlow.EventStores
     {
     }
 
-    public interface ICommittedDomainEvent<out TSerialized>
+    public interface ICommittedDomainEvent<TSerialized>
     {
         string AggregateId { get; }
-        TSerialized Data { get; }
-        TSerialized Metadata { get; }
+        TSerialized Data { get; set; }
+        TSerialized Metadata { get; set; }
         int AggregateSequenceNumber { get; }
     }
 }

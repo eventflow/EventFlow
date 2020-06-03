@@ -31,12 +31,12 @@ namespace EventFlow.EventStores
     {
     }
 
-    public interface IEventSerializer<in TSerialized>
+    public interface IEventSerializer<TSerialized>
     {
-        SerializedEvent Serialize(
+        SerializedEvent<TSerialized> Serialize(
             IDomainEvent domainEvent);
 
-        SerializedEvent Serialize(
+        SerializedEvent<TSerialized> Serialize(
             IAggregateEvent aggregateEvent,
             IEnumerable<KeyValuePair<string, string>> metadatas);
 

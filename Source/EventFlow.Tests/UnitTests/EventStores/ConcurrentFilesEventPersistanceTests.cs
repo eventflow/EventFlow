@@ -167,7 +167,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                     let serializedEvent = _serializer.Serialize(aggregateEvent, metadata)
                     select serializedEvent;
 
-                var readOnlyEvents = new ReadOnlyCollection<SerializedEvent>(serializedEvents.ToList());
+                var readOnlyEvents = new ReadOnlyCollection<SerializedEvent<string>>(serializedEvents.ToList());
 
                 await persistence
                     .CommitEventsAsync(ThingyId, readOnlyEvents, CancellationToken.None)

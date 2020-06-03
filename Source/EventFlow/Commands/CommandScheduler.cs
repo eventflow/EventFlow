@@ -30,16 +30,24 @@ using EventFlow.Provided.Jobs;
 
 namespace EventFlow.Commands
 {
-    public class CommandScheduler : ICommandScheduler
+    public class CommandScheduler : CommandScheduler<string>
+    {
+        public CommandScheduler(IJobScheduler jobScheduler, ICommandDefinitionService commandDefinitionService, IJsonSerializer serializer)
+            : base(jobScheduler, commandDefinitionService, serializer)
+        {
+        }
+    }
+
+    public class CommandScheduler<TSerialized> : ICommandScheduler
     {
         private readonly IJobScheduler _jobScheduler;
         private readonly ICommandDefinitionService _commandDefinitionService;
-        private readonly ISerializer<string> _serializer;
+        private readonly ISerializer<TSerialized> _serializer;
 
         public CommandScheduler(
             IJobScheduler jobScheduler,
             ICommandDefinitionService commandDefinitionService,
-            ISerializer<string> serializer)
+            ISerializer<TSerialized> serializer)
         {
             _jobScheduler = jobScheduler;
             _commandDefinitionService = commandDefinitionService;
@@ -48,7 +56,7 @@ namespace EventFlow.Commands
 
         public Task ScheduleAsync(ICommand command, DateTimeOffset runAt, CancellationToken cancellationToken)
         {
-            var publishCommandJob = PublishCommandJob.Create(
+            var publishCommandJob = PublishCommandJob<TSerialized>.Create(
                 command,
                 _commandDefinitionService,
                 _serializer);
@@ -57,7 +65,7 @@ namespace EventFlow.Commands
 
         public Task ScheduleAsync(ICommand command, TimeSpan delay, CancellationToken cancellationToken)
         {
-            var publishCommandJob = PublishCommandJob.Create(
+            var publishCommandJob = PublishCommandJob<TSerialized>.Create(
                 command,
                 _commandDefinitionService,
                 _serializer);
