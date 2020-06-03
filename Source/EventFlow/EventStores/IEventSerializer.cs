@@ -27,7 +27,7 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventSerializer : IEventSerializer<string>
+    public interface IEventJsonSerializer : IEventSerializer<string>
     {
     }
 
