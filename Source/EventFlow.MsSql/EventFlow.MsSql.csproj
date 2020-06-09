@@ -33,6 +33,9 @@
   <ItemGroup>
     <EmbeddedResource Include="EventStores\Scripts\0001 - Create table EventFlow.sql" />
     <EmbeddedResource Include="EventStores\Scripts\0002 - Create eventdatamodel_list_type.sql" />
+    <EmbeddedResource Include="ReliablePublish\Scripts\0001 - Create PublishLog.sql" />
+    <EmbeddedResource Include="ReliablePublish\Scripts\0002 - Create PublishVerifyState.sql" />
+    <EmbeddedResource Include="ReliablePublish\Scripts\0003 - Setup initial PublishVerifyState.sql" />
     <EmbeddedResource Include="SnapshotStores\Scripts\0001 - Create EventFlowSnapshots.sql" />
   </ItemGroup>
 </Project>
