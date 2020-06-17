@@ -26,11 +26,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
-using EventFlow.Jobs;
-using EventFlow.Provided.Jobs;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
 
@@ -40,9 +37,6 @@ namespace EventFlow.Subscribers
     {
         private readonly IDispatchToEventSubscribers _dispatchToEventSubscribers;
         private readonly IDispatchToSagas _dispatchToSagas;
-        private readonly IJobScheduler _jobScheduler;
-        private readonly IResolver _resolver;
-        private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
@@ -50,18 +44,12 @@ namespace EventFlow.Subscribers
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
             IDispatchToSagas dispatchToSagas,
-            IJobScheduler jobScheduler,
-            IResolver resolver,
-            IEventFlowConfiguration eventFlowConfiguration,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
             ICancellationConfiguration cancellationConfiguration)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
-            _jobScheduler = jobScheduler;
-            _resolver = resolver;
-            _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
@@ -91,7 +79,6 @@ namespace EventFlow.Subscribers
 
             // Update subscriptions AFTER read stores have been updated
             await PublishToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-            await PublishToAsynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
 
             await PublishToSagasAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
@@ -119,19 +106,6 @@ namespace EventFlow.Subscribers
             CancellationToken cancellationToken)
         {
             await _dispatchToEventSubscribers.DispatchToSynchronousSubscribersAsync(domainEvents, cancellationToken).ConfigureAwait(false);
-        }
-
-        private async Task PublishToAsynchronousSubscribersAsync(
-            IEnumerable<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            if (_eventFlowConfiguration.IsAsynchronousSubscribersEnabled)
-            {
-                await Task.WhenAll(domainEvents.Select(
-                        d => _jobScheduler.ScheduleNowAsync(
-                            DispatchToAsynchronousEventSubscribersJob.Create(d, _resolver), cancellationToken)))
-                    .ConfigureAwait(false);
-            }
         }
 
         private async Task PublishToSagasAsync(

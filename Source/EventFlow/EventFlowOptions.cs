@@ -219,6 +219,7 @@ namespace EventFlow
             serviceRegistration.Register<ISerializedCommandPublisher, SerializedCommandPublisher>();
             serviceRegistration.Register<ICommandDefinitionService, CommandDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
+            serviceRegistration.Register<ISubscribeSynchronousToAll, AsynchronousSubscriberSheduler>();
             serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
