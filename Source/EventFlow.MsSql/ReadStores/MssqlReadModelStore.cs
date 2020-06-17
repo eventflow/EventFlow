@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -178,11 +179,25 @@ namespace EventFlow.MsSql.ReadStores
                 dynamicParameters.Add("_PREVIOUS_VERSION", (int)originalVersion.Value);
             }
 
-            var rowsAffected = await _connection.ExecuteAsync(
+            int rowsAffected;
+            try
+            {
+                rowsAffected = await _connection.ExecuteAsync(
                 Label.Named("mssql-store-read-model", ReadModelNameLowerCase),
                 cancellationToken,
                 sql,
                 dynamicParameters).ConfigureAwait(false);
+            }
+            catch (SqlException sqlException) when ((sqlException.Number == 2601 || sqlException.Number == 2627) && isNew)
+            {
+                // If we got unique constraint violation on inserting read model
+                // it probably another thread already inserted read model
+                // we need to start update again.
+                // It's possible than it's another (non-primary key) constraint violation
+                // but it's hard to tell. Fine, if that a case we'll just retry X times and fail.
+                throw new OptimisticConcurrencyException(sqlException.Message, sqlException);
+            }
+
             if (rowsAffected != 1)
             {
                 throw new OptimisticConcurrencyException(
