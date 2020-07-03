@@ -40,6 +40,7 @@ using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Logs;
 using EventFlow.Provided;
+using EventFlow.PublishRecovery;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
