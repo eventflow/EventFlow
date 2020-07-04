@@ -6,6 +6,9 @@
   in favor of the simpler overloads with less type parameters (as those automatically
   figure out the AggregateRoot and Id types and configure the more reliable 
   `SingleAggregateReadStoreManager` implementation)
+* Fixed: An issue where `EntityFrameworkEventPersistence` could possibly save aggregate 
+  events out of order, which would lead to out-of-order application when streaming events
+  ordered by GlobalSequenceNumber
 
 ### New in 0.79.4216 ((released 2020-05-13)
 

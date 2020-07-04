@@ -106,9 +106,11 @@ namespace EventFlow.EntityFramework.EventStores
             {
                 using (var context = _contextProvider.CreateContext())
                 {
-                    context.AddRange(entities);
-                    await context.SaveChangesAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    foreach (EventEntity entity in entities)
+                    {
+                        context.Add(entity);
+                        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
             catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation(_strategy))
