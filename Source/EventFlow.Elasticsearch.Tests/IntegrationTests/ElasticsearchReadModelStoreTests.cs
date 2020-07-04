@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,7 +67,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
             var resolver = eventFlowOptions
                 .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
                 .ConfigureElasticsearch(connectionSettings)
-                .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
+                .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(ElasticsearchThingyGetQueryHandler),
