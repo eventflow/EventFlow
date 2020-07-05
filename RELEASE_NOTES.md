@@ -1,4 +1,13 @@
-### New in 0.79 (not released yet)
+### New in 0.80 (not released yet)
+
+* Breaking: Merged `AggregateReadStoreManager` and `SingleAggregateReadStoreManager`
+  into one class in order to always guarantee in-order event processing
+* Breaking: Marked the `UseReadStoreFor<,,,>` configuration methods as obsolete,
+  in favor of the simpler overloads with less type parameters (as those automatically
+  figure out the AggregateRoot and Id types and configure the more reliable 
+  `SingleAggregateReadStoreManager` implementation)
+
+### New in 0.79.4216 ((released 2020-05-13)
 
 * New: Added .NET Core 3.1 target for the `EventFlow`
   and `EventFlow.EntityFramework` packages

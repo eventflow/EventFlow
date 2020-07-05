@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -55,12 +55,19 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            var elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+            var elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL") ?? "http://localhost:9200";
+
+            // Setup connection settings separateley as by default EventFlow uses SniffingConnectionPool
+            // which is not working well with elasticserch hosted in local docker
+            var connectionSettings = new ConnectionSettings(new Uri(elasticsearchUrl))
+                .ThrowExceptions()
+                .SniffLifeSpan(TimeSpan.FromMinutes(5))
+                .DisablePing();
            
             var resolver = eventFlowOptions
                 .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
-                .ConfigureElasticsearch(elasticsearchUrl)
-                .UseElasticsearchReadModelFor<ThingyAggregate, ThingyId, ElasticsearchThingyReadModel>()
+                .ConfigureElasticsearch(connectionSettings)
+                .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(ElasticsearchThingyGetQueryHandler),
