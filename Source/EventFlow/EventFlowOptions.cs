@@ -224,7 +224,7 @@ namespace EventFlow
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
-#if NET452
+#if NET472
             serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
 #else
             serviceRegistration.Register<IMemoryCache, DictionaryMemoryCache>(Lifetime.Singleton);
