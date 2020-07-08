@@ -142,7 +142,7 @@ namespace EventFlow.Aggregates
 
                     try
                     {
-                        await _eventLog.AggregateCommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+                        await _eventLog.CommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
                                 commitId,
                                 cancellationToken)
@@ -159,7 +159,7 @@ namespace EventFlow.Aggregates
                     }
                     catch (Exception e)
                     {
-                        await _eventLog.AggregateCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                        await _eventLog.CommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
                                 commitId,
                                 e,
@@ -169,7 +169,7 @@ namespace EventFlow.Aggregates
                     }
                     finally
                     {
-                        await _eventLog.AggregateCommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+                        await _eventLog.CommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
                                 commitId,
                                 cancellationToken)
@@ -185,7 +185,7 @@ namespace EventFlow.Aggregates
             {
                 try
                 {
-                    await _eventLog.EventPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+                    await _eventLog.EventsPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
@@ -200,7 +200,7 @@ namespace EventFlow.Aggregates
                 }
                 catch (Exception e)
                 {
-                    await _eventLog.EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                    await _eventLog.EventsPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
@@ -211,7 +211,7 @@ namespace EventFlow.Aggregates
                 }
                 finally
                 {
-                    await _eventLog.EventPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+                    await _eventLog.EventsPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
@@ -222,7 +222,7 @@ namespace EventFlow.Aggregates
             }
             else
             {
-                await _eventLog.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
+                await _eventLog.EventsPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
                         id,
                         commitId,
                         aggregateUpdateResult.Result,

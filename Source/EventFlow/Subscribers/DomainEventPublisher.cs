@@ -109,7 +109,7 @@ namespace EventFlow.Subscribers
                 {
                     try
                     {
-                        await _readStoreLog.ReadStoreManagerUpdateBeginAsync(
+                        await _readStoreLog.UpdateBeginAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)
@@ -118,7 +118,7 @@ namespace EventFlow.Subscribers
                     }
                     catch (Exception e)
                     {
-                        await _readStoreLog.ReadStoreManagerUpdateFailedAsync(
+                        await _readStoreLog.UpdateFailedAsync(
                                 rsm,
                                 domainEvents,
                                 e,
@@ -128,7 +128,7 @@ namespace EventFlow.Subscribers
                     }
                     finally
                     {
-                        await _readStoreLog.ReadStoreManagerUpdateDoneAsync(
+                        await _readStoreLog.UpdateDoneAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)

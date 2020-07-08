@@ -31,7 +31,7 @@ namespace EventFlow.ReadStores
 {
     public class NullReadStoreLog : IReadStoreLog
     {
-        public Task ReadStoreManagerUpdateBeginAsync(
+        public Task UpdateBeginAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ namespace EventFlow.ReadStores
             return Task.FromResult(0);
         }
 
-        public Task ReadStoreManagerUpdateFailedAsync(
+        public Task UpdateFailedAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             Exception exception,
@@ -48,7 +48,7 @@ namespace EventFlow.ReadStores
             return Task.FromResult(0);
         }
 
-        public Task ReadStoreManagerUpdateDoneAsync(
+        public Task UpdateDoneAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
