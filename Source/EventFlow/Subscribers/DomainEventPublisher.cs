@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,6 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
-using EventFlow.EventStores;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.ReadStores;
@@ -46,7 +45,7 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
-        private readonly IEventLog _eventLog;
+        private readonly IReadStoreLog _readStoreLog;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
@@ -59,7 +58,7 @@ namespace EventFlow.Subscribers
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
             ICancellationConfiguration cancellationConfiguration,
-            IEventLog eventLog)
+            IReadStoreLog readStoreLog)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
@@ -67,7 +66,7 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
-            _eventLog = eventLog;
+            _readStoreLog = readStoreLog;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -110,7 +109,7 @@ namespace EventFlow.Subscribers
                 {
                     try
                     {
-                        await _eventLog.ReadStoreManagerUpdateBeginAsync(
+                        await _readStoreLog.ReadStoreManagerUpdateBeginAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)
@@ -119,7 +118,7 @@ namespace EventFlow.Subscribers
                     }
                     catch (Exception e)
                     {
-                        await _eventLog.ReadStoreManagerUpdateFailedAsync(
+                        await _readStoreLog.ReadStoreManagerUpdateFailedAsync(
                                 rsm,
                                 domainEvents,
                                 e,
@@ -129,7 +128,7 @@ namespace EventFlow.Subscribers
                     }
                     finally
                     {
-                        await _eventLog.ReadStoreManagerUpdateDoneAsync(
+                        await _readStoreLog.ReadStoreManagerUpdateDoneAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)

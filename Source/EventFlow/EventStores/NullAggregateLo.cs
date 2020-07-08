@@ -32,34 +32,43 @@ using EventFlow.ReadStores;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventLog
+    public class NullAggregateLo : IAggregateLog
     {
-        Task AggregateCommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task AggregateCommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task AggregateCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task AggregateCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
             Exception exception,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task AggregateCommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task AggregateCommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -67,9 +76,12 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task EventPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -77,9 +89,12 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -88,9 +103,12 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task EventPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -98,22 +116,34 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(0);
+        }
 
-        Task ReadStoreManagerUpdateBeginAsync(
+        public Task ReadStoreManagerUpdateBeginAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(0);
+        }
 
-        Task ReadStoreManagerUpdateFailedAsync(
+        public Task ReadStoreManagerUpdateFailedAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             Exception exception,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(0);
+        }
 
-        Task ReadStoreManagerUpdateDoneAsync(
+        public Task ReadStoreManagerUpdateDoneAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(0);
+        }
     }
 }

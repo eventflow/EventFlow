@@ -50,7 +50,7 @@ namespace EventFlow.Aggregates
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private readonly ICancellationConfiguration _cancellationConfiguration;
-        private readonly IEventLog _eventLog;
+        private readonly IAggregateLog _eventLog;
 
         public AggregateStore(
             ILog log,
@@ -60,7 +60,7 @@ namespace EventFlow.Aggregates
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
             ICancellationConfiguration cancellationConfiguration,
-            IEventLog eventLog)
+            IAggregateLog eventLog)
         {
             _log = log;
             _resolver = resolver;
