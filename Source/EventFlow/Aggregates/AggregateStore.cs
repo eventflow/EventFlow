@@ -185,6 +185,13 @@ namespace EventFlow.Aggregates
             {
                 try
                 {
+                    await _eventLog.EventPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+                            id,
+                            commitId,
+                            aggregateUpdateResult.Result,
+                            aggregateUpdateResult.DomainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
                     var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
                     await domainEventPublisher.PublishAsync(
                             aggregateUpdateResult.DomainEvents,
