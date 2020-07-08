@@ -37,6 +37,7 @@ namespace EventFlow.EventStores.Files
     {
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly IFilesEventStoreConfiguration _configuration;
         private readonly IFilesEventLocator _filesEventLocator;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
@@ -66,6 +67,7 @@ namespace EventFlow.EventStores.Files
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
+            _configuration = configuration;
             _filesEventLocator = filesEventLocator;
             _logFilePath = Path.Combine(configuration.StorePath, "Log.store");
 
@@ -122,9 +124,10 @@ namespace EventFlow.EventStores.Files
         {
             while (_eventLog.TryGetValue(startPosition, out var path))
             {
-                if (File.Exists(path))
+                var fullPath = Path.Combine(_configuration.StorePath, path);
+                if (File.Exists(fullPath))
                 {
-                    yield return path;
+                    yield return fullPath;
                 }
 
                 startPosition++;
@@ -150,7 +153,7 @@ namespace EventFlow.EventStores.Files
                 {
                     var eventPath = _filesEventLocator.GetEventPath(id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
-                    _eventLog[_globalSequenceNumber] = eventPath;
+                    _eventLog[_globalSequenceNumber] = _filesEventLocator.GetRelativePath(_configuration.StorePath, eventPath);
 
                     var fileEventData = new FileEventData
                     {

@@ -29,5 +29,6 @@ namespace EventFlow.EventStores.Files
     {
         string GetEntityPath(IIdentity id);
         string GetEventPath(IIdentity id, int aggregateSequenceNumber);
+        string GetRelativePath(string relativeTo, string path);
     }
 }

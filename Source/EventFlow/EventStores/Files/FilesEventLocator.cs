@@ -21,7 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.IO;
+using System.Linq;
 using EventFlow.Core;
 
 namespace EventFlow.EventStores.Files
@@ -48,6 +50,46 @@ namespace EventFlow.EventStores.Files
             return Path.Combine(
                 GetEntityPath(id),
                 $"{aggregateSequenceNumber}.json");
+        }
+
+        /// <summary>
+        /// Creates a relative path from one file or folder to another.
+        /// </summary>
+        /// <param name="relativeTo">Contains the directory that defines the start of the relative path.</param>
+        /// <param name="path">Contains the path that defines the endpoint of the relative path.</param>
+        /// <returns>The relative path from the start directory to the end path or <c>toPath</c> if the paths are not related.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UriFormatException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        public string GetRelativePath(string relativeTo, string path)
+        {
+#if NETCOREAPP3_1 || NETCOREAPP3_0
+            return Path.GetRelativePath(relativeTo, path);
+#else
+            if (string.IsNullOrEmpty(relativeTo))
+                throw new ArgumentNullException(nameof(relativeTo));
+            if (string.IsNullOrEmpty(path))
+                throw new ArgumentNullException(nameof(path));
+
+            if (relativeTo.Last() != Path.DirectorySeparatorChar && relativeTo.Last() != Path.AltDirectorySeparatorChar)
+                relativeTo += Path.DirectorySeparatorChar;
+
+            var fromUri = new Uri(relativeTo);
+            var toUri = new Uri(path);
+
+            if (fromUri.Scheme != toUri.Scheme)
+                return path; // path can't be made relative.
+
+            var relativeUri = fromUri.MakeRelativeUri(toUri);
+            var relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.Equals("file", StringComparison.OrdinalIgnoreCase))
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
+#endif
         }
     }
 }
