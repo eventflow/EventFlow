@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 //
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,19 +40,22 @@ namespace EventFlow.Sagas
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ISagaErrorHandler _sagaErrorHandler;
+        private readonly ISagaUpdateLog _sagaUpdateLog;
 
         public DispatchToSagas(
             ILog log,
             IResolver resolver,
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService,
-            ISagaErrorHandler sagaErrorHandler)
+            ISagaErrorHandler sagaErrorHandler,
+            ISagaUpdateLog sagaUpdateLog)
         {
             _log = log;
             _resolver = resolver;
             _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
             _sagaErrorHandler = sagaErrorHandler;
+            _sagaUpdateLog = sagaUpdateLog;
         }
 
         public async Task ProcessAsync(
@@ -127,7 +130,7 @@ namespace EventFlow.Sagas
             }
         }
 
-        private Task UpdateSagaAsync(
+        private async Task UpdateSagaAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
@@ -139,7 +142,7 @@ namespace EventFlow.Sagas
                     "Saga '{0}' is completed, skipping processing of '{1}'",
                     details.SagaType.PrettyPrint(),
                     domainEvent.EventType.PrettyPrint()));
-                return Task.FromResult(0);
+                return;
             }
 
             if (saga.State == SagaState.New && !details.IsStartedBy(domainEvent.EventType))
@@ -148,7 +151,7 @@ namespace EventFlow.Sagas
                     "Saga '{0}' isn't started yet and not started by '{1}', skipping",
                     details.SagaType.PrettyPrint(),
                     domainEvent.EventType.PrettyPrint()));
-                return Task.FromResult(0);
+                return;
             }
 
             var sagaUpdaterType = typeof(ISagaUpdater<,,,>).MakeGenericType(
@@ -158,11 +161,41 @@ namespace EventFlow.Sagas
                 details.SagaType);
             var sagaUpdater = (ISagaUpdater)_resolver.Resolve(sagaUpdaterType);
 
-            return sagaUpdater.ProcessAsync(
-                saga,
-                domainEvent,
-                SagaContext.Empty,
-                cancellationToken);
+            try
+            {
+                await _sagaUpdateLog.UpdateBeginAsync(
+                        saga,
+                        domainEvent,
+                        details,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                await sagaUpdater.ProcessAsync(
+                        saga,
+                        domainEvent,
+                        SagaContext.Empty,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await _sagaUpdateLog.UpdateFailedAsync(
+                        saga,
+                        domainEvent,
+                        details,
+                        e,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                throw;
+            }
+            finally
+            {
+                await _sagaUpdateLog.UpdateDoneAsync(
+                        saga,
+                        domainEvent,
+                        details,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
     }
 }
