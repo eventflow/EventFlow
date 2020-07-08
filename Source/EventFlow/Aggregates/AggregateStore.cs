@@ -50,6 +50,7 @@ namespace EventFlow.Aggregates
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private readonly ICancellationConfiguration _cancellationConfiguration;
+        private readonly IEventLog _eventLog;
 
         public AggregateStore(
             ILog log,
@@ -58,7 +59,8 @@ namespace EventFlow.Aggregates
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
-            ICancellationConfiguration cancellationConfiguration)
+            ICancellationConfiguration cancellationConfiguration,
+            IEventLog eventLog)
         {
             _log = log;
             _resolver = resolver;
@@ -67,6 +69,7 @@ namespace EventFlow.Aggregates
             _snapshotStore = snapshotStore;
             _transientFaultHandler = transientFaultHandler;
             _cancellationConfiguration = cancellationConfiguration;
+            _eventLog = eventLog;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -111,6 +114,7 @@ namespace EventFlow.Aggregates
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
+            var commitId = Guid.NewGuid();
             var aggregateUpdateResult = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
@@ -135,17 +139,42 @@ namespace EventFlow.Aggregates
                     }
 
                     cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
-                    
-                    var domainEvents = await aggregate.CommitAsync(
-                        _eventStore,
-                        _snapshotStore,
-                        sourceId,
-                        cancellationToken)
-                        .ConfigureAwait(false);
 
-                    return new AggregateUpdateResult<TExecutionResult>(
-                        result,
-                        domainEvents);
+                    try
+                    {
+                        await _eventLog.AggregateCommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                commitId,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        var domainEvents = await aggregate.CommitAsync(
+                                _eventStore,
+                                _snapshotStore,
+                                sourceId,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        return new AggregateUpdateResult<TExecutionResult>(
+                            result,
+                            domainEvents);
+                    }
+                    catch (Exception e)
+                    {
+                        await _eventLog.AggregateCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                commitId,
+                                e,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        throw;
+                    }
+                    finally
+                    {
+                        await _eventLog.AggregateCommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                commitId,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                    }
                 },
                 Label.Named("aggregate-update"),
                 cancellationToken)
@@ -154,10 +183,44 @@ namespace EventFlow.Aggregates
             if (aggregateUpdateResult.Result.IsSuccess &&
                 aggregateUpdateResult.DomainEvents.Any())
             {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync(
-                    aggregateUpdateResult.DomainEvents,
-                    cancellationToken)
+                try
+                {
+                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                    await domainEventPublisher.PublishAsync(
+                            aggregateUpdateResult.DomainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    await _eventLog.EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                            id,
+                            commitId,
+                            aggregateUpdateResult.Result,
+                            aggregateUpdateResult.DomainEvents,
+                            e,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                finally
+                {
+                    await _eventLog.EventPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+                            id,
+                            commitId,
+                            aggregateUpdateResult.Result,
+                            aggregateUpdateResult.DomainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                await _eventLog.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
+                        id,
+                        commitId,
+                        aggregateUpdateResult.Result,
+                        aggregateUpdateResult.DomainEvents,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
