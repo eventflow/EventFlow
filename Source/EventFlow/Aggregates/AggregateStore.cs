@@ -208,6 +208,7 @@ namespace EventFlow.Aggregates
                             e,
                             cancellationToken)
                         .ConfigureAwait(false);
+                    throw;
                 }
                 finally
                 {

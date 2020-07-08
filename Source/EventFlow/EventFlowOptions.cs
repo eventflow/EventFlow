@@ -195,6 +195,7 @@ namespace EventFlow
             serviceRegistration.Register<ILog, ConsoleLog>();
             serviceRegistration.Register<IAggregateLog, NullAggregateLo>();
             serviceRegistration.Register<IReadStoreLog, NullReadStoreLog>();
+            serviceRegistration.Register<IDispatchToSubscriberLog, NullDispatchToSubscriberLog>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();

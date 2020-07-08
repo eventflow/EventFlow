@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,8 +45,9 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IMemoryCache _memoryCache;
+        private readonly IDispatchToSubscriberLog _dispatchToSubscriberLog;
 
-        private class SubscriberInfomation
+        private class SubscriberInformation
         {
             public Type SubscriberType { get; set; }
             public Func<object, IDomainEvent, CancellationToken, Task> HandleMethod { get; set; }
@@ -56,12 +57,14 @@ namespace EventFlow.Subscribers
             ILog log,
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IDispatchToSubscriberLog dispatchToSubscriberLog)
         {
             _log = log;
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _memoryCache = memoryCache;
+            _dispatchToSubscriberLog = dispatchToSubscriberLog;
         }
 
         public async Task DispatchToSynchronousSubscribersAsync(
@@ -92,12 +95,14 @@ namespace EventFlow.Subscribers
             bool swallowException,
             CancellationToken cancellationToken)
         {
-            var subscriberInfomation = await GetSubscriberInfomationAsync(
+            var subscriberInformation = await GetSubscriberInformationAsync(
                     domainEvent.GetType(),
                     subscriberType,
                     cancellationToken)
                 .ConfigureAwait(false);
-            var subscribers = _resolver.ResolveAll(subscriberInfomation.SubscriberType).ToList();
+            var subscribers = _resolver.ResolveAll(subscriberInformation.SubscriberType)
+                .Cast<ISubscribeTo>()
+                .ToList();
 
             if (!subscribers.Any())
             {
@@ -112,17 +117,52 @@ namespace EventFlow.Subscribers
 
                 try
                 {
-                    await subscriberInfomation.HandleMethod(subscriber, domainEvent, cancellationToken).ConfigureAwait(false);
+                    await _dispatchToSubscriberLog.HandleEventBeginAsync(
+                            subscriber,
+                            domainEvent,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    await subscriberInformation.HandleMethod(
+                            subscriber,
+                            domainEvent,
+                            cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 catch (Exception e) when (swallowException)
                 {
-                    _log.Error(e, $"Subscriber '{subscriberInfomation.SubscriberType.PrettyPrint()}' threw " +
+                    _log.Error(e, $"Subscriber '{subscriberInformation.SubscriberType.PrettyPrint()}' threw " +
                                   $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
+                    await _dispatchToSubscriberLog.HandleEventFailedAsync(
+                            subscriber,
+                            domainEvent,
+                            e,
+                            true,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception e) when (!swallowException)
+                {
+                    await _dispatchToSubscriberLog.HandleEventFailedAsync(
+                            subscriber,
+                            domainEvent,
+                            e,
+                            false,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    throw;
+                }
+                finally
+                {
+                    await _dispatchToSubscriberLog.HandleEventDoneAsync(
+                            subscriber,
+                            domainEvent,
+                            cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
         }
 
-        private Task<SubscriberInfomation> GetSubscriberInfomationAsync(
+        private Task<SubscriberInformation> GetSubscriberInformationAsync(
             Type domainEventType,
             Type subscriberType,
             CancellationToken cancellationToken)
@@ -142,7 +182,7 @@ namespace EventFlow.Subscribers
                         var handlerType = subscriberType.MakeGenericType(arguments[0], arguments[1], arguments[2]);
                         var invokeHandleAsync = ReflectionHelper.CompileMethodInvocation<Func<object, IDomainEvent, CancellationToken, Task>>(handlerType, "HandleAsync");
                         
-                        return Task.FromResult(new SubscriberInfomation
+                        return Task.FromResult(new SubscriberInformation
                             {
                                 SubscriberType = handlerType,
                                 HandleMethod = invokeHandleAsync,
