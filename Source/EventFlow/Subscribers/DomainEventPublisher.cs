@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -29,6 +30,7 @@ using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.ReadStores;
@@ -44,6 +46,7 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
+        private readonly IEventLog _eventLog;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
@@ -55,7 +58,8 @@ namespace EventFlow.Subscribers
             IEventFlowConfiguration eventFlowConfiguration,
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
-            ICancellationConfiguration cancellationConfiguration)
+            ICancellationConfiguration cancellationConfiguration,
+            IEventLog eventLog)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
@@ -63,6 +67,7 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
+            _eventLog = eventLog;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -101,7 +106,36 @@ namespace EventFlow.Subscribers
             CancellationToken cancellationToken)
         {
             var updateReadStoresTasks = _readStoreManagers
-                .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, cancellationToken));
+                .Select(async rsm =>
+                {
+                    try
+                    {
+                        await _eventLog.ReadStoreManagerUpdateBeginAsync(
+                                rsm,
+                                domainEvents,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        await _eventLog.ReadStoreManagerUpdateFailedAsync(
+                                rsm,
+                                domainEvents,
+                                e,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        throw;
+                    }
+                    finally
+                    {
+                        await _eventLog.ReadStoreManagerUpdateDoneAsync(
+                                rsm,
+                                domainEvents,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+                });
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
         }
 

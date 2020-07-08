@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
+using EventFlow.ReadStores;
 
 namespace EventFlow.EventStores
 {
@@ -98,5 +99,21 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult;
+
+        Task ReadStoreManagerUpdateBeginAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
+
+        Task ReadStoreManagerUpdateFailedAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            Exception exception,
+            CancellationToken cancellationToken);
+
+        Task ReadStoreManagerUpdateDoneAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }
