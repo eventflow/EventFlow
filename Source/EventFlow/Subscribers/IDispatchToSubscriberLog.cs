@@ -31,19 +31,19 @@ namespace EventFlow.Subscribers
     public interface IDispatchToSubscriberLog
     {
         Task HandleEventBeginAsync(
-            ISubscribeTo subscriberTo,
+            ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken);
 
         Task HandleEventFailedAsync(
-            ISubscribeTo subscriberTo,
+            ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             Exception exception,
             bool swallowException,
             CancellationToken cancellationToken);
 
         Task HandleEventDoneAsync(
-            ISubscribeTo subscriberTo,
+            ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken);
     }

@@ -23,7 +23,7 @@
 
 namespace EventFlow.Subscribers
 {
-    public interface ISubscribeTo
+    public interface ISubscribe
     {
     }
 }

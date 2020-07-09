@@ -101,7 +101,7 @@ namespace EventFlow.Subscribers
                     cancellationToken)
                 .ConfigureAwait(false);
             var subscribers = _resolver.ResolveAll(subscriberInformation.SubscriberType)
-                .Cast<ISubscribeTo>()
+                .Cast<ISubscribe>()
                 .ToList();
 
             if (!subscribers.Any())

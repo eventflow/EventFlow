@@ -31,7 +31,7 @@ namespace EventFlow.Subscribers
     public class NullDispatchToSubscriberLog : IDispatchToSubscriberLog
     {
         public Task HandleEventBeginAsync(
-            ISubscribeTo subscriberTo,
+            ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
@@ -39,7 +39,7 @@ namespace EventFlow.Subscribers
         }
 
         public Task HandleEventFailedAsync(
-            ISubscribeTo subscriberTo,
+            ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             Exception exception,
             bool swallowException,
@@ -49,7 +49,7 @@ namespace EventFlow.Subscribers
         }
 
         public Task HandleEventDoneAsync(
-            ISubscribeTo subscriberTo,
+            ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
