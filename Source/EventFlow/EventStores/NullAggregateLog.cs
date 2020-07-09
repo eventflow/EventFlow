@@ -41,7 +41,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task CommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -53,7 +53,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task CommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -64,7 +64,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task EventsPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -77,7 +77,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task EventsPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -90,7 +90,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task EventsPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -104,7 +104,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task EventsPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -117,7 +117,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
     }
 }

@@ -25,6 +25,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Core;
 
 namespace EventFlow.Subscribers
 {
@@ -35,7 +36,7 @@ namespace EventFlow.Subscribers
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task HandleEventFailedAsync(
@@ -45,7 +46,7 @@ namespace EventFlow.Subscribers
             bool swallowException,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
 
         public Task HandleEventDoneAsync(
@@ -53,7 +54,7 @@ namespace EventFlow.Subscribers
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(0);
+            return TaskShims.Completed;
         }
     }
 }
