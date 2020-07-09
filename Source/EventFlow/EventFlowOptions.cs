@@ -193,7 +193,7 @@ namespace EventFlow
         private void RegisterDefaults(IServiceRegistration serviceRegistration)
         {
             serviceRegistration.Register<ILog, ConsoleLog>();
-            serviceRegistration.Register<IAggregateLog, NullAggregateLo>();
+            serviceRegistration.Register<IAggregateLog, NullAggregateLog>();
             serviceRegistration.Register<IReadStoreLog, NullReadStoreLog>();
             serviceRegistration.Register<ISagaUpdateLog, NullSagaUpdateLog>();
             serviceRegistration.Register<IDispatchToSubscriberLog, NullDispatchToSubscriberLog>();
