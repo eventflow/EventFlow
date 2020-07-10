@@ -110,52 +110,83 @@ namespace EventFlow.Subscribers
                 return;
             }
 
+            var exceptions = new List<Exception>();
             foreach (var subscriber in subscribers)
             {
-                _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
-                                   $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
+                try
+                {
+                    await DispatchToSubscriberAsync(
+                            domainEvent,
+                            subscriber,
+                            subscriberInformation,
+                            swallowException,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
 
-                await _dispatchToSubscriberResilienceStrategy.BeforeHandleEventAsync(
+            if (exceptions.Any())
+            {
+                throw new AggregateException(
+                    $"Dispatch of domain event {domainEvent.GetType().PrettyPrint()} to subscribers failed",
+                    exceptions);
+            }
+        }
+
+        private async Task DispatchToSubscriberAsync(
+            IDomainEvent domainEvent,
+            ISubscribe subscriber,
+            SubscriberInformation subscriberInformation,
+            bool swallowException,
+            CancellationToken cancellationToken)
+        {
+            _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
+                               $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
+
+            await _dispatchToSubscriberResilienceStrategy.BeforeHandleEventAsync(
+                    subscriber,
+                    domainEvent,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            try
+            {
+                await subscriberInformation.HandleMethod(
                         subscriber,
                         domainEvent,
                         cancellationToken)
                     .ConfigureAwait(false);
-                try
-                {
-                    await subscriberInformation.HandleMethod(
-                            subscriber,
-                            domainEvent,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                    await _dispatchToSubscriberResilienceStrategy.HandleEventSucceededAsync(
-                            subscriber,
-                            domainEvent,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                }
-                catch (Exception e) when (swallowException)
-                {
-                    _log.Error(e, $"Subscriber '{subscriberInformation.SubscriberType.PrettyPrint()}' threw " +
-                                  $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
-                    await _dispatchToSubscriberResilienceStrategy.HandleEventFailedAsync(
-                            subscriber,
-                            domainEvent,
-                            e,
-                            true,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                }
-                catch (Exception e) when (!swallowException)
-                {
-                    await _dispatchToSubscriberResilienceStrategy.HandleEventFailedAsync(
-                            subscriber,
-                            domainEvent,
-                            e,
-                            false,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                    throw;
-                }
+                await _dispatchToSubscriberResilienceStrategy.HandleEventSucceededAsync(
+                        subscriber,
+                        domainEvent,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e) when (swallowException)
+            {
+                _log.Error(e, $"Subscriber '{subscriberInformation.SubscriberType.PrettyPrint()}' threw " +
+                              $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
+                await _dispatchToSubscriberResilienceStrategy.HandleEventFailedAsync(
+                        subscriber,
+                        domainEvent,
+                        e,
+                        true,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e) when (!swallowException)
+            {
+                await _dispatchToSubscriberResilienceStrategy.HandleEventFailedAsync(
+                        subscriber,
+                        domainEvent,
+                        e,
+                        false,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                throw;
             }
         }
 
