@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
+using EventFlow.Shims;
 
 namespace EventFlow.EventStores
 {
@@ -41,7 +42,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task CommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -53,7 +54,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task CommitSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -64,7 +65,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -77,7 +78,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -90,7 +91,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -104,7 +105,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task EventPublishSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
@@ -117,7 +118,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
     }
 }

@@ -23,15 +23,15 @@
 
 using System.Threading.Tasks;
 
-namespace EventFlow.Core
+namespace EventFlow.Shims
 {
-    internal static class TaskShims
+    internal static class Tasks
     {
 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-if#remarks
-#if NETSTANDARD2_0 || NETCOREAPP3_0 || NETCOREAPP3_1
-        public static Task Completed => Task.CompletedTask;
-#else
+#if NETSTANDARD1_6 || NET452
         public static Task Completed => Task.FromResult(0);
+#else
+        public static Task Completed {get;} = Task.CompletedTask;
 #endif
     }
 }

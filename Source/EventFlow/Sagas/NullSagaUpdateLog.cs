@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Shims;
 
 namespace EventFlow.Sagas
 {
@@ -37,7 +38,7 @@ namespace EventFlow.Sagas
             SagaDetails details,
             CancellationToken cancellationToken)
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task UpdateFailedAsync(
@@ -47,7 +48,7 @@ namespace EventFlow.Sagas
             Exception exception,
             CancellationToken cancellationToken)
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task UpdateSuccededAsync(
@@ -56,7 +57,7 @@ namespace EventFlow.Sagas
             SagaDetails details,
             CancellationToken cancellationToken)
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
     }
 }

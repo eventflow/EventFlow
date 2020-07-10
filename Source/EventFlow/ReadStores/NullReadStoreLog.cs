@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Shims;
 
 namespace EventFlow.ReadStores
 {
@@ -37,7 +38,7 @@ namespace EventFlow.ReadStores
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task UpdateFailedAsync(
@@ -46,7 +47,7 @@ namespace EventFlow.ReadStores
             Exception exception,
             CancellationToken cancellationToken)
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
 
         public Task UpdateSucceededAsync(
@@ -54,7 +55,7 @@ namespace EventFlow.ReadStores
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            return TaskShims.Completed;
+            return Tasks.Completed;
         }
     }
 }
