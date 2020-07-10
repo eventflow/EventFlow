@@ -31,7 +31,7 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IAggregateLog
+    public interface IAggregateStoreResilienceStrategy
     {
         Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             Guid commitId,

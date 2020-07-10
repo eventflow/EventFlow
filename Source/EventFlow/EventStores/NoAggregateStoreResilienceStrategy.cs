@@ -32,7 +32,7 @@ using EventFlow.Shims;
 
 namespace EventFlow.EventStores
 {
-    public class NullAggregateLog : IAggregateLog
+    public class NoAggregateStoreResilienceStrategy : IAggregateStoreResilienceStrategy
     {
         public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             Guid commitId,

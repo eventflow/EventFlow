@@ -45,7 +45,7 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly IMemoryCache _memoryCache;
-        private readonly IDispatchToSubscriberLog _dispatchToSubscriberLog;
+        private readonly IDispatchToSubscriberResilienceStrategy _dispatchToSubscriberResilienceStrategy;
 
         private class SubscriberInformation
         {
@@ -58,13 +58,13 @@ namespace EventFlow.Subscribers
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
             IMemoryCache memoryCache,
-            IDispatchToSubscriberLog dispatchToSubscriberLog)
+            IDispatchToSubscriberResilienceStrategy dispatchToSubscriberResilienceStrategy)
         {
             _log = log;
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _memoryCache = memoryCache;
-            _dispatchToSubscriberLog = dispatchToSubscriberLog;
+            _dispatchToSubscriberResilienceStrategy = dispatchToSubscriberResilienceStrategy;
         }
 
         public async Task DispatchToSynchronousSubscribersAsync(
@@ -115,7 +115,7 @@ namespace EventFlow.Subscribers
                 _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
                                    $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
 
-                await _dispatchToSubscriberLog.BeforeHandleEventAsync(
+                await _dispatchToSubscriberResilienceStrategy.BeforeHandleEventAsync(
                         subscriber,
                         domainEvent,
                         cancellationToken)
@@ -127,7 +127,7 @@ namespace EventFlow.Subscribers
                             domainEvent,
                             cancellationToken)
                         .ConfigureAwait(false);
-                    await _dispatchToSubscriberLog.HandleEventSuccededAsync(
+                    await _dispatchToSubscriberResilienceStrategy.HandleEventSucceededAsync(
                             subscriber,
                             domainEvent,
                             cancellationToken)
@@ -137,7 +137,7 @@ namespace EventFlow.Subscribers
                 {
                     _log.Error(e, $"Subscriber '{subscriberInformation.SubscriberType.PrettyPrint()}' threw " +
                                   $"'{e.GetType().PrettyPrint()}' while handling '{domainEvent.EventType.PrettyPrint()}': {e.Message}");
-                    await _dispatchToSubscriberLog.HandleEventFailedAsync(
+                    await _dispatchToSubscriberResilienceStrategy.HandleEventFailedAsync(
                             subscriber,
                             domainEvent,
                             e,
@@ -147,7 +147,7 @@ namespace EventFlow.Subscribers
                 }
                 catch (Exception e) when (!swallowException)
                 {
-                    await _dispatchToSubscriberLog.HandleEventFailedAsync(
+                    await _dispatchToSubscriberResilienceStrategy.HandleEventFailedAsync(
                             subscriber,
                             domainEvent,
                             e,

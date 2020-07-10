@@ -25,37 +25,27 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Shims;
 
 namespace EventFlow.Sagas
 {
-    public class NullSagaUpdateLog : ISagaUpdateLog
+    public interface ISagaUpdateResilienceStrategy
     {
-        public Task BeforeUpdateAsync(
+        Task BeforeUpdateAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
-            CancellationToken cancellationToken)
-        {
-            return Tasks.Completed;
-        }
+            CancellationToken cancellationToken);
 
-        public Task<bool> HandleUpdateFailedAsync(ISaga saga,
+        Task<bool> HandleUpdateFailedAsync(ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
             Exception exception,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(false);
-        }
+            CancellationToken cancellationToken);
 
-        public Task UpdateSucceededAsync(
+        Task UpdateSucceededAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
-            CancellationToken cancellationToken)
-        {
-            return Tasks.Completed;
-        }
+            CancellationToken cancellationToken);
     }
 }

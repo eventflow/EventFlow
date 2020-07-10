@@ -40,7 +40,7 @@ namespace EventFlow.Sagas
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ISagaErrorHandler _sagaErrorHandler;
-        private readonly ISagaUpdateLog _sagaUpdateLog;
+        private readonly ISagaUpdateResilienceStrategy _sagaUpdateLog;
 
         public DispatchToSagas(
             ILog log,
@@ -48,7 +48,7 @@ namespace EventFlow.Sagas
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService,
             ISagaErrorHandler sagaErrorHandler,
-            ISagaUpdateLog sagaUpdateLog)
+            ISagaUpdateResilienceStrategy sagaUpdateLog)
         {
             _log = log;
             _resolver = resolver;

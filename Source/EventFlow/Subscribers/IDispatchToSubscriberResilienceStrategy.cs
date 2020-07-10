@@ -28,7 +28,7 @@ using EventFlow.Aggregates;
 
 namespace EventFlow.Subscribers
 {
-    public interface IDispatchToSubscriberLog
+    public interface IDispatchToSubscriberResilienceStrategy
     {
         Task BeforeHandleEventAsync(
             ISubscribe subscriberTo,
@@ -42,7 +42,7 @@ namespace EventFlow.Subscribers
             bool swallowException,
             CancellationToken cancellationToken);
 
-        Task HandleEventSuccededAsync(
+        Task HandleEventSucceededAsync(
             ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken);

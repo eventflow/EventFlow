@@ -25,12 +25,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 using EventFlow.Shims;
 
 namespace EventFlow.Subscribers
 {
-    public class NullDispatchToSubscriberLog : IDispatchToSubscriberLog
+    public class NoDispatchToSubscriberResilienceStrategy : IDispatchToSubscriberResilienceStrategy
     {
         public Task BeforeHandleEventAsync(
             ISubscribe subscriberTo,
@@ -50,7 +49,7 @@ namespace EventFlow.Subscribers
             return Tasks.Completed;
         }
 
-        public Task HandleEventSuccededAsync(
+        public Task HandleEventSucceededAsync(
             ISubscribe subscriberTo,
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)

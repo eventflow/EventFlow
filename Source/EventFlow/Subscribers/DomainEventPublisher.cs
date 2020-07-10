@@ -45,7 +45,7 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
-        private readonly IReadStoreLog _readStoreLog;
+        private readonly IReadStoreResilienceStrategy _readStoreResilienceStrategy;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
         private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
@@ -58,7 +58,7 @@ namespace EventFlow.Subscribers
             IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
             ICancellationConfiguration cancellationConfiguration,
-            IReadStoreLog readStoreLog)
+            IReadStoreResilienceStrategy readStoreResilienceStrategy)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
@@ -66,7 +66,7 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
-            _readStoreLog = readStoreLog;
+            _readStoreResilienceStrategy = readStoreResilienceStrategy;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
             _readStoreManagers = readStoreManagers.ToList();
         }
@@ -107,7 +107,7 @@ namespace EventFlow.Subscribers
             var updateReadStoresTasks = _readStoreManagers
                 .Select(async rsm =>
                 {
-                    await _readStoreLog.BeforeUpdateAsync(
+                    await _readStoreResilienceStrategy.BeforeUpdateAsync(
                             rsm,
                             domainEvents,
                             cancellationToken)
@@ -115,7 +115,7 @@ namespace EventFlow.Subscribers
                     try
                     {
                         await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
-                        await _readStoreLog.UpdateSucceededAsync(
+                        await _readStoreResilienceStrategy.UpdateSucceededAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)
@@ -123,13 +123,15 @@ namespace EventFlow.Subscribers
                     }
                     catch (Exception e)
                     {
-                        await _readStoreLog.UpdateFailedAsync(
+                        if (!await _readStoreResilienceStrategy.HandleUpdateFailedAsync(
                                 rsm,
                                 domainEvents,
                                 e,
                                 cancellationToken)
-                            .ConfigureAwait(false);
-                        throw;
+                            .ConfigureAwait(false))
+                        {
+                            throw;
+                        }
                     }
                 });
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);

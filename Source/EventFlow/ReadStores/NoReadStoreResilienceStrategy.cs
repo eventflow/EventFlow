@@ -26,25 +26,34 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Shims;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadStoreLog
+    public class NoReadStoreResilienceStrategy : IReadStoreResilienceStrategy
     {
-        Task BeforeUpdateAsync(
+        public Task BeforeUpdateAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            return Tasks.Completed;
+        }
 
-        Task UpdateFailedAsync(
-            IReadStoreManager readStoreManager,
+        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             Exception exception,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(false);
+        }
 
-        Task UpdateSucceededAsync(
+        public Task UpdateSucceededAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            return Tasks.Completed;
+        }
     }
 }
