@@ -73,12 +73,36 @@ namespace EventFlow.Subscribers
         {
             foreach (var domainEvent in domainEvents)
             {
-                await DispatchToSubscribersAsync(
-                        domainEvent,
-                        SubscribeSynchronousToType,
-                        !_eventFlowConfiguration.ThrowSubscriberExceptions,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                await _dispatchToSubscriberResilienceStrategy.BeforeDispatchToSubscribersAsync(
+                    domainEvent,
+                    domainEvents,
+                    cancellationToken);
+                try
+                {
+                    await DispatchToSubscribersAsync(
+                            domainEvent,
+                            SubscribeSynchronousToType,
+                            !_eventFlowConfiguration.ThrowSubscriberExceptions,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    await _dispatchToSubscriberResilienceStrategy.DispatchToSubscribersSucceededAsync(
+                            domainEvent,
+                            domainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    if (!await _dispatchToSubscriberResilienceStrategy.HandleDispatchToSubscribersFailedAsync(
+                            domainEvent,
+                            domainEvents,
+                            e,
+                            cancellationToken)
+                        .ConfigureAwait(false))
+                    {
+                        throw;
+                    }
+                }
             }
         }
 

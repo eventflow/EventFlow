@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -55,6 +56,31 @@ namespace EventFlow.Subscribers
             CancellationToken cancellationToken)
         {
             return Tasks.Completed;
+        }
+
+        public Task BeforeDispatchToSubscribersAsync(
+            IDomainEvent domainEvent,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            return Tasks.Completed;
+        }
+
+        public Task DispatchToSubscribersSucceededAsync(
+            IDomainEvent domainEvent,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            return Tasks.Completed;
+        }
+
+        public Task<bool> HandleDispatchToSubscribersFailedAsync(
+            IDomainEvent domainEvent,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            Exception exception,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(false);
         }
     }
 }
