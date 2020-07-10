@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -45,9 +44,8 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
-        private readonly IReadStoreResilienceStrategy _readStoreResilienceStrategy;
+        private readonly IDispatchToReadStores _dispatchToReadStores;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
-        private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
@@ -55,10 +53,9 @@ namespace EventFlow.Subscribers
             IJobScheduler jobScheduler,
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
-            IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
             ICancellationConfiguration cancellationConfiguration,
-            IReadStoreResilienceStrategy readStoreResilienceStrategy)
+            IDispatchToReadStores dispatchToReadStores)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
@@ -66,9 +63,8 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
-            _readStoreResilienceStrategy = readStoreResilienceStrategy;
+            _dispatchToReadStores = dispatchToReadStores;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
-            _readStoreManagers = readStoreManagers.ToList();
         }
 
         public Task PublishAsync<TAggregate, TIdentity>(
@@ -104,37 +100,10 @@ namespace EventFlow.Subscribers
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var updateReadStoresTasks = _readStoreManagers
-                .Select(async rsm =>
-                {
-                    await _readStoreResilienceStrategy.BeforeUpdateAsync(
-                            rsm,
-                            domainEvents,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                    try
-                    {
-                        await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
-                        await _readStoreResilienceStrategy.UpdateSucceededAsync(
-                                rsm,
-                                domainEvents,
-                                cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-                    catch (Exception e)
-                    {
-                        if (!await _readStoreResilienceStrategy.HandleUpdateFailedAsync(
-                                rsm,
-                                domainEvents,
-                                e,
-                                cancellationToken)
-                            .ConfigureAwait(false))
-                        {
-                            throw;
-                        }
-                    }
-                });
-            await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
+            await _dispatchToReadStores.DispatchAsync(
+                domainEvents,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private async Task PublishToSubscribersOfAllEventsAsync(
