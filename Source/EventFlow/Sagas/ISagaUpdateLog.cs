@@ -30,7 +30,7 @@ namespace EventFlow.Sagas
 {
     public interface ISagaUpdateLog
     {
-        Task UpdateBeginAsync(
+        Task BeforeUpdateAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
@@ -43,7 +43,7 @@ namespace EventFlow.Sagas
             Exception exception,
             CancellationToken cancellationToken);
 
-        Task UpdateDoneAsync(
+        Task UpdateSuccededAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,

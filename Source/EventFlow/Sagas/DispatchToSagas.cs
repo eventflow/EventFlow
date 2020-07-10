@@ -161,18 +161,24 @@ namespace EventFlow.Sagas
                 details.SagaType);
             var sagaUpdater = (ISagaUpdater)_resolver.Resolve(sagaUpdaterType);
 
+            await _sagaUpdateLog.BeforeUpdateAsync(
+                    saga,
+                    domainEvent,
+                    details,
+                    cancellationToken)
+                .ConfigureAwait(false);
             try
             {
-                await _sagaUpdateLog.UpdateBeginAsync(
-                        saga,
-                        domainEvent,
-                        details,
-                        cancellationToken)
-                    .ConfigureAwait(false);
                 await sagaUpdater.ProcessAsync(
                         saga,
                         domainEvent,
                         SagaContext.Empty,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                await _sagaUpdateLog.UpdateSuccededAsync(
+                        saga,
+                        domainEvent,
+                        details,
                         cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -186,15 +192,6 @@ namespace EventFlow.Sagas
                         cancellationToken)
                     .ConfigureAwait(false);
                 throw;
-            }
-            finally
-            {
-                await _sagaUpdateLog.UpdateDoneAsync(
-                        saga,
-                        domainEvent,
-                        details,
-                        cancellationToken)
-                    .ConfigureAwait(false);
             }
         }
     }

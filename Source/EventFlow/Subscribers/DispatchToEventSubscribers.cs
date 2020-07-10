@@ -115,14 +115,19 @@ namespace EventFlow.Subscribers
                 _log.Verbose(() => $"Calling HandleAsync on handler '{subscriber.GetType().PrettyPrint()}' " +
                                    $"for aggregate event '{domainEvent.EventType.PrettyPrint()}'");
 
+                await _dispatchToSubscriberLog.BeforeHandleEventAsync(
+                        subscriber,
+                        domainEvent,
+                        cancellationToken)
+                    .ConfigureAwait(false);
                 try
                 {
-                    await _dispatchToSubscriberLog.HandleEventBeginAsync(
+                    await subscriberInformation.HandleMethod(
                             subscriber,
                             domainEvent,
                             cancellationToken)
                         .ConfigureAwait(false);
-                    await subscriberInformation.HandleMethod(
+                    await _dispatchToSubscriberLog.HandleEventSuccededAsync(
                             subscriber,
                             domainEvent,
                             cancellationToken)
@@ -150,14 +155,6 @@ namespace EventFlow.Subscribers
                             cancellationToken)
                         .ConfigureAwait(false);
                     throw;
-                }
-                finally
-                {
-                    await _dispatchToSubscriberLog.HandleEventDoneAsync(
-                            subscriber,
-                            domainEvent,
-                            cancellationToken)
-                        .ConfigureAwait(false);
                 }
             }
         }

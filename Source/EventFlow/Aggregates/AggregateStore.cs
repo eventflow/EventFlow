@@ -140,17 +140,22 @@ namespace EventFlow.Aggregates
 
                     cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
 
+                    await _eventLog.BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
+                            aggregate,
+                            commitId,
+                            cancellationToken)
+                        .ConfigureAwait(false);
                     try
                     {
-                        await _eventLog.CommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
-                                aggregate,
-                                commitId,
-                                cancellationToken)
-                            .ConfigureAwait(false);
                         var domainEvents = await aggregate.CommitAsync(
                                 _eventStore,
                                 _snapshotStore,
                                 sourceId,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        await _eventLog.CommitSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                commitId,
                                 cancellationToken)
                             .ConfigureAwait(false);
                         return new AggregateUpdateResult<TExecutionResult>(
@@ -167,14 +172,6 @@ namespace EventFlow.Aggregates
                             .ConfigureAwait(false);
                         throw;
                     }
-                    finally
-                    {
-                        await _eventLog.CommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
-                                aggregate,
-                                commitId,
-                                cancellationToken)
-                            .ConfigureAwait(false);
-                    }
                 },
                 Label.Named("aggregate-update"),
                 cancellationToken)
@@ -183,24 +180,31 @@ namespace EventFlow.Aggregates
             if (aggregateUpdateResult.Result.IsSuccess &&
                 aggregateUpdateResult.DomainEvents.Any())
             {
+                await _eventLog.BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
+                        id,
+                        commitId,
+                        aggregateUpdateResult.Result,
+                        aggregateUpdateResult.DomainEvents,
+                        cancellationToken)
+                    .ConfigureAwait(false);
                 try
                 {
-                    await _eventLog.EventsPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                    await domainEventPublisher.PublishAsync(
+                            aggregateUpdateResult.DomainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    await _eventLog.EventPublishSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
                         .ConfigureAwait(false);
-                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                    await domainEventPublisher.PublishAsync(
-                            aggregateUpdateResult.DomainEvents,
-                            cancellationToken)
-                        .ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    await _eventLog.EventsPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                    await _eventLog.EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
@@ -210,20 +214,10 @@ namespace EventFlow.Aggregates
                         .ConfigureAwait(false);
                     throw;
                 }
-                finally
-                {
-                    await _eventLog.EventsPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
-                            id,
-                            commitId,
-                            aggregateUpdateResult.Result,
-                            aggregateUpdateResult.DomainEvents,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                }
             }
             else
             {
-                await _eventLog.EventsPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
+                await _eventLog.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
                         id,
                         commitId,
                         aggregateUpdateResult.Result,

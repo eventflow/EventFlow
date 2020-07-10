@@ -31,7 +31,7 @@ namespace EventFlow.Sagas
 {
     public class NullSagaUpdateLog : ISagaUpdateLog
     {
-        public Task UpdateBeginAsync(
+        public Task BeforeUpdateAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
@@ -50,7 +50,7 @@ namespace EventFlow.Sagas
             return TaskShims.Completed;
         }
 
-        public Task UpdateDoneAsync(
+        public Task UpdateSuccededAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,

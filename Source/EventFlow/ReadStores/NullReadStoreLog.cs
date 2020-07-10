@@ -32,7 +32,7 @@ namespace EventFlow.ReadStores
 {
     public class NullReadStoreLog : IReadStoreLog
     {
-        public Task UpdateBeginAsync(
+        public Task BeforeUpdateAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -49,7 +49,7 @@ namespace EventFlow.ReadStores
             return TaskShims.Completed;
         }
 
-        public Task UpdateDoneAsync(
+        public Task UpdateSucceededAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)

@@ -107,14 +107,19 @@ namespace EventFlow.Subscribers
             var updateReadStoresTasks = _readStoreManagers
                 .Select(async rsm =>
                 {
+                    await _readStoreLog.BeforeUpdateAsync(
+                            rsm,
+                            domainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
                     try
                     {
-                        await _readStoreLog.UpdateBeginAsync(
+                        await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
+                        await _readStoreLog.UpdateSucceededAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)
                             .ConfigureAwait(false);
-                        await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
                     }
                     catch (Exception e)
                     {
@@ -125,14 +130,6 @@ namespace EventFlow.Subscribers
                                 cancellationToken)
                             .ConfigureAwait(false);
                         throw;
-                    }
-                    finally
-                    {
-                        await _readStoreLog.UpdateDoneAsync(
-                                rsm,
-                                domainEvents,
-                                cancellationToken)
-                            .ConfigureAwait(false);
                     }
                 });
             await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);

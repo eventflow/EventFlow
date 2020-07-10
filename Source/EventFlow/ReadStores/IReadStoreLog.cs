@@ -31,7 +31,7 @@ namespace EventFlow.ReadStores
 {
     public interface IReadStoreLog
     {
-        Task UpdateBeginAsync(
+        Task BeforeUpdateAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken);
@@ -42,7 +42,7 @@ namespace EventFlow.ReadStores
             Exception exception,
             CancellationToken cancellationToken);
 
-        Task UpdateDoneAsync(
+        Task UpdateSucceededAsync(
             IReadStoreManager readStoreManager,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken);

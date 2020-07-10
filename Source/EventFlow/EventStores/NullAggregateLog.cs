@@ -33,7 +33,7 @@ namespace EventFlow.EventStores
 {
     public class NullAggregateLog : IAggregateLog
     {
-        public Task CommitBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
             CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ namespace EventFlow.EventStores
             return TaskShims.Completed;
         }
 
-        public Task CommitDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task CommitSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
             CancellationToken cancellationToken)
@@ -67,7 +67,7 @@ namespace EventFlow.EventStores
             return TaskShims.Completed;
         }
 
-        public Task EventsPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -80,7 +80,7 @@ namespace EventFlow.EventStores
             return TaskShims.Completed;
         }
 
-        public Task EventsPublishBeginAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -93,7 +93,7 @@ namespace EventFlow.EventStores
             return TaskShims.Completed;
         }
 
-        public Task EventsPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -107,7 +107,7 @@ namespace EventFlow.EventStores
             return TaskShims.Completed;
         }
 
-        public Task EventsPublishDoneAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
