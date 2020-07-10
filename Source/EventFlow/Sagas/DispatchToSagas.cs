@@ -175,7 +175,7 @@ namespace EventFlow.Sagas
                         SagaContext.Empty,
                         cancellationToken)
                     .ConfigureAwait(false);
-                await _sagaUpdateLog.UpdateSuccededAsync(
+                await _sagaUpdateLog.UpdateSucceededAsync(
                         saga,
                         domainEvent,
                         details,
@@ -184,14 +184,16 @@ namespace EventFlow.Sagas
             }
             catch (Exception e)
             {
-                await _sagaUpdateLog.UpdateFailedAsync(
+                if (!await _sagaUpdateLog.HandleUpdateFailedAsync(
                         saga,
                         domainEvent,
                         details,
                         e,
                         cancellationToken)
-                    .ConfigureAwait(false);
-                throw;
+                    .ConfigureAwait(false))
+                {
+                    throw;
+                }
             }
         }
     }

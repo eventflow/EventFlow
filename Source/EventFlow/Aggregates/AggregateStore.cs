@@ -51,6 +51,7 @@ namespace EventFlow.Aggregates
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IAggregateLog _eventLog;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
         public AggregateStore(
             ILog log,
@@ -60,7 +61,8 @@ namespace EventFlow.Aggregates
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
             ICancellationConfiguration cancellationConfiguration,
-            IAggregateLog eventLog)
+            IAggregateLog eventLog,
+            IEventFlowConfiguration eventFlowConfiguration)
         {
             _log = log;
             _resolver = resolver;
@@ -70,6 +72,7 @@ namespace EventFlow.Aggregates
             _transientFaultHandler = transientFaultHandler;
             _cancellationConfiguration = cancellationConfiguration;
             _eventLog = eventLog;
+            _eventFlowConfiguration = eventFlowConfiguration;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -143,6 +146,7 @@ namespace EventFlow.Aggregates
                     await _eventLog.BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
                             aggregate,
                             commitId,
+                            result,
                             cancellationToken)
                         .ConfigureAwait(false);
                     try
@@ -153,24 +157,35 @@ namespace EventFlow.Aggregates
                                 sourceId,
                                 cancellationToken)
                             .ConfigureAwait(false);
-                        await _eventLog.CommitSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
+                        await _eventLog.CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
                                 commitId,
+                                result,
                                 cancellationToken)
                             .ConfigureAwait(false);
                         return new AggregateUpdateResult<TExecutionResult>(
                             result,
                             domainEvents);
                     }
+                    catch (OptimisticConcurrencyException) when (!_eventFlowConfiguration.ForwardOptimisticConcurrencyExceptions)
+                    {
+                        throw;
+                    }
                     catch (Exception e)
                     {
-                        await _eventLog.CommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                        var (handled, updatedAggregateUpdateResult) = await _eventLog.HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
                                 commitId,
+                                result,
                                 e,
                                 cancellationToken)
                             .ConfigureAwait(false);
-                        throw;
+                        if (!handled)
+                        {
+                            throw;
+                        }
+
+                        return updatedAggregateUpdateResult;
                     }
                 },
                 Label.Named("aggregate-update"),
@@ -194,7 +209,7 @@ namespace EventFlow.Aggregates
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
                         .ConfigureAwait(false);
-                    await _eventLog.EventPublishSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
+                    await _eventLog.EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
@@ -204,15 +219,17 @@ namespace EventFlow.Aggregates
                 }
                 catch (Exception e)
                 {
-                    await _eventLog.EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                    if (!await _eventLog.HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
                             commitId,
                             aggregateUpdateResult.Result,
                             aggregateUpdateResult.DomainEvents,
                             e,
                             cancellationToken)
-                        .ConfigureAwait(false);
-                    throw;
+                        .ConfigureAwait(false))
+                    {
+                        throw;
+                    }
                 }
             }
             else

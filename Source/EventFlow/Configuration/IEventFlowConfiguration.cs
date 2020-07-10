@@ -79,5 +79,7 @@ namespace EventFlow.Configuration
         /// <remarks>Defaults to
         /// <see cref="Cancellation.CancellationBoundary.BeforeCommittingEvents"/></remarks>
         CancellationBoundary CancellationBoundary { get; }
+
+        bool ForwardOptimisticConcurrencyExceptions { get; set; }
     }
 }

@@ -36,14 +36,13 @@ namespace EventFlow.Sagas
             SagaDetails details,
             CancellationToken cancellationToken);
 
-        Task UpdateFailedAsync(
-            ISaga saga,
+        Task<bool> HandleUpdateFailedAsync(ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
             Exception exception,
             CancellationToken cancellationToken);
 
-        Task UpdateSuccededAsync(
+        Task UpdateSucceededAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,

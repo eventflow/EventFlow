@@ -34,9 +34,9 @@ namespace EventFlow.EventStores
 {
     public class NullAggregateLog : IAggregateLog
     {
-        public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             Guid commitId,
+            TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -45,21 +45,22 @@ namespace EventFlow.EventStores
             return Tasks.Completed;
         }
 
-        public Task CommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
+            TExecutionResult executionResult,
             Exception exception,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.FromResult<(bool, IAggregateUpdateResult<TExecutionResult>)>((false, null));
         }
 
-        public Task CommitSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        public Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             Guid commitId,
+            TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -94,7 +95,7 @@ namespace EventFlow.EventStores
             return Tasks.Completed;
         }
 
-        public Task EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -105,10 +106,10 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.FromResult(false);
         }
 
-        public Task EventPublishSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
+        public Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,

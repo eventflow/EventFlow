@@ -34,6 +34,7 @@ namespace EventFlow.Configuration
         public bool ThrowSubscriberExceptions { get; set; }
         public bool IsAsynchronousSubscribersEnabled { get; set; }
         public CancellationBoundary CancellationBoundary { get; set; }
+        public bool ForwardOptimisticConcurrencyExceptions { get; set; }
 
         internal EventFlowConfiguration()
         {
@@ -43,6 +44,7 @@ namespace EventFlow.Configuration
             ThrowSubscriberExceptions = false;
             IsAsynchronousSubscribersEnabled = false;
             CancellationBoundary = CancellationBoundary.BeforeCommittingEvents;
+            ForwardOptimisticConcurrencyExceptions = false;
         }
     }
 }

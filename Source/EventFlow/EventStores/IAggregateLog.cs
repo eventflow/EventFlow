@@ -33,26 +33,27 @@ namespace EventFlow.EventStores
 {
     public interface IAggregateLog
     {
-        Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             Guid commitId,
+            TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult;
 
-        Task CommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
             Guid commitId,
+            TExecutionResult executionResult,
             Exception exception,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult;
 
-        Task CommitSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             Guid commitId,
+            TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -78,7 +79,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult;
 
-        Task EventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+        Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
@@ -89,7 +90,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult;
 
-        Task EventPublishSuccededAsync<TAggregate, TIdentity, TExecutionResult>(
+        Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             Guid commitId,
             TExecutionResult executionResult,
