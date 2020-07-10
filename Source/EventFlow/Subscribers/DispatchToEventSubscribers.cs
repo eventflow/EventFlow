@@ -102,6 +102,7 @@ namespace EventFlow.Subscribers
                 .ConfigureAwait(false);
             var subscribers = _resolver.ResolveAll(subscriberInformation.SubscriberType)
                 .Cast<ISubscribe>()
+                .OrderBy(s => s.GetType().Name)
                 .ToList();
 
             if (!subscribers.Any())
