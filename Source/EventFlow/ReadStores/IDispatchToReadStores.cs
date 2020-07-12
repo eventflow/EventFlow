@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,18 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Core;
 
-namespace EventFlow.Subscribers
+namespace EventFlow.ReadStores
 {
-    public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent> : ISubscribe
-        where TAggregate : IAggregateRoot<TIdentity>
-        where TIdentity : IIdentity
-        where TEvent : IAggregateEvent<TAggregate, TIdentity>
+    public interface IDispatchToReadStores
     {
-        Task HandleAsync(IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent, CancellationToken cancellationToken);
+        Task DispatchAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }

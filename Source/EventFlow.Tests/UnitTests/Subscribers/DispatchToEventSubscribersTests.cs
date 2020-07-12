@@ -121,10 +121,10 @@ namespace EventFlow.Tests.UnitTests.Subscribers
                 .Throws(expectedException);
 
             // Act
-            var exception = Assert.Throws<Exception>(() => Sut.DispatchToSynchronousSubscribersAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
+            var exception = Assert.Throws<AggregateException>(() => Sut.DispatchToSynchronousSubscribersAsync(new[] {A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>()}, CancellationToken.None).GetAwaiter().GetResult());
 
             // Assert
-            exception.Should().BeSameAs(expectedException);
+            exception.InnerException.Should().BeSameAs(expectedException);
             _logMock.VerifyNoErrorsLogged();
         }
 

@@ -193,6 +193,11 @@ namespace EventFlow
         private void RegisterDefaults(IServiceRegistration serviceRegistration)
         {
             serviceRegistration.Register<ILog, ConsoleLog>();
+            serviceRegistration.Register<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
+            serviceRegistration.Register<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
+            serviceRegistration.Register<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
+            serviceRegistration.Register<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
+            serviceRegistration.Register<IDispatchToReadStores, DispatchToReadStores>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();

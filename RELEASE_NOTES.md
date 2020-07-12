@@ -1,4 +1,24 @@
-### New in 0.79 (not released yet)
+### New in 0.80 (not released yet)
+
+* Breaking: Merged `AggregateReadStoreManager` and `SingleAggregateReadStoreManager`
+  into one class in order to always guarantee in-order event processing
+* Breaking: Marked the `UseReadStoreFor<,,,>` configuration methods as obsolete,
+  in favor of the simpler overloads with less type parameters (as those automatically
+  figure out the AggregateRoot and Id types and configure the more reliable 
+  `SingleAggregateReadStoreManager` implementation)
+* Fixed: An issue where `EntityFrameworkEventPersistence` could possibly save aggregate 
+  events out of order, which would lead to out-of-order application when streaming events
+  ordered by GlobalSequenceNumber
+* New: A new set of hook-in interfaces are provided from this release, which should
+  make it easier to implement crash resilience (#439) in EventFlow. Please note that
+  this new API is experimentational and subject to change as different strategies are
+  implemented
+  * `IAggregateStoreResilienceStrategy`
+  * `IDispatchToReadStoresResilienceStrategy`
+  * `IDispatchToSubscriberResilienceStrategy`
+  * `ISagaUpdateResilienceStrategy`
+
+### New in 0.79.4216 ((released 2020-05-13)
 
 * New: Added .NET Core 3.1 target for the `EventFlow`
   and `EventFlow.EntityFramework` packages
