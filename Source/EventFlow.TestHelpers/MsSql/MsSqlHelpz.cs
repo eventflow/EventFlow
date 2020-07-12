@@ -48,7 +48,6 @@ namespace EventFlow.TestHelpers.MsSql
 
             var connectionStringBuilder = new SqlConnectionStringBuilder()
                 {
-                    InitialCatalog = databaseName,
                     DataSource = FirstNonEmpty(
                         Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
                         ".")
@@ -81,6 +80,8 @@ namespace EventFlow.TestHelpers.MsSql
                     connectionStringBuilder.Password = "Password12!";
                 }
             }
+
+            connectionStringBuilder.InitialCatalog = databaseName;
 
             Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
 
