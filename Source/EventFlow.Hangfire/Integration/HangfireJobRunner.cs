@@ -37,7 +37,10 @@ namespace EventFlow.Hangfire.Integration
 
         public void Execute(string displayName, string jobName, int version, string job)
         {
+#pragma warning disable 618
+            // TODO: Figure out how to solve this
             _jobRunner.Execute(jobName, version, job);
+#pragma warning restore 618
         }
     }
 }

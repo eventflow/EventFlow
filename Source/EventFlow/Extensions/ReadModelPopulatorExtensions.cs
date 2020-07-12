@@ -30,6 +30,7 @@ namespace EventFlow.Extensions
 {
     public static class ReadModelPopulatorExtensions
     {
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static void Purge<TReadModel>(
             this IReadModelPopulator readModelPopulator,
             CancellationToken cancellationToken)
@@ -41,6 +42,7 @@ namespace EventFlow.Extensions
             }
         }
 
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static void Purge(
             this IReadModelPopulator readModelPopulator,
             Type readModelType,
@@ -52,6 +54,7 @@ namespace EventFlow.Extensions
             }
         }
 
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static void Populate<TReadModel>(
             this IReadModelPopulator readModelPopulator,
             CancellationToken cancellationToken)
@@ -63,6 +66,7 @@ namespace EventFlow.Extensions
             }
         }
 
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static void Populate(
             this IReadModelPopulator readModelPopulator,
             Type readModelType,

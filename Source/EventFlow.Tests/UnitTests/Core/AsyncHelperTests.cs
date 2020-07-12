@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
+    [Obsolete("AsyncHelper should be removed in 1.0")]
     [Category(Categories.Integration)]
     public class AsyncHelperTests
     {

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using EventFlow.Configuration.Bootstraps;
 using EventFlow.Core;
@@ -29,6 +30,7 @@ namespace EventFlow.Extensions
 {
     public static class BootstrapperExtensions
     {
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static void Start(this IBootstrapper bootstrapper)
         {
             if (bootstrapper is Bootstrapper b && b.HasBeenRun)

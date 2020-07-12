@@ -80,10 +80,14 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.New;
 
             // Act
-            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestACommand(aggregateId), CancellationToken.None);
+            await _commandBus.PublishAsync(
+                new AlternativeSagaStoreTestClasses.SagaTestACommand(aggregateId),
+                CancellationToken.None);
 
             // Assert
-            var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+            var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(
+                aggregateId,
+                CancellationToken.None);
             testAggregate.As.Should().Be(1);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(1);
@@ -96,10 +100,14 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.New;
 
             // Act
-            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            await _commandBus.PublishAsync(
+                new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId),
+                CancellationToken.None);
 
             // Assert
-            var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(aggregateId, CancellationToken.None);
+            var testAggregate = await _aggregateStore.LoadAsync<AlternativeSagaStoreTestClasses.SagaTestAggregate, AlternativeSagaStoreTestClasses.SagaTestAggregateId>(
+                aggregateId,
+                CancellationToken.None);
             testAggregate.As.Should().Be(0);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(0);
@@ -111,21 +119,22 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             // Arrange
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
 
-            // Act
-            Action action = () => _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
-            
-            // Assert
-            action.Should().NotThrow();
+            // Act and Assert
+            Assert.DoesNotThrowAsync(async () => await _commandBus.PublishAsync(
+                new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId),
+                CancellationToken.None));
         }
 
         [Test]
-        public void SagaLocatorReturningNullDoesntCallSagaStore()
+        public async Task SagaLocatorReturningNullDoesntCallSagaStore()
         {
             // Arrange
             var aggregateId = AlternativeSagaStoreTestClasses.SagaTestAggregateId.With(Guid.Empty);
 
             // Act
-            _commandBus.Publish(new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId), CancellationToken.None);
+            await _commandBus.PublishAsync(
+                new AlternativeSagaStoreTestClasses.SagaTestBCommand(aggregateId),
+                CancellationToken.None);
             
             // Assert
             _sagaStore.UpdateShouldNotHaveBeenCalled();

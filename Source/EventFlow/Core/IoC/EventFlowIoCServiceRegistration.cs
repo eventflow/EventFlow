@@ -134,7 +134,11 @@ namespace EventFlow.Core.IoC
             }
 
             var bootstrapper = resolver.Resolve<IBootstrapper>();
+
+#pragma warning disable 618
+            // TODO: Figure out bootstrapping alternative for 1.0
             bootstrapper.Start();
+#pragma warning restore 618
 
             return resolver;
         }

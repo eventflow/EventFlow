@@ -37,6 +37,7 @@ namespace EventFlow.Core
     /// <summary>
     /// A Helper class to run Asynchronous functions from synchronous ones
     /// </summary>
+    [Obsolete("The AsyncHelper will be removed in EventFlow 1.0 release")]
     public static class AsyncHelper
     {
         /// <summary>

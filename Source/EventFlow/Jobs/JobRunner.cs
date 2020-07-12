@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -45,11 +46,13 @@ namespace EventFlow.Jobs
             _jsonSerializer = jsonSerializer;
         }
 
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public void Execute(string jobName, int version, string job)
         {
             Execute(jobName, version, job, CancellationToken.None);
         }
 
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public void Execute(string jobName, int version, string json, CancellationToken cancellationToken)
         {
             using (var a = AsyncHelper.Wait)

@@ -77,9 +77,9 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test, Explicit]
-        public void CreateEventHelper()
+        public async Task CreateEventHelper()
         {
-            _commandBus.Publish(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
+            await _commandBus.PublishAsync(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
         }
     }
 }
