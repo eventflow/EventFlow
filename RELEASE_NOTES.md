@@ -6,6 +6,10 @@
   in favor of the simpler overloads with less type parameters (as those automatically
   figure out the AggregateRoot and Id types and configure the more reliable 
   `SingleAggregateReadStoreManager` implementation)
+* Obsolete: The class `AsyncHelper` and all non-async methods that used it, has been
+  marked obsolete and will be removed in EventFlow 1.0 (not planned yet). If you rely
+  on these non-async methods, then merely copy-paste the `AsyncHelper` from the EventFlow
+  code base and continue using it in your transition to async only 
 * Fixed: An issue where `EntityFrameworkEventPersistence` could possibly save aggregate 
   events out of order, which would lead to out-of-order application when streaming events
   ordered by GlobalSequenceNumber
