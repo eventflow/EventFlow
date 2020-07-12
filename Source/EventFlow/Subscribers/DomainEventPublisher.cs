@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,8 +44,8 @@ namespace EventFlow.Subscribers
         private readonly IResolver _resolver;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
         private readonly ICancellationConfiguration _cancellationConfiguration;
+        private readonly IDispatchToReadStores _dispatchToReadStores;
         private readonly IReadOnlyCollection<ISubscribeSynchronousToAll> _subscribeSynchronousToAlls;
-        private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
 
         public DomainEventPublisher(
             IDispatchToEventSubscribers dispatchToEventSubscribers,
@@ -53,9 +53,9 @@ namespace EventFlow.Subscribers
             IJobScheduler jobScheduler,
             IResolver resolver,
             IEventFlowConfiguration eventFlowConfiguration,
-            IEnumerable<IReadStoreManager> readStoreManagers,
             IEnumerable<ISubscribeSynchronousToAll> subscribeSynchronousToAlls,
-            ICancellationConfiguration cancellationConfiguration)
+            ICancellationConfiguration cancellationConfiguration,
+            IDispatchToReadStores dispatchToReadStores)
         {
             _dispatchToEventSubscribers = dispatchToEventSubscribers;
             _dispatchToSagas = dispatchToSagas;
@@ -63,8 +63,8 @@ namespace EventFlow.Subscribers
             _resolver = resolver;
             _eventFlowConfiguration = eventFlowConfiguration;
             _cancellationConfiguration = cancellationConfiguration;
+            _dispatchToReadStores = dispatchToReadStores;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
-            _readStoreManagers = readStoreManagers.ToList();
         }
 
         public Task PublishAsync<TAggregate, TIdentity>(
@@ -100,9 +100,10 @@ namespace EventFlow.Subscribers
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var updateReadStoresTasks = _readStoreManagers
-                .Select(rsm => rsm.UpdateReadStoresAsync(domainEvents, cancellationToken));
-            await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
+            await _dispatchToReadStores.DispatchAsync(
+                domainEvents,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private async Task PublishToSubscribersOfAllEventsAsync(
