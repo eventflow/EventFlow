@@ -11,7 +11,7 @@
   ordered by GlobalSequenceNumber
 * New: A new set of hook-in interfaces are provided from this release, which should
   make it easier to implement crash resilience (#439) in EventFlow. Please note that
-  this new API is experimentation is subject to change as different strategies are
+  this new API is experimentational and subject to change as different strategies are
   implemented
   * `IAggregateStoreResilienceStrategy`
   * `IDispatchToReadStoresResilienceStrategy`
