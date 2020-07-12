@@ -33,8 +33,8 @@ namespace EventFlow.EventStores
 {
     public interface IAggregateStoreResilienceStrategy
     {
-        Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
-            Guid commitId,
+        Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
+            TAggregate aggregate,
             TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -43,7 +43,6 @@ namespace EventFlow.EventStores
 
         Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TAggregate aggregate,
-            Guid commitId,
             TExecutionResult executionResult,
             Exception exception,
             CancellationToken cancellationToken)
@@ -51,8 +50,8 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult;
 
-        Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
-            Guid commitId,
+        Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+            TAggregate aggregate,
             TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -61,7 +60,6 @@ namespace EventFlow.EventStores
 
         Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
-            Guid commitId,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -71,7 +69,6 @@ namespace EventFlow.EventStores
 
         Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
-            Guid commitId,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -81,7 +78,6 @@ namespace EventFlow.EventStores
 
         Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
-            Guid commitId,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             Exception exception,
@@ -92,7 +88,6 @@ namespace EventFlow.EventStores
 
         Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
-            Guid commitId,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)

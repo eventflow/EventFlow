@@ -117,133 +117,128 @@ namespace EventFlow.Aggregates
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            var commitId = Guid.NewGuid();
-            var aggregateUpdateResult = await _transientFaultHandler.TryAsync(
-                async c =>
+            using (EventCorrelationContext.Push(EventAction.AggregateStore))
+            {
+                var aggregateUpdateResult = await _transientFaultHandler.TryAsync(
+                    async c =>
+                    {
+                        var aggregate = await LoadAsync<TAggregate, TIdentity>(id, c).ConfigureAwait(false);
+                        if (aggregate.HasSourceId(sourceId))
+                        {
+                            throw new DuplicateOperationException(
+                                sourceId,
+                                id,
+                                $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
+                        }
+
+                        cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingAggregate);
+
+                        var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
+                        if (!result.IsSuccess)
+                        {
+                            _log.Debug(() => $"Execution failed on aggregate '{typeof(TAggregate).PrettyPrint()}', disregarding any events emitted");
+                            return new AggregateUpdateResult<TExecutionResult>(
+                                result,
+                                EmptyDomainEventCollection);
+                        }
+
+                        cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
+
+                        await _aggregateStoreResilienceStrategy.BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                result,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        try
+                        {
+                            var domainEvents = await aggregate.CommitAsync(
+                                    _eventStore,
+                                    _snapshotStore,
+                                    sourceId,
+                                    cancellationToken)
+                                .ConfigureAwait(false);
+                            await _aggregateStoreResilienceStrategy.CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+                                    aggregate,
+                                    result,
+                                    cancellationToken)
+                                .ConfigureAwait(false);
+                            return new AggregateUpdateResult<TExecutionResult>(
+                                result,
+                                domainEvents);
+                        }
+                        catch (OptimisticConcurrencyException) when (!_eventFlowConfiguration.ForwardOptimisticConcurrencyExceptions)
+                        {
+                            throw;
+                        }
+                        catch (Exception e)
+                        {
+                            var (handled, updatedAggregateUpdateResult) = await _aggregateStoreResilienceStrategy.HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                                    aggregate,
+                                    result,
+                                    e,
+                                    cancellationToken)
+                                .ConfigureAwait(false);
+                            if (!handled)
+                            {
+                                throw;
+                            }
+
+                            return updatedAggregateUpdateResult;
+                        }
+                    },
+                    Label.Named("aggregate-update"),
+                    cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (aggregateUpdateResult.Result.IsSuccess &&
+                    aggregateUpdateResult.DomainEvents.Any())
                 {
-                    var aggregate = await LoadAsync<TAggregate, TIdentity>(id, c).ConfigureAwait(false);
-                    if (aggregate.HasSourceId(sourceId))
-                    {
-                        throw new DuplicateOperationException(
-                            sourceId,
+                    await _aggregateStoreResilienceStrategy.BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
-                            $"Aggregate '{typeof(TAggregate).PrettyPrint()}' has already had operation '{sourceId}' performed");
-                    }
-
-                    cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingAggregate);
-
-                    var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
-                    if (!result.IsSuccess)
-                    {
-                        _log.Debug(() => $"Execution failed on aggregate '{typeof(TAggregate).PrettyPrint()}', disregarding any events emitted");
-                        return new AggregateUpdateResult<TExecutionResult>(
-                            result,
-                            EmptyDomainEventCollection);
-                    }
-
-                    cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
-
-                    await _aggregateStoreResilienceStrategy.BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
-                            aggregate,
-                            commitId,
-                            result,
+                            aggregateUpdateResult.Result,
+                            aggregateUpdateResult.DomainEvents,
                             cancellationToken)
                         .ConfigureAwait(false);
                     try
                     {
-                        var domainEvents = await aggregate.CommitAsync(
-                                _eventStore,
-                                _snapshotStore,
-                                sourceId,
+                        var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                        await domainEventPublisher.PublishAsync(
+                                aggregateUpdateResult.DomainEvents,
                                 cancellationToken)
                             .ConfigureAwait(false);
-                        await _aggregateStoreResilienceStrategy.CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
-                                aggregate,
-                                commitId,
-                                result,
+                        await _aggregateStoreResilienceStrategy.EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+                                id,
+                                aggregateUpdateResult.Result,
+                                aggregateUpdateResult.DomainEvents,
                                 cancellationToken)
                             .ConfigureAwait(false);
-                        return new AggregateUpdateResult<TExecutionResult>(
-                            result,
-                            domainEvents);
-                    }
-                    catch (OptimisticConcurrencyException) when (!_eventFlowConfiguration.ForwardOptimisticConcurrencyExceptions)
-                    {
-                        throw;
                     }
                     catch (Exception e)
                     {
-                        var (handled, updatedAggregateUpdateResult) = await _aggregateStoreResilienceStrategy.HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
-                                aggregate,
-                                commitId,
-                                result,
+                        if (!await _aggregateStoreResilienceStrategy.HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                                id,
+                                aggregateUpdateResult.Result,
+                                aggregateUpdateResult.DomainEvents,
                                 e,
                                 cancellationToken)
-                            .ConfigureAwait(false);
-                        if (!handled)
+                            .ConfigureAwait(false))
                         {
                             throw;
                         }
-
-                        return updatedAggregateUpdateResult;
                     }
-                },
-                Label.Named("aggregate-update"),
-                cancellationToken)
-                .ConfigureAwait(false);
-
-            if (aggregateUpdateResult.Result.IsSuccess &&
-                aggregateUpdateResult.DomainEvents.Any())
-            {
-                await _aggregateStoreResilienceStrategy.BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
-                        id,
-                        commitId,
-                        aggregateUpdateResult.Result,
-                        aggregateUpdateResult.DomainEvents,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-                try
+                }
+                else
                 {
-                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                    await domainEventPublisher.PublishAsync(
-                            aggregateUpdateResult.DomainEvents,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                    await _aggregateStoreResilienceStrategy.EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+                    await _aggregateStoreResilienceStrategy.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
-                            commitId,
                             aggregateUpdateResult.Result,
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
                         .ConfigureAwait(false);
                 }
-                catch (Exception e)
-                {
-                    if (!await _aggregateStoreResilienceStrategy.HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
-                            id,
-                            commitId,
-                            aggregateUpdateResult.Result,
-                            aggregateUpdateResult.DomainEvents,
-                            e,
-                            cancellationToken)
-                        .ConfigureAwait(false))
-                    {
-                        throw;
-                    }
-                }
-            }
-            else
-            {
-                await _aggregateStoreResilienceStrategy.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
-                        id,
-                        commitId,
-                        aggregateUpdateResult.Result,
-                        aggregateUpdateResult.DomainEvents,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-            }
 
-            return aggregateUpdateResult;
+                return aggregateUpdateResult;
+            }
         }
 
         public async Task<IReadOnlyCollection<IDomainEvent>> StoreAsync<TAggregate, TIdentity>(

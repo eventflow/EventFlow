@@ -35,7 +35,6 @@ namespace EventFlow.EventStores
     public class NoAggregateStoreResilienceStrategy : IAggregateStoreResilienceStrategy
     {
         public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
-            Guid commitId,
             TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -45,9 +44,8 @@ namespace EventFlow.EventStores
             return Tasks.Completed;
         }
 
-        public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
-            Guid commitId,
+        public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity,
+            TExecutionResult>(TAggregate aggregate,
             TExecutionResult executionResult,
             Exception exception,
             CancellationToken cancellationToken)
@@ -59,7 +57,6 @@ namespace EventFlow.EventStores
         }
 
         public Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
-            Guid commitId,
             TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
@@ -69,9 +66,7 @@ namespace EventFlow.EventStores
             return Tasks.Completed;
         }
 
-        public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
-            Guid commitId,
+        public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -82,9 +77,7 @@ namespace EventFlow.EventStores
             return Tasks.Completed;
         }
 
-        public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
-            Guid commitId,
+        public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
@@ -95,9 +88,7 @@ namespace EventFlow.EventStores
             return Tasks.Completed;
         }
 
-        public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
-            Guid commitId,
+        public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             Exception exception,
@@ -109,9 +100,7 @@ namespace EventFlow.EventStores
             return Task.FromResult(false);
         }
 
-        public Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
-            Guid commitId,
+        public Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
