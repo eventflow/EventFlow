@@ -117,7 +117,11 @@ namespace EventFlow.Aggregates
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            var commitId = Guid.NewGuid();
+            await _aggregateStoreResilienceStrategy.BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+                    id,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             var aggregateUpdateResult = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
@@ -145,7 +149,6 @@ namespace EventFlow.Aggregates
 
                     await _aggregateStoreResilienceStrategy.BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
                             aggregate,
-                            commitId,
                             result,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -159,7 +162,6 @@ namespace EventFlow.Aggregates
                             .ConfigureAwait(false);
                         await _aggregateStoreResilienceStrategy.CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
-                                commitId,
                                 result,
                                 cancellationToken)
                             .ConfigureAwait(false);
@@ -175,7 +177,6 @@ namespace EventFlow.Aggregates
                     {
                         var (handled, updatedAggregateUpdateResult) = await _aggregateStoreResilienceStrategy.HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                                 aggregate,
-                                commitId,
                                 result,
                                 e,
                                 cancellationToken)
@@ -197,7 +198,6 @@ namespace EventFlow.Aggregates
             {
                 await _aggregateStoreResilienceStrategy.BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
                         id,
-                        commitId,
                         aggregateUpdateResult.Result,
                         aggregateUpdateResult.DomainEvents,
                         cancellationToken)
@@ -211,7 +211,6 @@ namespace EventFlow.Aggregates
                         .ConfigureAwait(false);
                     await _aggregateStoreResilienceStrategy.EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
-                            commitId,
                             aggregateUpdateResult.Result,
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
@@ -221,7 +220,6 @@ namespace EventFlow.Aggregates
                 {
                     if (!await _aggregateStoreResilienceStrategy.HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
                             id,
-                            commitId,
                             aggregateUpdateResult.Result,
                             aggregateUpdateResult.DomainEvents,
                             e,
@@ -236,7 +234,6 @@ namespace EventFlow.Aggregates
             {
                 await _aggregateStoreResilienceStrategy.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
                         id,
-                        commitId,
                         aggregateUpdateResult.Result,
                         aggregateUpdateResult.DomainEvents,
                         cancellationToken)
