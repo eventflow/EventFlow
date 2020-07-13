@@ -33,6 +33,7 @@ using Microsoft.EntityFrameworkCore.Update;
 
 namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
     public class IndexingInMemoryTable : IInMemoryTable
     {
         private readonly IIndex[] _indexDefinitions;
