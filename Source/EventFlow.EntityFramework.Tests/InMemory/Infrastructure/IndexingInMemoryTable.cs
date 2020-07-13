@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -73,6 +74,11 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
         public void Update(IUpdateEntry entry)
         {
             _innerTable.Update(entry);
+        }
+
+        public InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property)
+        {
+            return _innerTable.GetIntegerValueGenerator<TProperty>(property);
         }
 
         private struct IndexEntry
