@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,26 +20,30 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
 
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Jobs;
+using System.Collections.Generic;
+using System.Linq;
+using Hangfire.Server;
 
-namespace EventFlow.Hangfire.Integration
+namespace EventFlow.Hangfire.Tests.Integration
 {
-    public class HangfireJobRunner : IHangfireJobRunner
+    public class HangfireJobLog : IServerFilter
     {
-        private readonly IJobRunner _jobRunner;
+        private readonly List<PerformedContext> _performed = new List<PerformedContext>();
 
-        public HangfireJobRunner(
-            IJobRunner jobRunner)
+        public void OnPerforming(PerformingContext filterContext)
         {
-            _jobRunner = jobRunner;
         }
 
-        public Task ExecuteAsync(string displayName, string jobName, int version, string job)
+        public void OnPerformed(PerformedContext filterContext)
         {
-            return _jobRunner.ExecuteAsync(jobName, version, job, CancellationToken.None);
+            _performed.Add(filterContext);
+        }
+
+        public PerformedContext TryGet(string id)
+        {
+            return _performed.FirstOrDefault(context => context.BackgroundJob.Id == id);
         }
     }
 }

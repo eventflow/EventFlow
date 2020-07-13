@@ -22,12 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace EventFlow.Hangfire.Integration
 {
     public interface IHangfireJobRunner
     {
         [DisplayName("{0}")]
-        void Execute(string displayName, string jobName, int version, string job);
+        Task ExecuteAsync(string displayName, string jobName, int version, string job);
     }
 }
