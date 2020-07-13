@@ -148,10 +148,10 @@ namespace EventFlow.MongoDB.ReadStores
             readModelEnvelope.ReadModel.Version = readModelEnvelope.Version;
             try
             {
-                await collection.ReplaceOneAsync<TReadModel>(
+                await collection.ReplaceOneAsync(
                     x => x.Id == readModelUpdate.ReadModelId && x.Version == originalVersion,
                     readModelEnvelope.ReadModel,
-                    new UpdateOptions() { IsUpsert = true },
+                    new ReplaceOptions { IsUpsert = true },
                     cancellationToken);
             }
             catch (MongoWriteException e)
