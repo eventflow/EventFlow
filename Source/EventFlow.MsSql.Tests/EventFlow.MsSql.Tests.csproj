@@ -14,9 +14,6 @@
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\ReadStores\Scripts\0001 - Create table ReadModel-ThingyAggregate.sql" />
     <EmbeddedResource Include="IntegrationTests\ReadStores\Scripts\0002 - Create table ReadModel-ThingyMessage.sql" />
   </ItemGroup>
