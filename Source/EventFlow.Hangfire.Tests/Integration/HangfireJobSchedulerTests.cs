@@ -35,6 +35,7 @@ using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Hangfire.Common;
+using Hangfire.Server;
 using Hangfire.SqlServer;
 
 namespace EventFlow.Hangfire.Tests.Integration
@@ -107,14 +108,13 @@ namespace EventFlow.Hangfire.Tests.Integration
             return resolver;
         }
 
-        protected override Task AssertJobIsSuccessfullAsync(IJobId jobId)
+        protected override async Task AssertJobIsSuccessfullAsync(IJobId jobId)
         {
-            var context = _log.TryGet(jobId.Value);
+            var context = await _log.GetAsync(jobId.Value);
             context.Should().NotBeNull();
             context.Exception.Should().BeNull();
             var displayName = context.BackgroundJob.Job.Args[0].ToString();
             displayName.Should().Be("PublishCommand v1");
-            return Task.CompletedTask;
         }
     }
 }

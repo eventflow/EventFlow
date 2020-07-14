@@ -22,15 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Hangfire.Server;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
     public class HangfireJobLog : IServerFilter
     {
-        private readonly List<PerformedContext> _performed = new List<PerformedContext>();
+        private readonly ConcurrentDictionary<string, TaskCompletionSource<PerformedContext>> _performed =
+            new ConcurrentDictionary<string, TaskCompletionSource<PerformedContext>>();
 
         public void OnPerforming(PerformingContext filterContext)
         {
@@ -38,12 +40,26 @@ namespace EventFlow.Hangfire.Tests.Integration
 
         public void OnPerformed(PerformedContext filterContext)
         {
-            _performed.Add(filterContext);
+            var completionSource = Get(filterContext.BackgroundJob.Id);
+            completionSource.SetResult(filterContext);
         }
 
-        public PerformedContext TryGet(string id)
+        private TaskCompletionSource<PerformedContext> Get(string id)
         {
-            return _performed.FirstOrDefault(context => context.BackgroundJob.Id == id);
+            return _performed.GetOrAdd(id, s => new TaskCompletionSource<PerformedContext>());
+        }
+
+        public async Task<PerformedContext> GetAsync(string id)
+        {
+            var completionSource = Get(id);
+            var task = completionSource.Task;
+            Task timeout = Task.Delay(TimeSpan.FromSeconds(10));
+            if (await Task.WhenAny(task, timeout) == task)
+            {
+                return task.Result;
+            }
+
+            throw new TimeoutException($"Job with id {id} not found.");
         }
     }
 }
