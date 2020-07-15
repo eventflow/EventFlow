@@ -63,8 +63,10 @@ Task("Clean")
                     DIR_OUTPUT_REPORTS,
                 });
 				
-			DeleteDirectories(GetDirectories("**/bin"), true);
-			DeleteDirectories(GetDirectories("**/obj"), true);
+            var settings = new DeleteDirectorySettings {Force = true, Recursive = true};
+
+			DeleteDirectories(GetDirectories("**/bin"), settings);
+			DeleteDirectories(GetDirectories("**/obj"), settings);
         });
 	
 // =====================================================================================================
@@ -104,7 +106,8 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest(".");
+            ExecuteTest($@"Source\*\bin\{CONFIGURATION}\net472\*.Tests.dll");
+            ExecuteTest($@"Source\*\bin\{CONFIGURATION}\netcoreapp3.1\*.Tests.dll");
         })
 	.Finally(() =>
         {
@@ -124,9 +127,7 @@ Task("Package")
 				var name = project.GetDirectory().FullPath;
 				var version = VERSION.ToString();
 				
-				if ((name.Contains("Test") && !name.Contains("TestHelpers")) 
-                || name.Contains("Example")
-                || name.Contains("Owin"))
+				if ((name.Contains("Test") && !name.Contains("TestHelpers")) || name.Contains("Example"))
 				{
 					continue;
 				}
@@ -170,7 +171,6 @@ Task("All")
     //.IsDependentOn("ValidateSourceLink") builds on AppVeyor fail for some unknown reason
     .Does(() =>
         {
-
         });
 
 // =====================================================================================================
@@ -280,28 +280,26 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string files)
+void ExecuteTest(string path)
 {
 	OpenCover(tool => 
 		{
-            tool.DotNetCoreTest(
-                files,
-                new DotNetCoreTestSettings()
+            var settings = new DotNetCoreTestSettings()
                 {
-                    NoBuild = true,
-                    Configuration = CONFIGURATION,
                     Settings = FILE_RUNSETTINGS,
                     ResultsDirectory = DIR_OUTPUT_REPORTS,
                     ArgumentCustomization = args =>
                         args.Append("--nologo")
-                }
-            );
+                };
+
+            tool.DotNetCoreTest(path, settings);
         },
         new FilePath(FILE_OPENCOVER_REPORT),
         new OpenCoverSettings
             {
-                Register = "appveyor",
-                ReturnTargetCodeOffset = 1000
+                Register = AppVeyor.IsRunningOnAppVeyor ? "appveyor" : "user",
+                ReturnTargetCodeOffset = 1000,
+                MergeOutput = true,
             }
             .WithFilter("+[EventFlow*]*")
             .WithFilter("-[*Tests]*")
