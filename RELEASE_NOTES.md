@@ -6,6 +6,18 @@
   in favor of the simpler overloads with less type parameters (as those automatically
   figure out the AggregateRoot and Id types and configure the more reliable 
   `SingleAggregateReadStoreManager` implementation)
+* Fixed: An issue where `EntityFrameworkEventPersistence` could possibly save aggregate 
+  events out of order, which would lead to out-of-order application when streaming events
+  ordered by GlobalSequenceNumber
+* New: `FilesEventPersistence` now uses relative paths
+* New: A new set of hook-in interfaces are provided from this release, which should
+  make it easier to implement crash resilience (#439) in EventFlow. Please note that
+  this new API is experimentational and subject to change as different strategies are
+  implemented
+  * `IAggregateStoreResilienceStrategy`
+  * `IDispatchToReadStoresResilienceStrategy`
+  * `IDispatchToSubscriberResilienceStrategy`
+  * `ISagaUpdateResilienceStrategy`
 
 ### New in 0.79.4216 ((released 2020-05-13)
 

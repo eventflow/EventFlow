@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,34 +22,38 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.IO;
-using System.Linq;
-using EventFlow.Core;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Shims;
 
-namespace EventFlow.EventStores.Files
+namespace EventFlow.ReadStores
 {
-    public class FilesEventLocator : IFilesEventLocator
+    public class NoDispatchToReadStoresResilienceStrategy : IDispatchToReadStoresResilienceStrategy
     {
-        private readonly IFilesEventStoreConfiguration _configuration;
-
-        public FilesEventLocator(
-            IFilesEventStoreConfiguration configuration)
+        public Task BeforeUpdateAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
-            _configuration = configuration;
+            return Tasks.Completed;
         }
 
-        public string GetEntityPath(IIdentity id)
+        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            Exception exception,
+            CancellationToken cancellationToken)
         {
-            return Path.Combine(
-                _configuration.StorePath,
-                id.Value);
+            return Task.FromResult(false);
         }
 
-        public string GetEventPath(IIdentity id, int aggregateSequenceNumber)
+        public Task UpdateSucceededAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
-            return Path.Combine(
-                GetEntityPath(id),
-                $"{aggregateSequenceNumber}.json");
+            return Tasks.Completed;
         }
     }
 }
