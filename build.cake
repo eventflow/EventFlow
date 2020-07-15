@@ -106,8 +106,8 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest($@"Source\*\bin\{CONFIGURATION}\net472\*.Tests.dll");
-            ExecuteTest($@"Source\*\bin\{CONFIGURATION}\netcoreapp3.1\*.Tests.dll");
+            ExecuteTest(FindTestDlls("net472"));
+            ExecuteTest(FindTestDlls("netcoreapp3.1"));
         })
 	.Finally(() =>
         {
@@ -245,6 +245,18 @@ void UploadArtifact(string filePath)
     }
 }
 
+IEnumerable<FilePath> FindTestDlls(string framework)
+{
+    var dirs = GetDirectories($"Source/*.Tests/bin/{CONFIGURATION}/{framework}");
+    var cwd = Context.Environment.WorkingDirectory;
+    var files = dirs
+        .Select(cwd.GetRelativePath)
+        .Select(d => d.Segments[1])
+        .Select(name => $"Source/{name}/bin/{CONFIGURATION}/{framework}/{name}.dll")
+        .Select(file => new FilePath(file));
+    return files;
+}
+
 string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
 {
     Information("Executing '{0}' {1}", exePath, arguments ?? string.Empty);
@@ -280,19 +292,21 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string path)
+void ExecuteTest(IEnumerable<FilePath> paths)
 {
 	OpenCover(tool => 
 		{
-            var settings = new DotNetCoreTestSettings()
+            var settings = new DotNetCoreVSTestSettings()
                 {
+                    Parallel = true,
+                    ToolTimeout = TimeSpan.FromMinutes(30),
                     Settings = FILE_RUNSETTINGS,
                     ResultsDirectory = DIR_OUTPUT_REPORTS,
                     ArgumentCustomization = args =>
                         args.Append("--nologo")
                 };
 
-            tool.DotNetCoreTest(path, settings);
+            tool.DotNetCoreVSTest(paths, settings);
         },
         new FilePath(FILE_OPENCOVER_REPORT),
         new OpenCoverSettings
