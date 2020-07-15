@@ -11,4 +11,7 @@
       </Logger>
     </Loggers>
   </LoggerRunSettings>
+  <NUnit>
+    <ConsoleOut>0</ConsoleOut>
+  </NUnit>
 </RunSettings>

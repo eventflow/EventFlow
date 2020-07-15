@@ -300,6 +300,7 @@ void ExecuteTest(string path)
                 Register = AppVeyor.IsRunningOnAppVeyor ? "appveyor" : "user",
                 ReturnTargetCodeOffset = 1000,
                 MergeOutput = true,
+                LogLevel = OpenCoverLogLevel.Warn,
             }
             .WithFilter("+[EventFlow*]*")
             .WithFilter("-[*Tests]*")
