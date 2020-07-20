@@ -30,7 +30,7 @@ using EventFlow.EventStores;
 
 namespace EventFlow.PublishRecovery
 {
-    public sealed class PublishVerificator : IPublishVerificator
+    public sealed class PublishRecoveryProcessor : IPublishRecoveryProcessor
     {
         private const int PageSize = 200;
 
@@ -40,7 +40,7 @@ namespace EventFlow.PublishRecovery
         private readonly IRecoveryDetector _recoveryDetector;
         private readonly IReliablePublishPersistence _reliablePublishPersistence;
 
-        public PublishVerificator(IEventPersistence eventPersistence, IRecoveryHandlerProcessor recoveryHandlerProcessor, IEventJsonSerializer eventSerializer, IRecoveryDetector recoveryDetector, IReliablePublishPersistence reliablePublishPersistence)
+        public PublishRecoveryProcessor(IEventPersistence eventPersistence, IRecoveryHandlerProcessor recoveryHandlerProcessor, IEventJsonSerializer eventSerializer, IRecoveryDetector recoveryDetector, IReliablePublishPersistence reliablePublishPersistence)
         {
             _eventPersistence = eventPersistence;
             _recoveryHandlerProcessor = recoveryHandlerProcessor;
@@ -51,7 +51,7 @@ namespace EventFlow.PublishRecovery
 
         public async Task<PublishVerificationResult> VerifyOnceAsync(CancellationToken cancellationToken)
         {
-            var state = await _reliablePublishPersistence.GetUnverifiedItemsAsync(PageSize, cancellationToken)
+            var state = await _reliablePublishPersistence.GetUnverifiedPublishLogItemsAsync(PageSize, cancellationToken)
                 .ConfigureAwait(false);
 
             var logItemLookup = state.Items.ToLookup(x => x.AggregateId);
@@ -69,25 +69,25 @@ namespace EventFlow.PublishRecovery
             {
                 // Do it inside transaction to recover in single thread
                 // success recovery should put LogItem
-                await _recoveryHandlerProcessor.RecoverAfterUnexpectedShutdownAsync(eventsForRecovery, cancellationToken)
+                await _recoveryHandlerProcessor.RecoverUnconfirmedEventsAsync(eventsForRecovery, cancellationToken)
                     .ConfigureAwait(false);
 
-                return PublishVerificationResult.RecoveredNeedVerify;
+                return new PublishVerificationResult(completed: false, recovered: true);
             }
 
             // Remove logs and move position forward only when it is successfully recovered.
             if (verifyResult.UnpublishedEvents.Count == 0)
             {
                 await _reliablePublishPersistence
-                    .MarkVerifiedAsync(verifyResult.PublishedLogItems, page.NextGlobalPosition, cancellationToken)
+                    .MarkPublishLogItemsAsVerifiedAsync(verifyResult.PublishedLogItems, page.NextGlobalPosition, cancellationToken)
                     .ConfigureAwait(false);
 
                 return page.CommittedDomainEvents.Count < PageSize
-                    ? PublishVerificationResult.CompletedNoMoreDataToVerify
-                    : PublishVerificationResult.HasMoreDataNeedVerify;
+                    ? new PublishVerificationResult(completed: true, recovered: false)
+                    : new PublishVerificationResult(completed: false, recovered: false);
             }
 
-            return PublishVerificationResult.CompletedNoMoreDataToVerify;
+            return new PublishVerificationResult(completed: true, recovered: false);
         }
 
         private IReadOnlyList<IDomainEvent> GetEventsForRecovery(IReadOnlyList<ICommittedDomainEvent> unpublishedEvents)
@@ -98,10 +98,10 @@ namespace EventFlow.PublishRecovery
                 .ToList();
         }
 
-        private VerifyResult VerifyDomainEvents(AllCommittedEventsPage page, ILookup<string, IPublishVerificationItem> logItemLookup)
+        private VerifyResult VerifyDomainEvents(AllCommittedEventsPage page, ILookup<string, IPublishLogItem> logItemLookup)
         {
             var unpublishedEvents = new List<ICommittedDomainEvent>();
-            var publishedLogItems = new List<IPublishVerificationItem>();
+            var publishedLogItems = new List<IPublishLogItem>();
 
             foreach (var committedDomainEvent in page.CommittedDomainEvents)
             {
@@ -121,7 +121,7 @@ namespace EventFlow.PublishRecovery
             return new VerifyResult(unpublishedEvents, publishedLogItems);
         }
 
-        private IPublishVerificationItem TryGetPublishedLogItem(ICommittedDomainEvent committedDomainEvent, ILookup<string, IPublishVerificationItem> logItemLookup)
+        private IPublishLogItem TryGetPublishedLogItem(ICommittedDomainEvent committedDomainEvent, ILookup<string, IPublishLogItem> logItemLookup)
         {
             var logItems = logItemLookup[committedDomainEvent.AggregateId];
 
@@ -132,7 +132,7 @@ namespace EventFlow.PublishRecovery
         {
             public VerifyResult(
                 IReadOnlyList<ICommittedDomainEvent> unpublishedEvents,
-                IReadOnlyList<IPublishVerificationItem> publishedLogItems)
+                IReadOnlyList<IPublishLogItem> publishedLogItems)
             {
                 UnpublishedEvents = unpublishedEvents;
                 PublishedLogItems = publishedLogItems;
@@ -140,7 +140,7 @@ namespace EventFlow.PublishRecovery
 
             public IReadOnlyList<ICommittedDomainEvent> UnpublishedEvents { get; }
 
-            public IReadOnlyList<IPublishVerificationItem> PublishedLogItems { get; }
+            public IReadOnlyList<IPublishLogItem> PublishedLogItems { get; }
         }
     }
 }

@@ -32,10 +32,10 @@ namespace EventFlow.PublishRecovery
 {
     public interface IReliablePublishPersistence
     {
-        Task MarkPublishedAsync(IIdentity aggregateIdentity, IReadOnlyCollection<IDomainEvent> domainEvents);
+        Task MarkEventsPublishedSucceededAsync(IIdentity aggregateIdentity, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
 
-        Task<VerificationState> GetUnverifiedItemsAsync(int maxCount, CancellationToken cancellationToken);
+        Task<VerificationState> GetUnverifiedPublishLogItemsAsync(int maxCount, CancellationToken cancellationToken);
 
-        Task MarkVerifiedAsync(IReadOnlyCollection<IPublishVerificationItem> verifiedItems, GlobalPosition newVerifiedPosition, CancellationToken cancellationToken);
+        Task MarkPublishLogItemsAsVerifiedAsync(IReadOnlyCollection<IPublishLogItem> verifiedPublishLogItems, GlobalPosition newVerifiedPosition, CancellationToken cancellationToken);
     }
 }

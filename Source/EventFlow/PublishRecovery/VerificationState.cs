@@ -28,7 +28,7 @@ namespace EventFlow.PublishRecovery
 {
     public class VerificationState
     {
-        public VerificationState(GlobalPosition lastVerifiedPosition, IReadOnlyCollection<IPublishVerificationItem> items)
+        public VerificationState(GlobalPosition lastVerifiedPosition, IReadOnlyCollection<IPublishLogItem> items)
         {
             LastVerifiedPosition = lastVerifiedPosition;
             Items = items;
@@ -36,6 +36,6 @@ namespace EventFlow.PublishRecovery
 
         public GlobalPosition LastVerifiedPosition { get; }
 
-        public IReadOnlyCollection<IPublishVerificationItem> Items { get; }
+        public IReadOnlyCollection<IPublishLogItem> Items { get; }
     }
 }

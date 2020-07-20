@@ -87,7 +87,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
 
             public bool ShouldRecover { get; set; }
 
-            public Task RecoverFromShutdownAsync(IReadOnlyCollection<IDomainEvent> eventsForRecovery, CancellationToken cancellationToken)
+            public Task RecoverUnconfirmedAsync(IReadOnlyCollection<IDomainEvent> eventsForRecovery, CancellationToken cancellationToken)
             {
                 return Task.FromResult(0);
             }

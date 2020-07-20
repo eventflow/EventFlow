@@ -29,7 +29,6 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.PublishRecovery;
-using EventFlow.Subscribers;
 
 namespace EventFlow.MsSql.ReliablePublish
 {
@@ -42,7 +41,7 @@ namespace EventFlow.MsSql.ReliablePublish
             _msSqlConnection = msSqlConnection;
         }
 
-        public async Task MarkPublishedAsync(IIdentity aggregateIdentity, IReadOnlyCollection<IDomainEvent> domainEvents)
+        public async Task MarkEventsPublishedSucceededAsync(IIdentity aggregateIdentity, IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
         {
             var item = new PublishLogItem
             {
@@ -53,7 +52,7 @@ namespace EventFlow.MsSql.ReliablePublish
 
             await _msSqlConnection.ExecuteAsync(
                     Label.Named("publishlog-commit"),
-                    CancellationToken.None, // Unable to Cancel
+                    cancellationToken,
                     @"INSERT INTO [dbo].[EventFlowPublishLog]
                     (AggregateId, MinAggregateSequenceNumber, MaxAggregateSequenceNumber)
                     VALUES
@@ -62,7 +61,7 @@ namespace EventFlow.MsSql.ReliablePublish
                 .ConfigureAwait(false);
         }
 
-        public async Task<VerificationState> GetUnverifiedItemsAsync(int maxCount, CancellationToken cancellationToken)
+        public async Task<VerificationState> GetUnverifiedPublishLogItemsAsync(int maxCount, CancellationToken cancellationToken)
         {
             var logItems = await _msSqlConnection.QueryAsync<PublishLogItem>(
                     Label.Named("publishlog-select"),
@@ -82,8 +81,8 @@ namespace EventFlow.MsSql.ReliablePublish
                 logItems);
         }
 
-        public async Task MarkVerifiedAsync(
-            IReadOnlyCollection<IPublishVerificationItem> verifiedItems,
+        public async Task MarkPublishLogItemsAsVerifiedAsync(
+            IReadOnlyCollection<IPublishLogItem> verifiedPublishLogItems,
             GlobalPosition newVerifiedPosition,
             CancellationToken cancellationToken)
         {
@@ -96,7 +95,7 @@ namespace EventFlow.MsSql.ReliablePublish
                     LastVerifiedPosition = newVerifiedPosition.Value
                 });
 
-            foreach (var publishVerificationItem in verifiedItems)
+            foreach (var publishVerificationItem in verifiedPublishLogItems)
             {
                 var logItem = (PublishLogItem)publishVerificationItem;
 
@@ -108,7 +107,7 @@ namespace EventFlow.MsSql.ReliablePublish
             }
         }
 
-        private sealed class PublishLogItem : IPublishVerificationItem
+        private sealed class PublishLogItem : IPublishLogItem
         {
             public long Id { get; set; }
             public string AggregateId { get; set; }

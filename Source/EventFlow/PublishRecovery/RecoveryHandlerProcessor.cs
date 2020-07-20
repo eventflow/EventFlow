@@ -42,12 +42,12 @@ namespace EventFlow.PublishRecovery
             _readModelRecoveryHandlers = readModelRecoveryHandlers.ToList();
         }
 
-        public async Task RecoverAfterUnexpectedShutdownAsync(IReadOnlyList<IDomainEvent> eventsForRecovery, CancellationToken cancellationToken)
+        public async Task RecoverUnconfirmedEventsAsync(IReadOnlyList<IDomainEvent> eventsForRecovery, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var recoveryTasks = _readModelRecoveryHandlers.Select(
-                handler => handler.RecoverFromShutdownAsync(eventsForRecovery, cancellationToken));
+                handler => handler.RecoverUnconfirmedAsync(eventsForRecovery, cancellationToken));
 
             await Task.WhenAll(recoveryTasks)
                 .ConfigureAwait(false);
@@ -56,7 +56,7 @@ namespace EventFlow.PublishRecovery
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _markProcessor.MarkEventsPublishedAsync(eventsForRecovery).ConfigureAwait(false);
+            await _markProcessor.MarkEventsPublishedAsync(eventsForRecovery, cancellationToken).ConfigureAwait(false);
         }
     }
 }

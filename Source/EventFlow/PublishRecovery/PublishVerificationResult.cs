@@ -21,12 +21,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using EventFlow.ValueObjects;
+
 namespace EventFlow.PublishRecovery
 {
-    public enum PublishVerificationResult
+    public sealed class PublishVerificationResult : ValueObject
     {
-        CompletedNoMoreDataToVerify,
-        RecoveredNeedVerify,
-        HasMoreDataNeedVerify,
+        public PublishVerificationResult(bool completed, bool recovered)
+        {
+            if (completed && recovered)
+            {
+                throw new ArgumentException("Unable to be completed and recovered");
+            }
+
+            Completed = completed;
+            Recovered = recovered;
+        }
+
+        public bool Completed { get; }
+
+        public bool Recovered { get; }
     }
 }

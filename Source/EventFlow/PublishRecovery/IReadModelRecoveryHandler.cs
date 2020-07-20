@@ -32,7 +32,7 @@ namespace EventFlow.PublishRecovery
 {
     public interface IReadModelRecoveryHandler
     {
-        Task RecoverFromShutdownAsync(
+        Task RecoverUnconfirmedAsync(
             IReadOnlyCollection<IDomainEvent> eventsForRecovery,
             CancellationToken cancellationToken);
 

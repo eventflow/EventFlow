@@ -25,7 +25,7 @@ using EventFlow.EventStores;
 
 namespace EventFlow.PublishRecovery
 {
-    public interface IPublishVerificationItem
+    public interface IPublishLogItem
     {
         string AggregateId { get; }
 

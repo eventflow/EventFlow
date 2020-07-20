@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow.PublishRecovery
 {
-    public interface IPublishVerificator
+    public interface IPublishRecoveryProcessor
     {
         Task<PublishVerificationResult> VerifyOnceAsync(CancellationToken cancellationToken);
     }

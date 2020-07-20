@@ -21,14 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Core;
+using EventFlow.EventStores;
+using EventFlow.Shims;
 
 namespace EventFlow.PublishRecovery
 {
-    public sealed class ReliableMarkProcessor : IReliableMarkProcessor
+    public sealed class ReliableMarkProcessor : IAggregateStoreResilienceStrategy, IReliableMarkProcessor
     {
         private readonly IReliablePublishPersistence _reliablePublishPersistence;
 
@@ -37,20 +43,74 @@ namespace EventFlow.PublishRecovery
             _reliablePublishPersistence = reliablePublishPersistence;
         }
 
-        public async Task MarkEventsPublishedAsync(IReadOnlyCollection<IDomainEvent> domainEvents)
+        public Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+            TIdentity id,
+            TExecutionResult executionResult,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
         {
             var count = domainEvents.Count;
             if (count == 0)
             {
-                return;
+                return Tasks.Completed;
             }
 
-            foreach (var domaiEnventsPerAggregate in domainEvents.GroupBy(x => x.GetIdentity()))
+            return _reliablePublishPersistence.MarkEventsPublishedSucceededAsync(id, domainEvents, cancellationToken);
+        }
+
+        public async Task MarkEventsPublishedAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        {
+            foreach (var group in domainEvents.GroupBy(x => x.GetIdentity()))
             {
-                var aggregateIdentity = domaiEnventsPerAggregate.Key;
+                var id = group.Key;
 
-                await _reliablePublishPersistence.MarkPublishedAsync(aggregateIdentity, domainEvents).ConfigureAwait(false);
+                await _reliablePublishPersistence.MarkEventsPublishedSucceededAsync(id, group.ToList(), cancellationToken);
             }
+        }
+
+        public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(TIdentity id, CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Tasks.Completed;
+        }
+
+        public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate, TExecutionResult executionResult,
+            CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Tasks.Completed;
+        }
+
+        public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
+            TExecutionResult executionResult, Exception exception, CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult<(bool, IAggregateUpdateResult<TExecutionResult>)>((false, null));
+        }
+
+        public Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
+            TExecutionResult executionResult, CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Tasks.Completed;
+        }
+
+        public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id, TExecutionResult executionResult,
+            IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Tasks.Completed;
+        }
+
+        public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id, TExecutionResult executionResult,
+            IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Tasks.Completed;
+        }
+
+        public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
+            TExecutionResult executionResult, IReadOnlyCollection<IDomainEvent> domainEvents, Exception exception,
+            CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(false);
         }
     }
 }

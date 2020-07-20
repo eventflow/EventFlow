@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
@@ -29,6 +30,6 @@ namespace EventFlow.PublishRecovery
 {
     public interface IReliableMarkProcessor
     {
-        Task MarkEventsPublishedAsync(IReadOnlyCollection<IDomainEvent> domainEvents);
+        Task MarkEventsPublishedAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken);
     }
 }

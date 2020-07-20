@@ -46,7 +46,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
     {
         private IMsSqlDatabase _testDatabase;
         private TestPublisher _publisher;
-        private PublishVerificator _publishVerificator;
+        private PublishRecoveryProcessor _publishRecoveryProcessor;
         private RecoveryHandlerForTest _recoveryHandler;
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
@@ -70,7 +70,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
             _publisher = (TestPublisher)resolver.Resolve<IDomainEventPublisher>();
-            _publishVerificator = (PublishVerificator)resolver.Resolve<IPublishVerificator>();
+            _publishRecoveryProcessor = (PublishRecoveryProcessor)resolver.Resolve<IPublishRecoveryProcessor>();
             _recoveryHandler = (RecoveryHandlerForTest)resolver.Resolve<IRecoveryHandlerProcessor>();
 
             return resolver;
@@ -108,10 +108,10 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             await PublishPingCommandsAsync(id, 1).ConfigureAwait(false);
 
             // Act
-            var result = await _publishVerificator.VerifyOnceAsync(CancellationToken.None).ConfigureAwait(false);
+            var result = await _publishRecoveryProcessor.VerifyOnceAsync(CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.Should().Be(PublishVerificationResult.RecoveredNeedVerify);
+            result.Recovered.Should().BeTrue();
             _publisher.PublishedEvents.Should().BeEmpty();
         }
 
@@ -134,8 +134,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
             PublishVerificationResult result;
             do
             {
-                result = await _publishVerificator.VerifyOnceAsync(CancellationToken.None).ConfigureAwait(false);
-            } while (result != PublishVerificationResult.CompletedNoMoreDataToVerify);
+                result = await _publishRecoveryProcessor.VerifyOnceAsync(CancellationToken.None).ConfigureAwait(false);
+            } while (!result.Completed);
         }
 
         private class RecoveryHandlerForTest : IRecoveryHandlerProcessor
@@ -150,11 +150,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             public IReadOnlyList<IDomainEvent> RecoveredEvents => _recoveredEvents;
 
-            public Task RecoverAfterUnexpectedShutdownAsync(IReadOnlyList<IDomainEvent> eventsForRecovery, CancellationToken cancellationToken)
+            public Task RecoverUnconfirmedEventsAsync(IReadOnlyList<IDomainEvent> eventsForRecovery, CancellationToken cancellationToken)
             {
                 _recoveredEvents.AddRange(eventsForRecovery);
 
-                return _markProcessor.MarkEventsPublishedAsync(eventsForRecovery);
+                return _markProcessor.MarkEventsPublishedAsync(eventsForRecovery, CancellationToken.None);
             }
         }
 
