@@ -359,7 +359,7 @@ share it by creating an issue with the link.
 * **General CQRS+ES**
   * [CQRS Journey by Microsoft](https://msdn.microsoft.com/en-us/library/jj554200.aspx)
     published by Microsoft
-  * [An In-Depth Look At CQRS](https://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS/)
+  * [An In-Depth Look At CQRS](https://blog.sapiensworks.com/post/2015/09/01/In-Depth-CQRS)
     by Mike Mogosanu
   * [CQRS, Task Based UIs, Event Sourcing agh!](http://codebetter.com/gregyoung/2010/02/16/cqrs-task-based-uis-event-sourcing-agh/)
     by Greg Young
