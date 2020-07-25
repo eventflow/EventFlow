@@ -24,7 +24,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EventFlow.TestHelpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
@@ -34,7 +33,7 @@ using Verify = Microsoft.CodeAnalysis.CSharp.Testing.NUnit.CodeFixVerifier<
 
 namespace EventFlow.CodeStyle.Tests
 {
-    [Category(Categories.Unit)]
+    [Category("unit")]
     public class TestCategoryAnalyzerTests
     {
         private const int Indentation = 12;

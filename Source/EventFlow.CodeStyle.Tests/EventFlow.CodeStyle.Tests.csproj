@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.CodeStyle\EventFlow.CodeStyle.csproj" />
-    <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>
