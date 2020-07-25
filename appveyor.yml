@@ -2,7 +2,6 @@ init:
   - ps: git config --global core.autocrlf input
   - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
   - ps: Restart-Service docker
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 version: 0.80.{build}
 
