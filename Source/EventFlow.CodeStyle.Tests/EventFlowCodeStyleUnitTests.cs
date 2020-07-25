@@ -24,16 +24,17 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EventFlow.TestHelpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Verify = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
+using NUnit.Framework;
+using Verify = Microsoft.CodeAnalysis.CSharp.Testing.NUnit.CodeFixVerifier<
     EventFlow.CodeStyle.TestCategoryAttributeAnalyzer,
     EventFlow.CodeStyle.TestCategoryAttributeCodeFixProvider>;
 
-namespace EventFlow.CodeStyle.Test
+namespace EventFlow.CodeStyle.Tests
 {
-    [TestClass]
+    [Category(Categories.Unit)]
     public class TestCategoryAnalyzerTests
     {
         private const int Indentation = 12;
@@ -64,7 +65,7 @@ namespace ConsoleApplication1
                 .Skip(1).Select(line => line.Substring(Indentation))) + @"
 }";
 
-        [TestMethod]
+        [Test]
         public async Task MissingCategoryGetsFixed()
         {
             var test = CreateCode(@"
@@ -77,7 +78,7 @@ namespace ConsoleApplication1
             var fixtest = CreateCode(@"
                 [NUnit.Framework.Category(EventFlow.TestHelpers.Categories.Unit)]
                 class TypeName
-                {   
+                {
                     [NUnit.Framework.Test]
                     public void Blah() {}
                 }");
@@ -91,7 +92,7 @@ namespace ConsoleApplication1
             await Verify.VerifyCodeFixAsync(test, expected, fixtest);
         }
         
-        [TestMethod]
+        [Test]
         public async Task NoErrors()
         {
             var test = CreateCode(@"
@@ -105,7 +106,57 @@ namespace ConsoleApplication1
             await Verify.VerifyAnalyzerAsync(test);
         }
 
-        [TestMethod]
+        [Test]
+        public async Task NoErrorsForAbstractClass()
+        {
+            var test = CreateCode(@"
+                abstract class TypeName
+                {   
+                    [NUnit.Framework.Test]
+                    public void Blah() {}
+                }");
+
+            await Verify.VerifyAnalyzerAsync(test);
+        }
+
+        [Test]
+        public async Task DerivedTest()
+        {
+            var test = CreateCode(@"
+                abstract class TypeName
+                {   
+                    [NUnit.Framework.Test]
+                    public void Blah() {}
+                }
+                
+                class DerivedTest : TypeName {}");
+
+            DiagnosticResult expected = Verify
+                .Diagnostic(TestCategoryAttributeAnalyzer.MissingDiagnosticId)
+                .WithLocation(28, 11)
+                .WithSeverity(DiagnosticSeverity.Error)
+                .WithArguments("DerivedTest");
+
+            await Verify.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [Test]
+        public async Task DerivedCategoryAttribute()
+        {
+            var test = CreateCode(@"
+                [NUnit.Framework.Category(EventFlow.TestHelpers.Categories.Unit)]
+                abstract class TypeName
+                {   
+                    [NUnit.Framework.Test]
+                    public void Blah() {}
+                }
+                
+                class DerivedTest : TypeName {}");
+
+            await Verify.VerifyAnalyzerAsync(test);
+        }
+
+        [Test]
         public async Task InvalidCategory()
         {
             var test = CreateCode(@"

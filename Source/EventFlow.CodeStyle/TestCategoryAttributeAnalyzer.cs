@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -38,8 +39,6 @@ namespace EventFlow.CodeStyle
         private const string CodeStyleCategory = "Code Style";
 
         private const string CategoryAttributeName = "NUnit.Framework.CategoryAttribute";
-        private const string TestAttributeName = "NUnit.Framework.TestAttribute";
-        private const string TestCaseAttributeName = "NUnit.Framework.TestCaseAttribute";
         private const string CategoriesName = "EventFlow.TestHelpers.Categories";
 
         private static readonly DiagnosticDescriptor MissingCategoryRule = 
@@ -53,7 +52,10 @@ namespace EventFlow.CodeStyle
                 CodeStyleCategory, DiagnosticSeverity.Error, true);
 
         private static readonly ImmutableHashSet<string> TestAttributeNames =
-            ImmutableHashSet.Create(TestAttributeName, TestCaseAttributeName);
+            ImmutableHashSet.Create(
+                "NUnit.Framework.TestAttribute", 
+                "NUnit.Framework.TestCaseAttribute",
+                "NUnit.Framework.TestCaseSourceAttribute");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => 
             ImmutableArray.Create(MissingCategoryRule, InvalidCategoryRule);
@@ -69,20 +71,31 @@ namespace EventFlow.CodeStyle
         {
             INamedTypeSymbol namedTypeSymbol = (INamedTypeSymbol) context.Symbol;
 
+            if (namedTypeSymbol.IsAbstract) return;
+
+            IEnumerable<INamedTypeSymbol> TypeWithBaseTypes()
+            {
+                var type = namedTypeSymbol;
+                while (type != null)
+                {
+                    yield return type;
+                    type = type.BaseType;
+                }
+            }
+
             bool IsTestAttribute(AttributeData a) => 
                 TestAttributeNames.Contains(a.AttributeClass.ToDisplayString());
 
-            bool hasTestMethods =
-                namedTypeSymbol
-                    .GetMembers()
-                    .OfType<IMethodSymbol>()
-                    .Any(m => m.GetAttributes().Any(IsTestAttribute));
+            bool hasTestMethods = TypeWithBaseTypes()
+                .SelectMany(type => type.GetMembers())
+                .OfType<IMethodSymbol>()
+                .Any(m => m.GetAttributes().Any(IsTestAttribute));
 
             if (!hasTestMethods) return;
 
-            var attribute = namedTypeSymbol
-                .GetAttributes()
-                .SingleOrDefault(a => a.AttributeClass.ToDisplayString() == CategoryAttributeName);
+            var attribute = TypeWithBaseTypes()
+                .SelectMany(type => type.GetAttributes())
+                .FirstOrDefault(a => a.AttributeClass.ToDisplayString() == CategoryAttributeName);
 
             if (attribute == null)
             {
