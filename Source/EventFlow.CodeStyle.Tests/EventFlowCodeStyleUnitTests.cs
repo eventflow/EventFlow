@@ -60,8 +60,7 @@ namespace NUnit.Framework
 
 namespace ConsoleApplication1
 {
-" + string.Join(Environment.NewLine, code.Split(Environment.NewLine)
-                .Skip(1).Select(line => line.Substring(Indentation))) + @"
+" + string.Join('\n', code.Split('\n').Skip(1).Select(line => line.Substring(Indentation))) + @"
 }";
 
         [Test]
