@@ -31,6 +31,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.Exploration
 {
+    [Category(Categories.Integration)]
     public class CustomAggregateIdExplorationTest : Test
     {
         [Test]
