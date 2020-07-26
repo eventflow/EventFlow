@@ -23,6 +23,7 @@
 
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
@@ -38,8 +39,9 @@ namespace EventFlow.CodeStyle.Tests
     {
         private const int Indentation = 12;
 
-        private string CreateCode(string code) =>
-@"
+        private string SourceCode(string code)
+        {
+            var text = @"
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,17 +65,20 @@ namespace ConsoleApplication1
 " + string.Join('\n', code.Split('\n').Skip(1).Select(line => line.Substring(Indentation))) + @"
 }";
 
+            return Regex.Replace(text, "\r?\n", Environment.NewLine);
+        }
+
         [Test]
         public async Task MissingCategoryGetsFixed()
         {
-            var test = CreateCode(@"
+            var test = SourceCode(@"
                 class TypeName
                 {
                     [NUnit.Framework.Test]
                     public void Blah() {}
                 }");
 
-            var fixtest = CreateCode(@"
+            var fixtest = SourceCode(@"
                 [NUnit.Framework.Category(EventFlow.TestHelpers.Categories.Unit)]
                 class TypeName
                 {
@@ -93,7 +98,7 @@ namespace ConsoleApplication1
         [Test]
         public async Task NoErrors()
         {
-            var test = CreateCode(@"
+            var test = SourceCode(@"
                 [NUnit.Framework.Category(EventFlow.TestHelpers.Categories.Unit)]
                 class TypeName
                 {   
@@ -107,7 +112,7 @@ namespace ConsoleApplication1
         [Test]
         public async Task NoErrorsForAbstractClass()
         {
-            var test = CreateCode(@"
+            var test = SourceCode(@"
                 abstract class TypeName
                 {   
                     [NUnit.Framework.Test]
@@ -120,7 +125,7 @@ namespace ConsoleApplication1
         [Test]
         public async Task DerivedTest()
         {
-            var test = CreateCode(@"
+            var test = SourceCode(@"
                 abstract class TypeName
                 {   
                     [NUnit.Framework.Test]
@@ -141,7 +146,7 @@ namespace ConsoleApplication1
         [Test]
         public async Task DerivedCategoryAttribute()
         {
-            var test = CreateCode(@"
+            var test = SourceCode(@"
                 [NUnit.Framework.Category(EventFlow.TestHelpers.Categories.Unit)]
                 abstract class TypeName
                 {   
@@ -157,7 +162,7 @@ namespace ConsoleApplication1
         [Test]
         public async Task InvalidCategory()
         {
-            var test = CreateCode(@"
+            var test = SourceCode(@"
                 [NUnit.Framework.Category(""Invalid Category"")]
                 class TypeName
                 {   
