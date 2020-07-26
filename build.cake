@@ -127,7 +127,9 @@ Task("Package")
 				var name = project.GetDirectory().FullPath;
 				var version = VERSION.ToString();
 				
-				if ((name.Contains("Test") && !name.Contains("TestHelpers")) || name.Contains("Example"))
+				if ((name.Contains("Test") && !name.Contains("TestHelpers")) 
+                    || name.Contains("Example")
+                    || name.Contains("CodeStyle"))
 				{
 					continue;
 				}
