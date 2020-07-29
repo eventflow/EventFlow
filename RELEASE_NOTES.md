@@ -6,7 +6,7 @@
   in favor of the simpler overloads with less type parameters (as those automatically
   figure out the AggregateRoot and Id types and configure the more reliable 
   `SingleAggregateReadStoreManager` implementation)
-* Obsolete: The class `AsyncHelper` and all non-async methods that used it, has been
+* Obsolete: The class `AsyncHelper` and all non-async methods using it have been
   marked obsolete and will be removed in EventFlow 1.0 (not planned yet). If you rely
   on these non-async methods, then merely copy-paste the `AsyncHelper` from the EventFlow
   code base and continue using it in your transition to async only 

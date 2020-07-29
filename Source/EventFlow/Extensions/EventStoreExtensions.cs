@@ -32,7 +32,7 @@ namespace EventFlow.Extensions
 {
     public static class EventStoreExtensions
     {
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0,\r\nuse async methods instead")]
         public static IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
             this IEventStore eventStore,
             TIdentity id)
@@ -42,7 +42,7 @@ namespace EventFlow.Extensions
             return eventStore.LoadEvents<TAggregate, TIdentity>(id, CancellationToken.None);
         }
 
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0,\r\nuse async methods instead")]
         public static IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> LoadEvents<TAggregate, TIdentity>(
             this IEventStore eventStore,
             TIdentity id,
@@ -58,7 +58,7 @@ namespace EventFlow.Extensions
             return domainEvents;
         }
 
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0,\r\nuse async methods instead")]
         public static AllEventsPage LoadAllEvents(
             this IEventStore eventStore,
             GlobalPosition globalPosition,
@@ -66,7 +66,8 @@ namespace EventFlow.Extensions
         {
             return eventStore.LoadAllEvents(globalPosition, pageSize, CancellationToken.None);
         }
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
+        
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0,\r\nuse async methods instead")]
         public static AllEventsPage LoadAllEvents(
             this IEventStore eventStore,
             GlobalPosition globalPosition,
