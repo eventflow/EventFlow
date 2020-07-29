@@ -185,10 +185,6 @@ FakesAssemblies/
 # SourceTree
 *.orig
 
-# Project specific files
-/Tools
-/Build
-
 # NCrunch
 *.ncrunchsolution
 *.ncrunchproject
@@ -204,3 +200,13 @@ FakesAssemblies/
 
 # Git commit history
 /-la
+
+# Visual Studio Code
+/.ionide
+/.vscode
+
+#####################################################
+
+# Project specific files
+/Tools
+/Build

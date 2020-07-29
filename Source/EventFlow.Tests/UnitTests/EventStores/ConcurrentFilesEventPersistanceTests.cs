@@ -84,6 +84,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         }
 
         [Test]
+        [Retry(5)]
         public void MultipleInstancesWithSamePathFail()
         {
             // Arrange
