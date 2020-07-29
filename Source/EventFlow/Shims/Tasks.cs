@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2019 Rasmus Mikkelsen
+// Copyright (c) 2015-2019 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,35 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.IO;
-using System.Linq;
-using EventFlow.Core;
+using System.Threading.Tasks;
 
-namespace EventFlow.EventStores.Files
+namespace EventFlow.Shims
 {
-    public class FilesEventLocator : IFilesEventLocator
+    internal static class Tasks
     {
-        private readonly IFilesEventStoreConfiguration _configuration;
-
-        public FilesEventLocator(
-            IFilesEventStoreConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public string GetEntityPath(IIdentity id)
-        {
-            return Path.Combine(
-                _configuration.StorePath,
-                id.Value);
-        }
-
-        public string GetEventPath(IIdentity id, int aggregateSequenceNumber)
-        {
-            return Path.Combine(
-                GetEntityPath(id),
-                $"{aggregateSequenceNumber}.json");
-        }
+// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-if#remarks
+#if NETSTANDARD1_6 || NET452
+        public static Task Completed => Task.FromResult(0);
+#else
+        public static Task Completed {get;} = Task.CompletedTask;
+#endif
     }
 }

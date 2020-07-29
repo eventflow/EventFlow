@@ -197,7 +197,7 @@ namespace EventFlow.Aggregates
                 if (!ApplyMethods.TryGetValue(eventType, out var applyMethod))
                 {
                     throw new NotImplementedException(
-                        $"Aggregate '{Name}' does have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
+                        $"Aggregate '{Name}' does not have an 'Apply' method that takes aggregate event '{eventType.PrettyPrint()}' as argument");
                 }
 
                 applyMethod(this as TAggregate, aggregateEvent);

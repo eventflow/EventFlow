@@ -28,7 +28,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Subscribers
 {
-    public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent>
+    public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent> : ISubscribe
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>

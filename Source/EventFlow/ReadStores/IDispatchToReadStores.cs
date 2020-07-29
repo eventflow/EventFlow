@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,35 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.IO;
-using System.Linq;
-using EventFlow.Core;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 
-namespace EventFlow.EventStores.Files
+namespace EventFlow.ReadStores
 {
-    public class FilesEventLocator : IFilesEventLocator
+    public interface IDispatchToReadStores
     {
-        private readonly IFilesEventStoreConfiguration _configuration;
-
-        public FilesEventLocator(
-            IFilesEventStoreConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public string GetEntityPath(IIdentity id)
-        {
-            return Path.Combine(
-                _configuration.StorePath,
-                id.Value);
-        }
-
-        public string GetEventPath(IIdentity id, int aggregateSequenceNumber)
-        {
-            return Path.Combine(
-                GetEntityPath(id),
-                $"{aggregateSequenceNumber}.json");
-        }
+        Task DispatchAsync(
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken);
     }
 }
