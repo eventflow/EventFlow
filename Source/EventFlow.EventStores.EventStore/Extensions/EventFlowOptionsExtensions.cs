@@ -83,10 +83,13 @@ namespace EventFlow.EventStores.EventStore.Extensions
                 uri,
                 $"{sanitizedConnectionNamePrefix}EventFlow v{typeof(EventFlowOptionsExtensions).Assembly.GetName().Version}");
 
+#pragma warning disable 618
+            // TODO: Figure out bootstrapping alternative for 1.0
             using (var a = AsyncHelper.Wait)
             {
                 a.Run(eventStoreConnection.ConnectAsync());
             }
+#pragma warning restore 618
 
             return eventFlowOptions
                 .RegisterServices(f => f.Register(r => eventStoreConnection, Lifetime.Singleton))

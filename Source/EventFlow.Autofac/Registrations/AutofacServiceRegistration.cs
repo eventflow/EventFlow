@@ -214,7 +214,10 @@ namespace EventFlow.Autofac.Registrations
 
             public void Start()
             {
+#pragma warning disable 618
+                // TODO: Figure out bootstrapping alternative for 1.0
                 _bootstrapper.Start();
+#pragma warning restore 618
             }
         }
     }

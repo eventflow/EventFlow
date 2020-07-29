@@ -32,6 +32,7 @@ namespace EventFlow.Extensions
 {
     public static class AggregateStoreExtensions
     {
+        [Obsolete("Non-async extension methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static TAggregate Load<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
             TIdentity id)
@@ -41,6 +42,7 @@ namespace EventFlow.Extensions
             return aggregateStore.Load<TAggregate, TIdentity>(id, CancellationToken.None);
         }
 
+        [Obsolete("Non-async extension methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static TAggregate Load<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
             TIdentity id,
@@ -58,6 +60,7 @@ namespace EventFlow.Extensions
             return aggregate;
         }
 
+        [Obsolete("Non-async extension methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static IReadOnlyCollection<IDomainEvent> Update<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
             TIdentity id,
@@ -77,6 +80,7 @@ namespace EventFlow.Extensions
                 CancellationToken.None);
         }
 
+        [Obsolete("Non-async extension methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static IReadOnlyCollection<IDomainEvent> Update<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
             TIdentity id,
@@ -96,6 +100,7 @@ namespace EventFlow.Extensions
             return domainEvents;
         }
 
+        [Obsolete("Non-async extension methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static IReadOnlyCollection<IDomainEvent> Store<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
             TAggregate aggregate,
@@ -106,6 +111,7 @@ namespace EventFlow.Extensions
             return aggregateStore.Store<TAggregate, TIdentity>(aggregate, sourceId, CancellationToken.None);
         }
 
+        [Obsolete("Non-async extension methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static IReadOnlyCollection<IDomainEvent> Store<TAggregate, TIdentity>(
             this IAggregateStore aggregateStore,
             TAggregate aggregate,

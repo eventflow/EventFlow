@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
@@ -31,6 +32,7 @@ namespace EventFlow.Extensions
 {
     public static class CommandBusExtensions
     {
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static TExecutionResult Publish<TAggregate, TIdentity, TExecutionResult>(
             this ICommandBus commandBus,
             ICommand<TAggregate, TIdentity, TExecutionResult> command)
@@ -41,6 +43,7 @@ namespace EventFlow.Extensions
             return commandBus.Publish(command, CancellationToken.None);
         }
 
+        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
         public static TExecutionResult Publish<TAggregate, TIdentity, TExecutionResult>(
             this ICommandBus commandBus,
             ICommand<TAggregate, TIdentity, TExecutionResult> command,

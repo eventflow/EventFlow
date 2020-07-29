@@ -71,6 +71,7 @@ namespace EventFlow.Queries
             return await task.ConfigureAwait(false);
         }
 
+        [Obsolete("Non-async methods will all be removed in EventFlow 1.0")]
         public TResult Process<TResult>(
             IQuery<TResult> query,
             CancellationToken cancellationToken)

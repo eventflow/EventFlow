@@ -34,6 +34,9 @@ using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
+// ReSharper disable IdentifierTypo
+// ReSharper disable StringLiteralTypo
+
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
@@ -96,7 +99,7 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test]
-        public void UnicodeIntegration()
+        public async Task UnicodeIntegration()
         {
             var resolver = EventFlowOptions.New
                 .AddEvents(typeof(Püng1Event))
@@ -105,7 +108,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver();
 
             var bus = resolver.Resolve<ICommandBus>();
-            bus.Publish(new Cömmand());
+            await bus.PublishAsync(new Cömmand(), CancellationToken.None);
         }
 
         private class Identität1 : Identity<Identität1>
