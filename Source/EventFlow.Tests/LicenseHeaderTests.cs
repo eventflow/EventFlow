@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -34,6 +35,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests
 {
+    [Category(Categories.Integration)]
     public class LicenseHeaderTests
     {
         private static readonly char[] LineSplitters = {'\n', '\r'};

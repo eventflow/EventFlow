@@ -40,6 +40,14 @@ namespace EventFlow.EntityFramework.Tests.Model
             modelBuilder
                 .AddEventFlowEvents()
                 .AddEventFlowSnapshots();
+
+            modelBuilder.Entity<ThingyMessageReadModelEntity>()
+                .Property(e => e.MessageId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<ThingyReadModelEntity>()
+                .Property(e => e.AggregateId)
+                .ValueGeneratedOnAdd();
         }
     }
 }

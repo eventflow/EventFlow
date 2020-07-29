@@ -26,7 +26,7 @@
     <PackageReference Include="dbup-core" Version="4.1.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel.Annotations" Version="4.3.0" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.ComponentModel.Annotations" Version="4.4.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.ComponentModel.Annotations" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>

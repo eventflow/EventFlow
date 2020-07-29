@@ -36,6 +36,7 @@ using LogLevel = EventFlow.Logs.LogLevel;
 
 namespace EventFlow.Tests.IntegrationTests.Logs
 {
+    [Category(Categories.Integration)]
     public class LibLogTests : Test
     {
         [Test]

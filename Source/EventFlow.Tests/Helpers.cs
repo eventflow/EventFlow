@@ -38,14 +38,6 @@ namespace EventFlow.Tests
             return GetParentDirectories(codeBase).First(IsProjectRoot);
         }
 
-        public static IEnumerable<string> GetProjectFiles(string searchPattern)
-        {
-            return Directory.EnumerateFiles(
-                GetProjectRoot(),
-                searchPattern,
-                SearchOption.AllDirectories);
-        }
-
         private static IEnumerable<string> GetParentDirectories(string path)
         {
             if (!Directory.Exists(path)) throw new ArgumentException($"Directory '{path}' does not exist!");
