@@ -32,7 +32,7 @@ namespace EventFlow.Kafka.Extensions
     {
         public static IEventFlowOptions PublishToRabbitMq(
             this IEventFlowOptions eventFlowOptions,
-            ProducerConfig configuration)
+             ProducerConfig configuration)
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {

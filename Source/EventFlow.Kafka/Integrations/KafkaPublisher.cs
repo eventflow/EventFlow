@@ -31,12 +31,13 @@ using System.Threading.Tasks;
 
 namespace EventFlow.Kafka.Integrations
 {
-    public class KafkaPublisher : IKafkaPublisher
+    public class KafkaPublisher : IDisposable, IKafkaPublisher
     {
         private readonly ILog _log;
         private readonly IKafkaProducerFactory _producerFactory;
         private readonly ProducerConfig _configuration;
         private readonly ITransientFaultHandler<IKafkaRetryStrategy> _transientFaultHandler;
+        private IProducer<string, KafkaMessage> _kafkaProducer = null;
 
         public KafkaPublisher(ILog log,
             IKafkaProducerFactory producerFactory,
@@ -56,14 +57,19 @@ namespace EventFlow.Kafka.Integrations
 
                 await _transientFaultHandler.TryAsync(c => (
                         ProduceMessages(kafkaMessages, c)),
-                            Label.Named("kafkas-publish"),
+                            Label.Named("kafka-publish"),
                             cancellationToken)
                     .ConfigureAwait(false);
 
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
             {
                 _log.Error(e, "Failed to publish domain events to Kafka");
+                Dispose();
                 throw e;
             }
 
@@ -73,31 +79,42 @@ namespace EventFlow.Kafka.Integrations
         {
             var timeout = TimeSpan.FromMilliseconds(_configuration.TransactionTimeoutMs ?? 2000);
 
-            IProducer<string, KafkaMessage> kafkaProducer = null;
+
             _log.Verbose(
                     "Publishing {0} domain events to Kafka brokers '{1}'",
                     kafkaMessages.Count, _configuration.BootstrapServers);
 
             try
             {
-                kafkaProducer = _producerFactory.CreateProducer();
+                if (_kafkaProducer == null)
+                {
+                    _kafkaProducer = _producerFactory.CreateProducer();
+                }
 
-                kafkaProducer.BeginTransaction();
+                _kafkaProducer.BeginTransaction();
                 foreach (var message in kafkaMessages)
                 {
                     var kafkaDomainMessage = new Message<string, KafkaMessage> { Value = message, Key = message.MessageId.Value };
-                    await kafkaProducer.ProduceAsync(message.Topic, kafkaDomainMessage, c);
+                    await _kafkaProducer.ProduceAsync(message.Topic, kafkaDomainMessage, c);
                 }
-                kafkaProducer.CommitTransaction(timeout);
+                _kafkaProducer.CommitTransaction(timeout);
             }
             catch (Exception)
             {
-                if (kafkaProducer != null)
+                if (_kafkaProducer != null)
                 {
-                    kafkaProducer.AbortTransaction(timeout);
-                    kafkaProducer.Dispose();
+                    _kafkaProducer.AbortTransaction(timeout);
                 }
                 throw;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_kafkaProducer != null)
+            {
+                _kafkaProducer.Dispose();
+                _kafkaProducer = null;
             }
         }
     }
