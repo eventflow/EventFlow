@@ -28,7 +28,7 @@ using System;
 
 namespace EventFlow.Kafka.Integrations
 {
-    class KafkaMessageFactory : IKafkaMessageFactory
+    public class KafkaMessageFactory : IKafkaMessageFactory
     {
         public KafkaMessage CreateMessage(IDomainEvent domainEvent)
         {

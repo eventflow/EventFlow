@@ -26,7 +26,7 @@ using Confluent.Kafka;
 
 namespace EventFlow.Kafka.Integrations
 {
-    internal class KafkaProducerFactory : IKafkaProducerFactory
+    public class KafkaProducerFactory : IKafkaProducerFactory
     {
         private readonly ProducerConfig _config;
         public KafkaProducerFactory(ProducerConfig config)

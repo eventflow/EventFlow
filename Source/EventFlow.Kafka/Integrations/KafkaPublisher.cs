@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace EventFlow.Kafka.Integrations
 {
-    class KafkaPublisher : IKafkaPublisher
+    public class KafkaPublisher : IKafkaPublisher
     {
         private readonly ILog _log;
         private readonly IKafkaProducerFactory _producerFactory;

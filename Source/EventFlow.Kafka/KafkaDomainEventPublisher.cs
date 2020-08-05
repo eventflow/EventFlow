@@ -24,7 +24,6 @@
 using EventFlow.Aggregates;
 using EventFlow.Kafka.Integrations;
 using EventFlow.Subscribers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
