@@ -34,9 +34,9 @@ namespace EventFlow.Kafka.Integrations
             _config = config;
         }
 
-        public IProducer<string, KafkaMessage> CreateProducer()
+        public IProducer<string, string> CreateProducer()
         {
-            var builder = new ProducerBuilder<string, KafkaMessage>(_config);
+            var builder = new ProducerBuilder<string, string>(_config);
             return builder.Build();
         }
     }

@@ -19,7 +19,7 @@ namespace EventFlow.Kafka.Tests
         private Mock<IKafkaProducerFactory> _kafkaProducerFactory;
         private ProducerConfig _kafkaConfiguration;
         private Mock<ILog> _logMock;
-        private Mock<IProducer<string, KafkaMessage>> _producerMock;
+        private Mock<IProducer<string, string>> _producerMock;
 
         [SetUp]
         public void SetUp()
@@ -33,7 +33,7 @@ namespace EventFlow.Kafka.Tests
                 _logMock.Object,
                 new KafkaRetryStrategy()));
 
-            _producerMock = new Mock<IProducer<string, KafkaMessage>>();
+            _producerMock = new Mock<IProducer<string, string>>();
 
             _kafkaProducerFactory
                 .Setup(f => f.CreateProducer())
@@ -45,7 +45,7 @@ namespace EventFlow.Kafka.Tests
             where TException : Exception, new()
         {
             _producerMock
-                .Setup(c => c.ProduceAsync(It.IsAny<string>(), It.IsAny<Message<string, KafkaMessage>>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ProduceAsync(It.IsAny<string>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()))
                 .Throws<TException>();
         }
 
@@ -60,7 +60,7 @@ namespace EventFlow.Kafka.Tests
             await Sut.PublishAsync(kafkaMessages, CancellationToken.None);
 
             // Assert
-            _producerMock.Verify(m => m.ProduceAsync(It.IsAny<string>(), It.IsAny<Message<string, KafkaMessage>>(), It.IsAny<CancellationToken>()),
+            _producerMock.Verify(m => m.ProduceAsync(It.IsAny<string>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(kafkaMessages.Count));
 
             _producerMock.Verify(c => c.Dispose(), Times.Never);

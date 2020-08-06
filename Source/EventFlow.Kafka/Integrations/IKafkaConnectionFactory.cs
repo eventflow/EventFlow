@@ -28,6 +28,6 @@ namespace EventFlow.Kafka.Integrations
 {
     public interface IKafkaProducerFactory
     {
-        IProducer<string, KafkaMessage> CreateProducer();
+        IProducer<string, string> CreateProducer();
     }
 }

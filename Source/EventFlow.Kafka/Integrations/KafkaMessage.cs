@@ -24,18 +24,16 @@
 
 using EventFlow.Aggregates;
 using System;
+using System.Collections.Generic;
 
 namespace EventFlow.Kafka.Integrations
 {
     public class KafkaMessage
     {
         public MessageId MessageId { get; set; }
-        public Guid BatchId { get; set; }
-        public string AggregateId { get; set; }
         public string AggregateName { get; set; }
-        public IAggregateEvent Data { get; set; }
-        public IMetadata Metadata { get; set; }
-        public int AggregateSequenceNumber { get; set; }
+        public string Message { get; set; }
+        public IReadOnlyDictionary<string, string> Metadata { get; set; }
         public string Topic { get; set; }
     }
 }

@@ -26,6 +26,7 @@ using EventFlow.Core;
 using EventFlow.Logs;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,7 +38,7 @@ namespace EventFlow.Kafka.Integrations
         private readonly IKafkaProducerFactory _producerFactory;
         private readonly ProducerConfig _configuration;
         private readonly ITransientFaultHandler<IKafkaRetryStrategy> _transientFaultHandler;
-        private IProducer<string, KafkaMessage> _kafkaProducer = null;
+        private IProducer<string, string> _kafkaProducer = null;
 
         public KafkaPublisher(ILog log,
             IKafkaProducerFactory producerFactory,
@@ -91,19 +92,29 @@ namespace EventFlow.Kafka.Integrations
                     _kafkaProducer = _producerFactory.CreateProducer();
                 }
 
-                _kafkaProducer.BeginTransaction();
+                //_kafkaProducer.BeginTransaction();
                 foreach (var message in kafkaMessages)
                 {
-                    var kafkaDomainMessage = new Message<string, KafkaMessage> { Value = message, Key = message.MessageId.Value };
+                    var headers = new Headers();
+                    foreach (var item in message.Metadata)
+                    {
+                        headers.Add(item.Key, Encoding.UTF8.GetBytes(item.Value));
+                    }
+                    var kafkaDomainMessage = new Message<string, string>
+                    {
+                        Value = message.Message,
+                        Headers = headers,
+                        Key = message.MessageId.Value
+                    };
                     await _kafkaProducer.ProduceAsync(message.Topic, kafkaDomainMessage, c);
                 }
-                _kafkaProducer.CommitTransaction(timeout);
+                //_kafkaProducer.CommitTransaction(timeout);
             }
             catch (Exception)
             {
                 if (_kafkaProducer != null)
                 {
-                    _kafkaProducer.AbortTransaction(timeout);
+                    //_kafkaProducer.AbortTransaction(timeout);
                 }
                 throw;
             }

@@ -22,7 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
+using EventFlow.Logs;
 using System;
 
 
@@ -30,16 +32,30 @@ namespace EventFlow.Kafka.Integrations
 {
     public class KafkaMessageFactory : IKafkaMessageFactory
     {
+        private readonly ILog _log;
+        private readonly IEventJsonSerializer _eventJsonSerializer;
+
+        public KafkaMessageFactory(
+                ILog log,
+                IEventJsonSerializer eventJsonSerializer)
+        {
+            _log = log;
+            _eventJsonSerializer = eventJsonSerializer;
+        }
+
         public KafkaMessage CreateMessage(IDomainEvent domainEvent)
         {
+
+            var serializedEvent = _eventJsonSerializer.Serialize(
+               domainEvent.GetAggregateEvent(),
+               domainEvent.Metadata);
+
+
             return new KafkaMessage
             {
-                AggregateId = domainEvent.Metadata.AggregateId,
                 AggregateName = domainEvent.Metadata[MetadataKeys.AggregateName],
-                BatchId = Guid.Parse(domainEvent.Metadata[MetadataKeys.BatchId]),
-                Data = domainEvent.GetAggregateEvent(),
+                Message = serializedEvent.SerializedData,
                 Metadata = domainEvent.Metadata,
-                AggregateSequenceNumber = domainEvent.AggregateSequenceNumber,
                 MessageId = new MessageId(domainEvent.Metadata[MetadataKeys.EventId]),
                 Topic = domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug()
             };
