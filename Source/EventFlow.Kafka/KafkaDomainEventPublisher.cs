@@ -33,21 +33,21 @@ namespace EventFlow.Kafka
 {
     public class KafkaDomainEventPublisher : ISubscribeSynchronousToAll
     {
-        private IKafkaPublisher _KafkaPublisher { get; }
-        private IKafkaMessageFactory _KafkaMessageFactory { get; }
+        private IKafkaPublisher _kafkaPublisher { get; }
+        private IKafkaMessageFactory _kafkaMessageFactory { get; }
         public KafkaDomainEventPublisher(IKafkaPublisher kafkaPublisher,
             IKafkaMessageFactory kafkaMessageFactory)
         {
-            _KafkaPublisher = kafkaPublisher;
-            _KafkaMessageFactory = kafkaMessageFactory;
+            _kafkaPublisher = kafkaPublisher;
+            _kafkaMessageFactory = kafkaMessageFactory;
         }
 
 
         public Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
         {
-            var kafkaMessages = domainEvents.Select(e => _KafkaMessageFactory.CreateMessage(e)).ToList();
+            var kafkaMessages = domainEvents.Select(e => _kafkaMessageFactory.CreateMessage(e)).ToList();
 
-            return _KafkaPublisher.PublishAsync(kafkaMessages, cancellationToken);
+            return _kafkaPublisher.PublishAsync(kafkaMessages, cancellationToken);
         }
     }
 }

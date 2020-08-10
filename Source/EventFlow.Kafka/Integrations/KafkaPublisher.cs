@@ -38,7 +38,7 @@ namespace EventFlow.Kafka.Integrations
         private readonly IKafkaProducerFactory _producerFactory;
         private readonly ProducerConfig _configuration;
         private readonly ITransientFaultHandler<IKafkaRetryStrategy> _transientFaultHandler;
-        private IProducer<string, string> _kafkaProducer = null;
+        private IProducer<string, string> _kafkaProducer;
 
         public KafkaPublisher(ILog log,
             IKafkaProducerFactory producerFactory,
@@ -49,6 +49,7 @@ namespace EventFlow.Kafka.Integrations
             _producerFactory = producerFactory;
             _configuration = configuration;
             _transientFaultHandler = transientFaultHandler;
+
         }
 
         public async Task PublishAsync(IReadOnlyCollection<KafkaMessage> kafkaMessages, CancellationToken cancellationToken)
@@ -76,54 +77,41 @@ namespace EventFlow.Kafka.Integrations
 
         }
 
-        private async Task ProduceMessages(IReadOnlyCollection<KafkaMessage> kafkaMessages, CancellationToken c)
+        private Task ProduceMessages(IReadOnlyCollection<KafkaMessage> kafkaMessages, CancellationToken c)
         {
-            var timeout = TimeSpan.FromMilliseconds(_configuration.TransactionTimeoutMs ?? 2000);
-
+            if (_kafkaProducer == null)
+            {
+                _kafkaProducer = _producerFactory.CreateProducer();
+            }
 
             _log.Verbose(
                     "Publishing {0} domain events to Kafka brokers '{1}'",
                     kafkaMessages.Count, _configuration.BootstrapServers);
 
-            try
+            foreach (var message in kafkaMessages)
             {
-                if (_kafkaProducer == null)
+                var headers = new Headers();
+                foreach (var item in message.Metadata)
                 {
-                    _kafkaProducer = _producerFactory.CreateProducer();
+                    headers.Add(item.Key, Encoding.UTF8.GetBytes(item.Value));
                 }
-
-                //_kafkaProducer.BeginTransaction();
-                foreach (var message in kafkaMessages)
+                var kafkaDomainMessage = new Message<string, string>
                 {
-                    var headers = new Headers();
-                    foreach (var item in message.Metadata)
-                    {
-                        headers.Add(item.Key, Encoding.UTF8.GetBytes(item.Value));
-                    }
-                    var kafkaDomainMessage = new Message<string, string>
-                    {
-                        Value = message.Message,
-                        Headers = headers,
-                        Key = message.MessageId.Value
-                    };
-                    await _kafkaProducer.ProduceAsync(message.Topic, kafkaDomainMessage, c);
-                }
-                //_kafkaProducer.CommitTransaction(timeout);
+                    Value = message.Message,
+                    Headers = headers,
+                    Key = message.MessageId.Value
+                };
+                _kafkaProducer.Produce(message.TopicPartition, kafkaDomainMessage);
             }
-            catch (Exception)
-            {
-                if (_kafkaProducer != null)
-                {
-                    //_kafkaProducer.AbortTransaction(timeout);
-                }
-                throw;
-            }
+            
+            return Task.CompletedTask;
         }
 
         public void Dispose()
         {
             if (_kafkaProducer != null)
             {
+                _kafkaProducer.Flush(TimeSpan.FromSeconds(10));
                 _kafkaProducer.Dispose();
                 _kafkaProducer = null;
             }

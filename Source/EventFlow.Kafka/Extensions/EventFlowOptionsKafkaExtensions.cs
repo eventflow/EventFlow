@@ -22,9 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using Confluent.Kafka;
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Kafka.Integrations;
 using EventFlow.Subscribers;
+using System;
+using System.Linq.Expressions;
 
 namespace EventFlow.Kafka.Extensions
 {
@@ -32,7 +35,8 @@ namespace EventFlow.Kafka.Extensions
     {
         public static IEventFlowOptions PublishToKafka(
             this IEventFlowOptions eventFlowOptions,
-             ProducerConfig configuration)
+             ProducerConfig configuration,
+             Func<IDomainEvent, TopicPartition> topicPartitionFactory = null)
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
@@ -40,6 +44,8 @@ namespace EventFlow.Kafka.Extensions
                     sr.Register<IKafkaMessageFactory, KafkaMessageFactory>(Lifetime.Singleton);
                     sr.Register<IKafkaPublisher, KafkaPublisher>(Lifetime.Singleton);
                     sr.Register<IKafkaRetryStrategy, KafkaRetryStrategy>(Lifetime.Singleton);
+
+                    sr.Register(rc => topicPartitionFactory, Lifetime.Singleton);
 
                     sr.Register(rc => configuration, Lifetime.Singleton);
 

@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+using Confluent.Kafka;
 using EventFlow.Aggregates;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,6 @@ namespace EventFlow.Kafka.Integrations
         public string AggregateName { get; set; }
         public string Message { get; set; }
         public IReadOnlyDictionary<string, string> Metadata { get; set; }
-        public string Topic { get; set; }
+        public TopicPartition TopicPartition { get; set; }
     }
 }

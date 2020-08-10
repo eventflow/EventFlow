@@ -5,7 +5,6 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Kafka.Extensions;
-using EventFlow.Kafka.Integrations;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
@@ -16,7 +15,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -42,7 +40,7 @@ namespace EventFlow.Kafka.Tests.Integration
                 }).Build())
                 using (var resolver = BuildResolver())
                 {
-                    consumer.Subscribe("thingy");
+                    consumer.Subscribe("eventflow.domainevent.thingy.thingy-ping");
                     var commandBus = resolver.Resolve<ICommandBus>();
                     var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
@@ -50,8 +48,8 @@ namespace EventFlow.Kafka.Tests.Integration
                     await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
 
                     var kafkaMessage = consumer.Consume(CancellationToken.None);
-                    //kafkaMessage.Exchange.Value.Should().Be(exchange.Value);
-                    //kafkaMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
+
+                    kafkaMessage.TopicPartition.Topic.Should().Be("eventflow.domainevent.thingy.thingy-ping");
 
                     var pingEvent = (DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)eventJsonSerializer.Deserialize(
                         kafkaMessage.Message.Value,

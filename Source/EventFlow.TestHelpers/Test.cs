@@ -87,10 +87,12 @@ namespace EventFlow.TestHelpers
             return mock;
         }
 
-        protected IDomainEvent<ThingyAggregate, ThingyId> ADomainEvent<TAggregateEvent>(int aggregateSequenceNumber = 0)
+        protected IDomainEvent<ThingyAggregate, ThingyId> ADomainEvent<TAggregateEvent>(
+            int aggregateSequenceNumber = 0,
+            IDictionary<string, string> initMetadata = null)
             where TAggregateEvent : IAggregateEvent
         {
-            return ToDomainEvent(A<TAggregateEvent>(), aggregateSequenceNumber);
+            return ToDomainEvent(A<TAggregateEvent>(), aggregateSequenceNumber, initMetadata);
         }
 
         protected IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>> ManyDomainEvents<TAggregateEvent>(
@@ -98,30 +100,37 @@ namespace EventFlow.TestHelpers
             where TAggregateEvent : IAggregateEvent
         {
             return Enumerable.Range(1, count)
-                .Select(ADomainEvent<TAggregateEvent>)
+                .Select(e => ADomainEvent<TAggregateEvent>(e))
                 .ToList();
         }
 
         protected IDomainEvent<ThingyAggregate, ThingyId> ToDomainEvent<TAggregateEvent>(
             TAggregateEvent aggregateEvent,
-            int aggregateSequenceNumber = 0)
+            int aggregateSequenceNumber = 0,
+            IDictionary<string, string> initMetadata = null)
             where TAggregateEvent : IAggregateEvent
         {
-            return ToDomainEvent(A<ThingyId>(), aggregateEvent, aggregateSequenceNumber);
+            return ToDomainEvent(A<ThingyId>(), aggregateEvent, aggregateSequenceNumber, initMetadata);
         }
 
         protected IDomainEvent<ThingyAggregate, ThingyId> ToDomainEvent<TAggregateEvent>(
             ThingyId thingyId,
             TAggregateEvent aggregateEvent,
-            int aggregateSequenceNumber = 0)
+            int aggregateSequenceNumber = 0,
+            IDictionary<string, string> initMetadata = null)
             where TAggregateEvent : IAggregateEvent
         {
-            var metadata = new Metadata
-                {
-                    Timestamp = A<DateTimeOffset>(),
-                    SourceId = A<SourceId>(),
-                    EventId = A<EventId>(),
-                };
+            IMetadata metadata = new Metadata
+            {
+                Timestamp = A<DateTimeOffset>(),
+                SourceId = A<SourceId>(),
+                EventId = A<EventId>()
+            };
+
+            if (initMetadata != null)
+            {
+                metadata = metadata.CloneWith(initMetadata);
+            }
 
             if (aggregateSequenceNumber == 0)
             {

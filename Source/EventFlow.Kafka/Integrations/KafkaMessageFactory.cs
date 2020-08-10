@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using Confluent.Kafka;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
@@ -34,13 +35,31 @@ namespace EventFlow.Kafka.Integrations
     {
         private readonly ILog _log;
         private readonly IEventJsonSerializer _eventJsonSerializer;
+        private readonly Func<IDomainEvent, TopicPartition> _topicPartitionFactory;
 
         public KafkaMessageFactory(
                 ILog log,
-                IEventJsonSerializer eventJsonSerializer)
+                IEventJsonSerializer eventJsonSerializer,
+                Func<IDomainEvent, TopicPartition> topicPartitionFactory)
         {
             _log = log;
             _eventJsonSerializer = eventJsonSerializer;
+            _topicPartitionFactory = topicPartitionFactory;
+        }
+
+        private TopicPartition GetTopicPartition(IDomainEvent domainEvent)
+        {
+            var topic = string.Format("eventflow.domainevent.{0}.{1}", 
+                domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug(),
+                domainEvent.Metadata[MetadataKeys.EventName].ToSlug()
+                );
+
+            if (_topicPartitionFactory != null)
+            {
+                return _topicPartitionFactory(domainEvent);
+            }
+
+            return new TopicPartition(topic, new Partition());
         }
 
         public KafkaMessage CreateMessage(IDomainEvent domainEvent)
@@ -50,6 +69,7 @@ namespace EventFlow.Kafka.Integrations
                domainEvent.GetAggregateEvent(),
                domainEvent.Metadata);
 
+            var topicPartition = GetTopicPartition(domainEvent);
 
             return new KafkaMessage
             {
@@ -57,7 +77,7 @@ namespace EventFlow.Kafka.Integrations
                 Message = serializedEvent.SerializedData,
                 Metadata = domainEvent.Metadata,
                 MessageId = new MessageId(domainEvent.Metadata[MetadataKeys.EventId]),
-                Topic = domainEvent.Metadata[MetadataKeys.AggregateName].ToSlug()
+                TopicPartition = topicPartition
             };
         }
     }
