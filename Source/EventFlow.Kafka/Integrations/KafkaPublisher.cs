@@ -38,6 +38,7 @@ namespace EventFlow.Kafka.Integrations
         private readonly IKafkaProducerFactory _producerFactory;
         private readonly ProducerConfig _configuration;
         private readonly ITransientFaultHandler<IKafkaRetryStrategy> _transientFaultHandler;
+        private readonly AsyncLock _asyncLock = new AsyncLock();
         private IProducer<string, string> _kafkaProducer;
 
         public KafkaPublisher(ILog log,
@@ -70,19 +71,34 @@ namespace EventFlow.Kafka.Integrations
             }
             catch (Exception e)
             {
+                if (_kafkaProducer != null)
+                {
+                    using (await _asyncLock.WaitAsync(CancellationToken.None).ConfigureAwait(false))
+                    {
+                        Dispose();
+                    }
+                }
                 _log.Error(e, "Failed to publish domain events to Kafka");
-                Dispose();
                 throw e;
+            }
+
+        }
+        private IProducer<string, string> GetProducer()
+        {
+            using (_asyncLock.Wait(CancellationToken.None))
+            {
+                if (_kafkaProducer == null)
+                {
+                    _kafkaProducer = _producerFactory.CreateProducer();
+                }
+                return _kafkaProducer;
             }
 
         }
 
         private Task ProduceMessages(IReadOnlyCollection<KafkaMessage> kafkaMessages, CancellationToken c)
         {
-            if (_kafkaProducer == null)
-            {
-                _kafkaProducer = _producerFactory.CreateProducer();
-            }
+            var kafkaProducer = GetProducer();
 
             _log.Verbose(
                     "Publishing {0} domain events to Kafka brokers '{1}'",
@@ -101,9 +117,9 @@ namespace EventFlow.Kafka.Integrations
                     Headers = headers,
                     Key = message.MessageId.Value
                 };
-                _kafkaProducer.Produce(message.TopicPartition, kafkaDomainMessage);
+                kafkaProducer.ProduceAsync(message.TopicPartition, kafkaDomainMessage, c);
             }
-            
+
             return Task.CompletedTask;
         }
 

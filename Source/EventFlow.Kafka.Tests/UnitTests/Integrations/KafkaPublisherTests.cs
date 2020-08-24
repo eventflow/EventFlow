@@ -45,8 +45,15 @@ namespace EventFlow.Kafka.Tests
             where TException : Exception, new()
         {
             _producerMock
-                .Setup(c => c.ProduceAsync(It.IsAny<string>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ProduceAsync(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()))
                 .Throws<TException>();
+        }
+
+        private void ArrangeWorkingPublisher()
+        {
+            _producerMock
+                .Setup(c => c.ProduceAsync(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()))
+                .Verifiable();
         }
 
 
@@ -54,13 +61,14 @@ namespace EventFlow.Kafka.Tests
         public async Task PublishIsCalled()
         {
             // Arrange
+            ArrangeWorkingPublisher();
             var kafkaMessages = Fixture.CreateMany<KafkaMessage>().ToList();
 
             // Act
             await Sut.PublishAsync(kafkaMessages, CancellationToken.None);
 
             // Assert
-            _producerMock.Verify(m => m.ProduceAsync(It.IsAny<string>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()),
+            _producerMock.Verify(m => m.ProduceAsync(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(kafkaMessages.Count));
 
             _producerMock.Verify(c => c.Dispose(), Times.Never);
