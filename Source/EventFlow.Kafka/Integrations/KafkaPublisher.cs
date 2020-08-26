@@ -57,12 +57,11 @@ namespace EventFlow.Kafka.Integrations
         {
             try
             {
-
                 await _transientFaultHandler.TryAsync(c => (
-                        ProduceMessages(kafkaMessages, c)),
-                            Label.Named("kafka-publish"),
-                            cancellationToken)
-                    .ConfigureAwait(false);
+                    ProduceMessages(kafkaMessages, c)),
+                        Label.Named("kafka-publish"),
+                        cancellationToken)
+                .ConfigureAwait(false);
 
             }
             catch (OperationCanceledException)
@@ -83,9 +82,9 @@ namespace EventFlow.Kafka.Integrations
             }
 
         }
-        private IProducer<string, string> GetProducer()
+        private IProducer<string, string> GetProducer(CancellationToken c)
         {
-            using (_asyncLock.Wait(CancellationToken.None))
+            using (_asyncLock.Wait(c))
             {
                 if (_kafkaProducer == null)
                 {
@@ -93,12 +92,11 @@ namespace EventFlow.Kafka.Integrations
                 }
                 return _kafkaProducer;
             }
-
         }
 
         private Task ProduceMessages(IReadOnlyCollection<KafkaMessage> kafkaMessages, CancellationToken c)
         {
-            var kafkaProducer = GetProducer();
+            var kafkaProducer = GetProducer(c);
 
             _log.Verbose(
                     "Publishing {0} domain events to Kafka brokers '{1}'",
@@ -117,9 +115,8 @@ namespace EventFlow.Kafka.Integrations
                     Headers = headers,
                     Key = message.MessageId.Value
                 };
-                kafkaProducer.ProduceAsync(message.TopicPartition, kafkaDomainMessage, c);
+                kafkaProducer.Produce(message.TopicPartition, kafkaDomainMessage);
             }
-
             return Task.CompletedTask;
         }
 

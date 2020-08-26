@@ -13,6 +13,8 @@ $env:RABBITMQ_URL = "amqp://guest:guest@localhost:5672"
 $env:ELASTICSEARCH_URL = "http://localhost:9200"
 # Event Store
 $env:EVENTSTORE_URL = "tcp://admin:changeit@localhost:1113"
+# Apache Kafka
+$env:KAFKA_URL = "localhost:9092"
 
 # Health checks
 # Event Store
@@ -21,3 +23,5 @@ curl --connect-timeout 60 --retry 5 -sL "http://localhost:2113"
 curl --connect-timeout 60 --retry 5 -sL "http://localhost:9200"
 # RabbitMQ
 curl --connect-timeout 60 --retry 5 -sL "http://localhost:15672"
+# Apache Kafka
+curl --connect-timeout 60 --retry 5 -sL "http://localhost:9092"
