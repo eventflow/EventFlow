@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -95,6 +95,7 @@ namespace EventFlow.Elasticsearch.Extensions
                 .UseReadStoreFor<IElasticsearchReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
 
+        [Obsolete("Use the simpler method UseElasticsearchReadModel<TReadModel> instead.")]
         public static IEventFlowOptions UseElasticsearchReadModelFor<TAggregate, TIdentity, TReadModel>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>

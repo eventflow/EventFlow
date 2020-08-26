@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@ using EventFlow.Core;
 
 namespace EventFlow.Subscribers
 {
-    public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent>
+    public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent> : ISubscribe
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
         where TEvent : IAggregateEvent<TAggregate, TIdentity>

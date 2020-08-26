@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,12 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace EventFlow.Hangfire.Integration
 {
     public interface IHangfireJobRunner
     {
         [DisplayName("{0}")]
-        void Execute(string displayName, string jobName, int version, string job);
+        Task ExecuteAsync(string displayName, string jobName, int version, string job);
     }
 }

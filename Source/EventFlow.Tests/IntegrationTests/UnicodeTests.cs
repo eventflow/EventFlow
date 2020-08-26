@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,6 +33,9 @@ using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+
+// ReSharper disable IdentifierTypo
+// ReSharper disable StringLiteralTypo
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -96,7 +99,7 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test]
-        public void UnicodeIntegration()
+        public async Task UnicodeIntegration()
         {
             var resolver = EventFlowOptions.New
                 .AddEvents(typeof(Püng1Event))
@@ -105,7 +108,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver();
 
             var bus = resolver.Resolve<ICommandBus>();
-            bus.Publish(new Cömmand());
+            await bus.PublishAsync(new Cömmand(), CancellationToken.None);
         }
 
         private class Identität1 : Identity<Identität1>

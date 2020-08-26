@@ -1,8 +1,8 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2016 Rasmus Mikkelsen
-// Copyright (c) 2015-2016 eBay Software Foundation
-// https://github.com/rasmus/EventFlow
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
+// https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -134,7 +134,11 @@ namespace EventFlow.Core.IoC
             }
 
             var bootstrapper = resolver.Resolve<IBootstrapper>();
+
+#pragma warning disable 618
+            // TODO: Figure out bootstrapping alternative for 1.0
             bootstrapper.Start();
+#pragma warning restore 618
 
             return resolver;
         }

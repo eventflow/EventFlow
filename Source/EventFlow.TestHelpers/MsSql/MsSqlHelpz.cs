@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,7 +48,6 @@ namespace EventFlow.TestHelpers.MsSql
 
             var connectionStringBuilder = new SqlConnectionStringBuilder()
                 {
-                    InitialCatalog = databaseName,
                     DataSource = FirstNonEmpty(
                         Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
                         ".")
@@ -81,6 +80,8 @@ namespace EventFlow.TestHelpers.MsSql
                     connectionStringBuilder.Password = "Password12!";
                 }
             }
+
+            connectionStringBuilder.InitialCatalog = databaseName;
 
             Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
 

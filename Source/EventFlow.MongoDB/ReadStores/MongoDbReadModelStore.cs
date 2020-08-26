@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -148,10 +148,10 @@ namespace EventFlow.MongoDB.ReadStores
             readModelEnvelope.ReadModel.Version = readModelEnvelope.Version;
             try
             {
-                await collection.ReplaceOneAsync<TReadModel>(
+                await collection.ReplaceOneAsync(
                     x => x.Id == readModelUpdate.ReadModelId && x.Version == originalVersion,
                     readModelEnvelope.ReadModel,
-                    new UpdateOptions() { IsUpsert = true },
+                    new ReplaceOptions { IsUpsert = true },
                     cancellationToken);
             }
             catch (MongoWriteException e)

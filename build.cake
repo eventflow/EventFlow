@@ -26,7 +26,6 @@
 #r "System.Xml"
 
 #module nuget:?package=Cake.DotNetTool.Module
-#tool "nuget:?package=NUnit.ConsoleRunner"
 #tool "nuget:?package=OpenCover"
 #tool "dotnet:?package=sourcelink"
 
@@ -45,9 +44,9 @@ var DIR_OUTPUT_REPORTS = System.IO.Path.Combine(PROJECT_DIR, "Build", "Reports")
 // IMPORTANT FILES
 var FILE_OPENCOVER_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "opencover-results.xml");
 var FILE_NUNIT_XML_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-results.xml");
-var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.txt");
+var FILE_NUNIT_TXT_REPORT = System.IO.Path.Combine(DIR_OUTPUT_REPORTS, "nunit-output.html");
 var FILE_SOLUTION = System.IO.Path.Combine(PROJECT_DIR, "EventFlow.sln");
-
+var FILE_RUNSETTINGS = System.IO.Path.Combine(PROJECT_DIR, "Test.runsettings");
 var RELEASE_NOTES = ParseReleaseNotes(System.IO.Path.Combine(PROJECT_DIR, "RELEASE_NOTES.md"));
 
 // =====================================================================================================
@@ -64,8 +63,10 @@ Task("Clean")
                     DIR_OUTPUT_REPORTS,
                 });
 				
-			DeleteDirectories(GetDirectories("**/bin"), true);
-			DeleteDirectories(GetDirectories("**/obj"), true);
+            var settings = new DeleteDirectorySettings {Force = true, Recursive = true};
+
+			DeleteDirectories(GetDirectories("**/bin"), settings);
+			DeleteDirectories(GetDirectories("**/obj"), settings);
         });
 	
 // =====================================================================================================
@@ -90,6 +91,7 @@ Task("Build")
 				".", 
 				new DotNetCoreBuildSettings()
 				{
+                    NoRestore = true,
 					Configuration = CONFIGURATION,
 					ArgumentCustomization = aggs => aggs
                         .Append(GetDotNetCoreArgsVersions())
@@ -104,12 +106,12 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest("./Source/**/bin/" + CONFIGURATION + "/**/EventFlow*Tests.dll", FILE_NUNIT_XML_REPORT);
+            ExecuteTest(FindTestDlls("net472"));
+            ExecuteTest(FindTestDlls("netcoreapp3.1"));
         })
 	.Finally(() =>
         {
             UploadArtifact(FILE_NUNIT_TXT_REPORT);
-            UploadTestResults(FILE_NUNIT_XML_REPORT);
         });
 
 // =====================================================================================================
@@ -125,7 +127,9 @@ Task("Package")
 				var name = project.GetDirectory().FullPath;
 				var version = VERSION.ToString();
 				
-				if ((name.Contains("Test") && !name.Contains("TestHelpers")) || name.Contains("Example"))
+				if ((name.Contains("Test") && !name.Contains("TestHelpers")) 
+                    || name.Contains("Example")
+                    || name.Contains("CodeStyle"))
 				{
 					continue;
 				}
@@ -169,7 +173,6 @@ Task("All")
     //.IsDependentOn("ValidateSourceLink") builds on AppVeyor fail for some unknown reason
     .Does(() =>
         {
-
         });
 
 // =====================================================================================================
@@ -244,49 +247,16 @@ void UploadArtifact(string filePath)
     }
 }
 
-void UploadTestResults(string filePath)
+IEnumerable<FilePath> FindTestDlls(string framework)
 {
-    if (!FileExists(filePath))
-    {
-        Information("Skipping uploading of test results, does not exist: {0}", filePath);
-        return;
-    }
-
-    if (AppVeyor.IsRunningOnAppVeyor)
-    {
-        Information("Uploading test results: {0}", filePath);
-
-        try
-        {
-            using (var webClient = new WebClient())
-            {
-                webClient.UploadFile(
-                    string.Format(
-                        "https://ci.appveyor.com/api/testresults/nunit3/{0}",
-                        Environment.GetEnvironmentVariable("APPVEYOR_JOB_ID")),
-                    filePath);
-            }
-        }
-        catch (Exception e)
-        {
-            Error(
-                "Failed to upload '{0}' due to {1} - {2}: {3}",
-                filePath,
-                e.Message,
-                e.GetType().Name,
-                e.ToString());
-        }
-        
-        /*
-        // This should work, but doesn't seem to
-        AppVeyor.UploadTestResults(
-            filePath,
-            AppVeyorTestResultsType.NUnit3);*/
-    }    
-    else
-    {
-        Information("Not on AppVeyor, skipping test result upload of: {0}", filePath);
-    }
+    var dirs = GetDirectories($"Source/*.Tests/bin/{CONFIGURATION}/{framework}");
+    var cwd = Context.Environment.WorkingDirectory;
+    var files = dirs
+        .Select(cwd.GetRelativePath)
+        .Select(d => d.Segments[1])
+        .Select(name => $"Source/{name}/bin/{CONFIGURATION}/{framework}/{name}.dll")
+        .Select(file => new FilePath(file));
+    return files;
 }
 
 string ExecuteCommand(string exePath, string arguments = null, string workingDirectory = null)
@@ -324,41 +294,34 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
     }
 }
 
-void ExecuteTest(string files, string resultsFile)
+void ExecuteTest(IEnumerable<FilePath> paths)
 {
 	OpenCover(tool => 
 		{
-			tool.NUnit3(
-				files,
-				new NUnit3Settings
-					{
-						Framework = "net-4.5",
-						Timeout = 600000,
-						ShadowCopy = false,
-						NoHeader = true,
-						NoColor = true,
-						DisposeRunners = true,
-						OutputFile = FILE_NUNIT_TXT_REPORT,
-						Results = new []
-                            {
-                                new NUnit3Result
-                                    {
-                                        FileName = resultsFile,
-                                    }
-                            }
-					});
+            var settings = new DotNetCoreVSTestSettings()
+                {
+                    Parallel = true,
+                    ToolTimeout = TimeSpan.FromMinutes(30),
+                    Settings = FILE_RUNSETTINGS,
+                    ResultsDirectory = DIR_OUTPUT_REPORTS,
+                    ArgumentCustomization = args =>
+                        args.Append("--nologo")
+                };
+
+            tool.DotNetCoreVSTest(paths, settings);
         },
-    new FilePath(FILE_OPENCOVER_REPORT),
-    new OpenCoverSettings
-        {
-            ArgumentCustomization = aggs => aggs.Append("-returntargetcode"),
-            OldStyle = true,
-            MergeOutput = true
-        }
-        .WithFilter("+[EventFlow*]*")
-        .WithFilter("-[*Tests]*")
-        .WithFilter("-[*TestHelpers]*")
-        .WithFilter("-[*Shipping*]*"));
+        new FilePath(FILE_OPENCOVER_REPORT),
+        new OpenCoverSettings
+            {
+                Register = AppVeyor.IsRunningOnAppVeyor ? "appveyor" : "user",
+                ReturnTargetCodeOffset = 1000,
+                MergeOutput = true,
+                LogLevel = OpenCoverLogLevel.Warn,
+            }
+            .WithFilter("+[EventFlow*]*")
+            .WithFilter("-[*Tests]*")
+            .WithFilter("-[*TestHelpers]*")
+            .WithFilter("-[*Shipping*]*"));
 }
 
 RunTarget(Argument<string>("target", "Package"));

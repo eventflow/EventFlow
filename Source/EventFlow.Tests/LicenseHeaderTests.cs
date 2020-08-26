@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -34,6 +35,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests
 {
+    [Category(Categories.Integration)]
     public class LicenseHeaderTests
     {
         private static readonly char[] LineSplitters = {'\n', '\r'};
