@@ -105,9 +105,8 @@ namespace EventFlow.Kafka.Tests.Integration
                     pingEvent.AggregateEvent.PingId.Should().Be(pingId);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-
                 throw;
             }
         }

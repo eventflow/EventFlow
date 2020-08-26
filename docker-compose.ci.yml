@@ -25,8 +25,10 @@ services:
     ports:
       - "1113:1113"
       - "2113:2113"
+
   zookeeper:
     image: confluentinc/cp-zookeeper:5.5.0
+    container_name: kafka-zookeeper-ef
     hostname: zookeeper
     ports:
       - "2181:2181"
@@ -36,6 +38,7 @@ services:
 
   broker:
     image: confluentinc/cp-kafka:5.5.0
+    container_name: kafka-broker-ef
     hostname: broker
     depends_on:
       - zookeeper
