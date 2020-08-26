@@ -34,7 +34,7 @@ using NUnit.Framework;
 using EventFlow.Kafka.Integrations;
 using Confluent.Kafka;
 
-namespace EventFlow.Kafka.Tests
+namespace EventFlow.Kafka.Tests.UnitTests.Integrations
 {
     [Category(Categories.Unit)]
     public class KafkaPublisherTests : TestsFor<KafkaPublisher>
@@ -68,14 +68,14 @@ namespace EventFlow.Kafka.Tests
             where TException : Exception, new()
         {
             _producerMock
-                .Setup(c => c.ProduceAsync(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.Produce(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), null))
                 .Throws<TException>();
         }
 
         private void ArrangeWorkingPublisher()
         {
             _producerMock
-                .Setup(c => c.ProduceAsync(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.Produce(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), null))
                 .Verifiable();
         }
 
@@ -91,7 +91,7 @@ namespace EventFlow.Kafka.Tests
             await Sut.PublishAsync(kafkaMessages, CancellationToken.None);
 
             // Assert
-            _producerMock.Verify(m => m.ProduceAsync(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), It.IsAny<CancellationToken>()),
+            _producerMock.Verify(m => m.Produce(It.IsAny<TopicPartition>(), It.IsAny<Message<string, string>>(), null),
                 Times.Exactly(kafkaMessages.Count));
 
             _producerMock.Verify(c => c.Dispose(), Times.Never);

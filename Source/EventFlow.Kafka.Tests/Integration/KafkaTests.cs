@@ -51,18 +51,26 @@ namespace EventFlow.Kafka.Tests.Integration
     {
 
         private string _uri;
+        private CancellationTokenSource _timeout;
 
         [SetUp]
         public void SetUp()
         {
             _uri = Environment.GetEnvironmentVariable("KAFKA_URL");
+            _timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1));
             if (string.IsNullOrEmpty(_uri))
             {
                 Assert.Inconclusive("The environment variable named 'KAFKA_URL' isn't set. Set it to e.g. 'localhost:9092'");
             }
         }
 
-        [Test, Timeout(10000), Retry(3)]
+        [TearDown]
+        public void TearDown()
+        {
+            _timeout.Dispose();
+        }
+
+        [Test, Retry(3)]
         public async Task Scenario()
         {
             try
@@ -80,10 +88,10 @@ namespace EventFlow.Kafka.Tests.Integration
                     var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
                     var pingId = PingId.New;
-                    await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
+                    await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
 
                     consumer.Subscribe("eventflow.domainevent.thingy.thingy-ping");
-                    var kafkaMessage = consumer.Consume(CancellationToken.None);
+                    var kafkaMessage = consumer.Consume(_timeout.Token);
                     
                     kafkaMessage.TopicPartition.Topic.Should().Be("eventflow.domainevent.thingy.thingy-ping");
 
