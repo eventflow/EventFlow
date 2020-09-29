@@ -1,5 +1,10 @@
 ### New in 0.80 (not released yet)
 
+* Breaking: To support .NET going forward, all EventFlow test have been converted
+  from .NET Framework 4.x to .NET Core 3.1. This however, introduced a set of
+  breaking changes
+  * EntityFramework has been updated from 2.2.6 to 3.1.5 
+  * `IHangfireJobRunner.Execute` is now `IHangfireJobRunner.ExecuteAsync`
 * Breaking: Merged `AggregateReadStoreManager` and `SingleAggregateReadStoreManager`
   into one class in order to always guarantee in-order event processing
 * Breaking: Marked the `UseReadStoreFor<,,,>` configuration methods as obsolete,
