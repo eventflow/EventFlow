@@ -129,10 +129,6 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                         .NumberOfShards(1)
                         .NumberOfReplicas(0))
                     .Aliases(a => a.Alias(esType.RelationName)));
-                    // I do not believe this is still needed? If yes, I am unsure how to pass the Type into the mapping method
-                    //.Mappings(m => m
-                    //    .Map(TypeName.Create(readModelType), d => d
-                    //        .AutoMap())));;
             }
         }
 
