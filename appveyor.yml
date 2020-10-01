@@ -44,7 +44,14 @@ deploy:
     api_key:
       secure: +YlrKmWps7RJVPU4s7B4HWNL9cZXaUVdiNJInli9IZPlTP+J0CyHsUvcDY8haE+b
     skip_symbols: false
-    artifact: /.*\.(nupkg|snupkg)/
+    artifact: /.*\.nupkg/
+    on:
+      branch: master
+  - provider: NuGet
+    api_key:
+      secure: +YlrKmWps7RJVPU4s7B4HWNL9cZXaUVdiNJInli9IZPlTP+J0CyHsUvcDY8haE+b
+    skip_symbols: false
+    artifact: /.*\.snupkg/
     on:
       branch: master
   - provider: GitHub

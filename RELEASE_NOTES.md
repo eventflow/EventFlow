@@ -1,4 +1,8 @@
-### New in 0.80 (not released yet)
+### New in 0.81 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.80.4377 (released 2020-10-01)
 
 * Breaking: To support .NET going forward, all EventFlow test have been converted
   from .NET Framework 4.x to .NET Core 3.1. This however, introduced a set of
@@ -29,7 +33,7 @@
   * `IDispatchToSubscriberResilienceStrategy`
   * `ISagaUpdateResilienceStrategy`
 
-### New in 0.79.4216 ((released 2020-05-13)
+### New in 0.79.4216 (released 2020-05-13)
 
 * New: Added .NET Core 3.1 target for the `EventFlow`
   and `EventFlow.EntityFramework` packages
