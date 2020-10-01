@@ -41,7 +41,7 @@ namespace EventFlow.Core
 
         static Identity()
         {
-            var nameReplace = new Regex("Id$");
+            var nameReplace = new Regex(".+Id$");
             NameWithDash = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant() + "-";
             ValueValidation = new Regex(
                 @"^[^\-]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
