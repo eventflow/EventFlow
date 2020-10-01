@@ -143,7 +143,7 @@ namespace EventFlow.Tests.UnitTests.Core
         {
             // Arrange
             var guid = A<Guid>();
-            var expected = $"id-{guid:D}";
+            var expected = guid.ToString("D");
 
             // Act
             var id = Id.With(guid);

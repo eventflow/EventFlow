@@ -1,6 +1,6 @@
 ### New in 0.81 (not released yet)
 
-* _Nothing yet_
+* Fixed: You can now create `Id : Identity<Id>`
 
 ### New in 0.80.4377 (released 2020-10-01)
 
@@ -22,7 +22,6 @@
 * Fixed: An issue where `EntityFrameworkEventPersistence` could possibly save aggregate 
   events out of order, which would lead to out-of-order application when streaming events
   ordered by GlobalSequenceNumber
-* Fixed: You can now create `Id : Identity<Id>`
 * New: `FilesEventPersistence` now uses relative paths
 * New: A new set of hook-in interfaces are provided from this release, which should
   make it easier to implement crash resilience (#439) in EventFlow. Please note that
