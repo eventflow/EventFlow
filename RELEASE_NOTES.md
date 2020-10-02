@@ -1,6 +1,6 @@
 ### New in 0.81 (not released yet)
 
-* _Nothing yet_
+* Fixed: You can now create `Id : Identity<Id>`
 
 ### New in 0.80.4377 (released 2020-10-01)
 
