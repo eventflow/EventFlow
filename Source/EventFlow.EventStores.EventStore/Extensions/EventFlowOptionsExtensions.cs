@@ -1,5 +1,5 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
@@ -21,12 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core;
+using EventFlow.EventStores.EventStore.Subscriptions;
 using EventFlow.Extensions;
-using EventStore.ClientAPI;
-using System;
-using System.Net;
+using EventFlow.Logs;
+using EventFlow.Subscribers;
+using EventStore.Client;
+using AggregateStore = EventFlow.EventStores.EventStore.Aggregates.AggregateStore;
 
 namespace EventFlow.EventStores.EventStore.Extensions
 {
@@ -38,62 +40,44 @@ namespace EventFlow.EventStores.EventStore.Extensions
             return eventFlowOptions.UseEventStore<EventStoreEventPersistence>();
         }
 
-        [Obsolete("Use the overloads with 'uri' parameter instead.")]
         public static IEventFlowOptions UseEventStoreEventStore(
             this IEventFlowOptions eventFlowOptions,
-            IPEndPoint ipEndPoint)
+            EventStoreClientSettings eventStoreClientSettings)
         {
-            return eventFlowOptions
-                .UseEventStoreEventStore(ipEndPoint, ConnectionSettings.Default);
-        }
-
-        [Obsolete("Use the overloads with 'uri' parameter instead.")]
-        public static IEventFlowOptions UseEventStoreEventStore(
-            this IEventFlowOptions eventFlowOptions,
-            IPEndPoint ipEndPoint,
-            ConnectionSettings connectionSettings)
-        {
-            var eventStoreConnection = EventStoreConnection.Create(
-                connectionSettings,
-                ipEndPoint,
-                $"EventFlow v{typeof(EventFlowOptionsExtensions).Assembly.GetName().Version}");
-
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(eventStoreConnection.ConnectAsync());
-            }
+            var eventStoreClient = new EventStoreClient(eventStoreClientSettings);
 
             return eventFlowOptions
-                .RegisterServices(f => f.Register(r => eventStoreConnection, Lifetime.Singleton))
+                .RegisterServices(sr => sr.Register(r => eventStoreClient, Lifetime.Singleton))
                 .UseEventStore<EventStoreEventPersistence>();
         }
 
-        public static IEventFlowOptions UseEventStoreEventStore(
+        public static IEventFlowOptions UseEventStoreSubscriptions(
             this IEventFlowOptions eventFlowOptions,
-            Uri uri,
-            ConnectionSettings connectionSettings,
-            string connectionNamePrefix = null)
+            string subscriptionName,
+            IEventFilter eventFilter,
+            uint checkpointInterval = 10)
         {
-            var sanitizedConnectionNamePrefix = string.IsNullOrEmpty(connectionNamePrefix)
-                ? string.Empty
-                : connectionNamePrefix + " - ";
+            eventFlowOptions.RegisterServices(sr => sr.Register<IAggregateStore, AggregateStore>());
 
-            var eventStoreConnection = EventStoreConnection.Create(
-                connectionSettings,
-                uri,
-                $"{sanitizedConnectionNamePrefix}EventFlow v{typeof(EventFlowOptionsExtensions).Assembly.GetName().Version}");
+            var resolver = eventFlowOptions.CreateResolver();
 
-#pragma warning disable 618
-            // TODO: Figure out bootstrapping alternative for 1.0
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(eventStoreConnection.ConnectAsync());
-            }
-#pragma warning restore 618
+            var eventStoreClient = resolver.Resolve<EventStoreClient>();
 
-            return eventFlowOptions
-                .RegisterServices(f => f.Register(r => eventStoreConnection, Lifetime.Singleton))
-                .UseEventStore<EventStoreEventPersistence>();
+            var eventStoreCheckpointStore = new EventStoreCheckpointStore(eventStoreClient, subscriptionName);
+
+            var eventStoreSubscriptionEventPublisher = new EventStoreSubscriptionEventPublisher(
+                resolver.Resolve<ILog>(),
+                eventStoreClient,
+                eventFilter,
+                checkpointInterval,
+                eventStoreCheckpointStore,
+                resolver.Resolve<IEventJsonSerializer>(),
+                resolver.Resolve<IDomainEventPublisher>()
+            );
+
+            eventStoreSubscriptionEventPublisher.StartAsync().Wait();
+
+            return eventFlowOptions;
         }
     }
 }

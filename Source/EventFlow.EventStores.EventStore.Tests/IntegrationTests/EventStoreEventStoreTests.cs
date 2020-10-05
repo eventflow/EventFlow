@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.EventStore.Extensions;
@@ -29,8 +30,7 @@ using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
+using EventStore.Client;
 using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
@@ -41,18 +41,26 @@ namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
     {
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
-            var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL") ?? "tcp://admin:changeit@localhost:1113");
+            EventStoreClientSettings eventStoreClientSettings = new EventStoreClientSettings
+            {
+                ConnectionName = "EventFlow",
+                ConnectivitySettings =
+                {
+                    Address = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL") ?? "http://admin:changeit@localhost:2113")
+                },
+                DefaultCredentials = new UserCredentials("admin", "changeit"),
 
-            var connectionSettings = ConnectionSettings.Create()
-                .EnableVerboseLogging()
-                .KeepReconnecting()
-                .KeepRetrying()
-                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
-                .Build();
+                CreateHttpMessageHandler = () =>
+                    new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback =
+                            (message, certificate2, x509Chain, sslPolicyErrors) => true
+                    }
+            };
 
             var resolver = eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .UseEventStoreEventStore(eventStoreUri, connectionSettings)
+                .UseEventStoreEventStore(eventStoreClientSettings)
                 .CreateResolver();
 
             return resolver;

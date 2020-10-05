@@ -21,40 +21,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Aggregates;
+using EventFlow.Core;
+using EventFlow.Exceptions;
+using EventFlow.Logs;
+using EventStore.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Core;
-using EventFlow.Exceptions;
-using EventFlow.Logs;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.Exceptions;
 
 namespace EventFlow.EventStores.EventStore
 {
     public class EventStoreEventPersistence : IEventPersistence
     {
         private readonly ILog _log;
-        private readonly IEventStoreConnection _connection;
-
-        private class EventStoreEvent : ICommittedDomainEvent
-        {
-            public string AggregateId { get; set; }
-            public string Data { get; set; }
-            public string Metadata { get; set; }
-            public int AggregateSequenceNumber { get; set; }
-        }
+        private readonly EventStoreClient _eventStoreConnection;
 
         public EventStoreEventPersistence(
             ILog log,
-            IEventStoreConnection connection)
+            EventStoreClient eventStoreConnection)
         {
             _log = log;
-            _connection = connection;
+            _eventStoreConnection = eventStoreConnection;
         }
 
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
@@ -62,45 +53,24 @@ namespace EventFlow.EventStores.EventStore
             int pageSize,
             CancellationToken cancellationToken)
         {
-            var nextPosition = ParsePosition(globalPosition);
-            var resolvedEvents = new List<ResolvedEvent>();
-            AllEventsSlice allEventsSlice;
+            var startPosition = ParsePosition(globalPosition);
 
-            do
-            {
-                allEventsSlice = await _connection.ReadAllEventsForwardAsync(nextPosition, pageSize, false).ConfigureAwait(false);
-                resolvedEvents.AddRange(allEventsSlice.Events.Where(e => !e.OriginalStreamId.StartsWith("$")));
-                nextPosition = allEventsSlice.NextPosition;
+            var response = await _eventStoreConnection.ReadAllAsync(
+                    Direction.Forwards,
+                    startPosition,
+                    maxCount: pageSize
+                )
+                .ToListAsync();
 
-            }
-            while (resolvedEvents.Count < pageSize && !allEventsSlice.IsEndOfStream);
+            var eventStoreEvents = Map(response);
 
-            var eventStoreEvents = Map(resolvedEvents);
+            Position nextPosition = eventStoreEvents.Any()
+                ? response.Last().Event.Position
+                : Position.Start;
 
             return new AllCommittedEventsPage(
                 new GlobalPosition(string.Format("{0}-{1}", nextPosition.CommitPosition, nextPosition.PreparePosition)),
                 eventStoreEvents);
-        }
-
-        private static Position ParsePosition(GlobalPosition globalPosition)
-        {
-            if (globalPosition.IsStart)
-            {
-                return Position.Start;
-            }
-
-            var parts = globalPosition.Value.Split('-');
-            if (parts.Length != 2)
-            {
-                throw new ArgumentException(string.Format(
-                    "Unknown structure for global position '{0}'. Expected it to be empty or in the form 'L-L'",
-                    globalPosition.Value));
-            }
-
-            var commitPosition = long.Parse(parts[0]);
-            var preparePosition = long.Parse(parts[1]);
-
-            return new Position(commitPosition, preparePosition);
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
@@ -110,41 +80,38 @@ namespace EventFlow.EventStores.EventStore
         {
             var committedDomainEvents = serializedEvents
                 .Select(e => new EventStoreEvent
-                    {
-                        AggregateSequenceNumber = e.AggregateSequenceNumber,
-                        Metadata = e.SerializedMetadata,
-                        AggregateId = id.Value,
-                        Data = e.SerializedData
-                    })
+                {
+                    AggregateSequenceNumber = e.AggregateSequenceNumber,
+                    Metadata = e.SerializedMetadata,
+                    AggregateId = id.Value,
+                    Data = e.SerializedData
+                })
                 .ToList();
 
-            var expectedVersion = Math.Max(serializedEvents.Min(e => e.AggregateSequenceNumber) - 2, ExpectedVersion.NoStream);
+            ulong expectedVersion = (ulong)Math.Max((long)serializedEvents.Min(e => e.AggregateSequenceNumber) - 2, StreamState.NoStream.ToInt64());
+
             var eventDatas = serializedEvents
                 .Select(e =>
-                    {
-                        // While it might be tempting to use e.Metadata.EventId here, we can't
-                        // as EventStore won't detect optimistic concurrency exceptions then
-                        var guid = Guid.NewGuid();
-
-                        var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
-                        var data = Encoding.UTF8.GetBytes(e.SerializedData);
-                        var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
-                        return new EventData(guid, eventType, true, data, meta);
-                    })
+                {
+                    var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
+                    var data = Encoding.UTF8.GetBytes(e.SerializedData);
+                    var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
+                    return new EventData(Uuid.NewUuid(), eventType, data, meta);
+                })
                 .ToList();
 
             try
             {
-                var writeResult = await _connection.AppendToStreamAsync(
+                var writeResult = await _eventStoreConnection.AppendToStreamAsync(
                     id.Value,
-                    expectedVersion,
+                    new StreamRevision(expectedVersion),
                     eventDatas)
                     .ConfigureAwait(false);
 
                 _log.Verbose(
                     "Wrote entity {0} with version {1} ({2},{3})",
                     id,
-                    writeResult.NextExpectedVersion - 1,
+                    writeResult.NextExpectedStreamRevision,
                     writeResult.LogPosition.CommitPosition,
                     writeResult.LogPosition.PreparePosition);
             }
@@ -161,46 +128,59 @@ namespace EventFlow.EventStores.EventStore
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
-            var streamEvents = new List<ResolvedEvent>();
+            EventStoreClient.ReadStreamResult response = _eventStoreConnection.ReadStreamAsync(
+                Direction.Forwards,
+                id.Value,
+                fromEventSequenceNumber <= 1
+                    ? StreamPosition.Start
+                    : StreamPosition.FromInt64(fromEventSequenceNumber) - 1 // EventStore uses a "zero-based" index
+            );
 
-            StreamEventsSlice currentSlice;
-            var nextSliceStart = fromEventSequenceNumber <= 1
-                ? StreamPosition.Start
-                : fromEventSequenceNumber - 1; // Starts from zero
+            if (await response.ReadState == ReadState.StreamNotFound)
+                return new List<ICommittedDomainEvent>();
 
-            do
-            {
-                currentSlice = await _connection.ReadStreamEventsForwardAsync(
-                    id.Value,
-                    nextSliceStart,
-                    200,
-                    false)
-                    .ConfigureAwait(false);
-                nextSliceStart = (int)currentSlice.NextEventNumber;
-                streamEvents.AddRange(currentSlice.Events);
-
-            }
-            while (!currentSlice.IsEndOfStream);
-
-            return Map(streamEvents);
+            return Map(await response.ToListAsync());
         }
 
-        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
+            await _eventStoreConnection.SoftDeleteAsync(id.Value, StreamRevision.None, cancellationToken: cancellationToken);
+
+            return;
         }
 
-        private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
+        private IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
         {
             return resolvedEvents
                 .Select(e => new EventStoreEvent
-                    {
-                        AggregateSequenceNumber = (int)(e.Event.EventNumber + 1), // Starts from zero
-                        Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
-                        AggregateId = e.OriginalStreamId,
-                        Data = Encoding.UTF8.GetString(e.Event.Data),
-                    })
+                {
+                    AggregateId = e.OriginalStreamId,
+                    AggregateSequenceNumber = (int)e.Event.EventNumber.ToInt64(),
+                    Metadata = Encoding.UTF8.GetString(e.Event.Metadata.Span),
+                    Data = Encoding.UTF8.GetString(e.Event.Data.Span),
+                })
                 .ToList();
+        }
+
+        private Position ParsePosition(GlobalPosition globalPosition)
+        {
+            if (globalPosition.IsStart)
+            {
+                return Position.Start;
+            }
+
+            var parts = globalPosition.Value.Split('-');
+            if (parts.Length != 2)
+            {
+                throw new ArgumentException(string.Format(
+                    "Unknown structure for global position '{0}'. Expected it to be empty or in the form 'L-L'",
+                    globalPosition.Value));
+            }
+
+            var commitPosition = ulong.Parse(parts[0]);
+            var preparePosition = ulong.Parse(parts[1]);
+
+            return new Position(commitPosition, preparePosition);
         }
     }
 }
