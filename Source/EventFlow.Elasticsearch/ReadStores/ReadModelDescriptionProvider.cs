@@ -43,9 +43,9 @@ namespace EventFlow.Elasticsearch.ReadStores
                 t =>
                     {
                         var elasticType = t.GetTypeInfo().GetCustomAttribute<ElasticsearchTypeAttribute>();
-                        var indexName = elasticType == null
+                        var indexName = elasticType == null || string.IsNullOrEmpty(elasticType.RelationName)
                             ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
-                            : elasticType.Name;
+                            : elasticType.RelationName;
                         return new ReadModelDescription(new IndexName(indexName));
                     });
         }
