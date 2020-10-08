@@ -1,5 +1,6 @@
 ### New in 0.81 (not released yet)
 
+* Breaking: Elasticsearch NEST Nuget Library updated from v6.1.0 to v7.8.2
 * Fixed: You can now create `Id : Identity<Id>`
 
 ### New in 0.80.4377 (released 2020-10-01)
@@ -31,7 +32,6 @@
   * `IDispatchToReadStoresResilienceStrategy`
   * `IDispatchToSubscriberResilienceStrategy`
   * `ISagaUpdateResilienceStrategy`
-* Updated: Elasticsearch NEST Nuget Library updated from v6.1.0 to v7.8.2
 
 ### New in 0.79.4216 (released 2020-05-13)
 
