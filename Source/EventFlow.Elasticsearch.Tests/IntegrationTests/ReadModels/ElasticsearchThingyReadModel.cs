@@ -29,7 +29,7 @@ using Nest;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
-    [ElasticsearchType(IdProperty = "Id", Name = "thingy")]
+    [ElasticsearchType(IdProperty = "Id", RelationName = "thingy")]
     public class ElasticsearchThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,

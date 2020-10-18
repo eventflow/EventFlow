@@ -1,5 +1,6 @@
 ### New in 0.81 (not released yet)
 
+* Breaking: Elasticsearch NEST Nuget Library updated from v6.1.0 to v7.8.2
 * Fixed: You can now create `Id : Identity<Id>`
 * EventStore has been updated to Nuget Library 20.6.1
   and a UseEventStoreSubscriptions extensions has been added to help subscribe to stream

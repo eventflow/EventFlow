@@ -54,14 +54,14 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
             var indexName = readModelDescription.IndexName.Value;
 
             // Never do this
-            await _elasticClient.FlushAsync(
+            await _elasticClient.Indices.FlushAsync(
                 indexName,
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
                             cancellationToken)
                 .ConfigureAwait(false);
-            await _elasticClient.RefreshAsync(
+            await _elasticClient.Indices.RefreshAsync(
                 indexName,
                 d => d
                     .RequestConfiguration(c => c

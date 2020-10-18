@@ -39,7 +39,7 @@ namespace EventFlow.Elasticsearch.Tests.UnitTests
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
-        [ElasticsearchType(Name = "SomeThingFancy")]
+        [ElasticsearchType(RelationName = "SomeThingFancy")]
         private class TestReadModelB : IReadModel
         {
         }
