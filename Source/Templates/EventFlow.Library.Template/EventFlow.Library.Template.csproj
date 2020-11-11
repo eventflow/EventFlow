@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>EventFlow.Library.Template</RootNamespace>
+    <AssemblyName>EventFlow.Library.Template</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

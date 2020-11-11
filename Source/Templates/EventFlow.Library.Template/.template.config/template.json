@@ -15,8 +15,16 @@
   "symbols": {
     "entity": {
       "type": "parameter",
+      "datatype": "string",
+      "description": "The name of the entity being modelled",
       "defaultValue": "Entity",
-      "replaces": "Entity"
+      "replaces": "Entity",
+      "FileRename": "Entity"
     }
-  }
+  },
+  "sources":[{
+    "modifiers": [{
+      "exclude": ["**/obj/**/*", "**/bin/**/*", "**/.git/**/*"]
+    }]
+  }]
 }

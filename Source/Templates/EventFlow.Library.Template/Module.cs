@@ -1,4 +1,5 @@
-﻿using EventFlow.Configuration;
+﻿using EventFlow;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 
 namespace EventFlow.Library.Template
