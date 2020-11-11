@@ -210,3 +210,4 @@ FakesAssemblies/
 # Project specific files
 /Tools
 /Build
+/Source/Templates/EventFlow.Library.Template/.vs/EventFlow.Library.Template

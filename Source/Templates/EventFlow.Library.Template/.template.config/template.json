@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Rasmus Mikkelsen",
+  "classifications": [ "Library" ],
+  "name": "EventFlow Library Template",
+  "identity": "EventFlow.Library.Template.CSharp",
+  "groupIdentity": "EventFlow",
+  "shortName": "eventflowlibrary",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "EventFlow.Library.Template",
+  "preferNameDirectory": true,
+  "symbols": {
+    "entity": {
+      "type": "parameter",
+      "defaultValue": "Entity",
+      "replaces": "Entity"
+    }
+  }
+}
