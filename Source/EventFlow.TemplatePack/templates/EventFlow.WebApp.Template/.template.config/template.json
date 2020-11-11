@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Rasmus Mikkelsen",
+  "classifications": [ "Web/WebApi" ],
+  "name": "EventFlow WebApp Application Template",
+  "identity": "EventFlow.WebApp.Template.CSharp",
+  "groupIdentity": "EventFlowWebApp",
+  "shortName": "eventflowwebapp",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "EventFlow.WebApp.Template",
+  "preferNameDirectory": true,
+  "symbols": {
+    "entity": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The name of the entity being modelled",
+      "defaultValue": "Entity",
+      "replaces": "Entity",
+      "FileRename": "Entity"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [ ".vs/**" ]
+        },
+        {
+          "exclude": [ "**/obj/**/*", "**/bin/**/*", "**/.git/**/*" ]
+        }
+      ]
+    }
+  ]
+}

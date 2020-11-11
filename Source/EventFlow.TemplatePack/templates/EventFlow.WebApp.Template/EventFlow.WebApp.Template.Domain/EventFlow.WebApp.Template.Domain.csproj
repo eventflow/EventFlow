@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>EventFlow.WebApp.Template.Domain</RootNamespace>
+    <AssemblyName>EventFlow.WebApp.Template.Domain</AssemblyName>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EventFlow" Version="0.80.4377" />
+  </ItemGroup>
+
+</Project>

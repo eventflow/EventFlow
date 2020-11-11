@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EventFlow" Version="0.80.4377" />
+    <PackageReference Include="EventFlow.AspNetCore" Version="0.80.4377" />
+    <PackageReference Include="EventFlow.DependencyInjection" Version="0.80.4377" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow.WebApp.Template.Domain\EventFlow.WebApp.Template.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
