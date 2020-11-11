@@ -4,7 +4,7 @@
   "classifications": [ "Library" ],
   "name": "EventFlow Library Template",
   "identity": "EventFlow.Library.Template.CSharp",
-  "groupIdentity": "EventFlow",
+  "groupIdentity": "EventFlowLibrary",
   "shortName": "eventflowlibrary",
   "tags": {
     "language": "C#",
@@ -23,8 +23,13 @@
     }
   },
   "sources":[{
-    "modifiers": [{
-      "exclude": ["**/obj/**/*", "**/bin/**/*", "**/.git/**/*"]
-    }]
+    "modifiers": [
+      {
+        "exclude": [ ".vs/**" ]
+      },
+      {
+        "exclude": [ "**/obj/**/*", "**/bin/**/*", "**/.git/**/*" ]
+      }
+    ]
   }]
 }
