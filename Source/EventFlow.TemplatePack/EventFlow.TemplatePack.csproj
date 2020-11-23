@@ -4,10 +4,19 @@
     <PackageType>Template</PackageType>
     <PackageVersion>1.0</PackageVersion>
     <PackageId>EventFlow.Templates</PackageId>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow Templates</Title>
     <Authors>Rasmus Mikkelsen, Ian Bebbington</Authors>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
     <Description>Templates to use when creating an EventFlow library or application.</Description>
-    <PackageTags>dotnet-new;templates;contoso</PackageTags>
+    <PackageTags>dotnet-new;templates;EventFlow</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
+    <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
 
     <TargetFramework>netstandard2.0</TargetFramework>
 
