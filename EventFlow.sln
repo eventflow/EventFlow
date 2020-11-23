@@ -105,8 +105,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.CodeStyle", "Sour
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.CodeStyle.Tests", "Source\EventFlow.CodeStyle.Tests\EventFlow.CodeStyle.Tests.csproj", "{72445614-A86D-4848-84D6-D3340375D9F4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{5E99885D-6958-402F-BD05-211D10B024C0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.TemplatePack", "Source\EventFlow.TemplatePack\EventFlow.TemplatePack.csproj", "{F684CB44-7186-4B67-AF97-11A11A9DA4EB}"
 EndProject
 Global
