@@ -70,7 +70,7 @@ namespace EventFlow.Snapshots
             await LoadSnapshotContainerAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
             Version = snapshot.Metadata.AggregateSequenceNumber;
-
+            AddPreviousSourceIds(snapshot.Metadata.PreviousSourceIds);
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 Id,
                 Version + 1,
@@ -145,7 +145,8 @@ namespace EventFlow.Snapshots
                     AggregateId = Id.Value,
                     AggregateName = Name.Value,
                     AggregateSequenceNumber = Version,
-                };
+                    PreviousSourceIds = PreviousSourceIds.ToList()
+            };
 
             return Task.FromResult(snapshotMetadata);
         }

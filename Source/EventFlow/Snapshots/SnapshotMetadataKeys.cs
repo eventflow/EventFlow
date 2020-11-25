@@ -30,5 +30,6 @@ namespace EventFlow.Snapshots
         public const string AggregateSequenceNumber = "aggregate_sequence_number";
         public const string SnapshotName = "snapshot_name";
         public const string SnapshotVersion = "snapshot_version";
+        public const string PreviousSourceIds = "previous_source_ids";
     }
 }

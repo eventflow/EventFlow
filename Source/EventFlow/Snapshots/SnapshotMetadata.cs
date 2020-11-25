@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace EventFlow.Snapshots
 {
     public class SnapshotMetadata : MetadataContainer, ISnapshotMetadata
     {
+        private static readonly IReadOnlyCollection<ISourceId> Empty = new List<ISourceId>();
+        private static readonly char[] SourceIdSeparators = {','};
         public SnapshotMetadata()
         {
         }
@@ -84,5 +87,24 @@ namespace EventFlow.Snapshots
             get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse); }
             set { Add(SnapshotMetadataKeys.SnapshotVersion, value.ToString(CultureInfo.InvariantCulture)); }
         }
+
+        [JsonIgnore]
+        public IReadOnlyCollection<ISourceId> PreviousSourceIds
+        {
+            get
+            {
+                return GetMetadataValue(SnapshotMetadataKeys.PreviousSourceIds, (json) =>
+                    string.IsNullOrWhiteSpace(json) ? 
+                        Empty : 
+                        json
+                            .Split(SourceIdSeparators, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(sourceId => new SourceId(sourceId))
+                            .ToList().AsReadOnly());
+            }
+            set { Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));}
+        }
+
+
+
     }
 }
