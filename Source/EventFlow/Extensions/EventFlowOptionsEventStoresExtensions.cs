@@ -22,40 +22,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsEventStoresExtensions
     {
-        public static IEventFlowOptions UseEventStore(
+        public static IEventFlowOptions UseEventPersistence(
             this IEventFlowOptions eventFlowOptions,
-            Func<IResolverContext, IEventStore> eventStoreResolver,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            Func<IServiceProvider, IEventPersistence> eventPersistenceResolver,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
-            return eventFlowOptions.RegisterServices(f => f.Register(eventStoreResolver, lifetime));
+            eventFlowOptions.ServiceCollection
+                .Add(new ServiceDescriptor(typeof(IEventStore), eventPersistenceResolver, serviceLifetime));
+            return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseEventStore<TEventStore>(
+        public static IEventFlowOptions UseEventPersistence<TEventPersistence>(
             this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TEventStore : class, IEventPersistence
+            ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+            where TEventPersistence : class, IEventPersistence
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventPersistence, TEventStore>(lifetime));
+            eventFlowOptions.ServiceCollection
+                .Add(new ServiceDescriptor(typeof(IEventPersistence), typeof(TEventPersistence), serviceLifetime));
+            return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseFilesEventStore(
+        public static IEventFlowOptions UseFilesEventPersistence(
             this IEventFlowOptions eventFlowOptions,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
-            return eventFlowOptions.RegisterServices(f =>
-                {
-                    f.Register(_ => filesEventStoreConfiguration, Lifetime.Singleton);
-                    f.Register<IEventPersistence, FilesEventPersistence>(Lifetime.Singleton);
-                    f.Register<IFilesEventLocator, FilesEventLocator>();
-                });
+            eventFlowOptions.ServiceCollection
+                .AddSingleton(filesEventStoreConfiguration)
+                .AddSingleton<IEventPersistence, FilesEventPersistence>()
+                .AddTransient<IFilesEventLocator, FilesEventLocator>();
+            return eventFlowOptions;
         }
     }
 }

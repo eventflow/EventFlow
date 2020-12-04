@@ -34,9 +34,9 @@ namespace EventFlow.Snapshots
     {
         public SnapshotUpgradeService(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             ISnapshotDefinitionService definitionService)
-            : base(log, resolver, definitionService)
+            : base(log, serviceProvider, definitionService)
         {
         }
 

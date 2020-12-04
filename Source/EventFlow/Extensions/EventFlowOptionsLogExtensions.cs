@@ -22,10 +22,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.Logs;
 using EventFlow.Logs.Internals.Logging;
 using EventFlow.Logs.Internals.Logging.LogProviders;
+using Microsoft.Extensions.DependencyInjection;
 using ILog = EventFlow.Logs.ILog;
 
 namespace EventFlow.Extensions
@@ -44,13 +44,17 @@ namespace EventFlow.Extensions
         public static IEventFlowOptions UseNullLog(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(sr => sr.Register<ILog, NullLog>());
+            eventFlowOptions.ServiceCollection
+                .AddTransient<ILog, NullLog>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseConsoleLog(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(sr => sr.Register<ILog, ConsoleLog>());
+            eventFlowOptions.ServiceCollection
+                .AddTransient<ILog, ConsoleLog>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseLibLog(
@@ -80,8 +84,9 @@ namespace EventFlow.Extensions
             }
 
             var log = new LibLog(logProvider);
-            return eventFlowOptions
-                .RegisterServices(sr => sr.Register<ILog>(_ => log, Lifetime.Singleton));
+            eventFlowOptions.ServiceCollection
+                .AddSingleton<ILog>(log);
+            return eventFlowOptions;
         }
     }
 }

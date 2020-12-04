@@ -24,12 +24,13 @@
 using System;
 using System.Collections.Generic;
 using EventFlow.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow
 {
     public interface IEventFlowOptions
     {
-        IModuleRegistration ModuleRegistration { get; }
+        IServiceCollection ServiceCollection { get; }
 
         IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry);
         IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
@@ -37,12 +38,6 @@ namespace EventFlow
         IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);
         IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
         IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes);
-        IEventFlowOptions RegisterServices(Action<IServiceRegistration> register);
-        IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration);
-        IEventFlowOptions RegisterModule<TModule>() where TModule : IModule, new();
-        IEventFlowOptions RegisterModule<TModule>(TModule module) where TModule : IModule;
-
-        IRootResolver CreateResolver(bool validateRegistrations = true);
         IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes);
     }
 }

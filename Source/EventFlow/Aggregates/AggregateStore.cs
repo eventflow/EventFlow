@@ -37,6 +37,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Aggregates
 {
@@ -44,7 +45,7 @@ namespace EventFlow.Aggregates
     {
         private static readonly IReadOnlyCollection<IDomainEvent> EmptyDomainEventCollection = new IDomainEvent[] { };
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
@@ -55,7 +56,7 @@ namespace EventFlow.Aggregates
 
         public AggregateStore(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
@@ -65,7 +66,7 @@ namespace EventFlow.Aggregates
             IEventFlowConfiguration eventFlowConfiguration)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
@@ -204,7 +205,7 @@ namespace EventFlow.Aggregates
                     .ConfigureAwait(false);
                 try
                 {
-                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                    var domainEventPublisher = _serviceProvider.GetRequiredService<IDomainEventPublisher>();
                     await domainEventPublisher.PublishAsync(
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
@@ -259,7 +260,7 @@ namespace EventFlow.Aggregates
 
             if (domainEvents.Any())
             {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                var domainEventPublisher = _serviceProvider.GetRequiredService<IDomainEventPublisher>();
                 await domainEventPublisher.PublishAsync(
                     domainEvents,
                     cancellationToken)

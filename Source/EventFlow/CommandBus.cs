@@ -29,30 +29,31 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public CommandBus(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;
         }
@@ -114,7 +115,7 @@ namespace EventFlow
             var commandType = command.GetType();
             var commandExecutionDetails = await GetCommandExecutionDetailsAsync(commandType, cancellationToken).ConfigureAwait(false);
 
-            var commandHandlers = _resolver.ResolveAll(commandExecutionDetails.CommandHandlerType)
+            var commandHandlers = _serviceProvider.GetServices(commandExecutionDetails.CommandHandlerType)
                 .Cast<ICommandHandler>()
                 .ToList();
             if (!commandHandlers.Any())
@@ -158,11 +159,11 @@ namespace EventFlow
             >.ExecuteCommandAsync);
         private Task<CommandExecutionDetails> GetCommandExecutionDetailsAsync(Type commandType, CancellationToken cancellationToken)
         {
-            return _memoryCache.GetOrAddAsync(
+            return _memoryCache.GetOrCreate(
                 CacheKey.With(GetType(), commandType.GetCacheKey()),
-                TimeSpan.FromDays(1), 
-                _ =>
-                    {
+                e =>
+                {
+                        e.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
                         var commandInterfaceType = commandType
                             .GetTypeInfo()
                             .GetInterfaces()
@@ -182,8 +183,7 @@ namespace EventFlow
                                 CommandHandlerType = commandHandlerType,
                                 Invoker = invokeExecuteAsync
                             });
-                    },
-                cancellationToken);
+                    });
         }
     }
 }

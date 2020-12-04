@@ -21,11 +21,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
@@ -35,6 +35,7 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -43,7 +44,7 @@ namespace EventFlow.Tests.IntegrationTests
     public class BackwardCompatibilityTests : Test
     {
         private readonly ThingyId _thingyId = ThingyId.With("thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7");
-        private IResolver _resolver;
+        private IServiceProvider _serviceProvider;
         private ICommandBus _commandBus;
         private IAggregateStore _aggregateStore;
 
@@ -53,15 +54,15 @@ namespace EventFlow.Tests.IntegrationTests
             var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
             var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "..", "TestData", "FilesEventStore"));
 
-            _resolver = EventFlowOptions.New
-                .UseFilesEventStore(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
+            _serviceProvider = EventFlowOptions.New()
+                .UseFilesEventPersistence(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .CreateResolver();
+                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
+                .ServiceCollection.BuildServiceProvider();
 
-            _commandBus = _resolver.Resolve<ICommandBus>();
-            _aggregateStore = _resolver.Resolve<IAggregateStore>();
+            _commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
+            _aggregateStore = _serviceProvider.GetRequiredService<IAggregateStore>();
         }
 
         [Test]

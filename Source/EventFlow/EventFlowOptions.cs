@@ -31,15 +31,12 @@ using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Configuration.Serialization;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
-using EventFlow.Core.IoC;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Logs;
-using EventFlow.Provided;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
@@ -48,6 +45,7 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow
 {
@@ -59,19 +57,18 @@ namespace EventFlow
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>();
         private readonly List<Type> _snapshotTypes = new List<Type>(); 
-        private Lazy<IServiceRegistration> _lazyRegistrationFactory;
 
-        private EventFlowOptions()
+        public IServiceCollection ServiceCollection { get; }
+
+        private EventFlowOptions(IServiceCollection serviceCollection)
         {
-            UseServiceRegistration(new EventFlowIoCServiceRegistration());
+            ServiceCollection = serviceCollection;
 
-            ModuleRegistration = new ModuleRegistration(this);
-            ModuleRegistration.Register<ProvidedJobsModule>();
+            RegisterDefaults(ServiceCollection);
         }
 
-        public static IEventFlowOptions New => new EventFlowOptions();
-
-        public IModuleRegistration ModuleRegistration { get; }
+        public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection());
+        public static IEventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
 
         public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
         {
@@ -157,102 +154,57 @@ namespace EventFlow
             return this;
         }
 
-        public IEventFlowOptions RegisterServices(Action<IServiceRegistration> register)
+        private void RegisterDefaults(IServiceCollection serviceCollection)
         {
-            register(_lazyRegistrationFactory.Value);
-            return this;
-        }
-
-        public IEventFlowOptions RegisterModule<TModule>()
-            where TModule : IModule, new()
-        {
-            ModuleRegistration.Register<TModule>();
-            return this;
-        }
-
-        public IEventFlowOptions RegisterModule<TModule>(TModule module)
-            where TModule : IModule
-        {
-            ModuleRegistration.Register(module);
-            return this;
-        }
-
-        public IEventFlowOptions UseServiceRegistration(IServiceRegistration serviceRegistration)
-        {
-            if (_lazyRegistrationFactory != null && _lazyRegistrationFactory.IsValueCreated)
-            {
-                throw new InvalidOperationException("Service registration is already in use");
-            }
-
-            RegisterDefaults(serviceRegistration);
-            _lazyRegistrationFactory = new Lazy<IServiceRegistration>(() => serviceRegistration);
-
-            return this;
-        }
-
-        private void RegisterDefaults(IServiceRegistration serviceRegistration)
-        {
-            serviceRegistration.Register<ILog, ConsoleLog>();
-            serviceRegistration.Register<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
-            serviceRegistration.Register<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
-            serviceRegistration.Register<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
-            serviceRegistration.Register<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
-            serviceRegistration.Register<IDispatchToReadStores, DispatchToReadStores>();
-            serviceRegistration.Register<IEventStore, EventStoreBase>();
-            serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
-            serviceRegistration.Register<ICommandBus, CommandBus>();
-            serviceRegistration.Register<IAggregateStore, AggregateStore>();
-            serviceRegistration.Register<ISnapshotStore, SnapshotStore>();
-            serviceRegistration.Register<ISnapshotSerilizer, SnapshotSerilizer>();
-            serviceRegistration.Register<ISnapshotPersistence, NullSnapshotPersistence>();
-            serviceRegistration.Register<ISnapshotUpgradeService, SnapshotUpgradeService>();
-            serviceRegistration.Register<ISnapshotDefinitionService, SnapshotDefinitionService>(Lifetime.Singleton);
-            serviceRegistration.Register<IReadModelPopulator, ReadModelPopulator>();
-            serviceRegistration.Register<IEventJsonSerializer, EventJsonSerializer>();
-            serviceRegistration.Register<IEventDefinitionService, EventDefinitionService>(Lifetime.Singleton);
-            serviceRegistration.Register<IQueryProcessor, QueryProcessor>();
-            serviceRegistration.Register<IJsonSerializer, JsonSerializer>(Lifetime.Singleton);
-            serviceRegistration.Register<IJsonOptions, JsonOptions>();
-            serviceRegistration.Register<IJobScheduler, InstantJobScheduler>();
-            serviceRegistration.Register<IJobRunner, JobRunner>();
-            serviceRegistration.Register<IJobDefinitionService, JobDefinitionService>(Lifetime.Singleton);
-            serviceRegistration.Register<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
-            serviceRegistration.Register<IEventUpgradeManager, EventUpgradeManager>(Lifetime.Singleton);
-            serviceRegistration.Register<IAggregateFactory, AggregateFactory>();
-            serviceRegistration.Register<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
-            serviceRegistration.Register<IDomainEventPublisher, DomainEventPublisher>();
-            serviceRegistration.Register<ISerializedCommandPublisher, SerializedCommandPublisher>();
-            serviceRegistration.Register<ICommandDefinitionService, CommandDefinitionService>(Lifetime.Singleton);
-            serviceRegistration.Register<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
-            serviceRegistration.Register<IDomainEventFactory, DomainEventFactory>(Lifetime.Singleton);
-            serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
-            serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
-            serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
-            serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
-#if NET452
-            serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
-#else
-            serviceRegistration.Register<IMemoryCache, DictionaryMemoryCache>(Lifetime.Singleton);
-#endif
-            serviceRegistration.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
-            serviceRegistration.Register<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
-            serviceRegistration.Register<ICancellationConfiguration>(_ => _eventFlowConfiguration);
-            serviceRegistration.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
-            serviceRegistration.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
-            serviceRegistration.Register<IBootstrap, DefinitionServicesInitilizer>();
-            serviceRegistration.Register(_ => ModuleRegistration, Lifetime.Singleton);
-            serviceRegistration.Register<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
+            serviceCollection.AddTransient<ILog, ConsoleLog>();
+            serviceCollection.AddTransient<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
+            serviceCollection.AddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
+            serviceCollection.AddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
+            serviceCollection.AddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
+            serviceCollection.AddTransient<IDispatchToReadStores, DispatchToReadStores>();
+            serviceCollection.AddTransient<IEventStore, EventStoreBase>();
+            serviceCollection.AddSingleton<IEventPersistence, InMemoryEventPersistence>();
+            serviceCollection.AddTransient<ICommandBus, CommandBus>();
+            serviceCollection.AddTransient<IAggregateStore, AggregateStore>();
+            serviceCollection.AddTransient<ISnapshotStore, SnapshotStore>();
+            serviceCollection.AddTransient<ISnapshotSerilizer, SnapshotSerilizer>();
+            serviceCollection.AddTransient<ISnapshotPersistence, NullSnapshotPersistence>();
+            serviceCollection.AddTransient<ISnapshotUpgradeService, SnapshotUpgradeService>();
+            serviceCollection.AddSingleton<ISnapshotDefinitionService, SnapshotDefinitionService>();
+            serviceCollection.AddTransient<IReadModelPopulator, ReadModelPopulator>();
+            serviceCollection.AddTransient<IEventJsonSerializer, EventJsonSerializer>();
+            serviceCollection.AddSingleton<IEventDefinitionService, EventDefinitionService>();
+            serviceCollection.AddTransient<IQueryProcessor, QueryProcessor>();
+            serviceCollection.AddSingleton<IJsonSerializer, JsonSerializer>();
+            serviceCollection.AddTransient<IJsonOptions, JsonOptions>();
+            serviceCollection.AddTransient<IJobScheduler, InstantJobScheduler>();
+            serviceCollection.AddTransient<IJobRunner, JobRunner>();
+            serviceCollection.AddSingleton<IJobDefinitionService, JobDefinitionService>();
+            serviceCollection.AddTransient<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
+            serviceCollection.AddSingleton<IEventUpgradeManager, EventUpgradeManager>();
+            serviceCollection.AddTransient<IAggregateFactory, AggregateFactory>();
+            serviceCollection.AddTransient<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
+            serviceCollection.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
+            serviceCollection.AddTransient<ISerializedCommandPublisher, SerializedCommandPublisher>();
+            serviceCollection.AddSingleton<ICommandDefinitionService, CommandDefinitionService>();
+            serviceCollection.AddTransient<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
+            serviceCollection.AddSingleton<IDomainEventFactory, DomainEventFactory>();
+            serviceCollection.AddSingleton<ISagaDefinitionService, SagaDefinitionService>();
+            serviceCollection.AddTransient<ISagaStore, SagaAggregateStore>();
+            serviceCollection.AddTransient<ISagaErrorHandler, SagaErrorHandler>();
+            serviceCollection.AddTransient<IDispatchToSagas, DispatchToSagas>();
+            //serviceCollection.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
+            serviceCollection.AddTransient<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
+            serviceCollection.AddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
+            //serviceCollection.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            //serviceCollection.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
+            serviceCollection.AddTransient<IBootstrap, DefinitionServicesInitilizer>();
+            serviceCollection.AddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
                 _aggregateEventTypes,
                 _sagaTypes,
-                _snapshotTypes),
-                Lifetime.Singleton);
-        }
-
-        public IRootResolver CreateResolver(bool validateRegistrations = true)
-        {
-            return _lazyRegistrationFactory.Value.CreateResolver(validateRegistrations);
+                _snapshotTypes));
         }
     }
 }

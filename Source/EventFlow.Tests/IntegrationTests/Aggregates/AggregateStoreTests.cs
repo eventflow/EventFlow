@@ -23,7 +23,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
@@ -57,11 +56,6 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
                     CancellationToken.None)
                 .ConfigureAwait(false);
             thingyAggregate.Version.Should().Be(expectedAggregateVersion);
-        }
-        
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.CreateResolver();
         }
     }
 }

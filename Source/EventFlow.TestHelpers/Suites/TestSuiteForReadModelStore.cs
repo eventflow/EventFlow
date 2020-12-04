@@ -36,6 +36,7 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
+using EventFlow.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -324,9 +325,13 @@ namespace EventFlow.TestHelpers.Suites
         {
             _waitStates.Clear();
 
+            Assert.Fail("");
+            /*
             return base.Options(eventFlowOptions)
                 .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
                     (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));
+            */
+            return eventFlowOptions;
         }
 
         private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)

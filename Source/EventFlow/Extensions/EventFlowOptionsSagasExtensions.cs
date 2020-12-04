@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Sagas;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -78,17 +79,16 @@ namespace EventFlow.Extensions
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> sagaLocatorTypes)
         {
-            return eventFlowOptions.RegisterServices(sr =>
+            foreach (var sagaLocatorType in sagaLocatorTypes)
+            {
+                if (!typeof(ISagaLocator).GetTypeInfo().IsAssignableFrom(sagaLocatorType))
                 {
-                    foreach (var sagaLocatorType in sagaLocatorTypes)
-                    {
-                        if (!typeof(ISagaLocator).GetTypeInfo().IsAssignableFrom(sagaLocatorType))
-                        {
-                            throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
-                        }
-                        sr.RegisterType(sagaLocatorType);
-                    }
-                });
+                    throw new ArgumentException($"Type '{sagaLocatorType.PrettyPrint()}' is not a '{typeof(ISagaLocator).PrettyPrint()}'");
+                }
+                eventFlowOptions.ServiceCollection.AddTransient(sagaLocatorType);
+            }
+
+            return eventFlowOptions;
         }
     }
 }

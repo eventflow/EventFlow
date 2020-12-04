@@ -26,9 +26,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Core.VersionedTypes
 {
@@ -40,16 +40,16 @@ namespace EventFlow.Core.VersionedTypes
         where TDefinitionService : IVersionedTypeDefinitionService<TAttribute, TDefinition>
     {
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly TDefinitionService _definitionService;
 
         protected VersionedTypeUpgradeService(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             TDefinitionService definitionService)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _definitionService = definitionService;
         }
 
@@ -95,7 +95,7 @@ namespace EventFlow.Core.VersionedTypes
 
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgraderType = typeof(IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);
-            var versionedTypeUpgrader = _resolver.Resolve(upgraderType);
+            var versionedTypeUpgrader = _serviceProvider.GetRequiredService(upgraderType);
 
             var methodInfo = versionedTypeUpgraderType.GetTypeInfo().GetMethod("UpgradeAsync");
 

@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.AspNetCore\EventFlow.AspNetCore.csproj" />
-    <ProjectReference Include="..\EventFlow.DependencyInjection\EventFlow.DependencyInjection.csproj" />
     <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
   </ItemGroup>
 

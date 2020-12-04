@@ -27,16 +27,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Logs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Sagas
 {
     public class DispatchToSagas : IDispatchToSagas
     {
         private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ISagaErrorHandler _sagaErrorHandler;
@@ -44,14 +44,14 @@ namespace EventFlow.Sagas
 
         public DispatchToSagas(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService,
             ISagaErrorHandler sagaErrorHandler,
             ISagaUpdateResilienceStrategy sagaUpdateLog)
         {
             _log = log;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
             _sagaErrorHandler = sagaErrorHandler;
@@ -81,7 +81,7 @@ namespace EventFlow.Sagas
 
             foreach (var details in sagaTypeDetails)
             {
-                var locator = (ISagaLocator) _resolver.Resolve(details.SagaLocatorType);
+                var locator = (ISagaLocator) _serviceProvider.GetRequiredService(details.SagaLocatorType);
                 var sagaId = await locator.LocateSagaAsync(domainEvent, cancellationToken).ConfigureAwait(false);
 
                 if (sagaId == null)
@@ -159,7 +159,7 @@ namespace EventFlow.Sagas
                 domainEvent.IdentityType,
                 domainEvent.EventType,
                 details.SagaType);
-            var sagaUpdater = (ISagaUpdater)_resolver.Resolve(sagaUpdaterType);
+            var sagaUpdater = (ISagaUpdater)_serviceProvider.GetRequiredService(sagaUpdaterType);
 
             await _sagaUpdateLog.BeforeUpdateAsync(
                     saga,

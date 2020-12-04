@@ -21,22 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelContextFactory : IReadModelContextFactory
     {
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
-        public ReadModelContextFactory(IResolver resolver)
+        public ReadModelContextFactory(
+            IServiceProvider serviceProvider)
         {
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public IReadModelContext Create(string readModelId, bool isNew)
         {
-            return new ReadModelContext(_resolver, readModelId, isNew);
+            return new ReadModelContext(_serviceProvider, readModelId, isNew);
         }
     }
 }

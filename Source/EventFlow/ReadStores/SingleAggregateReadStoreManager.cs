@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
@@ -46,12 +45,12 @@ namespace EventFlow.ReadStores
 
         public SingleAggregateReadStoreManager(
             ILog log,
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             IReadModelFactory<TReadModel> readModelFactory,
             IEventStore eventStore)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(log, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _eventStore = eventStore;
         }
