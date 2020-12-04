@@ -68,8 +68,7 @@ namespace EventFlow.TestHelpers
                 .AddDefaults(EventFlowTestHelpers.Assembly, 
                     type => type != typeof(DbContextQueryHandler));
 
-            Configure(eventFlowOptions);
-            ServiceProvider = eventFlowOptions.ServiceCollection.BuildServiceProvider();
+            ServiceProvider = Configure(eventFlowOptions);
 
             AggregateStore = ServiceProvider.GetRequiredService<IAggregateStore>();
             EventStore = ServiceProvider.GetRequiredService<IEventStore>();
@@ -94,9 +93,9 @@ namespace EventFlow.TestHelpers
             return eventFlowOptions;
         }
 
-        protected virtual void Configure(IEventFlowOptions eventFlowOptions)
+        protected virtual IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-
+            return eventFlowOptions.ServiceCollection.BuildServiceProvider();
         }
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)

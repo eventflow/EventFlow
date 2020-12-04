@@ -32,6 +32,7 @@ using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 // ReSharper disable IdentifierTypo
@@ -101,13 +102,13 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task UnicodeIntegration()
         {
-            var resolver = EventFlowOptions.New
+            var resolver = EventFlowOptions.New()
                 .AddEvents(typeof(Püng1Event))
                 .AddCommands(typeof(Cömmand))
                 .AddCommandHandlers(typeof(CömmandHändler))
-                .CreateResolver();
+                .ServiceCollection.BuildServiceProvider();
 
-            var bus = resolver.Resolve<ICommandBus>();
+            var bus = resolver.GetRequiredService<ICommandBus>();
             await bus.PublishAsync(new Cömmand(), CancellationToken.None);
         }
 

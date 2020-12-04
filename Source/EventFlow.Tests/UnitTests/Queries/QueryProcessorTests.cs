@@ -24,9 +24,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.Core.Caching;
-using EventFlow.Logs;
 using EventFlow.Queries;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -38,7 +35,7 @@ namespace EventFlow.Tests.UnitTests.Queries
     [Category(Categories.Unit)]
     public class QueryProcessorTests : TestsFor<QueryProcessor>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IQueryHandler<IQuery<int>, int>> _queryHandlerMock;
     
         public class TestQuery : IQuery<int> { }
@@ -46,13 +43,13 @@ namespace EventFlow.Tests.UnitTests.Queries
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+            //Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
 
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _queryHandlerMock = new Mock<IQueryHandler<IQuery<int>, int>>();
 
-            _resolverMock
-                .Setup(r => r.Resolve(It.Is<Type>(t => t == typeof(IQueryHandler<TestQuery, int>))))
+            _serviceProviderMock
+                .Setup(r => r.GetService(It.Is<Type>(t => t == typeof(IQueryHandler<TestQuery, int>))))
                 .Returns(() => _queryHandlerMock.Object);
             _queryHandlerMock
                 .Setup(h => h.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()))

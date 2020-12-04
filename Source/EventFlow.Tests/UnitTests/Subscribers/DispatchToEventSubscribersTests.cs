@@ -26,7 +26,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Core.Caching;
 using EventFlow.Logs;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
@@ -42,7 +41,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     [Category(Categories.Unit)]
     public class DispatchToEventSubscribersTests : TestsFor<DispatchToEventSubscribers>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
         private Mock<ILog> _logMock;
 
@@ -50,10 +49,10 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         public void SetUp()
         {
             _logMock = InjectMock<ILog>();
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
 
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+            //Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
         }
 
         [Test]
@@ -133,9 +132,12 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         {
             var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
 
-            _resolverMock
+            Assert.Fail("");
+            /*
+            _serviceProviderMock
                 .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>))))
                 .Returns(new object[] { subscriberMock.Object });
+            */
 
             return subscriberMock;
         }
@@ -145,9 +147,12 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         {
             var subscriberMock = new Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
 
-            _resolverMock
+            Assert.Fail();
+            /*
+            _serviceProviderMock
                 .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeAsynchronousTo<,,>))))
                 .Returns(new object[] { subscriberMock.Object });
+            */
 
             return subscriberMock;
         }

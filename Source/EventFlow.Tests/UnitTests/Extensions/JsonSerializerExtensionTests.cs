@@ -29,6 +29,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
@@ -62,27 +63,29 @@ namespace EventFlow.Tests.UnitTests.Extensions
         [Test]
         public void JsonSerializerCanBeConfigured()
         {
-            // Arrange
-            var resolver = EventFlowOptions.New
+            using (var serviceProvider = EventFlowOptions.New()
                 .ConfigureJson(json => json
                     .AddSingleValueObjects()
                     .AddConverter<MyClassConverter>()
                 )
-                .CreateResolver();
-            var serializer = resolver.Resolve<IJsonSerializer>();
+                .ServiceCollection.BuildServiceProvider())
+            {
+                // Arrange
+                var serializer = serviceProvider.GetRequiredService<IJsonSerializer>();
 
-            // Act
-            var myClassSerialized = serializer.Serialize(new MyClass() { DateTime = new DateTime(1000000) });
-            var myClassDeserialized = serializer.Deserialize<MyClass>(myClassSerialized);
-            var svoSerialized = serializer.Serialize(new MySingleValueObject(new DateTime(1970, 1, 1)));
-            var svoDeserialized = serializer.Deserialize<MySingleValueObject>(svoSerialized);
+                // Act
+                var myClassSerialized = serializer.Serialize(new MyClass() { DateTime = new DateTime(1000000) });
+                var myClassDeserialized = serializer.Deserialize<MyClass>(myClassSerialized);
+                var svoSerialized = serializer.Serialize(new MySingleValueObject(new DateTime(1970, 1, 1)));
+                var svoDeserialized = serializer.Deserialize<MySingleValueObject>(svoSerialized);
 
-            // Assert
-            myClassSerialized.Should().Be("1000000");
-            myClassDeserialized.DateTime.Ticks.Should().Be(1000000);
-            myClassDeserialized.DateTime.Ticks.Should().NotBe(10);
-            svoDeserialized.Should().Be(new MySingleValueObject(new DateTime(1970, 1, 1)));
-            svoDeserialized.Should().NotBe(new MySingleValueObject(new DateTime(2001, 1, 1)));
+                // Assert
+                myClassSerialized.Should().Be("1000000");
+                myClassDeserialized.DateTime.Ticks.Should().Be(1000000);
+                myClassDeserialized.DateTime.Ticks.Should().NotBe(10);
+                svoDeserialized.Should().Be(new MySingleValueObject(new DateTime(1970, 1, 1)));
+                svoDeserialized.Should().NotBe(new MySingleValueObject(new DateTime(2001, 1, 1)));
+            }
         }
     }
 }

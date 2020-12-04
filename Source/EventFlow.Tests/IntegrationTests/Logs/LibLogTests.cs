@@ -27,6 +27,7 @@ using System.Linq;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Serilog;
 using Serilog.Core;
@@ -57,11 +58,11 @@ namespace EventFlow.Tests.IntegrationTests.Logs
                 .WriteTo.Sink(new DummySink(messages))
                 .CreateLogger();
 
-            using (var resolver = EventFlowOptions.New
+            using (var serviceProvider = EventFlowOptions.New()
                 .UseLibLog(LibLogProviders.Serilog)
-                .CreateResolver())
+                .ServiceCollection.BuildServiceProvider())
             {
-                var log = resolver.Resolve<ILog>();
+                var log = serviceProvider.GetRequiredService<ILog>();
                 void TestLog(LogLevel logLevel, LogEventLevel logEventLevel)
                 {
                     var message = Guid.NewGuid().ToString("N");

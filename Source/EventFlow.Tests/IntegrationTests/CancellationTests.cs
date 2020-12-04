@@ -30,7 +30,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
 using EventFlow.EventStores;
@@ -54,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class CancellationTests
     {
-        private ICommandBus _commandBus;
+        private ICommandBus _commandBus = null;
         private ManualCommandHandler _commandHandler;
         private ManualEventPersistence _eventPersistence;
         private ManualReadStore _readStore;
@@ -180,8 +179,10 @@ namespace EventFlow.Tests.IntegrationTests
             _eventPersistence = null;
             _readStore = null;
 
-            var resolver = EventFlowOptions
-                .New
+            Assert.Fail();
+
+            /*
+            var resolver = EventFlowOptions.New()
                 .AddCommands(typeof(ThingyPingCommand))
                 .AddEvents(typeof(ThingyPingEvent))
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
@@ -200,6 +201,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .CreateResolver();
 
             _commandBus = resolver.Resolve<ICommandBus>();
+            */
         }
 
         private static async Task Validate(IEnumerable<IStep> steps, CancellationBoundary shouldHaveRunTo)

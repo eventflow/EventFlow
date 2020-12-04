@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.Queries;
@@ -41,6 +40,7 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -89,22 +89,22 @@ namespace EventFlow.Tests.IntegrationTests
         public async Task BasicFlow(IEventFlowOptions eventFlowOptions)
         {
             // Arrange
-            using (var resolver = eventFlowOptions
+            using (var serviceProvider = eventFlowOptions
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)
-                .RegisterServices(f => f.Register<IPingReadModelLocator, PingReadModelLocator>())
+                .RegisterServices(f => f.AddTransient<IPingReadModelLocator, PingReadModelLocator>())
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .AddMetadataProvider<AddMachineNameMetadataProvider>()
                 .AddMetadataProvider<AddEventTypeMetadataProvider>()
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<PingReadModel, IPingReadModelLocator>()
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
+                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
                 .AddSubscribers(typeof(Subscriber))
-                .CreateResolver())
+                .ServiceCollection.BuildServiceProvider())
             {
-                var commandBus = resolver.Resolve<ICommandBus>();
-                var eventStore = resolver.Resolve<IAggregateStore>();
-                var queryProcessor = resolver.Resolve<IQueryProcessor>();
+                var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
+                var eventStore = serviceProvider.GetRequiredService<IAggregateStore>();
+                var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
                 var id = ThingyId.New;
 
                 // Act
@@ -132,7 +132,7 @@ namespace EventFlow.Tests.IntegrationTests
 
         public static IEnumerable<IEventFlowOptions> TestCases()
         {
-            yield return EventFlowOptions.New;
+            yield return EventFlowOptions.New();
         }
     }
 }
