@@ -31,7 +31,6 @@ using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
-using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -44,12 +43,12 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     {
         private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
-        private Mock<ILogger<DispatchToEventSubscribers>> _logMock;
+        private LoggerMock<DispatchToEventSubscribers> _logMock;
 
         [SetUp]
         public void SetUp()
         {
-            _logMock = InjectMock<ILogger<DispatchToEventSubscribers>>();
+            _logMock = new LoggerMock<DispatchToEventSubscribers>();
             _serviceProviderMock = InjectMock<IServiceProvider>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
         }
@@ -65,7 +64,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
-            _logMock.VerifyNoErrorsLogged();
+            _logMock.VerifyNoProblems();
         }
 
         [Test]
@@ -79,7 +78,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Assert
             subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
-            _logMock.VerifyNoErrorsLogged();
+            _logMock.VerifyNoProblems();
         }
 
         [Test]
@@ -100,7 +99,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             Assert.DoesNotThrowAsync(async () => await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false));
 
             // Assert
-            _logMock.VerifyErrorsLogged(Times.Once(), expectedException);
+            _logMock.VerifyProblemLogged(expectedException);
         }
 
         [Test]
@@ -121,7 +120,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
 
             // Assert
             exception.InnerException.Should().BeSameAs(expectedException);
-            _logMock.VerifyNoErrorsLogged();
+            _logMock.VerifyNoProblems();
         }
 
         private Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeSynchronousSubscriber<TEvent>()
