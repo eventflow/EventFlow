@@ -67,40 +67,39 @@ namespace EventFlow
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
-            _log.Verbose(() => $"Executing command '{command.GetType().PrettyPrint()}' with ID '{command.SourceId}' on aggregate '{typeof(TAggregate).PrettyPrint()}'");
-
-            IAggregateUpdateResult<TResult> aggregateUpdateResult;
-            try
+            if (_logger.IsEnabled(LogLevel.Trace))
             {
-                aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                _log.Debug(
-                    exception,
-                    "Execution of command '{0}' with ID '{1}' on aggregate '{2}' failed due to exception '{3}' with message: {4}",
+                _logger.LogTrace(
+                    "Executing command {CommandType} with ID {CommandId} on aggregate {AggregateType}",
                     command.GetType().PrettyPrint(),
                     command.SourceId,
-                    typeof(TAggregate),
-                    exception.GetType().PrettyPrint(),
-                    exception.Message);
-                throw;
+                    typeof(TAggregate).PrettyPrint());
             }
 
-            _log.Verbose(() => !aggregateUpdateResult.DomainEvents.Any()
-                ? string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' did NOT result in any domain events, was success:{3}",
-                    command.GetType().PrettyPrint(),
-                    command.SourceId,
-                    typeof(TAggregate).PrettyPrint(),
-                    aggregateUpdateResult.Result?.IsSuccess)
-                : string.Format(
-                    "Execution command '{0}' with ID '{1}' on aggregate '{2}' resulted in these events: {3}, was success: {4}",
-                    command.GetType().PrettyPrint(),
-                    command.SourceId,
-                    typeof(TAggregate),
-                    string.Join(", ", aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint())),
-                    aggregateUpdateResult.Result?.IsSuccess));
+            var aggregateUpdateResult = await ExecuteCommandAsync(command, cancellationToken).ConfigureAwait(false);
+
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                if (aggregateUpdateResult.DomainEvents.Any())
+                {
+                    _logger.LogTrace(
+                        "Execution command {CommandType} with ID {CommandId} on aggregate {AggregateType} did NOT result in any domain events, was success: {IsSuccess}",
+                        command.GetType().PrettyPrint(),
+                        command.SourceId,
+                        typeof(TAggregate).PrettyPrint(),
+                        aggregateUpdateResult.Result?.IsSuccess);
+                }
+                else
+                {
+                    _logger.LogTrace(
+                        "Execution command {CommandType} with ID {CommandId} on aggregate {AggregateType} resulted in these events: {EventTypes}, was success: {IsSuccess}",
+                        command.GetType().PrettyPrint(),
+                        command.SourceId,
+                        typeof(TAggregate).PrettyPrint(),
+                        aggregateUpdateResult.DomainEvents.Select(d => d.EventType.PrettyPrint()).ToList(),
+                        aggregateUpdateResult.Result?.IsSuccess);
+                }
+            }
 
             return aggregateUpdateResult.Result;
         }
@@ -113,7 +112,7 @@ namespace EventFlow
             where TResult : IExecutionResult
         {
             var commandType = command.GetType();
-            var commandExecutionDetails = await GetCommandExecutionDetailsAsync(commandType, cancellationToken).ConfigureAwait(false);
+            var commandExecutionDetails = GetCommandExecutionDetails(commandType);
 
             var commandHandlers = _serviceProvider.GetServices(commandExecutionDetails.CommandHandlerType)
                 .Cast<ICommandHandler>()
@@ -157,7 +156,7 @@ namespace EventFlow
                 IExecutionResult,
                 ICommand<IAggregateRoot<IIdentity>, IIdentity, IExecutionResult>
             >.ExecuteCommandAsync);
-        private Task<CommandExecutionDetails> GetCommandExecutionDetailsAsync(Type commandType, CancellationToken cancellationToken)
+        private CommandExecutionDetails GetCommandExecutionDetails(Type commandType)
         {
             return _memoryCache.GetOrCreate(
                 CacheKey.With(GetType(), commandType.GetCacheKey()),
@@ -173,16 +172,19 @@ namespace EventFlow
                         var commandHandlerType = typeof(ICommandHandler<,,,>)
                             .MakeGenericType(commandTypes[0], commandTypes[1], commandTypes[2], commandType);
                         
-                        _log.Verbose(() => $"Command '{commandType.PrettyPrint()}' is resolved by '{commandHandlerType.PrettyPrint()}'");
+                        _logger.LogDebug(
+                            "Command {CommandType} is resolved by {CommandHandlerType}",
+                            commandType.PrettyPrint(),
+                            commandHandlerType.PrettyPrint());
 
                         var invokeExecuteAsync = ReflectionHelper.CompileMethodInvocation<Func<ICommandHandler, IAggregateRoot, ICommand, CancellationToken, Task>>(
                             commandHandlerType, NameOfExecuteCommand);
 
-                        return Task.FromResult(new CommandExecutionDetails
+                        return new CommandExecutionDetails
                             {
                                 CommandHandlerType = commandHandlerType,
                                 Invoker = invokeExecuteAsync
-                            });
+                            };
                     });
         }
     }

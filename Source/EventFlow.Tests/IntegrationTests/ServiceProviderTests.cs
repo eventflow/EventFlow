@@ -37,7 +37,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class ResolverTests
+    public class ServiceProviderTests
     {
         public class Service { }
 

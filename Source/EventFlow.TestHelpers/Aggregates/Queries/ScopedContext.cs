@@ -22,31 +22,34 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.TestHelpers.Aggregates.Queries
 {
     public class ScopedContext : IScopedContext, IDisposable
     {
-        private readonly ILog _log;
+        private readonly ILogger<ScopedContext> _logger;
         private bool _isDisposed;
 
-        public string Id { get; } = Guid.NewGuid().ToString();
+        public string Id { get; } = Guid.NewGuid().ToString("D");
 
         public ScopedContext(
-            ILog log)
+            ILogger<ScopedContext> logger)
         {
-            _log = log;
-
-            _log.Information($"Scoped context {Id} created");
+            _logger = logger;
+            _logger.LogInformation("Scoped context {Id} created", Id);
         }
 
         public void Dispose()
         {
-            if (_isDisposed) throw new ObjectDisposedException($"Scoped context {Id} is already disposed");
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException($"Scoped context {Id} is already disposed");
+            }
 
             _isDisposed = true;
-            _log.Information($"Scoped context {Id} was disposed");
+
+            _logger.LogInformation("Scoped context {Id} was disposed", Id);
         }
     }
 }

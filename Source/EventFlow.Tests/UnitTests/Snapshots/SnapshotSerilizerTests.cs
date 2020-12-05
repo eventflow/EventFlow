@@ -52,7 +52,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             var snapshotContainer = CreateSnapshotContainer(A<ThingySnapshot>());
 
             // Act
-            var serializedSnapshot = await Sut.SerilizeAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
+            var serializedSnapshot = await Sut.SerializeAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
                 snapshotContainer,
                 CancellationToken.None)
                 .ConfigureAwait(false);

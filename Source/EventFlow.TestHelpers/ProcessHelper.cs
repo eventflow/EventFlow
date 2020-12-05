@@ -100,7 +100,7 @@ namespace EventFlow.TestHelpers
                     }
                     finally
                     {
-                        process.DisposeSafe("Process");
+                        process.DisposeSafe(LogHelper.Logger, "Process");
                     }
                 });
         }

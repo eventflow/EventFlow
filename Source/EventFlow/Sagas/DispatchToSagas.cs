@@ -28,14 +28,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sagas
 {
     public class DispatchToSagas : IDispatchToSagas
     {
-        private readonly ILog _log;
+        private readonly ILogger<DispatchToSagas> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
@@ -43,14 +43,14 @@ namespace EventFlow.Sagas
         private readonly ISagaUpdateResilienceStrategy _sagaUpdateLog;
 
         public DispatchToSagas(
-            ILog log,
+            ILogger<DispatchToSagas> logger,
             IServiceProvider serviceProvider,
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService,
             ISagaErrorHandler sagaErrorHandler,
             ISagaUpdateResilienceStrategy sagaUpdateLog)
         {
-            _log = log;
+            _logger = logger;
             _serviceProvider = serviceProvider;
             _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
@@ -77,7 +77,13 @@ namespace EventFlow.Sagas
         {
             var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(domainEvent.EventType);
 
-            _log.Verbose(() => $"Saga types to process for domain event '{domainEvent.EventType.PrettyPrint()}': {string.Join(", ", sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()))}");
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Saga types to process for domain event {DomainEventType}: {SagaTypes}",
+                    domainEvent.EventType.PrettyPrint(),
+                    sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()));
+            }
 
             foreach (var details in sagaTypeDetails)
             {
@@ -86,7 +92,9 @@ namespace EventFlow.Sagas
 
                 if (sagaId == null)
                 {
-                    _log.Verbose(() => $"Saga locator '{details.SagaLocatorType.PrettyPrint()}' returned null");
+                    _logger.LogTrace(
+                        "Saga locator {SagaLocatorType} returned null",
+                        details.SagaLocatorType.PrettyPrint());
                     continue;
                 }
 
@@ -102,7 +110,10 @@ namespace EventFlow.Sagas
         {
             try
             {
-                _log.Verbose(() => $"Loading saga '{details.SagaType.PrettyPrint()}' with ID '{sagaId}'");
+                _logger.LogTrace(
+                    "Loading saga {SagaType} with ID {Id}",
+                    details.SagaType.PrettyPrint(),
+                    sagaId);
 
                 await _sagaStore.UpdateAsync(
                     sagaId,
@@ -125,7 +136,10 @@ namespace EventFlow.Sagas
                     return;
                 }
 
-                _log.Error(e, $"Failed to process domain event '{domainEvent.EventType}' for saga '{details.SagaType.PrettyPrint()}'");
+                _logger.LogError(
+                    "Failed to process domain event {DomainEventType} for saga {SagaType}",
+                    domainEvent.EventType,
+                    details.SagaType.PrettyPrint());
                 throw;
             }
         }
@@ -138,19 +152,19 @@ namespace EventFlow.Sagas
         {
             if (saga.State == SagaState.Completed)
             {
-                _log.Debug(() => string.Format(
-                    "Saga '{0}' is completed, skipping processing of '{1}'",
+                _logger.LogTrace(
+                    "Saga {SagaType} is completed, skipping processing of {DomainEventType}",
                     details.SagaType.PrettyPrint(),
-                    domainEvent.EventType.PrettyPrint()));
+                    domainEvent.EventType.PrettyPrint());
                 return;
             }
 
             if (saga.State == SagaState.New && !details.IsStartedBy(domainEvent.EventType))
             {
-                _log.Debug(() => string.Format(
-                    "Saga '{0}' isn't started yet and not started by '{1}', skipping",
+                _logger.LogTrace(
+                    "Saga {SagaType} isn't started yet and not started by {DomainEventType}, skipping",
                     details.SagaType.PrettyPrint(),
-                    domainEvent.EventType.PrettyPrint()));
+                    domainEvent.EventType.PrettyPrint());
                 return;
             }
 

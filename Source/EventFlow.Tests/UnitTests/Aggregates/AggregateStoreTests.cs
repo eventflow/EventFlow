@@ -33,7 +33,6 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -59,7 +58,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         {
             Fixture.Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
                 new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
-                    Fixture.Create<ILog>(),
+                    Logger<TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(),
                     new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
 
             _eventStoreMock = InjectMock<IEventStore>();

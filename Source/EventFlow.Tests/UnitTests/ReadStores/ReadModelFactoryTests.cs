@@ -24,7 +24,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
@@ -70,7 +69,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void ThrowsExceptionForNoEmptyConstruuctors()
+        public void ThrowsExceptionForNoEmptyConstructors()
         {
             // Act + Assert
             var exception = Assert.Throws<TypeInitializationException>(() => new ReadModelFactory<ReadModelWithConstructorArguments>(

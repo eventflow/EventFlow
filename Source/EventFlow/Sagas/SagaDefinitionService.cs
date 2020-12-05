@@ -33,6 +33,7 @@ namespace EventFlow.Sagas
 {
     public class SagaDefinitionService : ISagaDefinitionService
     {
+        private static readonly IReadOnlyCollection<SagaDetails> Empty = new SagaDetails[] { };
         private readonly ILogger<SagaDefinitionService> _logger;
         private readonly ConcurrentDictionary<Type, SagaDetails> _sagaDetails = new ConcurrentDictionary<Type, SagaDetails>();
         private readonly ConcurrentDictionary<Type, List<SagaDetails>> _sagaDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaDetails>>();
@@ -76,11 +77,11 @@ namespace EventFlow.Sagas
             }
         }
 
-        public IEnumerable<SagaDetails> GetSagaDetails(Type aggregateEventType)
+        public IReadOnlyCollection<SagaDetails> GetSagaDetails(Type aggregateEventType)
         {
             return _sagaDetailsByAggregateEvent.TryGetValue(aggregateEventType, out var sagaDetails)
                 ? sagaDetails
-                : Enumerable.Empty<SagaDetails>();
+                : Empty;
         }
     }
 }

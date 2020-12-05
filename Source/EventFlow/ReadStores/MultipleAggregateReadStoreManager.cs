@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -41,13 +41,13 @@ namespace EventFlow.ReadStores
         private readonly TReadModelLocator _readModelLocator;
 
         public MultipleAggregateReadStoreManager(
-            ILog log,
+            ILogger<MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>> logger,
             IServiceProvider serviceProvider,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             TReadModelLocator readModelLocator,
             IReadModelFactory<TReadModel> readModelFactory)
-            : base(log, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _readModelLocator = readModelLocator;
         }

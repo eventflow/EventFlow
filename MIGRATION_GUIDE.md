@@ -1,5 +1,12 @@
 # Migration guide 0.x to 1.x
 
+## NuGet packages removed
+
+- `EventFlow.Autofac` use nagive Autofac integration for
+- `EventFlow.DependencyInjection` now integrated into the core package
+  `Microsoft.Extensions.DependencyInjection`
+- `EventFlow.Owin` switch to ASP.NET Core
+
 ## Initializing EventFlow
 
 There are a few ways you can initialize EventFlow.

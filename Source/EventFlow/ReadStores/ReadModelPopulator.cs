@@ -145,7 +145,7 @@ namespace EventFlow.ReadStores
                 totalEvents += allEventsPage.DomainEvents.Count;
                 currentPosition = allEventsPage.NextGlobalPosition;
 
-                if (_logger.IsEnabled(LogLevel.Trace) && !allEventsPage.DomainEvents.Any())
+                if (!allEventsPage.DomainEvents.Any())
                 {
                     _logger.LogTrace(
                         "No more events in event store, stopping population of read model {ReadModelType}",

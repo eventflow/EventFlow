@@ -27,8 +27,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Core.VersionedTypes
 {
@@ -39,16 +39,16 @@ namespace EventFlow.Core.VersionedTypes
         where TVersionedType : IVersionedType
         where TDefinitionService : IVersionedTypeDefinitionService<TAttribute, TDefinition>
     {
-        private readonly ILog _log;
+        private readonly ILogger<VersionedTypeUpgradeService<TAttribute, TDefinition, TVersionedType, TDefinitionService>> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly TDefinitionService _definitionService;
 
         protected VersionedTypeUpgradeService(
-            ILog log,
+            ILogger<VersionedTypeUpgradeService<TAttribute, TDefinition, TVersionedType, TDefinitionService>> logger,
             IServiceProvider serviceProvider,
             TDefinitionService definitionService)
         {
-            _log = log;
+            _logger = logger;
             _serviceProvider = serviceProvider;
             _definitionService = definitionService;
         }
@@ -63,11 +63,20 @@ namespace EventFlow.Core.VersionedTypes
 
             if (!definitionsWithHigherVersion.Any())
             {
-                _log.Verbose(() => $"No need to update '{versionedType.GetType().PrettyPrint()}' as its already the correct version");
+                _logger.LogTrace(
+                    "No need to update {VersionedType} as its already the correct version",
+                    versionedType.GetType().PrettyPrint());
                 return versionedType;
             }
 
-            _log.Verbose(() => $"Snapshot '{currentDefinition.Name}' v{currentDefinition.Version} needs to be upgraded to v{definitionsWithHigherVersion.Last().Version}");
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Versioned type {VersionedType} v{Version} needs to be upgraded to v{ExpectedVersion}",
+                    currentDefinition.Name,
+                    currentDefinition.Version,
+                    definitionsWithHigherVersion.Last().Version);
+            }
 
             foreach (var nextDefinition in definitionsWithHigherVersion)
             {
@@ -91,7 +100,10 @@ namespace EventFlow.Core.VersionedTypes
             TDefinition toDefinition,
             CancellationToken cancellationToken)
         {
-            _log.Verbose($"Upgrading '{fromDefinition}' to '{toDefinition}'");
+            _logger.LogTrace(
+                "Upgrading {FromDefinition} to {ToDefinition}",
+                fromDefinition,
+                toDefinition);
 
             var upgraderType = CreateUpgraderType(fromDefinition.Type, toDefinition.Type);
             var versionedTypeUpgraderType = typeof(IVersionedTypeUpgrader<,>).MakeGenericType(fromDefinition.Type, toDefinition.Type);

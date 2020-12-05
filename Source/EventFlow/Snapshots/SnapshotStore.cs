@@ -87,7 +87,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var serializedSnapshot = await _snapshotSerilizer.SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+            var serializedSnapshot = await _snapshotSerilizer.SerializeAsync<TAggregate, TIdentity, TSnapshot>(
                 snapshotContainer,
                 cancellationToken)
                 .ConfigureAwait(false);
