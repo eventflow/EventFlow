@@ -27,21 +27,21 @@ using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sagas
 {
     public class SagaDefinitionService : ISagaDefinitionService
     {
-        private readonly ILog _log;
+        private readonly ILogger<SagaDefinitionService> _logger;
         private readonly ConcurrentDictionary<Type, SagaDetails> _sagaDetails = new ConcurrentDictionary<Type, SagaDetails>();
         private readonly ConcurrentDictionary<Type, List<SagaDetails>> _sagaDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaDetails>>();
 
         public SagaDefinitionService(
-            ILog log,
+            ILogger<SagaDefinitionService> logger,
             ILoadedVersionedTypes loadedVersionedTypes)
         {
-            _log = log;
+            _logger = logger;
             LoadSagas(loadedVersionedTypes.Sagas);
         }
 
@@ -56,7 +56,9 @@ namespace EventFlow.Sagas
             {
                 if (_sagaDetails.ContainsKey(sagaType))
                 {
-                    _log.Warning($"Saga type '{sagaType.PrettyPrint()}' has already been added, skipping it this time");
+                    _logger.LogWarning(
+                        "Saga type {SagaType} has already been added, skipping it this time",
+                        sagaType.PrettyPrint());
                     continue;
                 }
 

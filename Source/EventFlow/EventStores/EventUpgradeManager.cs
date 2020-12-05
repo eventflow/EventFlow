@@ -29,8 +29,8 @@ using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.EventStores
 {
@@ -50,14 +50,14 @@ namespace EventFlow.EventStores
             }
         }
 
-        private readonly ILog _log;
+        private readonly ILogger<EventUpgradeManager> _logger;
         private readonly IServiceProvider _serviceProvider;
 
         public EventUpgradeManager(
-            ILog log,
+            ILogger<EventUpgradeManager> logger,
             IServiceProvider serviceProvider)
         {
-            _log = log;
+            _logger = logger;
             _serviceProvider = serviceProvider;
         }
 
@@ -97,10 +97,13 @@ namespace EventFlow.EventStores
                 return Enumerable.Empty<IDomainEvent>();
             }
 
-            _log.Verbose(() => string.Format(
-                "Upgrading {0} events and found these event upgraders to use: {1}",
-                domainEventList.Count,
-                string.Join(", ", eventUpgraders.Values.SelectMany(a => a.EventUpgraders.Select(e => e.GetType().PrettyPrint())))));
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Upgrading {DomainEventCount} events and found these event upgraders to use: {EventUpgraderTypes}",
+                    domainEventList.Count,
+                    eventUpgraders.Values.SelectMany(a => a.EventUpgraders.Select(e => e.GetType().PrettyPrint())).ToList());
+            }
 
             return domainEventList
                 .SelectMany(e =>

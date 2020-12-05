@@ -73,7 +73,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         public void ThrowsExceptionForNoEmptyConstruuctors()
         {
             // Act + Assert
-            var exception = Assert.Throws<TypeInitializationException>(() => new ReadModelFactory<ReadModelWithConstructorArguments>(Mock<ILog>()));
+            var exception = Assert.Throws<TypeInitializationException>(() => new ReadModelFactory<ReadModelWithConstructorArguments>(
+                Logger<ReadModelFactory<ReadModelWithConstructorArguments>>()));
             
             // Assert
             // ReSharper disable once PossibleNullReferenceException

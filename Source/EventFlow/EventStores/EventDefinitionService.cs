@@ -25,16 +25,18 @@ using System;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.EventStores
 {
-    public class EventDefinitionService : VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>, IEventDefinitionService
+    public class EventDefinitionService :
+        VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>,
+        IEventDefinitionService
     {
         public EventDefinitionService(
-            ILog log,
+            ILogger<EventDefinitionService> logger,
             ILoadedVersionedTypes loadedVersionedTypes)
-            : base(log)
+            : base(logger)
         {
             Load(loadedVersionedTypes.Events);
         }

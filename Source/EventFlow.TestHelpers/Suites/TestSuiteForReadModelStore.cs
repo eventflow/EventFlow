@@ -39,6 +39,7 @@ using AutoFixture;
 using EventFlow.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -346,18 +347,18 @@ namespace EventFlow.TestHelpers.Suites
 
         private class DelayingReadModelDomainEventApplier : IReadModelDomainEventApplier
         {
+            private readonly ILogger<DelayingReadModelDomainEventApplier> _logger;
             private readonly IReadModelDomainEventApplier _readModelDomainEventApplier;
             private readonly IReadOnlyDictionary<string, WaitState> _waitStates;
-            private readonly ILog _log;
 
             public DelayingReadModelDomainEventApplier(
+                ILogger<DelayingReadModelDomainEventApplier> logger,
                 IReadModelDomainEventApplier readModelDomainEventApplier,
-                IReadOnlyDictionary<string, WaitState> waitStates,
-                ILog log)
+                IReadOnlyDictionary<string, WaitState> waitStates)
             {
+                _logger = logger;
                 _readModelDomainEventApplier = readModelDomainEventApplier;
                 _waitStates = waitStates;
-                _log = log;
             }
 
             public async Task<bool> UpdateReadModelAsync<TReadModel>(
@@ -371,7 +372,7 @@ namespace EventFlow.TestHelpers.Suites
 
                 if (waitState != null)
                 {
-                    _log.Information("Waiting for access to read model");
+                    _logger.LogInformation("Waiting for access to read model");
                     waitState.ReadStoreReady.Set();
                     waitState.ReadStoreContinue.WaitOne();
                 }

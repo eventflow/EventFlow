@@ -33,26 +33,26 @@ using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow
 {
     public class CommandBus : ICommandBus
     {
-        private readonly ILog _log;
+        private readonly ILogger<CommandBus> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateStore _aggregateStore;
         private readonly IMemoryCache _memoryCache;
 
         public CommandBus(
-            ILog log,
+            ILogger<CommandBus> logger,
             IServiceProvider serviceProvider,
             IAggregateStore aggregateStore,
             IMemoryCache memoryCache)
         {
-            _log = log;
+            _logger = logger;
             _serviceProvider = serviceProvider;
             _aggregateStore = aggregateStore;
             _memoryCache = memoryCache;

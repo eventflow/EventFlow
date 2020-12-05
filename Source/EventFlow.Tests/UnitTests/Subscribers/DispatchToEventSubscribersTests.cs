@@ -27,13 +27,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
-using EventFlow.Logs;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
@@ -44,16 +44,14 @@ namespace EventFlow.Tests.UnitTests.Subscribers
     {
         private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
-        private Mock<ILog> _logMock;
+        private Mock<ILogger<DispatchToEventSubscribers>> _logMock;
 
         [SetUp]
         public void SetUp()
         {
-            _logMock = InjectMock<ILog>();
+            _logMock = InjectMock<ILogger<DispatchToEventSubscribers>>();
             _serviceProviderMock = InjectMock<IServiceProvider>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
-
-            //Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
         }
 
         [Test]
@@ -102,9 +100,7 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             Assert.DoesNotThrowAsync(async () => await Sut.DispatchToSynchronousSubscribersAsync(new[] { A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>() }, CancellationToken.None).ConfigureAwait(false));
 
             // Assert
-            _logMock.Verify(
-                m => m.Error(expectedException, It.IsAny<string>(), It.IsAny<object[]>()),
-                Times.Once);
+            _logMock.VerifyErrorsLogged(Times.Once(), expectedException);
         }
 
         [Test]

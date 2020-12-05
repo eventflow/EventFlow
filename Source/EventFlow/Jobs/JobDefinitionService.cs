@@ -24,16 +24,18 @@
 using System;
 using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Jobs
 {
-    public class JobDefinitionService : VersionedTypeDefinitionService<IJob, JobVersionAttribute, JobDefinition>, IJobDefinitionService
+    public class JobDefinitionService :
+        VersionedTypeDefinitionService<IJob, JobVersionAttribute, JobDefinition>,
+        IJobDefinitionService
     {
         public JobDefinitionService(
-            ILog log,
+            ILogger<JobDefinitionService> logger,
             ILoadedVersionedTypes loadedVersionedTypes)
-            : base(log)
+            : base(logger)
         {
             Load(loadedVersionedTypes.Jobs);
         }

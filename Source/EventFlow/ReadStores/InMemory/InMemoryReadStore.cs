@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores.InMemory
 {
@@ -39,8 +39,8 @@ namespace EventFlow.ReadStores.InMemory
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public InMemoryReadStore(
-            ILog log)
-            : base(log)
+            ILogger<InMemoryReadStore<TReadModel>> logger)
+            : base(logger)
         {
         }
 

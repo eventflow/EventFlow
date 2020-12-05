@@ -22,21 +22,36 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace EventFlow.TestHelpers.Extensions
 {
-    public static class MockLogExtensions
+    public static class MockLoggerExtensions
     {
-        public static void VerifyNoErrorsLogged(this Mock<ILog> logMock)
+        public static void VerifyNoErrorsLogged<T>(this Mock<ILogger<T>> logMock)
         {
+            logMock.VerifyErrorsLogged(Times.Never());
+        }
+
+        public static void VerifyErrorsLogged<T>(
+            this Mock<ILogger<T>> logMock,
+            Times times,
+            Exception expectedException = null)
+        {
+            if (expectedException == null)
+            {
+                expectedException = It.IsAny<Exception>();
+            }
+
             logMock.Verify(
-                m => m.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()),
-                Times.Never());
-            logMock.Verify(
-                m => m.Error(It.IsAny<string>(), It.IsAny<object[]>()),
-                Times.Never());
+                m => m.Log(
+                    It.Is<LogLevel>(l => l == LogLevel.Error || l == LogLevel.Critical),
+                    It.IsAny<EventId>(),
+                    It.IsAny<Exception>(),
+                    expectedException,
+                    It.IsAny<Func<Exception, Exception, string>>()),
+                times);
         }
     }
 }

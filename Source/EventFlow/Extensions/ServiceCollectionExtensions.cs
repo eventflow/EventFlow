@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -22,29 +22,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.Logs
+namespace EventFlow.Extensions
 {
-    public class ConsoleLog : Log
+    public static class ServiceCollectionExtensions
     {
-        protected override bool IsVerboseEnabled => true;
-        protected override bool IsDebugEnabled => true;
-        protected override bool IsInformationEnabled => true;
-
-        public override void Write(LogLevel logLevel, string format, params object[] args)
+        public static IServiceCollection AddEventFlow(
+            this IServiceCollection serviceCollection,
+            Action<IEventFlowOptions> configurator = null)
         {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0:HH:mm:ss:fff} [{1}]: {2}", DateTime.Now, logLevel, message);
-        }
-
-        public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
-        {
-            var message = args.Length != 0
-                ? string.Format(format, args)
-                : format;
-            Console.WriteLine("{0:HH:mm:ss:fff} [{1}]: {2} - {3}", DateTime.Now, logLevel, message, exception);
+            var eventFlowOptions = EventFlowOptions.New(serviceCollection);
+            configurator?.Invoke(eventFlowOptions);
+            return serviceCollection;
         }
     }
 }

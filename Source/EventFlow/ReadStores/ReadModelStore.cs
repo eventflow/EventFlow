@@ -26,19 +26,19 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
     public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
         where TReadModel : class, IReadModel
     {
-        protected ILog Log { get; }
+        protected ILogger Logger { get; }
 
         protected ReadModelStore(
-            ILog log)
+            ILogger logger)
         {
-            Log = log;
+            Logger = logger;
         }
 
         public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(

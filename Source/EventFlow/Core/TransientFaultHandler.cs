@@ -26,21 +26,21 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Core
 {
     public class TransientFaultHandler<TRetryStrategy> : ITransientFaultHandler<TRetryStrategy>
         where TRetryStrategy : IRetryStrategy
     {
-        private readonly ILog _log;
+        private readonly ILogger<TransientFaultHandler<TRetryStrategy>> _logger;
         private readonly TRetryStrategy _retryStrategy;
 
         public TransientFaultHandler(
-            ILog log,
+            ILogger<TransientFaultHandler<TRetryStrategy>> logger,
             TRetryStrategy retryStrategy)
         {
-            _log = log;
+            _logger = logger;
             _retryStrategy = retryStrategy;
         }
 
@@ -86,8 +86,8 @@ namespace EventFlow.Core
                 try
                 {
                     var result = await action(cancellationToken).ConfigureAwait(false);
-                    _log.Verbose(
-                        "Finished execution of '{0}' after {1} retries and {2:0.###} seconds",
+                    _logger.LogTrace(
+                        "Finished execution of {Label} after {RetryCount} retries and {Seconds} seconds",
                         label,
                         currentRetryCount,
                         stopwatch.Elapsed.TotalSeconds);
@@ -107,8 +107,8 @@ namespace EventFlow.Core
                 currentRetryCount++;
                 if (retry.RetryAfter != TimeSpan.Zero)
                 {
-                    _log.Verbose(
-                        "Exception {0} with message '{1} 'is transient, retrying action '{2}' after {3:0.###} seconds for retry count {4}",
+                    _logger.LogTrace(
+                        "Exception {ExceptionType} with message {ExceptionMessage} is transient, retrying action {Label} after {Seconds} seconds for retry count {RetryCount}",
                         currentException.GetType().PrettyPrint(),
                         currentException.Message,
                         label,
@@ -118,8 +118,8 @@ namespace EventFlow.Core
                 }
                 else
                 {
-                    _log.Verbose(
-                        "Exception {0} with message '{1}' is transient, retrying action '{2}' NOW for retry count {3}",
+                    _logger.LogTrace(
+                        "Exception {ExceptionType} with message {ExceptionMessage} is transient, retrying action {Label} NOW for retry count {RetryCount}",
                         currentException.GetType().PrettyPrint(),
                         currentException.Message,
                         label,

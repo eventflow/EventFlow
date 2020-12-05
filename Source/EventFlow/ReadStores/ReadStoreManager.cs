@@ -29,7 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -42,7 +42,7 @@ namespace EventFlow.ReadStores
         private static readonly ISet<Type> AggregateEventTypes;
         // ReSharper enable StaticMemberInGenericType
 
-        protected ILog Log { get; }
+        protected ILogger Logger { get; }
         protected IServiceProvider ServiceProvider { get; }
         protected TReadModelStore ReadModelStore { get; }
         protected IReadModelDomainEventApplier ReadModelDomainEventApplier { get; }
@@ -84,13 +84,13 @@ namespace EventFlow.ReadStores
         }
 
         protected ReadStoreManager(
-            ILog log,
+            ILogger logger,
             IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             IReadModelFactory<TReadModel> readModelFactory)
         {
-            Log = log;
+            Logger = logger;
             ServiceProvider = serviceProvider;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
@@ -106,19 +106,24 @@ namespace EventFlow.ReadStores
                 .ToList();
             if (!relevantDomainEvents.Any())
             {
-                Log.Verbose(() => string.Format(
-                    "None of these events was relevant for read model '{0}', skipping update: {1}",
-                    StaticReadModelType.PrettyPrint(),
-                    string.Join(", ", domainEvents.Select(e => e.EventType.PrettyPrint()))
-                    ));
+                if (Logger.IsEnabled(LogLevel.Trace))
+                {
+                    Logger.LogTrace(
+                        "None of these events was relevant for read model {ReadModelType}, skipping update: {DomainEventTypes}",
+                        StaticReadModelType.PrettyPrint(),
+                        domainEvents.Select(e => e.EventType.PrettyPrint()).ToList());
+                }
                 return;
             }
 
-            Log.Verbose(() => string.Format(
-                "Updating read model '{0}' in store '{1}' with these events: {2}",
-                typeof(TReadModel).PrettyPrint(),
-                typeof(TReadModelStore).PrettyPrint(),
-                string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
+            if (Logger.IsEnabled(LogLevel.Trace))
+            {
+                Logger.LogTrace(
+                    "Updating read model {ReadModelType} in store {ReadModelStoreType} with these events: {DomainEventTypes}",
+                    StaticReadModelType.PrettyPrint(),
+                    typeof(TReadModelStore).PrettyPrint(),
+                    relevantDomainEvents.Select(e => e.ToString()));
+            }
 
             var contextFactory = new ReadModelContextFactory(ServiceProvider);
 
@@ -126,11 +131,14 @@ namespace EventFlow.ReadStores
 
             if (!readModelUpdates.Any())
             {
-                Log.Verbose(() => string.Format(
-                    "No read model updates after building for read model '{0}' in store '{1}' with these events: {2}",
-                    typeof(TReadModel).PrettyPrint(),
-                    typeof(TReadModelStore).PrettyPrint(),
-                    string.Join(", ", relevantDomainEvents.Select(e => e.ToString()))));
+                if (Logger.IsEnabled(LogLevel.Trace))
+                {
+                    Logger.LogTrace(
+                        "No read model updates after building for read model {ReadModelType} in store {ReadModelStoreType} with these events: {DomainEventTypes}",
+                        StaticReadModelType.PrettyPrint(),
+                        typeof(TReadModelStore).PrettyPrint(),
+                        relevantDomainEvents.Select(e => e.ToString()).ToList());
+                }
                 return;
             }
 

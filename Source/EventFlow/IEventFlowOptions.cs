@@ -32,7 +32,7 @@ namespace EventFlow
     {
         IServiceCollection ServiceCollection { get; }
 
-        IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry);
+        IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry);
         IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
         IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
         IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);

@@ -34,7 +34,6 @@ using EventFlow.Configuration.Cancellation;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.Subscribers;
@@ -53,9 +52,9 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class CancellationTests
+    public class CancellationTests : Test
     {
-        private ICommandBus _commandBus = null;
+        private ICommandBus _commandBus;
         private ManualCommandHandler _commandHandler;
         private ManualEventPersistence _eventPersistence;
         private ManualReadStore _readStore;
@@ -297,7 +296,7 @@ namespace EventFlow.Tests.IntegrationTests
 
             public ManualReadStore(IInMemoryReadStore<InMemoryThingyReadModel> inner = null)
             {
-                _inner = inner ?? new InMemoryReadStore<InMemoryThingyReadModel>(new ConsoleLog());
+                _inner = inner ?? new InMemoryReadStore<InMemoryThingyReadModel>(Logger<InMemoryReadStore<InMemoryThingyReadModel>>());
             }
 
             public TaskCompletionSource<bool> UpdateCompletionSource { get; } = new TaskCompletionSource<bool>();

@@ -34,12 +34,12 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -62,7 +62,9 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void SetUp()
         {
             var factory = new DomainEventFactory();
-            var definitionService = new EventDefinitionService(new NullLog(), Mock<ILoadedVersionedTypes>());
+            var definitionService = new EventDefinitionService(
+                Mock<ILogger<EventDefinitionService>>(),
+                Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
 
             _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
@@ -144,11 +146,14 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private FilesEventPersistence CreatePersistence(string storePath = "")
         {
-            var log = new NullLog();
             var serializer = new JsonSerializer();
             var config = ConfigurePath(storePath);
             var locator = new FilesEventLocator(config);
-            return new FilesEventPersistence(log, serializer, config, locator);
+            return new FilesEventPersistence(
+                Mock<ILogger<FilesEventPersistence>>(),
+                serializer,
+                config,
+                locator);
         }
 
         private async Task CommitEventsAsync(FilesEventPersistence persistence)

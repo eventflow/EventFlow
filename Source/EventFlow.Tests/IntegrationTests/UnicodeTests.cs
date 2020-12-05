@@ -30,10 +30,10 @@ using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 // ReSharper disable IdentifierTypo
@@ -78,7 +78,9 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeCommands()
         {
             // Arrange
-            var commandDefinitions = new CommandDefinitionService(new NullLog(), Mock<ILoadedVersionedTypes>());
+            var commandDefinitions = new CommandDefinitionService(
+                Mock<ILogger<CommandDefinitionService>>(),
+                Mock<ILoadedVersionedTypes>());
 
             // Act
             Action action = () => commandDefinitions.Load(typeof(Cömmand));
@@ -91,7 +93,9 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeEvents()
         {
             // Arrange
-            var eventDefinitionService = new EventDefinitionService(new NullLog(), Mock<ILoadedVersionedTypes>());
+            var eventDefinitionService = new EventDefinitionService(
+                Mock<ILogger<EventDefinitionService>>(),
+                Mock<ILoadedVersionedTypes>());
 
             // Act
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));

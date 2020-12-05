@@ -35,7 +35,6 @@ using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
-using EventFlow.Logs;
 using EventFlow.Provided.Jobs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
@@ -47,6 +46,7 @@ using EventFlow.Snapshots.Stores.Null;
 using EventFlow.Subscribers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow
 {
@@ -72,10 +72,11 @@ namespace EventFlow
             RegisterDefaults(ServiceCollection);
         }
 
-        public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection());
+        public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection()
+            .AddLogging(b => b.AddConsole()));
         public static IEventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
 
-        public IEventFlowOptions ConfigureOptimisticConcurrentcyRetry(int retries, TimeSpan delayBeforeRetry)
+        public IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
         {
             _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
             _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
@@ -163,11 +164,12 @@ namespace EventFlow
         {
             serviceCollection.AddMemoryCache();
 
-            serviceCollection.TryAddTransient<ILog, ConsoleLog>();
+            // Default no-op resilience strategies
             serviceCollection.TryAddTransient<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
             serviceCollection.TryAddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
+
             serviceCollection.TryAddTransient<IDispatchToReadStores, DispatchToReadStores>();
             serviceCollection.TryAddTransient<IEventStore, EventStoreBase>();
             serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
