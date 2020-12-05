@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
@@ -41,7 +42,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class UnicodeTests
+    public class UnicodeTests : Test
     {
         [Test]
         public void UpperCaseIdentityThrows()
@@ -77,7 +78,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeCommands()
         {
             // Arrange
-            var commandDefinitions = new CommandDefinitionService(new NullLog());
+            var commandDefinitions = new CommandDefinitionService(new NullLog(), Mock<ILoadedVersionedTypes>());
 
             // Act
             Action action = () => commandDefinitions.Load(typeof(Cömmand));
@@ -90,7 +91,7 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeEvents()
         {
             // Arrange
-            var eventDefinitionService = new EventDefinitionService(new NullLog());
+            var eventDefinitionService = new EventDefinitionService(new NullLog(), Mock<ILoadedVersionedTypes>());
 
             // Act
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));

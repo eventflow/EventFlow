@@ -44,8 +44,10 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Extensions;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -176,12 +178,7 @@ namespace EventFlow.Tests.IntegrationTests
         {
             _commandHandler = new ManualCommandHandler();
             _subscriber = new ManualSubscriber();
-            _eventPersistence = null;
-            _readStore = null;
 
-            Assert.Fail();
-
-            /*
             var resolver = EventFlowOptions.New()
                 .AddCommands(typeof(ThingyPingCommand))
                 .AddEvents(typeof(ThingyPingEvent))
@@ -189,19 +186,18 @@ namespace EventFlow.Tests.IntegrationTests
                 .Configure(c => c.CancellationBoundary = testBoundary)
                 .RegisterServices(s =>
                 {
-                    s.Decorate<IInMemoryReadStore<InMemoryThingyReadModel>>((c, i) =>
-                        _readStore ?? (_readStore = new ManualReadStore(i)));
-                    s.Decorate<IEventPersistence>((c, i) =>
-                        _eventPersistence ?? (_eventPersistence = new ManualEventPersistence(i)));
-                    s.Register<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyPingCommand>>(c =>
-                        _commandHandler);
-                    s.Register<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>>(c => _subscriber);
-                    s.Register<IScopedContext, ScopedContext>(Lifetime.Scoped);
+                    s.Decorate<IInMemoryReadStore<InMemoryThingyReadModel>, ManualReadStore>();
+                    s.Decorate<IEventPersistence, ManualEventPersistence>();
+                    
+                    s.AddTransient<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyPingCommand>>(c => _commandHandler);
+                    s.AddTransient<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>>(c => _subscriber);
+                    s.AddTransient<IScopedContext, ScopedContext>();
                 })
-                .CreateResolver();
+                .ServiceCollection.BuildServiceProvider();
 
-            _commandBus = resolver.Resolve<ICommandBus>();
-            */
+            _eventPersistence = (ManualEventPersistence) resolver.GetRequiredService<IEventPersistence>();
+            _readStore = (ManualReadStore) resolver.GetRequiredService<IInMemoryReadStore<InMemoryThingyReadModel>>();
+            _commandBus = resolver.GetRequiredService<ICommandBus>();
         }
 
         private static async Task Validate(IEnumerable<IStep> steps, CancellationBoundary shouldHaveRunTo)

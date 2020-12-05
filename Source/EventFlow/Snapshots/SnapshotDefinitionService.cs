@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.Logs;
 
@@ -30,9 +31,11 @@ namespace EventFlow.Snapshots
     public class SnapshotDefinitionService : VersionedTypeDefinitionService<ISnapshot, SnapshotVersionAttribute, SnapshotDefinition>, ISnapshotDefinitionService
     {
         public SnapshotDefinitionService(
-            ILog log)
+            ILog log,
+            ILoadedVersionedTypes loadedVersionedTypes)
             : base(log)
         {
+            Load(loadedVersionedTypes.SnapshotTypes);
         }
 
         protected override SnapshotDefinition CreateDefinition(int version, Type type, string name)

@@ -25,6 +25,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Configuration;
 using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -47,7 +48,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         public void SetUp()
         {
             _resolverMock = InjectMock<IServiceProvider>();
-            _snapshotDefinitionService = Inject<ISnapshotDefinitionService>(new SnapshotDefinitionService(A<ILog>()));
+            _snapshotDefinitionService = Inject<ISnapshotDefinitionService>(new SnapshotDefinitionService(A<ILog>(), Mock<ILoadedVersionedTypes>()));
         }
 
         [Test]

@@ -29,6 +29,7 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.InMemory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.Extensions
 {
@@ -94,19 +95,21 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseSnapshotStore<TSnapshotStore>(
-            this IEventFlowOptions eventFlowOptions)
-            where TSnapshotStore : class, ISnapshotPersistence
+        public static IEventFlowOptions UseSnapshotPersistence<T>(
+            this IEventFlowOptions eventFlowOptions,
+            ServiceLifetime serviceLifetime)
+            where T : class, ISnapshotPersistence
         {
             eventFlowOptions.ServiceCollection
-                .AddTransient<ISnapshotPersistence, TSnapshotStore>();
+                .Replace(ServiceDescriptor.Describe(typeof(ISnapshotPersistence), typeof(T), serviceLifetime));
+
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseInMemorySnapshotStore(
+        public static IEventFlowOptions UseInMemorySnapshotPersistence(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseSnapshotStore<InMemorySnapshotPersistence>();
+            return eventFlowOptions.UseSnapshotPersistence<InMemorySnapshotPersistence>(ServiceLifetime.Singleton);
         }
 
         private static bool IsSnapshotUpgraderInterface(Type type)

@@ -36,7 +36,7 @@ namespace EventFlow.Tests.IntegrationTests.SnapshotStores
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .UseInMemorySnapshotStore()
+                .UseInMemorySnapshotPersistence()
                 .ServiceCollection.BuildServiceProvider();
         }
     }

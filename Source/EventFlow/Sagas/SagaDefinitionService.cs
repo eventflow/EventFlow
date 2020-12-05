@@ -25,6 +25,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Logs;
 
@@ -37,9 +38,11 @@ namespace EventFlow.Sagas
         private readonly ConcurrentDictionary<Type, List<SagaDetails>> _sagaDetailsByAggregateEvent = new ConcurrentDictionary<Type, List<SagaDetails>>();
 
         public SagaDefinitionService(
-            ILog log)
+            ILog log,
+            ILoadedVersionedTypes loadedVersionedTypes)
         {
             _log = log;
+            LoadSagas(loadedVersionedTypes.Sagas);
         }
 
         public void LoadSagas(params Type[] sagaTypes)

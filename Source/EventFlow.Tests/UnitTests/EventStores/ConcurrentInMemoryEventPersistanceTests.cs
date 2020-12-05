@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -46,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 {
     [Explicit]
     [Category(Categories.Unit)]
-    public class ConcurrentInMemoryEventPersistanceTests
+    public class ConcurrentInMemoryEventPersistanceTests : Test
     {
         // Higher values have exponential effect on duration
         // due to OptimsticConcurrency and retry
@@ -77,15 +78,15 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private EventStoreBase CreateStore()
         {
-            var aggregateFactory = Mock.Of<IAggregateFactory>();
-            var serviceProvider = Mock.Of<IServiceProvider>();
+            var aggregateFactory = Mock<IAggregateFactory>();
+            var serviceProvider = Mock<IServiceProvider>();
             var metadataProviders = Enumerable.Empty<IMetadataProvider>();
-            var snapshotStore = Mock.Of<ISnapshotStore>();
+            var snapshotStore = Mock<ISnapshotStore>();
             var log = new NullLog();
             var factory = new DomainEventFactory();
             var persistence = new InMemoryEventPersistence(log);
             var upgradeManager = new EventUpgradeManager(log, serviceProvider);
-            var definitionService = new EventDefinitionService(log);
+            var definitionService = new EventDefinitionService(log, Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
             var serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
 

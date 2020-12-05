@@ -27,7 +27,6 @@ using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
-using EventFlow.Configuration.Bootstraps;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Configuration.Serialization;
 using EventFlow.Core;
@@ -37,6 +36,7 @@ using EventFlow.EventStores.InMemory;
 using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Logs;
+using EventFlow.Provided.Jobs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.Sagas;
@@ -46,6 +46,7 @@ using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;
 using EventFlow.Subscribers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow
 {
@@ -55,7 +56,11 @@ namespace EventFlow
         private readonly List<Type> _sagaTypes = new List<Type>(); 
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private readonly List<Type> _jobTypes = new List<Type>();
+        private readonly List<Type> _jobTypes = new List<Type>
+            {
+                typeof(PublishCommandJob),
+                typeof(DispatchToAsynchronousEventSubscribersJob)
+            };
         private readonly List<Type> _snapshotTypes = new List<Type>(); 
 
         public IServiceCollection ServiceCollection { get; }
@@ -156,49 +161,53 @@ namespace EventFlow
 
         private void RegisterDefaults(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<ILog, ConsoleLog>();
-            serviceCollection.AddTransient<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
-            serviceCollection.AddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
-            serviceCollection.AddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
-            serviceCollection.AddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
-            serviceCollection.AddTransient<IDispatchToReadStores, DispatchToReadStores>();
-            serviceCollection.AddTransient<IEventStore, EventStoreBase>();
-            serviceCollection.AddSingleton<IEventPersistence, InMemoryEventPersistence>();
-            serviceCollection.AddTransient<ICommandBus, CommandBus>();
-            serviceCollection.AddTransient<IAggregateStore, AggregateStore>();
-            serviceCollection.AddTransient<ISnapshotStore, SnapshotStore>();
-            serviceCollection.AddTransient<ISnapshotSerilizer, SnapshotSerilizer>();
-            serviceCollection.AddTransient<ISnapshotPersistence, NullSnapshotPersistence>();
-            serviceCollection.AddTransient<ISnapshotUpgradeService, SnapshotUpgradeService>();
-            serviceCollection.AddSingleton<ISnapshotDefinitionService, SnapshotDefinitionService>();
-            serviceCollection.AddTransient<IReadModelPopulator, ReadModelPopulator>();
-            serviceCollection.AddTransient<IEventJsonSerializer, EventJsonSerializer>();
-            serviceCollection.AddSingleton<IEventDefinitionService, EventDefinitionService>();
-            serviceCollection.AddTransient<IQueryProcessor, QueryProcessor>();
-            serviceCollection.AddSingleton<IJsonSerializer, JsonSerializer>();
-            serviceCollection.AddTransient<IJsonOptions, JsonOptions>();
-            serviceCollection.AddTransient<IJobScheduler, InstantJobScheduler>();
-            serviceCollection.AddTransient<IJobRunner, JobRunner>();
-            serviceCollection.AddSingleton<IJobDefinitionService, JobDefinitionService>();
-            serviceCollection.AddTransient<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
-            serviceCollection.AddSingleton<IEventUpgradeManager, EventUpgradeManager>();
-            serviceCollection.AddTransient<IAggregateFactory, AggregateFactory>();
-            serviceCollection.AddTransient<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
-            serviceCollection.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
-            serviceCollection.AddTransient<ISerializedCommandPublisher, SerializedCommandPublisher>();
-            serviceCollection.AddSingleton<ICommandDefinitionService, CommandDefinitionService>();
-            serviceCollection.AddTransient<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
-            serviceCollection.AddSingleton<IDomainEventFactory, DomainEventFactory>();
-            serviceCollection.AddSingleton<ISagaDefinitionService, SagaDefinitionService>();
-            serviceCollection.AddTransient<ISagaStore, SagaAggregateStore>();
-            serviceCollection.AddTransient<ISagaErrorHandler, SagaErrorHandler>();
-            serviceCollection.AddTransient<IDispatchToSagas, DispatchToSagas>();
-            //serviceCollection.RegisterGeneric(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
-            serviceCollection.AddTransient<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
-            serviceCollection.AddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
-            //serviceCollection.RegisterGeneric(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
-            //serviceCollection.RegisterGeneric(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>), Lifetime.Singleton);
-            serviceCollection.AddTransient<IBootstrap, DefinitionServicesInitilizer>();
+            serviceCollection.AddMemoryCache();
+
+            serviceCollection.TryAddTransient<ILog, ConsoleLog>();
+            serviceCollection.TryAddTransient<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
+            serviceCollection.TryAddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
+            serviceCollection.TryAddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
+            serviceCollection.TryAddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
+            serviceCollection.TryAddTransient<IDispatchToReadStores, DispatchToReadStores>();
+            serviceCollection.TryAddTransient<IEventStore, EventStoreBase>();
+            serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
+            serviceCollection.TryAddTransient<ICommandBus, CommandBus>();
+            serviceCollection.TryAddTransient<IAggregateStore, AggregateStore>();
+            serviceCollection.TryAddTransient<ISnapshotStore, SnapshotStore>();
+            serviceCollection.TryAddTransient<ISnapshotSerilizer, SnapshotSerilizer>();
+            serviceCollection.TryAddTransient<ISnapshotPersistence, NullSnapshotPersistence>();
+            serviceCollection.TryAddTransient<ISnapshotUpgradeService, SnapshotUpgradeService>();
+            serviceCollection.TryAddTransient<IReadModelPopulator, ReadModelPopulator>();
+            serviceCollection.TryAddTransient<IEventJsonSerializer, EventJsonSerializer>();
+            serviceCollection.TryAddTransient<IQueryProcessor, QueryProcessor>();
+            serviceCollection.TryAddSingleton<IJsonSerializer, JsonSerializer>();
+            serviceCollection.TryAddTransient<IJsonOptions, JsonOptions>();
+            serviceCollection.TryAddTransient<IJobScheduler, InstantJobScheduler>();
+            serviceCollection.TryAddTransient<IJobRunner, JobRunner>();
+            serviceCollection.TryAddTransient<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
+            serviceCollection.TryAddSingleton<IEventUpgradeManager, EventUpgradeManager>();
+            serviceCollection.TryAddTransient<IAggregateFactory, AggregateFactory>();
+            serviceCollection.TryAddTransient<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
+            serviceCollection.TryAddTransient<IDomainEventPublisher, DomainEventPublisher>();
+            serviceCollection.TryAddTransient<ISerializedCommandPublisher, SerializedCommandPublisher>();
+            serviceCollection.TryAddTransient<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
+            serviceCollection.TryAddSingleton<IDomainEventFactory, DomainEventFactory>();
+            serviceCollection.TryAddTransient<ISagaStore, SagaAggregateStore>();
+            serviceCollection.TryAddTransient<ISagaErrorHandler, SagaErrorHandler>();
+            serviceCollection.TryAddTransient<IDispatchToSagas, DispatchToSagas>();
+            serviceCollection.TryAddTransient(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
+            serviceCollection.TryAddTransient<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
+            serviceCollection.TryAddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
+            serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
+            serviceCollection.TryAddSingleton(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>));
+
+            // Definition services
+            serviceCollection.TryAddSingleton<IEventDefinitionService, EventDefinitionService>();
+            serviceCollection.TryAddSingleton<ISnapshotDefinitionService, SnapshotDefinitionService>();
+            serviceCollection.TryAddSingleton<IJobDefinitionService, JobDefinitionService>();
+            serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
+            serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
+
             serviceCollection.AddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,

@@ -29,6 +29,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
@@ -44,7 +45,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.EventStores
 {
     [Category(Categories.Unit)]
-    public class ConcurrentFilesEventPersistanceTests
+    public class ConcurrentFilesEventPersistanceTests : Test
     {
         // Higher values have exponential effect on duration
         // due to OptimsticConcurrency and retry
@@ -61,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public void SetUp()
         {
             var factory = new DomainEventFactory();
-            var definitionService = new EventDefinitionService(new NullLog());
+            var definitionService = new EventDefinitionService(new NullLog(), Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
 
             _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);

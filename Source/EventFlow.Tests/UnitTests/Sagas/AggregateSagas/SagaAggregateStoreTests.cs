@@ -48,7 +48,9 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             _thingySagaId = A<ThingySagaId>();
             _thingySaga = InjectMock<ThingySaga>(_thingySagaId);
 
-            //Inject<IMemoryCache>(A<DictionaryMemoryCache>());
+            InjectMock<IServiceProvider>()
+                .Setup(m => m.GetService(typeof(ICommandBus)))
+                .Returns(Mock<ICommandBus>());
         }
 
         [Test]

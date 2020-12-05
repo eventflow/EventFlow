@@ -63,6 +63,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             _serviceProviderMock
                 .Setup(r => r.GetService(typeof(IEnumerable<IReadStoreManager>)))
                 .Returns(new[] { _readStoreManagerMock.Object });
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<IReadModelStore<TReadModel>>)))
+                .Returns(new[] { _readModelStoreMock.Object });
 
             _eventFlowConfigurationMock
                 .Setup(c => c.PopulateReadModelEventPageSize)

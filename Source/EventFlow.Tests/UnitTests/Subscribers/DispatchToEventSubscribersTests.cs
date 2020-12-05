@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -132,12 +133,10 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         {
             var subscriberMock = new Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
 
-            Assert.Fail("");
-            /*
+
             _serviceProviderMock
-                .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeSynchronousTo<,,>))))
+                .Setup(r => r.GetService(typeof(IEnumerable<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>>)))
                 .Returns(new object[] { subscriberMock.Object });
-            */
 
             return subscriberMock;
         }
@@ -147,12 +146,9 @@ namespace EventFlow.Tests.UnitTests.Subscribers
         {
             var subscriberMock = new Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
 
-            Assert.Fail();
-            /*
             _serviceProviderMock
-                .Setup(r => r.ResolveAll(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ISubscribeAsynchronousTo<,,>))))
+                .Setup(r => r.GetService(typeof(IEnumerable<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>)))
                 .Returns(new object[] { subscriberMock.Object });
-            */
 
             return subscriberMock;
         }
