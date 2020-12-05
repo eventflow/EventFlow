@@ -56,9 +56,9 @@ namespace EventFlow.Core
 
         public void AddRange(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
-            foreach (var keyValuePair in keyValuePairs)
+            foreach (var kv in keyValuePairs)
             {
-                Add(keyValuePair.Key, keyValuePair.Value);
+                Add(kv.Key, kv.Value);
             }
         }
 

@@ -121,7 +121,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 JsonConvert.SerializeObject(new SnapshotMetadata(new Dictionary<string, string>
                     {
                         {SnapshotMetadataKeys.SnapshotName, A<string>()},
-                        {SnapshotMetadataKeys.SnapshotVersion, A<int>().ToString()}
+                        {SnapshotMetadataKeys.SnapshotVersion, A<int>().ToString()},
+                        {SnapshotMetadataKeys.AggregateSequenceNumber, A<int>().ToString()}
                     })),
                 JsonConvert.SerializeObject(snapshot));
         }
