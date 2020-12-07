@@ -25,12 +25,24 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET Core v2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.811
+
+      - name: Setup .NET Core v3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.401
+
       - name: Create Release NuGet package
         run: |
           arrTag=(${GITHUB_REF//\// })
           VERSION="${arrTag[2]}"
           VERSION="${VERSION//v}"
-          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=${{ env.VERSION }}-alpha -o packages
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=${{ env.VERSION }} -o packages
 
       - name: Push to GitHub Feed
         run: |
@@ -68,7 +80,7 @@ jobs:
         run: dotnet test -c Release --no-build
       
       - name: Pack
-        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=${{ env.EVENTFLOW_VERSION }}-pr -p:Version=$EVENTFLOW_VERSION -p:AssemblyVersion=$EVENTFLOW_VERSION
+        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=${{ env.EVENTFLOW_VERSION }} -p:Version=$EVENTFLOW_VERSION -p:AssemblyVersion=$EVENTFLOW_VERSION
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
