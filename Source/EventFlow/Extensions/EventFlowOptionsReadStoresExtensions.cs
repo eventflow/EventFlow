@@ -23,16 +23,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
 using EventFlow.ReadStores.InMemory.Queries;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -65,13 +64,10 @@ namespace EventFlow.Extensions
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel
         {
-            return eventFlowOptions.RegisterServices(f =>
-            {
-                f.Register<IReadStoreManager,
-                    SingleAggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>();
-                f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>,
-                    ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
-            });
+            eventFlowOptions.ServiceCollection
+                .AddTransient<IReadStoreManager, SingleAggregateReadStoreManager<TAggregate, TIdentity, TReadStore, TReadModel>>()
+                .AddTransient<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
@@ -80,34 +76,19 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
-            return eventFlowOptions.RegisterServices(f =>
-            {
-                f.Register<IReadStoreManager,
-                    MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>();
-                f.Register<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>,
-                    ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
-            });
+            eventFlowOptions.ServiceCollection
+                .AddTransient<IReadStoreManager, MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>>()
+                .AddTransient<IQueryHandler<ReadModelByIdQuery<TReadModel>, TReadModel>, ReadModelByIdQueryHandler<TReadStore, TReadModel>>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
             where TReadModel : class, IReadModel
         {
-            return eventFlowOptions
-                .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
-                .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel>();
-        }
-
-        [Obsolete("Use the simpler method UseInMemoryReadStoreFor<TReadModel> instead.")]
-        public static IEventFlowOptions UseInMemoryReadStoreFor<TAggregate, TIdentity, TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TReadModel : class, IReadModel
-        {
-            return eventFlowOptions
-                .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
-                .UseReadStoreFor<TAggregate, TIdentity, IInMemoryReadStore<TReadModel>, TReadModel>();
+            RegisterInMemoryReadStore<TReadModel>(eventFlowOptions.ServiceCollection);
+            eventFlowOptions.UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
@@ -115,29 +96,26 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {
-            return eventFlowOptions
-                .RegisterServices(RegisterInMemoryReadStore<TReadModel>)
+            RegisterInMemoryReadStore<TReadModel>(eventFlowOptions.ServiceCollection);
+            eventFlowOptions
                 .UseReadStoreFor<IInMemoryReadStore<TReadModel>, TReadModel, TReadModelLocator>();
+            return eventFlowOptions;
         }
 
         private static void RegisterInMemoryReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
+            IServiceCollection serviceCollection)
             where TReadModel : class, IReadModel
         {
-            serviceRegistration.Register<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>(
-                Lifetime.Singleton);
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r =>
-                r.Resolver.Resolve<IInMemoryReadStore<TReadModel>>());
-            serviceRegistration
-                .Register<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>,
-                    InMemoryQueryHandler<TReadModel>>();
+            serviceCollection.AddSingleton<IInMemoryReadStore<TReadModel>, InMemoryReadStore<TReadModel>>();
+            serviceCollection.AddTransient<IReadModelStore<TReadModel>>(r => r.GetRequiredService<IInMemoryReadStore<TReadModel>>());
+            serviceCollection.AddTransient<IQueryHandler<InMemoryQuery<TReadModel>, IReadOnlyCollection<TReadModel>>, InMemoryQueryHandler<TReadModel>>();
         }
 
         private static (Type aggregateType, Type idType) GetSingleAggregateTypes<TReadModel>()
             where TReadModel : class, IReadModel
         {
-            Type readModelInterface = typeof(IAmReadModelFor<,,>);
-            Type asyncReadModelInterface = typeof(IAmAsyncReadModelFor<,,>);
+            var readModelInterface = typeof(IAmReadModelFor<,,>);
+            var asyncReadModelInterface = typeof(IAmAsyncReadModelFor<,,>);
 
             bool IsReadModelInterface(Type type)
             {
@@ -147,7 +125,7 @@ namespace EventFlow.Extensions
                 return definition == readModelInterface || definition == asyncReadModelInterface;
             }
 
-            Type readModelType = typeof(TReadModel);
+            var readModelType = typeof(TReadModel);
             var results = readModelType
                 .GetTypeInfo()
                 .GetInterfaces()

@@ -34,6 +34,7 @@ using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
@@ -48,15 +49,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
         public class InMemorySagaStore : SagaStore
         {
-            private readonly IResolver _resolver;
+            private readonly IServiceProvider _serviceProvider;
             private readonly Dictionary<ISagaId, object> _sagas = new Dictionary<ISagaId, object>();
             private readonly AsyncLock _asyncLock = new AsyncLock();
             private bool _hasUpdateBeenCalled;
 
             public InMemorySagaStore(
-                IResolver resolver)
+                IServiceProvider serviceProvider)
             {
-                _resolver = resolver;
+                _serviceProvider = serviceProvider;
             }
 
             public void UpdateShouldNotHaveBeenCalled()
@@ -71,7 +72,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 Func<ISaga, CancellationToken, Task> updateSaga,
                 CancellationToken cancellationToken)
             {
-                var commandbus = _resolver.Resolve<ICommandBus>();
+                var commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
 
                 ISaga saga;
                 using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -89,7 +90,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                     await updateSaga(saga, cancellationToken).ConfigureAwait(false);
                 }
                 
-                await saga.PublishAsync(commandbus, cancellationToken).ConfigureAwait(false);
+                await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
                 return saga;
             }
         }

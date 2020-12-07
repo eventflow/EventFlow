@@ -27,14 +27,14 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelFactory<TReadModel> : IReadModelFactory<TReadModel>
         where TReadModel : IReadModel
     {
-        private readonly ILog _log;
+        private readonly ILogger<ReadModelFactory<TReadModel>> _logger;
 
         static ReadModelFactory()
         {
@@ -55,14 +55,19 @@ namespace EventFlow.ReadStores
         }
 
         public ReadModelFactory(
-            ILog log)
+            ILogger<ReadModelFactory<TReadModel>> logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public Task<TReadModel> CreateAsync(string id, CancellationToken cancellationToken)
         {
-            _log.Verbose(() => $"Creating new instance of read model type '{typeof(TReadModel).PrettyPrint()}' with ID '{id}'");
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Creating new instance of read model type {ReadModelType} with ID {Id}",
+                    typeof(TReadModel).PrettyPrint());
+            }
 
             var readModel = (TReadModel) Activator.CreateInstance(typeof(TReadModel));
 

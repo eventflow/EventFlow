@@ -29,13 +29,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.EventStores.Files
 {
     public class FilesEventPersistence : IEventPersistence
     {
-        private readonly ILog _log;
+        private readonly ILogger<FilesEventPersistence> _logger;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IFilesEventStoreConfiguration _configuration;
         private readonly IFilesEventLocator _filesEventLocator;
@@ -60,12 +60,12 @@ namespace EventFlow.EventStores.Files
         }
 
         public FilesEventPersistence(
-            ILog log,
+            ILogger<FilesEventPersistence> logger,
             IJsonSerializer jsonSerializer,
             IFilesEventStoreConfiguration configuration,
             IFilesEventLocator filesEventLocator)
         {
-            _log = log;
+            _logger = logger;
             _jsonSerializer = jsonSerializer;
             _configuration = configuration;
             _filesEventLocator = filesEventLocator;
@@ -168,7 +168,7 @@ namespace EventFlow.EventStores.Files
 
                     using (var streamWriter = CreateNewTextFile(eventPath, fileEventData))
                     {
-                        _log.Verbose("Writing file '{0}'", eventPath);
+                        _logger.LogTrace("Writing file {EventFilePath}", eventPath);
                         await streamWriter.WriteAsync(json).ConfigureAwait(false);
                     }
 
@@ -177,8 +177,8 @@ namespace EventFlow.EventStores.Files
 
                 using (var streamWriter = File.CreateText(_logFilePath))
                 {
-                    _log.Verbose(
-                        "Writing global sequence number '{0}' to '{1}'",
+                    _logger.LogTrace(
+                        "Writing global sequence number {GlobalSequenceNumber} to {LogFilePath}",
                         _globalSequenceNumber,
                         _logFilePath);
                     var json = _jsonSerializer.Serialize(
@@ -238,7 +238,7 @@ namespace EventFlow.EventStores.Files
 
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            _log.Verbose("Deleting entity with ID '{0}'", id);
+            _logger.LogTrace("Deleting entity with ID {EventFilePath}", id);
             var path = _filesEventLocator.GetEntityPath(id);
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {

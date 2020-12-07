@@ -21,12 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Aggregates
@@ -39,11 +41,10 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdParameter()
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
-                .CreateResolver())
+            using (var serviceProvider = EventFlowOptions.New().ServiceCollection.BuildServiceProvider())
             {
                 var id = ThingyId.New;
-                var sut = resolver.Resolve<IAggregateFactory>();
+                var sut = serviceProvider.GetRequiredService<IAggregateFactory>();
 
                 // Act
                 var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
@@ -57,16 +58,15 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdAndInterfaceParameters()
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
-                .CreateResolver())
+            using (var serviceProvider = EventFlowOptions.New().ServiceCollection.BuildServiceProvider())
             {
-                var sut = resolver.Resolve<IAggregateFactory>();
+                var sut = serviceProvider.GetRequiredService<IAggregateFactory>();
 
                 // Act
                 var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
-                aggregateWithIdAndInterfaceParameters.Resolver.Should().BeAssignableTo<IResolver>();
+                aggregateWithIdAndInterfaceParameters.ServiceProvider.Should().BeAssignableTo<IServiceProvider>();
             }
         }
 
@@ -74,11 +74,11 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdAndTypeParameters()
         {
             // Arrange
-            using (var resolver = EventFlowOptions.New
-                .RegisterServices(f => f.RegisterType(typeof(Pinger)))
-                .CreateResolver())
+            using (var serviceProvider = EventFlowOptions.New()
+                .RegisterServices(f => f.AddTransient(typeof(Pinger)))
+                .ServiceCollection.BuildServiceProvider())
             {
-                var sut = resolver.Resolve<IAggregateFactory>();
+                var sut = serviceProvider.GetRequiredService<IAggregateFactory>();
 
                 // Act
                 var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, ThingyId>(ThingyId.New).ConfigureAwait(false);
@@ -113,13 +113,13 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
 
         public class TestAggregateWithResolver : AggregateRoot<TestAggregateWithResolver, ThingyId>
         {
-            public TestAggregateWithResolver(ThingyId id, IResolver resolver)
+            public TestAggregateWithResolver(ThingyId id, IServiceProvider serviceProvider)
                 : base(id)
             {
-                Resolver = resolver;
+                ServiceProvider = serviceProvider;
             }
 
-            public IResolver Resolver { get; }
+            public IServiceProvider ServiceProvider { get; }
         }
     }
 }

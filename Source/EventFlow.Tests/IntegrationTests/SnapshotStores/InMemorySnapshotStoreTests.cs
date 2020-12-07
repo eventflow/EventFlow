@@ -21,10 +21,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.SnapshotStores
@@ -32,11 +33,11 @@ namespace EventFlow.Tests.IntegrationTests.SnapshotStores
     [Category(Categories.Integration)]
     public class InMemorySnapshotStoreTests : TestSuiteForSnapshotStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .UseInMemorySnapshotStore()
-                .CreateResolver();
+                .UseInMemorySnapshotPersistence()
+                .ServiceCollection.BuildServiceProvider();
         }
     }
 }

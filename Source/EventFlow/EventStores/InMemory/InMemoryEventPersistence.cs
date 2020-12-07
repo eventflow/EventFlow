@@ -33,14 +33,14 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace EventFlow.EventStores.InMemory
 {
     public class InMemoryEventPersistence : IEventPersistence, IDisposable
     {
-        private readonly ILog _log;
+        private readonly ILogger<InMemoryEventPersistence> _logger;
 
         private readonly ConcurrentDictionary<string, ImmutableEventCollection> _eventStore =
             new ConcurrentDictionary<string, ImmutableEventCollection>();
@@ -113,9 +113,9 @@ namespace EventFlow.EventStores.InMemory
         }
 
         public InMemoryEventPersistence(
-            ILog log)
+            ILogger<InMemoryEventPersistence> logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public Task<AllCommittedEventsPage> LoadAllCommittedEvents(
@@ -167,7 +167,7 @@ namespace EventFlow.EventStores.InMemory
                                     Metadata = e.SerializedMetadata,
                                     GlobalSequenceNumber = globalCount + i + 1,
                                 };
-                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent);
+                            _logger.LogTrace("Committing event {CommittedEvent}", committedDomainEvent);
                             return committedDomainEvent;
                         })
                     .ToList();
@@ -212,8 +212,8 @@ namespace EventFlow.EventStores.InMemory
 
             if (deleted)
             {
-                _log.Verbose(
-                    "Deleted entity with ID '{0}' by deleting all of its {1} events",
+                _logger.LogTrace(
+                    "Deleted entity with ID {Id} by deleting all of its {EventCount} events",
                     id,
                     committedDomainEvents.Count);
             }

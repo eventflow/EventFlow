@@ -21,24 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class ResolverTests
+    public class ServiceProviderTests
     {
         public class Service { }
 
@@ -55,12 +54,12 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task ResolverAggregatesFactoryCanResolve()
         {
-            using (var resolver = EventFlowOptions.New
-                .RegisterServices(sr => sr.RegisterType(typeof(Service)))
-                .CreateResolver())
+            using (var serviceProvider = EventFlowOptions.New()
+                .RegisterServices(sr => sr.AddTransient(typeof(Service)))
+                .ServiceCollection.BuildServiceProvider())
             {
                 // Arrange
-                var aggregateFactory = resolver.Resolve<IAggregateFactory>();
+                var aggregateFactory = serviceProvider.GetRequiredService<IAggregateFactory>();
 
                 // Act
                 var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
@@ -76,15 +75,15 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public void RegistrationDoesntCauseStackOverflow()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var serviceProvider = EventFlowOptions.New()
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .RegisterServices(s =>
                 {
-                    s.Register<IScopedContext, ScopedContext>(Lifetime.Scoped);
+                    s.AddScoped<IScopedContext, ScopedContext>();
                 })
-                .CreateResolver())
+                .ServiceCollection.BuildServiceProvider())
             {
-                resolver.Resolve<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyAddMessageCommand>>();
+                serviceProvider.GetRequiredService<ICommandHandler<ThingyAggregate, ThingyId, IExecutionResult, ThingyAddMessageCommand>>();
             }
         }
     }

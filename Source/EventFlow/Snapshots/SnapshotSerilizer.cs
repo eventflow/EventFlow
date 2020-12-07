@@ -28,30 +28,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Snapshots
 {
     public class SnapshotSerilizer : ISnapshotSerilizer
     {
-        private readonly ILog _log;
+        private readonly ILogger<SnapshotSerilizer> _logger;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ISnapshotUpgradeService _snapshotUpgradeService;
         private readonly ISnapshotDefinitionService _snapshotDefinitionService;
 
         public SnapshotSerilizer(
-            ILog log,
+            ILogger<SnapshotSerilizer> logger,
             IJsonSerializer jsonSerializer,
             ISnapshotUpgradeService snapshotUpgradeService,
             ISnapshotDefinitionService snapshotDefinitionService)
         {
-            _log = log;
+            _logger = logger;
             _jsonSerializer = jsonSerializer;
             _snapshotUpgradeService = snapshotUpgradeService;
             _snapshotDefinitionService = snapshotDefinitionService;
         }
 
-        public Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+        public Task<SerializedSnapshot> SerializeAsync<TAggregate, TIdentity, TSnapshot>(
             SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
@@ -60,7 +60,11 @@ namespace EventFlow.Snapshots
         {
             var snapsnotDefinition = _snapshotDefinitionService.GetDefinition(typeof(TSnapshot));
 
-            _log.Verbose(() => $"Building snapshot '{snapsnotDefinition.Name}' v{snapsnotDefinition.Version} for {typeof(TAggregate).PrettyPrint()}");
+            _logger.LogTrace(
+                "Building snapshot {SnapshotName} v{SnapshotVersion} for {AggregateType}",
+                snapsnotDefinition.Name,
+                snapsnotDefinition.Version,
+                typeof(TAggregate).PrettyPrint());
 
             var updatedSnapshotMetadata = new SnapshotMetadata(snapshotContainer.Metadata.Concat(new Dictionary<string, string>
                 {
@@ -89,7 +93,12 @@ namespace EventFlow.Snapshots
             var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
             var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);
 
-            _log.Verbose(() => $"Deserializing snapshot named '{snapshotDefinition.Name}' v{snapshotDefinition.Version} for '{typeof(TAggregate).PrettyPrint()}' v{metadata.AggregateSequenceNumber}");
+            _logger.LogTrace(
+                "Deserializing snapshot named {SnapshotName} v{SnapshotVersion} for '{AggregateType}' v{AggregateVersion}",
+                snapshotDefinition.Name,
+                snapshotDefinition.Version,
+                typeof(TAggregate).PrettyPrint(),
+                metadata.AggregateSequenceNumber);
 
             var snapshot = (ISnapshot)_jsonSerializer.Deserialize(committedSnapshot.SerializedData, snapshotDefinition.Type);
             var upgradedSnapshot = await _snapshotUpgradeService.UpgradeAsync(snapshot, cancellationToken).ConfigureAwait(false);

@@ -106,7 +106,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest(FindTestDlls("net472"));
+            ExecuteTest(FindTestDlls("netcoreapp2.1"));
             ExecuteTest(FindTestDlls("netcoreapp3.1"));
         })
 	.Finally(() =>

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Queries;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -36,7 +37,9 @@ namespace EventFlow.Extensions
             where TQueryHandler : class, IQueryHandler<TQuery, TResult>
             where TQuery : IQuery<TResult>
         {
-            return eventFlowOptions.RegisterServices(sr => sr.Register<IQueryHandler<TQuery, TResult>, TQueryHandler>());
+            eventFlowOptions.ServiceCollection
+                .AddTransient<IQueryHandler<TQuery, TResult>, TQueryHandler>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions AddQueryHandlers(
@@ -79,13 +82,10 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr =>
-                    {
-                        foreach (var queryHandlerInterface in queryHandlerInterfaces)
-                        {
-                            sr.Register(queryHandlerInterface, t);
-                        }
-                    });
+                foreach (var queryHandlerInterface in queryHandlerInterfaces)
+                {
+                    eventFlowOptions.ServiceCollection.AddTransient(queryHandlerInterface, t);
+                }
             }
 
             return eventFlowOptions;

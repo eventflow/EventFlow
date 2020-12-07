@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -21,20 +21,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.Core.IoC;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
-using NUnit.Framework;
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.Tests.UnitTests.Configuration.Registrations
+namespace EventFlow.Extensions
 {
-    [Category(Categories.Unit)]
-    public class FlowIoCServiceRegistrationTests : TestSuiteForServiceRegistration
+    public static class ServiceCollectionExtensions
     {
-        protected override IServiceRegistration CreateSut()
+        public static IServiceCollection AddEventFlow(
+            this IServiceCollection serviceCollection,
+            Action<IEventFlowOptions> configurator = null)
         {
-            return new EventFlowIoCServiceRegistration();
+            var eventFlowOptions = EventFlowOptions.New(serviceCollection);
+            configurator?.Invoke(eventFlowOptions);
+            return serviceCollection;
         }
     }
 }

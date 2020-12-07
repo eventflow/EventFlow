@@ -26,7 +26,6 @@ using EventFlow.AspNetCore.Configuration;
 using EventFlow.AspNetCore.Logging;
 using EventFlow.AspNetCore.MetadataProviders;
 using EventFlow.AspNetCore.ServiceProvider;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Logs;

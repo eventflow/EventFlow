@@ -24,11 +24,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+using EventFlow.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -47,18 +48,18 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             const int expectedMagicNumberForReadModelC = 0;
 
             // Arrange
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowOptions.New()
                 .RegisterServices(sr =>
                     {
-                        sr.Register<IReadModelFactory<FancyReadModelA>>(r => new FancyReadModelFactory<FancyReadModelA>(expectedMagicNumberForReadModelA));
-                        sr.Register<IReadModelFactory<FancyReadModelB>>(r => new FancyReadModelFactory<FancyReadModelB>(expectedMagicNumberForReadModelB));
+                        sr.AddTransient<IReadModelFactory<FancyReadModelA>>(r => new FancyReadModelFactory<FancyReadModelA>(expectedMagicNumberForReadModelA));
+                        sr.AddTransient<IReadModelFactory<FancyReadModelB>>(r => new FancyReadModelFactory<FancyReadModelB>(expectedMagicNumberForReadModelB));
                     })
-                .CreateResolver())
+                .ServiceCollection.BuildServiceProvider())
             {
                 // Act
-                var readModelA = await resolver.Resolve<IReadModelFactory<FancyReadModelA>>().CreateAsync(A<string>(), CancellationToken.None);
-                var readModelB = await resolver.Resolve<IReadModelFactory<FancyReadModelB>>().CreateAsync(A<string>(), CancellationToken.None);
-                var readModelC = await resolver.Resolve<IReadModelFactory<FancyReadModelC>>().CreateAsync(A<string>(), CancellationToken.None);
+                var readModelA = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelA>>().CreateAsync(A<string>(), CancellationToken.None);
+                var readModelB = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelB>>().CreateAsync(A<string>(), CancellationToken.None);
+                var readModelC = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelC>>().CreateAsync(A<string>(), CancellationToken.None);
 
                 // Assert
                 readModelA.MagicNumber.Should().Be(expectedMagicNumberForReadModelA);
@@ -68,10 +69,11 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         }
 
         [Test]
-        public void ThrowsExceptionForNoEmptyConstruuctors()
+        public void ThrowsExceptionForNoEmptyConstructors()
         {
             // Act + Assert
-            var exception = Assert.Throws<TypeInitializationException>(() => new ReadModelFactory<ReadModelWithConstructorArguments>(Mock<ILog>()));
+            var exception = Assert.Throws<TypeInitializationException>(() => new ReadModelFactory<ReadModelWithConstructorArguments>(
+                Logger<ReadModelFactory<ReadModelWithConstructorArguments>>()));
             
             // Assert
             // ReSharper disable once PossibleNullReferenceException

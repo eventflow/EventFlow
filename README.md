@@ -43,17 +43,59 @@ Have a look at our [getting started guide](https://docs.geteventflow.net/Getting
 the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and the
 [FAQ](https://docs.geteventflow.net/FAQ.html).
 
-### Features
+## Features
 
-* **CQRS+ES framework**
-* **Async/await first:** Every part of EventFlow is written using async/await.
-* **Highly configurable and extendable**
-* **Easy to use**
+* **Easy to use**: Designed with sensible defaults and implementations that make it
+  easy to create an example application
+* **Highly configurable and extendable**: EventFlow uses interfaces for every part of
+  its core, making it easy to replace or extend existing features with custom
+  implementation
 * **No use of threads or background workers**
-* **Cancellation:** All methods that does IO work or might delay execution (due to
-  retries), takes a `CancellationToken` argument to allow you to cancel the operation
+* **MIT licensed** Easy to understand and use license for enterprise
 
-### Examples
+## Versions
+
+Development of version 1.0 has started and is mainly braking changes regarding changes
+related to replacing EventFlow types with that of Microsoft extension abstractions,
+mainly `IServiceProvider` and `ILogger<>`.
+
+The following list key characteristics of each version as well as its related branches
+(not properly configured yet).
+
+* `1.x` (under development, not all projects compile yet)
+  
+  Represents the next iteration of EventFlow that aligns EventFlow with the standard
+  packages for .NET (Core). Releases here will only support .NET Standard, .NET Core
+  and .NET versions going forward.
+
+  Read the [migration guide](./MIGRATION_GUIDE.md) to view the full list of breaking
+  changes as well as recommendations on how to migrate.
+
+  **NOTE:** This version is under heavy development and NO stable version has yet
+  been releases. It will take a few alpha/beta/rc releases to get this right. These
+  will be released as soon as any significant changes have been made.
+
+  Branches:
+  - `develop-v1`: Development branch, pull requests should be done here
+  - `release-v1`: Release branch, merge commits are done to this branch from
+    `develop-v1` to create releases. Typically each commit represents a release
+
+* `0.x` (API stable)
+
+  The current stable version of EventFlow and has been the version of EventFlow
+  for almost siz years. 0.x versions have .NET Framework support and limited
+  support to the Microsoft extension packages through extra NuGet packages.
+
+  Feature and bug fix releases will still be done while there's interest in
+  the community.
+
+  Branches:
+  - `develop-v0`: Development branch, pull requests should be done here
+  - `release-v0`: Release branch, merge commits are done to this branch from
+    `develop-v0` to create releases. Typically each commit represents a release
+
+
+## Examples
 
 * **[Complete](#complete-example):** Shows a complete example on how to use
   EventFlow with in-memory event store and read models in a relatively few lines
@@ -66,7 +108,12 @@ the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and th
   larger scale. If you have ideas and/or comments, create a pull request or
   an issue
   
-#### External Examples
+### External Examples
+
+List of examples create by different community members. Note that many of these
+examples will be using EventFlow 0.x.
+
+*Create a pull request to get your exampled linked from here.*
 
  * **[Racetimes:](https://github.com/dennisfabri/Eventflow.Example.Racetimes)**
    Shows some features of EventFlow that are not covered in the 

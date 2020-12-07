@@ -22,16 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Jobs
 {
-    public class JobDefinitionService : VersionedTypeDefinitionService<IJob, JobVersionAttribute, JobDefinition>, IJobDefinitionService
+    public class JobDefinitionService :
+        VersionedTypeDefinitionService<IJob, JobVersionAttribute, JobDefinition>,
+        IJobDefinitionService
     {
-        public JobDefinitionService(ILog log)
-            : base(log)
+        public JobDefinitionService(
+            ILogger<JobDefinitionService> logger,
+            ILoadedVersionedTypes loadedVersionedTypes)
+            : base(logger)
         {
+            Load(loadedVersionedTypes.Jobs);
         }
 
         protected override JobDefinition CreateDefinition(int version, Type type, string name)

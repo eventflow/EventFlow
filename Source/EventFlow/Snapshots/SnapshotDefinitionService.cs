@@ -22,17 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Snapshots
 {
-    public class SnapshotDefinitionService : VersionedTypeDefinitionService<ISnapshot, SnapshotVersionAttribute, SnapshotDefinition>, ISnapshotDefinitionService
+    public class SnapshotDefinitionService :
+        VersionedTypeDefinitionService<ISnapshot, SnapshotVersionAttribute, SnapshotDefinition>,
+        ISnapshotDefinitionService
     {
         public SnapshotDefinitionService(
-            ILog log)
-            : base(log)
+            ILogger<SnapshotDefinitionService> logger,
+            ILoadedVersionedTypes loadedVersionedTypes)
+            : base(logger)
         {
+            Load(loadedVersionedTypes.SnapshotTypes);
         }
 
         protected override SnapshotDefinition CreateDefinition(int version, Type type, string name)

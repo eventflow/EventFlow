@@ -34,6 +34,7 @@ using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -77,15 +78,15 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 o => o.WithStrictOrdering());
         }
         
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .AddCommands(new []{typeof(CommandA), typeof(CommandA)})
                 .AddCommandHandlers(typeof(CommandHandlerA), typeof(CommandHandlerB))
                 .AddEvents(typeof(EventA), typeof(EventB))
                 .UseInMemoryReadStoreFor<ReadModelAB, ReadModelLocatorAB>()
-                .RegisterServices(sr => sr.RegisterType(typeof(ReadModelLocatorAB)))
-                .CreateResolver();
+                .RegisterServices(sr => sr.AddTransient(typeof(ReadModelLocatorAB)))
+                .ServiceCollection.BuildServiceProvider();
         }
         
         private class IdA : Identity<IdA>

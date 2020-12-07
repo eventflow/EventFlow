@@ -21,11 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
@@ -35,6 +37,7 @@ using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.Sagas.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 
@@ -170,7 +173,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             receivedSagaPingIds.Should().BeEquivalentTo(pingsWithRunningSaga);
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();
             _thingySagaStartedSubscriber
@@ -178,8 +181,8 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 .Returns(Task.FromResult(0));
 
             return eventFlowOptions
-                .RegisterServices(sr => sr.Register(_ => _thingySagaStartedSubscriber.Object))
-                .CreateResolver();
+                .RegisterServices(sr => sr.AddTransient(_ => _thingySagaStartedSubscriber.Object))
+                .ServiceCollection.BuildServiceProvider();
         }
     }
 }

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,7 +33,6 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -50,7 +50,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
     {
         private Mock<IEventStore> _eventStoreMock;
         private Mock<IAggregateFactory> _aggregateFactoryMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _resolverMock;
         private Mock<IDomainEventPublisher> _domainEventPublisherMock;
 
         [SetUp]
@@ -58,16 +58,16 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         {
             Fixture.Inject<ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(
                 new TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>(
-                    Fixture.Create<ILog>(),
+                    Logger<TransientFaultHandler<IOptimisticConcurrencyRetryStrategy>>(),
                     new OptimisticConcurrencyRetryStrategy(new EventFlowConfiguration())));
 
             _eventStoreMock = InjectMock<IEventStore>();
             _aggregateFactoryMock = InjectMock<IAggregateFactory>();
-            _resolverMock = InjectMock<IResolver>();
+            _resolverMock = InjectMock<IServiceProvider>();
 
             _domainEventPublisherMock = new Mock<IDomainEventPublisher>();
             _resolverMock
-                .Setup(r => r.Resolve<IDomainEventPublisher>())
+                .Setup(r => r.GetService(typeof(IDomainEventPublisher)))
                 .Returns(_domainEventPublisherMock.Object);
 
             _aggregateFactoryMock

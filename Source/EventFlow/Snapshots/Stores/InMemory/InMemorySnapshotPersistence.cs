@@ -27,20 +27,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Snapshots.Stores.InMemory
 {
     public class InMemorySnapshotPersistence : ISnapshotPersistence
     {
-        private readonly ILog _log;
+        private readonly ILogger<InMemorySnapshotPersistence> _logger;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly Dictionary<Type, Dictionary<string, CommittedSnapshot>> _snapshots = new Dictionary<Type, Dictionary<string, CommittedSnapshot>>();
 
         public InMemorySnapshotPersistence(
-            ILog log)
+            ILogger<InMemorySnapshotPersistence> logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public async Task<CommittedSnapshot> GetSnapshotAsync(
@@ -50,14 +50,12 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     return null;
                 }
 
-                CommittedSnapshot committedSnapshot;
-                return snapshots.TryGetValue(identity.Value, out committedSnapshot)
+                return snapshots.TryGetValue(identity.Value, out var committedSnapshot)
                     ? committedSnapshot
                     : null;
             }
@@ -71,10 +69,12 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Verbose(() => $"Setting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+                _logger.LogTrace(
+                    "Setting snapshot {AggregateType} with ID {Id}",
+                    aggregateType.PrettyPrint(),
+                    identity.Value);
 
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     snapshots = new Dictionary<string, CommittedSnapshot>();
                     _snapshots[aggregateType] = snapshots;
@@ -91,10 +91,12 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Verbose(() => $"Deleting snapshot '{aggregateType.PrettyPrint()}' with ID '{identity.Value}'");
+                _logger.LogTrace(
+                    "Deleting snapshot {AggregateType} with ID {Id}",
+                    aggregateType.PrettyPrint(),
+                    identity.Value);
 
-                Dictionary<string, CommittedSnapshot> snapshots;
-                if (!_snapshots.TryGetValue(aggregateType, out snapshots))
+                if (!_snapshots.TryGetValue(aggregateType, out var snapshots))
                 {
                     return;
                 }
@@ -109,7 +111,9 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Warning($"Purging ALL snapshots of type '{aggregateType.PrettyPrint()}'!");
+                _logger.LogWarning(
+                    "Purging ALL snapshots of type {AggregateType}!",
+                    aggregateType.PrettyPrint());
 
                 _snapshots.Remove(aggregateType);
             }
@@ -120,7 +124,7 @@ namespace EventFlow.Snapshots.Stores.InMemory
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                _log.Warning("Purging ALL snapshots!");
+                _logger.LogWarning("Purging ALL snapshots!");
 
                 _snapshots.Clear();
             }

@@ -27,11 +27,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -45,13 +44,13 @@ namespace EventFlow.ReadStores
         private readonly IEventStore _eventStore;
 
         public SingleAggregateReadStoreManager(
-            ILog log,
-            IResolver resolver,
+            ILogger<SingleAggregateReadStoreManager<TAggregate, TIdentity, TReadModelStore, TReadModel>> logger,
+            IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             IReadModelFactory<TReadModel> readModelFactory,
             IEventStore eventStore)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _eventStore = eventStore;
         }
@@ -111,28 +110,49 @@ namespace EventFlow.ReadStores
                 var version = envelopeVersion.Value;
                 if (expectedVersion < version)
                 {
-                    Log.Verbose(() =>
-                        $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' already has version {version} compared to {expectedVersion}, skipping");
+                    if (Logger.IsEnabled(LogLevel.Trace))
+                    {
+                        Logger.LogTrace(
+                            "Read model {ReadModelType} with ID {Id} already has version {Version} compared to {ExpectedVersion}, skipping",
+                            typeof(TReadModel),
+                            readModelEnvelope.ReadModelId,
+                            version,
+                            expectedVersion);
+                    }
 
                     return readModelEnvelope.AsUnmodifedResult();
                 }
 
                 // Apply missing events
-                TIdentity identity = domainEvents.Cast<IDomainEvent<TAggregate, TIdentity>>().First().AggregateIdentity;
+                var identity = domainEvents.Cast<IDomainEvent<TAggregate, TIdentity>>().First().AggregateIdentity;
                 eventsToApply = await _eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                         identity,
                         (int) version + 1,
                         cancellationToken)
                     .ConfigureAwait(false);
 
-                Log.Verbose(() =>
-                    $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' is missing some events {version} < {expectedVersion}, adding them (got {eventsToApply.Count} events)");
+                if (Logger.IsEnabled(LogLevel.Trace))
+                {
+                    Logger.LogTrace(
+                        "Read model {ReadModelType} with ID {Id} is missing some events {Version} < {ExpectedVersion}, adding them (got {MissingEventCount} events)",
+                        typeof(TReadModel).PrettyPrint(),
+                        readModelEnvelope.ReadModelId,
+                        version,
+                        expectedVersion,
+                        eventsToApply.Count);
+                }
             }
             else
             {
                 eventsToApply = domainEvents;
-                Log.Verbose(() => 
-                    $"Read model '{typeof(TReadModel)}' with ID '{readModelEnvelope.ReadModelId}' has version {expectedVersion} (or none), applying events");
+                if (Logger.IsEnabled(LogLevel.Trace))
+                {
+                    Logger.LogTrace( 
+                        "Read model {ReadModelType} with ID {Id} has version {ExpectedVersion} (or none), applying events",
+                        typeof(TReadModel).PrettyPrint(),
+                        readModelEnvelope.ReadModelId,
+                        expectedVersion);
+                }
             }
 
             return await ApplyUpdatesAsync(

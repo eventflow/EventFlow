@@ -25,30 +25,30 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Commands
 {
     public class SerializedCommandPublisher : ISerializedCommandPublisher
     {
-        private readonly ILog _log;
+        private readonly ILogger<SerializedCommandPublisher> _logger;
         private readonly ICommandDefinitionService _commandDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ICommandBus _commandBus;
 
         public SerializedCommandPublisher(
-            ILog log,
+            ILogger<SerializedCommandPublisher> logger,
             ICommandDefinitionService commandDefinitionService,
             IJsonSerializer jsonSerializer,
             ICommandBus commandBus)
         {
-            _log = log;
+            _logger = logger;
             _commandDefinitionService = commandDefinitionService;
             _jsonSerializer = jsonSerializer;
             _commandBus = commandBus;
         }
 
-        public async Task<ISourceId> PublishSerilizedCommandAsync(
+        public async Task<ISourceId> PublishSerializedCommandAsync(
             string name,
             int version,
             string json,
@@ -58,10 +58,12 @@ namespace EventFlow.Commands
             if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version));
             if (string.IsNullOrEmpty(json)) throw new ArgumentNullException(nameof(json));
 
-            _log.Verbose($"Executing serialized command '{name}' v{version}");
+            _logger.LogTrace(
+                "Executing serialized command {CommandName} v{Version}",
+                name,
+                version);
 
-            CommandDefinition commandDefinition;
-            if (!_commandDefinitionService.TryGetDefinition(name, version, out commandDefinition))
+            if (!_commandDefinitionService.TryGetDefinition(name, version, out var commandDefinition))
             {
                 throw new ArgumentException($"No command definition found for command '{name}' v{version}");
             }

@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Queries;
@@ -41,13 +40,14 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTest: Test
     {
-        protected IRootResolver Resolver { get; private set; }
+        protected IServiceProvider ServiceProvider { get; private set; }
         protected IAggregateStore AggregateStore { get; private set; }
         protected IEventStore EventStore { get; private set; }
         protected ISnapshotStore SnapshotStore { get; private set; }
@@ -62,30 +62,30 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            var eventFlowOptions = Options(EventFlowOptions.New)
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
+            var eventFlowOptions = Options(EventFlowOptions.New())
+                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>())
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
                 .AddDefaults(EventFlowTestHelpers.Assembly, 
                     type => type != typeof(DbContextQueryHandler));
 
-            Resolver = CreateRootResolver(eventFlowOptions);
+            ServiceProvider = Configure(eventFlowOptions);
 
-            AggregateStore = Resolver.Resolve<IAggregateStore>();
-            EventStore = Resolver.Resolve<IEventStore>();
-            SnapshotStore = Resolver.Resolve<ISnapshotStore>();
-            SnapshotPersistence = Resolver.Resolve<ISnapshotPersistence>();
-            SnapshotDefinitionService = Resolver.Resolve<ISnapshotDefinitionService>();
-            EventPersistence = Resolver.Resolve<IEventPersistence>();
-            CommandBus = Resolver.Resolve<ICommandBus>();
-            QueryProcessor = Resolver.Resolve<IQueryProcessor>();
-            ReadModelPopulator = Resolver.Resolve<IReadModelPopulator>();
-            SagaStore = Resolver.Resolve<ISagaStore>();
+            AggregateStore = ServiceProvider.GetRequiredService<IAggregateStore>();
+            EventStore = ServiceProvider.GetRequiredService<IEventStore>();
+            SnapshotStore = ServiceProvider.GetRequiredService<ISnapshotStore>();
+            SnapshotPersistence = ServiceProvider.GetRequiredService<ISnapshotPersistence>();
+            SnapshotDefinitionService = ServiceProvider.GetRequiredService<ISnapshotDefinitionService>();
+            EventPersistence = ServiceProvider.GetRequiredService<IEventPersistence>();
+            CommandBus = ServiceProvider.GetRequiredService<ICommandBus>();
+            QueryProcessor = ServiceProvider.GetRequiredService<IQueryProcessor>();
+            ReadModelPopulator = ServiceProvider.GetRequiredService<IReadModelPopulator>();
+            SagaStore = ServiceProvider.GetRequiredService<ISagaStore>();
         }
 
         [TearDown]
         public void TearDownIntegrationTest()
         {
-            Resolver?.Dispose();
+            (ServiceProvider as IDisposable)?.Dispose();
         }
 
         protected virtual IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
@@ -93,7 +93,10 @@ namespace EventFlow.TestHelpers
             return eventFlowOptions;
         }
 
-        protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
+        protected virtual IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        {
+            return eventFlowOptions.ServiceCollection.BuildServiceProvider();
+        }
 
         protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
         {

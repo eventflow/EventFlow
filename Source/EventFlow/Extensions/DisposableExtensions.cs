@@ -22,22 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Extensions
 {
     public static class DisposableExtensions
     {
         public static void DisposeSafe(
-            this IDisposable disposable,
-            string message)
-        {
-            DisposeSafe(disposable, new ConsoleLog(), message);
-        }
-
-        public static void DisposeSafe(
             this IDisposable disposable, 
-            ILog log,
+            ILogger logger,
             string message)
         {
             if (disposable == null) return;
@@ -48,7 +41,7 @@ namespace EventFlow.Extensions
             }
             catch (Exception e)
             {
-                log.Warning(e, message);
+                logger.LogWarning(e, message);
             }
         }
     }

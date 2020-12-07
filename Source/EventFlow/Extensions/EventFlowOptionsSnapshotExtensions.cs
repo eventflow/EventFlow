@@ -25,10 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Configuration;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.InMemory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.Extensions
 {
@@ -82,31 +83,33 @@ namespace EventFlow.Extensions
             this IEventFlowOptions eventFlowOptions,
             IEnumerable<Type> snapshotUpgraderTypes)
         {
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
-                    {
-                        var interfaceType = snapshotUpgraderType
-                            .GetTypeInfo()
-                            .GetInterfaces()
-                            .Single(IsSnapshotUpgraderInterface);
-                        sr.Register(interfaceType, snapshotUpgraderType);
-                    }
-                });
+            foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
+            {
+                var interfaceType = snapshotUpgraderType
+                    .GetTypeInfo()
+                    .GetInterfaces()
+                    .Single(IsSnapshotUpgraderInterface);
+                eventFlowOptions.ServiceCollection.AddTransient(interfaceType, snapshotUpgraderType);
+            }
+
+            return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseSnapshotStore<TSnapshotStore>(
+        public static IEventFlowOptions UseSnapshotPersistence<T>(
             this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
-            where TSnapshotStore : class, ISnapshotPersistence
+            ServiceLifetime serviceLifetime)
+            where T : class, ISnapshotPersistence
         {
-            return eventFlowOptions.RegisterServices(sr => sr.Register<ISnapshotPersistence, TSnapshotStore>(lifetime));
+            eventFlowOptions.ServiceCollection
+                .Replace(ServiceDescriptor.Describe(typeof(ISnapshotPersistence), typeof(T), serviceLifetime));
+
+            return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseInMemorySnapshotStore(
+        public static IEventFlowOptions UseInMemorySnapshotPersistence(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseSnapshotStore<InMemorySnapshotPersistence>(Lifetime.Singleton);
+            return eventFlowOptions.UseSnapshotPersistence<InMemorySnapshotPersistence>(ServiceLifetime.Singleton);
         }
 
         private static bool IsSnapshotUpgraderInterface(Type type)

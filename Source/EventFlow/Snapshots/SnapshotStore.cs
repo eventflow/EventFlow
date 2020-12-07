@@ -25,23 +25,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.Snapshots.Stores;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Snapshots
 {
     public class SnapshotStore : ISnapshotStore
     {
-        private readonly ILog _log;
+        private readonly ILogger<SnapshotStore> _logger;
         private readonly ISnapshotSerilizer _snapshotSerilizer;
         private readonly ISnapshotPersistence _snapshotPersistence;
 
         public SnapshotStore(
-            ILog log,
+            ILogger<SnapshotStore> logger,
             ISnapshotSerilizer snapshotSerilizer,
             ISnapshotPersistence snapshotPersistence)
         {
-            _log = log;
+            _logger = logger;
             _snapshotSerilizer = snapshotSerilizer;
             _snapshotPersistence = snapshotPersistence;
         }
@@ -53,7 +53,10 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            _log.Verbose(() => $"Fetching snapshot for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+            _logger.LogTrace(
+                "Fetching snapshot for {AggregateType} with ID {Id}",
+                typeof(TAggregate).PrettyPrint(),
+                identity);
             var committedSnapshot = await _snapshotPersistence.GetSnapshotAsync(
                 typeof(TAggregate),
                 identity,
@@ -61,7 +64,10 @@ namespace EventFlow.Snapshots
                 .ConfigureAwait(false);
             if (committedSnapshot == null)
             {
-                _log.Verbose(() => $"No snapshot found for '{typeof(TAggregate).PrettyPrint()}' with ID '{identity}'");
+                _logger.LogTrace(
+                    "No snapshot found for {AggregateType} with ID {Id}",
+                    typeof(TAggregate).PrettyPrint(),
+                    identity);
                 return null;
             }
 
@@ -81,7 +87,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var serializedSnapshot = await _snapshotSerilizer.SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+            var serializedSnapshot = await _snapshotSerilizer.SerializeAsync<TAggregate, TIdentity, TSnapshot>(
                 snapshotContainer,
                 cancellationToken)
                 .ConfigureAwait(false);
