@@ -42,11 +42,11 @@ jobs:
         run: dotnet test -c Release --no-build
       
       - name: Pack
-        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=$EVENTFLOW_VERSION
+        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=$EVENTFLOW_VERSION -p:Version=$EVENTFLOW_VERSION -p:AssemblyVersion=$EVENTFLOW_VERSION
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: nupkg
+          name: packages
           path: "./**/EventFlow*${{ env.EVENTFLOW_VERSION}}.*nupkg"
 
