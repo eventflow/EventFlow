@@ -22,7 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using JetBrains.Annotations;
 
 namespace EventFlow.Exceptions
 {
@@ -38,7 +37,6 @@ namespace EventFlow.Exceptions
         {
         }
 
-        [StringFormatMethod("format")]
         public static DomainError With(string format, params object[] args)
         {
             var message = args.Length <= 0
@@ -47,7 +45,6 @@ namespace EventFlow.Exceptions
             return new DomainError(message);
         }
 
-        [StringFormatMethod("format")]
         public static DomainError With(Exception innerException, string format, params object[] args)
         {
             var message = args.Length <= 0
