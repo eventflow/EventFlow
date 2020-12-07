@@ -21,7 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup .NET Core
+      - name: Setup .NET Core v2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.811
+
+      - name: Setup .NET Core v3.1
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.401
