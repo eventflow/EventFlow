@@ -42,7 +42,7 @@ jobs:
           arrTag=(${GITHUB_REF//\// })
           VERSION="${arrTag[2]}"
           VERSION="${VERSION//v}"
-          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=${{ env.VERSION }} -o packages
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o packages
 
       - name: Push to GitHub Feed
         run: |
