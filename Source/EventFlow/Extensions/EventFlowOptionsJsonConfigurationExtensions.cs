@@ -29,8 +29,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsJsonConfigurationExtensions
     {
-        public static IEventFlowOptions ConfigureJson(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions ConfigureJson(
+            this EventFlowOptions eventFlowOptions,
             Func<IJsonOptions, IJsonOptions> configure)
         {
             if (configure == null)

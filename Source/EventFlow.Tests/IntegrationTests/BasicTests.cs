@@ -86,7 +86,7 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [TestCaseSource(nameof(TestCases))]
-        public async Task BasicFlow(IEventFlowOptions eventFlowOptions)
+        public async Task BasicFlow(EventFlowOptions eventFlowOptions)
         {
             // Arrange
             using (var serviceProvider = eventFlowOptions
@@ -130,7 +130,7 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        public static IEnumerable<IEventFlowOptions> TestCases()
+        public static IEnumerable<EventFlowOptions> TestCases()
         {
             yield return EventFlowOptions.New();
         }

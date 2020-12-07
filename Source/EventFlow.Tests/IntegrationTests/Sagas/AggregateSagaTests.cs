@@ -173,7 +173,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             receivedSagaPingIds.Should().BeEquivalentTo(pingsWithRunningSaga);
         }
 
-        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(EventFlowOptions eventFlowOptions)
         {
             _thingySagaStartedSubscriber = new Mock<ISubscribeSynchronousTo<ThingySaga, ThingySagaId, ThingySagaStartedEvent>>();
             _thingySagaStartedSubscriber

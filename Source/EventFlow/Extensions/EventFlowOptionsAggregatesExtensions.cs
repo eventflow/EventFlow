@@ -30,15 +30,15 @@ namespace EventFlow.Extensions
     public static class EventFlowOptionsAggregatesExtensions
     {
         [Obsolete("Resolver aggregate factory is the default, simply remove this call")]
-        public static IEventFlowOptions UseResolverAggregateRootFactory(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseResolverAggregateRootFactory(
+            this EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions;
         }
 
         [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
-        public static IEventFlowOptions AddAggregateRoots(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddAggregateRoots(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -46,16 +46,16 @@ namespace EventFlow.Extensions
         }
 
         [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
-        public static IEventFlowOptions AddAggregateRoots(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddAggregateRoots(
+            this EventFlowOptions eventFlowOptions,
             params Type[] aggregateRootTypes)
         {
             return eventFlowOptions;
         }
 
         [Obsolete("Default aggregate factory doesn't require aggregate roots to be registered, simply remove this call")]
-        public static IEventFlowOptions AddAggregateRoots(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddAggregateRoots(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> aggregateRootTypes)
         {
             return eventFlowOptions;

@@ -39,8 +39,8 @@ namespace EventFlow.Extensions
         private static readonly Type SubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
 
         [Obsolete("Please use the more explicit method 'AddSynchronousSubscriber<,,,>' instead")]
-        public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
@@ -51,8 +51,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
@@ -63,8 +63,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions AddAsynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddAsynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
+            this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEvent : IAggregateEvent<TAggregate, TIdentity>
@@ -75,15 +75,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions AddSubscribers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSubscribers(
+            this EventFlowOptions eventFlowOptions,
             params Type[] types)
         {
             return eventFlowOptions.AddSubscribers((IEnumerable<Type>) types);
         }
 
-        public static IEventFlowOptions AddSubscribers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSubscribers(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -96,8 +96,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddSubscribers(types);
         }
 
-        public static IEventFlowOptions AddSubscribers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSubscribers(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> subscribeSynchronousToTypes)
         {
             foreach (var subscribeSynchronousToType in subscribeSynchronousToTypes)

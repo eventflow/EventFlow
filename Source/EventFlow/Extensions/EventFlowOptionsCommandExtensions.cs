@@ -30,15 +30,15 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsCommandExtensions
     {
-        public static IEventFlowOptions AddCommands(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddCommands(
+            this EventFlowOptions eventFlowOptions,
             params Type[] commandTypes)
         {
             return eventFlowOptions.AddCommands(commandTypes);
         }
 
-        public static IEventFlowOptions AddCommands(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddCommands(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {

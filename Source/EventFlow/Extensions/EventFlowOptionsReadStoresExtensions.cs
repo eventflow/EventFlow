@@ -43,22 +43,22 @@ namespace EventFlow.Extensions
                 .GetMethods()
                 .Single(m => m.Name == nameof(UseReadStoreFor) && m.GetGenericArguments().Length == 4);
 
-        public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseReadStoreFor<TReadStore, TReadModel>(
+            this EventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel
         {
             (Type aggregateType, Type idType) = GetSingleAggregateTypes<TReadModel>();
 
-            return (IEventFlowOptions)
+            return (EventFlowOptions)
                 UseSingleAggregateRestoreMethod
                     .MakeGenericMethod(aggregateType, idType, typeof(TReadStore), typeof(TReadModel))
                     .Invoke(null, new object[] {eventFlowOptions});
         }
 
         [Obsolete("Use the simpler method UseReadStoreFor<TReadStore, TReadModel> instead.")]
-        public static IEventFlowOptions UseReadStoreFor<TAggregate, TIdentity, TReadStore, TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseReadStoreFor<TAggregate, TIdentity, TReadStore, TReadModel>(
+            this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TReadStore : class, IReadModelStore<TReadModel>
@@ -70,8 +70,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseReadStoreFor<TReadStore, TReadModel, TReadModelLocator>(
+            this EventFlowOptions eventFlowOptions)
             where TReadStore : class, IReadModelStore<TReadModel>
             where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
@@ -82,8 +82,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel>(
+            this EventFlowOptions eventFlowOptions)
             where TReadModel : class, IReadModel
         {
             RegisterInMemoryReadStore<TReadModel>(eventFlowOptions.ServiceCollection);
@@ -91,8 +91,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseInMemoryReadStoreFor<TReadModel, TReadModelLocator>(
+            this EventFlowOptions eventFlowOptions)
             where TReadModel : class, IReadModel
             where TReadModelLocator : IReadModelLocator
         {

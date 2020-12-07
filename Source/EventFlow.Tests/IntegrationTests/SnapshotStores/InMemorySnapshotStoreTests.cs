@@ -33,7 +33,7 @@ namespace EventFlow.Tests.IntegrationTests.SnapshotStores
     [Category(Categories.Integration)]
     public class InMemorySnapshotStoreTests : TestSuiteForSnapshotStore
     {
-        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .UseInMemorySnapshotPersistence()

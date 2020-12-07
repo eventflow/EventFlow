@@ -39,7 +39,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
     {
         protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
 
-        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))

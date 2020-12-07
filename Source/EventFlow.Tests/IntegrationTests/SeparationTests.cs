@@ -65,7 +65,7 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        private static ServiceProvider SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        private static ServiceProvider SetupEventFlow(Func<EventFlowOptions, EventFlowOptions> configure = null)
         {
             var eventFlowOptions = EventFlowOptions.New()
                 .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())

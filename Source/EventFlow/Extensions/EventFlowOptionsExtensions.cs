@@ -28,8 +28,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsExtensions
     {
-        public static IEventFlowOptions RegisterServices(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions RegisterServices(
+            this EventFlowOptions eventFlowOptions,
             Action<IServiceCollection> registerServices)
         {
             registerServices(eventFlowOptions.ServiceCollection);

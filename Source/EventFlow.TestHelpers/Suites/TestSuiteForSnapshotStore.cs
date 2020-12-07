@@ -202,7 +202,7 @@ namespace EventFlow.TestHelpers.Suites
             thingyAggregate.SnapshotVersions.Should().Contain(new[] {ThingySnapshotVersion.Version1, ThingySnapshotVersion.Version2});
         }
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected override EventFlowOptions Options(EventFlowOptions eventFlowOptions)
         {
             return base.Options(eventFlowOptions)
                 .UseInMemorySnapshotPersistence();

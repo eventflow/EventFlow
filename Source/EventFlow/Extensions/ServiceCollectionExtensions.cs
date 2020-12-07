@@ -30,7 +30,7 @@ namespace EventFlow.Extensions
     {
         public static IServiceCollection AddEventFlow(
             this IServiceCollection serviceCollection,
-            Action<IEventFlowOptions> configurator = null)
+            Action<EventFlowOptions> configurator = null)
         {
             var eventFlowOptions = EventFlowOptions.New(serviceCollection);
             configurator?.Invoke(eventFlowOptions);

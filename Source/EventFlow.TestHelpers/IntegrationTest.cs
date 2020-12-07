@@ -88,12 +88,12 @@ namespace EventFlow.TestHelpers
             (ServiceProvider as IDisposable)?.Dispose();
         }
 
-        protected virtual IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected virtual EventFlowOptions Options(EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions;
         }
 
-        protected virtual IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        protected virtual IServiceProvider Configure(EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions.ServiceCollection.BuildServiceProvider();
         }

@@ -50,18 +50,18 @@ using Microsoft.Extensions.Logging;
 
 namespace EventFlow
 {
-    public class EventFlowOptions : IEventFlowOptions
+    public class EventFlowOptions
     {
-        private readonly List<Type> _aggregateEventTypes = new List<Type>();
-        private readonly List<Type> _sagaTypes = new List<Type>(); 
-        private readonly List<Type> _commandTypes = new List<Type>();
-        private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private readonly List<Type> _jobTypes = new List<Type>
+        public List<Type> AggregateEvents { get; } = new List<Type>();
+        public  List<Type> Sagas { get; } = new List<Type>(); 
+        public List<Type> Commands { get; } = new List<Type>();
+        public EventFlowConfiguration Settings { get; } = new EventFlowConfiguration();
+        public List<Type> Jobs { get; } = new List<Type>
             {
                 typeof(PublishCommandJob),
                 typeof(DispatchToAsynchronousEventSubscribersJob)
             };
-        private readonly List<Type> _snapshotTypes = new List<Type>(); 
+        public List<Type> Snapshots { get; } = new List<Type>(); 
 
         public IServiceCollection ServiceCollection { get; }
 
@@ -72,30 +72,32 @@ namespace EventFlow
             RegisterDefaults(ServiceCollection);
         }
 
-        public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection()
+        public static EventFlowOptions New() => new EventFlowOptions(new ServiceCollection()
             .AddLogging(b => b.AddConsole()));
-        public static IEventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
 
-        public IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
+        public static EventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
+
+        public EventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
         {
-            _eventFlowConfiguration.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
-            _eventFlowConfiguration.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
+            Settings.NumberOfRetriesOnOptimisticConcurrencyExceptions = retries;
+            Settings.DelayBeforeRetryOnOptimisticConcurrencyExceptions = delayBeforeRetry;
+
             return this;
         }
 
-        public IEventFlowOptions ConfigureThrowSubscriberExceptions(bool shouldThrow)
+        public EventFlowOptions ConfigureThrowSubscriberExceptions(bool shouldThrow)
         {
-            _eventFlowConfiguration.ThrowSubscriberExceptions = shouldThrow;
+            Settings.ThrowSubscriberExceptions = shouldThrow;
             return this;
         }
 
-        public IEventFlowOptions Configure(Action<EventFlowConfiguration> configure)
+        public EventFlowOptions Configure(Action<EventFlowConfiguration> configure)
         {
-            configure(_eventFlowConfiguration);
+            configure(Settings);
             return this;
         }
 
-        public IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
+        public EventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes)
         {
             foreach (var aggregateEventType in aggregateEventTypes)
             {
@@ -103,12 +105,12 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {aggregateEventType.PrettyPrint()} is not a {typeof(IAggregateEvent).PrettyPrint()}");
                 }
-                _aggregateEventTypes.Add(aggregateEventType);
+                AggregateEvents.Add(aggregateEventType);
             }
             return this;
         }
 
-        public IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes)
+        public EventFlowOptions AddSagas(IEnumerable<Type> sagaTypes)
         {
             foreach (var sagaType in sagaTypes)
             {
@@ -116,12 +118,13 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {sagaType.PrettyPrint()} is not a {typeof(ISaga).PrettyPrint()}");
                 }
-                _sagaTypes.Add(sagaType);
+                Sagas.Add(sagaType);
             }
+
             return this;
         }
 
-        public IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
+        public EventFlowOptions AddCommands(IEnumerable<Type> commandTypes)
         {
             foreach (var commandType in commandTypes)
             {
@@ -129,12 +132,12 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {commandType.PrettyPrint()} is not a {typeof(ICommand).PrettyPrint()}");
                 }
-                _commandTypes.Add(commandType);
+                Commands.Add(commandType);
             }
             return this;
         }
 
-        public IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
+        public EventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
         {
             foreach (var jobType in jobTypes)
             {
@@ -142,12 +145,12 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {jobType.PrettyPrint()} is not a {typeof(IJob).PrettyPrint()}");
                 }
-                _jobTypes.Add(jobType);
+                Jobs.Add(jobType);
             }
             return this;
         }
 
-        public IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes)
+        public EventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes)
         {
             foreach (var snapshotType in snapshotTypes)
             {
@@ -155,7 +158,7 @@ namespace EventFlow
                 {
                     throw new ArgumentException($"Type {snapshotType.PrettyPrint()} is not a {typeof(ISnapshot).PrettyPrint()}");
                 }
-                _snapshotTypes.Add(snapshotType);
+                Snapshots.Add(snapshotType);
             }
             return this;
         }
@@ -198,8 +201,8 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ISagaErrorHandler, SagaErrorHandler>();
             serviceCollection.TryAddTransient<IDispatchToSagas, DispatchToSagas>();
             serviceCollection.TryAddTransient(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
-            serviceCollection.TryAddTransient<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
-            serviceCollection.TryAddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
+            serviceCollection.TryAddTransient<IEventFlowConfiguration>(_ => Settings);
+            serviceCollection.TryAddTransient<ICancellationConfiguration>(_ => Settings);
             serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             serviceCollection.TryAddSingleton(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>));
 
@@ -210,12 +213,12 @@ namespace EventFlow
             serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
             serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
 
-            serviceCollection.AddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
-                _jobTypes,
-                _commandTypes,
-                _aggregateEventTypes,
-                _sagaTypes,
-                _snapshotTypes));
+            serviceCollection.TryAddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
+                Jobs,
+                Commands,
+                AggregateEvents,
+                Sagas,
+                Snapshots));
         }
     }
 }

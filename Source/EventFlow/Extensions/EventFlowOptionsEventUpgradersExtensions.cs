@@ -34,8 +34,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsEventUpgradersExtensions
     {
-        public static IEventFlowOptions AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity, TEventUpgrader>(
+            this EventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
@@ -45,8 +45,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
+            this EventFlowOptions eventFlowOptions,
             Func<IServiceProvider, IEventUpgrader<TAggregate, TIdentity>> factory)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
@@ -55,8 +55,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions AddEventUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddEventUpgraders(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -70,16 +70,16 @@ namespace EventFlow.Extensions
                 .AddEventUpgraders(eventUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddEventUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddEventUpgraders(
+            this EventFlowOptions eventFlowOptions,
             params Type[] eventUpgraderTypes)
         {
             return eventFlowOptions
                 .AddEventUpgraders((IEnumerable<Type>)eventUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddEventUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddEventUpgraders(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> eventUpgraderTypes)
         {
             foreach (var eventUpgraderType in eventUpgraderTypes)

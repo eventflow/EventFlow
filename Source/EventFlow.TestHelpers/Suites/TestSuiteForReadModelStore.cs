@@ -322,7 +322,7 @@ namespace EventFlow.TestHelpers.Suites
 
         private readonly Dictionary<string, WaitState> _waitStates = new Dictionary<string, WaitState>();
 
-        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        protected override EventFlowOptions Options(EventFlowOptions eventFlowOptions)
         {
             _waitStates.Clear();
 

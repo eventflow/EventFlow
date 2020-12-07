@@ -32,8 +32,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsQueriesExtensions
     {
-        public static IEventFlowOptions AddQueryHandler<TQueryHandler, TQuery, TResult>(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions AddQueryHandler<TQueryHandler, TQuery, TResult>(
+            this EventFlowOptions eventFlowOptions)
             where TQueryHandler : class, IQueryHandler<TQuery, TResult>
             where TQuery : IQuery<TResult>
         {
@@ -42,15 +42,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions AddQueryHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddQueryHandlers(
+            this EventFlowOptions eventFlowOptions,
             params Type[] queryHandlerTypes)
         {
             return eventFlowOptions.AddQueryHandlers((IEnumerable<Type>)queryHandlerTypes);
         }
 
-        public static IEventFlowOptions AddQueryHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddQueryHandlers(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -64,8 +64,8 @@ namespace EventFlow.Extensions
                 .AddQueryHandlers(subscribeSynchronousToTypes);
         }
 
-        public static IEventFlowOptions AddQueryHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddQueryHandlers(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> queryHandlerTypes)
         {
             foreach (var queryHandlerType in queryHandlerTypes)

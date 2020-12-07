@@ -35,15 +35,15 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSnapshotExtensions
     {
-        public static IEventFlowOptions AddSnapshots(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSnapshots(
+            this EventFlowOptions eventFlowOptions,
             params Type[] snapshotTypes)
         {
             return eventFlowOptions.AddSnapshots(snapshotTypes);
         }
 
-        public static IEventFlowOptions AddSnapshots(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSnapshots(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -55,8 +55,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddSnapshots(snapshotTypes);
         }
 
-        public static IEventFlowOptions AddSnapshotUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSnapshotUpgraders(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -72,15 +72,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddSnapshotUpgraders(snapshotUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddSnapshotUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSnapshotUpgraders(
+            this EventFlowOptions eventFlowOptions,
             params Type[] snapshotUpgraderTypes)
         {
             return eventFlowOptions.AddSnapshotUpgraders((IEnumerable<Type>)snapshotUpgraderTypes);
         }
 
-        public static IEventFlowOptions AddSnapshotUpgraders(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSnapshotUpgraders(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> snapshotUpgraderTypes)
         {
             foreach (var snapshotUpgraderType in snapshotUpgraderTypes)
@@ -95,8 +95,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseSnapshotPersistence<T>(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions UseSnapshotPersistence<T>(
+            this EventFlowOptions eventFlowOptions,
             ServiceLifetime serviceLifetime)
             where T : class, ISnapshotPersistence
         {
@@ -106,8 +106,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseInMemorySnapshotPersistence(
-            this IEventFlowOptions eventFlowOptions)
+        public static EventFlowOptions UseInMemorySnapshotPersistence(
+            this EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions.UseSnapshotPersistence<InMemorySnapshotPersistence>(ServiceLifetime.Singleton);
         }

@@ -78,7 +78,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 o => o.WithStrictOrdering());
         }
         
-        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(EventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
                 .AddCommands(new []{typeof(CommandA), typeof(CommandA)})

@@ -45,7 +45,7 @@ namespace EventFlow.Tests.Exploration
     public class RegisterSubscribersExplorationTests : Test
     {
         [TestCaseSource(nameof(TestCases))]
-        public async Task TestRegisterAsynchronousSubscribersAsync(Func<IEventFlowOptions, IEventFlowOptions> register)
+        public async Task TestRegisterAsynchronousSubscribersAsync(Func<EventFlowOptions, EventFlowOptions> register)
         {
             // Arrange
             var wasHandled = false;
@@ -72,7 +72,7 @@ namespace EventFlow.Tests.Exploration
             wasHandled.Should().BeTrue();
         }
 
-        public static IEnumerable<Func<IEventFlowOptions, IEventFlowOptions>> TestCases()
+        public static IEnumerable<Func<EventFlowOptions, EventFlowOptions>> TestCases()
         {
             yield return o =>
                 {

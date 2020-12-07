@@ -30,8 +30,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsEventStoresExtensions
     {
-        public static IEventFlowOptions UseEventPersistence(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions UseEventPersistence(
+            this EventFlowOptions eventFlowOptions,
             Func<IServiceProvider, IEventPersistence> eventPersistenceResolver,
             ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
@@ -40,8 +40,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseEventPersistence<TEventPersistence>(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions UseEventPersistence<TEventPersistence>(
+            this EventFlowOptions eventFlowOptions,
             ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
             where TEventPersistence : class, IEventPersistence
         {
@@ -50,8 +50,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions;
         }
 
-        public static IEventFlowOptions UseFilesEventPersistence(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions UseFilesEventPersistence(
+            this EventFlowOptions eventFlowOptions,
             IFilesEventStoreConfiguration filesEventStoreConfiguration)
         {
             eventFlowOptions.ServiceCollection

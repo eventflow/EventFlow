@@ -31,8 +31,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsEventsExtensions
     {
-        public static IEventFlowOptions AddEvents(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddEvents(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -44,8 +44,8 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddEvents(aggregateEventTypes);
         }
 
-        public static IEventFlowOptions AddEvents(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddEvents(
+            this EventFlowOptions eventFlowOptions,
             params Type[] aggregateEventTypes)
         {
             return eventFlowOptions.AddEvents((IEnumerable<Type>)aggregateEventTypes);

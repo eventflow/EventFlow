@@ -32,8 +32,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsCommandHandlerExtensions
     {
-        public static IEventFlowOptions AddCommandHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddCommandHandlers(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -46,15 +46,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddCommandHandlers(commandHandlerTypes);
         }
 
-        public static IEventFlowOptions AddCommandHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddCommandHandlers(
+            this EventFlowOptions eventFlowOptions,
             params Type[] commandHandlerTypes)
         {
             return eventFlowOptions.AddCommandHandlers((IEnumerable<Type>) commandHandlerTypes);
         }
 
-        public static IEventFlowOptions AddCommandHandlers(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddCommandHandlers(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> commandHandlerTypes)
         {
             foreach (var commandHandlerType in commandHandlerTypes)

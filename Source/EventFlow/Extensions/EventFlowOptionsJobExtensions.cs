@@ -30,15 +30,15 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsJobExtensions
     {
-        public static IEventFlowOptions AddJobs(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddJobs(
+            this EventFlowOptions eventFlowOptions,
             params Type[] jobTypes)
         {
             return eventFlowOptions.AddJobs(jobTypes);
         }
 
-        public static IEventFlowOptions AddJobs(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddJobs(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {

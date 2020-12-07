@@ -32,8 +32,8 @@ namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsSagasExtensions
     {
-        public static IEventFlowOptions AddSagas(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSagas(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -46,15 +46,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddSagas(sagaTypes);
         }
 
-        public static IEventFlowOptions AddSagas(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSagas(
+            this EventFlowOptions eventFlowOptions,
             params Type[] sagaTypes)
         {
             return eventFlowOptions.AddSagas(sagaTypes);
         }
 
-        public static IEventFlowOptions AddSagaLocators(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSagaLocators(
+            this EventFlowOptions eventFlowOptions,
             Assembly fromAssembly,
             Predicate<Type> predicate = null)
         {
@@ -68,15 +68,15 @@ namespace EventFlow.Extensions
             return eventFlowOptions.AddSagaLocators(sagaTypes);
         }
 
-        public static IEventFlowOptions AddSagaLocators(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSagaLocators(
+            this EventFlowOptions eventFlowOptions,
             params Type[] sagaLocatorTypes)
         {
             return eventFlowOptions.AddSagaLocators((IEnumerable<Type>)sagaLocatorTypes);
         }
 
-        public static IEventFlowOptions AddSagaLocators(
-            this IEventFlowOptions eventFlowOptions,
+        public static EventFlowOptions AddSagaLocators(
+            this EventFlowOptions eventFlowOptions,
             IEnumerable<Type> sagaLocatorTypes)
         {
             foreach (var sagaLocatorType in sagaLocatorTypes)

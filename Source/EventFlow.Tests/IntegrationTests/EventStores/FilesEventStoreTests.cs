@@ -37,7 +37,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     {
         private IFilesEventStoreConfiguration _configuration;
 
-        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(EventFlowOptions eventFlowOptions)
         {
             var storePath = Path.Combine(
                 Path.GetTempPath(),
