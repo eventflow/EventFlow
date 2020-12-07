@@ -48,5 +48,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
-          path: "./**/*$EVENTFLOW_VERSION.nupkg"
+          path: "./**/EventFlow*${{ env.EVENTFLOW_VERSION}}.*nupkg"
 
