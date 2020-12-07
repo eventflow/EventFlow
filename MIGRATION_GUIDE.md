@@ -1,8 +1,14 @@
+# WORK IN PROGRESS
+
+This is still just a collection of notes. Will slowly evolve as the API for
+1.0 becomes clear.
+
 # Migration guide 0.x to 1.x
 
 ## NuGet packages removed
 
-- `EventFlow.Autofac` use nagive Autofac integration for
+- `EventFlow.Autofac` use native Autofac integration packages for Microsoft
+  dependency injection
 - `EventFlow.DependencyInjection` now integrated into the core package
   `Microsoft.Extensions.DependencyInjection`
 - `EventFlow.Owin` switch to ASP.NET Core
