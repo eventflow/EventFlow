@@ -47,5 +47,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
-          path: ./src/**/*/bin/Release/*$GITHUB_RUN_ID.nupkg
+          path: ./**/bin/Release/EventFlow*$GITHUB_RUN_ID.nupkg
 
