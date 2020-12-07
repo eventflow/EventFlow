@@ -32,7 +32,7 @@ jobs:
           dotnet-version: 3.1.401
 
       - name: Restore
-        run: dotnet restore -c Release
+        run: dotnet restore
 
       - name: Build
         run: dotnet build -c Release --no-restore 
