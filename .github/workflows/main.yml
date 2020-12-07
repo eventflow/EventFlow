@@ -30,7 +30,7 @@ jobs:
           arrTag=(${GITHUB_REF//\// })
           VERSION="${arrTag[2]}"
           VERSION="${VERSION//v}"
-          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o packages
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=${{ env.VERSION }}-alpha -o packages
 
       - name: Push to GitHub Feed
         run: |
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      EVENTFLOW_VERSION: "0.0.${{ github.run_number }}-pullrequest"
+      EVENTFLOW_VERSION: "0.0.${{ github.run_number }}"
 
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +68,7 @@ jobs:
         run: dotnet test -c Release --no-build
       
       - name: Pack
-        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=$EVENTFLOW_VERSION -p:Version=$EVENTFLOW_VERSION -p:AssemblyVersion=$EVENTFLOW_VERSION
+        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=${{ env.EVENTFLOW_VERSION }}-pr -p:Version=$EVENTFLOW_VERSION -p:AssemblyVersion=$EVENTFLOW_VERSION
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
