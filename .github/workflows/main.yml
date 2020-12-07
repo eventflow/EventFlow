@@ -32,12 +32,20 @@ jobs:
           dotnet-version: 3.1.401
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore -c Release
 
       - name: Build
-        run: dotnet build -c Release --no-restore
+        run: dotnet build -c Release --no-restore 
 
       - name: Test
         run: dotnet test -c Release --no-build
+      
+      - name: Pack
+        run: dotnet pack -c Release --no-restore --include-symbols --include-source -p:PackageVersion=$GITHUB_RUN_ID
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nupkg
+          path: ./src/**/*/bin/Release/*$GITHUB_RUN_ID.nupkg
 
