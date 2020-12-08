@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -21,23 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
 
-namespace EventFlow.Sagas
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    public interface ISagaErrorHandler
-    {
-        Task<bool> HandleAsync(
-            ISagaId sagaId,
-            SagaDetails sagaDetails,
-            Exception exception,
-            CancellationToken cancellationToken);
-    }
-
-    public interface ISagaErrorHandler<TSaga> : ISagaErrorHandler
-        where TSaga : ISaga
+    [EventVersion("ThingySagaExceptionRequested", 1)]
+    public class ThingySagaExceptionRequestedEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
     }
 }
