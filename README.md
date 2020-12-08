@@ -26,10 +26,6 @@
       </p>
       -->
     </td>
-    <td  width="25%">
-      Think EventFlow is great,<br/>
-      <a href="https://www.paypal.me/rasmusnu">buy me a cup of coffee</a>
-    </td>
   </tr>
 </table>
 
