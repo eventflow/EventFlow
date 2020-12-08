@@ -26,7 +26,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Examples.Shipping.Application;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects;
@@ -34,10 +33,9 @@ using EventFlow.Examples.Shipping.Domain.Model.LocationModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
 using EventFlow.Examples.Shipping.Queries.InMemory;
-using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
@@ -45,32 +43,32 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
     [Category(Categories.Integration)]
     public class Scenarios : Test
     {
-        private IRootResolver _resolver;
+        private IServiceProvider _serviceProvider;
         private IAggregateStore _aggregateStore;
         private ICommandBus _commandBus;
 
         [SetUp]
         public void SetUp()
         {
-            _resolver = EventFlowOptions.New
+            _serviceProvider = EventFlowOptions.New()
                 .ConfigureShippingDomain()
                 .ConfigureShippingQueriesInMemory()
-                .CreateResolver();
-            _aggregateStore = _resolver.Resolve<IAggregateStore>();
-            _commandBus = _resolver.Resolve<ICommandBus>();
+                .ServiceCollection.BuildServiceProvider();
+            _aggregateStore = _serviceProvider.GetRequiredService<IAggregateStore>();
+            _commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _resolver.DisposeSafe(new ConsoleLog(), "");
+            ((IDisposable)_serviceProvider).Dispose();
         }
 
         [Test]
         public async Task Simple()
         {
-            await CreateLocationAggregatesAsync().ConfigureAwait(false);
-            await CreateVoyageAggregatesAsync().ConfigureAwait(false);
+            await CreateLocationAggregatesAsync();
+            await CreateVoyageAggregatesAsync();
 
             var route = new Route(
                 Locations.Tokyo,
@@ -78,10 +76,10 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
                 1.October(2008).At(11, 00),
                 6.November(2008).At(12, 00));
 
-            var booking = _resolver.Resolve<IBookingApplicationService>();
-            await booking.BookCargoAsync(route, CancellationToken.None).ConfigureAwait(false);
+            var booking = _serviceProvider.GetRequiredService<IBookingApplicationService>();
+            await booking.BookCargoAsync(route, CancellationToken.None);
 
-            var voyage = _resolver.Resolve<IScheduleApplicationService>();
+            var voyage = _serviceProvider.GetRequiredService<IScheduleApplicationService>();
 
             await voyage.DelayScheduleAsync(
                 Voyages.DallasToHelsinkiId,
@@ -122,8 +120,7 @@ namespace EventFlow.Examples.Shipping.Tests.IntegrationTests
                         action(a);
                         return Task.FromResult(0);
                     },
-                CancellationToken.None)
-                .ConfigureAwait(false);
+                CancellationToken.None);
         }
     }
 }
