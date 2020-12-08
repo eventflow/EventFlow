@@ -21,14 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Jobs;
 using EventFlow.Queries;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs
 {
@@ -43,15 +44,15 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs
             VoyageId = voyageId;
         }
 
-        public async Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
             // Consideration: Fetching all cargos that are affected by an updated
             // schedule could potentially fetch several thousands. Each of these
             // potential re-routes would then take a considerable amount of time
             // and will thus be required to be executed in parallel
 
-            var queryProcessor = resolver.Resolve<IQueryProcessor>();
-            var jobScheduler = resolver.Resolve<IJobScheduler>();
+            var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
+            var jobScheduler = serviceProvider.GetRequiredService<IJobScheduler>();
 
             var cargos = await queryProcessor.ProcessAsync(new GetCargosDependentOnVoyageQuery(VoyageId), cancellationToken).ConfigureAwait(false);
             var jobs = cargos.Select(c => new VerifyCargoItineraryJob(c.Id));

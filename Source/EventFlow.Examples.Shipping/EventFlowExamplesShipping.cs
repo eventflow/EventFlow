@@ -26,6 +26,7 @@ using EventFlow.Examples.Shipping.Application;
 using EventFlow.Examples.Shipping.Domain.Services;
 using EventFlow.Examples.Shipping.ExternalServices.Routing;
 using EventFlow.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Examples.Shipping
 {
@@ -39,10 +40,10 @@ namespace EventFlow.Examples.Shipping
                 .AddDefaults(Assembly)
                 .RegisterServices(sr =>
                     {
-                        sr.Register<IBookingApplicationService, BookingApplicationService>();
-                        sr.Register<IScheduleApplicationService, ScheduleApplicationService>();
-                        sr.Register<IUpdateItineraryService, UpdateItineraryService>();
-                        sr.Register<IRoutingService, RoutingService>();
+                        sr.AddTransient<IBookingApplicationService, BookingApplicationService>();
+                        sr.AddTransient<IScheduleApplicationService, ScheduleApplicationService>();
+                        sr.AddTransient<IUpdateItineraryService, UpdateItineraryService>();
+                        sr.AddTransient<IRoutingService, RoutingService>();
                     });
         }
     }
