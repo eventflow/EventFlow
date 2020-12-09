@@ -22,10 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Configuration;
+using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Sagas;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Threading;
@@ -36,8 +39,10 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
     [Category(Categories.Integration)]
     public class SagaErrorHandlerTests : IntegrationTest
     {
+        private Mock<ISagaErrorHandler<ThingySaga>> _thingySagaErrorHandler;
+
         [Test]
-        public async Task DefaultSagaErrorHandlerNotHandleException()
+        public async Task DefaultSagaErrorHandlerDoNotHandleException()
         {
             // Arrange
             var thingyId = A<ThingyId>();
@@ -53,13 +58,47 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             
             // Assert
             commandPublishAction.Should().Throw<Exception>()
-                .WithMessage("Exception thrown by HandleAsync with ThingyThrowExceptionInSagaCommand");
+                .WithMessage("Exception thrown (as requested by ThingySagaExceptionRequestedEvent)");
+        }
+
+        [Test]
+        public async Task SpecificSagaErrorHandlerHandleException()
+        {
+            // Arrange
+            var thingyId = A<ThingyId>();
+            var realThingySagaErrorHandler = Resolver.Resolve<ThingySagaErrorHandler>();
+            _thingySagaErrorHandler.Setup(s => s.HandleAsync(It.IsAny<ISagaId>(), It.IsAny<SagaDetails>(),
+                    It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
+                .Returns((ISagaId sagaId, SagaDetails sagaDetails, Exception exception,
+                        CancellationToken cancellationToken) =>
+                    realThingySagaErrorHandler.HandleAsync(sagaId, sagaDetails, exception, cancellationToken));
+
+            // Act
+            await CommandBus.PublishAsync(new ThingyRequestSagaStartCommand(thingyId), CancellationToken.None)
+                .ConfigureAwait(false);
+            Func<Task> commandPublishAction = async () =>
+            {
+                await CommandBus.PublishAsync(new ThingyThrowExceptionInSagaCommand(thingyId), CancellationToken.None)
+                    .ConfigureAwait(false);
+            };
+
+            // Assert
+            commandPublishAction.Should().NotThrow<Exception>();
         }
 
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
+            _thingySagaErrorHandler = new Mock<ISagaErrorHandler<ThingySaga>>();
+            _thingySagaErrorHandler.Setup(s => s.HandleAsync(It.IsAny<ISagaId>(), It.IsAny<SagaDetails>(),
+                    It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(false));
+
             return eventFlowOptions
-                //.RegisterServices(sr => sr.Register(_ => _thingySagaStartedSubscriber.Object))
+                .RegisterServices(sr =>
+                {
+                    sr.Register(_ => _thingySagaErrorHandler.Object);
+                    sr.RegisterType(typeof(ThingySagaErrorHandler));
+                })
                 .CreateResolver();
         }
     }

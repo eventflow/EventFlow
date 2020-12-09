@@ -89,7 +89,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             ISagaContext sagaContext,
             CancellationToken cancellationToken)
         {
-            throw new Exception("Exception thrown by HandleAsync with ThingyThrowExceptionInSagaCommand");
+            throw new Exception("Exception thrown (as requested by ThingySagaExceptionRequestedEvent)");
         }
 
         public Task HandleAsync(

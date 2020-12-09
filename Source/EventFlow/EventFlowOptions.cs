@@ -229,12 +229,12 @@ namespace EventFlow
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
-            serviceRegistration.Register<Func<Type, ISagaErrorHandler<ISaga>>>(context => sagaType =>
+            serviceRegistration.Register<Func<Type, ISagaErrorHandler>>(context => sagaType =>
             {
                 Type genericSagaErrorHandlerType = typeof(ISagaErrorHandler<>);
                 Type typeToResolve = genericSagaErrorHandlerType.MakeGenericType(sagaType);
                 if (context.Resolver.GetRegisteredServices().Any(rs => rs == typeToResolve))
-                    return (ISagaErrorHandler<ISaga>) context.Resolver.Resolve(typeToResolve);
+                    return (ISagaErrorHandler) context.Resolver.Resolve(typeToResolve);
                 return null;
             });
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();

@@ -29,9 +29,9 @@ namespace EventFlow.Sagas
 {
     public class SagaErrorHandler : ISagaErrorHandler
     {
-        private readonly Func<Type, ISagaErrorHandler<ISaga>> _sagaErrorHandlerFactory;
+        private readonly Func<Type, ISagaErrorHandler> _sagaErrorHandlerFactory;
 
-        public SagaErrorHandler(Func<Type, ISagaErrorHandler<ISaga>> sagaErrorHandlerFactory)
+        public SagaErrorHandler(Func<Type, ISagaErrorHandler> sagaErrorHandlerFactory)
         {
             _sagaErrorHandlerFactory = sagaErrorHandlerFactory;
         }
@@ -43,7 +43,7 @@ namespace EventFlow.Sagas
             CancellationToken cancellationToken)
         {
             // Search for a specific SagaErrorHandler<Saga> based on saga type
-            ISagaErrorHandler<ISaga> sagaErrorHandler = _sagaErrorHandlerFactory(sagaDetails.SagaType);
+            ISagaErrorHandler sagaErrorHandler = _sagaErrorHandlerFactory(sagaDetails.SagaType);
 
             if (sagaErrorHandler != null)
             {
