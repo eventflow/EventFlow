@@ -89,9 +89,6 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
         {
             _thingySagaErrorHandler = new Mock<ISagaErrorHandler<ThingySaga>>();
-            _thingySagaErrorHandler.Setup(s => s.HandleAsync(It.IsAny<ISagaId>(), It.IsAny<SagaDetails>(),
-                    It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(false));
 
             return eventFlowOptions
                 .RegisterServices(sr =>
