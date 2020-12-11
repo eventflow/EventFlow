@@ -29,28 +29,12 @@ namespace EventFlow.Sagas
 {
     public class SagaErrorHandler : ISagaErrorHandler
     {
-        private readonly Func<Type, ISagaErrorHandler> _sagaErrorHandlerFactory;
-
-        public SagaErrorHandler(Func<Type, ISagaErrorHandler> sagaErrorHandlerFactory)
-        {
-            _sagaErrorHandlerFactory = sagaErrorHandlerFactory;
-        }
-
         public Task<bool> HandleAsync(
             ISagaId sagaId,
             SagaDetails sagaDetails,
             Exception exception,
             CancellationToken cancellationToken)
         {
-            // Search for a specific SagaErrorHandler<Saga> based on saga type
-            ISagaErrorHandler sagaErrorHandler = _sagaErrorHandlerFactory(sagaDetails.SagaType);
-
-            if (sagaErrorHandler != null)
-            {
-                // Call specific saga error handler
-                return sagaErrorHandler.HandleAsync(sagaId, sagaDetails, exception, cancellationToken);
-            }
-
             // The default handler cannot handle anything!
             return Task.FromResult(false);
         }
