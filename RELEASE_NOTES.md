@@ -1,4 +1,8 @@
-### New in 0.81 (not released yet)
+### New in 0.82 (not released yet)
+
+* *Nothing yet...*
+
+### New in 0.81.4483 (released 2020-12-14)
 
 * Breaking: Elasticsearch NEST Nuget Library updated from v6.1.0 to v7.8.2
 * New: Now possible to implement error handlers for specific sagas using
