@@ -35,4 +35,9 @@ namespace EventFlow.Sagas
             Exception exception,
             CancellationToken cancellationToken);
     }
+
+    public interface ISagaErrorHandler<TSaga> : ISagaErrorHandler
+        where TSaga : ISaga
+    {
+    }
 }
