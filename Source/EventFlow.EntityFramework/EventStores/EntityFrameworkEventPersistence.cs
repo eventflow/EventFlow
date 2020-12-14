@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -106,9 +106,11 @@ namespace EventFlow.EntityFramework.EventStores
             {
                 using (var context = _contextProvider.CreateContext())
                 {
-                    context.AddRange(entities);
-                    await context.SaveChangesAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    foreach (EventEntity entity in entities)
+                    {
+                        context.Add(entity);
+                        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
             catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation(_strategy))

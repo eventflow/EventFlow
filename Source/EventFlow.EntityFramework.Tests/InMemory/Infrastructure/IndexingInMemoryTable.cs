@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,11 +27,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
     public class IndexingInMemoryTable : IInMemoryTable
     {
         private readonly IIndex[] _indexDefinitions;
@@ -73,6 +75,11 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
         public void Update(IUpdateEntry entry)
         {
             _innerTable.Update(entry);
+        }
+
+        public InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property)
+        {
+            return _innerTable.GetIntegerValueGenerator<TProperty>(property);
         }
 
         private struct IndexEntry

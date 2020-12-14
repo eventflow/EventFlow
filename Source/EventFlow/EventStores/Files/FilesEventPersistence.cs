@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,6 +37,7 @@ namespace EventFlow.EventStores.Files
     {
         private readonly ILog _log;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly IFilesEventStoreConfiguration _configuration;
         private readonly IFilesEventLocator _filesEventLocator;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly string _logFilePath;
@@ -66,6 +67,7 @@ namespace EventFlow.EventStores.Files
         {
             _log = log;
             _jsonSerializer = jsonSerializer;
+            _configuration = configuration;
             _filesEventLocator = filesEventLocator;
             _logFilePath = Path.Combine(configuration.StorePath, "Log.store");
 
@@ -122,9 +124,10 @@ namespace EventFlow.EventStores.Files
         {
             while (_eventLog.TryGetValue(startPosition, out var path))
             {
-                if (File.Exists(path))
+                var fullPath = Path.Combine(_configuration.StorePath, path);
+                if (File.Exists(fullPath))
                 {
-                    yield return path;
+                    yield return fullPath;
                 }
 
                 startPosition++;
@@ -150,7 +153,7 @@ namespace EventFlow.EventStores.Files
                 {
                     var eventPath = _filesEventLocator.GetEventPath(id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
-                    _eventLog[_globalSequenceNumber] = eventPath;
+                    _eventLog[_globalSequenceNumber] = GetRelativePath(_configuration.StorePath, eventPath);
 
                     var fileEventData = new FileEventData
                     {
@@ -274,6 +277,46 @@ namespace EventFlow.EventStores.Files
                 GlobalSequenceNumber = directory.Keys.Any() ? directory.Keys.Max() : 0,
                 Log = directory,
             };
+        }
+
+        /// <summary>
+        /// Creates a relative path from one file or folder to another.
+        /// </summary>
+        /// <param name="relativeTo">Contains the directory that defines the start of the relative path.</param>
+        /// <param name="path">Contains the path that defines the endpoint of the relative path.</param>
+        /// <returns>The relative path from the start directory to the end path or <c>toPath</c> if the paths are not related.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UriFormatException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        private string GetRelativePath(string relativeTo, string path)
+        {
+#if NETCOREAPP3_1 || NETCOREAPP3_0
+            return Path.GetRelativePath(relativeTo, path);
+#else
+            if (string.IsNullOrEmpty(relativeTo))
+                throw new ArgumentNullException(nameof(relativeTo));
+            if (string.IsNullOrEmpty(path))
+                throw new ArgumentNullException(nameof(path));
+
+            if (relativeTo.Last() != Path.DirectorySeparatorChar && relativeTo.Last() != Path.AltDirectorySeparatorChar)
+                relativeTo += Path.DirectorySeparatorChar;
+
+            var fromUri = new Uri(relativeTo);
+            var toUri = new Uri(path);
+
+            if (fromUri.Scheme != toUri.Scheme)
+                return path; // path can't be made relative.
+
+            var relativeUri = fromUri.MakeRelativeUri(toUri);
+            var relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.Equals("file", StringComparison.OrdinalIgnoreCase))
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
+#endif
         }
     }
 }

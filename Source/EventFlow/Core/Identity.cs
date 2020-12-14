@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,17 +35,28 @@ namespace EventFlow.Core
         where T : Identity<T>
     {
         // ReSharper disable StaticMemberInGenericType
-        private static readonly string NameWithDash;
+        private static readonly string Prefix;
         private static readonly Regex ValueValidation;
         // ReSharper enable StaticMemberInGenericType
 
         static Identity()
         {
-            var nameReplace = new Regex("Id$");
-            NameWithDash = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant() + "-";
-            ValueValidation = new Regex(
-                @"^[^\-]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
-                RegexOptions.Compiled);
+            var name = typeof(T).Name;
+            if (name.Equals("id", StringComparison.OrdinalIgnoreCase))
+            {
+                Prefix = string.Empty;
+                ValueValidation = new Regex(
+                    @"^(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
+                    RegexOptions.Compiled);
+            }
+            else
+            {
+                var nameReplace = new Regex("Id$");
+                Prefix = nameReplace.Replace(typeof(T).Name, string.Empty).ToLowerInvariant() + "-";
+                ValueValidation = new Regex(
+                    @"^[^\-]+\-(?<guid>[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})$",
+                    RegexOptions.Compiled);
+            }
         }
 
         public static T New => With(Guid.NewGuid());
@@ -86,7 +97,7 @@ namespace EventFlow.Core
 
         public static T With(Guid guid)
         {
-            var value = $"{NameWithDash}{guid:D}";
+            var value = $"{Prefix}{guid:D}";
             return With(value);
         }
 
@@ -105,10 +116,10 @@ namespace EventFlow.Core
 
             if (!string.Equals(value.Trim(), value, StringComparison.OrdinalIgnoreCase))
                 yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' contains leading and/or trailing spaces";
-            if (!value.StartsWith(NameWithDash))
-                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not start with '{NameWithDash}'";
+            if (!string.IsNullOrEmpty(Prefix) && !value.StartsWith(Prefix))
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not start with '{Prefix}'";
             if (!ValueValidation.IsMatch(value))
-                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not follow the syntax '[NAME]-[GUID]' in lower case";
+                yield return $"Identity '{value}' of type '{typeof(T).PrettyPrint()}' does not follow the syntax '{Prefix}[GUID]' in lower case";
         }
 
         protected Identity(string value) : base(value)

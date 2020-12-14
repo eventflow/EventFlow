@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,6 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
         private const string ReadModelId = "the one";
         
         [Test]
-        [Ignore("Test unstable, issue #710")]
         public async Task EventOrdering()
         {
             // Repopulating read models that span multiple aggregates should have their events
@@ -56,8 +56,11 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
             var idB = IdB.New;
             var i = 0;
             await CommandBus.PublishAsync(new CommandA(idA, i++), CancellationToken.None);
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
             await CommandBus.PublishAsync(new CommandA(idA, i++), CancellationToken.None);
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
             await CommandBus.PublishAsync(new CommandB(idB, i++), CancellationToken.None);
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
             await CommandBus.PublishAsync(new CommandB(idB, i++), CancellationToken.None);
             await ReadModelPopulator.PurgeAsync(typeof(ReadModelAB), CancellationToken.None);
 

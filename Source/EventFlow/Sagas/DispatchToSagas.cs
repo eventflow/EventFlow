@@ -1,19 +1,19 @@
-﻿// The MIT License (MIT)
-//
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// The MIT License (MIT)
+// 
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -40,19 +40,22 @@ namespace EventFlow.Sagas
         private readonly ISagaStore _sagaStore;
         private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ISagaErrorHandler _sagaErrorHandler;
+        private readonly ISagaUpdateResilienceStrategy _sagaUpdateLog;
 
         public DispatchToSagas(
             ILog log,
             IResolver resolver,
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService,
-            ISagaErrorHandler sagaErrorHandler)
+            ISagaErrorHandler sagaErrorHandler,
+            ISagaUpdateResilienceStrategy sagaUpdateLog)
         {
             _log = log;
             _resolver = resolver;
             _sagaStore = sagaStore;
             _sagaDefinitionService = sagaDefinitionService;
             _sagaErrorHandler = sagaErrorHandler;
+            _sagaUpdateLog = sagaUpdateLog;
         }
 
         public async Task ProcessAsync(
@@ -127,7 +130,7 @@ namespace EventFlow.Sagas
             }
         }
 
-        private Task UpdateSagaAsync(
+        private async Task UpdateSagaAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
@@ -139,7 +142,7 @@ namespace EventFlow.Sagas
                     "Saga '{0}' is completed, skipping processing of '{1}'",
                     details.SagaType.PrettyPrint(),
                     domainEvent.EventType.PrettyPrint()));
-                return Task.FromResult(0);
+                return;
             }
 
             if (saga.State == SagaState.New && !details.IsStartedBy(domainEvent.EventType))
@@ -148,7 +151,7 @@ namespace EventFlow.Sagas
                     "Saga '{0}' isn't started yet and not started by '{1}', skipping",
                     details.SagaType.PrettyPrint(),
                     domainEvent.EventType.PrettyPrint()));
-                return Task.FromResult(0);
+                return;
             }
 
             var sagaUpdaterType = typeof(ISagaUpdater<,,,>).MakeGenericType(
@@ -158,11 +161,40 @@ namespace EventFlow.Sagas
                 details.SagaType);
             var sagaUpdater = (ISagaUpdater)_resolver.Resolve(sagaUpdaterType);
 
-            return sagaUpdater.ProcessAsync(
-                saga,
-                domainEvent,
-                SagaContext.Empty,
-                cancellationToken);
+            await _sagaUpdateLog.BeforeUpdateAsync(
+                    saga,
+                    domainEvent,
+                    details,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            try
+            {
+                await sagaUpdater.ProcessAsync(
+                        saga,
+                        domainEvent,
+                        SagaContext.Empty,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                await _sagaUpdateLog.UpdateSucceededAsync(
+                        saga,
+                        domainEvent,
+                        details,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                if (!await _sagaUpdateLog.HandleUpdateFailedAsync(
+                        saga,
+                        domainEvent,
+                        details,
+                        e,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+                {
+                    throw;
+                }
+            }
         }
     }
 }

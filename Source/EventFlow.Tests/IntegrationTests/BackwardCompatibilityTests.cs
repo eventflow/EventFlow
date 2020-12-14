@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -77,9 +77,9 @@ namespace EventFlow.Tests.IntegrationTests
         }
 
         [Test, Explicit]
-        public void CreateEventHelper()
+        public async Task CreateEventHelper()
         {
-            _commandBus.Publish(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
+            await _commandBus.PublishAsync(new ThingyPingCommand(_thingyId, PingId.New), CancellationToken.None);
         }
     }
 }

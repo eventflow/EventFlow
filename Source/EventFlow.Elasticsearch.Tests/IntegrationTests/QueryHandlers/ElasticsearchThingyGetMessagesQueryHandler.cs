@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,14 +54,14 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
             var indexName = readModelDescription.IndexName.Value;
 
             // Never do this
-            await _elasticClient.FlushAsync(
+            await _elasticClient.Indices.FlushAsync(
                 indexName,
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
                             cancellationToken)
                 .ConfigureAwait(false);
-            await _elasticClient.RefreshAsync(
+            await _elasticClient.Indices.RefreshAsync(
                 indexName,
                 d => d
                     .RequestConfiguration(c => c

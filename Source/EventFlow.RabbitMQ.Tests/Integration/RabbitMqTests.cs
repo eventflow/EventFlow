@@ -1,7 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,6 +48,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
     public class RabbitMqTests
     {
         private Uri _uri;
+        private CancellationTokenSource _timeout;
 
         [SetUp]
         public void SetUp()
@@ -59,9 +60,16 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
 
             _uri = new Uri(url);
+            _timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1));
         }
 
-        [Test, Timeout(10000), Retry(3)]
+        [TearDown]
+        public void TearDown()
+        {
+            _timeout.Dispose();
+        }
+
+        [Test, Retry(3)]
         public async Task Scenario()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
@@ -72,7 +80,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
 
                 var pingId = PingId.New;
-                await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), CancellationToken.None).ConfigureAwait(false);
+                await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
 
                 var rabbitMqMessage = consumer.GetMessages(TimeSpan.FromMinutes(1)).Single();
                 rabbitMqMessage.Exchange.Value.Should().Be(exchange.Value);
@@ -86,7 +94,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        [Test, Timeout(60000), Retry(3)]
+        [Test, Retry(3)]
         public async Task PublisherPerformance()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
@@ -101,7 +109,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             {
                 var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
                 var tasks = Enumerable.Range(0, taskCount)
-                    .Select(i => Task.Run(() => SendMessagesAsync(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions)));
+                    .Select(i => Task.Run(() => SendMessagesAsync(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions, _timeout.Token)));
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -116,7 +124,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             int count,
             Exchange exchange,
             RoutingKey routingKey,
-            ConcurrentBag<Exception> exceptions)
+            ConcurrentBag<Exception> exceptions,
+            CancellationToken cancellationToken)
         {
             var guid = Guid.NewGuid();
 
@@ -130,7 +139,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                         exchange,
                         routingKey,
                         new MessageId(Guid.NewGuid().ToString("D")));
-                    await rabbitMqPublisher.PublishAsync(CancellationToken.None, rabbitMqMessage).ConfigureAwait(false);
+                    await rabbitMqPublisher.PublishAsync(cancellationToken, rabbitMqMessage).ConfigureAwait(false);
                 }
             }
             catch (Exception e)

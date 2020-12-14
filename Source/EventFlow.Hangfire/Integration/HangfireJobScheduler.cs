@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -58,7 +58,7 @@ namespace EventFlow.Hangfire.Integration
             return ScheduleAsync(
                 job,
                 cancellationToken,
-                (c, d, n, j) => _backgroundJobClient.Enqueue<IHangfireJobRunner>(r => r.Execute(n, d.Name, d.Version, j)));
+                (c, d, n, j) => _backgroundJobClient.Enqueue<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j)));
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
@@ -66,7 +66,7 @@ namespace EventFlow.Hangfire.Integration
             return ScheduleAsync(
                 job,
                 cancellationToken,
-                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.Execute(n, d.Name, d.Version, j), runAt));
+                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j), runAt));
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
@@ -74,7 +74,7 @@ namespace EventFlow.Hangfire.Integration
             return ScheduleAsync(
                 job,
                 cancellationToken,
-                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.Execute(n, d.Name, d.Version, j), delay));
+                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j), delay));
         }
 
         private async Task<IJobId> ScheduleAsync(

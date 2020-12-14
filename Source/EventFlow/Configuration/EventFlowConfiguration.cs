@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,7 @@ namespace EventFlow.Configuration
         public bool ThrowSubscriberExceptions { get; set; }
         public bool IsAsynchronousSubscribersEnabled { get; set; }
         public CancellationBoundary CancellationBoundary { get; set; }
+        public bool ForwardOptimisticConcurrencyExceptions { get; set; }
 
         internal EventFlowConfiguration()
         {
@@ -43,6 +44,7 @@ namespace EventFlow.Configuration
             ThrowSubscriberExceptions = false;
             IsAsynchronousSubscribersEnabled = false;
             CancellationBoundary = CancellationBoundary.BeforeCommittingEvents;
+            ForwardOptimisticConcurrencyExceptions = false;
         }
     }
 }

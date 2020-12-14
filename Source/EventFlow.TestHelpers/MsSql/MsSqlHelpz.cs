@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,8 @@ namespace EventFlow.TestHelpers.MsSql
 {
     public static class MsSqlHelpz
     {
+        private static bool? useIntegratedSecurity;
+
         public static IMsSqlDatabase CreateDatabase(string label, bool dropOnDispose = true)
         {
             var connectionString = CreateConnectionString(label);
@@ -46,7 +48,6 @@ namespace EventFlow.TestHelpers.MsSql
 
             var connectionStringBuilder = new SqlConnectionStringBuilder()
                 {
-                    InitialCatalog = databaseName,
                     DataSource = FirstNonEmpty(
                         Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
                         ".")
@@ -64,11 +65,44 @@ namespace EventFlow.TestHelpers.MsSql
             else
             {
                 connectionStringBuilder.IntegratedSecurity = true;
+
+                // Try to use default sql login/password specified in docker-compose.local.yml - for running integration tests locally
+                // without locally installed MS SQL server
+                if (useIntegratedSecurity == null)
+                {
+                    useIntegratedSecurity = IsGoodConnectionString(connectionStringBuilder.ConnectionString);
+                }
+
+                if (!useIntegratedSecurity.Value)
+                {
+                    connectionStringBuilder.IntegratedSecurity = false;
+                    connectionStringBuilder.UserID = "sa";
+                    connectionStringBuilder.Password = "Password12!";
+                }
             }
+
+            connectionStringBuilder.InitialCatalog = databaseName;
 
             Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
 
             return new MsSqlConnectionString(connectionStringBuilder.ConnectionString);
+        }
+
+        private static bool IsGoodConnectionString(string connectionString)
+        {
+            try
+            {
+                using (var db = new SqlConnection(connectionString))
+                {
+                    db.Open();
+                }
+
+                return true;
+            }
+            catch (SqlException)
+            {
+                return false;
+            }
         }
 
         private static string FirstNonEmpty(params string[] parts)

@@ -1,4 +1,39 @@
-### New in 0.79 (not released yet)
+### New in 0.81 (not released yet)
+
+* Breaking: Elasticsearch NEST Nuget Library updated from v6.1.0 to v7.8.2
+* Fixed: You can now create `Id : Identity<Id>`
+
+### New in 0.80.4377 (released 2020-10-01)
+
+* Breaking: To support .NET going forward, all EventFlow test have been converted
+  from .NET Framework 4.x to .NET Core 3.1. This however, introduced a set of
+  breaking changes
+  * EntityFramework has been updated from 2.2.6 to 3.1.5 
+  * `IHangfireJobRunner.Execute` is now `IHangfireJobRunner.ExecuteAsync`
+* Breaking: Merged `AggregateReadStoreManager` and `SingleAggregateReadStoreManager`
+  into one class in order to always guarantee in-order event processing
+* Breaking: Marked the `UseReadStoreFor<,,,>` configuration methods as obsolete,
+  in favor of the simpler overloads with less type parameters (as those automatically
+  figure out the AggregateRoot and Id types and configure the more reliable 
+  `SingleAggregateReadStoreManager` implementation)
+* Obsolete: The class `AsyncHelper` and all non-async methods using it have been
+  marked obsolete and will be removed in EventFlow 1.0 (not planned yet). If you rely
+  on these non-async methods, then merely copy-paste the `AsyncHelper` from the EventFlow
+  code base and continue using it in your transition to async only 
+* Fixed: An issue where `EntityFrameworkEventPersistence` could possibly save aggregate 
+  events out of order, which would lead to out-of-order application when streaming events
+  ordered by GlobalSequenceNumber
+* New: `FilesEventPersistence` now uses relative paths
+* New: A new set of hook-in interfaces are provided from this release, which should
+  make it easier to implement crash resilience (#439) in EventFlow. Please note that
+  this new API is experimentational and subject to change as different strategies are
+  implemented
+  * `IAggregateStoreResilienceStrategy`
+  * `IDispatchToReadStoresResilienceStrategy`
+  * `IDispatchToSubscriberResilienceStrategy`
+  * `ISagaUpdateResilienceStrategy`
+
+### New in 0.79.4216 (released 2020-05-13)
 
 * New: Added .NET Core 3.1 target for the `EventFlow`
   and `EventFlow.EntityFramework` packages

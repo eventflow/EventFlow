@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using FluentAssertions;
@@ -30,7 +31,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.UnitTests.Core
 {
     [Category(Categories.Unit)]
-    public class IdentityTests
+    public class IdentityTests : Test
     {
         [Test]
         public void NewDeterministic_ReturnsKnownResult()
@@ -128,6 +129,27 @@ namespace EventFlow.Tests.UnitTests.Core
         {
             // Act
             Assert.Throws<ArgumentException>(() => ThingyId.With(badIdValue)).Message.Should().Contain("Identity is invalid:");
+        }
+
+        public class Id : Identity<Id>
+        {
+            public Id(string value) : base(value)
+            {
+            }
+        }
+
+        [Test]
+        public void JustId()
+        {
+            // Arrange
+            var guid = A<Guid>();
+            var expected = guid.ToString("D");
+
+            // Act
+            var id = Id.With(guid);
+
+            // Assert
+            id.Value.Should().Be(expected);
         }
     }
 }

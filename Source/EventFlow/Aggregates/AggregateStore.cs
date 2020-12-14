@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,6 +50,8 @@ namespace EventFlow.Aggregates
         private readonly ISnapshotStore _snapshotStore;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private readonly ICancellationConfiguration _cancellationConfiguration;
+        private readonly IAggregateStoreResilienceStrategy _aggregateStoreResilienceStrategy;
+        private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
         public AggregateStore(
             ILog log,
@@ -58,7 +60,9 @@ namespace EventFlow.Aggregates
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
-            ICancellationConfiguration cancellationConfiguration)
+            ICancellationConfiguration cancellationConfiguration,
+            IAggregateStoreResilienceStrategy aggregateStoreResilienceStrategy,
+            IEventFlowConfiguration eventFlowConfiguration)
         {
             _log = log;
             _resolver = resolver;
@@ -67,6 +71,8 @@ namespace EventFlow.Aggregates
             _snapshotStore = snapshotStore;
             _transientFaultHandler = transientFaultHandler;
             _cancellationConfiguration = cancellationConfiguration;
+            _aggregateStoreResilienceStrategy = aggregateStoreResilienceStrategy;
+            _eventFlowConfiguration = eventFlowConfiguration;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -111,6 +117,11 @@ namespace EventFlow.Aggregates
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
+            await _aggregateStoreResilienceStrategy.BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+                    id,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             var aggregateUpdateResult = await _transientFaultHandler.TryAsync(
                 async c =>
                 {
@@ -135,17 +146,48 @@ namespace EventFlow.Aggregates
                     }
 
                     cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeCommittingEvents);
-                    
-                    var domainEvents = await aggregate.CommitAsync(
-                        _eventStore,
-                        _snapshotStore,
-                        sourceId,
-                        cancellationToken)
-                        .ConfigureAwait(false);
 
-                    return new AggregateUpdateResult<TExecutionResult>(
-                        result,
-                        domainEvents);
+                    await _aggregateStoreResilienceStrategy.BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
+                            aggregate,
+                            result,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    try
+                    {
+                        var domainEvents = await aggregate.CommitAsync(
+                                _eventStore,
+                                _snapshotStore,
+                                sourceId,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        await _aggregateStoreResilienceStrategy.CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                result,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        return new AggregateUpdateResult<TExecutionResult>(
+                            result,
+                            domainEvents);
+                    }
+                    catch (OptimisticConcurrencyException) when (!_eventFlowConfiguration.ForwardOptimisticConcurrencyExceptions)
+                    {
+                        throw;
+                    }
+                    catch (Exception e)
+                    {
+                        var (handled, updatedAggregateUpdateResult) = await _aggregateStoreResilienceStrategy.HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                                aggregate,
+                                result,
+                                e,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        if (!handled)
+                        {
+                            throw;
+                        }
+
+                        return updatedAggregateUpdateResult;
+                    }
                 },
                 Label.Named("aggregate-update"),
                 cancellationToken)
@@ -154,10 +196,47 @@ namespace EventFlow.Aggregates
             if (aggregateUpdateResult.Result.IsSuccess &&
                 aggregateUpdateResult.DomainEvents.Any())
             {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
-                await domainEventPublisher.PublishAsync(
-                    aggregateUpdateResult.DomainEvents,
-                    cancellationToken)
+                await _aggregateStoreResilienceStrategy.BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
+                        id,
+                        aggregateUpdateResult.Result,
+                        aggregateUpdateResult.DomainEvents,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                try
+                {
+                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                    await domainEventPublisher.PublishAsync(
+                            aggregateUpdateResult.DomainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    await _aggregateStoreResilienceStrategy.EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
+                            id,
+                            aggregateUpdateResult.Result,
+                            aggregateUpdateResult.DomainEvents,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    if (!await _aggregateStoreResilienceStrategy.HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
+                            id,
+                            aggregateUpdateResult.Result,
+                            aggregateUpdateResult.DomainEvents,
+                            e,
+                            cancellationToken)
+                        .ConfigureAwait(false))
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+            {
+                await _aggregateStoreResilienceStrategy.EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
+                        id,
+                        aggregateUpdateResult.Result,
+                        aggregateUpdateResult.DomainEvents,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
