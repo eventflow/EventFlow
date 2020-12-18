@@ -33,10 +33,10 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.Sql.Connections;
 using EventFlow.Sql.ReadModels.Attributes;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.ReadModels
 {
@@ -53,6 +53,13 @@ namespace EventFlow.Sql.ReadModels
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
         private static readonly Action<TReadModel, string> SetIdentity;
+
+        private static readonly string ReadModelPrettyName = typeof(TReadModel).PrettyPrint();
+        private static readonly Label LabelUpdate = Label.Named("sql-read-model-update", typeof(TReadModel).Name.ToLowerInvariant());
+        private static readonly Label LabelStore = Label.Named("sql-store-read-model", typeof(TReadModel).Name.ToLowerInvariant());
+        private static readonly Label LabelGet = Label.Named("sql-fetch-read-model", typeof(TReadModel).Name.ToLowerInvariant());
+        private static readonly Label LabelDelete = Label.Named("sql-delete-read-model", typeof(TReadModel).Name.ToLowerInvariant());
+        private static readonly Label LabelDeleteAll = Label.Named("sql-purge-read-model", typeof(TReadModel).Name.ToLowerInvariant());
 
         static SqlReadModelStore()
         {
@@ -85,12 +92,12 @@ namespace EventFlow.Sql.ReadModels
         }
 
         protected SqlReadModelStore(
-            ILog log,
+            ILogger logger,
             TSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(log)
+            : base(logger)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
@@ -100,15 +107,14 @@ namespace EventFlow.Sql.ReadModels
 
         public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
-            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
-                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             foreach (var readModelUpdate in readModelUpdates)
             {
                 await _transientFaultHandler.TryAsync(
                     c => UpdateReadModelAsync(readModelContextFactory, updateReadModel, c, readModelUpdate),
-                    Label.Named("sql-read-model-update"),
+                    LabelUpdate,
                     cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -121,7 +127,6 @@ namespace EventFlow.Sql.ReadModels
             ReadModelUpdate readModelUpdate)
         {
             var readModelId = readModelUpdate.ReadModelId;
-            var readModelNameLowerCased = typeof(TReadModel).Name.ToLowerInvariant();
             var readModelEnvelope = await GetAsync(readModelId, cancellationToken).ConfigureAwait(false);
             var readModel = readModelEnvelope.ReadModel;
             var isNew = readModel == null;
@@ -167,7 +172,7 @@ namespace EventFlow.Sql.ReadModels
             }
             
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("sql-store-read-model", readModelNameLowerCased),
+                LabelStore,
                 cancellationToken,
                 sql,
                 dynamicParameters)
@@ -175,19 +180,23 @@ namespace EventFlow.Sql.ReadModels
             if (rowsAffected != 1)
             {
                 throw new OptimisticConcurrencyException(
-                    $"Read model '{readModelEnvelope.ReadModelId}' updated by another");
+                    $"SQL '{ReadModelPrettyName}' read model with ID '{readModelEnvelope.ReadModelId}' was updated by another");
             }
 
-            Log.Verbose(() => $"Updated SQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
+            Logger.LogDebug(
+                "Updated SQL read model {ReadModelType} with ID {ReadModelId} to version {ReadModelVersion}",
+                ReadModelPrettyName,
+                readModelId,
+                readModelEnvelope.Version);
         }
 
-        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
+        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(
+            string id,
+            CancellationToken cancellationToken)
         {
-            var readModelType = typeof(TReadModel);
-            var readModelNameLowerCased = readModelType.Name.ToLowerInvariant();
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
-                Label.Named(string.Format("sql-fetch-read-model-{0}", readModelNameLowerCased)),
+                LabelGet,
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -197,13 +206,20 @@ namespace EventFlow.Sql.ReadModels
 
             if (readModel == null)
             {
-                Log.Verbose(() => $"Could not find any SQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
+                Logger.LogDebug(
+                    "Could not find any SQL read models {ReadModelType} with ID {ReadModelId}",
+                    ReadModelPrettyName,
+                    id);
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var readModelVersion = GetVersion(readModel);
 
-            Log.Verbose(() => $"Found SQL read model '{readModelType.PrettyPrint()}' with ID '{readModelVersion}'");
+            Logger.LogTrace(
+                "Found SQL read model {ReadModelType} with ID {ReadModelId} and version {ReadModelVersion}",
+                ReadModelPrettyName,
+                id,
+                readModelVersion);
 
             return ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion);
         }
@@ -213,10 +229,9 @@ namespace EventFlow.Sql.ReadModels
             CancellationToken cancellationToken)
         {
             var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
-            var readModelName = typeof(TReadModel).Name;
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("sql-delete-read-model", readModelName),
+                LabelDelete,
                 cancellationToken,
                 sql,
                 new { EventFlowReadModelId = id })
@@ -224,25 +239,27 @@ namespace EventFlow.Sql.ReadModels
 
             if (rowsAffected != 0)
             {
-                Log.Verbose($"Deleted read model '{id}' of type '{readModelName}'");
+                Logger.LogDebug(
+                    "Deleted SQL {ReadModelType} read model with ID {ReadModelId}'",
+                    ReadModelPrettyName,
+                    id);
             }
         }
 
         public override async Task DeleteAllAsync(CancellationToken cancellationToken)
         {
             var sql = _readModelSqlGenerator.CreatePurgeSql<TReadModel>();
-            var readModelName = typeof(TReadModel).Name;
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("sql-purge-read-model", readModelName),
+                LabelDeleteAll,
                 cancellationToken,
                 sql)
                 .ConfigureAwait(false);
 
-            Log.Verbose(
-                "Purge {0} read models of type '{1}'",
+            Logger.LogInformation(
+                "Purged {ReadModelCount} SQL read models of type {ReadModelType}",
                 rowsAffected,
-                readModelName);
+                ReadModelPrettyName);
         }
     }
 }
