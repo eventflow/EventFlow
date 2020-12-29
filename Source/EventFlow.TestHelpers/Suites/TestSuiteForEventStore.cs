@@ -398,7 +398,7 @@ namespace EventFlow.TestHelpers.Suites
 
             foreach (var id in ids.Skip(1).Take(5))
             {
-                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None)
+                await EventPersistence.DeleteEventsAsync(typeof(ThingyAggregate), id, CancellationToken.None)
                     .ConfigureAwait(false);
             }
 

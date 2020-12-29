@@ -171,7 +171,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 var readOnlyEvents = new ReadOnlyCollection<SerializedEvent>(serializedEvents.ToList());
 
                 await persistence
-                    .CommitEventsAsync(ThingyId, readOnlyEvents, CancellationToken.None)
+                    .CommitEventsAsync(typeof(ThingyAggregate), ThingyId, readOnlyEvents, CancellationToken.None)
                     .ConfigureAwait(false);
             })
             .ConfigureAwait(false);
@@ -180,6 +180,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         private static async Task<int> GetVersionAsync(FilesEventPersistence persistence)
         {
             var existingEvents = await persistence.LoadCommittedEventsAsync(
+                typeof(ThingyAggregate),
                 ThingyId,
                 1,
                 CancellationToken.None).ConfigureAwait(false);

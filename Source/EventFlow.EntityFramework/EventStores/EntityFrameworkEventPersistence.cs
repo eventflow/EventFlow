@@ -54,7 +54,9 @@ namespace EventFlow.EntityFramework.EventStores
             _strategy = strategy;
         }
 
-        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(GlobalPosition globalPosition, int pageSize,
+        public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
+            GlobalPosition globalPosition, 
+            int pageSize,
             CancellationToken cancellationToken)
         {
             var startPosition = globalPosition.IsStart
@@ -79,8 +81,11 @@ namespace EventFlow.EntityFramework.EventStores
             }
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id,
-            IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
+            IIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
                 return new ICommittedDomainEvent[0];
@@ -124,15 +129,17 @@ namespace EventFlow.EntityFramework.EventStores
             return entities;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
-            int fromEventSequenceNumber, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
         {
             using (var context = _contextProvider.CreateContext())
             {
                 var entities = await context
                     .Set<EventEntity>()
-                    .Where(e => e.AggregateId == id.Value
-                                && e.AggregateSequenceNumber >= fromEventSequenceNumber)
+                    .Where(e => e.AggregateId == id.Value && e.AggregateSequenceNumber >= fromEventSequenceNumber)
                     .OrderBy(e => e.AggregateSequenceNumber)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
@@ -141,7 +148,10 @@ namespace EventFlow.EntityFramework.EventStores
             }
         }
 
-        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(
+            Type aggregateType,
+            IIdentity id,
+            CancellationToken cancellationToken)
         {
             using (var context = _contextProvider.CreateContext())
             {

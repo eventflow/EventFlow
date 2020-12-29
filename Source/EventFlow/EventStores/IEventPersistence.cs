@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,15 +37,20 @@ namespace EventFlow.EventStores
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken);
 
-        Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
+        Task DeleteEventsAsync(
+            Type aggregateType, 
+            IIdentity id, 
+            CancellationToken cancellationToken);
     }
 }

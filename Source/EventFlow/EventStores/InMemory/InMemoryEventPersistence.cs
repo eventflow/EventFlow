@@ -112,8 +112,7 @@ namespace EventFlow.EventStores.InMemory
             }
         }
 
-        public InMemoryEventPersistence(
-            ILog log)
+        public InMemoryEventPersistence(ILog log)
         {
             _log = log;
         }
@@ -142,6 +141,7 @@ namespace EventFlow.EventStores.InMemory
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
@@ -190,6 +190,7 @@ namespace EventFlow.EventStores.InMemory
         }
 
         public Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
@@ -206,7 +207,7 @@ namespace EventFlow.EventStores.InMemory
             return Task.FromResult(result);
         }
 
-        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
             var deleted = _eventStore.TryRemove(id.Value, out var committedDomainEvents);
 

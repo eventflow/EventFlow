@@ -144,7 +144,7 @@ namespace EventFlow.Tests.IntegrationTests
                 new Step<IReadOnlyCollection<ICommittedDomainEvent>>(
                     CancellationBoundary.BeforeUpdatingReadStores,
                     _eventPersistence.CommitCompletionSource,
-                    () => _eventPersistence.LoadCommittedEventsAsync(id, 0, CancellationToken.None),
+                    () => _eventPersistence.LoadCommittedEventsAsync(typeof(ThingyAggregate), id, 0, CancellationToken.None),
                     v => v.Should().NotBeEmpty(),
                     v => v.Should().BeEmpty()),
 
@@ -366,25 +366,31 @@ namespace EventFlow.Tests.IntegrationTests
                 return _inner.LoadAllCommittedEvents(globalPosition, pageSize, cancellationToken);
             }
 
-            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id,
-                IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+                Type aggregateType,
+                IIdentity id,
+                IReadOnlyCollection<SerializedEvent> serializedEvents,
+                CancellationToken cancellationToken)
             {
-                var result = await _inner.CommitEventsAsync(id, serializedEvents, cancellationToken);
+                var result = await _inner.CommitEventsAsync(aggregateType, id, serializedEvents, cancellationToken);
                 await CommitCompletionSource.Task;
                 return result;
             }
 
-            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
-                int fromEventSequenceNumber, CancellationToken cancellationToken)
+            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+                Type aggregateType,
+                IIdentity id, 
+                int fromEventSequenceNumber, 
+                CancellationToken cancellationToken)
             {
-                var result = await _inner.LoadCommittedEventsAsync(id, fromEventSequenceNumber, cancellationToken);
+                var result = await _inner.LoadCommittedEventsAsync(aggregateType, id, fromEventSequenceNumber, cancellationToken);
                 await LoadCompletionSource.Task;
                 return result;
             }
 
-            public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+            public Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
             {
-                return _inner.DeleteEventsAsync(id, cancellationToken);
+                return _inner.DeleteEventsAsync(aggregateType, id, cancellationToken);
             }
         }
     }

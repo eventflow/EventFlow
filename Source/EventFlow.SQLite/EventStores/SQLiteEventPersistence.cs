@@ -97,6 +97,7 @@ namespace EventFlow.SQLite.EventStores
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
@@ -166,6 +167,7 @@ namespace EventFlow.SQLite.EventStores
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
@@ -193,6 +195,7 @@ namespace EventFlow.SQLite.EventStores
         }
 
         public async Task DeleteEventsAsync(
+            Type aggregateType,
             IIdentity id,
             CancellationToken cancellationToken)
         {

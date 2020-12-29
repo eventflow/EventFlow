@@ -104,6 +104,7 @@ namespace EventFlow.EventStores.EventStore
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
@@ -157,6 +158,7 @@ namespace EventFlow.EventStores.EventStore
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
@@ -185,7 +187,7 @@ namespace EventFlow.EventStores.EventStore
             return Map(streamEvents);
         }
 
-        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
         }

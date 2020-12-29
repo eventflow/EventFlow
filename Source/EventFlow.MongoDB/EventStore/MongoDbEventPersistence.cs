@@ -69,7 +69,11 @@ namespace EventFlow.MongoDB.EventStore
             return new AllCommittedEventsPage(new GlobalPosition(nextPosition.ToString()), eventDataModels);
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(IIdentity id, IReadOnlyCollection<SerializedEvent> serializedEvents, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
+            IIdentity id,
+            IReadOnlyCollection<SerializedEvent> serializedEvents,
+            CancellationToken cancellationToken)
         {
             if (!serializedEvents.Any())
             {
@@ -105,7 +109,11 @@ namespace EventFlow.MongoDB.EventStore
             return eventDataModels;
         }
 
-        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
+            IIdentity id,
+            int fromEventSequenceNumber,
+            CancellationToken cancellationToken)
         {
             return await MongoDbEventStoreCollection
                 .Find(model => model.AggregateId == id.Value && model.AggregateSequenceNumber >= fromEventSequenceNumber)
@@ -113,7 +121,7 @@ namespace EventFlow.MongoDB.EventStore
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
             DeleteResult affectedRows = await MongoDbEventStoreCollection
                 .DeleteManyAsync(x => x.AggregateId == id.Value, cancellationToken)

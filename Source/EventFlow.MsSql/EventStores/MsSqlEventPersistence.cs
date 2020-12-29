@@ -95,6 +95,7 @@ namespace EventFlow.MsSql.EventStores
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> CommitEventsAsync(
+            Type aggregateType,
             IIdentity id,
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
@@ -169,6 +170,7 @@ namespace EventFlow.MsSql.EventStores
         }
 
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            Type aggregateType,
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
@@ -195,7 +197,7 @@ namespace EventFlow.MsSql.EventStores
             return eventDataModels;
         }
 
-        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(

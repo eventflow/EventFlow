@@ -100,6 +100,7 @@ namespace EventFlow.EventStores
                 .ToList();
 
             var committedDomainEvents = await _eventPersistence.CommitEventsAsync(
+                aggregateType, 
                 id,
                 serializedEvents,
                 cancellationToken)
@@ -137,10 +138,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return LoadEventsAsync<TAggregate, TIdentity>(
-                id,
-                1,
-                cancellationToken);
+            return LoadEventsAsync<TAggregate, TIdentity>(id, 1, cancellationToken);
         }
 
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
@@ -153,6 +151,7 @@ namespace EventFlow.EventStores
             if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
 
             var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
+                typeof(TAggregate), 
                 id,
                 fromEventSequenceNumber,
                 cancellationToken)
@@ -188,9 +187,7 @@ namespace EventFlow.EventStores
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return _eventPersistence.DeleteEventsAsync(
-                id,
-                cancellationToken);
+            return _eventPersistence.DeleteEventsAsync(typeof(TAggregate), id, cancellationToken);
         }
     }
 }
