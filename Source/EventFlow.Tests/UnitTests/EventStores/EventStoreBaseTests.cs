@@ -108,6 +108,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
 			Assert.DoesNotThrowAsync(async () => eventsFromSecondAggregate = await store.LoadEventsAsync<SecondAggregate, SecondAggregateId>(secondId, CancellationToken.None));
 			eventsFromFirstAggregate.Count.Should().Be(1);
 			eventsFromSecondAggregate.Count.Should().Be(1);
+			eventsFromFirstAggregate.Single().Metadata[metadataKey].Should().Be("Event for the first aggregate");
+			eventsFromSecondAggregate.Single().Metadata[metadataKey].Should().Be("Event for the second aggregate");
 		}
 
 
