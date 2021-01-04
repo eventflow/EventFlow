@@ -80,6 +80,7 @@ namespace EventFlow.MongoDB.EventStore
                 return new ICommittedDomainEvent[] { };
             }
 
+//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
             var eventDataModels = serializedEvents
                 .Select((e, i) => new MongoDbEventDataModel
                 {
@@ -115,6 +116,7 @@ namespace EventFlow.MongoDB.EventStore
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
             return await MongoDbEventStoreCollection
                 .Find(model => model.AggregateId == id.Value && model.AggregateSequenceNumber >= fromEventSequenceNumber)
                 .ToListAsync(cancellationToken)
@@ -123,6 +125,7 @@ namespace EventFlow.MongoDB.EventStore
 
         public async Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
             DeleteResult affectedRows = await MongoDbEventStoreCollection
                 .DeleteManyAsync(x => x.AggregateId == id.Value, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);

@@ -144,6 +144,7 @@ namespace EventFlow.EventStores.Files
             {
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
 
+//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
                 var aggregatePath = _filesEventLocator.GetEntityPath(id);
                 if (!Directory.Exists(aggregatePath))
                 {
@@ -152,6 +153,7 @@ namespace EventFlow.EventStores.Files
 
                 foreach (var serializedEvent in serializedEvents)
                 {
+//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
                     var eventPath = _filesEventLocator.GetEventPath(id, serializedEvent.AggregateSequenceNumber);
                     _globalSequenceNumber++;
                     _eventLog[_globalSequenceNumber] = GetRelativePath(_configuration.StorePath, eventPath);
@@ -226,6 +228,7 @@ namespace EventFlow.EventStores.Files
                 var committedDomainEvents = new List<ICommittedDomainEvent>();
                 for (var i = fromEventSequenceNumber; ; i++)
                 {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
                     var eventPath = _filesEventLocator.GetEventPath(id, i);
                     if (!File.Exists(eventPath))
                     {
@@ -241,6 +244,7 @@ namespace EventFlow.EventStores.Files
         public async Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
             _log.Verbose("Deleting entity with ID '{0}'", id);
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
             var path = _filesEventLocator.GetEntityPath(id);
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {

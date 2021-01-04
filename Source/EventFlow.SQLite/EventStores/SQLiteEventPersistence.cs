@@ -107,6 +107,7 @@ namespace EventFlow.SQLite.EventStores
                 return new ICommittedDomainEvent[] { };
             }
 
+//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
             var eventDataModels = serializedEvents
                 .Select((e, i) => new EventDataModel
                     {
@@ -172,6 +173,7 @@ namespace EventFlow.SQLite.EventStores
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
             const string sql = @"
                 SELECT
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
@@ -199,6 +201,7 @@ namespace EventFlow.SQLite.EventStores
             IIdentity id,
             CancellationToken cancellationToken)
         {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
                 Label.Named("sqlite-delete-aggregate"),

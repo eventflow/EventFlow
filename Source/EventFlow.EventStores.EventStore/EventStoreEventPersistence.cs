@@ -136,6 +136,7 @@ namespace EventFlow.EventStores.EventStore
 
             try
             {
+//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
                 var writeResult = await _connection.AppendToStreamAsync(
                     id.Value,
                     expectedVersion,
@@ -172,6 +173,7 @@ namespace EventFlow.EventStores.EventStore
 
             do
             {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
                 currentSlice = await _connection.ReadStreamEventsForwardAsync(
                     id.Value,
                     nextSliceStart,
@@ -189,6 +191,7 @@ namespace EventFlow.EventStores.EventStore
 
         public Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
+//TODO: See #820: Use aggregateType as a criterion when filtering events.
             return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
         }
 
