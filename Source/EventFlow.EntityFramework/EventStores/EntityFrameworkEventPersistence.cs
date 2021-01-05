@@ -31,6 +31,7 @@ using EventFlow.Core;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using Microsoft.EntityFrameworkCore;
 
@@ -90,7 +91,6 @@ namespace EventFlow.EntityFramework.EventStores
             if (!serializedEvents.Any())
                 return new ICommittedDomainEvent[0];
 
-//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
             var entities = serializedEvents
                 .Select((e, i) => new EventEntity
                 {
@@ -138,10 +138,12 @@ namespace EventFlow.EntityFramework.EventStores
         {
             using (var context = _contextProvider.CreateContext())
             {
-//TODO: See #820: Use aggregateType as a criterion when filtering events.
                 var entities = await context
                     .Set<EventEntity>()
-                    .Where(e => e.AggregateId == id.Value && e.AggregateSequenceNumber >= fromEventSequenceNumber)
+                    .Where(e =>
+                        e.AggregateName == aggregateType.GetAggregateName().Value
+                        && e.AggregateId == id.Value 
+                        && e.AggregateSequenceNumber >= fromEventSequenceNumber)
                     .OrderBy(e => e.AggregateSequenceNumber)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
@@ -157,9 +159,8 @@ namespace EventFlow.EntityFramework.EventStores
         {
             using (var context = _contextProvider.CreateContext())
             {
-//TODO: See #820: Use aggregateType as a criterion when filtering events.
                 var entities = await context.Set<EventEntity>()
-                    .Where(e => e.AggregateId == id.Value)
+                    .Where(e => e.AggregateName == aggregateType.GetAggregateName().Value && e.AggregateId == id.Value)
                     .Select(e => new EventEntity {GlobalSequenceNumber = e.GlobalSequenceNumber})
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
