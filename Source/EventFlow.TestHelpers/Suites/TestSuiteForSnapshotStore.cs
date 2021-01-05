@@ -112,7 +112,7 @@ namespace EventFlow.TestHelpers.Suites
             await PublishPingCommandsAsync(thingyId, pingsSent).ConfigureAwait(false);
 
             // Act
-            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+            var thingyAggregate = await LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
 
             // Assert
             thingyAggregate.Version.Should().Be(pingsSent);
@@ -123,7 +123,7 @@ namespace EventFlow.TestHelpers.Suites
         public async Task LoadingNoneExistingSnapshottedAggregateReturnsVersionZeroAndNull()
         {
             // Act
-            var thingyAggregate = await LoadAggregateAsync(A<ThingyId>()).ConfigureAwait(false);
+            var thingyAggregate = await LoadAggregateAsync<ThingyAggregate, ThingyId>(A<ThingyId>()).ConfigureAwait(false);
 
             // Assert
             thingyAggregate.Should().NotBeNull();
@@ -193,7 +193,7 @@ namespace EventFlow.TestHelpers.Suites
             await StoreSnapshotAsync(thingyId, expectedVersion, thingySnapshotV1).ConfigureAwait(false);
 
             // Act
-            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+            var thingyAggregate = await LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
 
             // Assert
             thingyAggregate.Version.Should().Be(expectedVersion);

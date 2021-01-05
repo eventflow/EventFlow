@@ -79,7 +79,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             await PublishPingCommandAsync(thingyId).ConfigureAwait(false);
 
             // Assert
-            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+            var thingyAggregate = await LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
             thingyAggregate.Messages.Should().BeEmpty();
         }
 
@@ -160,7 +160,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             thingySaga.PingIdsSinceStarted.Should().BeEquivalentTo(pingsWithRunningSaga);
 
             // Assert - aggregate
-            var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
+            var thingyAggregate = await LoadAggregateAsync<ThingyAggregate, ThingyId>(thingyId).ConfigureAwait(false);
             thingyAggregate.PingsReceived.Should().BeEquivalentTo(
                 pingsWithNewSaga.Concat(pingsWithRunningSaga).Concat(pingsWithCompletedSaga));
             var receivedSagaPingIds = thingyAggregate.Messages

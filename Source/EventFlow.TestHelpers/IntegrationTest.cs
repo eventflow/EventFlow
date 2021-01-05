@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.Queries;
@@ -95,9 +96,11 @@ namespace EventFlow.TestHelpers
 
         protected abstract IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions);
 
-        protected Task<ThingyAggregate> LoadAggregateAsync(ThingyId thingyId)
+        protected Task<TAggregate> LoadAggregateAsync<TAggregate, TIdentity>(TIdentity id)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            return AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(thingyId);
+            return AggregateStore.LoadAsync<TAggregate, TIdentity>(id);
         }
 
         protected async Task<PingId> PublishPingCommandAsync(
