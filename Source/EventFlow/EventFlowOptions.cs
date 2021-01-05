@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
@@ -228,6 +229,14 @@ namespace EventFlow
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
+            serviceRegistration.Register<Func<Type, ISagaErrorHandler>>(context => sagaType =>
+            {
+                Type genericSagaErrorHandlerType = typeof(ISagaErrorHandler<>);
+                Type typeToResolve = genericSagaErrorHandlerType.MakeGenericType(sagaType);
+                if (context.Resolver.GetRegisteredServices().Any(rs => rs == typeToResolve))
+                    return (ISagaErrorHandler) context.Resolver.Resolve(typeToResolve);
+                return null;
+            });
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
 #if NET452
             serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);
