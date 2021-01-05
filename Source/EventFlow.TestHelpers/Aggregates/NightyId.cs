@@ -21,14 +21,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Text.RegularExpressions;
 using EventFlow.Core;
 
 namespace EventFlow.TestHelpers.Aggregates
 {
-    public class NightyId : Identity<NightyId>
+    public class NightyId : IIdentity
     {
-        public NightyId(string value) : base(value)
+        public NightyId(string value)
         {
+            // This identity class has purposefully been tailored to mimic
+            // the ThingyId using the IIdentity-interface instead.
+            // The purpose is to produce identity values that are identical
+            // between the two different aggregate types, in order to verify
+            // that there will be no conflicts between identity spaces.
+            // An aggregates should be allowed to have the same identity
+            // _value_ as another aggregate of a different type without
+            // any collisions occurring.
+            var nameReplace = new Regex("Id$");
+            var prefix = nameReplace.Replace(nameof(ThingyId), string.Empty).ToLowerInvariant() + "-";
+            Value = $"{prefix}{value}";
         }
+
+        public string Value { get; }
+
+        public static NightyId New
+            => new NightyId(Guid.NewGuid().ToString("D"));
+
+        public static NightyId With(Guid value)
+            => new NightyId(value.ToString("D"));
     }
 }
