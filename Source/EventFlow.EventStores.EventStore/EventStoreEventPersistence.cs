@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventFlow.Logs;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
@@ -38,15 +39,19 @@ namespace EventFlow.EventStores.EventStore
 {
     public class EventStoreEventPersistence : IEventPersistence
     {
+        private const char IdentitySeparator = '-';
+        private const char TypeSeparator = '.';
+
         private readonly ILog _log;
         private readonly IEventStoreConnection _connection;
 
         private class EventStoreEvent : ICommittedDomainEvent
         {
+            public string AggregateName { get; set; }
             public string AggregateId { get; set; }
+            public int AggregateSequenceNumber { get; set; }
             public string Data { get; set; }
             public string Metadata { get; set; }
-            public int AggregateSequenceNumber { get; set; }
         }
 
         public EventStoreEventPersistence(
@@ -112,9 +117,10 @@ namespace EventFlow.EventStores.EventStore
             var committedDomainEvents = serializedEvents
                 .Select(e => new EventStoreEvent
                     {
+                        AggregateName = aggregateType.GetAggregateName().Value,
+                        AggregateId = id.Value,
                         AggregateSequenceNumber = e.AggregateSequenceNumber,
                         Metadata = e.SerializedMetadata,
-                        AggregateId = id.Value,
                         Data = e.SerializedData
                     })
                 .ToList();
@@ -127,7 +133,7 @@ namespace EventFlow.EventStores.EventStore
                         // as EventStore won't detect optimistic concurrency exceptions then
                         var guid = Guid.NewGuid();
 
-                        var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
+                        var eventType = string.Format("{1}{0}{2}{0}{3}", TypeSeparator, e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
                         return new EventData(guid, eventType, true, data, meta);
@@ -136,9 +142,9 @@ namespace EventFlow.EventStores.EventStore
 
             try
             {
-//TODO: See #820: Add aggregateType as a part of a compound key together with id (in order to segregate events by aggregate type, allowing the same ID-value being used by different aggregate types).
+                var stream = GetKey(aggregateType, id);
                 var writeResult = await _connection.AppendToStreamAsync(
-                    id.Value,
+                    stream,
                     expectedVersion,
                     eventDatas)
                     .ConfigureAwait(false);
@@ -171,11 +177,11 @@ namespace EventFlow.EventStores.EventStore
                 ? StreamPosition.Start
                 : fromEventSequenceNumber - 1; // Starts from zero
 
+            var stream = GetKey(aggregateType, id);
             do
             {
-//TODO: See #820: Use aggregateType as a criterion when filtering events.
                 currentSlice = await _connection.ReadStreamEventsForwardAsync(
-                    id.Value,
+                    stream,
                     nextSliceStart,
                     200,
                     false)
@@ -186,23 +192,28 @@ namespace EventFlow.EventStores.EventStore
             }
             while (!currentSlice.IsEndOfStream);
 
-            return Map(streamEvents);
+            var mapped = Map(streamEvents);
+            return mapped;
         }
 
         public Task DeleteEventsAsync(Type aggregateType, IIdentity id, CancellationToken cancellationToken)
         {
-//TODO: See #820: Use aggregateType as a criterion when filtering events.
-            return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
+            var stream = GetKey(aggregateType, id);
+            return _connection.DeleteStreamAsync(stream, ExpectedVersion.Any);
         }
+           
+        private static string GetKey(Type aggregateType, IIdentity id)
+            => $"{aggregateType.GetAggregateName().Value}{IdentitySeparator}{id.Value}";
 
         private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
         {
             return resolvedEvents
                 .Select(e => new EventStoreEvent
                     {
+                        AggregateName = e.Event.EventType.Substring(0, e.Event.EventType.IndexOf(TypeSeparator)),
+                        AggregateId = e.Event.EventStreamId.Substring(e.Event.EventStreamId.IndexOf(IdentitySeparator) + 1),
                         AggregateSequenceNumber = (int)(e.Event.EventNumber + 1), // Starts from zero
                         Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
-                        AggregateId = e.OriginalStreamId,
                         Data = Encoding.UTF8.GetString(e.Event.Data),
                     })
                 .ToList();

@@ -21,29 +21,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates.Entities
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    public class NightyMessageLocator : IReadModelLocator
     {
-        private IMongoDatabase _mongoDatabase;
+        public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
+        {
+            var aggregateEvent = domainEvent.GetAggregateEvent();
+            switch (aggregateEvent)
+            {
+                case NightyMessageAddedEvent messageAddedEvent:
+                    yield return messageAddedEvent.NightyMessage.Id.Value;
+                    break;
 
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
-        {
-            _mongoDatabase = mongoDatabase;
-        }
-        public void Initialize()
-        {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
+                case NightyMessageHistoryAddedEvent messageHistoryAddedEvent:
+                    foreach (var message in messageHistoryAddedEvent.NightyMessages)
+                    {
+                        yield return message.Id.Value;
+                    }
+                    break;
+            }
         }
     }
 }

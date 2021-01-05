@@ -21,29 +21,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    [CommandVersion("NightyMaybePing", 1)]
+    public class NightyMaybePingCommand : Command<NightyAggregate, NightyId, IExecutionResult>
     {
-        private IMongoDatabase _mongoDatabase;
+        public PingId PingId { get; }
+        public bool IsSuccess { get; }
 
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
+        [JsonConstructor]
+        public NightyMaybePingCommand(NightyId aggregateId, PingId pingId, bool isSuccess)
+            : base(aggregateId, CommandId.New)
         {
-            _mongoDatabase = mongoDatabase;
+            PingId = pingId;
+            IsSuccess = isSuccess;
         }
-        public void Initialize()
+    }
+
+    public class NightyMaybePingCommandHandler :
+        CommandHandler<NightyAggregate, NightyId, IExecutionResult, NightyMaybePingCommand>
+    {
+        public override Task<IExecutionResult> ExecuteCommandAsync(
+            NightyAggregate aggregate,
+            NightyMaybePingCommand command,
+            CancellationToken cancellationToken)
         {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
+            var executionResult = aggregate.PingMaybe(command.PingId, command.IsSuccess);
+            return Task.FromResult(executionResult);
         }
     }
 }

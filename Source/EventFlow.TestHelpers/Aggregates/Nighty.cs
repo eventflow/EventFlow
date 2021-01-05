@@ -21,29 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using EventFlow.Entities;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    public class Nighty : Entity<NightyId>
     {
-        private IMongoDatabase _mongoDatabase;
+        public int PingsReceived { get; }
+        public bool DomainErrorAfterFirstReceived { get; }
 
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
+        public Nighty(
+            NightyId id,
+            int pingsReceived,
+            bool domainErrorAfterFirstReceived)
+            : base(id)
         {
-            _mongoDatabase = mongoDatabase;
-        }
-        public void Initialize()
-        {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
+            PingsReceived = pingsReceived;
+            DomainErrorAfterFirstReceived = domainErrorAfterFirstReceived;
         }
     }
 }

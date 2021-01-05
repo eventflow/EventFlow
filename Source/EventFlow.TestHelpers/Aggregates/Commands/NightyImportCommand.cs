@@ -22,39 +22,49 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Core;
-using EventFlow.Logs;
-using EventFlow.MsSql.Connections;
-using EventFlow.MsSql.Integrations;
-using EventFlow.MsSql.RetryStrategies;
-using EventFlow.Sql.Connections;
+using EventFlow.Commands;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.MsSql
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy, IMsSqlConnectionFactory>, IMsSqlConnection
+    public class NightyImportCommand : Command<NightyAggregate, NightyId>
     {
-        public MsSqlConnection(
-            ILog log,
-            IMsSqlConfiguration configuration,
-            IMsSqlConnectionFactory connectionFactory,
-            ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
-            : base(log, configuration, connectionFactory, transientFaultHandler)
-        {
-        }
+        public IReadOnlyCollection<PingId> PingIds { get; }
+        public IReadOnlyCollection<NightyMessage> NightyMessages { get; }
 
-        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows)
+        public NightyImportCommand(
+            NightyId aggregateId,
+            IEnumerable<PingId> pingIds,
+            IEnumerable<NightyMessage> nightyMessages)
+            : base(aggregateId)
         {
-            Log.Verbose(
-                "Using optimized table type to insert with SQL: {0}",
-                sql);
-            var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
-            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
+            PingIds = pingIds.ToList();
+            NightyMessages = nightyMessages.ToList();
+        }
+    }
+
+    public class NightyImportCommandHandler : CommandHandler<NightyAggregate, NightyId, NightyImportCommand>
+    {
+        public override Task ExecuteAsync(
+            NightyAggregate aggregate,
+            NightyImportCommand command,
+            CancellationToken cancellationToken)
+        {
+            foreach (var pingId in command.PingIds)
+            {
+                aggregate.Ping(pingId);
+            }
+
+            foreach (var nightyMessage in command.NightyMessages)
+            {
+                aggregate.AddMessage(nightyMessage);
+            }
+
+            return Task.FromResult(0);
         }
     }
 }

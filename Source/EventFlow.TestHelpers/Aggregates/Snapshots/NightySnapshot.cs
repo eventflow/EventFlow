@@ -21,29 +21,25 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Linq;
+using EventFlow.Snapshots;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates.Snapshots
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    [SnapshotVersion("nighty", 1)]
+    public class NightySnapshot : ISnapshot
     {
-        private IMongoDatabase _mongoDatabase;
+        public NightySnapshot(
+            IEnumerable<PingId> pingsReceived,
+            IEnumerable<NightySnapshotVersion> previousVersions)
+        {
+            PingsReceived = (pingsReceived ?? Enumerable.Empty<PingId>()).ToList();
+            PreviousVersions = (previousVersions ?? Enumerable.Empty<NightySnapshotVersion>()).ToList();
+        }
 
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
-        {
-            _mongoDatabase = mongoDatabase;
-        }
-        public void Initialize()
-        {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
-        }
+        public IReadOnlyCollection<PingId> PingsReceived { get; }
+        public IReadOnlyCollection<NightySnapshotVersion> PreviousVersions { get; }
     }
 }

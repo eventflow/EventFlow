@@ -33,7 +33,12 @@ namespace EventFlow.EntityFramework.Extensions
         {
             var eventEntity = modelBuilder.Entity<EventEntity>();
             eventEntity.HasKey(e => e.GlobalSequenceNumber);
-            eventEntity.HasIndex(e => new {e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
+            eventEntity.HasIndex(e => new
+                {
+                    e.AggregateName,
+                    e.AggregateId,
+                    e.AggregateSequenceNumber
+                }).IsUnique();
             return modelBuilder;
         }
 
@@ -41,7 +46,12 @@ namespace EventFlow.EntityFramework.Extensions
         {
             var eventEntity = modelBuilder.Entity<SnapshotEntity>();
             eventEntity.HasKey(e => e.Id);
-            eventEntity.HasIndex(e => new {e.AggregateName, e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
+            eventEntity.HasIndex(e => new
+                {
+                    e.AggregateName,
+                    e.AggregateId,
+                    e.AggregateSequenceNumber
+                }).IsUnique();
             return modelBuilder;
         }
     }

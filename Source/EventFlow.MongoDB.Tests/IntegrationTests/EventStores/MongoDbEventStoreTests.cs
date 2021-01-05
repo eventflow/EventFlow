@@ -31,29 +31,29 @@ using Mongo2Go;
 
 namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 {
-	[Category(Categories.Integration)]
-	[TestFixture]
+    [Category(Categories.Integration)]
+    [TestFixture]
     public class MongoDbEventStoreTests : TestSuiteForEventStore
-	{
-		private MongoDbRunner _runner;
-		
-		protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-		{
-		    _runner = MongoDbRunner.Start();
+    {
+        private MongoDbRunner _runner;
+        
+        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        {
+            _runner = MongoDbRunner.Start();
             var resolver = eventFlowOptions
-				.ConfigureMongoDb(_runner.ConnectionString, "eventflow")
-				.UseMongoDbEventStore()
-				.CreateResolver();
-		    var eventPersistenceInitializer = resolver.Resolve<IMongoDbEventPersistenceInitializer>();
+                .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
+                .UseMongoDbEventStore()
+                .CreateResolver();
+            var eventPersistenceInitializer = resolver.Resolve<IMongoDbEventPersistenceInitializer>();
             eventPersistenceInitializer.Initialize();
-		    
-			return resolver;
-		}
+            
+            return resolver;
+        }
 
         [TearDown]
-		public void TearDown()
-		{
-			_runner.Dispose();
-		}
-	}
+        public void TearDown()
+        {
+            _runner.Dispose();
+        }
+    }
 }

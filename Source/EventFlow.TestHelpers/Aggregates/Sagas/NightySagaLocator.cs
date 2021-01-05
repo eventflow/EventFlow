@@ -21,29 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using EventFlow.Sagas;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates.Sagas
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    public class NightySagaLocator : ISagaLocator
     {
-        private IMongoDatabase _mongoDatabase;
-
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
+        public Task<ISagaId> LocateSagaAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
         {
-            _mongoDatabase = mongoDatabase;
-        }
-        public void Initialize()
-        {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
+            var aggregateId = domainEvent.GetIdentity();
+            return Task.FromResult<ISagaId>(new NightySagaId($"saga-{aggregateId.Value}"));
         }
     }
 }

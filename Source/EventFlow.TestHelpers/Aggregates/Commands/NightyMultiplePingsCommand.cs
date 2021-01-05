@@ -22,39 +22,49 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Commands;
 using EventFlow.Core;
-using EventFlow.Logs;
-using EventFlow.MsSql.Connections;
-using EventFlow.MsSql.Integrations;
-using EventFlow.MsSql.RetryStrategies;
-using EventFlow.Sql.Connections;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Newtonsoft.Json;
 
-namespace EventFlow.MsSql
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy, IMsSqlConnectionFactory>, IMsSqlConnection
+    [CommandVersion("NightyMultiplePings", 1)]
+    public class NightyMultiplePingsCommand : Command<NightyAggregate, NightyId>
     {
-        public MsSqlConnection(
-            ILog log,
-            IMsSqlConfiguration configuration,
-            IMsSqlConnectionFactory connectionFactory,
-            ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
-            : base(log, configuration, connectionFactory, transientFaultHandler)
+        public IReadOnlyCollection<PingId> PingIds { get; }
+
+        public NightyMultiplePingsCommand(NightyId aggregateId, IEnumerable<PingId> pingIds)
+            : this(aggregateId, CommandId.New, pingIds)
         {
         }
 
-        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
-            Label label,
-            CancellationToken cancellationToken,
-            string sql,
-            IEnumerable<TRow> rows)
+        public NightyMultiplePingsCommand(NightyId aggregateId, ISourceId sourceId, IEnumerable<PingId> pingIds)
+            : base (aggregateId, sourceId)
         {
-            Log.Verbose(
-                "Using optimized table type to insert with SQL: {0}",
-                sql);
-            var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
-            return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
+            PingIds = pingIds.ToList();
+        }
+
+        [JsonConstructor]
+        public NightyMultiplePingsCommand(NightyId aggregateId, SourceId sourceId, IEnumerable<PingId> pingIds)
+            : base(aggregateId, sourceId)
+        {
+            PingIds = pingIds.ToList();
+        }
+    }
+
+    public class NightyMultiplePingsCommandHandler : CommandHandler<NightyAggregate, NightyId, NightyMultiplePingsCommand>
+    {
+        public override Task ExecuteAsync(NightyAggregate aggregate, NightyMultiplePingsCommand command, CancellationToken cancellationToken)
+        {
+            foreach (var pingId in command.PingIds)
+            {
+                aggregate.Ping(pingId);
+            }
+            return Task.FromResult(0);
         }
     }
 }

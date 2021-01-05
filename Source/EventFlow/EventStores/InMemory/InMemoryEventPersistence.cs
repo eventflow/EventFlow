@@ -231,6 +231,6 @@ namespace EventFlow.EventStores.InMemory
         }
    
         private static string GetKey(Type aggregateType, IIdentity id)
-            => $"{aggregateType.GetAggregateName()}_{id.Value}";
+            => $"{aggregateType.GetAggregateName().Value}_{id.Value}";
     }
 }

@@ -21,29 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using EventFlow.Queries;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates.Queries
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    public class NightyGetQuery : IQuery<Nighty>
     {
-        private IMongoDatabase _mongoDatabase;
+        public NightyGetQuery(
+            NightyId nightyId)
+        {
+            NightyId = nightyId;
+        }
 
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
-        {
-            _mongoDatabase = mongoDatabase;
-        }
-        public void Initialize()
-        {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
-        }
+        public NightyId NightyId { get; }
     }
 }

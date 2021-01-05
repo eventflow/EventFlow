@@ -21,29 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.MongoDB.ValueObjects;
-using MongoDB.Driver;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.MongoDB.EventStore
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    class MongoDbEventPersistenceInitializer : IMongoDbEventPersistenceInitializer
+    public class NightyDomainErrorAfterFirstCommand : Command<NightyAggregate, NightyId>
     {
-        private IMongoDatabase _mongoDatabase;
+        public NightyDomainErrorAfterFirstCommand(NightyId aggregateId) : base(aggregateId) { }
+    }
 
-        public MongoDbEventPersistenceInitializer(IMongoDatabase mongoDatabase)
+    public class NightyDomainErrorAfterFirstCommandHander : CommandHandler<NightyAggregate, NightyId, NightyDomainErrorAfterFirstCommand>
+    {
+        public override Task ExecuteAsync(NightyAggregate aggregate, NightyDomainErrorAfterFirstCommand command, CancellationToken cancellationToken)
         {
-            _mongoDatabase = mongoDatabase;
-        }
-        public void Initialize()
-        {
-            var events = _mongoDatabase.GetCollection<MongoDbEventDataModel>(MongoDbEventPersistence.CollectionName);
-            IndexKeysDefinition<MongoDbEventDataModel> keys =
-                Builders<MongoDbEventDataModel>.IndexKeys
-                    .Ascending("AggregateName")
-                    .Ascending("AggregateId")
-                    .Ascending("AggregateSequenceNumber");
-            events.Indexes.CreateOne(
-                new CreateIndexModel<MongoDbEventDataModel>(keys, new CreateIndexOptions { Unique = true }));
+            aggregate.DomainErrorAfterFirst();
+            return Task.FromResult(0);
         }
     }
 }
