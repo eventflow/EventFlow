@@ -145,6 +145,35 @@ namespace EventFlow.TestHelpers.Suites
             aggregate2.Version.Should().Be(2);
         }
 
+        [Test]
+        public async Task AggregateEventStreamsAreSeparatedByAggregateType()
+        {
+            // Arrange
+
+            // The same identity value is used for two aggregates of completely different types.
+            // This should be allowed, as identity spaces should be segregated by aggregate type.
+            var idValue = Guid.Empty;
+
+            var id1 = ThingyId.With(idValue);
+            var id2 = NightyId.With(idValue);
+            var aggregate1 = await LoadAggregateAsync<ThingyAggregate, ThingyId>(id1).ConfigureAwait(false);
+            var aggregate2 = await LoadAggregateAsync<NightyAggregate, NightyId>(id2).ConfigureAwait(false);
+            aggregate1.Ping(PingId.New);
+            aggregate2.Ping(PingId.New);
+            aggregate2.Ping(PingId.New);
+
+
+            // Act
+
+            // If the event store does not segregate events by aggregate type,
+            // these operations will throw an exception. Either when committing or when loading,
+            // depending on the event store, because there will be a collision on identity.
+            await aggregate1.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            await aggregate2.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+            aggregate1 = await LoadAggregateAsync<ThingyAggregate, ThingyId>(id1).ConfigureAwait(false);
+            aggregate2 = await LoadAggregateAsync<NightyAggregate, NightyId>(id2).ConfigureAwait(false);
+
+
             // Assert
             aggregate1.Version.Should().Be(1);
             aggregate2.Version.Should().Be(2);
