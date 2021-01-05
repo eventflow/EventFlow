@@ -59,15 +59,16 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
                 CREATE TABLE [EventFlow](
                     [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
                     [BatchId] [uniqueidentifier] NOT NULL,
-                    [AggregateId] [nvarchar](255) NOT NULL,
                     [AggregateName] [nvarchar](255) NOT NULL,
+                    [AggregateId] [nvarchar](255) NOT NULL,
+                    [AggregateSequenceNumber] [int] NOT NULL,
                     [Data] [nvarchar](1024) NOT NULL,
-                    [Metadata] [nvarchar](1024) NOT NULL,
-                    [AggregateSequenceNumber] [int] NOT NULL
+                    [Metadata] [nvarchar](1024) NOT NULL
                 )";
             const string sqlCreateIndex = @"
-                CREATE UNIQUE INDEX [IX_EventFlow_AggregateId_AggregateSequenceNumber] ON [EventFlow]
+                CREATE UNIQUE INDEX [IX_EventFlow_AggregateName_AggregateId_AggregateSequenceNumber] ON [EventFlow]
                 (
+                    [AggregateName] ASC,
                     [AggregateId] ASC,
                     [AggregateSequenceNumber] ASC
                 )";
