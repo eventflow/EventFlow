@@ -1,6 +1,6 @@
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'eventdatamodel_list_type') THEN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'eventdatamodel_list_type') THEN
 		CREATE TYPE "eventdatamodel_list_type" AS
 		(
 			AggregateId varchar(255),
@@ -10,6 +10,6 @@ BEGIN
 			Data TEXT,
 			Metadata TEXT
 		);
-    END IF;
+	END IF;
 END
 $$;
