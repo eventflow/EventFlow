@@ -44,9 +44,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class FilesEventPersistenceTests
     {
-        private const int NumberOfAggregates = 1;
         private const int NumberOfEventsPerAggregate = 3;
-        private static readonly ThingyId ThingyId = ThingyId.New;
+        
+        private ThingyId _thingyId;
+        private NightyId _nightyId;
     
         private string _storeRootPath;
         private EventJsonSerializer _serializer;
@@ -56,9 +57,13 @@ namespace EventFlow.Tests.UnitTests.EventStores
         {
             var factory = new DomainEventFactory();
             var definitionService = new EventDefinitionService(new NullLog());
-            definitionService.Load(typeof(ThingyPingEvent));
+            definitionService.Load(typeof(ThingyPingEvent), typeof(NightyPingEvent));
 
             _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
+            
+            var idValue = Guid.Empty;
+            _thingyId = ThingyId.With(idValue);
+            _nightyId = NightyId.With(idValue);
         }
 
         [SetUp]
@@ -67,6 +72,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             _storeRootPath = Path.Combine(
                 Path.GetTempPath(),
                 Guid.NewGuid().ToString());
+            Console.WriteLine("Files stored in {0}", _storeRootPath);
 
             Directory.CreateDirectory(_storeRootPath);
         }
@@ -82,13 +88,14 @@ namespace EventFlow.Tests.UnitTests.EventStores
         {
             // Arrange
             var persistence = CreatePersistence();
-            await CommitEventsAsync(persistence).ConfigureAwait(false);
+            await CommitEventsAsync<ThingyAggregate, ThingyPingEvent>(persistence, _thingyId, () => new ThingyPingEvent(PingId.New));
+            await CommitEventsAsync<NightyAggregate, NightyPingEvent>(persistence, _nightyId, () => new NightyPingEvent(PingId.New));
 
             // Act
             var events = await persistence.LoadAllCommittedEvents(GlobalPosition.Start, int.MaxValue, CancellationToken.None);
 
             // Assert
-            events.CommittedDomainEvents.Count.Should().Be(NumberOfAggregates * NumberOfEventsPerAggregate);
+            events.CommittedDomainEvents.Count.Should().Be(2 * NumberOfEventsPerAggregate);
         }
 
         private FilesEventPersistence CreatePersistence()
@@ -100,39 +107,28 @@ namespace EventFlow.Tests.UnitTests.EventStores
             return new FilesEventPersistence(log, serializer, config, locator);
         }
 
-        private async Task CommitEventsAsync(IEventPersistence persistence)
+        private async Task CommitEventsAsync<TAggregate, TEvent>(IEventPersistence persistence, IIdentity id, Func<TEvent> eventFactory)
+            where TAggregate : IAggregateRoot
+            where TEvent : IAggregateEvent
         {
             var events = Enumerable.Range(0, NumberOfEventsPerAggregate)
-                .Select(i => new ThingyPingEvent(PingId.New))
+                .Select(i => eventFactory())
                 .ToList();
 
-            var version = await GetVersionAsync(persistence).ConfigureAwait(false);
-
+            var existingEvents = await persistence.LoadCommittedEventsAsync(typeof(TAggregate), id, 1, CancellationToken.None).ConfigureAwait(false);
+            var version = existingEvents.LastOrDefault()?.AggregateSequenceNumber ?? 0;
             var serializedEvents = from aggregateEvent in events
                 let metadata = new Metadata
-                {
-                    AggregateSequenceNumber = ++version
-                }
+                    {
+                        AggregateSequenceNumber = ++version
+                    }
                 let serializedEvent = _serializer.Serialize(aggregateEvent, metadata)
                 select serializedEvent;
-
             var readOnlyEvents = new ReadOnlyCollection<SerializedEvent>(serializedEvents.ToList());
 
             await persistence
-                .CommitEventsAsync(typeof(ThingyAggregate), ThingyId, readOnlyEvents, CancellationToken.None)
+                .CommitEventsAsync(typeof(TAggregate), id, readOnlyEvents, CancellationToken.None)
                 .ConfigureAwait(false);
-        }
-
-        private static async Task<int> GetVersionAsync(IEventPersistence persistence)
-        {
-            var existingEvents = await persistence.LoadCommittedEventsAsync(
-                typeof(ThingyAggregate),
-                ThingyId,
-                1,
-                CancellationToken.None).ConfigureAwait(false);
-
-            var version = existingEvents.LastOrDefault()?.AggregateSequenceNumber ?? 0;
-            return version;
         }
     }
 }
