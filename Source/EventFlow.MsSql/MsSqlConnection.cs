@@ -51,7 +51,7 @@ namespace EventFlow.MsSql
             IEnumerable<TRow> rows)
         {
             Log.Verbose(
-                "Using optimised table type to insert with SQL: {0}",
+                "Using optimized table type to insert with SQL: {0}",
                 sql);
             var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
             return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);
