@@ -81,8 +81,7 @@ namespace EventFlow.Extensions
 
         private static readonly ConcurrentDictionary<Type, AggregateName> AggregateNames = new ConcurrentDictionary<Type, AggregateName>();
 
-        public static AggregateName GetAggregateName(
-            this Type aggregateType)
+        public static AggregateName GetAggregateName(this Type aggregateType)
         {
             return AggregateNames.GetOrAdd(
                 aggregateType,

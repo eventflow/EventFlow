@@ -23,7 +23,6 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
@@ -43,6 +42,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
             var storePath = Path.Combine(
                 Path.GetTempPath(),
                 Guid.NewGuid().ToString());
+            Console.WriteLine("Test files stored at {0}", storePath);
 
             Directory.CreateDirectory(storePath);
 

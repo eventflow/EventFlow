@@ -23,8 +23,9 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using EventFlow.Core;
+using EventFlow.Extensions;
+
 
 namespace EventFlow.EventStores.Files
 {
@@ -38,17 +39,18 @@ namespace EventFlow.EventStores.Files
             _configuration = configuration;
         }
 
-        public string GetEntityPath(IIdentity id)
+        public string GetEntityPath(Type aggregateType, IIdentity id)
         {
             return Path.Combine(
                 _configuration.StorePath,
+                aggregateType.GetAggregateName().Value,
                 id.Value);
         }
 
-        public string GetEventPath(IIdentity id, int aggregateSequenceNumber)
+        public string GetEventPath(Type aggregateType, IIdentity id, int aggregateSequenceNumber)
         {
             return Path.Combine(
-                GetEntityPath(id),
+                GetEntityPath(aggregateType, id),
                 $"{aggregateSequenceNumber}.json");
         }
     }

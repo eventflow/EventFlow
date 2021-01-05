@@ -21,13 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Core;
 
 namespace EventFlow.EventStores.Files
 {
     public interface IFilesEventLocator
     {
-        string GetEntityPath(IIdentity id);
-        string GetEventPath(IIdentity id, int aggregateSequenceNumber);
+        string GetEntityPath(Type aggregateType, IIdentity id);
+        string GetEventPath(Type aggregateType, IIdentity id, int aggregateSequenceNumber);
     }
 }
