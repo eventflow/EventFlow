@@ -5,6 +5,12 @@ This is still just a collection of notes. Will slowly evolve as the API for
 
 # Migration guide 0.x to 1.x
 
+## Data in event stores
+
+Upgrading EventFlow should **never** break existing data in event stores, not even
+between major versions. All data currently in event stores will work with 1.x
+releases. However, it might not be possible to do a rollback from 1.x to 0.x.
+
 ## NuGet packages removed
 
 - `EventFlow.Autofac` use native Autofac integration packages for Microsoft
