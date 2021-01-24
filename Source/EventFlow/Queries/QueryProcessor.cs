@@ -57,6 +57,24 @@ namespace EventFlow.Queries
             _memoryCache = memoryCache;
         }
 
+        public async Task<object> ProcessAsync(
+            IQuery query,
+            CancellationToken cancellationToken)
+        {
+            var queryType = query.GetType();
+            var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
+
+            var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
+            _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
+
+            // TODO: Optimize this
+            var task = cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
+            await task.ConfigureAwait(false);
+            var result = task.GetType().GetTypeInfo().GetProperty("Result").GetValue(task);
+
+            return result;
+        }
+
         public async Task<TResult> ProcessAsync<TResult>(
             IQuery<TResult> query,
             CancellationToken cancellationToken)

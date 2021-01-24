@@ -28,6 +28,10 @@ namespace EventFlow.Queries
 {
     public interface IQueryProcessor
     {
+        Task<object> ProcessAsync(
+            IQuery query,
+            CancellationToken cancellationToken);
+
         Task<TResult> ProcessAsync<TResult>(
             IQuery<TResult> query,
             CancellationToken cancellationToken);
