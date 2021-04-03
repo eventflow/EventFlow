@@ -53,7 +53,8 @@ namespace EventFlow
     public class EventFlowOptions : IEventFlowOptions
     {
         private readonly List<Type> _aggregateEventTypes = new List<Type>();
-        private readonly List<Type> _sagaTypes = new List<Type>(); 
+        private readonly List<Type> _sagaTypes = new List<Type>();
+        private readonly List<Type> _queryTypes = new List<Type>();
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
         private readonly List<Type> _jobTypes = new List<Type>
@@ -61,7 +62,7 @@ namespace EventFlow
                 typeof(PublishCommandJob),
                 typeof(DispatchToAsynchronousEventSubscribersJob)
             };
-        private readonly List<Type> _snapshotTypes = new List<Type>(); 
+        private readonly List<Type> _snapshotTypes = new List<Type>();
 
         public IServiceCollection ServiceCollection { get; }
 
@@ -134,6 +135,19 @@ namespace EventFlow
             return this;
         }
 
+        public IEventFlowOptions AddQueries(IEnumerable<Type> queryTypes)
+        {
+            foreach (var queryType in queryTypes)
+            {
+                if (!typeof(IQuery).GetTypeInfo().IsAssignableFrom(queryType))
+                {
+                    throw new ArgumentException($"Type {queryType.PrettyPrint()} is not a {typeof(IQuery).PrettyPrint()}");
+                }
+                _queryTypes.Add(queryType);
+            }
+            return this;
+        }
+
         public IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes)
         {
             foreach (var jobType in jobTypes)
@@ -192,6 +206,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<IReadModelDomainEventApplier, ReadModelDomainEventApplier>();
             serviceCollection.TryAddTransient<IDomainEventPublisher, DomainEventPublisher>();
             serviceCollection.TryAddTransient<ISerializedCommandPublisher, SerializedCommandPublisher>();
+            serviceCollection.TryAddTransient<ISerializedQueryProcessor, SerializedQueryProcessor>();
             serviceCollection.TryAddTransient<IDispatchToEventSubscribers, DispatchToEventSubscribers>();
             serviceCollection.TryAddSingleton<IDomainEventFactory, DomainEventFactory>();
             serviceCollection.TryAddTransient<ISagaStore, SagaAggregateStore>();
@@ -209,13 +224,14 @@ namespace EventFlow
             serviceCollection.TryAddSingleton<IJobDefinitionService, JobDefinitionService>();
             serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
             serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
-
+            serviceCollection.TryAddSingleton<IQueryDefinitionService, QueryDefinitionService>();
             serviceCollection.AddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
                 _aggregateEventTypes,
                 _sagaTypes,
-                _snapshotTypes));
+                _snapshotTypes,
+                _queryTypes));
         }
     }
 }

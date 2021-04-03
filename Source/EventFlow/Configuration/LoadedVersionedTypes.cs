@@ -34,13 +34,15 @@ namespace EventFlow.Configuration
             IEnumerable<Type> commandTypes,
             IEnumerable<Type> eventTypes,
             IEnumerable<Type> sagaTypes,
-            IEnumerable<Type> snapshotTypes)
+            IEnumerable<Type> snapshotTypes,
+            IEnumerable<Type> queryTypes)
         {
             Jobs = jobTypes.ToList();
             Commands = commandTypes.ToList();
             Events = eventTypes.ToList();
             Sagas = sagaTypes.ToList();
             SnapshotTypes = snapshotTypes.ToList();
+            Queries = queryTypes.ToList();
         }
 
         public IReadOnlyCollection<Type> Jobs { get; }
@@ -48,5 +50,6 @@ namespace EventFlow.Configuration
         public IReadOnlyCollection<Type> Events { get; }
         public IReadOnlyCollection<Type> Sagas { get; }
         public IReadOnlyCollection<Type> SnapshotTypes { get; }
+        public IReadOnlyCollection<Type> Queries { get; }
     }
 }

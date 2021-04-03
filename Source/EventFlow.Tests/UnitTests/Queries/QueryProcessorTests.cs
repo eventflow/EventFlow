@@ -37,8 +37,8 @@ namespace EventFlow.Tests.UnitTests.Queries
     {
         private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<IQueryHandler<IQuery<int>, int>> _queryHandlerMock;
-    
-        public class TestQuery : IQuery<int> { }
+
+        public class TestQuery : IQuery<int> {}
 
         [SetUp]
         public void SetUp()
@@ -57,10 +57,22 @@ namespace EventFlow.Tests.UnitTests.Queries
         }
 
         [Test]
-        public async Task QueryHandlerIsInvoked()
+        public async Task ProcessAsync_TypedQueryInterface_QueryHandlerIsInvoked()
         {
             // Act
             var result = await Sut.ProcessAsync(new TestQuery(), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            result.Should().Be(42);
+            _queryHandlerMock.Verify(q => q.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ProcessAsync_MarkerQueryInterface_QueryHandlerIsInvoked()
+        {
+            // Act
+            IQuery query = new TestQuery();
+            var result = await Sut.ProcessAsync(query, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
             result.Should().Be(42);

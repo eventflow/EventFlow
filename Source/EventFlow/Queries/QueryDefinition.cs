@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -22,18 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using EventFlow.Core.VersionedTypes;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Queries
 {
-    public interface ILoadedVersionedTypes
+    public class QueryDefinition : VersionedTypeDefinition
     {
-        IReadOnlyCollection<Type> Jobs { get; }
-        IReadOnlyCollection<Type> Commands { get; }
-        IReadOnlyCollection<Type> Events { get; }
-        IReadOnlyCollection<Type> Sagas { get; }
-        IReadOnlyCollection<Type> SnapshotTypes { get; }
-
-        IReadOnlyCollection<Type> Queries { get; }
+        public QueryDefinition(
+            int version,
+            Type type,
+            string name)
+            : base(version, type, name) {}
     }
 }

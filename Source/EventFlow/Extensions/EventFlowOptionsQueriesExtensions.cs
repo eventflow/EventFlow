@@ -30,7 +30,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
-    public static class EventFlowOptionsQueriesExtensions
+    public static class EventFlowOptionsQueryExtensions
     {
         public static IEventFlowOptions AddQueryHandler<TQueryHandler, TQuery, TResult>(
             this IEventFlowOptions eventFlowOptions)
@@ -39,6 +39,7 @@ namespace EventFlow.Extensions
         {
             eventFlowOptions.ServiceCollection
                 .AddTransient<IQueryHandler<TQuery, TResult>, TQueryHandler>();
+            eventFlowOptions.AddQueries(new[] { typeof(TQuery) });
             return eventFlowOptions;
         }
 
@@ -55,13 +56,13 @@ namespace EventFlow.Extensions
             Predicate<Type> predicate = null)
         {
             predicate = predicate ?? (t => true);
-            var subscribeSynchronousToTypes = fromAssembly
+            var queryHandlerTypes = fromAssembly
                 .GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Any(IsQueryHandlerInterface))
                 .Where(t => !t.HasConstructorParameterOfType(IsQueryHandlerInterface))
                 .Where(t => predicate(t));
             return eventFlowOptions
-                .AddQueryHandlers(subscribeSynchronousToTypes);
+                .AddQueryHandlers(queryHandlerTypes);
         }
 
         public static IEventFlowOptions AddQueryHandlers(
@@ -79,18 +80,23 @@ namespace EventFlow.Extensions
                     .ToList();
                 if (!queryHandlerInterfaces.Any())
                 {
-                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IQueryHandler<,>).PrettyPrint()}'");
+                    throw new ArgumentException($"Type '{t.PrettyPrint()}' is not '{typeof(IQueryHandler<,>).PrettyPrint()}'");
                 }
 
                 foreach (var queryHandlerInterface in queryHandlerInterfaces)
                 {
                     eventFlowOptions.ServiceCollection.AddTransient(queryHandlerInterface, t);
                 }
+                eventFlowOptions.AddQueries(queryHandlerInterfaces.Select(GetQueryType));
             }
 
             return eventFlowOptions;
         }
-
+        private static Type GetQueryType(Type queryHandlerType)
+        {
+            var query = queryHandlerType.GenericTypeArguments.FirstOrDefault();
+            return query;
+        }
         private static bool IsQueryHandlerInterface(this Type type)
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryHandler<,>);

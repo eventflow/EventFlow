@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -22,18 +22,24 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using EventFlow.Configuration;
+using EventFlow.Core.VersionedTypes;
+using Microsoft.Extensions.Logging;
 
-namespace EventFlow.Configuration
+namespace EventFlow.Queries
 {
-    public interface ILoadedVersionedTypes
+    public interface IQueryDefinitionService : IVersionedTypeDefinitionService<QueryVersionAttribute, QueryDefinition>
     {
-        IReadOnlyCollection<Type> Jobs { get; }
-        IReadOnlyCollection<Type> Commands { get; }
-        IReadOnlyCollection<Type> Events { get; }
-        IReadOnlyCollection<Type> Sagas { get; }
-        IReadOnlyCollection<Type> SnapshotTypes { get; }
-
-        IReadOnlyCollection<Type> Queries { get; }
+    }
+    public class QueryDefinitionService : VersionedTypeDefinitionService<IQuery, QueryVersionAttribute, QueryDefinition>, IQueryDefinitionService
+    {
+        public QueryDefinitionService(ILogger<QueryDefinitionService> log, ILoadedVersionedTypes loadedVersionedTypes) : base(log)
+        {
+            Load(loadedVersionedTypes.Queries);
+        }
+        protected override QueryDefinition CreateDefinition(int version, Type type, string name)
+        {
+            return new QueryDefinition(version, type, name);
+        }
     }
 }

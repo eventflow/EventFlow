@@ -39,5 +39,7 @@ namespace EventFlow
         IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
         IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes);
         IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes);
+        IEventFlowOptions AddQueries(IEnumerable<Type> queryTypes);
+
     }
 }
