@@ -5,13 +5,38 @@ This is still just a collection of notes. Will slowly evolve as the API for
 
 # Migration guide 0.x to 1.x
 
+EventFlow 1.x introduces carefully considered breaking API changes. Traditionally
+EventFlow has a strict policy regarding stable APIs, with the introduction of
+the 1.0 release, it is the first time any breaking change has been made to the
+public API surface.
+
+Here is the general motivation for introducing breaking changes to EventFlow.
+
+- The initial version of EventFlow had its own IoC and logger implementation,
+  but with the introduction of standardized `Microsoft.Extensions` packages,
+  many of these custom made implementations can be removed.
+- Focus on LTS verison of .NET (Core) and removing support .NET Framework.
+- Missspelled API
+- Missing async/await on critical methods
+- Removal of non-async methods
+
 ## Data in event stores
 
 Upgrading EventFlow should **never** break existing data in event stores, not even
 between major versions. All data currently in event stores will work with 1.x
 releases. However, it might not be possible to do a rollback from 1.x to 0.x.
 
+## Recommended strategy for migrating 0.x to 1.x
+
+Here is a few recommendations that might be useful when planning the migration
+of EventFlow from 0.x to 1.x. 
+
+- Since there is no change to the underlying storage, creating a release that
+  only has EventFlow upgraded is highly recommended. This enables easy rollback
+  if you encounter unexpected problems
+
 ## NuGet packages removed
+
 
 - `EventFlow.Autofac` use native Autofac integration packages for Microsoft
   dependency injection
