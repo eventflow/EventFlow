@@ -187,7 +187,7 @@ string GetDotNetCoreArgsVersions()
 	var version = GetArgumentVersion().ToString();
 	
 	return string.Format(
-		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0}",
+		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0} /p:PackageVersion={0}-alpha",
 		version);
 }
 
