@@ -72,6 +72,18 @@ with the Microsoft extension packages.
   from `Microsoft.Extensions.DependencyInjection.Abstractions`
 
 
+## Only one interface for read models
+
+The interfaces `IAmAsyncReadModelFor` has replaced the original `IAmReadModelFor`
+leaving only async interface to implement on read models.
+
+Originally EventFlow only had the non-async version `IAmReadModelFor`, but as it
+became evident that updating read models sometimes requires the invocation of 
+async method, the interface `IAmAsyncReadModelFor` was introduces as not to create
+any breaking changes. Now, we remove the one and only have one interface to
+implement.
+
+
 ## Removal of non-async method
 
 Several non-async methods have been removed as well as the

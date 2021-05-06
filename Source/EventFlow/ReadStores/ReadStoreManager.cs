@@ -79,8 +79,7 @@ namespace EventFlow.ReadStores
             }
             
             var typeDefinition = i.GetGenericTypeDefinition();
-            return typeDefinition == typeof(IAmReadModelFor<,,>) ||
-                   typeDefinition == typeof(IAmAsyncReadModelFor<,,>);
+            return typeDefinition == typeof(IAmReadModelFor<,,>);
         }
 
         protected ReadStoreManager(
@@ -104,6 +103,7 @@ namespace EventFlow.ReadStores
             var relevantDomainEvents = domainEvents
                 .Where(e => AggregateEventTypes.Contains(e.EventType))
                 .ToList();
+
             if (!relevantDomainEvents.Any())
             {
                 if (Logger.IsEnabled(LogLevel.Trace))
