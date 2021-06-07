@@ -38,19 +38,22 @@ namespace EventFlow.Hangfire.Integration
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ILog _log;
         private readonly IJobDisplayNameBuilder _jobDisplayNameBuilder;
+        private readonly string _queueName;
 
         public HangfireJobScheduler(
             ILog log,
             IJobDisplayNameBuilder jobDisplayNameBuilder,
             IJsonSerializer jsonSerializer,
             IBackgroundJobClient backgroundJobClient,
-            IJobDefinitionService jobDefinitionService)
+            IJobDefinitionService jobDefinitionService,
+            IQueueNameProvider queueNameProvider = null)
         {
             _log = log;
             _jobDisplayNameBuilder = jobDisplayNameBuilder;
             _jsonSerializer = jsonSerializer;
             _backgroundJobClient = backgroundJobClient;
             _jobDefinitionService = jobDefinitionService;
+            _queueName = queueNameProvider?.QueueName;
         }
 
         public Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
@@ -58,7 +61,7 @@ namespace EventFlow.Hangfire.Integration
             return ScheduleAsync(
                 job,
                 cancellationToken,
-                (c, d, n, j) => _backgroundJobClient.Enqueue<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j)));
+                (c, d, n, j) => _backgroundJobClient.Enqueue<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j, _queueName)));
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
@@ -66,7 +69,7 @@ namespace EventFlow.Hangfire.Integration
             return ScheduleAsync(
                 job,
                 cancellationToken,
-                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j), runAt));
+                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j, _queueName), runAt));
         }
 
         public Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
@@ -74,7 +77,7 @@ namespace EventFlow.Hangfire.Integration
             return ScheduleAsync(
                 job,
                 cancellationToken,
-                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j), delay));
+                (c, d, n, j) => _backgroundJobClient.Schedule<IHangfireJobRunner>(r => r.ExecuteAsync(n, d.Name, d.Version, j, _queueName), delay));
         }
 
         private async Task<IJobId> ScheduleAsync(

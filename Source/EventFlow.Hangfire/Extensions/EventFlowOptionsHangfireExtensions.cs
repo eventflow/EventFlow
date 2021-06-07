@@ -48,5 +48,14 @@ namespace EventFlow.Hangfire.Extensions
                     sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
                 });
         }
+
+        public static IEventFlowOptions UseHangfireJobScheduler(
+            this IEventFlowOptions eventFlowOptions,
+            Action<IEventFlowHangfireOptions> configurationAction)
+        {
+            var options = eventFlowOptions.UseHangfireJobScheduler();
+            configurationAction(new EventFlowHangfireOptions(options));
+            return options;
+        }
     }
 }
