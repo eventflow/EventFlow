@@ -11,6 +11,28 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Setup git
+      run: git config --global core.autocrlf input
+
+    - name: Reconfigure Docker
+      run: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
+      shell: powershell
+
+    - name: Restart Docker
+      run: Restart-Service docker
+      shell: powershell
+
     - uses: actions/checkout@v2
-    - name: Cake
-      run: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 --bootstrap; .\build.ps1 --Target=All;"
+    
+    - name: Setup integration services (todo, move to actions)
+      run: .\up_integration-test-env.ps1; ; "
+      shell: powershell
+
+    - name: Cake - bootstrap
+      run: .\build.ps1 --bootstrap
+      shell: powershell
+
+    - name: Cake - build
+      run: .\build.ps1 --Target=All;
+      shell: powershell
+
