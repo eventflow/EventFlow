@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Snapshots;
@@ -86,6 +87,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             // Assert
             Sut.Version.Should().Be(eventsInStore);
             Sut.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
+            Sut.PreviousSourceIds.Should().NotBeEmpty();
         }
 
         [SetUp]
@@ -131,7 +133,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                         thingySnapshot,
                         new SnapshotMetadata
                             {
-                                AggregateSequenceNumber = thingySnapshot.PingsReceived.Count
+                                AggregateSequenceNumber = thingySnapshot.PingsReceived.Count,
+                                PreviousSourceIds = new List<ISourceId>(){ new SourceId(CommandId.New.Value)}
                             }));
         }
 

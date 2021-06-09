@@ -35,6 +35,7 @@ namespace EventFlow.Aggregates
         IAggregateName Name { get; }
         int Version { get; }
         IEnumerable<IUncommittedEvent> UncommittedEvents { get; }
+        IEnumerable<ISourceId> PreviousSourceIds { get; }
         bool IsNew { get; }
 
         Task<IReadOnlyCollection<IDomainEvent>> CommitAsync(IEventStore eventStore, ISnapshotStore snapshotStore, ISourceId sourceId, CancellationToken cancellationToken);

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -21,47 +21,27 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Elasticsearch.ReadStores;
-using EventFlow.ReadStores;
-using EventFlow.TestHelpers;
-using FluentAssertions;
-using Nest;
-using NUnit.Framework;
+using EventFlow.Commands;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.Elasticsearch.Tests.UnitTests
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    [Category(Categories.Unit)]
-    public class ReadModelDescriptionProviderTests : TestsFor<ReadModelDescriptionProvider>
+    public class ThingyThrowExceptionInSagaCommand : Command<ThingyAggregate, ThingyId>
     {
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class TestReadModelA : IReadModel
+        public ThingyThrowExceptionInSagaCommand(ThingyId aggregateId) : base(aggregateId)
         {
         }
+    }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
-        [ElasticsearchType(RelationName = "SomeThingFancy")]
-        private class TestReadModelB : IReadModel
+    public class ThingyThrowExceptionInSagaCommandHandler
+        : CommandHandler<ThingyAggregate, ThingyId, ThingyThrowExceptionInSagaCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyThrowExceptionInSagaCommand command,
+            CancellationToken cancellationToken)
         {
-        }
-
-        [Test]
-        public void ReadModelIndexIsCorrectWithoutAttribute()
-        {
-            // Act
-            var readModelDescription = Sut.GetReadModelDescription<TestReadModelA>();
-
-            // Assert
-            readModelDescription.IndexName.Value.Should().Be("eventflow-testreadmodela");
-        }
-
-        [Test]
-        public void ReadModelIndexIsCorrectWithAttribute()
-        {
-            // Act
-            var readModelDescription = Sut.GetReadModelDescription<TestReadModelB>();
-
-            // Assert
-            readModelDescription.IndexName.Value.Should().Be("SomeThingFancy");
+            aggregate.RequestSagaException();
+            return Task.FromResult(0);
         }
     }
 }
