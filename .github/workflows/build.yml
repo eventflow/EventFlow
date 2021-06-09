@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2016
 
     steps:
     - name: Setup git
@@ -16,10 +16,6 @@ jobs:
 
     - name: Reconfigure Docker
       run: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
-      shell: powershell
-
-    - name: Reconfigure Docker
-      run: Set-Content -Value "`{`"experimental`":true`}" -Path C:\ProgramData\docker\config\daemon.json
       shell: powershell
 
     - name: Restart Docker
