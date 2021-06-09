@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Setup integration services (todo, move to actions)
-      run: .\up_integration-test-env.ps1; ; "
+      run: .\up_integration-test-env.ps1
       shell: powershell
 
     - name: Cake - bootstrap
@@ -33,6 +33,6 @@ jobs:
       shell: powershell
 
     - name: Cake - build
-      run: .\build.ps1 --Target=All;
+      run: .\build.ps1 --Target=All
       shell: powershell
 
