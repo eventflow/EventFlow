@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,12 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 
 namespace EventFlow.TestHelpers.MsSql
 {
     public static class MsSqlHelpz
     {
+        private static bool? useIntegratedSecurity;
+
         public static IMsSqlDatabase CreateDatabase(string label, bool dropOnDispose = true)
         {
             var connectionString = CreateConnectionString(label);
@@ -43,28 +46,68 @@ namespace EventFlow.TestHelpers.MsSql
         {
             var databaseName = $"{label}_{DateTime.Now:yyyy-MM-dd-HH-mm}_{Guid.NewGuid():N}";
 
-            var connectionstringParts = new List<string>
+            var connectionStringBuilder = new SqlConnectionStringBuilder()
                 {
-                    $"Database={databaseName}"
+                    DataSource = FirstNonEmpty(
+                        Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
+                        ".")
                 };
 
-            var environmentServer = Environment.GetEnvironmentVariable("HELPZ_MSSQL_SERVER");
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_MSSQL_PASS");
-            var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_MSSQL_USER");
+            var password = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_PASS");
+            var username = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_USER");
 
-            connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
-                ? @"Server=."
-                : $"Server={environmentServer}");
-            connectionstringParts.Add(string.IsNullOrEmpty(envrionmentUsername)
-                ? @"Integrated Security=True"
-                : $"User Id={envrionmentUsername}");
-            connectionstringParts.Add("Connection Timeout=60");
-            if (!string.IsNullOrEmpty(environmentPassword))
+            if (!string.IsNullOrEmpty(username) &&
+                !string.IsNullOrEmpty(password))
             {
-                connectionstringParts.Add($"Password={environmentPassword}");
+                connectionStringBuilder.UserID = username;
+                connectionStringBuilder.Password = password;
+            }
+            else
+            {
+                connectionStringBuilder.IntegratedSecurity = true;
+
+                // Try to use default sql login/password specified in docker-compose.local.yml - for running integration tests locally
+                // without locally installed MS SQL server
+                if (useIntegratedSecurity == null)
+                {
+                    useIntegratedSecurity = IsGoodConnectionString(connectionStringBuilder.ConnectionString);
+                }
+
+                if (!useIntegratedSecurity.Value)
+                {
+                    connectionStringBuilder.IntegratedSecurity = false;
+                    connectionStringBuilder.UserID = "sa";
+                    connectionStringBuilder.Password = "Password12!";
+                }
             }
 
-            return new MsSqlConnectionString(string.Join(";", connectionstringParts));
+            connectionStringBuilder.InitialCatalog = databaseName;
+
+            Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
+
+            return new MsSqlConnectionString(connectionStringBuilder.ConnectionString);
+        }
+
+        private static bool IsGoodConnectionString(string connectionString)
+        {
+            try
+            {
+                using (var db = new SqlConnection(connectionString))
+                {
+                    db.Open();
+                }
+
+                return true;
+            }
+            catch (SqlException)
+            {
+                return false;
+            }
+        }
+
+        private static string FirstNonEmpty(params string[] parts)
+        {
+            return parts.First(s => !string.IsNullOrEmpty(s));
         }
     }
 }

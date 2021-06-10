@@ -8,14 +8,13 @@
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow.PostgreSql</Title>
     <Authors>Rida Messaoudene</Authors>
-    <Company>Rida Messaoudene</Company>
-    <Copyright>Copyright (c) Rida Messaoudene 2015 - 2018</Copyright>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>POSTGRESQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing POSTGRESQL</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
     <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/eventflow/EventFlow/develop/icon-128.png</PackageIconUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
@@ -35,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="dbup-postgresql" Version="4.1.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Npgsql" Version="4.0.2" />
   </ItemGroup>
 

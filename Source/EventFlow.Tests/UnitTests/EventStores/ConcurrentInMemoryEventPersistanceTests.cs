@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -58,7 +58,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         private static readonly ThingyId ThingyId = ThingyId.New;
 
         [Test]
-        public void MultipleInstances()
+        public async Task MultipleInstances()
         {
             var store = CreateStore();
 
@@ -72,8 +72,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Task.WaitAll(tasks.ToArray());
 
             // Assert
-            var allEvents = store.LoadAllEventsAsync(GlobalPosition.Start, Int32.MaxValue, CancellationToken.None);
-            allEvents.Result.DomainEvents.Count.Should().Be(NumberOfEvents * DegreeOfParallelism);
+            var allEvents = await store.LoadAllEventsAsync(GlobalPosition.Start, Int32.MaxValue, CancellationToken.None);
+            allEvents.DomainEvents.Count.Should().Be(NumberOfEvents * DegreeOfParallelism);
         }
 
         private EventStoreBase CreateStore()

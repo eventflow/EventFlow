@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -93,12 +93,22 @@ namespace EventFlow.AspNetCore.Extensions
             return this;
         }
 
+#if NETSTANDARD2_0
         public AspNetCoreEventFlowOptions UseMvcJsonOptions()
         {
             _options.RegisterServices(s =>
                 s.Register<IConfigureOptions<MvcJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
             return this;
         }
+#endif
+#if (NETCOREAPP3_0 || NETCOREAPP3_1)
+        public AspNetCoreEventFlowOptions UseMvcJsonOptions()
+        {
+            _options.RegisterServices(s =>
+                s.Register<IConfigureOptions<MvcNewtonsoftJsonOptions>, EventFlowJsonOptionsMvcConfiguration>());
+            return this;
+        }
+#endif
 
         public AspNetCoreEventFlowOptions UseModelBinding(
             Action<EventFlowModelBindingMvcConfiguration> configureModelBinding = null)

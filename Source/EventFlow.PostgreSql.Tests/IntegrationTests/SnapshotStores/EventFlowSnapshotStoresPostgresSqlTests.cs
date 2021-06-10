@@ -1,6 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rida Messaoudene
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,12 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
-
 using EventFlow.PostgreSql.SnapshotStores;
 using EventFlow.TestHelpers;
-
 using FluentAssertions;
-
 using NUnit.Framework;
 
 namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores

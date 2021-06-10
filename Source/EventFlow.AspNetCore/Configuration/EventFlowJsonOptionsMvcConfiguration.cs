@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,7 +27,13 @@ using Microsoft.Extensions.Options;
 
 namespace EventFlow.AspNetCore.Configuration
 {
-    public class EventFlowJsonOptionsMvcConfiguration : IConfigureOptions<MvcJsonOptions>
+    public class EventFlowJsonOptionsMvcConfiguration
+#if NETSTANDARD2_0
+        : IConfigureOptions<MvcJsonOptions>
+#endif
+#if (NETCOREAPP3_0 || NETCOREAPP3_1)
+        : IConfigureOptions<MvcNewtonsoftJsonOptions>
+#endif
     {
         private readonly IJsonOptions _jsonOptions;
 
@@ -36,9 +42,17 @@ namespace EventFlow.AspNetCore.Configuration
             _jsonOptions = jsonOptions;
         }
 
+#if NETSTANDARD2_0
         public void Configure(MvcJsonOptions options)
         {
             _jsonOptions.Apply(options.SerializerSettings);
         }
+#endif
+#if (NETCOREAPP3_0 || NETCOREAPP3_1)
+        public void Configure(MvcNewtonsoftJsonOptions options)
+        {
+            _jsonOptions.Apply(options.SerializerSettings);
+        }
+#endif
     }
 }

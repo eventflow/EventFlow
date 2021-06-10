@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,12 +68,10 @@ namespace EventFlow.EventStores
 
         private IEnumerable<IDomainEvent> Upgrade(IEnumerable<IDomainEvent> domainEvents)
         {
-            // TODO: Clean this up!
-
             var domainEventList = domainEvents.ToList();
             if (!domainEventList.Any())
             {
-                return new IDomainEvent[] { };
+                return Enumerable.Empty<IDomainEvent>();
             }
 
             var eventUpgraders = domainEventList
@@ -91,6 +89,11 @@ namespace EventFlow.EventStores
                                     cache.Upgrade
                                 };
                         });
+
+            if (!eventUpgraders.Any())
+            {
+                return Enumerable.Empty<IDomainEvent>();
+            }
 
             _log.Verbose(() => string.Format(
                 "Upgrading {0} events and found these event upgraders to use: {1}",

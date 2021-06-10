@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,7 +42,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateInsertSql<TestAttributesReadModel>();
 
             // Assert
-            sql.Should().Be("INSERT INTO [ReadModel-TestAttributes] (Id, UpdatedTime) VALUES (@Id, @UpdatedTime)");
+            sql.Should().Be("INSERT INTO [ReadModel-TestAttributes] ([Id], [UpdatedTime]) VALUES (@Id, @UpdatedTime)");
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateUpdateSql<TestAttributesReadModel>().Trim();
 
             // Assert
-            sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET UpdatedTime = @UpdatedTime WHERE Id = @Id");
+            sql.Should().Be("UPDATE [ReadModel-TestAttributes] SET [UpdatedTime] = @UpdatedTime WHERE [Id] = @Id");
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace EventFlow.Sql.Tests.UnitTests.ReadModels
             var sql = Sut.CreateUpdateSql<TestVersionedAttributesReadModel>().Trim();
 
             // Assert
-            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET FancyVersion = @FancyVersion WHERE CoolId = @CoolId AND FancyVersion = @_PREVIOUS_VERSION");
+            sql.Should().Be("UPDATE [ReadModel-TestVersionedAttributes] SET [FancyVersion] = @FancyVersion WHERE [CoolId] = @CoolId AND [FancyVersion] = @_PREVIOUS_VERSION");
         }
 
         [Test]

@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -130,6 +130,7 @@ namespace EventFlow.EventStores.InMemory
             var committedDomainEvents = _eventStore
                 .SelectMany(kv => kv.Value)
                 .Where(e => e.GlobalSequenceNumber >= startPosition)
+                .OrderBy(e => e.GlobalSequenceNumber)
                 .Take(pageSize)
                 .ToList();
 
@@ -166,7 +167,7 @@ namespace EventFlow.EventStores.InMemory
                                     Metadata = e.SerializedMetadata,
                                     GlobalSequenceNumber = globalCount + i + 1,
                                 };
-                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent.ToString());
+                            _log.Verbose("Committing event {0}{1}", Environment.NewLine, committedDomainEvent);
                             return committedDomainEvent;
                         })
                     .ToList();
@@ -181,7 +182,7 @@ namespace EventFlow.EventStores.InMemory
 
                 if (updateResult.Last != lastEvent)
                 {
-                    throw new OptimisticConcurrencyException("");
+                    throw new OptimisticConcurrencyException(string.Empty);
                 }
 
                 return newCommittedDomainEvents;

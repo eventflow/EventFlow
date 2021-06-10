@@ -1,6 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rida Messaoudene
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,14 +51,15 @@ namespace EventFlow.PostgreSql.TestsHelpers
 
             var environmentServer = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_SERVER", EnvironmentVariableTarget.Machine);
             var environmentPort = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PORT", EnvironmentVariableTarget.Machine);
-            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS");
+            var environmentPassword = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_PASS") ?? "Password12!";
             var envrionmentUsername = Environment.GetEnvironmentVariable("HELPZ_POSTGRESQL_USER", EnvironmentVariableTarget.Machine);
 
+            
 
             environmentServer = "localhost";
             environmentPort = "5432";
             envrionmentUsername = "postgres";
-
+            
             connectionstringParts.Add(string.IsNullOrEmpty(environmentServer)
                 ? @"Server=localhost"
                 : $"Server={environmentServer}");

@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
 
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
             {
-                DefaultValueHandling = DefaultValueHandling.Ignore
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
             };
 
         [JsonConverter(typeof(SingleValueObjectConverter))]
@@ -193,6 +194,20 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         {
             // Arrange
             var json = JsonConvert.SerializeObject(new { });
+
+            // Act
+            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+
+            // Assert
+            with.Should().NotBeNull();
+            with.I.Should().BeNull();
+        }
+
+        [Test]
+        public void DeserializeNullableIntWithNullValue()
+        {
+            // Arrange
+            var json = "{\"i\":null}";
 
             // Act
             var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);

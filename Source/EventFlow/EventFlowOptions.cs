@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2019 Rasmus Mikkelsen
-// Copyright (c) 2015-2019 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
@@ -193,6 +194,11 @@ namespace EventFlow
         private void RegisterDefaults(IServiceRegistration serviceRegistration)
         {
             serviceRegistration.Register<ILog, ConsoleLog>();
+            serviceRegistration.Register<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
+            serviceRegistration.Register<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
+            serviceRegistration.Register<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
+            serviceRegistration.Register<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
+            serviceRegistration.Register<IDispatchToReadStores, DispatchToReadStores>();
             serviceRegistration.Register<IEventStore, EventStoreBase>();
             serviceRegistration.Register<IEventPersistence, InMemoryEventPersistence>(Lifetime.Singleton);
             serviceRegistration.Register<ICommandBus, CommandBus>();
@@ -223,6 +229,14 @@ namespace EventFlow
             serviceRegistration.Register<ISagaDefinitionService, SagaDefinitionService>(Lifetime.Singleton);
             serviceRegistration.Register<ISagaStore, SagaAggregateStore>();
             serviceRegistration.Register<ISagaErrorHandler, SagaErrorHandler>();
+            serviceRegistration.Register<Func<Type, ISagaErrorHandler>>(context => sagaType =>
+            {
+                Type genericSagaErrorHandlerType = typeof(ISagaErrorHandler<>);
+                Type typeToResolve = genericSagaErrorHandlerType.MakeGenericType(sagaType);
+                if (context.Resolver.GetRegisteredServices().Any(rs => rs == typeToResolve))
+                    return (ISagaErrorHandler) context.Resolver.Resolve(typeToResolve);
+                return null;
+            });
             serviceRegistration.Register<IDispatchToSagas, DispatchToSagas>();
 #if NET452
             serviceRegistration.Register<IMemoryCache, MemoryCache>(Lifetime.Singleton);

@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -70,7 +70,7 @@ namespace EventFlow.Snapshots
             await LoadSnapshotContainerAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
             Version = snapshot.Metadata.AggregateSequenceNumber;
-
+            AddPreviousSourceIds(snapshot.Metadata.PreviousSourceIds);
             var domainEvents = await eventStore.LoadEventsAsync<TAggregate, TIdentity>(
                 Id,
                 Version + 1,
@@ -145,7 +145,8 @@ namespace EventFlow.Snapshots
                     AggregateId = Id.Value,
                     AggregateName = Name.Value,
                     AggregateSequenceNumber = Version,
-                };
+                    PreviousSourceIds = PreviousSourceIds.ToList()
+            };
 
             return Task.FromResult(snapshotMetadata);
         }

@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,5 +30,6 @@ namespace EventFlow.Snapshots
         public const string AggregateSequenceNumber = "aggregate_sequence_number";
         public const string SnapshotName = "snapshot_name";
         public const string SnapshotVersion = "snapshot_version";
+        public const string PreviousSourceIds = "previous_source_ids";
     }
 }
