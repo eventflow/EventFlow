@@ -115,7 +115,7 @@ namespace EventFlow.Extensions
             where TReadModel : class, IReadModel
         {
             var readModelInterface = typeof(IAmReadModelFor<,,>);
-            var asyncReadModelInterface = typeof(IAmAsyncReadModelFor<,,>);
+            var asyncReadModelInterface = typeof(IAmReadModelFor<,,>);
 
             bool IsReadModelInterface(Type type)
             {

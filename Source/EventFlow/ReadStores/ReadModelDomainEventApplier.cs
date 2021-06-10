@@ -34,8 +34,7 @@ namespace EventFlow.ReadStores
 {
     public class ReadModelDomainEventApplier : IReadModelDomainEventApplier
     {
-        private const string ApplyMethodName = "Apply";
-        private const string ApplyAsyncMethodName = "ApplyAsync";
+        private const string ApplyMethodName = "ApplyAsync";
 
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, ApplyMethod>> ApplyMethods =
             new ConcurrentDictionary<Type, ConcurrentDictionary<Type, ApplyMethod>>();
@@ -62,18 +61,8 @@ namespace EventFlow.ReadStores
                         var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType,
                             domainEvent.GetIdentity().GetType(), t);
 
-                        var methodSignature = new[] {typeof(IReadModelContext), domainEventType};
-                        var methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyMethodName, methodSignature);
-
-                        if (methodInfo != null)
-                        {
-                            var method = ReflectionHelper
-                                .CompileMethodInvocation<Action<IReadModel, IReadModelContext, IDomainEvent>>(methodInfo);
-                            return new ApplyMethod(method);
-                        }
-
                         var asyncMethodSignature = new[] {typeof(IReadModelContext), domainEventType, typeof(CancellationToken)};
-                        methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyAsyncMethodName, asyncMethodSignature);
+                        var methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyMethodName, asyncMethodSignature);
 
                         if (methodInfo != null)
                         {
@@ -97,29 +86,17 @@ namespace EventFlow.ReadStores
 
         private class ApplyMethod
         {
-            private readonly Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> _asyncMethod;
-            private readonly Action<IReadModel, IReadModelContext, IDomainEvent> _syncMethod;
+            private readonly Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> _method;
 
-            public ApplyMethod(Action<IReadModel, IReadModelContext, IDomainEvent> syncMethod)
+            public ApplyMethod(Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> method)
             {
-                _syncMethod = syncMethod;
-            }
-
-            public ApplyMethod(Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> asyncMethod)
-            {
-                _asyncMethod = asyncMethod;
+                _method = method;
             }
 
             public Task Apply(IReadModel readModel, IReadModelContext context, IDomainEvent domainEvent,
                 CancellationToken cancellationToken)
             {
-                if (_asyncMethod != null)
-                {
-                    return _asyncMethod(readModel, context, domainEvent, cancellationToken);
-                }
-
-                _syncMethod(readModel, context, domainEvent);
-                return Task.FromResult(true);
+                return _method(readModel, context, domainEvent, cancellationToken);
             }
         }
     }
