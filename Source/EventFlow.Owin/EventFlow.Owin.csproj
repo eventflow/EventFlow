@@ -9,7 +9,7 @@
     <Title>EventFlow.Owin</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>OWIN support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing OWIN</PackageTags>
     <RepositoryType>git</RepositoryType>
