@@ -22,17 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
@@ -44,32 +43,33 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
 
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
-
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
+            
+            eventFlowOptions
+                .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
                 .UseMssqlReadModel<MsSqlThingyReadModel>()
                 .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(MsSqlThingyGetQueryHandler),
                     typeof(MsSqlThingyGetVersionQueryHandler),
-                    typeof(MsSqlThingyGetMessagesQueryHandler))
-                .CreateResolver();
+                    typeof(MsSqlThingyGetMessagesQueryHandler));
 
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            var serviceProvider = base.Configure(eventFlowOptions);
+
+            var databaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("Failed to delete database");
+            _testDatabase.DisposeSafe(Logger, "Failed to delete database");
         }
     }
 }

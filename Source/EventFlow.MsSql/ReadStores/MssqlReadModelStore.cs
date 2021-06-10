@@ -33,10 +33,10 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
+using Microsoft.Extensions.Logging;
 
 #pragma warning disable 618
 
@@ -80,12 +80,12 @@ namespace EventFlow.MsSql.ReadStores
         }
 
         public MssqlReadModelStore(
-            ILog log,
+            ILogger<MssqlReadModelStore<TReadModel>> logger,
             IMsSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(log)
+            : base(logger)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
@@ -189,7 +189,14 @@ namespace EventFlow.MsSql.ReadStores
                     $"Read model '{readModelEnvelope.ReadModelId}' updated by another");
             }
 
-            Log.Verbose(() => $"Updated MSSQL read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
+            if (Logger.IsEnabled(LogLevel.Trace))
+            {
+                Logger.LogTrace(
+                    "Updated MSSQL read model {ReadModelType} with ID {ReadModelId} to version {ReadModelVersion}",
+                    typeof(TReadModel).PrettyPrint(),
+                    readModelId,
+                    readModelEnvelope.Version);
+            }
         }
 
         public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
@@ -207,13 +214,26 @@ namespace EventFlow.MsSql.ReadStores
 
             if (readModel == null)
             {
-                Log.Verbose(() => $"Could not find any MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}'");
+                if (Logger.IsEnabled(LogLevel.Trace))
+                {
+                    Logger.LogTrace(
+                        "Could not find any MSSQL read model {ReadModelType} with ID {ReadModelId}",
+                        readModelType.PrettyPrint(),
+                        id);
+                }
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var readModelVersion = GetVersion(readModel);
 
-            Log.Verbose(() => $"Found MSSQL read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{readModelVersion}'");
+            if (Logger.IsEnabled(LogLevel.Trace))
+            {
+                Logger.LogTrace(
+                    "Found MSSQL read model {ReadModelType} with ID {ReadModelId} and version {ReadModelVersion}",
+                    readModelType.PrettyPrint(),
+                    id,
+                    readModelVersion);
+            }
 
             return ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion);
         }
@@ -231,9 +251,12 @@ namespace EventFlow.MsSql.ReadStores
                 new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
-            if (rowsAffected != 0)
+            if (rowsAffected != 0 && Logger.IsEnabled(LogLevel.Trace))
             {
-                Log.Verbose($"Deleted read model '{id}' of type '{ReadModelNameLowerCase}'");
+                Logger.LogTrace(
+                    "Deleted read model {ReadModelId} of type {ReadModelType}",
+                    id,
+                    typeof(TReadModel).PrettyPrint());
             }
         }
 
@@ -248,10 +271,13 @@ namespace EventFlow.MsSql.ReadStores
                 sql)
                 .ConfigureAwait(false);
 
-            Log.Verbose(
-                "Purge {0} read models of type '{1}'",
-                rowsAffected,
-                readModelName);
+            if (Logger.IsEnabled(LogLevel.Trace))
+            {
+                Logger.LogTrace(
+                    "Purge {ReadModels} read models of type {ReadModelType}",
+                    rowsAffected,
+                    typeof(TReadModel).PrettyPrint());
+            }
         }
     }
 }

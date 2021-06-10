@@ -59,7 +59,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
 
         public void TearDown()
         {
-            _msSqlDatabase.DisposeSafe("MSSQL database");
+            _msSqlDatabase.DisposeSafe(LogHelper.For<MsSqlScriptsTests>(), "MSSQL database");
         }
     }
 }

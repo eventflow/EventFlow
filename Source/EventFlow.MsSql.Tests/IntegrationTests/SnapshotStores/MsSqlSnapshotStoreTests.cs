@@ -21,13 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.SnapshotStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
@@ -37,25 +38,26 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
     {
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseMsSqlSnapshotStore()
-                .CreateResolver();
+                .UseMsSqlSnapshotStore();
 
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            var serviceProvider = base.Configure(eventFlowOptions);
+
+            var databaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
             EventFlowSnapshotStoresMsSql.MigrateDatabase(databaseMigrator);
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("Failed to delete database");
+            _testDatabase.DisposeSafe(Logger, "Failed to delete database");
         }
     }
 }
