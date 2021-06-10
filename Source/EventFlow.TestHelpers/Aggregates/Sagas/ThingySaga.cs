@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,6 +40,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
     public class ThingySaga : AggregateSaga<ThingySaga, ThingySagaId, ThingySagaLocator>,
         ISagaIsStartedBy<ThingyAggregate, ThingyId, ThingySagaStartRequestedEvent>,
         ISagaHandles<ThingyAggregate, ThingyId, ThingyPingEvent>,
+        ISagaHandles<ThingyAggregate, ThingyId, ThingySagaExceptionRequestedEvent>,
         ISagaHandles<ThingyAggregate, ThingyId, ThingySagaCompleteRequestedEvent>,
         IEmit<ThingySagaStartedEvent>,
         IEmit<ThingySagaPingReceivedEvent>,
@@ -80,6 +82,14 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             Publish(new ThingyAddMessageCommand(_thingyId, new ThingyMessage(ThingyMessageId.New, pingId.Value)));
 
             return Task.FromResult(0);
+        }
+
+        public Task HandleAsync(
+            IDomainEvent<ThingyAggregate, ThingyId, ThingySagaExceptionRequestedEvent> domainEvent,
+            ISagaContext sagaContext,
+            CancellationToken cancellationToken)
+        {
+            throw new Exception("Exception thrown (as requested by ThingySagaExceptionRequestedEvent)");
         }
 
         public Task HandleAsync(

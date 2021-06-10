@@ -10,7 +10,7 @@
     <Authors>Jan Feyen, Warren Pieterse</Authors>
     <Owners>Rasmus Mikkelsen</Owners>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
     <RepositoryType>git</RepositoryType>
