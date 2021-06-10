@@ -25,22 +25,22 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
 using EventFlow.MsSql.Connections;
 using EventFlow.MsSql.Integrations;
 using EventFlow.MsSql.RetryStrategies;
 using EventFlow.Sql.Connections;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MsSql
 {
     public class MsSqlConnection : SqlConnection<IMsSqlConfiguration, IMsSqlErrorRetryStrategy, IMsSqlConnectionFactory>, IMsSqlConnection
     {
         public MsSqlConnection(
-            ILog log,
+            ILogger<MsSqlConnection> logger,
             IMsSqlConfiguration configuration,
             IMsSqlConnectionFactory connectionFactory,
             ITransientFaultHandler<IMsSqlErrorRetryStrategy> transientFaultHandler)
-            : base(log, configuration, connectionFactory, transientFaultHandler)
+            : base(logger, configuration, connectionFactory, transientFaultHandler)
         {
         }
 
@@ -50,8 +50,8 @@ namespace EventFlow.MsSql
             string sql,
             IEnumerable<TRow> rows)
         {
-            Log.Verbose(
-                "Using optimised table type to insert with SQL: {0}",
+            Logger.LogTrace(
+                "Using optimized table type to insert with SQL: {Sql}",
                 sql);
             var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
             return QueryAsync<TResult>(label, cancellationToken, sql, tableParameter);

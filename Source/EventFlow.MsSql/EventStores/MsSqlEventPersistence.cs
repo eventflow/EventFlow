@@ -31,7 +31,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MsSql.EventStores
 {
@@ -48,14 +48,14 @@ namespace EventFlow.MsSql.EventStores
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly ILog _log;
+        private readonly ILogger<MsSqlEventPersistence> _logger;
         private readonly IMsSqlConnection _connection;
 
         public MsSqlEventPersistence(
-            ILog log,
+            ILogger<MsSqlEventPersistence> logger,
             IMsSqlConnection connection)
         {
-            _log = log;
+            _logger = logger;
             _connection = connection;
         }
 
@@ -116,8 +116,8 @@ namespace EventFlow.MsSql.EventStores
                     })
                 .ToList();
 
-            _log.Verbose(
-                "Committing {0} events to MSSQL event store for entity with ID '{1}'",
+            _logger.LogTrace(
+                "Committing {EventCount} events to MSSQL event store for aggregate with ID {AggregateId}",
                 eventDataModels.Count,
                 id);
 
@@ -146,9 +146,6 @@ namespace EventFlow.MsSql.EventStores
             {
                 if (exception.Number == 2601)
                 {
-                    _log.Verbose(
-                        "MSSQL event insert detected an optimistic concurrency exception for entity with ID '{0}'",
-                        id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
                 }
 
@@ -205,8 +202,8 @@ namespace EventFlow.MsSql.EventStores
                 new {AggregateId = id.Value})
                 .ConfigureAwait(false);
 
-            _log.Verbose(
-                "Deleted entity with ID '{0}' by deleting all of its {1} events",
+            _logger.LogTrace(
+                "Deleted aggregate with ID {AggregateId} by deleting all of its {EventCount} events",
                 id,
                 affectedRows);
         }

@@ -21,9 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.MsSql.Connections;
 using EventFlow.MsSql.RetryStrategies;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.MsSql.Extensions
 {
@@ -33,15 +33,13 @@ namespace EventFlow.MsSql.Extensions
             this IEventFlowOptions eventFlowOptions,
             IMsSqlConfiguration msSqlConfiguration)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                    {
-                        f.Register<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
-                        f.Register<IMsSqlConnection, MsSqlConnection>();
-                        f.Register<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
-                        f.Register<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
-                        f.Register(_ => msSqlConfiguration, Lifetime.Singleton);
-                    });
+            eventFlowOptions.ServiceCollection.TryAddTransient<IMsSqlDatabaseMigrator, MsSqlDatabaseMigrator>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IMsSqlConnection, MsSqlConnection>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IMsSqlErrorRetryStrategy, MsSqlErrorRetryStrategy>();
+            eventFlowOptions.ServiceCollection.TryAddSingleton(_ => msSqlConfiguration);
+
+            return eventFlowOptions;
         }
     }
 }
