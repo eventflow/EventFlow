@@ -203,6 +203,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
             serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             serviceCollection.TryAddSingleton(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>));
+            serviceCollection.TryAddSingleton<Func<Type, ISagaErrorHandler>>(_ => __ => null);
 
             // Definition services
             serviceCollection.TryAddSingleton<IEventDefinitionService, EventDefinitionService>();
