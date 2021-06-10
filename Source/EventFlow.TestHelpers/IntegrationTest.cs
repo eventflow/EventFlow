@@ -41,6 +41,7 @@ using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
@@ -58,6 +59,7 @@ namespace EventFlow.TestHelpers
         protected ICommandBus CommandBus { get; private set; }
         protected ISagaStore SagaStore { get; private set; }
         protected IReadModelPopulator ReadModelPopulator { get; private set; }
+        protected ILogger Logger { get; private set; }
 
         [SetUp]
         public void SetUpIntegrationTest()
@@ -80,6 +82,7 @@ namespace EventFlow.TestHelpers
             QueryProcessor = ServiceProvider.GetRequiredService<IQueryProcessor>();
             ReadModelPopulator = ServiceProvider.GetRequiredService<IReadModelPopulator>();
             SagaStore = ServiceProvider.GetRequiredService<ISagaStore>();
+            Logger = ServiceProvider.GetRequiredService<ILogger<IntegrationTest>>();
         }
 
         [TearDown]

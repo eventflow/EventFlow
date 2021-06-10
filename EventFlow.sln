@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Sql", "Source\Eve
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MsSql", "Source\EventFlow.MsSql\EventFlow.MsSql.csproj", "{96A39EA3-6772-409E-AF0B-C5A35A1A13CC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MsSql.Tests", "Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj", "{CE19355C-6355-405F-A640-908AE4F83C2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{96A39EA3-6772-409E-AF0B-C5A35A1A13CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96A39EA3-6772-409E-AF0B-C5A35A1A13CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96A39EA3-6772-409E-AF0B-C5A35A1A13CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE19355C-6355-405F-A640-908AE4F83C2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE19355C-6355-405F-A640-908AE4F83C2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE19355C-6355-405F-A640-908AE4F83C2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE19355C-6355-405F-A640-908AE4F83C2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +83,7 @@ Global
 		{88359036-4F35-487C-BF2C-4F31C7BC92D8} = {5EE323DE-E69B-451A-8AC3-22DD6A004FBA}
 		{983EFD08-2256-4361-A869-23EB872328CB} = {88359036-4F35-487C-BF2C-4F31C7BC92D8}
 		{96A39EA3-6772-409E-AF0B-C5A35A1A13CC} = {88359036-4F35-487C-BF2C-4F31C7BC92D8}
+		{CE19355C-6355-405F-A640-908AE4F83C2C} = {88359036-4F35-487C-BF2C-4F31C7BC92D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17607E2C-4E8E-45A2-85BD-0A5808E1C0F3}
