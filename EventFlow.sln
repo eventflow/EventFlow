@@ -18,7 +18,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Examples.Shipping.Queries.InMemory", "Source\EventFlow.Examples.Shipping.Queries.InMemory\EventFlow.Examples.Shipping.Queries.InMemory.csproj", "{1C30C2E9-A3C4-41D5-B2A2-25C1DDE33F3A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Examples.Shipping.Tests", "Source\EventFlow.Examples.Shipping.Tests\EventFlow.Examples.Shipping.Tests.csproj", "{0EBEA705-79DC-497A-B4A2-FCCFB012EA65}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
