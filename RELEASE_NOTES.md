@@ -1,7 +1,6 @@
-### New in 0.81 (not released yet)
+### New in 1.0 (not released yet)
 
-* Breaking: Elasticsearch NEST Nuget Library updated from v6.1.0 to v7.8.2
-* Fixed: You can now create `Id : Identity<Id>`
+* **TODO**
 
 ### New in 0.80.4377 (released 2020-10-01)
 
