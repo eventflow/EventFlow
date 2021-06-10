@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -33,6 +32,7 @@ using NUnit.Framework;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
@@ -66,7 +66,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             // Arrange
             var thingyId = A<ThingyId>();
-            var realThingySagaErrorHandler = Resolver.Resolve<ThingySagaErrorHandler>();
+            var realThingySagaErrorHandler = ServiceProvider.GetRequiredService<ThingySagaErrorHandler>();
             _thingySagaErrorHandler.Setup(s => s.HandleAsync(It.IsAny<ISagaId>(), It.IsAny<SagaDetails>(),
                     It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
                 .Returns((ISagaId sagaId, SagaDetails sagaDetails, Exception exception,
@@ -86,17 +86,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             commandPublishAction.Should().NotThrow<Exception>();
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _thingySagaErrorHandler = new Mock<ISagaErrorHandler<ThingySaga>>();
 
-            return eventFlowOptions
-                .RegisterServices(sr =>
-                {
-                    sr.Register(_ => _thingySagaErrorHandler.Object);
-                    sr.RegisterType(typeof(ThingySagaErrorHandler));
-                })
-                .CreateResolver();
+            eventFlowOptions.ServiceCollection
+                .AddSingleton(_ => _thingySagaErrorHandler.Object)
+                .AddSingleton<ThingySagaErrorHandler>();
+
+            return base.Configure(eventFlowOptions);
         }
     }
 }
