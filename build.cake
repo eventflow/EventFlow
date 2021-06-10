@@ -296,6 +296,19 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
 
 void ExecuteTest(IEnumerable<FilePath> paths)
 {
+    var settings = new DotNetCoreVSTestSettings()
+        {
+            Parallel = true,
+            ToolTimeout = TimeSpan.FromMinutes(30),
+            Settings = FILE_RUNSETTINGS,
+            ResultsDirectory = DIR_OUTPUT_REPORTS,
+            ArgumentCustomization = args =>
+                args.Append("--nologo")
+        };
+
+    DotNetCoreVSTest(paths, settings);
+
+    /*
 	OpenCover(tool => 
 		{
             var settings = new DotNetCoreVSTestSettings()
@@ -322,6 +335,7 @@ void ExecuteTest(IEnumerable<FilePath> paths)
             .WithFilter("-[*Tests]*")
             .WithFilter("-[*TestHelpers]*")
             .WithFilter("-[*Shipping*]*"));
+    */
 }
 
 RunTarget(Argument<string>("target", "Package"));
