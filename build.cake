@@ -169,7 +169,8 @@ Task("ValidateSourceLink")
 
 // =====================================================================================================
 Task("All")
-    .IsDependentOn("Package")
+    .IsDependentOn("Test")
+    //.IsDependentOn("Package")
     //.IsDependentOn("ValidateSourceLink") builds on AppVeyor fail for some unknown reason
     .Does(() =>
         {
