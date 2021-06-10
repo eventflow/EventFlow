@@ -57,16 +57,6 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             json.Should().Be(expectedJson);
         }
 
-        [Test]
-        public void StringDeserializationEmptyShouldResultInNull()
-        {
-            // Act
-            var stringSvo = JsonSerializer.Deserialize<StringSVO>(string.Empty);
-
-            // Assert
-            stringSvo.Should().BeNull();
-        }
-
         [TestCase("\"\"", "")]
         [TestCase("\"test\"", "test")]
         public void StringDeserialization(string json, string expectedValue)
@@ -105,7 +95,6 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             intSvo.Value.Should().Be(expectedValue);
         }
 
-        [TestCase("\"One\"", MagicEnum.One)]
         [TestCase("1", MagicEnum.One)]
         [TestCase("2", MagicEnum.Two)]
         public void EnumDeserilization(string json, MagicEnum expectedValue)
