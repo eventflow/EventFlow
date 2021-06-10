@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,6 +41,7 @@ namespace EventFlow.Sagas
         private readonly ISagaDefinitionService _sagaDefinitionService;
         private readonly ISagaErrorHandler _sagaErrorHandler;
         private readonly ISagaUpdateResilienceStrategy _sagaUpdateLog;
+        private readonly Func<Type, ISagaErrorHandler> _sagaErrorHandlerFactory;
 
         public DispatchToSagas(
             ILog log,
@@ -48,7 +49,8 @@ namespace EventFlow.Sagas
             ISagaStore sagaStore,
             ISagaDefinitionService sagaDefinitionService,
             ISagaErrorHandler sagaErrorHandler,
-            ISagaUpdateResilienceStrategy sagaUpdateLog)
+            ISagaUpdateResilienceStrategy sagaUpdateLog,
+            Func<Type, ISagaErrorHandler> sagaErrorHandlerFactory)
         {
             _log = log;
             _resolver = resolver;
@@ -56,6 +58,7 @@ namespace EventFlow.Sagas
             _sagaDefinitionService = sagaDefinitionService;
             _sagaErrorHandler = sagaErrorHandler;
             _sagaUpdateLog = sagaUpdateLog;
+            _sagaErrorHandlerFactory = sagaErrorHandlerFactory;
         }
 
         public async Task ProcessAsync(
@@ -114,12 +117,13 @@ namespace EventFlow.Sagas
             }
             catch (Exception e)
             {
-                var handled = await _sagaErrorHandler.HandleAsync(
-                    sagaId,
-                    details,
-                    e,
-                    cancellationToken)
-                    .ConfigureAwait(false);
+                // Search for a specific SagaErrorHandler<Saga> based on saga type
+                ISagaErrorHandler specificSagaErrorHandler = _sagaErrorHandlerFactory(details.SagaType);
+
+                bool handled = specificSagaErrorHandler != null ? 
+                    await specificSagaErrorHandler.HandleAsync(sagaId, details, e, cancellationToken).ConfigureAwait(false) :
+                    await _sagaErrorHandler.HandleAsync(sagaId, details, e, cancellationToken).ConfigureAwait(false);
+
                 if (handled)
                 {
                     return;

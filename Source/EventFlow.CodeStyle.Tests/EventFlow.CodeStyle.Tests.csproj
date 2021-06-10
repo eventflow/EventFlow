@@ -19,8 +19,4 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.NUnit" Version="1.0.1-beta1.*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EventFlow.CodeStyle\EventFlow.CodeStyle.csproj" />
-  </ItemGroup>
-
 </Project>
