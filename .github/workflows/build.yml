@@ -15,12 +15,12 @@ jobs:
 
     - name: Setup integration services (todo, move to actions)
       run: .\up_integration-test-env.ps1
-      shell: powershell
+      shell: pwsh
 
     - name: Cake - bootstrap
       run: .\build.ps1 --bootstrap
-      shell: powershell
+      shell: pwsh
 
     - name: Cake - build
       run: .\build.ps1 --Target=All
-      shell: powershell
+      shell: pwsh
