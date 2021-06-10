@@ -83,11 +83,6 @@ async method, the interface `IAmAsyncReadModelFor` was introduces as not to crea
 any breaking changes. Now, we remove the one and only have one interface to
 implement.
 
-## Deleted classes and interfaces
-
-- `EventFlow.MsSql.ReadStores.MssqlReadModel`
-- `EventFlow.MsSql.ReadStores.IMssqlReadModel`
-
 ## Removal of non-async method
 
 Several non-async methods have been removed as well as the
