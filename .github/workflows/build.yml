@@ -1,0 +1,26 @@
+name: build
+
+on:
+  push:
+    branches: [ develop-v1 ]
+  pull_request:
+    branches: [ develop-v1 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup integration services (todo, move to actions)
+      run: .\up_integration-test-env.ps1
+      shell: powershell
+
+    - name: Cake - bootstrap
+      run: .\build.ps1 --bootstrap
+      shell: powershell
+
+    - name: Cake - build
+      run: .\build.ps1 --Target=All
+      shell: powershell
