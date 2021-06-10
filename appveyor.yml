@@ -3,12 +3,12 @@ init:
   - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
   - ps: Restart-Service docker
 
-version: 0.80.{build}
+version: 1.0.{build}
 
 skip_tags: true
 
 build_script:
-  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 --bootstrap; .\build.ps1 -Target All;"
+  - cmd: powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1; .\build.ps1 --bootstrap; .\build.ps1 --Target=All;"
 
 # https://www.appveyor.com/docs/services-databases/
 # https://www.appveyor.com/docs/windows-images-software/

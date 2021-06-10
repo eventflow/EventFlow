@@ -105,7 +105,7 @@ namespace EventFlow.ReadStores
             var readModelTypes = new[]
             {
                 typeof( IAmReadModelFor<,,> ),
-                typeof( IAmAsyncReadModelFor<,,> )
+                typeof( IAmReadModelFor<,,> )
             };
 
             var aggregateEventTypes = new HashSet<Type>(readModelType

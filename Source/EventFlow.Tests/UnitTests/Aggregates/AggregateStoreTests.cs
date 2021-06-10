@@ -40,6 +40,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
+using EventFlow.Snapshots;
 using Moq;
 using NUnit.Framework;
 
@@ -64,6 +65,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             _eventStoreMock = InjectMock<IEventStore>();
             _aggregateFactoryMock = InjectMock<IAggregateFactory>();
             _resolverMock = InjectMock<IServiceProvider>();
+
+            InjectMock<ISnapshotStore>();
 
             _domainEventPublisherMock = new Mock<IDomainEventPublisher>();
             _resolverMock

@@ -64,9 +64,13 @@ namespace EventFlow.Tests.IntegrationTests
         {
             public PingId Id { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken _)
             {
                 Id = domainEvent.AggregateEvent.PingId;
+                return Task.CompletedTask;
             }
         }
 

@@ -163,35 +163,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             a.Should().Throw<TypeInitializationException>().WithInnerException<Exception>().WithMessage("*does not implement any*");
         }
 
-        [Test]
-        public void ThrowsIfReadModelSubscribesSameEventTwice()
-        {
-            Action a = () =>
-            {
-                var _ = new SingleAggregateReadStoreManager<ThingyAggregate, ThingyId, InMemoryReadStore<ReadModelWithAmbigiousEvents>,
-                    ReadModelWithAmbigiousEvents>(null, null, null, null, null, null);
-            };
-
-            a.Should().Throw<TypeInitializationException>().WithInnerException<Exception>().WithMessage("*implements ambiguous*");
-        }
-
         private class ReadModelWithoutEvents : IReadModel
         {
-        }
-
-        private class ReadModelWithAmbigiousEvents : IReadModel,
-            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
-            IAmAsyncReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
-        {
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-            {
-            }
-
-            public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
-                CancellationToken cancellationToken)
-            {
-                return Task.FromResult(true);
-            }
         }
     }
 }
