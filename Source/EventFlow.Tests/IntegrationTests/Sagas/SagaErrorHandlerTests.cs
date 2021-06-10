@@ -91,7 +91,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             _thingySagaErrorHandler = new Mock<ISagaErrorHandler<ThingySaga>>();
 
             eventFlowOptions.ServiceCollection
-                .AddSingleton(_ => _thingySagaErrorHandler.Object)
+                .AddSingleton<Func<Type, ISagaErrorHandler>>(_ => __ => _thingySagaErrorHandler.Object)
                 .AddSingleton<ThingySagaErrorHandler>();
 
             return base.Configure(eventFlowOptions);
