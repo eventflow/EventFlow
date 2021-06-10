@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,8 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
@@ -215,6 +217,7 @@ namespace EventFlow.TestHelpers.Suites
                     AggregateSequenceNumber = aggregateSequenceNumber,
                     SnapshotName = snapshotDefinition.Name,
                     SnapshotVersion = snapshotDefinition.Version,
+                    PreviousSourceIds = new List<ISourceId>()
                 };
 
             return SnapshotPersistence.SetSnapshotAsync(

@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Snapshots;
@@ -86,6 +87,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             // Assert
             Sut.Version.Should().Be(eventsInStore);
             Sut.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
+            Sut.PreviousSourceIds.Should().NotBeEmpty();
         }
 
         [SetUp]
@@ -131,7 +133,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                         thingySnapshot,
                         new SnapshotMetadata
                             {
-                                AggregateSequenceNumber = thingySnapshot.PingsReceived.Count
+                                AggregateSequenceNumber = thingySnapshot.PingsReceived.Count,
+                                PreviousSourceIds = new List<ISourceId>(){ new SourceId(CommandId.New.Value)}
                             }));
         }
 

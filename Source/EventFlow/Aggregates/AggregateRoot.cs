@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,6 +47,7 @@ namespace EventFlow.Aggregates
         public int Version { get; protected set; }
         public virtual bool IsNew => Version <= 0;
         public IEnumerable<IUncommittedEvent> UncommittedEvents => _uncommittedEvents;
+        public IEnumerable<ISourceId> PreviousSourceIds => _previousSourceIds.AsEnumerable();
 
         static AggregateRoot()
         {
@@ -71,6 +72,14 @@ namespace EventFlow.Aggregates
         protected void SetSourceIdHistory(int count)
         {
             _previousSourceIds = new CircularBuffer<ISourceId>(count);
+        }
+
+        protected void AddPreviousSourceIds(IEnumerable<ISourceId> sourceIds)
+        {
+            foreach (var sourceId in sourceIds)
+            {
+                _previousSourceIds.Put(sourceId);
+            }
         }
 
         public virtual bool HasSourceId(ISourceId sourceId)
@@ -164,11 +173,10 @@ namespace EventFlow.Aggregates
 
                 ApplyEvent(e);
             }
-            
-            foreach (var domainEvent in domainEvents.Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId)))
-            {
-                _previousSourceIds.Put(domainEvent.Metadata.SourceId);
-            }
+            var sourceIds = domainEvents
+                .Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId))
+                .Select(e => e.Metadata.SourceId);
+            AddPreviousSourceIds(sourceIds);
         }
 
         public IIdentity GetIdentity()
