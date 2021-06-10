@@ -2,10 +2,6 @@
 docker-compose --compatibility -f docker-compose.ci.yml pull
 docker-compose --compatibility -f docker-compose.ci.yml up -d
 
-# Install curl
-cinst curl -y --no-progress
-sal curl (Join-Path $env:ChocolateyInstall "bin\curl.exe") -O AllScope
-
 # Set connection url to environment variable
 # RabbitMQ
 $env:RABBITMQ_URL = "amqp://guest:guest@localhost:5672"
