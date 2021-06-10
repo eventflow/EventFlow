@@ -1,0 +1,72 @@
+name: build
+
+on:
+  push:
+    branches: [ develop-v1 ]
+  pull_request:
+    branches: [ develop-v1 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HELPZ_POSTGRESQL_PASS: Password12!
+      EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
+      EVENTFLOW_MSSQL_USER: sa
+      EVENTFLOW_MSSQL_PASS: Password12!      
+
+    services:
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+
+      eventstore:
+        image: eventstore/eventstore:release-4.1.3
+        ports:
+          - "1113:1113"
+          - "2113:2113"
+
+      postgres:
+        image: postgres:10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: Password12!
+        ports:
+          - "5432:5432"
+
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: Password12!
+        ports:
+          - "1433:1433"
+
+    steps:
+    - name: Configure sysctl limits for Elasticsearch
+      run: |
+        sudo swapoff -a
+        sudo sysctl -w vm.swappiness=1
+        sudo sysctl -w fs.file-max=262144
+        sudo sysctl -w vm.max_map_count=262144
+
+    - name: Run Elasticsearch
+      uses: elastic/elastic-github-actions/elasticsearch@master
+      with:
+        stack-version: 6.8.3
+
+    - uses: actions/checkout@v2
+
+    - name: Cake - bootstrap
+      run: .\build.ps1 --bootstrap
+      shell: pwsh
+
+    - name: Cake - build
+      run: .\build.ps1 --Target=All
+      shell: pwsh
+
