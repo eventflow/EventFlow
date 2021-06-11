@@ -15,7 +15,7 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://ci.appveyor.com/project/eventflow/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
+        <a href="https://github.com/eventflow/EventFlow/actions/workflows/build.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/build.yml/badge.svg" /></a>
       </p>
       <p>
         <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
@@ -426,20 +426,24 @@ share it by creating an issue with the link.
 
 
 ### Integration tests
+
 EventFlow has several tests that verify that its ability to use the systems it
 integrates with correctly.
 
- * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) run as Docker [Windows Container](https://docs.microsoft.com//virtualization/windowscontainers/about/). if use in local, requires its environment and `docker-compose` tool, and execute `PS> up_integration-test-env.ps1`
- * **EventStore:** [EventStore](https://geteventstore.com/) is same as the above
- * **RabbitMQ:** [RabbitMQ](https://www.rabbitmq.com/) is same as the above
- * **MSSQL:** Microsoft SQL Server is required to be running
- * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
-   for the [RabbitMQ](https://www.rabbitmq.com/) instance you would like to use.
- * **EntityFramework:** Microsoft SQL Server and PostgreSQL is required to be running
- * **PostgreSQL:** PostgreSQL is required to be running
+ * [Elasticsearch](https://www.elastic.co/)
+ * [EventStore](https://geteventstore.com/)
+ * [RabbitMQ](https://www.rabbitmq.com/)
+ * Microsoft SQL Server
+ * [RabbitMQ](https://www.rabbitmq.com/)
+ * PostgreSQL
 
-There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
-[here](https://github.com/rasmus/Vagrant.Boxes).
+To setup a local test environment run the following commands in the checkout
+directory of EventFlow.
+
+```
+docker-compose pull
+docker-compose up
+```
 
 Alternatively, you can skip the NUnit tests marked with the `integration`
 category.
