@@ -195,7 +195,7 @@ namespace EventFlow.EventStores.Files
             }
         }
 
-        private StreamWriter CreateNewTextFile(string path, FileEventData fileEventData)
+        private static StreamWriter CreateNewTextFile(string path, FileEventData fileEventData)
         {
             try
             {

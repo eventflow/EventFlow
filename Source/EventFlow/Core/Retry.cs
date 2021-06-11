@@ -39,9 +39,14 @@ namespace EventFlow.Core
         private Retry(bool shouldBeRetried, TimeSpan retryAfter)
         {
             if (retryAfter != TimeSpan.Zero && retryAfter != retryAfter.Duration())
+            {
                 throw new ArgumentOutOfRangeException(nameof(retryAfter));
+            }
+
             if (!shouldBeRetried && retryAfter != TimeSpan.Zero)
+            {
                 throw new ArgumentException("Invalid combination. Should not be retried and retry after set");
+            }
 
             ShouldBeRetried = shouldBeRetried;
             RetryAfter = retryAfter;

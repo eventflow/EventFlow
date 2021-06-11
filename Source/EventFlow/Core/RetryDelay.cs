@@ -38,8 +38,15 @@ namespace EventFlow.Core
             TimeSpan min,
             TimeSpan max)
         {
-            if (min.Ticks < 0) throw new ArgumentOutOfRangeException(nameof(min), "Minimum cannot be negative");
-            if (max.Ticks < 0) throw new ArgumentOutOfRangeException(nameof(max), "Maximum cannot be negative");
+            if (min.Ticks < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(min), "Minimum cannot be negative");
+            }
+
+            if (max.Ticks < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(max), "Maximum cannot be negative");
+            }
 
             Min = min;
             Max = max;

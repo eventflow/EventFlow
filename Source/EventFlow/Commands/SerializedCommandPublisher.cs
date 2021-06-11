@@ -54,9 +54,20 @@ namespace EventFlow.Commands
             string json,
             CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-            if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version));
-            if (string.IsNullOrEmpty(json)) throw new ArgumentNullException(nameof(json));
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (version <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(version));
+            }
+
+            if (string.IsNullOrEmpty(json))
+            {
+                throw new ArgumentNullException(nameof(json));
+            }
 
             _logger.LogTrace(
                 "Executing serialized command {CommandName} v{Version}",

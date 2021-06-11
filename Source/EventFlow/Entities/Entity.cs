@@ -33,7 +33,10 @@ namespace EventFlow.Entities
     {
         protected Entity(TIdentity id)
         {
-            if (id == null) throw new ArgumentNullException(nameof(id));
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
 
             Id = id;
         }

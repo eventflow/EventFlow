@@ -32,7 +32,10 @@ namespace EventFlow.Core
 
         public SourceId(string value) : base(value)
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
         }
     }
 }
