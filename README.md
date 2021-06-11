@@ -79,7 +79,7 @@ The following list key characteristics of each version as well as its related br
 * `0.x` (API stable)
 
   The current stable version of EventFlow and has been the version of EventFlow
-  for almost siz years. 0.x versions have .NET Framework support and limited
+  for almost six years. 0.x versions have .NET Framework support and limited
   support to the Microsoft extension packages through extra NuGet packages.
 
   Feature and bug fix releases will still be done while there's interest in
@@ -248,29 +248,30 @@ public async Task Example()
   // We wire up EventFlow with all of our classes. Instead of adding events,
   // commands, etc. explicitly, we could have used the the simpler
   // AddDefaults(Assembly) instead.
-  using (var resolver = EventFlowOptions.New
-    .AddEvents(typeof(ExampleEvent))
-    .AddCommands(typeof(ExampleCommand))
-    .AddCommandHandlers(typeof(ExampleCommandHandler))
-    .UseInMemoryReadStoreFor<ExampleReadModel>()
-    .CreateResolver())
+  var serviceCollection = new ServiceCollection()
+    .AddLogging()
+    .AddEventFlow(o => o
+      .AddEvents(typeof(ExampleEvent))
+      .AddCommands(typeof(ExampleCommand))
+      .AddCommandHandlers(typeof(ExampleCommandHandler))
+      .UseInMemoryReadStoreFor<ExampleReadModel>());
+
+  using (var serviceProvider = serviceCollection.BuildServiceProvider())
   {
     // Create a new identity for our aggregate root
     var exampleId = ExampleId.New;
 
     // Resolve the command bus and use it to publish a command
-    var commandBus = resolver.Resolve<ICommandBus>();
+    var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
     await commandBus.PublishAsync(
-      new ExampleCommand(exampleId, 42), CancellationToken.None)
-      .ConfigureAwait(false);
+      new ExampleCommand(exampleId, 42), CancellationToken.None);
 
     // Resolve the query handler and use the built-in query for fetching
     // read models by identity to get our read model representing the
     // state of our aggregate root
-    var queryProcessor = resolver.Resolve<IQueryProcessor>();
+    var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
     var exampleReadModel = await queryProcessor.ProcessAsync(
-      new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None)
-      .ConfigureAwait(false);
+      new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None);
 
     // Verify that the read model has the expected magic number
     exampleReadModel.MagicNumber.Should().Be(42);
@@ -354,7 +355,7 @@ public class ExampleCommandHandler
     CancellationToken cancellationToken)
   {
     aggregate.SetMagicNumber(command.MagicNumber);
-    return Task.FromResult(0);
+    return Task.CompletedTask;;
   }
 }
 ```
@@ -366,11 +367,13 @@ public class ExampleReadModel : IReadModel,
 {
   public int MagicNumber { get; private set; }
 
-  public void Apply(
+  public Task ApplyAsync(
     IReadModelContext context,
-    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
+    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent,
+    CancellationToken _cancellationToken
   {
     MagicNumber = domainEvent.AggregateEvent.MagicNumber;
+    return Task.CompletedTask;
   }
 }
 ```
@@ -462,8 +465,8 @@ category.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2020 Rasmus Mikkelsen
-Copyright (c) 2015-2020 eBay Software Foundation
+Copyright (c) 2015-2021 Rasmus Mikkelsen
+Copyright (c) 2015-2021 eBay Software Foundation
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

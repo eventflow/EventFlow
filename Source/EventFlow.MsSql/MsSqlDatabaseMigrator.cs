@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,17 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using DbUp.Builder;
-using EventFlow.Logs;
 using EventFlow.Sql.Migrations;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MsSql
 {
     public class MsSqlDatabaseMigrator : SqlDatabaseMigrator<IMsSqlConfiguration>, IMsSqlDatabaseMigrator
     {
         public MsSqlDatabaseMigrator(
-            ILog log,
+            ILogger<MsSqlDatabaseMigrator> logger,
             IMsSqlConfiguration sqlConfiguration)
-            : base(log, sqlConfiguration)
+            : base(logger, sqlConfiguration)
         {
         }
 

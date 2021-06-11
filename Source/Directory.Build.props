@@ -1,8 +1,0 @@
-<Project>
-  <ItemGroup Condition="$(ProjectName.EndsWith('.Tests')) And $(ProjectName) != 'EventFlow.CodeStyle.Tests'">
-    <ProjectReference Include="..\EventFlow.CodeStyle\EventFlow.CodeStyle.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>Analyzer</OutputItemType>
-    </ProjectReference>
-  </ItemGroup>
-</Project>

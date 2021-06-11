@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -200,7 +200,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("DROP test database");
+            _testDatabase.DisposeSafe(Logger<IdentityIndexFragmentationTests>(), "DROP test database");
         }
 
         private class IndexFragmentationDetails

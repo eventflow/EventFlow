@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,32 +22,33 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using DbUp.Engine.Output;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.Integrations
 {
     public class DbUpUpgradeLog : IUpgradeLog
     {
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
-        public DbUpUpgradeLog(ILog log)
+        public DbUpUpgradeLog(
+            ILogger logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public void WriteInformation(string format, params object[] args)
         {
-            _log.Information(format, args);
-        }
-
-        public void WriteError(string format, params object[] args)
-        {
-            _log.Error(format, args);
+            _logger.LogInformation(format, args);
         }
 
         public void WriteWarning(string format, params object[] args)
         {
-            _log.Warning(format, args);
+            _logger.LogWarning(format, args);
+        }
+
+        public void WriteError(string format, params object[] args)
+        {
+            _logger.LogError(format, args);
         }
     }
 }

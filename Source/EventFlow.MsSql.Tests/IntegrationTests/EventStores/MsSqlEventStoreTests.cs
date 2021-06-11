@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,13 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.Extensions;
+using System;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
@@ -37,20 +37,21 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
     {
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseEventStore<MsSqlEventPersistence>()
-                .CreateResolver();
+                .UseMssqlEventStore();
 
-            var databaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+            var serviceProvider = base.Configure(eventFlowOptions);
+
+            var databaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
             EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
             databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]

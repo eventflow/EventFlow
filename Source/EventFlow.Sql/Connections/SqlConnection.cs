@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EventFlow.Core;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.Connections
 {
@@ -39,19 +39,19 @@ namespace EventFlow.Sql.Connections
         where TConnectionFactory : ISqlConnectionFactory
     {
         protected SqlConnection(
-            ILog log,
+            ILogger logger,
             TConfiguration configuration,
             TConnectionFactory connectionFactory,
             ITransientFaultHandler<TRetryStrategy> transientFaultHandler)
         {
+            Logger = logger;
             ConnectionFactory = connectionFactory;
-            Log = log;
             Configuration = configuration;
             TransientFaultHandler = transientFaultHandler;
         }
 
+        public ILogger Logger { get; }
         protected TConnectionFactory ConnectionFactory { get; }
-        protected ILog Log { get; }
         protected TConfiguration Configuration { get; }
         protected ITransientFaultHandler<TRetryStrategy> TransientFaultHandler { get; }
 
@@ -97,9 +97,7 @@ namespace EventFlow.Sql.Connections
             IEnumerable<TRow> rows)
             where TRow : class
         {
-            Log.Debug(
-                "Insert multiple not optimised, inserting one row at a time using SQL '{0}'",
-                sql);
+            Logger.LogDebug("Insert multiple rows non-optimized, inserting one row at a time using SQL {SQL}", sql);
 
             return WithConnectionAsync<IReadOnlyCollection<TResult>>(
                 label,
@@ -119,13 +117,9 @@ namespace EventFlow.Sql.Connections
                             transaction.Commit();
                             return results;
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             transaction.Rollback();
-                            Log.Debug(
-                                e,
-                                "Exceptions was thrown while inserting multiple rows within a transaction in '{0}'",
-                                label);
                             throw;
                         }
                     }

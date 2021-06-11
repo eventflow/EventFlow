@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,39 +28,40 @@ using System.Reflection;
 using DbUp;
 using DbUp.Builder;
 using DbUp.Engine;
-using EventFlow.Logs;
 using EventFlow.Sql.Connections;
 using EventFlow.Sql.Exceptions;
 using EventFlow.Sql.Integrations;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.Migrations
 {
     public abstract class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
         where TConfiguration : ISqlConfiguration<TConfiguration>
     {
-        private readonly ILog _log;
+        protected ILogger Logger { get; }
+
         private readonly TConfiguration _sqlConfiguration;
 
         protected SqlDatabaseMigrator(
-            ILog log,
+            ILogger logger,
             TConfiguration sqlConfiguration)
         {
-            _log = log;
+            Logger = logger;
             _sqlConfiguration = sqlConfiguration;
         }
 
-        public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
+        public virtual void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
         {
             MigrateDatabaseUsingEmbeddedScripts(assembly, _sqlConfiguration.ConnectionString);
         }
 
-        public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
+        public virtual void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
         {
             var upgradeEngine = For(DeployChanges.To, connectionString)
                 .WithScriptsEmbeddedInAssembly(assembly)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
-                .LogTo(new DbUpUpgradeLog(_log))
+                .LogTo(new DbUpUpgradeLog(Logger))
                 .Build();
 
             Upgrade(upgradeEngine);
@@ -71,28 +72,28 @@ namespace EventFlow.Sql.Migrations
             MigrateDatabaseUsingScripts(sqlScripts, _sqlConfiguration.ConnectionString);
         }
 
-        public void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString)
+        public virtual void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString)
         {
             var dbUpSqlScripts = sqlScripts.Select(s => new DbUp.Engine.SqlScript(s.Name, s.Content));
             var upgradeEngine = For(DeployChanges.To, connectionString)
                 .WithScripts(dbUpSqlScripts)
                 .WithExecutionTimeout(TimeSpan.FromMinutes(5))
                 .WithTransaction()
-                .LogTo(new DbUpUpgradeLog(_log))
+                .LogTo(new DbUpUpgradeLog(Logger))
                 .Build();
 
             Upgrade(upgradeEngine);
         }
 
-        private void Upgrade(UpgradeEngine upgradeEngine)
+        protected virtual void Upgrade(UpgradeEngine upgradeEngine)
         {
             var scripts = upgradeEngine.GetScriptsToExecute()
                 .Select(s => s.Name)
                 .ToList();
 
-            _log.Information(
-                "Going to migrate the SQL database by executing these scripts: {0}",
-                string.Join(", ", scripts));
+            Logger.LogInformation(
+                "Going to migrate the SQL database by executing these scripts: {Scripts}",
+                scripts);
 
             var result = upgradeEngine.PerformUpgrade();
             if (!result.Successful)

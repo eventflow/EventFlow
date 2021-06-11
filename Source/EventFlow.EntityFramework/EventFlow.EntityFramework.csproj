@@ -9,7 +9,7 @@
     <Title>EventFlow.EntityFramework</Title>
     <Authors>Frank Ebersoll</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2019</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>Entity Framework Core support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing EF Entity Framework Core</PackageTags>
     <RepositoryType>git</RepositoryType>
