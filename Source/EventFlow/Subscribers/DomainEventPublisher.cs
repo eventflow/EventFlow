@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
-using EventFlow.Core;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.ReadStores;
@@ -66,18 +65,6 @@ namespace EventFlow.Subscribers
             _cancellationConfiguration = cancellationConfiguration;
             _dispatchToReadStores = dispatchToReadStores;
             _subscribeSynchronousToAlls = subscribeSynchronousToAlls.ToList();
-        }
-
-        public Task PublishAsync<TAggregate, TIdentity>(
-            TIdentity id,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-        {
-            return PublishAsync(
-                domainEvents,
-                cancellationToken);
         }
 
         public async Task PublishAsync(

@@ -28,12 +28,12 @@ namespace EventFlow.Snapshots.Strategies
 {
     public class SnapshotEveryFewVersionsStrategy : ISnapshotStrategy
     {
-        public const int DefautSnapshotAfterVersions = 100;
+        public const int DefaultSnapshotAfterVersions = 100;
 
         public static ISnapshotStrategy Default { get; } = With();
 
         public static ISnapshotStrategy With(
-            int snapshotAfterVersions = DefautSnapshotAfterVersions)
+            int snapshotAfterVersions = DefaultSnapshotAfterVersions)
         {
             return new SnapshotEveryFewVersionsStrategy(
                 snapshotAfterVersions);

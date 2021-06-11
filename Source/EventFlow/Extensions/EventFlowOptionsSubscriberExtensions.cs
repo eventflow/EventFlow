@@ -38,19 +38,6 @@ namespace EventFlow.Extensions
         private static readonly Type SubscribeAsynchronousToType = typeof(ISubscribeAsynchronousTo<,,>);
         private static readonly Type SubscribeSynchronousToAllType = typeof(ISubscribeSynchronousToAll);
 
-        [Obsolete("Please use the more explicit method 'AddSynchronousSubscriber<,,,>' instead")]
-        public static IEventFlowOptions AddSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
-            this IEventFlowOptions eventFlowOptions)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TEvent : IAggregateEvent<TAggregate, TIdentity>
-            where TSubscriber : class, ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>
-        {
-            eventFlowOptions.ServiceCollection
-                .AddTransient<ISubscribeSynchronousTo<TAggregate, TIdentity, TEvent>, TSubscriber>();
-            return eventFlowOptions;
-        }
-
         public static IEventFlowOptions AddSynchronousSubscriber<TAggregate, TIdentity, TEvent, TSubscriber>(
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>

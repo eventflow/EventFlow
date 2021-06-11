@@ -30,8 +30,7 @@ namespace EventFlow.Extensions
     {
         public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
-            TValue value;
-            if (dictionary.TryGetValue(key, out value))
+            if (dictionary.TryGetValue(key, out var value))
             {
                 return value;
             }

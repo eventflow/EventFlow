@@ -120,11 +120,19 @@ namespace EventFlow.Snapshots
         private Task LoadSnapshotContainerAsync(SnapshotContainer snapshotContainer, CancellationToken cancellationToken)
         {
             if (SnapshotVersion.HasValue)
+            {
                 throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has snapshot loaded");
+            }
+
             if (Version > 0)
+            {
                 throw new InvalidOperationException($"Aggregate '{Id}' of type '{GetType().PrettyPrint()}' already has events loaded");
+            }
+
             if (!(snapshotContainer.Snapshot is TSnapshot))
+            {
                 throw new ArgumentException($"Snapshot '{snapshotContainer.Snapshot.GetType().PrettyPrint()}' for aggregate '{GetType().PrettyPrint()}' is not of type '{typeof(TSnapshot).PrettyPrint()}'. Did you forget to implement a snapshot upgrader?");
+            }
 
             SnapshotVersion = snapshotContainer.Metadata.AggregateSequenceNumber;
 

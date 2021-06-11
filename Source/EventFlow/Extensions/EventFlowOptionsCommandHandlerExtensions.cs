@@ -59,9 +59,12 @@ namespace EventFlow.Extensions
         {
             foreach (var commandHandlerType in commandHandlerTypes)
             {
-                var t = commandHandlerType;
-                if (t.GetTypeInfo().IsAbstract) continue;
-                var handlesCommandTypes = t
+                if (commandHandlerType.GetTypeInfo().IsAbstract)
+                {
+                    continue;
+                }
+
+                var handlesCommandTypes = commandHandlerType
                     .GetTypeInfo()
                     .GetInterfaces()
                     .Where(IsCommandHandlerInterface)
@@ -73,7 +76,7 @@ namespace EventFlow.Extensions
 
                 foreach (var handlesCommandType in handlesCommandTypes)
                 {
-                    eventFlowOptions.ServiceCollection.AddTransient(handlesCommandType, t);
+                    eventFlowOptions.ServiceCollection.AddTransient(handlesCommandType, commandHandlerType);
                 }
             }
 

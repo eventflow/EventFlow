@@ -27,7 +27,7 @@ namespace EventFlow.Extensions
 {
     public static class ReadModelEnvelopeExtensions
     {
-        public static ReadModelUpdateResult<TReadModel> AsUnmodifedResult<TReadModel>(
+        public static ReadModelUpdateResult<TReadModel> AsUnmodifiedResult<TReadModel>(
             this ReadModelEnvelope<TReadModel> readModelEnvelope)
             where TReadModel: class, IReadModel
         {
@@ -36,7 +36,7 @@ namespace EventFlow.Extensions
                 false);
         }
 
-        public static ReadModelUpdateResult<TReadModel> AsModifedResult<TReadModel>(
+        public static ReadModelUpdateResult<TReadModel> AsModifiedResult<TReadModel>(
             this ReadModelEnvelope<TReadModel> readModelEnvelope,
             TReadModel readModel,
             long? version = null)

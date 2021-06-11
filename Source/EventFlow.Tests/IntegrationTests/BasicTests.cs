@@ -27,7 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Extensions;
-using EventFlow.MetadataProviders;
+using EventFlow.Provided.MetadataProviders;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory.Queries;

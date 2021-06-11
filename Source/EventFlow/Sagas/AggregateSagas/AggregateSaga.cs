@@ -78,10 +78,8 @@ namespace EventFlow.Sagas.AggregateSagas
             _unpublishedCommands.Clear();
 
             var exceptions = new List<CommandException>();
-            foreach (var unpublishedCommand in commandsToPublish)
+            foreach (var (command, commandInvoker) in commandsToPublish)
             {
-                var command = unpublishedCommand.Item1;
-                var commandInvoker = unpublishedCommand.Item2;
                 if (ThrowExceptionsOnFailedPublish)
                 {
                     try

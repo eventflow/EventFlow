@@ -37,7 +37,10 @@ namespace EventFlow.Provided.Specifications
         {
             var specificationList = (specifications ?? Enumerable.Empty<ISpecification<T>>()).ToList();
 
-            if (!specificationList.Any()) throw new ArgumentException("Please provide some specifications", nameof(specifications));
+            if (!specificationList.Any())
+            {
+                throw new ArgumentException("Please provide some specifications", nameof(specifications));
+            }
 
             _specifications = specificationList;
         }

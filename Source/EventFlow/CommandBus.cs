@@ -65,7 +65,10 @@ namespace EventFlow
             where TIdentity : IIdentity
             where TResult : IExecutionResult
         {
-            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
 
             if (_logger.IsEnabled(LogLevel.Trace))
             {

@@ -23,27 +23,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using EventFlow.Specifications;
+using EventFlow.Aggregates;
+using EventFlow.Core;
+using EventFlow.EventStores;
 
-namespace EventFlow.Provided.Specifications
+namespace EventFlow.Provided.MetadataProviders
 {
-    public class AndSpeficication<T> : Specification<T>
+    /// <summary>
+    /// Adds key <c>guid</c> with a new <c>Guid</c> for every event (used for testing)
+    /// </summary>
+    public class AddGuidMetadataProvider : IMetadataProvider
     {
-        private readonly ISpecification<T> _specification1;
-        private readonly ISpecification<T> _specification2;
-
-        public AndSpeficication(
-            ISpecification<T> specification1,
-            ISpecification<T> specification2)
+        public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
+            TIdentity id,
+            IAggregateEvent aggregateEvent,
+            IMetadata metadata)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
         {
-            _specification1 = specification1 ?? throw new ArgumentNullException(nameof(specification1));
-            _specification2 = specification2 ?? throw new ArgumentNullException(nameof(specification2));
-        }
-
-        protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)
-        {
-            return _specification1.WhyIsNotSatisfiedBy(obj).Concat(_specification2.WhyIsNotSatisfiedBy(obj));
+            yield return new KeyValuePair<string, string>("guid", Guid.NewGuid().ToString());
         }
     }
 }

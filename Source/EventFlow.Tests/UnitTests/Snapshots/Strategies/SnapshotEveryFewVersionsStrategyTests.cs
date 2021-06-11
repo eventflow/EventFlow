@@ -48,7 +48,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots.Strategies
         public async Task ShouldCreateSnapshotAsync_ReturnsCorrect(int aggregateRootVersion, int? snapshotVersion, bool expectedShouldCreateSnapshot)
         {
             // Assumptions
-            SnapshotEveryFewVersionsStrategy.DefautSnapshotAfterVersions.Should().Be(100);
+            SnapshotEveryFewVersionsStrategy.DefaultSnapshotAfterVersions.Should().Be(100);
 
             // Arrange
             var sut = SnapshotEveryFewVersionsStrategy.Default;

@@ -79,7 +79,7 @@ namespace EventFlow.ReadStores
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
-            TReadModel readModel = await GetOrCreateReadModel(readModelEnvelope, cancellationToken);
+            var readModel = await GetOrCreateReadModel(readModelEnvelope, cancellationToken);
 
             await ReadModelDomainEventApplier
                 .UpdateReadModelAsync(readModel, domainEvents, readModelContext, cancellationToken)
@@ -89,7 +89,7 @@ namespace EventFlow.ReadStores
                 domainEvents.Max(e => e.AggregateSequenceNumber),
                 readModelEnvelope.Version.GetValueOrDefault());
 
-            return readModelEnvelope.AsModifedResult(readModel, readModelVersion);
+            return readModelEnvelope.AsModifiedResult(readModel, readModelVersion);
         }
         
         protected override async Task<ReadModelUpdateResult<TReadModel>> UpdateAsync(
@@ -98,7 +98,10 @@ namespace EventFlow.ReadStores
             ReadModelEnvelope<TReadModel> readModelEnvelope,
             CancellationToken cancellationToken)
         {
-            if (!domainEvents.Any()) throw new ArgumentException("No domain events");
+            if (!domainEvents.Any())
+            {
+                throw new ArgumentException("No domain events");
+            }
 
             var expectedVersion = domainEvents.Min(d => d.AggregateSequenceNumber) - 1;
             var envelopeVersion = readModelEnvelope.Version;
@@ -120,7 +123,7 @@ namespace EventFlow.ReadStores
                             expectedVersion);
                     }
 
-                    return readModelEnvelope.AsUnmodifedResult();
+                    return readModelEnvelope.AsUnmodifiedResult();
                 }
 
                 // Apply missing events

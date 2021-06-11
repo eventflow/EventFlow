@@ -34,25 +34,17 @@ namespace EventFlow.Extensions
 {
     public static class SpecificationExtensions
     {
-        [Obsolete("Use 'ThrowDomainErrorIfNotSatisfied' instead")]
-        public static void ThrowDomainErrorIfNotStatisfied<T>(
-            this ISpecification<T> specification,
-            T obj)
-        {
-            specification.ThrowDomainErrorIfNotSatisfied(obj);
-        }
-
         public static void ThrowDomainErrorIfNotSatisfied<T>(
             this ISpecification<T> specification,
             T obj)
         {
             if (specification == null) throw new ArgumentNullException(nameof(specification));
 
-            var whyIsNotStatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
-            if (whyIsNotStatisfiedBy.Any())
+            var whyIsNotSatisfiedBy = specification.WhyIsNotSatisfiedBy(obj).ToList();
+            if (whyIsNotSatisfiedBy.Any())
             {
                 throw DomainError.With(
-                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotStatisfiedBy)}");
+                    $"'{specification.GetType().PrettyPrint()}' is not satisfied because of {string.Join(" and ", whyIsNotSatisfiedBy)}");
             }
         }
 
@@ -60,12 +52,12 @@ namespace EventFlow.Extensions
             this ISpecification<T> specification,
             T obj)
         {
-            var whyIsNotStatisfiedBy = specification
+            var whyIsNotSatisfiedBy = specification
                 .WhyIsNotSatisfiedBy(obj)
                 .ToList();
             
-            return whyIsNotStatisfiedBy.Any()
-                ? ExecutionResult.Failed(whyIsNotStatisfiedBy)
+            return whyIsNotSatisfiedBy.Any()
+                ? ExecutionResult.Failed(whyIsNotSatisfiedBy)
                 : ExecutionResult.Success();
         }
 
@@ -86,7 +78,7 @@ namespace EventFlow.Extensions
             this ISpecification<T> specification1,
             ISpecification<T> specification2)
         {
-            return new AndSpeficication<T>(specification1, specification2);
+            return new AndSpecification<T>(specification1, specification2);
         }
 
         public static ISpecification<T> And<T>(

@@ -41,11 +41,17 @@ namespace EventFlow.Provided.Specifications
             var specificationList = (specifications ?? Enumerable.Empty<ISpecification<T>>()).ToList();
 
             if (requiredSpecifications <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(requiredSpecifications));
+            }
             if (!specificationList.Any())
+            {
                 throw new ArgumentException("Please provide some specifications", nameof(specifications));
+            }
             if (requiredSpecifications > specificationList.Count)
+            {
                 throw new ArgumentOutOfRangeException($"You required '{requiredSpecifications}' to be met, but only '{specificationList.Count}' was supplied");
+            }
 
             _requiredSpecifications = requiredSpecifications;
             _specifications = specificationList;
@@ -53,7 +59,7 @@ namespace EventFlow.Provided.Specifications
 
         protected override IEnumerable<string> IsNotSatisfiedBecause(T obj)
         {
-            var notStatisfiedReasons = _specifications
+            var notSatisfiedBecause = _specifications
                 .Select(s => new
                     {
                         Specification = s,
@@ -63,9 +69,9 @@ namespace EventFlow.Provided.Specifications
                 .Select(a => $"{a.Specification.GetType().PrettyPrint()}: {string.Join(", ", a.WhyIsNotStatisfied)}")
                 .ToList();
 
-            return (_specifications.Count - notStatisfiedReasons.Count) >= _requiredSpecifications
+            return _specifications.Count - notSatisfiedBecause.Count >= _requiredSpecifications
                 ? Enumerable.Empty<string>()
-                : notStatisfiedReasons;
+                : notSatisfiedBecause;
         }
     }
 }

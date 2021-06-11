@@ -21,26 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
+using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 
-namespace EventFlow.MetadataProviders
+namespace EventFlow.Provided.MetadataProviders
 {
-    public class AddMachineNameMetadataProvider : IMetadataProvider
+    public class AddEventTypeMetadataProvider : IMetadataProvider
     {
-        private static readonly IEnumerable<KeyValuePair<string, string>> Metadata; 
-
-        static AddMachineNameMetadataProvider()
-        {
-            Metadata = new[]
-                {
-                    new KeyValuePair<string, string>("environment_machinename", Environment.MachineName), 
-                };
-        }
-
         public IEnumerable<KeyValuePair<string, string>> ProvideMetadata<TAggregate, TIdentity>(
             TIdentity id,
             IAggregateEvent aggregateEvent,
@@ -48,7 +38,13 @@ namespace EventFlow.MetadataProviders
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return Metadata;
+            var aggregateEventType = aggregateEvent.GetType();
+            var assembly = aggregateEventType.GetTypeInfo().Assembly;
+            var name = assembly.GetName();
+
+            yield return new KeyValuePair<string, string>("event_type_assembly_version", name.Version.ToString());
+            yield return new KeyValuePair<string, string>("event_type_assembly_name", name.Name);
+            yield return new KeyValuePair<string, string>("event_type_fullname", aggregateEventType.FullName);
         }
     }
 }

@@ -87,7 +87,7 @@ namespace EventFlow.ReadStores
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            return readModelEnvelope.AsModifedResult(
+            return readModelEnvelope.AsModifiedResult(
                 readModel,
                 readModelEnvelope.Version.GetValueOrDefault() + 1 // the best we can do
                 );

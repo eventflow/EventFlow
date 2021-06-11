@@ -119,10 +119,16 @@ namespace EventFlow.Extensions
 
             bool IsReadModelInterface(Type type)
             {
-                TypeInfo info = type.GetTypeInfo();
-                if (!info.IsGenericType) return false;
-                Type definition = info.GetGenericTypeDefinition();
-                return definition == readModelInterface || definition == asyncReadModelInterface;
+                var info = type.GetTypeInfo();
+                if (!info.IsGenericType)
+                {
+                    return false;
+                }
+
+                var definition = info.GetGenericTypeDefinition();
+                return 
+                    definition == readModelInterface ||
+                    definition == asyncReadModelInterface;
             }
 
             var readModelType = typeof(TReadModel);

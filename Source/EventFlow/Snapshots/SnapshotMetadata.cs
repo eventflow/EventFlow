@@ -103,8 +103,5 @@ namespace EventFlow.Snapshots
             }
             set { Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));}
         }
-
-
-
     }
 }

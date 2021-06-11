@@ -88,7 +88,10 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            if (committedSnapshot == null) throw new ArgumentNullException(nameof(committedSnapshot));
+            if (committedSnapshot == null)
+            {
+                throw new ArgumentNullException(nameof(committedSnapshot));
+            }
 
             var metadata = _jsonSerializer.Deserialize<SnapshotMetadata>(committedSnapshot.SerializedMetadata);
             var snapshotDefinition = _snapshotDefinitionService.GetDefinition(metadata.SnapshotName, metadata.SnapshotVersion);

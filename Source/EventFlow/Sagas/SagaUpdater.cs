@@ -42,13 +42,17 @@ namespace EventFlow.Sagas
             ISagaContext sagaContext,
             CancellationToken cancellationToken)
         {
-            var specificDomainEvent = domainEvent as IDomainEvent<TAggregate, TIdentity, TAggregateEvent>;
             var specificSaga = saga as ISagaHandles<TAggregate, TIdentity, TAggregateEvent>;
 
-            if (specificDomainEvent == null)
+            if (!(domainEvent is IDomainEvent<TAggregate, TIdentity, TAggregateEvent> specificDomainEvent))
+            {
                 throw new ArgumentException($"Domain event is not of type '{typeof(IDomainEvent<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
+            }
+
             if (specificSaga == null)
+            {
                 throw new ArgumentException($"Saga is not of type '{typeof(ISagaHandles<TAggregate, TIdentity, TAggregateEvent>).PrettyPrint()}'");
+            }
 
             return specificSaga.HandleAsync(specificDomainEvent, sagaContext, cancellationToken);
         }
