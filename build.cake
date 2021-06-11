@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,7 @@ using System.Net;
 using System.Xml;
 
 var VERSION = GetArgumentVersion();
+var VERSION_METADATA = "-alpha";
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
 
@@ -122,22 +123,30 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
+            var packProjects = new HashSet<string>
+                {
+                    "EventFlow",
+                    "EventFlow.MsSql",
+                    "EventFlow.Sql",
+                    "EventFlow.TestHelpers",
+                };
+
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
-				var name = project.GetDirectory().FullPath;
+				var directoryPath = project.GetDirectory().FullPath;
 				var version = VERSION.ToString();
+                var directoryName = System.IO.Path.GetFileName(directoryPath);
 				
-				if ((name.Contains("Test") && !name.Contains("TestHelpers")) 
-                    || name.Contains("Example")
-                    || name.Contains("CodeStyle"))
-				{
+				if (!packProjects.Contains(directoryName))
+                {
+                    Information($"Skipping packaging of {directoryName} at {directoryPath}");
 					continue;
 				}
 
+                Information($"Packaging of {directoryName} at {directoryPath}");
                 SetReleaseNotes(project.ToString());
-							
 				DotNetCorePack(
-					name,
+					directoryPath,
 					new DotNetCorePackSettings()
 					{
 						Configuration = CONFIGURATION,
@@ -169,8 +178,7 @@ Task("ValidateSourceLink")
 
 // =====================================================================================================
 Task("All")
-    .IsDependentOn("Test")
-    //.IsDependentOn("Package")
+    .IsDependentOn("Package")
     //.IsDependentOn("ValidateSourceLink") builds on AppVeyor fail for some unknown reason
     .Does(() =>
         {
@@ -188,8 +196,9 @@ string GetDotNetCoreArgsVersions()
 	var version = GetArgumentVersion().ToString();
 	
 	return string.Format(
-		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0} /p:PackageVersion={0}-alpha",
-		version);
+		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0} /p:PackageVersion={0}{1}",
+		version,
+        VERSION_METADATA);
 }
 
 void SetReleaseNotes(string filePath)
