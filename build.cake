@@ -123,7 +123,7 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
-            var validNames = new HashSet<string>
+            var packProjects = new HashSet<string>
                 {
                     "EventFlow",
                     "EventFlow.MsSql",
@@ -133,19 +133,20 @@ Task("Package")
 
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
-				var name = project.GetDirectory().FullPath;
+				var directoryPath = project.GetDirectory().FullPath;
 				var version = VERSION.ToString();
-                var fileName = System.IO.Path.GetFileNameWithoutExtension(name);
+                var directoryName = System.IO.Path.GetFileName(directoryPath);
 				
-				if (!validNames.Contains(fileName))
+				if (!packProjects.Contains(directoryName))
                 {
+                    Information($"Skipping packaging of {directoryName} at {directoryPath}");
 					continue;
 				}
 
+                Information($"Packaging of {directoryName} at {directoryPath}");
                 SetReleaseNotes(project.ToString());
-							
 				DotNetCorePack(
-					name,
+					directoryPath,
 					new DotNetCorePackSettings()
 					{
 						Configuration = CONFIGURATION,
