@@ -1,6 +1,27 @@
-### New in 1.0 (not released yet)
+### New in 1.0 alpha (not released yet)
 
-* **TODO**
+Read the complete migration guide to get the full list of changes as well
+as recommendations on how to do the migration.
+
+https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
+
+* Breaking: Remove support for .NET Framework and consolidate on .NET Core LTS versions
+* Breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
+* Breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
+* Breaking: Replace internal in-memory caching with `Microsoft.Extensions.Caching.Memory`
+* Breaking: Remove `IAmAsyncReadModelFor` and made `IAmReadModelFor` async
+* Breaking: Removed `EventFlow.Core.AsyncHelper` as well as all async wrapper methods
+  that used it.
+  - `IAggregateStore.Load`
+  - `IAggregateStore.Store`
+  - `IAggregateStore.Update`
+  - `ICommandBus.Publish`
+  - `IEventStore.LoadAggregate`
+  - `IEventStore.LoadEvents`
+  - `IEventStore.LoadAllEvents`
+  - `IQueryProcessor.Process`
+  - `IReadModelPopulator.Populate`
+  - `IReadModelPopulator.Purge`
 
 ### New in 0.82 (not released yet)
 
