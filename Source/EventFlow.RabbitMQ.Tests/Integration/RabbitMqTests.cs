@@ -27,10 +27,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.RabbitMQ.Extensions;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
@@ -40,6 +38,8 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
@@ -74,10 +74,10 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
-            using (var resolver = BuildResolver(exchange))
+            using (var serviceProvider = BuildServiceProvider(exchange))
             {
-                var commandBus = resolver.Resolve<ICommandBus>();
-                var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+                var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
+                var eventJsonSerializer = serviceProvider.GetRequiredService<IEventJsonSerializer>();
 
                 var pingId = PingId.New;
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
@@ -105,9 +105,9 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             const int totalMessageCount = taskCount * messagesPrThread;
 
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
-            using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
+            using (var resolver = BuildServiceProvider(exchange))
             {
-                var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
+                var rabbitMqPublisher = resolver.GetRequiredService<IRabbitMqPublisher>();
                 var tasks = Enumerable.Range(0, taskCount)
                     .Select(i => Task.Run(() => SendMessagesAsync(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions, _timeout.Token)));
 
@@ -147,16 +147,18 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 exceptions.Add(e);
             }
         }
-
-        private IRootResolver BuildResolver(Exchange exchange, Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        
+        private ServiceProvider BuildServiceProvider(
+            Exchange exchange,
+            Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
             configure = configure ?? (e => e);
 
-            return configure(EventFlowOptions.New
+            return configure(EventFlowOptions.New()
                 .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
                 .AddDefaults(EventFlowTestHelpers.Assembly))
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .CreateResolver(false);
+                .RegisterServices(sr => sr.TryAddScoped<IScopedContext, ScopedContext>())
+                .ServiceCollection.BuildServiceProvider(true);
         }
     }
 }

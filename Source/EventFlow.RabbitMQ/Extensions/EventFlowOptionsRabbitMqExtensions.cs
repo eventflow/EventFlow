@@ -21,9 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.RabbitMQ.Extensions
 {
@@ -35,14 +36,12 @@ namespace EventFlow.RabbitMQ.Extensions
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
-                    sr.Register<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
-                    sr.Register<IRabbitMqMessageFactory, RabbitMqMessageFactory>(Lifetime.Singleton);
-                    sr.Register<IRabbitMqPublisher, RabbitMqPublisher>(Lifetime.Singleton);
-                    sr.Register<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>(Lifetime.Singleton);
-
-                    sr.Register(rc => configuration, Lifetime.Singleton);
-
-                    sr.Register<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
+                    sr.TryAddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
+                    sr.TryAddSingleton<IRabbitMqMessageFactory, RabbitMqMessageFactory>();
+                    sr.TryAddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+                    sr.TryAddSingleton<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>();
+                    sr.TryAddSingleton(rc => configuration);
+                    sr.TryAddTransient<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
                 });
         }
     }

@@ -29,14 +29,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqPublisher : IDisposable, IRabbitMqPublisher
     {
-        private readonly ILog _log;
+        private readonly ILogger<RabbitMqPublisher> _logger;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly ITransientFaultHandler<IRabbitMqRetryStrategy> _transientFaultHandler;
@@ -44,12 +44,12 @@ namespace EventFlow.RabbitMQ.Integrations
         private readonly Dictionary<Uri, IRabbitConnection> _connections = new Dictionary<Uri, IRabbitConnection>(); 
 
         public RabbitMqPublisher(
-            ILog log,
+            ILogger<RabbitMqPublisher> logger,
             IRabbitMqConnectionFactory connectionFactory,
             IRabbitMqConfiguration configuration,
             ITransientFaultHandler<IRabbitMqRetryStrategy> transientFaultHandler)
         {
-            _log = log;
+            _logger = logger;
             _connectionFactory = connectionFactory;
             _configuration = configuration;
             _transientFaultHandler = transientFaultHandler;
@@ -88,7 +88,7 @@ namespace EventFlow.RabbitMQ.Integrations
                         _connections.Remove(uri);
                     }
                 }
-                _log.Error(e, "Failed to publish domain events to RabbitMQ");
+                _logger.LogError(e, "Failed to publish domain events to RabbitMQ");
                 throw;
             }
         }
@@ -97,8 +97,7 @@ namespace EventFlow.RabbitMQ.Integrations
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                IRabbitConnection rabbitConnection;
-                if (_connections.TryGetValue(uri, out rabbitConnection))
+                if (_connections.TryGetValue(uri, out var rabbitConnection))
                 {
                     return rabbitConnection;
                 }
@@ -114,8 +113,8 @@ namespace EventFlow.RabbitMQ.Integrations
             IModel model,
             IReadOnlyCollection<RabbitMqMessage> messages)
         {
-            _log.Verbose(
-                "Publishing {0} domain events to RabbitMQ host '{1}'",
+            _logger.LogTrace(
+                "Publishing {EventCount} domain events to RabbitMQ host {RabbitMqHost}",
                 messages.Count,
                 _configuration.Uri.Host);
 
@@ -136,7 +135,10 @@ namespace EventFlow.RabbitMQ.Integrations
             return Task.FromResult(0);
         }
 
-        protected virtual void PublishSingleMessage(IModel model, RabbitMqMessage message, byte[] bytes, IBasicProperties basicProperties)
+        protected virtual void PublishSingleMessage(
+            IModel model,
+            RabbitMqMessage message, byte[] bytes,
+            IBasicProperties basicProperties)
         {
             // TODO: Evil or not evil? Do a Task.Run here?
             model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, basicProperties, bytes);
