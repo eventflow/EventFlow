@@ -56,7 +56,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
             if (string.IsNullOrEmpty(url))
             {
-                Assert.Inconclusive("The environment variable named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
+                url = "amqp://localhost";
             }
 
             _uri = new Uri(url);
