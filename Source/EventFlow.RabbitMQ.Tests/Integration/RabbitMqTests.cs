@@ -74,10 +74,11 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
-            using (var serviceProvider = BuildServiceProvider(exchange))
+            using (var rootServiceProvider = BuildServiceProvider(exchange))
+            using (var serviceScope = rootServiceProvider.CreateScope())
             {
-                var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
-                var eventJsonSerializer = serviceProvider.GetRequiredService<IEventJsonSerializer>();
+                var commandBus = serviceScope.ServiceProvider.GetRequiredService<ICommandBus>();
+                var eventJsonSerializer = serviceScope.ServiceProvider.GetRequiredService<IEventJsonSerializer>();
 
                 var pingId = PingId.New;
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
@@ -105,9 +106,10 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             const int totalMessageCount = taskCount * messagesPrThread;
 
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
-            using (var resolver = BuildServiceProvider(exchange))
+            using (var rootServiceProvider = BuildServiceProvider(exchange))
+            using (var serviceScope = rootServiceProvider.CreateScope())
             {
-                var rabbitMqPublisher = resolver.GetRequiredService<IRabbitMqPublisher>();
+                var rabbitMqPublisher = serviceScope.ServiceProvider.GetRequiredService<IRabbitMqPublisher>();
                 var tasks = Enumerable.Range(0, taskCount)
                     .Select(i => Task.Run(() => SendMessagesAsync(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions, _timeout.Token)));
 
