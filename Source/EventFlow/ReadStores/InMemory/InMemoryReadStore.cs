@@ -116,7 +116,7 @@ namespace EventFlow.ReadStores.InMemory
                         .ConfigureAwait(false);
                     if (!readModelUpdateResult.IsModified)
                     {
-                        return;
+                        continue;
                     }
                     
                     readModelEnvelope = readModelUpdateResult.Envelope;
