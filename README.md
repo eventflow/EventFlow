@@ -454,7 +454,6 @@ integrates with correctly.
  * [EventStore](https://geteventstore.com/)
  * [RabbitMQ](https://www.rabbitmq.com/)
  * Microsoft SQL Server
- * [RabbitMQ](https://www.rabbitmq.com/)
  * PostgreSQL
 
 To setup a local test environment run the following commands in the checkout
