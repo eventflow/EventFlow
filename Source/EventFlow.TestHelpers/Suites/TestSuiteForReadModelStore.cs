@@ -341,8 +341,8 @@ namespace EventFlow.TestHelpers.Suites
                     EventId = EventId.New,
                 };
             var domainEvent = injectPing
-                ? DomainEventFactory.Create(new ThingyMessageAddedEvent(thingyMessage), metadata, thingyId.Value, 1)
-                : DomainEventFactory.Create(new ThingyPingEvent(pingId), metadata, thingyId.Value, 1);
+                ? DomainEventFactory.Create(new ThingyPingEvent(pingId), metadata, thingyId.Value, 1)
+                : DomainEventFactory.Create(new ThingyMessageAddedEvent(thingyMessage), metadata, thingyId.Value, 1);
             await readStoreManager.UpdateReadStoresAsync(
                 new[] {domainEvent},
                 CancellationToken.None);
