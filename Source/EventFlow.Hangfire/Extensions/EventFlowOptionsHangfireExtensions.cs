@@ -46,6 +46,7 @@ namespace EventFlow.Hangfire.Extensions
                     sr.Register<IHangfireJobRunner, HangfireJobRunner>();
                     sr.Register<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
                     sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
+                    sr.Register<IQueueNameProvider>(r => new QueueNameProvider(null));
                 });
         }
 

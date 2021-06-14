@@ -46,14 +46,14 @@ namespace EventFlow.Hangfire.Integration
             IJsonSerializer jsonSerializer,
             IBackgroundJobClient backgroundJobClient,
             IJobDefinitionService jobDefinitionService,
-            IQueueNameProvider queueNameProvider = null)
+            IQueueNameProvider queueNameProvider)
         {
             _log = log;
             _jobDisplayNameBuilder = jobDisplayNameBuilder;
             _jsonSerializer = jsonSerializer;
             _backgroundJobClient = backgroundJobClient;
             _jobDefinitionService = jobDefinitionService;
-            _queueName = queueNameProvider?.QueueName;
+            _queueName = queueNameProvider.QueueName;
         }
 
         public Task<IJobId> ScheduleNowAsync(IJob job, CancellationToken cancellationToken)
