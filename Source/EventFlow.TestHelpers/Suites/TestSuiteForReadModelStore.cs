@@ -202,6 +202,25 @@ namespace EventFlow.TestHelpers.Suites
             readModel1.PingsReceived.Should().Be(3);
             readModel2.PingsReceived.Should().Be(5);
         }
+        
+        [Test]
+        public async Task RePopulateHandlesDeletedAggregate()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandsAsync(id1, 3).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id2, 5).ConfigureAwait(false);
+
+            // Act
+            await ReadModelPopulator.DeleteAsync(id2.Value, ReadModelType, CancellationToken.None).ConfigureAwait(false);
+            await ReadModelPopulator.PopulateAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            
+            readModel.PingsReceived.Should().Be(5);
+        }
 
         [Test]
         public async Task PopulateCreatesReadModels()
