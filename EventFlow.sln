@@ -28,6 +28,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MsSql", "Source\EventFlow.MsSql\EventFlow.MsSql.csproj", "{96A39EA3-6772-409E-AF0B-C5A35A1A13CC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MsSql.Tests", "Source\EventFlow.MsSql.Tests\EventFlow.MsSql.Tests.csproj", "{CE19355C-6355-405F-A640-908AE4F83C2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
