@@ -89,7 +89,7 @@ The following list key characteristics of each version as well as its related br
   - 🔴 `EventFlow.RabbitMQ`
   - 🟢 `EventFlow.Sql`
   - 🔴 `EventFlow.SQLite`
-  - 🔴 `EventFlow.TestHelpers`
+  - 🟢 `EventFlow.TestHelpers`
 
   Branches:
   - `develop-v1`: Development branch, pull requests should be done here
