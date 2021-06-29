@@ -81,7 +81,7 @@ var eventFlowOptions = EventFlowOptions.New(serviceCollection)
 
 ### Let EventFlow create the `IServiceCollection`
 
-Useful in small tests, but should be used in real production setups.
+Useful in small tests, but should NOT be used in production setups.
 
 ```csharp
 var eventFlowOptions = EventFlowOptions.New()
