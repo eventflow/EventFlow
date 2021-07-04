@@ -151,31 +151,43 @@ namespace EventFlow.Core
 
             public static Guid Create(Guid namespaceId, byte[] nameBytes)
             {
+                return Create(namespaceId, nameBytes.AsSpan());
+            }
+
+            public static Guid Create(Guid namespaceId, Span<byte> nameSpan)
+            {
                 // Always use version 5 (version 3 is MD5, version 5 is SHA1)
                 const int version = 5;
 
-                if (namespaceId == default(Guid)) throw new ArgumentNullException(nameof(namespaceId));
-                if (nameBytes.Length == 0) throw new ArgumentNullException(nameof(nameBytes));
+                if (namespaceId == default) throw new ArgumentNullException(nameof(namespaceId));
+                if (nameSpan.Length == 0) throw new ArgumentNullException(nameof(nameSpan));
 
                 // Convert the namespace UUID to network order (step 3)
-                var namespaceBytes = namespaceId.ToByteArray();
-                SwapByteOrder(namespaceBytes);
+                Span<byte> namespaceSpan = stackalloc byte[16]; // Guid length is 16.
+                if (!namespaceId.TryWriteBytes(namespaceSpan))
+                {
+                    throw new ApplicationException("Failed to copy namespaceId to a span"); // Should never happen
+                }
+                SwapByteOrder(namespaceSpan);
 
                 // Compute the hash of the name space ID concatenated with the name (step 4)
-                byte[] hash;
+                Span<byte> hash = stackalloc byte[20]; // SHA1 produces 160-bit hash.
                 using (var algorithm = SHA1.Create())
                 {
-                    var combinedBytes = new byte[namespaceBytes.Length + nameBytes.Length];
-                    Buffer.BlockCopy(namespaceBytes, 0, combinedBytes, 0, namespaceBytes.Length);
-                    Buffer.BlockCopy(nameBytes, 0, combinedBytes, namespaceBytes.Length, nameBytes.Length);
+                    Span<byte> combinedSpan = stackalloc byte[namespaceSpan.Length + nameSpan.Length];
+                    namespaceSpan.CopyTo(combinedSpan);
+                    nameSpan.CopyTo(combinedSpan.Slice(namespaceSpan.Length));
 
-                    hash = algorithm.ComputeHash(combinedBytes);
+                    if (!algorithm.TryComputeHash(combinedSpan, hash, out _))
+                    {
+                        throw new ApplicationException("Failed to compute hash"); // Should never happen
+                    }
                 }
 
                 // Most bytes from the hash are copied straight to the bytes of the new
                 // GUID (steps 5-7, 9, 11-12)
-                var newGuid = new byte[16];
-                Array.Copy(hash, 0, newGuid, 0, 16);
+                Span<byte> newGuid = stackalloc byte[16];
+                hash.Slice(0, 16).CopyTo(newGuid);
 
                 // Set the four most significant bits (bits 12 through 15) of the time_hi_and_version
                 // field to the appropriate 4-bit version number from Section 4.1.3 (step 8)
@@ -190,7 +202,7 @@ namespace EventFlow.Core
                 return new Guid(newGuid);
             }
 
-            internal static void SwapByteOrder(byte[] guid)
+            internal static void SwapByteOrder(Span<byte> guid)
             {
                 SwapBytes(guid, 0, 3);
                 SwapBytes(guid, 1, 2);
@@ -198,7 +210,7 @@ namespace EventFlow.Core
                 SwapBytes(guid, 6, 7);
             }
 
-            internal static void SwapBytes(byte[] guid, int left, int right)
+            internal static void SwapBytes(Span<byte> guid, int left, int right)
             {
                 var temp = guid[left];
                 guid[left] = guid[right];
