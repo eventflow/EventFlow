@@ -109,6 +109,9 @@ namespace EventFlow.Core
         /// </summary>
         public static class Deterministic
         {
+            // It is safe to not clean up since span-based TryComputeHash rents an array and releases every run
+            private static readonly SHA1 Algorithm = SHA1.Create();
+
             public static class Namespaces
             {
                 public static readonly Guid Events = Guid.Parse("387F5B61-9E98-439A-BFF1-15AD0EA91EA0");
@@ -172,13 +175,13 @@ namespace EventFlow.Core
 
                 // Compute the hash of the name space ID concatenated with the name (step 4)
                 Span<byte> hash = stackalloc byte[20]; // SHA1 produces 160-bit hash.
-                using (var algorithm = SHA1.Create())
-                {
-                    Span<byte> combinedSpan = stackalloc byte[namespaceSpan.Length + nameSpan.Length];
-                    namespaceSpan.CopyTo(combinedSpan);
-                    nameSpan.CopyTo(combinedSpan.Slice(namespaceSpan.Length));
+                Span<byte> combinedSpan = stackalloc byte[namespaceSpan.Length + nameSpan.Length];
+                namespaceSpan.CopyTo(combinedSpan);
+                nameSpan.CopyTo(combinedSpan.Slice(namespaceSpan.Length));
 
-                    if (!algorithm.TryComputeHash(combinedSpan, hash, out _))
+                lock (Algorithm) // We have to lock a shared instance since it is stateful
+                {
+                    if (!Algorithm.TryComputeHash(combinedSpan, hash, out _))
                     {
                         throw new ApplicationException("Failed to compute hash"); // Should never happen
                     }
