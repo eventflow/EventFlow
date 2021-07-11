@@ -109,7 +109,7 @@ namespace EventFlow.Core
         /// </summary>
         public static class Deterministic
         {
-            // It is safe to not clean up since span-based TryComputeHash rents an array and releases every run
+            // It is safe to not clean up since span-based TryComputeHash rents an array and releases it every time
             private static readonly SHA1 Algorithm = SHA1.Create();
 
             public static class Namespaces
@@ -147,9 +147,11 @@ namespace EventFlow.Core
 
                 // Convert the name to a sequence of octets (as defined by the standard or conventions of its namespace) (step 3)
                 // ASSUME: UTF-8 encoding is always appropriate
-                var nameBytes = Encoding.UTF8.GetBytes(name);
+                var charSpan = name.AsSpan();
+                Span<byte> byteSpan = stackalloc byte[Encoding.UTF8.GetByteCount(charSpan)];
+                var sizeOf = Encoding.UTF8.GetBytes(charSpan, byteSpan);
 
-                return Create(namespaceId, nameBytes);
+                return Create(namespaceId, byteSpan.Slice(0, sizeOf));
             }
 
             public static Guid Create(Guid namespaceId, byte[] nameBytes)
