@@ -29,21 +29,17 @@ namespace EventFlow.AspNetCore.Extensions
     {
         public static IEventFlowOptions AddAspNetCore(
             this IEventFlowOptions options,
-            Action<AspNetCoreEventFlowOptions> configuratioAction = null)
+            Action<EventFlowOptionsAspNetCoreExtensions> configurationAction = null)
         {
-            var aspNetCoreOptions = new AspNetCoreEventFlowOptions(options);
-            if (configuratioAction == null) configuratioAction = o => o.UseDefaults();
+            var aspNetCoreOptions = new EventFlowOptionsAspNetCoreExtensions(options);
+            if (configurationAction == null)
+            {
+                configurationAction = o => o.UseDefaults();
+            }
 
-            configuratioAction(aspNetCoreOptions);
+            configurationAction(aspNetCoreOptions);
 
             return options;
-        }
-
-        [Obsolete("Use AddAspNetCore(o => o...)")]
-        public static IEventFlowOptions AddAspNetCoreMetadataProviders(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.AddAspNetCore();
         }
     }
 }

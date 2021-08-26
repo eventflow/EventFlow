@@ -27,7 +27,6 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 
 namespace EventFlow.AspNetCore.MetadataProviders
 {
@@ -58,7 +57,9 @@ namespace EventFlow.AspNetCore.MetadataProviders
         {
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null)
+            {
                 yield break;
+            }
             
             yield return new KeyValuePair<string, string>("remote_ip_address", httpContext.Connection.RemoteIpAddress?.ToString());
 

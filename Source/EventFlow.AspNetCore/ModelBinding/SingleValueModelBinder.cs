@@ -24,7 +24,6 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -35,13 +34,13 @@ namespace EventFlow.AspNetCore.ModelBinding
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            Type modelType = bindingContext.ModelType;
-            ConstructorInfo constructor = modelType.GetConstructors().Single();
-            Type parameterType = constructor.GetParameters().Single().ParameterType;
+            var modelType = bindingContext.ModelType;
+            var constructor = modelType.GetConstructors().Single();
+            var parameterType = constructor.GetParameters().Single().ParameterType;
 
             var modelName = bindingContext.ModelName;
 
-            ValueProviderResult valueProviderResult = bindingContext.ValueProvider.GetValue(modelName);
+            var valueProviderResult = bindingContext.ValueProvider.GetValue(modelName);
             if (valueProviderResult == ValueProviderResult.None)
             {
                 return Task.CompletedTask;
@@ -60,7 +59,7 @@ namespace EventFlow.AspNetCore.ModelBinding
                 }
                 else
                 {
-                    TypeConverter converter = TypeDescriptor.GetConverter(parameterType);
+                    var converter = TypeDescriptor.GetConverter(parameterType);
                     if (!converter.CanConvertFrom(typeof(string)))
                     {
                         return Task.CompletedTask;
@@ -74,9 +73,15 @@ namespace EventFlow.AspNetCore.ModelBinding
             catch (Exception e)
             {
                 if (!(e is FormatException) && e.InnerException != null)
+                {
                     e = ExceptionDispatchInfo.Capture(e.InnerException).SourceException;
-                bindingContext.ModelState.TryAddModelError(bindingContext.ModelName, e,
+                }
+
+                bindingContext.ModelState.TryAddModelError(
+                    bindingContext.ModelName,
+                    e,
                     bindingContext.ModelMetadata);
+
                 return Task.CompletedTask;
             }
 

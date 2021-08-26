@@ -33,11 +33,11 @@ namespace EventFlow.AspNetCore.MetadataProviders
 {
     public class AddRequestHeadersMetadataProvider : IMetadataProvider
     {
-        private static readonly ISet<string> RequestHeadersToSkip = new HashSet<string>
-        {
-            "Authorization",
-            "Cookie"
-        };
+        private static readonly ISet<string> RequestHeadersToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Authorization",
+                "Cookie"
+            };
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
