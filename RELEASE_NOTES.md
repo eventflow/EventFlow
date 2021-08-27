@@ -1,4 +1,11 @@
-### New in 0.82 (not released yet)
+### New in 0.83 (not released yet)
+
+* New: Queue name used by HangfireJobScheduler can be overridden:
+  ```csharp
+  eventFlowOptions.UseHangfireJobScheduler(o => o.UseQueueName("myqueue"))
+  ```
+
+### New in 0.82.4659 (released 2021-06-17)
 
 * Fix: Source IDs are now added to snapshots
 * Fix: InMemoryReadStore will not break on unmodified update result
