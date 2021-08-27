@@ -2,6 +2,18 @@
 
 * Fix: Source IDs are now added to snapshots
 * Fix: InMemoryReadStore will not break on unmodified update result
+* New: added extension methods to the `EventFlow.EntityFramework` package that allow
+  us to configure [eager loading of related data](https://docs.microsoft.com/en-us/ef/core/querying/related-data/eager). Example usage:
+  ```csharp
+  public static IEventFlowOptions Configure(this IEventFlowOptions options)
+  {
+    return options
+      .UseEntityFrameworkReadModel<MyEntity, MyDbContext>(
+        cfg => cfg.Include(x => x.SomeProperty)
+                  .ThenInclude(y => y.SomeOtherProperty)
+      );
+  }
+  ```
 
 ### New in 0.81.4483 (released 2020-12-14)
 
