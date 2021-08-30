@@ -4,8 +4,6 @@
 
 ### New in 0.82.4684 (released 2021-08-31)
 
-* Fix: Source IDs are now added to snapshots
-* Fix: InMemoryReadStore will not break on unmodified update result
 * Fix: Allow the use of explicitly implemented interfaces in the read model
 * New: added extension methods to the `EventFlow.EntityFramework` package that allow
   us to configure [eager loading of related data](https://docs.microsoft.com/en-us/ef/core/querying/related-data/eager). Example usage:
@@ -19,6 +17,11 @@
       );
   }
   ```
+
+### New in 0.82.4659 (released 2021-06-17)
+
+* Fix: Source IDs are now added to snapshots
+* Fix: InMemoryReadStore will not break on unmodified update result
 
 ### New in 0.81.4483 (released 2020-12-14)
 
