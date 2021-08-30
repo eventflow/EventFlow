@@ -1,3 +1,7 @@
+### New in 0.83 (not released yet)
+
+* _Nothing yet_
+
 ### New in 0.82 (not released yet)
 
 * Fix: Source IDs are now added to snapshots
