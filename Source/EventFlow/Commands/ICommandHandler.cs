@@ -33,6 +33,7 @@ namespace EventFlow.Commands
     {
     }
 
+    [SemVer]
     public interface ICommandHandler<in TAggregate, TIdentity, TResult, in TCommand> : ICommandHandler
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,25 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using EventFlow.Configuration;
-using EventFlow.Core;
-using Microsoft.Extensions.DependencyInjection;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
 
-namespace EventFlow
+namespace EventFlow.Tests
 {
-    [SemVer]
-    public interface IEventFlowOptions
+    public class SemVerTests
     {
-        IServiceCollection ServiceCollection { get; }
-
-        IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry);
-        IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
-        IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
-        IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);
-        IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
-        IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes);
-        IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes);
+        [Test]
+        public void EventFlow()
+        {
+            var report = SemVerHelper.GenerateReport(typeof(EventFlowOptions).Assembly);
+        }
     }
 }

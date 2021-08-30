@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -22,24 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using EventFlow.Configuration;
-using EventFlow.Core;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow
+namespace EventFlow.Core
 {
-    [SemVer]
-    public interface IEventFlowOptions
+    [AttributeUsage(AttributeTargets.Interface)]
+    public class SemVerAttribute : Attribute
     {
-        IServiceCollection ServiceCollection { get; }
-
-        IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry);
-        IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
-        IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
-        IEventFlowOptions AddCommands(IEnumerable<Type> commandTypes);
-        IEventFlowOptions AddJobs(IEnumerable<Type> jobTypes);
-        IEventFlowOptions AddSagas(IEnumerable<Type> sagaTypes);
-        IEventFlowOptions AddSnapshots(IEnumerable<Type> snapshotTypes);
     }
 }

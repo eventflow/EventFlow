@@ -30,6 +30,7 @@ using EventFlow.Core;
 
 namespace EventFlow
 {
+    [SemVer]
     public interface ICommandBus
     {
         Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(
