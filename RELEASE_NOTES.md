@@ -26,6 +26,7 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 ### New in 0.82 (not released yet)
 
 * Fix: Source IDs are now added to snapshots
+* Fix: InMemoryReadStore will not break on unmodified update result
 
 ### New in 0.81.4483 (released 2020-12-14)
 
