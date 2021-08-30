@@ -2,6 +2,7 @@
 
 * Fix: Source IDs are now added to snapshots
 * Fix: InMemoryReadStore will not break on unmodified update result
+* Fix: Allow the use of explicitly implemented interfaces in the read model
 * New: added extension methods to the `EventFlow.EntityFramework` package that allow
   us to configure [eager loading of related data](https://docs.microsoft.com/en-us/ef/core/querying/related-data/eager). Example usage:
   ```csharp
