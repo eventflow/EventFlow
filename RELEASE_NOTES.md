@@ -2,7 +2,7 @@
 
 * _Nothing yet_
 
-### New in 0.82 (not released yet)
+### New in 0.82.4684 (released 2021-08-31)
 
 * Fix: Source IDs are now added to snapshots
 * Fix: InMemoryReadStore will not break on unmodified update result
