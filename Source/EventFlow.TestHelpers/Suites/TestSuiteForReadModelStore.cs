@@ -41,6 +41,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using EventId = EventFlow.Aggregates.EventId;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -343,7 +344,7 @@ namespace EventFlow.TestHelpers.Suites
             bool injectPing)
         {
             // Arrange
-            var readStoreManager = Resolver.Resolve<IReadStoreManager>();
+            var readStoreManager = ServiceProvider.GetService<IReadStoreManager>();
             var thingyId = ThingyId.New;
             var thingyMessage = Fixture.Create<ThingyMessage>();
             var pingId = PingId.New;
