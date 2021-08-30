@@ -2,6 +2,7 @@
 
 * Fix: Source IDs are now added to snapshots
 * Fix: InMemoryReadStore will not break on unmodified update result
+* Fix: Allow the use of explicitly implemented interfaces in the read model
 
 ### New in 0.81.4483 (released 2020-12-14)
 
