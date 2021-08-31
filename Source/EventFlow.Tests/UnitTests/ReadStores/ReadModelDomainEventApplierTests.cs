@@ -51,6 +51,21 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             }
         }
 
+        public class ExplicitPingReadModel : IReadModel,
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public bool PingEventsReceived { get; private set; }
+
+            async Task IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>.ApplyAsync(
+                IReadModelContext context, 
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
+            {
+                await Task.Delay(50, cancellationToken).ConfigureAwait(false);
+                PingEventsReceived = true;
+            }
+        }
+
         public class TheOtherPingReadModel : IReadModel,
             IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
         {
@@ -215,6 +230,28 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 events,
                 A<IReadModelContext>(),
                 CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            readModel.PingEventsReceived.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ExplicitInterfaceReadModelReceivesEvent()
+        {
+            // Arrange
+            var events = new[]
+            {
+                ToDomainEvent(A<ThingyPingEvent>()),
+            };
+            var readModel = new ExplicitPingReadModel();
+
+            // Act
+            await Sut.UpdateReadModelAsync(
+                    readModel,
+                    events,
+                    A<IReadModelContext>(),
+                    CancellationToken.None)
                 .ConfigureAwait(false);
 
             // Assert
