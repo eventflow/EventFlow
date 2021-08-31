@@ -65,7 +65,7 @@ namespace EventFlow.ReadStores
                         // first try: does it implement the synchronous 'Apply' method?
 
                         var interfaceType = typeof(IAmReadModelFor<,,>).MakeGenericType(aggregateType, identityType, t);
-                        var methodParams = new[] {typeof(IReadModelContext), eventType};
+                        var methodParams = new[] {typeof(IReadModelContext), eventType, typeof(CancellationToken)};
                         var methodInfo = GetMethod(readModelType, interfaceType, ApplyMethodName, methodParams);
 
                         if (methodInfo != null)
