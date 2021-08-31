@@ -1,6 +1,9 @@
 ### New in 0.83 (not released yet)
 
-* _Nothing yet_
+* New: Queue name used by HangfireJobScheduler can be overridden:
+  ```csharp
+  eventFlowOptions.UseHangfireJobScheduler(o => o.UseQueueName("myqueue"))
+  ```
 
 ### New in 0.82.4684 (released 2021-08-31)
 
