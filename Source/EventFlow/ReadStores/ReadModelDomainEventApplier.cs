@@ -59,11 +59,15 @@ namespace EventFlow.ReadStores
                     domainEvent.EventType,
                     t =>
                     {
-                        var domainEventType = typeof(IDomainEvent<,,>).MakeGenericType(domainEvent.AggregateType,
-                            domainEvent.GetIdentity().GetType(), t);
+                        var identityType = domainEvent.GetIdentity().GetType();
+                        var aggregateType = domainEvent.AggregateType;
+                        var eventType = typeof(IDomainEvent<,,>).MakeGenericType(aggregateType, identityType, t);
 
-                        var methodSignature = new[] {typeof(IReadModelContext), domainEventType};
-                        var methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyMethodName, methodSignature);
+                        // first try: does it implement the synchronous 'Apply' method?
+
+                        var interfaceType = typeof(IAmReadModelFor<,,>).MakeGenericType(aggregateType, identityType, t);
+                        var methodParams = new[] {typeof(IReadModelContext), eventType};
+                        var methodInfo = GetMethod(readModelType, interfaceType, ApplyMethodName, methodParams);
 
                         if (methodInfo != null)
                         {
@@ -72,8 +76,11 @@ namespace EventFlow.ReadStores
                             return new ApplyMethod(method);
                         }
 
-                        var asyncMethodSignature = new[] {typeof(IReadModelContext), domainEventType, typeof(CancellationToken)};
-                        methodInfo = readModelType.GetTypeInfo().GetMethod(ApplyAsyncMethodName, asyncMethodSignature);
+                        // second try: does it implement the asynchronous 'Apply' method?
+
+                        var asyncInterfaceType = typeof(IAmAsyncReadModelFor<,,>).MakeGenericType(aggregateType, identityType, t);
+                        var asyncMethodParams = new[] {typeof(IReadModelContext), eventType, typeof(CancellationToken)};
+                        methodInfo = GetMethod(readModelType, asyncInterfaceType, ApplyAsyncMethodName, asyncMethodParams);
 
                         if (methodInfo != null)
                         {
@@ -81,6 +88,8 @@ namespace EventFlow.ReadStores
                                 .CompileMethodInvocation<Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task>>(methodInfo);
                             return new ApplyMethod(method);
                         }
+
+                        // no matching 'Apply' method found
 
                         return null;
                     });
@@ -93,6 +102,23 @@ namespace EventFlow.ReadStores
             }
 
             return appliedAny;
+        }
+
+        private static MethodInfo GetMethod(Type instanceType, Type interfaceType, string name, Type[] parameters)
+        {
+            var methodInfo = instanceType
+                .GetTypeInfo()
+                .GetMethod(name, parameters);
+
+            if (methodInfo != null)
+            {
+                return methodInfo;
+            }
+
+            var type = interfaceType.GetTypeInfo();
+            return type.IsAssignableFrom(instanceType)
+                ? type.GetMethod(name, parameters)
+                : default;
         }
 
         private class ApplyMethod

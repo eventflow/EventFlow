@@ -5,6 +5,22 @@
   eventFlowOptions.UseHangfireJobScheduler(o => o.UseQueueName("myqueue"))
   ```
 
+### New in 0.82.4684 (released 2021-08-31)
+
+* Fix: Allow the use of explicitly implemented interfaces in the read model
+* New: added extension methods to the `EventFlow.EntityFramework` package that allow
+  us to configure [eager loading of related data](https://docs.microsoft.com/en-us/ef/core/querying/related-data/eager). Example usage:
+  ```csharp
+  public static IEventFlowOptions Configure(this IEventFlowOptions options)
+  {
+    return options
+      .UseEntityFrameworkReadModel<MyEntity, MyDbContext>(
+        cfg => cfg.Include(x => x.SomeProperty)
+                  .ThenInclude(y => y.SomeOtherProperty)
+      );
+  }
+  ```
+
 ### New in 0.82.4659 (released 2021-06-17)
 
 * Fix: Source IDs are now added to snapshots

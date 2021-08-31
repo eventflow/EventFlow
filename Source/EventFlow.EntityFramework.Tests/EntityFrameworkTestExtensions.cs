@@ -23,6 +23,8 @@
 
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
+using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.Queries;
+using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.ReadModels;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Entities;
 
@@ -52,6 +54,13 @@ namespace EventFlow.EntityFramework.Tests
                     typeof(EfThingyGetQueryHandler),
                     typeof(EfThingyGetVersionQueryHandler),
                     typeof(EfThingyGetMessagesQueryHandler));
+        }
+
+        public static IEventFlowOptions ConfigureForReadStoreIncludeTest(this IEventFlowOptions options)
+        {
+            return options
+                .UseEntityFrameworkReadModel<PersonReadModelEntity, TestDbContext>(cfg => cfg.Include(x => x.Addresses))
+                .AddQueryHandlers(typeof(PersonGetQueryHandler));
         }
     }
 }

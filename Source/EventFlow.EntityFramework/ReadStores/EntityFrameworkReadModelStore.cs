@@ -31,6 +31,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.ReadStores.Configuration;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Logs;
@@ -55,17 +56,20 @@ namespace EventFlow.EntityFramework.ReadStores
         private readonly IDbContextProvider<TDbContext> _contextProvider;
         private readonly int _deletionBatchSize;
         private readonly IReadModelFactory<TReadModel> _readModelFactory;
+        private readonly IApplyQueryableConfiguration<TReadModel> _queryableConfiguration;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public EntityFrameworkReadModelStore(
             IBulkOperationConfiguration bulkOperationConfiguration,
             ILog log,
             IReadModelFactory<TReadModel> readModelFactory,
+            IApplyQueryableConfiguration<TReadModel> queryableConfiguration,
             IDbContextProvider<TDbContext> contextProvider,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
             : base(log)
         {
             _readModelFactory = readModelFactory;
+            _queryableConfiguration = queryableConfiguration;
             _contextProvider = contextProvider;
             _transientFaultHandler = transientFaultHandler;
             _deletionBatchSize = bulkOperationConfiguration.DeletionBatchSize;
@@ -130,7 +134,7 @@ namespace EventFlow.EntityFramework.ReadStores
             EntityDescriptor descriptor;
             using (var dbContext = _contextProvider.CreateContext())
             {
-                descriptor = GetDescriptor(dbContext);
+                descriptor = GetDescriptor(dbContext, _queryableConfiguration);
             }
 
             var rowsAffected = await Bulk.Delete<TDbContext, TReadModel, BulkDeletionModel>(
@@ -161,7 +165,7 @@ namespace EventFlow.EntityFramework.ReadStores
             bool tracking = false)
         {
             var readModelType = typeof(TReadModel);
-            var descriptor = GetDescriptor(dbContext);
+            var descriptor = GetDescriptor(dbContext, _queryableConfiguration);
             var entity = await descriptor.Query(dbContext, id, cancellationToken, tracking)
                 .ConfigureAwait(false);
 
@@ -234,7 +238,7 @@ namespace EventFlow.EntityFramework.ReadStores
             readModelEnvelope = updateResult.Envelope;
             entity = readModelEnvelope.ReadModel;
 
-            var descriptor = GetDescriptor(dbContext);
+            var descriptor = GetDescriptor(dbContext, _queryableConfiguration);
             var entry = isNew
                 ? dbContext.Add(entity)
                 : dbContext.Entry(entity);
@@ -255,10 +259,12 @@ namespace EventFlow.EntityFramework.ReadStores
             Log.Verbose(() => $"Updated Entity Framework read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
         }
 
-        private static EntityDescriptor GetDescriptor(DbContext context)
+        private static EntityDescriptor GetDescriptor(
+            DbContext context,
+            IApplyQueryableConfiguration<TReadModel> queryableConfiguration)
         {
             return Descriptors.GetOrAdd(context.Database.ProviderName, s =>
-                new EntityDescriptor(context));
+                new EntityDescriptor(context, queryableConfiguration));
         }
 
         private class EntityDescriptor
@@ -268,13 +274,15 @@ namespace EventFlow.EntityFramework.ReadStores
             private readonly Func<DbContext, CancellationToken, string, Task<TReadModel>> _queryByIdTracking;
             private readonly IProperty _version;
 
-            public EntityDescriptor(DbContext context)
+            public EntityDescriptor(
+                DbContext context,
+                IApplyQueryableConfiguration<TReadModel> queryableConfiguration)
             {
                 var entityType = context.Model.FindEntityType(typeof(TReadModel));
                 _key = GetKeyProperty(entityType);
                 _version = GetVersionProperty(entityType);
-                _queryByIdTracking = CompileQueryById(true);
-                _queryByIdNoTracking = CompileQueryById(false);
+                _queryByIdTracking = CompileQueryById(queryableConfiguration, true);
+                _queryByIdNoTracking = CompileQueryById(queryableConfiguration, false);
             }
 
             public string Key => _key.Name;
@@ -357,18 +365,21 @@ namespace EventFlow.EntityFramework.ReadStores
                 return version;
             }
 
-            private Func<DbContext, CancellationToken, string, Task<TReadModel>> CompileQueryById(bool tracking)
+            private Func<DbContext, CancellationToken, string, Task<TReadModel>> CompileQueryById(
+                IApplyQueryableConfiguration<TReadModel> queryableConfiguration,
+                bool tracking)
             {
                 return tracking
                     ? EF.CompileAsyncQuery((DbContext dbContext, CancellationToken t, string id) =>
-                        dbContext
-                            .Set<TReadModel>()
-                            .AsTracking()
+                        queryableConfiguration.Apply(dbContext
+                                .Set<TReadModel>()
+                                .AsTracking())
                             .SingleOrDefault(e => EF.Property<string>(e, Key) == id))
                     : EF.CompileAsyncQuery((DbContext dbContext, CancellationToken t, string id) =>
-                        dbContext
-                            .Set<TReadModel>()
-                            .AsNoTracking()
+                        queryableConfiguration.Apply(
+                                dbContext
+                                    .Set<TReadModel>()
+                                    .AsNoTracking())
                             .SingleOrDefault(e => EF.Property<string>(e, Key) == id));
             }
         }
