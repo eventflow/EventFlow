@@ -56,36 +56,36 @@ namespace EventFlow.Snapshots
         [JsonIgnore]
         public string AggregateId
         {
-            get { return GetMetadataValue(SnapshotMetadataKeys.AggregateId); }
-            set { Add(SnapshotMetadataKeys.AggregateId, value); }
+            get => GetMetadataValue(SnapshotMetadataKeys.AggregateId);
+            set => Add(SnapshotMetadataKeys.AggregateId, value);
         }
 
         [JsonIgnore]
         public string AggregateName
         {
-            get { return GetMetadataValue(SnapshotMetadataKeys.AggregateName); }
-            set { Add(SnapshotMetadataKeys.AggregateName, value); }
+            get => GetMetadataValue(SnapshotMetadataKeys.AggregateName);
+            set => Add(SnapshotMetadataKeys.AggregateName, value);
         }
 
         [JsonIgnore]
         public int AggregateSequenceNumber
         {
-            get { return GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse); }
-            set { Add(SnapshotMetadataKeys.AggregateSequenceNumber, value.ToString(CultureInfo.InvariantCulture)); }
+            get => GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse);
+            set => Add(SnapshotMetadataKeys.AggregateSequenceNumber, value.ToString(CultureInfo.InvariantCulture));
         }
 
         [JsonIgnore]
         public string SnapshotName
         {
-            get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotName); }
-            set { Add(SnapshotMetadataKeys.SnapshotName, value); }
+            get => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
+            set => Add(SnapshotMetadataKeys.SnapshotName, value);
         }
 
         [JsonIgnore]
         public int SnapshotVersion
         {
-            get { return GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse); }
-            set { Add(SnapshotMetadataKeys.SnapshotVersion, value.ToString(CultureInfo.InvariantCulture)); }
+            get => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
+            set => Add(SnapshotMetadataKeys.SnapshotVersion, value.ToString(CultureInfo.InvariantCulture));
         }
 
         [JsonIgnore]
@@ -93,18 +93,18 @@ namespace EventFlow.Snapshots
         {
             get
             {
-                return GetMetadataValue(SnapshotMetadataKeys.PreviousSourceIds, (json) =>
-                    string.IsNullOrWhiteSpace(json) ? 
-                        Empty : 
-                        json
-                            .Split(SourceIdSeparators, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(sourceId => new SourceId(sourceId))
-                            .ToList().AsReadOnly());
+                if (!TryGetValue(SnapshotMetadataKeys.PreviousSourceIds, out var ids) ||
+                    string.IsNullOrEmpty(ids))
+                {
+                    return Empty;
+                }
+
+                return ids
+                    .Split(SourceIdSeparators, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(sourceId => new SourceId(sourceId))
+                    .ToArray();
             }
-            set { Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));}
+            set => Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));
         }
-
-
-
     }
 }
