@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,32 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using System;
+using System.Collections.Concurrent;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
+using EventFlow.ReadStores;
+using EventFlow.Sql.ReadModels.Attributes;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.Sql.Extensions
 {
-    public static class EventFlowSnapshotStoresMsSql
+    public static class ReadModelExtensions
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).GetTypeInfo().Assembly;
+        private static readonly ConcurrentDictionary<Type, string> ConnectionStringNames = new ConcurrentDictionary<Type, string>();
 
-        public static IEnumerable<SqlScript> GetSqlScripts()
+        public static string GetConnectionStringName<T>(T _ = null)
+            where T : class, IReadModel
         {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
-        }
-
-        public static Task MigrateDatabaseAsync(
-            IMsSqlDatabaseMigrator msSqlDatabaseMigrator,
-            CancellationToken cancellationToken)
-        {
-            return msSqlDatabaseMigrator.MigrateDatabaseUsingScriptsAsync(
-                null,
-                GetSqlScripts(),
-                cancellationToken);
+            return ConnectionStringNames.GetOrAdd(
+                typeof(T),
+                t => t.GetCustomAttribute<SqlReadModelConnectionStringNameAttribute>()?.ConnectionStringName);
         }
     }
 }

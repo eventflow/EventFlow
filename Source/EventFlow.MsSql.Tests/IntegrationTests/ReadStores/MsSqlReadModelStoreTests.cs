@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
@@ -60,8 +61,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
             var serviceProvider = base.Configure(eventFlowOptions);
 
             var databaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
-            EventFlowEventStoresMsSql.MigrateDatabase(databaseMigrator);
-            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
+            EventFlowEventStoresMsSql.MigrateDatabaseAsync(databaseMigrator, CancellationToken.None).Wait();
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScriptsAsync(
+                GetType().Assembly,
+                null /* TODO */,
+                CancellationToken.None).Wait();
 
             return serviceProvider;
         }

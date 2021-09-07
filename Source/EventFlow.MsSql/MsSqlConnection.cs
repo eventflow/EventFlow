@@ -44,7 +44,8 @@ namespace EventFlow.MsSql
         {
         }
 
-        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(Label label,
+        public override Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
+            Label label,
             string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
@@ -54,7 +55,7 @@ namespace EventFlow.MsSql
                 "Using optimized table type to insert with SQL: {Sql}",
                 sql);
             var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
-            return QueryAsync<TResult>(label, TODO, cancellationToken, sql, tableParameter);
+            return QueryAsync<TResult>(label, connectionStringName, cancellationToken, sql, tableParameter);
         }
     }
 }

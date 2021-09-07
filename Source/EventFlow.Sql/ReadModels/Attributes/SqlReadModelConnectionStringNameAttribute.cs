@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,32 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Sql.Extensions;
-using EventFlow.Sql.Migrations;
+using System;
 
-namespace EventFlow.MsSql.SnapshotStores
+namespace EventFlow.Sql.ReadModels.Attributes
 {
-    public static class EventFlowSnapshotStoresMsSql
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SqlReadModelConnectionStringNameAttribute : Attribute
     {
-        public static Assembly Assembly { get; } = typeof(EventFlowSnapshotStoresMsSql).GetTypeInfo().Assembly;
+        public string ConnectionStringName { get; }
 
-        public static IEnumerable<SqlScript> GetSqlScripts()
+        public SqlReadModelConnectionStringNameAttribute(
+            string connectionStringName)
         {
-            return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.SnapshotStores.Scripts");
-        }
-
-        public static Task MigrateDatabaseAsync(
-            IMsSqlDatabaseMigrator msSqlDatabaseMigrator,
-            CancellationToken cancellationToken)
-        {
-            return msSqlDatabaseMigrator.MigrateDatabaseUsingScriptsAsync(
-                null,
-                GetSqlScripts(),
-                cancellationToken);
+            ConnectionStringName = connectionStringName;
         }
     }
 }
