@@ -1,4 +1,8 @@
-### New in 0.83 (not released yet)
+### New in 0.84 (not released yet)
+
+* _Nothing yet_
+
+### New in 0.83.4713 (released 2021-09-07)
 
 * New: Queue name used by HangfireJobScheduler can be overridden:
   ```csharp
