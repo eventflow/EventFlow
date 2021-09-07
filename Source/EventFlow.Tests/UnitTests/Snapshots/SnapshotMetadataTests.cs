@@ -81,5 +81,18 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             deserializedSnapshotMetadata.SnapshotName.Should().Be("thingy");
             deserializedSnapshotMetadata.SnapshotVersion.Should().Be(84);
         }
+
+        [Test]
+        public void PreviousSourceIdsIsAllowedToBeEmpty()
+        {
+            // Arrange
+            var snapshotMetadata = new SnapshotMetadata();
+
+            // Act
+            var previousSourceIds = snapshotMetadata.PreviousSourceIds;
+
+            // Assert
+            previousSourceIds.Should().BeEmpty();
+        }
     }
 }
