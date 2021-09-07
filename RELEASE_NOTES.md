@@ -4,6 +4,8 @@
   ```csharp
   eventFlowOptions.UseHangfireJobScheduler(o => o.UseQueueName("myqueue"))
   ```
+* Fixed: Do not throw `MetadataKeyNotFoundException` if there is no meta data on
+  `previous_source_ids` in snapshots
 
 ### New in 0.82.4684 (released 2021-08-31)
 
