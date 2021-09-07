@@ -31,8 +31,8 @@ namespace EventFlow.MsSql
     {
         public MsSqlDatabaseMigrator(
             ILogger<MsSqlDatabaseMigrator> logger,
-            IMsSqlConfiguration sqlConfiguration)
-            : base(logger, sqlConfiguration)
+            IMsSqlConfiguration configuration)
+            : base(logger, configuration)
         {
         }
 

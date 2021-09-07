@@ -49,7 +49,7 @@ namespace EventFlow.MsSql.SnapshotStores
             CancellationToken cancellationToken)
         {
             var msSqlSnapshotDataModels = await _msSqlConnection.QueryAsync<MsSqlSnapshotDataModel>(
-                Label.Named("fetch-snapshot"),
+                Label.Named("fetch-snapshot"), TODO,
                 cancellationToken,
                 "SELECT TOP 1 * FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC",
                 new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value})
@@ -84,13 +84,11 @@ namespace EventFlow.MsSql.SnapshotStores
             try
             {
                 await _msSqlConnection.ExecuteAsync(
-                    Label.Named("set-snapshot"),
-                    cancellationToken,
-                    @"INSERT INTO [dbo].[EventFlowSnapshots]
+                    Label.Named("set-snapshot"), TODO,
+                    cancellationToken, @"INSERT INTO [dbo].[EventFlowSnapshots]
                         (AggregateId, AggregateName, AggregateSequenceNumber, Metadata, Data)
                         VALUES
-                        (@AggregateId, @AggregateName, @AggregateSequenceNumber, @Metadata, @Data)",
-                    msSqlSnapshotDataModel)
+                        (@AggregateId, @AggregateName, @AggregateSequenceNumber, @Metadata, @Data)", msSqlSnapshotDataModel)
                     .ConfigureAwait(false);
             }
             catch (SqlException sqlException) when (sqlException.Number == 2601)
@@ -105,10 +103,8 @@ namespace EventFlow.MsSql.SnapshotStores
             CancellationToken cancellationToken)
         {
             return _msSqlConnection.ExecuteAsync(
-                Label.Named("delete-snapshots-for-aggregate"),
-                cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId",
-                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value});
+                Label.Named("delete-snapshots-for-aggregate"), TODO,
+                cancellationToken, "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId", new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value});
         }
 
         public Task PurgeSnapshotsAsync(
@@ -116,19 +112,15 @@ namespace EventFlow.MsSql.SnapshotStores
             CancellationToken cancellationToken)
         {
             return _msSqlConnection.ExecuteAsync(
-                Label.Named("purge-snapshots-for-aggregate"),
-                cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName",
-                new {AggregateName = aggregateType.GetAggregateName().Value});
+                Label.Named("purge-snapshots-for-aggregate"), TODO,
+                cancellationToken, "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName", new {AggregateName = aggregateType.GetAggregateName().Value});
         }
 
         public Task PurgeSnapshotsAsync(
             CancellationToken cancellationToken)
         {
             return _msSqlConnection.ExecuteAsync(
-                Label.Named("purge-all-snapshots"),
-                cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots]");
+                Label.Named("purge-all-snapshots"), TODO, cancellationToken, "DELETE FROM [dbo].[EventFlowSnapshots]");
         }
 
         public class MsSqlSnapshotDataModel

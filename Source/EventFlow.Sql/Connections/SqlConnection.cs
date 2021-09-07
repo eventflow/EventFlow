@@ -57,12 +57,14 @@ namespace EventFlow.Sql.Connections
 
         public virtual Task<int> ExecuteAsync(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             object param = null)
         {
             return WithConnectionAsync(
                 label,
+                connectionStringName,
                 (c, ct) =>
                 {
                     var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
@@ -73,6 +75,7 @@ namespace EventFlow.Sql.Connections
 
         public virtual async Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             object param = null)
@@ -80,6 +83,7 @@ namespace EventFlow.Sql.Connections
             return (
                 await WithConnectionAsync(
                     label,
+                    connectionStringName,
                     (c, ct) =>
                     {
                         var commandDefinition = new CommandDefinition(sql, param, cancellationToken: ct);
@@ -92,6 +96,7 @@ namespace EventFlow.Sql.Connections
 
         public virtual Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             IEnumerable<TRow> rows)
@@ -101,6 +106,7 @@ namespace EventFlow.Sql.Connections
 
             return WithConnectionAsync<IReadOnlyCollection<TResult>>(
                 label,
+                connectionStringName,
                 async (c, ct) =>
                 {
                     using (var transaction = c.BeginTransaction())
@@ -129,13 +135,19 @@ namespace EventFlow.Sql.Connections
 
         public virtual Task<TResult> WithConnectionAsync<TResult>(
             Label label,
+            string connectionStringName,
             Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
             CancellationToken cancellationToken)
         {
             return TransientFaultHandler.TryAsync(
                 async c =>
                 {
-                    using (var sqlConnection = await ConnectionFactory.OpenConnectionAsync(Configuration.ConnectionString, cancellationToken).ConfigureAwait(false))
+                    var connectionString = await Configuration.GetConnectionStringAsync(
+                        label,
+                        connectionStringName,
+                        cancellationToken).ConfigureAwait(false);
+
+                    using (var sqlConnection = await ConnectionFactory.OpenConnectionAsync(connectionString, cancellationToken).ConfigureAwait(false))
                     {
                         return await withConnection(sqlConnection, c).ConfigureAwait(false);
                     }

@@ -39,7 +39,7 @@ namespace EventFlow.MsSql.SnapshotStores
 
         public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
         {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+            msSqlDatabaseMigrator.MigrateDatabaseUsingScriptsAsync(TODO, GetSqlScripts(), TODO);
         }
     }
 }

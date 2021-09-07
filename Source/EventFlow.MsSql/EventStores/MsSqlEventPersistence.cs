@@ -77,7 +77,7 @@ namespace EventFlow.MsSql.EventStores
                 ORDER BY
                     GlobalSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("mssql-fetch-events"),
+                Label.Named("mssql-fetch-events"), TODO,
                     cancellationToken,
                     sql,
                     new
@@ -136,7 +136,7 @@ namespace EventFlow.MsSql.EventStores
             try
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
-                    Label.Named("mssql-insert-events"), 
+                    Label.Named("mssql-insert-events"), TODO, 
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -180,14 +180,14 @@ namespace EventFlow.MsSql.EventStores
                 ORDER BY
                     AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("mssql-fetch-events"), 
+                Label.Named("mssql-fetch-events"), TODO, 
                 cancellationToken,
                 sql,
                 new
-                    {
-                        AggregateId = id.Value,
-                        FromEventSequenceNumber = fromEventSequenceNumber,
-                    })
+                {
+                    AggregateId = id.Value,
+                    FromEventSequenceNumber = fromEventSequenceNumber,
+                })
                 .ConfigureAwait(false);
             return eventDataModels;
         }
@@ -196,10 +196,8 @@ namespace EventFlow.MsSql.EventStores
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
-                Label.Named("mssql-delete-aggregate"),
-                cancellationToken,
-                sql,
-                new {AggregateId = id.Value})
+                Label.Named("mssql-delete-aggregate"), TODO,
+                cancellationToken, sql, new {AggregateId = id.Value})
                 .ConfigureAwait(false);
 
             _logger.LogTrace(

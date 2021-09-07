@@ -179,10 +179,8 @@ namespace EventFlow.MsSql.ReadStores
             }
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-store-read-model", ReadModelNameLowerCase),
-                cancellationToken,
-                sql,
-                dynamicParameters).ConfigureAwait(false);
+                Label.Named("mssql-store-read-model", ReadModelNameLowerCase), TODO,
+                cancellationToken, sql, dynamicParameters).ConfigureAwait(false);
             if (rowsAffected != 1)
             {
                 throw new OptimisticConcurrencyException(
@@ -204,7 +202,7 @@ namespace EventFlow.MsSql.ReadStores
             var readModelType = typeof(TReadModel);
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
-                Label.Named("mssql-fetch-read-model", ReadModelNameLowerCase),
+                Label.Named("mssql-fetch-read-model", ReadModelNameLowerCase), TODO,
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -245,10 +243,8 @@ namespace EventFlow.MsSql.ReadStores
             var sql = _readModelSqlGenerator.CreateDeleteSql<TReadModel>();
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-delete-read-model", ReadModelNameLowerCase),
-                cancellationToken,
-                sql,
-                new { EventFlowReadModelId = id })
+                Label.Named("mssql-delete-read-model", ReadModelNameLowerCase), TODO,
+                cancellationToken, sql, new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
             if (rowsAffected != 0 && Logger.IsEnabled(LogLevel.Trace))
@@ -266,9 +262,7 @@ namespace EventFlow.MsSql.ReadStores
             var readModelName = typeof(TReadModel).Name;
 
             var rowsAffected = await _connection.ExecuteAsync(
-                Label.Named("mssql-purge-read-model", readModelName),
-                cancellationToken,
-                sql)
+                Label.Named("mssql-purge-read-model", readModelName), TODO, cancellationToken, sql)
                 .ConfigureAwait(false);
 
             if (Logger.IsEnabled(LogLevel.Trace))

@@ -173,9 +173,8 @@ namespace EventFlow.Sql.ReadModels
             
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelStore,
-                cancellationToken,
-                sql,
-                dynamicParameters)
+                null /* TODO */,
+                cancellationToken, sql, dynamicParameters)
                 .ConfigureAwait(false);
             if (rowsAffected != 1)
             {
@@ -197,6 +196,7 @@ namespace EventFlow.Sql.ReadModels
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
                 LabelGet,
+                null /* TODO */,
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -232,9 +232,8 @@ namespace EventFlow.Sql.ReadModels
 
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelDelete,
-                cancellationToken,
-                sql,
-                new { EventFlowReadModelId = id })
+                null /* TODO */,
+                cancellationToken, sql, new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
             if (rowsAffected != 0)
@@ -252,6 +251,7 @@ namespace EventFlow.Sql.ReadModels
 
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelDeleteAll,
+                null /* TODO */,
                 cancellationToken,
                 sql)
                 .ConfigureAwait(false);
