@@ -34,7 +34,6 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
 using EventFlow.Sql.ReadModels.Attributes;
@@ -64,7 +63,7 @@ namespace EventFlow.MsSql.ReadStores
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             var versionPropertyInfo = propertyInfos
-                .SingleOrDefault(p => p.GetCustomAttribute<MsSqlReadModelVersionColumnAttribute>() != null);
+                .SingleOrDefault(p => p.GetCustomAttribute<SqlReadModelVersionColumnAttribute>() != null);
             if (versionPropertyInfo == null)
             {
                 versionPropertyInfo = propertyInfos.SingleOrDefault(p => p.Name == "LastAggregateSequenceNumber");

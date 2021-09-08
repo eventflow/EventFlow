@@ -30,7 +30,6 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
-using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.MsSql.Tests.Extensions;
 using EventFlow.ReadStores;
 using EventFlow.Sql.Migrations;
@@ -184,7 +183,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
         [SqlReadModelConnectionStringName("read-models")]
         public class MagicReadModel : IReadModel, IAmReadModelFor<MagicAggregate, MagicId, MagicEvent>
         {
-            [MsSqlReadModelIdentityColumn]
+            [SqlReadModelIdentityColumn]
             public string MagicId { get; set; }
 
             public string Message { get; set; }
