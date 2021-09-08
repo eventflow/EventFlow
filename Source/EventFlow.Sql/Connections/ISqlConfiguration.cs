@@ -35,6 +35,8 @@ namespace EventFlow.Sql.Connections
         int TransientRetryCount { get; }
         TimeSpan UpgradeExecutionTimeout { get; }
 
+        T SetConnectionString(string connectionString);
+        T SetConnectionString(string connectionStringName, string connectionString);
         T SetTransientRetryDelay(RetryDelay retryDelay);
         T SetTransientRetryCount(int retryCount);
         T SetUpgradeExecutionTimeout(TimeSpan timeout);
