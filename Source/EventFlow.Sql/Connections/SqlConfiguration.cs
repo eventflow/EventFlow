@@ -91,7 +91,9 @@ namespace EventFlow.Sql.Connections
             return (T)(object)this;
         }
 
-        public Task<string> GetConnectionStringAsync(Label label, string name,
+        public virtual Task<string> GetConnectionStringAsync(
+            Label label,
+            string name,
             CancellationToken cancellationToken)
         {
             if (!_connectionStrings.TryGetValue(name ?? string.Empty, out var connectionString))

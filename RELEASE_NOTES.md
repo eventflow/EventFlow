@@ -8,13 +8,18 @@ as recommendations on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
-* Feature/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
-* Feature/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
-* Feature/breaking: SQL read models now support different connection strings using the
+* New/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
+* New/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
+* New/breaking: SQL read models now support different connection strings using the
   `[SqlReadModelConnectionStringName]` attribute. To allow executing queries using different
   connection strings, all methods on `IMsSqlConnection` and `ISqlConnection` now have an
   additional argument, `string connectionStringName` to signify which connection string
-  should be used for the query.
+  should be used for the query
+* New/breaking: SQL connection strings are now fetched from the
+  `SqlConfiguration<T>.GetConnectionStringAsync(...)` instead of a property, allowing more
+  control of the connection string used at runtime
+* New: Its now possible to change the execution timeout for database migrations using the
+  `SetUpgradeExecutionTimeout(...)` on the SQL configuration
 * Breaking: Removed the following dead and/or confusion MSSQL attributes. The real ones
   are named the same, with with `Sql...` instead of `MsSql...`
   - `MsSqlReadModelIdentityColumn`

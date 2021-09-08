@@ -60,6 +60,7 @@ namespace EventFlow.Sql.ReadModels
         private static readonly Label LabelGet = Label.Named("sql-fetch-read-model", typeof(TReadModel).Name.ToLowerInvariant());
         private static readonly Label LabelDelete = Label.Named("sql-delete-read-model", typeof(TReadModel).Name.ToLowerInvariant());
         private static readonly Label LabelDeleteAll = Label.Named("sql-purge-read-model", typeof(TReadModel).Name.ToLowerInvariant());
+        private static readonly string ConnectionStringName = typeof(TReadModel).GetCustomAttribute<SqlReadModelConnectionStringNameAttribute>()?.ConnectionStringName;
 
         static SqlReadModelStore()
         {
@@ -173,7 +174,7 @@ namespace EventFlow.Sql.ReadModels
             
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelStore,
-                null /* TODO */,
+                ConnectionStringName,
                 cancellationToken, sql, dynamicParameters)
                 .ConfigureAwait(false);
             if (rowsAffected != 1)
@@ -196,7 +197,7 @@ namespace EventFlow.Sql.ReadModels
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
                 LabelGet,
-                null /* TODO */,
+                ConnectionStringName,
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -232,7 +233,7 @@ namespace EventFlow.Sql.ReadModels
 
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelDelete,
-                null /* TODO */,
+                ConnectionStringName,
                 cancellationToken, sql, new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
@@ -251,7 +252,7 @@ namespace EventFlow.Sql.ReadModels
 
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelDeleteAll,
-                null /* TODO */,
+                ConnectionStringName,
                 cancellationToken,
                 sql)
                 .ConfigureAwait(false);
