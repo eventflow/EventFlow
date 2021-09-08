@@ -24,7 +24,7 @@
 using System;
 using System.Data.SqlClient;
 
-namespace EventFlow.TestHelpers.MsSql
+namespace EventFlow.MsSql.Tests.Helpers
 {
     public interface IMsSqlDatabase : IDisposable
     {

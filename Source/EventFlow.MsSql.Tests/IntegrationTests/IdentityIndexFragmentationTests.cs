@@ -27,8 +27,8 @@ using System.Threading;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Tests.Extensions;
+using EventFlow.MsSql.Tests.Helpers;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.MsSql;
 using FluentAssertions;
 using NUnit.Framework;
 

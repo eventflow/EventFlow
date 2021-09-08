@@ -25,7 +25,7 @@ using System;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace EventFlow.TestHelpers.MsSql
+namespace EventFlow.MsSql.Tests.Helpers
 {
     public static class MsSqlHelpz
     {

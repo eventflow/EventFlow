@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
-using EventFlow.TestHelpers.MsSql;
+using EventFlow.MsSql.Tests.Helpers;
 
 namespace EventFlow.MsSql.Tests.Extensions
 {

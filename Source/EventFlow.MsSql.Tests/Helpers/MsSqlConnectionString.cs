@@ -26,35 +26,45 @@ using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using EventFlow.ValueObjects;
 
-namespace EventFlow.TestHelpers.MsSql
+namespace EventFlow.MsSql.Tests.Helpers
 {
     public class MsSqlConnectionString : SingleValueObject<string>
     {
         private static readonly Regex DatabaseReplace = new Regex(
             @"(?<key>Initial Catalog|Database)=[a-zA-Z0-9\-_]+",
-            RegexOptions.Compiled);
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex DatabaseExtract = new Regex(
             @"(Initial Catalog|Database)=(?<database>[a-zA-Z0-9\-_]+)",
-            RegexOptions.Compiled);
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         public MsSqlConnectionString(string value) : base(value)
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value));
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             var match = DatabaseExtract.Match(value);
             if (!match.Success)
             {
                 throw new ArgumentException($"Cannot find database name in '{value}'");
             }
+
             Database = match.Groups["database"].Value;
         }
+
         public string Database { get; }
+
         public MsSqlConnectionString NewConnectionString(string toDatabase)
         {
             return new MsSqlConnectionString(DatabaseReplace.Replace(Value, $"${{key}}={toDatabase}"));
         }
+
         public void Ping()
         {
             Execute("SELECT 1");
         }
+
         public T WithConnection<T>(Func<SqlConnection, T> action)
         {
             using (var sqlConnection = new SqlConnection(Value))
@@ -63,9 +73,11 @@ namespace EventFlow.TestHelpers.MsSql
                 return action(sqlConnection);
             }
         }
+        
         public void Execute(string sql)
         {
             Console.WriteLine($"Executing SQL: {sql}");
+
             WithConnection(c =>
             {
                 using (var sqlCommand = new SqlCommand(sql, c))
