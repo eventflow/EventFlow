@@ -93,18 +93,18 @@ namespace EventFlow.Snapshots
         {
             get
             {
-                return GetMetadataValue(SnapshotMetadataKeys.PreviousSourceIds, (json) =>
-                    string.IsNullOrWhiteSpace(json) ? 
-                        Empty : 
-                        json
-                            .Split(SourceIdSeparators, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(sourceId => new SourceId(sourceId))
-                            .ToList().AsReadOnly());
+                if (!TryGetValue(SnapshotMetadataKeys.PreviousSourceIds, out var ids) ||
+                    string.IsNullOrEmpty(ids))
+                {
+                    return Empty;
+                }
+
+                return ids
+                    .Split(SourceIdSeparators, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(sourceId => new SourceId(sourceId))
+                    .ToArray();
             }
-            set { Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));}
+            set => Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));
         }
-
-
-
     }
 }
