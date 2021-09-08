@@ -56,17 +56,17 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
             var sqlScript = new SqlScript(
                 "MagicReadModel",
                 @"
-                    CREATE TABLE [dbo].[ReadModel-MagicReadModel](
+                    CREATE TABLE [dbo].[ReadModel-Magic](
 	                    [Id] [bigint] IDENTITY(1,1) NOT NULL,
 	                    [MagicId] [nvarchar](64) NOT NULL,
 	                    [Message] [nvarchar](MAX) NOT NULL,
-	                    CONSTRAINT [PK_ReadModel-MagicReadModel] PRIMARY KEY CLUSTERED 
+	                    CONSTRAINT [PK_ReadModel-Magic] PRIMARY KEY CLUSTERED 
 	                    (
 		                    [Id] ASC
 	                    )
                     )
 
-                    CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-MagicReadModel_MagicId] ON [dbo].[ReadModel-MagicReadModel]
+                    CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-Magic_MagicId] ON [dbo].[ReadModel-Magic]
                     (
 	                    [MagicId] ASC
                     )");
