@@ -22,8 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
@@ -53,11 +53,11 @@ namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions
     {
-        private readonly List<Type> _aggregateEventTypes = new List<Type>();
-        private readonly List<Type> _sagaTypes = new List<Type>(); 
-        private readonly List<Type> _commandTypes = new List<Type>();
+        private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+        private readonly ConcurrentBag<Type> _sagaTypes = new ConcurrentBag<Type>(); 
+        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private readonly List<Type> _jobTypes = new List<Type>
+        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>
             {
                 typeof(PublishCommandJob),
                 typeof(DispatchToAsynchronousEventSubscribersJob)
@@ -73,8 +73,13 @@ namespace EventFlow
             RegisterDefaults(ServiceCollection);
         }
 
-        public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection()
-            .AddLogging(b => b.AddConsole()));
+        public static IEventFlowOptions New() => 
+            new EventFlowOptions(
+                new ServiceCollection()
+                    .AddLogging(b => b
+                        .SetMinimumLevel(LogLevel.Trace)
+                        .AddConsole()));
+
         public static IEventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
 
         public IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
@@ -212,7 +217,7 @@ namespace EventFlow
             serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
             serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
 
-            serviceCollection.AddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
+            serviceCollection.TryAddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
                 _aggregateEventTypes,
