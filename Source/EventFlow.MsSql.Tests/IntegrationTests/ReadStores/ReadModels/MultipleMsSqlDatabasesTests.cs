@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -30,12 +31,14 @@ using EventFlow.Extensions;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.ReadStores.Attributes;
+using EventFlow.MsSql.Tests.Extensions;
 using EventFlow.ReadStores;
 using EventFlow.Sql.Migrations;
 using EventFlow.Sql.ReadModels.Attributes;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.MsSql;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -115,7 +118,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
             await _commandBus.PublishAsync(new MagicCommand(magicId, message));
 
             // Assert
-            /* TODO */
+            var fetchedMessage = _readModelDatabase.Query<string>(
+                "SELECT [Message] FROM [ReadModel-Magic] WHERE [MagicId] = @Id",
+                new { Id = magicId.Value });
+            fetchedMessage.Should().HaveCount(1);
+            fetchedMessage.Single().Should().Be(message);
         }
 
         public class MagicId : Identity<MagicId>
@@ -187,6 +194,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
                 IDomainEvent<MagicAggregate, MagicId, MagicEvent> domainEvent,
                 CancellationToken _)
             {
+                MagicId = domainEvent.AggregateIdentity.Value;
                 Message = domainEvent.AggregateEvent.Message;
                 return Task.CompletedTask;
             }
