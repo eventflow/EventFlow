@@ -1,17 +1,30 @@
 ### New in 1.0 alpha (not released yet)
 
+**IMPORTANT:** Major API breaking changes *might* occur between 1.0 pre-releases. As breaking
+API changes will need to be tested and verified before the final 1.0 release.
+
 Read the complete migration guide to get the full list of changes as well
 as recommendations on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
+* Feature/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
+* Feature/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
+* Feature/breaking: SQL read models now support different connection strings using the
+  `[SqlReadModelConnectionStringName]` attribute. To allow executing queries using different
+  connection strings, all methods on `IMsSqlConnection` and `ISqlConnection` now have an
+  additional argument, `string connectionStringName` to signify which connection string
+  should be used for the query.
+* Breaking: Removed the following dead and/or confusion MSSQL attributes. The real ones
+  are named the same, with with `Sql...` instead of `MsSql...`
+  - `MsSqlReadModelIdentityColumn`
+  - `MsSqlReadModelIgnoreColumn`
+  - `MsSqlReadModelVersionColumn`
 * Breaking: Remove support for .NET Framework and consolidate on .NET Core LTS versions
-* Breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
-* Breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
 * Breaking: Replace internal in-memory caching with `Microsoft.Extensions.Caching.Memory`
-* Breaking: Remove `IAmAsyncReadModelFor` and made `IAmReadModelFor` async
+* Breaking: Removed `IAmAsyncReadModelFor` and made `IAmReadModelFor` async
 * Breaking: Removed `EventFlow.Core.AsyncHelper` as well as all async wrapper methods
-  that used it.
+  that used it
   - `IAggregateStore.Load`
   - `IAggregateStore.Store`
   - `IAggregateStore.Update`
