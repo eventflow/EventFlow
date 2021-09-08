@@ -20,6 +20,8 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
   - `MsSqlReadModelIdentityColumn`
   - `MsSqlReadModelIgnoreColumn`
   - `MsSqlReadModelVersionColumn`
+* Breaking: Methods on `IMsSqlDatabaseMigrator` and `ISqlDatabaseMigrator` have been
+  made async and have an extra `CancellationToken` argument
 * Breaking: Remove support for .NET Framework and consolidate on .NET Core LTS versions
 * Breaking: Replace internal in-memory caching with `Microsoft.Extensions.Caching.Memory`
 * Breaking: Removed `IAmAsyncReadModelFor` and made `IAmReadModelFor` async
