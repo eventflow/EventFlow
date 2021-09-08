@@ -23,11 +23,15 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
   - `IReadModelPopulator.Populate`
   - `IReadModelPopulator.Purge`
 
-### New in 0.83 (not released yet)
+
+### New in 0.83.4713 (released 2021-09-07)
 
 * New: Queue name used by HangfireJobScheduler can be overridden:
   ```csharp
   eventFlowOptions.UseHangfireJobScheduler(o => o.UseQueueName("myqueue"))
+  ```
+* Fixed: Do not throw `MetadataKeyNotFoundException` if there is no meta data on
+  `previous_source_ids` in snapshots
 
 ### New in 0.82.4684 (released 2021-08-31)
 
