@@ -42,6 +42,8 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
   - `IQueryProcessor.Process`
   - `IReadModelPopulator.Populate`
   - `IReadModelPopulator.Purge`
+* Version of 0.x included: `0.83.4713`. 0.x changes are merged to 1.x at regular
+  intervals, but might be one or two releases behind
 
 
 ### New in 0.83.4713 (released 2021-09-07)
