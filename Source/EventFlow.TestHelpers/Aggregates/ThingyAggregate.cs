@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -41,7 +42,8 @@ namespace EventFlow.TestHelpers.Aggregates
     [AggregateName("Thingy")]
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
         IEmit<ThingyDomainErrorAfterFirstEvent>,
-        IEmit<ThingyDeletedEvent>
+        IEmit<ThingyDeletedEvent>,
+        IEmit<ThingyUpgradedEvent>
     {
         // ReSharper disable once NotAccessedField.Local
         private readonly IScopedContext _scopedContext;
@@ -57,6 +59,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
         public bool IsDeleted { get; private set; }
+        public Guid LastUpgradedId { get; private set; }
 
         public ThingyAggregate(ThingyId id, IScopedContext scopedContext)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
@@ -133,6 +136,11 @@ namespace EventFlow.TestHelpers.Aggregates
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(ThingyUpgradedEvent e)
+        {
+            LastUpgradedId = e.Id;
         }
 
         void IEmit<ThingyDeletedEvent>.Apply(ThingyDeletedEvent e)

@@ -86,6 +86,40 @@ namespace EventFlow.TestHelpers.Suites
         }
 
         [Test]
+        public async Task EventsCanBeUpgraded()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var eventId = A<Guid>();
+            await EventStore.StoreAsync<ThingyAggregate, ThingyId>(
+                id,
+                new List<IUncommittedEvent>
+                {
+                    new UncommittedEvent(
+                        new ThingyOutdatedEvent(eventId),
+                        new Metadata
+                        {
+                            Timestamp = A<DateTimeOffset>(),
+                            EventId = A<EventId>(),
+                            AggregateSequenceNumber = 1,
+                            AggregateId = id.Value,
+                            AggregateName = "Thingy",
+                            EventName = "ThingyOutdated",
+                            EventVersion = 1,
+                        })
+                },
+                SourceId.New,
+                CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Act
+            var aggregate = await LoadAggregateAsync(id).ConfigureAwait(false);
+
+            // Assert
+            aggregate.LastUpgradedId.Should().Be(eventId);
+        }
+
+        [Test]
         public async Task AggregatesCanBeLoaded()
         {
             // Arrange
