@@ -26,7 +26,6 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -31,11 +32,13 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
     public class InMemoryThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyUpgradedEvent>
     {
         public ThingyId ThingyId { get; private set; }
         public bool DomainErrorAfterFirstReceived { get; private set; }
         public int PingsReceived { get; private set; }
+        public Guid LastUpgradedId { get; private set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
@@ -54,12 +57,19 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
             context.MarkForDeletion();
         }
 
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
+        {
+            ThingyId = domainEvent.AggregateIdentity;
+            LastUpgradedId = domainEvent.AggregateEvent.Id;
+        }
+
         public Thingy ToThingy()
         {
             return new Thingy(
                 ThingyId,
                 PingsReceived,
-                DomainErrorAfterFirstReceived);
+                DomainErrorAfterFirstReceived,
+                LastUpgradedId);
         }
     }
 }

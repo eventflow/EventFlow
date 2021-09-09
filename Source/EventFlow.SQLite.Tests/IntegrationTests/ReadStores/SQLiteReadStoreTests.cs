@@ -70,7 +70,8 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores
                     [AggregateId] [nvarchar](64) NOT NULL,
                     [Version] INTEGER,
                     [PingsReceived] [int] NOT NULL,
-                    [DomainErrorAfterFirstReceived] [bit] NOT NULL
+                    [DomainErrorAfterFirstReceived] [bit] NOT NULL,
+                    [LastUpgradedId] [nvarchar](64) NULL
                 )";
             const string sqlThingyMessage = @"
                 CREATE TABLE [ReadModel-ThingyMessage](

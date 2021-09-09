@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.MongoDB.ReadStores;
 using EventFlow.MongoDB.ReadStores.Attributes;
@@ -34,14 +35,14 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
     public class MongoDbThingyReadModel : IMongoDbReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyUpgradedEvent>
     {
         public string Id { get; set; }
         public long? Version { get; set; }
-
         public bool DomainErrorAfterFirstReceived { get; set; }
-
         public int PingsReceived { get; set; }
+        public Guid LastUpgradedId { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
@@ -60,14 +61,18 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
             context.MarkForDeletion();
         }
 
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
+        {
+            LastUpgradedId = domainEvent.AggregateEvent.Id;
+        }
+
         public Thingy ToThingy()
         {
             return new Thingy(
                 ThingyId.With(Id),
                 PingsReceived,
-                DomainErrorAfterFirstReceived);
+                DomainErrorAfterFirstReceived,
+                LastUpgradedId);
         }
-
-
     }
 }

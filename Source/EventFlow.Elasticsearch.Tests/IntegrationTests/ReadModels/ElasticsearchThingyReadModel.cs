@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -33,7 +34,8 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
     public class ElasticsearchThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyUpgradedEvent>
     {
         [Keyword(
             Index = true)]
@@ -49,6 +51,10 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
             Name = "PingsReceived",
             Index = false)]
         public int PingsReceived { get; set; }
+
+        [Keyword(
+            Index = false)]
+        public Guid LastUpgradedId { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
         {
@@ -67,12 +73,19 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
             context.MarkForDeletion();
         }
 
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
+        {
+            Id = domainEvent.AggregateIdentity.Value;
+            LastUpgradedId = domainEvent.AggregateEvent.Id;
+        }
+
         public Thingy ToThingy()
         {
             return new Thingy(
                 ThingyId.With(Id),
                 PingsReceived,
-                DomainErrorAfterFirstReceived);
+                DomainErrorAfterFirstReceived,
+                LastUpgradedId);
         }
     }
 }

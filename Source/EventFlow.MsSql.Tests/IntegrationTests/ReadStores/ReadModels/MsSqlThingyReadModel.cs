@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
 using EventFlow.MsSql.ReadStores;
@@ -36,10 +37,12 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
     public class MsSqlThingyReadModel : MssqlReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyUpgradedEvent>
     {
         public bool DomainErrorAfterFirstReceived { get; set; }
         public int PingsReceived { get; set; }
+        public Guid LastUpgradedId { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
@@ -56,12 +59,18 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
             context.MarkForDeletion();
         }
 
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
+        {
+            LastUpgradedId = domainEvent.AggregateEvent.Id;
+        }
+
         public Thingy ToThingy()
         {
             return new Thingy(
                 ThingyId.With(AggregateId),
                 PingsReceived,
-                DomainErrorAfterFirstReceived);
+                DomainErrorAfterFirstReceived,
+                LastUpgradedId);
         }
     }
 }

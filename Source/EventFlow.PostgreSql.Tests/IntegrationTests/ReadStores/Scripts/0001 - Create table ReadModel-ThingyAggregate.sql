@@ -8,6 +8,7 @@
     CreateTime Timestamp WITH TIME ZONE NOT NULL,
     UpdatedTime Timestamp WITH TIME ZONE NOT NULL,
     LastAggregateSequenceNumber int NOT NULL,
+    LastUpgradeId Varchar(64) NULL,
     CONSTRAINT "PK_ReadModel-ThingyAggregate" PRIMARY KEY 
     (
         Id

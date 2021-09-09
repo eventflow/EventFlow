@@ -8,6 +8,7 @@
 	[CreateTime] [datetimeoffset](7) NOT NULL,
 	[UpdatedTime] [datetimeoffset](7) NOT NULL,
 	[LastAggregateSequenceNumber] [int] NOT NULL,
+	[LastUpgradedId] [nvarchar](64) NULL,
 	CONSTRAINT [PK_ReadModel-ThingyAggregate] PRIMARY KEY CLUSTERED 
 	(
 		[Id] ASC

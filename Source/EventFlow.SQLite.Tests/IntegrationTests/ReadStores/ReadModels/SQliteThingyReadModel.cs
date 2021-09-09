@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
@@ -34,7 +35,8 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
     public class SQLiteThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>,
+        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyUpgradedEvent>
     {
         [SqlReadModelIdentityColumn]
         public string AggregateId { get; set; }
@@ -45,6 +47,8 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
 
         [SqlReadModelVersionColumn]
         public int Version { get; set; }
+
+        public Guid LastUpgradedId { get; set; }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
         {
@@ -61,12 +65,18 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
             context.MarkForDeletion();
         }
 
+        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
+        {
+            LastUpgradedId = domainEvent.AggregateEvent.Id;
+        }
+
         public Thingy ToThingy()
         {
             return new Thingy(
                 ThingyId.With(AggregateId),
                 PingsReceived,
-                DomainErrorAfterFirstReceived);
+                DomainErrorAfterFirstReceived,
+                LastUpgradedId);
         }
     }
 }

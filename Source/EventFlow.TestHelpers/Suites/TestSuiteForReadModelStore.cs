@@ -36,6 +36,8 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
+using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
@@ -237,6 +239,42 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             readModel.Should().NotBeNull();
             readModel.PingsReceived.Should().Be(2);
+        }
+
+        [Test]
+        public async Task PopulateUpgradesEvents()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            var eventId = A<Guid>();
+            await EventStore.StoreAsync<ThingyAggregate, ThingyId>(
+                    id,
+                    new List<IUncommittedEvent>
+                    {
+                        new UncommittedEvent(
+                            new ThingyOutdatedEvent(eventId),
+                            new Metadata
+                            {
+                                Timestamp = A<DateTimeOffset>(),
+                                EventId = A<EventId>(),
+                                AggregateSequenceNumber = 1,
+                                AggregateId = id.Value,
+                                AggregateName = "Thingy",
+                                EventName = "ThingyOutdated",
+                                EventVersion = 1,
+                            })
+                    },
+                    SourceId.New,
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Act
+            await ReadModelPopulator.PurgeAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+            await ReadModelPopulator.PopulateAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
+            readModel.LastUpgradeId.Should().Be(eventId);
         }
 
         [Test]

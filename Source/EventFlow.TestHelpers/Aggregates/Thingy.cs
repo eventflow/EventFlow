@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Entities;
 
 namespace EventFlow.TestHelpers.Aggregates
@@ -29,15 +30,18 @@ namespace EventFlow.TestHelpers.Aggregates
     {
         public int PingsReceived { get; }
         public bool DomainErrorAfterFirstReceived { get; }
+        public Guid LastUpgradeId { get; }
 
         public Thingy(
             ThingyId id,
             int pingsReceived,
-            bool domainErrorAfterFirstReceived)
+            bool domainErrorAfterFirstReceived,
+            Guid lastUpgradeId)
             : base(id)
         {
             PingsReceived = pingsReceived;
             DomainErrorAfterFirstReceived = domainErrorAfterFirstReceived;
+            LastUpgradeId = lastUpgradeId;
         }
     }
 }
