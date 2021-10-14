@@ -49,7 +49,7 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
 
         private MongoDbRunner _runner;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _runner = MongoDbRunner.Start();
 

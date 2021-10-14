@@ -23,6 +23,7 @@
 
 using EventFlow.Extensions;
 using EventFlow.MongoDB.SnapshotStores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.MongoDB.Extensions
 {
@@ -32,7 +33,7 @@ namespace EventFlow.MongoDB.Extensions
             this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .UseSnapshotStore<MongoDbSnapshotPersistence>();
+                .UseSnapshotPersistence<MongoDbSnapshotPersistence>(ServiceLifetime.Transient);
         }
     }
 }

@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
@@ -37,7 +38,7 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 	{
 		private MongoDbRunner _runner;
 		
-		protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+		protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
 		{
 		    _runner = MongoDbRunner.Start();
             var resolver = eventFlowOptions
