@@ -64,7 +64,7 @@ namespace EventFlow.MongoDB.ReadStores
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
             _logger.LogInformation(
-                "Deleting '{ReadModelType}' with id '{Id}', from '{RootCollectionName}'!",
+                "Deleting '{ReadModelType}' with id '{Id}', from '{@RootCollectionName}'!",
                 typeof(TReadModel).PrettyPrint(),
                 id,
                 readModelDescription.RootCollectionName);
@@ -78,7 +78,7 @@ namespace EventFlow.MongoDB.ReadStores
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
             _logger.LogInformation(
-                "Deleting ALL '{ReadModelType}' by DROPPING COLLECTION '{RootCollectionName}'!",
+                "Deleting ALL '{ReadModelType}' by DROPPING COLLECTION '{@RootCollectionName}'!",
                 typeof(TReadModel).PrettyPrint(),
                 readModelDescription.RootCollectionName);
 
@@ -90,7 +90,7 @@ namespace EventFlow.MongoDB.ReadStores
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
             _logger.LogTrace(
-                "Fetching read model '{ReadModelType}' with _id '{Id}' from collection '{RootCollectionName}'",
+                "Fetching read model '{ReadModelType}' with _id '{Id}' from collection '{@RootCollectionName}'",
                 typeof(TReadModel).PrettyPrint(),
                 id,
                 readModelDescription.RootCollectionName);
@@ -198,7 +198,7 @@ namespace EventFlow.MongoDB.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
-            return collection.AsQueryable<TReadModel>();
+            return collection.AsQueryable();
         }
     }
 }

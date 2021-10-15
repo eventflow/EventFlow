@@ -23,6 +23,7 @@
 
 using EventFlow.Extensions;
 using EventFlow.MongoDB.EventStore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.MongoDB.Extensions
 {
@@ -31,8 +32,11 @@ namespace EventFlow.MongoDB.Extensions
         public static IEventFlowOptions UseMongoDbEventStore(this IEventFlowOptions eventFlowOptions)
         {
 
-            return eventFlowOptions.UseEventPersistence<MongoDbEventPersistence>();
-                // .RegisterServices(f=> f.Register<IMongoDbEventPersistenceInitializer, MongoDbEventPersistenceInitializer>());
+            eventFlowOptions.UseEventPersistence<MongoDbEventPersistence>();
+            eventFlowOptions.ServiceCollection
+                .TryAddTransient<IMongoDbEventPersistenceInitializer, MongoDbEventPersistenceInitializer>();
+
+            return eventFlowOptions;
         }
     }
 }

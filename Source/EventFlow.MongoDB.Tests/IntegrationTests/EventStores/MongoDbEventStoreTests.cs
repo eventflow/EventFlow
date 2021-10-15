@@ -22,11 +22,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using EventFlow.MongoDB.EventStore;
 using EventFlow.MongoDB.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Mongo2Go;
 
@@ -41,14 +41,17 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 		protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
 		{
 		    _runner = MongoDbRunner.Start();
-            var resolver = eventFlowOptions
-				.ConfigureMongoDb(_runner.ConnectionString, "eventflow")
-				.UseMongoDbEventStore()
-				.CreateResolver();
-		    var eventPersistenceInitializer = resolver.Resolve<IMongoDbEventPersistenceInitializer>();
-            eventPersistenceInitializer.Initialize();
 		    
-			return resolver;
+		    eventFlowOptions
+			    .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
+			    .UseMongoDbEventStore();
+            
+		    var serviceProvider = base.Configure(eventFlowOptions);
+		    
+		    var eventPersistenceInitializer = serviceProvider.GetService<IMongoDbEventPersistenceInitializer>();
+            eventPersistenceInitializer.Initialize();
+
+            return serviceProvider;
 		}
 
         [TearDown]

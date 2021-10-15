@@ -40,13 +40,13 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.SnapshotStores
         {
             _runner = MongoDbRunner.Start();
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
-                .UseMongoDbSnapshotStore()
-                .CreateResolver();
+                .UseMongoDbSnapshotStore();
 
+            var serviceProvider = base.Configure(eventFlowOptions);
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]
