@@ -71,27 +71,32 @@ The following list key characteristics of each version as well as its related br
   been releases. It will take a few alpha/beta/rc releases to get this right. These
   will be released as soon as any significant changes have been made.
 
-  NuGet package status (🟢 compiles and pushed in `-alpha` releases, 🔴 not yet
-  ported to 1.0 and 💀 for packages that are removed as part of 1.0, see the
-  [migration guide](./MIGRATION_GUIDE.md) for details)
-  - 🟢 `EventFlow`
-  - 🔴 `EventFlow.AspNetCore`
-  - 💀 `EventFlow.Autofac`
-  - 💀 `EventFlow.DependencyInjection`
-  - 🔴 `EventFlow.Elasticsearch`
-  - 🔴 `EventFlow.EntityFramework`
-  - 🔴 `EventFlow.EventStores.EventStore`
-  - 🔴 `EventFlow.Hangfire`
-  - 🔴 `EventFlow.MongoDB`
-  - 🟢 `EventFlow.MsSql`
-  - 💀 `EventFlow.Owin`
-  - 🔴 `EventFlow.PostgreSql`
-  - 🔴 `EventFlow.RabbitMQ`
-  - 🟢 `EventFlow.Sql`
-  - 🔴 `EventFlow.SQLite`
-  - 🟢 `EventFlow.TestHelpers`
+  **NuGet package status**
 
-  Branches:
+  - 🟢 compiles and pushed in `-alpha` releases
+  - 🔴 not yet ported to 1.0
+  - 💀 for packages that are removed as part of 1.0, see the
+    [migration guide](./MIGRATION_GUIDE.md) for details)
+
+  Projects
+    - 🟢 `EventFlow`
+    - 🔴 `EventFlow.AspNetCore`
+    - 💀 `EventFlow.Autofac`
+    - 💀 `EventFlow.DependencyInjection`
+    - 🔴 `EventFlow.Elasticsearch`
+    - 🔴 `EventFlow.EntityFramework`
+    - 🔴 `EventFlow.EventStores.EventStore`
+    - 🔴 `EventFlow.Hangfire`
+    - 🔴 `EventFlow.MongoDB`
+    - 🟢 `EventFlow.MsSql`
+    - 💀 `EventFlow.Owin`
+    - 🔴 `EventFlow.PostgreSql`
+    - 🔴 `EventFlow.RabbitMQ`
+    - 🟢 `EventFlow.Sql`
+    - 🔴 `EventFlow.SQLite`
+    - 🟢 `EventFlow.TestHelpers`
+    
+  **Branches:**
   - `develop-v1`: Development branch, pull requests should be done here
   - `release-v1`: Release branch, merge commits are done to this branch from
     `develop-v1` to create releases. Typically each commit represents a release
@@ -105,7 +110,7 @@ The following list key characteristics of each version as well as its related br
   Feature and bug fix releases will still be done while there's interest in
   the community.
 
-  Branches:
+  **Branches:**
   - `develop-v0`: Development branch, pull requests should be done here
   - `release-v0`: Release branch, merge commits are done to this branch from
     `develop-v0` to create releases. Typically each commit represents a release
