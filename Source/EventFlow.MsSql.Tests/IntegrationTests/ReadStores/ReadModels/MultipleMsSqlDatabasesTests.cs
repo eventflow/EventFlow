@@ -61,6 +61,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
                 @"
                     CREATE TABLE [dbo].[ReadModel-Magic](
 	                    [Id] [bigint] IDENTITY(1,1) NOT NULL,
+	                    [Version] [bigint] NOT NULL,
 	                    [MagicId] [nvarchar](64) NOT NULL,
 	                    [Message] [nvarchar](MAX) NOT NULL,
 	                    CONSTRAINT [PK_ReadModel-Magic] PRIMARY KEY CLUSTERED 
@@ -111,17 +112,20 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
         {
             // Arrange
             var magicId = MagicId.New;
-            var message = A<string>();
+            var expectedMessage = A<string>();
 
             // Act
-            await _commandBus.PublishAsync(new MagicCommand(magicId, message));
+            await _commandBus.PublishAsync(new MagicCommand(magicId, A<string>()));
+            await _commandBus.PublishAsync(new MagicCommand(magicId, expectedMessage));
 
             // Assert
-            var fetchedMessage = _readModelDatabase.Query<string>(
-                "SELECT [Message] FROM [ReadModel-Magic] WHERE [MagicId] = @Id",
+            var fetchedMagicReadModels = _readModelDatabase.Query<MagicReadModel>(
+                "SELECT * FROM [ReadModel-Magic] WHERE [MagicId] = @Id",
                 new { Id = magicId.Value });
-            fetchedMessage.Should().HaveCount(1);
-            fetchedMessage.Single().Should().Be(message);
+            fetchedMagicReadModels.Should().HaveCount(1);
+            var fetchedMagicReadModel = fetchedMagicReadModels.Single();
+            fetchedMagicReadModel.Message.Should().Be(expectedMessage);
+            fetchedMagicReadModel.Version.Should().Be(2);
         }
 
         public class MagicId : Identity<MagicId>
@@ -185,6 +189,9 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
         {
             [SqlReadModelIdentityColumn]
             public string MagicId { get; set; }
+
+            [SqlReadModelVersionColumn]
+            public int Version { get; set; }
 
             public string Message { get; set; }
 
