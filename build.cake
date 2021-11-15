@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2018 Rasmus Mikkelsen
-// Copyright (c) 2015-2018 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,7 @@ using System.Net;
 using System.Xml;
 
 var VERSION = GetArgumentVersion();
+var VERSION_METADATA = "-alpha";
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath;
 var CONFIGURATION = "Release";
 
@@ -106,7 +107,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
         {
-            ExecuteTest(FindTestDlls("net472"));
+            ExecuteTest(FindTestDlls("netcoreapp2.1"));
             ExecuteTest(FindTestDlls("netcoreapp3.1"));
         })
 	.Finally(() =>
@@ -122,22 +123,30 @@ Task("Package")
             Information("Version: {0}", RELEASE_NOTES.Version);
             Information(string.Join(Environment.NewLine, RELEASE_NOTES.Notes));
 
+            var packProjects = new HashSet<string>
+                {
+                    "EventFlow",
+                    "EventFlow.MsSql",
+                    "EventFlow.Sql",
+                    "EventFlow.TestHelpers",
+                };
+
 			foreach (var project in GetFiles("./Source/**/*.csproj"))
 			{
-				var name = project.GetDirectory().FullPath;
+				var directoryPath = project.GetDirectory().FullPath;
 				var version = VERSION.ToString();
+                var directoryName = System.IO.Path.GetFileName(directoryPath);
 				
-				if ((name.Contains("Test") && !name.Contains("TestHelpers")) 
-                    || name.Contains("Example")
-                    || name.Contains("CodeStyle"))
-				{
+				if (!packProjects.Contains(directoryName))
+                {
+                    Information($"Skipping packaging of {directoryName} at {directoryPath}");
 					continue;
 				}
 
+                Information($"Packaging of {directoryName} at {directoryPath}");
                 SetReleaseNotes(project.ToString());
-							
 				DotNetCorePack(
-					name,
+					directoryPath,
 					new DotNetCorePackSettings()
 					{
 						Configuration = CONFIGURATION,
@@ -187,8 +196,9 @@ string GetDotNetCoreArgsVersions()
 	var version = GetArgumentVersion().ToString();
 	
 	return string.Format(
-		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0}",
-		version);
+		@"/p:Version={0} /p:AssemblyVersion={0} /p:FileVersion={0} /p:ProductVersion={0} /p:PackageVersion={0}{1}",
+		version,
+        VERSION_METADATA);
 }
 
 void SetReleaseNotes(string filePath)
@@ -296,6 +306,19 @@ string ExecuteCommand(string exePath, string arguments = null, string workingDir
 
 void ExecuteTest(IEnumerable<FilePath> paths)
 {
+    var settings = new DotNetCoreVSTestSettings()
+        {
+            Parallel = true,
+            ToolTimeout = TimeSpan.FromMinutes(30),
+            Settings = FILE_RUNSETTINGS,
+            ResultsDirectory = DIR_OUTPUT_REPORTS,
+            ArgumentCustomization = args =>
+                args.Append("--nologo")
+        };
+
+    DotNetCoreVSTest(paths, settings);
+
+    /*
 	OpenCover(tool => 
 		{
             var settings = new DotNetCoreVSTestSettings()
@@ -322,6 +345,7 @@ void ExecuteTest(IEnumerable<FilePath> paths)
             .WithFilter("-[*Tests]*")
             .WithFilter("-[*TestHelpers]*")
             .WithFilter("-[*Shipping*]*"));
+    */
 }
 
 RunTarget(Argument<string>("target", "Package"));

@@ -25,11 +25,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
@@ -37,15 +37,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
     [Category(Categories.Integration)]
     public class AlternativeSagaStoreTests
     {
-        private IRootResolver _resolver;
         private ICommandBus _commandBus;
         private IAggregateStore _aggregateStore;
         private AlternativeSagaStoreTestClasses.InMemorySagaStore _sagaStore;
+        private ServiceProvider _serviceProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _resolver = EventFlowOptions.New
+            _serviceProvider = EventFlowOptions.New()
                 .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),
@@ -57,20 +57,20 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
                 .RegisterServices(sr =>
                 {
-                    sr.RegisterType(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
-                    sr.Register<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>(Lifetime.Singleton);
+                    sr.AddTransient(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
+                    sr.AddSingleton<ISagaStore, AlternativeSagaStoreTestClasses.InMemorySagaStore>();
                 })
-                .CreateResolver(false);
+                .ServiceCollection.BuildServiceProvider();
 
-            _commandBus = _resolver.Resolve<ICommandBus>();
-            _aggregateStore = _resolver.Resolve<IAggregateStore>();
-            _sagaStore = (AlternativeSagaStoreTestClasses.InMemorySagaStore) _resolver.Resolve<ISagaStore>();
+            _commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
+            _aggregateStore = _serviceProvider.GetRequiredService<IAggregateStore>();
+            _sagaStore = (AlternativeSagaStoreTestClasses.InMemorySagaStore) _serviceProvider.GetRequiredService<ISagaStore>();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _resolver.Dispose();
+            _serviceProvider.Dispose();
         }
 
         [Test]

@@ -1,9 +1,7 @@
 init:
   - ps: git config --global core.autocrlf input
-  - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
-  - ps: Restart-Service docker
 
-version: 0.82.{build}
+version: 1.0.{build}
 
 skip_tags: true
 
@@ -13,7 +11,7 @@ build_script:
 # https://www.appveyor.com/docs/services-databases/
 # https://www.appveyor.com/docs/windows-images-software/
 
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
@@ -30,9 +28,9 @@ services:
   - mssql2017
   - postgresql101
 
-on_success:
-- choco install codecov
-- codecov -f "Build\\Reports\\opencover-results.xml"
+#on_success:
+#- choco install codecov
+#- codecov -f "Build\\Reports\\opencover-results.xml"
 
 nuget:
   account_feed: false
@@ -46,20 +44,20 @@ deploy:
     skip_symbols: false
     artifact: /.*\.nupkg/
     on:
-      branch: release-v0
+      branch: release-v1
   - provider: NuGet
     api_key:
       secure: K8DTQLV0fOMi8cQLuItI4Bd7Aa6qsWSdIb3FRbvWCUPUNzQmD4sKGrP5fkTVmbd3
     skip_symbols: false
     artifact: /.*\.snupkg/
     on:
-      branch: release-v0
+      branch: release-v1
   - provider: GitHub
     artifact: /.*\.(nupkg|zip|snupkg)/
     auth_token:
       secure: f+y+RL1ETsxIbYKlliZrmXpfr1wvEVNhGGEOYyl2K8ryz02WxXL+kLe7pu53Kc8r
-    tag: v$(appveyor_build_version)
+    tag: v$(appveyor_build_version)-alpha
     draft: true
     prerelease: false
     on:
-      branch: release-v0
+      branch: release-v1

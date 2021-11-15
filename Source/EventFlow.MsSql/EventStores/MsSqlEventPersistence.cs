@@ -31,7 +31,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MsSql.EventStores
 {
@@ -48,14 +48,14 @@ namespace EventFlow.MsSql.EventStores
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly ILog _log;
+        private readonly ILogger<MsSqlEventPersistence> _logger;
         private readonly IMsSqlConnection _connection;
 
         public MsSqlEventPersistence(
-            ILog log,
+            ILogger<MsSqlEventPersistence> logger,
             IMsSqlConnection connection)
         {
-            _log = log;
+            _logger = logger;
             _connection = connection;
         }
 
@@ -78,13 +78,14 @@ namespace EventFlow.MsSql.EventStores
                     GlobalSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                 Label.Named("mssql-fetch-events"),
-                    cancellationToken,
-                    sql,
-                    new
-                    {
-                        startPosition,
-                        pageSize
-                    })
+                null,
+                cancellationToken,
+                sql,
+                new
+                {
+                    startPosition,
+                    pageSize
+                })
                 .ConfigureAwait(false);
 
             var nextPosition = eventDataModels.Any()
@@ -116,8 +117,8 @@ namespace EventFlow.MsSql.EventStores
                     })
                 .ToList();
 
-            _log.Verbose(
-                "Committing {0} events to MSSQL event store for entity with ID '{1}'",
+            _logger.LogTrace(
+                "Committing {EventCount} events to MSSQL event store for aggregate with ID {AggregateId}",
                 eventDataModels.Count,
                 id);
 
@@ -136,7 +137,8 @@ namespace EventFlow.MsSql.EventStores
             try
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
-                    Label.Named("mssql-insert-events"), 
+                    Label.Named("mssql-insert-events"),
+                    null, 
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -146,9 +148,6 @@ namespace EventFlow.MsSql.EventStores
             {
                 if (exception.Number == 2601)
                 {
-                    _log.Verbose(
-                        "MSSQL event insert detected an optimistic concurrency exception for entity with ID '{0}'",
-                        id);
                     throw new OptimisticConcurrencyException(exception.Message, exception);
                 }
 
@@ -183,14 +182,15 @@ namespace EventFlow.MsSql.EventStores
                 ORDER BY
                     AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
-                Label.Named("mssql-fetch-events"), 
+                Label.Named("mssql-fetch-events"),
+                null, 
                 cancellationToken,
                 sql,
                 new
-                    {
-                        AggregateId = id.Value,
-                        FromEventSequenceNumber = fromEventSequenceNumber,
-                    })
+                {
+                    AggregateId = id.Value,
+                    FromEventSequenceNumber = fromEventSequenceNumber,
+                })
                 .ConfigureAwait(false);
             return eventDataModels;
         }
@@ -200,13 +200,14 @@ namespace EventFlow.MsSql.EventStores
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
                 Label.Named("mssql-delete-aggregate"),
+                null,
                 cancellationToken,
                 sql,
-                new {AggregateId = id.Value})
+                new { AggregateId = id.Value })
                 .ConfigureAwait(false);
 
-            _log.Verbose(
-                "Deleted entity with ID '{0}' by deleting all of its {1} events",
+            _logger.LogTrace(
+                "Deleted aggregate with ID {AggregateId} by deleting all of its {EventCount} events",
                 id,
                 affectedRows);
         }

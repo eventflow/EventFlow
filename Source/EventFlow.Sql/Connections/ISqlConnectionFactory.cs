@@ -29,6 +29,8 @@ namespace EventFlow.Sql.Connections
 {
     public interface ISqlConnectionFactory
     {
-        Task<IDbConnection> OpenConnectionAsync(string connectionString, CancellationToken cancellationToken);
+        Task<IDbConnection> OpenConnectionAsync(
+            string connectionString,
+            CancellationToken cancellationToken);
     }
 }

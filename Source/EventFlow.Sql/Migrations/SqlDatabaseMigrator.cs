@@ -21,78 +21,118 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using DbUp;
 using DbUp.Builder;
 using DbUp.Engine;
-using EventFlow.Logs;
+using EventFlow.Core;
 using EventFlow.Sql.Connections;
 using EventFlow.Sql.Exceptions;
 using EventFlow.Sql.Integrations;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.Migrations
 {
     public abstract class SqlDatabaseMigrator<TConfiguration> : ISqlDatabaseMigrator
         where TConfiguration : ISqlConfiguration<TConfiguration>
     {
-        private readonly ILog _log;
-        private readonly TConfiguration _sqlConfiguration;
+        protected ILogger Logger { get; }
+        protected TConfiguration Configuration { get; }
 
         protected SqlDatabaseMigrator(
-            ILog log,
-            TConfiguration sqlConfiguration)
+            ILogger logger,
+            TConfiguration configuration)
         {
-            _log = log;
-            _sqlConfiguration = sqlConfiguration;
+            Logger = logger;
+            Configuration = configuration;
         }
 
-        public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly)
+        public virtual async Task MigrateDatabaseUsingEmbeddedScriptsAsync(
+            Assembly assembly,
+            string connectionStringName,
+            CancellationToken cancellationToken)
         {
-            MigrateDatabaseUsingEmbeddedScripts(assembly, _sqlConfiguration.ConnectionString);
+            var connectionString = await Configuration.GetConnectionStringAsync(
+                Label.Named("migration"),
+                connectionStringName,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            await MigrateAsync(
+                assembly,
+                connectionString,
+                cancellationToken)
+                .ConfigureAwait(false);
         }
 
-        public void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString)
+        protected virtual Task MigrateAsync(
+            Assembly assembly,
+            string connectionString,
+            CancellationToken cancellationToken)
         {
-            var upgradeEngine = For(DeployChanges.To, connectionString)
-                .WithScriptsEmbeddedInAssembly(assembly)
-                .WithExecutionTimeout(TimeSpan.FromMinutes(5))
-                .WithTransaction()
-                .LogTo(new DbUpUpgradeLog(_log))
-                .Build();
+            return Task.Factory.StartNew(
+                () =>
+                {
+                    var upgradeEngine = For(DeployChanges.To, connectionString)
+                        .WithScriptsEmbeddedInAssembly(assembly)
+                        .WithExecutionTimeout(Configuration.UpgradeExecutionTimeout)
+                        .WithTransaction()
+                        .LogTo(new DbUpUpgradeLog(Logger))
+                        .Build();
 
-            Upgrade(upgradeEngine);
+                    Upgrade(upgradeEngine);
+                },
+                TaskCreationOptions.LongRunning);
         }
 
-        public void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts)
+        public async Task MigrateDatabaseUsingScriptsAsync(
+            string connectionStringName,
+            IEnumerable<SqlScript> sqlScripts,
+            CancellationToken cancellationToken)
         {
-            MigrateDatabaseUsingScripts(sqlScripts, _sqlConfiguration.ConnectionString);
+            var connectionString = await Configuration.GetConnectionStringAsync(
+                Label.Named("migration"),
+                connectionStringName,
+                cancellationToken)
+                .ConfigureAwait(false);
+
+            await MigrateAsync(sqlScripts, connectionString, cancellationToken).ConfigureAwait(false);
         }
 
-        public void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString)
+        protected virtual Task MigrateAsync(
+            IEnumerable<SqlScript> sqlScripts,
+            string connectionString,
+            CancellationToken cancellationToken)
         {
-            var dbUpSqlScripts = sqlScripts.Select(s => new DbUp.Engine.SqlScript(s.Name, s.Content));
-            var upgradeEngine = For(DeployChanges.To, connectionString)
-                .WithScripts(dbUpSqlScripts)
-                .WithExecutionTimeout(TimeSpan.FromMinutes(5))
-                .WithTransaction()
-                .LogTo(new DbUpUpgradeLog(_log))
-                .Build();
+            return Task.Factory.StartNew(
+                () =>
+                {
+                    var dbUpSqlScripts = sqlScripts.Select(s => new DbUp.Engine.SqlScript(s.Name, s.Content));
+                    var upgradeEngine = For(DeployChanges.To, connectionString)
+                        .WithScripts(dbUpSqlScripts)
+                        .WithExecutionTimeout(Configuration.UpgradeExecutionTimeout)
+                        .WithTransaction()
+                        .LogTo(new DbUpUpgradeLog(Logger))
+                        .Build();
 
-            Upgrade(upgradeEngine);
+                    Upgrade(upgradeEngine);
+                },
+                TaskCreationOptions.LongRunning);
         }
 
-        private void Upgrade(UpgradeEngine upgradeEngine)
+        protected virtual void Upgrade(UpgradeEngine upgradeEngine)
         {
             var scripts = upgradeEngine.GetScriptsToExecute()
                 .Select(s => s.Name)
                 .ToList();
 
-            _log.Information(
-                "Going to migrate the SQL database by executing these scripts: {0}",
-                string.Join(", ", scripts));
+            Logger.LogInformation(
+                "Going to migrate the SQL database by executing these scripts: {Scripts}",
+                scripts);
 
             var result = upgradeEngine.PerformUpgrade();
             if (!result.Successful)

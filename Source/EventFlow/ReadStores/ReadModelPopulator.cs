@@ -31,27 +31,28 @@ using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelPopulator : IReadModelPopulator
     {
-        private readonly ILog _log;
+        private readonly ILogger<ReadModelPopulator> _logger;
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
         public ReadModelPopulator(
-            ILog log,
+            ILogger<ReadModelPopulator> logger,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
-            _log = log;
+            _logger = logger;
             _configuration = configuration;
             _eventStore = eventStore;
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public Task PurgeAsync<TReadModel>(
@@ -78,7 +79,10 @@ namespace EventFlow.ReadStores
         {
             var readModelStores = ResolveReadModelStores(readModelType);
 
-            _log.Verbose(() => $"Deleting read model {readModelType.PrettyPrint()} with ID '{id}'");
+            _logger.LogTrace(
+                "Deleting read model {ReadModelType} with ID {Id}",
+                readModelType.PrettyPrint(),
+                id);
 
             var deleteTasks = readModelStores.Select(s => s.DeleteAsync(id, cancellationToken));
             await Task.WhenAll(deleteTasks).ConfigureAwait(false);
@@ -101,7 +105,7 @@ namespace EventFlow.ReadStores
             var readModelTypes = new[]
             {
                 typeof( IAmReadModelFor<,,> ),
-                typeof( IAmAsyncReadModelFor<,,> )
+                typeof( IAmReadModelFor<,,> )
             };
 
             var aggregateEventTypes = new HashSet<Type>(readModelType
@@ -111,10 +115,13 @@ namespace EventFlow.ReadStores
                             && readModelTypes.Contains(i.GetGenericTypeDefinition()))
                 .Select(i => i.GetTypeInfo().GetGenericArguments()[2]));
 
-            _log.Verbose(() => string.Format(
-                "Read model '{0}' is interested in these aggregate events: {1}",
-                readModelType.PrettyPrint(),
-                string.Join(", ", aggregateEventTypes.Select(e => e.PrettyPrint()).OrderBy(s => s))));
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Read model {ReadModelType} is interested in these aggregate events: {AggregateEventTypes}",
+                    readModelType.PrettyPrint(),
+                    aggregateEventTypes.Select(e => e.PrettyPrint()));
+            }
 
             long totalEvents = 0;
             long relevantEvents = 0;
@@ -122,11 +129,14 @@ namespace EventFlow.ReadStores
 
             while (true)
             {
-                _log.Verbose(() => string.Format(
-                    "Loading events starting from {0} and the next {1} for populating '{2}'",
-                    currentPosition,
-                    _configuration.PopulateReadModelEventPageSize,
-                    readModelType.PrettyPrint()));
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    _logger.LogTrace(
+                        "Loading events starting from {CurrentPosition} and the next {PageSize} for populating {ReadModelType}",
+                        currentPosition,
+                        _configuration.PopulateReadModelEventPageSize,
+                        readModelType.PrettyPrint());
+                }
                 var allEventsPage = await _eventStore.LoadAllEventsAsync(
                     currentPosition,
                     _configuration.PopulateReadModelEventPageSize,
@@ -137,7 +147,9 @@ namespace EventFlow.ReadStores
 
                 if (!allEventsPage.DomainEvents.Any())
                 {
-                    _log.Verbose(() => $"No more events in event store, stopping population of read model '{readModelType.PrettyPrint()}'");
+                    _logger.LogTrace(
+                        "No more events in event store, stopping population of read model {ReadModelType}",
+                        readModelType.PrettyPrint());
                     break;
                 }
 
@@ -156,9 +168,8 @@ namespace EventFlow.ReadStores
                 await Task.WhenAll(applyTasks).ConfigureAwait(false);
             }
 
-            stopwatch.Stop();
-            _log.Information(
-                "Population of read model '{0}' took {1:0.###} seconds, in which {2} events was loaded and {3} was relevant",
+            _logger.LogInformation(
+                "Population of read model {ReadModelType} took {Seconds} seconds, in which {TotalEventCount} events was loaded and {RelevantEventCount} was relevant",
                 readModelType.PrettyPrint(),
                 stopwatch.Elapsed.TotalSeconds,
                 totalEvents,
@@ -169,7 +180,7 @@ namespace EventFlow.ReadStores
             Type readModelType)
         {
             var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
-            var readModelStores = _resolver.ResolveAll(readModelStoreType)
+            var readModelStores = _serviceProvider.GetServices(readModelStoreType)
                 .Select(s => (IReadModelStore)s)
                 .ToList();
 
@@ -184,7 +195,7 @@ namespace EventFlow.ReadStores
         private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManagers(
             Type readModelType)
         {
-            var readStoreManagers = _resolver.Resolve<IEnumerable<IReadStoreManager>>()
+            var readStoreManagers = _serviceProvider.GetServices<IReadStoreManager>()
                 .Where(m => m.ReadModelType == readModelType)
                 .ToList();
 

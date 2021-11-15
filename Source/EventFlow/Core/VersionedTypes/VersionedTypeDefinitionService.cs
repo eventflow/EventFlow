@@ -28,7 +28,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Core.VersionedTypes
 {
@@ -41,15 +41,15 @@ namespace EventFlow.Core.VersionedTypes
             @"^(Old){0,1}(?<name>[\p{L}\p{Nd}]+?)(V(?<version>[0-9]+)){0,1}$",
             RegexOptions.Compiled);
 
+        private readonly ILogger _logger;
         private readonly object _syncRoot = new object();
-        private readonly ILog _log;
         private readonly ConcurrentDictionary<Type, List<TDefinition>> _definitionsByType = new ConcurrentDictionary<Type, List<TDefinition>>();
         private readonly ConcurrentDictionary<string, Dictionary<int, TDefinition>> _definitionByNameAndVersion = new ConcurrentDictionary<string, Dictionary<int, TDefinition>>(); 
 
         protected VersionedTypeDefinitionService(
-            ILog log)
+            ILogger logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public void Load(params Type[] types)
@@ -84,19 +84,19 @@ namespace EventFlow.Core.VersionedTypes
                     return;
                 }
 
-                _log.Verbose(() =>
-                    {
-                        var assemblies = definitions
-                            .Select(d => d.Type.GetTypeInfo().Assembly.GetName().Name)
-                            .Distinct()
-                            .OrderBy(n => n)
-                            .ToList();
-                        return string.Format(
-                            "Added {0} versioned types to '{1}' from these assemblies: {2}",
-                            definitions.Count,
-                            GetType().PrettyPrint(),
-                            string.Join(", ", assemblies));
-                    });
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    var assemblies = definitions
+                        .Select(d => d.Type.GetTypeInfo().Assembly.GetName().Name)
+                        .Distinct()
+                        .OrderBy(n => n)
+                        .ToList();
+                    _logger.LogTrace(
+                        "Added {DefinitionCount} versioned types to {DefinitionServiceType} from these assemblies: {AssemblyNames}",
+                        definitions.Count,
+                        GetType().PrettyPrint(),
+                        string.Join(", ", assemblies));
+                }
 
                 foreach (var definition in definitions)
                 {
@@ -113,8 +113,8 @@ namespace EventFlow.Core.VersionedTypes
 
                     if (versions.ContainsKey(definition.Version))
                     {
-                        _log.Information(
-                            "Already loaded versioned type '{0}' v{1}, skipping it",
+                        _logger.LogInformation(
+                            "Already loaded versioned type {TypeName} v{TypeVersion}, skipping it",
                             definition.Name,
                             definition.Version);
                         continue;

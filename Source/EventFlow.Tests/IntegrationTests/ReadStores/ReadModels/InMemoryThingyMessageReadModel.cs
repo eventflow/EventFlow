@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -38,16 +40,24 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
         public ThingyMessageId ThingyMessageId { get; private set; }
         public string Message { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent,
+            CancellationToken _)
         {
             ThingyId = domainEvent.AggregateIdentity;
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
             ThingyMessageId = thingyMessage.Id;
             Message = thingyMessage.Message;
+
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent,
+            CancellationToken _)
         {
             ThingyId = domainEvent.AggregateIdentity;
 
@@ -55,6 +65,8 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
             ThingyMessageId = thingyMessage.Id;
             Message = thingyMessage.Message;
+
+            return Task.CompletedTask;
         }
 
         public ThingyMessage ToThingyMessage()

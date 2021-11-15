@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.EntityFramework.Extensions;
+using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.ReadModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.EntityFramework.Tests.Model
@@ -35,6 +36,10 @@ namespace EventFlow.EntityFramework.Tests.Model
         public DbSet<ThingyReadModelEntity> Thingys { get; set; }
         public DbSet<ThingyMessageReadModelEntity> ThingyMessages { get; set; }
 
+        // Include tests
+        public DbSet<PersonReadModelEntity> Persons { get; set; }
+        public DbSet<AddressReadModelEntity> Addresses { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
@@ -48,6 +53,14 @@ namespace EventFlow.EntityFramework.Tests.Model
             modelBuilder.Entity<ThingyReadModelEntity>()
                 .Property(e => e.AggregateId)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<PersonReadModelEntity>()
+                .Property(e => e.AggregateId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AddressReadModelEntity>()
+                .Property(e => e.AddressId)
+                .ValueGeneratedNever();
         }
     }
 }

@@ -22,9 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Snapshots
 {
@@ -33,10 +32,10 @@ namespace EventFlow.Snapshots
         ISnapshotUpgradeService
     {
         public SnapshotUpgradeService(
-            ILog log,
-            IResolver resolver,
+            ILogger<SnapshotUpgradeService> logger,
+            IServiceProvider serviceProvider,
             ISnapshotDefinitionService definitionService)
-            : base(log, resolver, definitionService)
+            : base(logger, serviceProvider, definitionService)
         {
         }
 

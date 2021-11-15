@@ -200,7 +200,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("DROP test database");
+            _testDatabase.DisposeSafe(Logger<IdentityIndexFragmentationTests>(), "DROP test database");
         }
 
         private class IndexFragmentationDetails

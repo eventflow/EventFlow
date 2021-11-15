@@ -52,7 +52,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             var snapshotContainer = CreateSnapshotContainer(A<ThingySnapshot>());
 
             // Act
-            var serializedSnapshot = await Sut.SerilizeAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
+            var serializedSnapshot = await Sut.SerializeAsync<ThingyAggregate, ThingyId, ThingySnapshot>(
                 snapshotContainer,
                 CancellationToken.None)
                 .ConfigureAwait(false);
@@ -121,7 +121,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 JsonConvert.SerializeObject(new SnapshotMetadata(new Dictionary<string, string>
                     {
                         {SnapshotMetadataKeys.SnapshotName, A<string>()},
-                        {SnapshotMetadataKeys.SnapshotVersion, A<int>().ToString()}
+                        {SnapshotMetadataKeys.SnapshotVersion, A<int>().ToString()},
+                        {SnapshotMetadataKeys.AggregateSequenceNumber, A<int>().ToString()}
                     })),
                 JsonConvert.SerializeObject(snapshot));
         }

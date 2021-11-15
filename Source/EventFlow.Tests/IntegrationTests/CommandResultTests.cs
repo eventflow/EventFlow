@@ -32,6 +32,7 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.Tests.UnitTests.Specifications;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -94,14 +95,14 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task CommandResult()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = EventFlowOptions.New()
                 .AddCommandHandlers(
                     typeof(TestSuccessResultCommandHandler),
                     typeof(TestFailedResultCommandHandler))
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .CreateResolver(false))
+                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
+                .ServiceCollection.BuildServiceProvider())
             {
-                var commandBus = resolver.Resolve<ICommandBus>();
+                var commandBus = resolver.GetRequiredService<ICommandBus>();
 
                 var success = await commandBus.PublishAsync(
                     new TestSuccessResultCommand(ThingyId.New),
