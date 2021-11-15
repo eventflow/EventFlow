@@ -21,18 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.MsSql.Extensions;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.MsSql.Tests.Extensions;
 using EventFlow.Sql.Migrations;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests
@@ -41,32 +42,35 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
     public class MsSqlConnectionTests
     {
         private IMsSqlDatabase _testDatabase;
-        private IRootResolver _resolver;
+        private IServiceProvider _serviceProvider;
         private IMsSqlConnection _msSqlConnection;
 
         [SetUp]
         public void SetUp()
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-mssql");
-            _resolver = EventFlowOptions.New
+            _serviceProvider = EventFlowOptions.New()
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .CreateResolver();
-            _msSqlConnection = _resolver.Resolve<IMsSqlConnection>();
-            var migrator = _resolver.Resolve<IMsSqlDatabaseMigrator>();
-            migrator.MigrateDatabaseUsingScripts(new []
+                .ServiceCollection.BuildServiceProvider(true);
+            _msSqlConnection = _serviceProvider.GetRequiredService<IMsSqlConnection>();
+            var migrator = _serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
+            migrator.MigrateDatabaseUsingScriptsAsync(
+                null,
+                new []
                 {
                     new SqlScript("test-table", @"
                         CREATE TABLE [Test] (
                             Id BIGINT NOT NULL PRIMARY KEY CLUSTERED IDENTITY(1, 1),
                             [Data] NVARCHAR(MAX) NOT NULL
                             )"),
-                });
+                },
+                CancellationToken.None).Wait();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _resolver.Dispose();
+            (_serviceProvider as IDisposable)?.Dispose();
             _testDatabase.Dispose();
         }
 

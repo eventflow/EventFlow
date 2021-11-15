@@ -131,6 +131,7 @@ namespace EventFlow.MsSql
 
             var columns = await QueryAsync<ColumnDataModel>(
                 Label.Named("fetch-columns-information"),
+                null,
                 cancellationToken,
                 sql,
                 new {TableName = tableName})
@@ -179,6 +180,7 @@ namespace EventFlow.MsSql
             var stopwatch = Stopwatch.StartNew();
             var rows = await WithConnectionAsync(
                 label,
+                null,
                 async (c, ct) =>
                     {
                         if (!(c is SqlConnection sqlConnection))
@@ -228,7 +230,10 @@ namespace EventFlow.MsSql
                 cancellationToken)
                 .ConfigureAwait(false);
 
-            Log.Debug($"Bulk inserted {rows} in {stopwatch.Elapsed.TotalSeconds:0.##} seconds");
+            Logger.LogDebug(
+                "Bulk inserted {Rows} in {TotalSeconds} seconds",
+                rows,
+                stopwatch.Elapsed.TotalSeconds);
 
             return rows;
         }
