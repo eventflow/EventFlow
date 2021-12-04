@@ -1,7 +1,5 @@
 init:
   - ps: git config --global core.autocrlf input
-  - ps: '[Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")'
-  - ps: Restart-Service docker
 
 version: 1.0.{build}
 
@@ -13,7 +11,7 @@ build_script:
 # https://www.appveyor.com/docs/services-databases/
 # https://www.appveyor.com/docs/windows-images-software/
 
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 environment:
   HELPZ_POSTGRESQL_PASS: Password12!
