@@ -21,12 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.ReadModels;
 using EventFlow.PostgreSql.ReadStores;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -40,10 +40,11 @@ namespace EventFlow.PostgreSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
-                        f.Register<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>(Lifetime.Singleton, true);
-                        f.Register<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IPostgresReadModelStore<TReadModel>>());
-                    })
+                        f.AddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
+                        f.AddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
+                        f.AddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
+                    }
+                )
                 .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
         }
 
@@ -53,11 +54,11 @@ namespace EventFlow.PostgreSql.Extensions
         {
             return eventFlowOptions
                 .RegisterServices(f =>
-                    {
-                        f.Register<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>(Lifetime.Singleton, true);
-                        f.Register<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                        f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IPostgresReadModelStore<TReadModel>>());
-                    })
+                {
+                    f.AddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
+                    f.AddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
+                    f.AddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
+                })
                 .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel>();
         }
     }

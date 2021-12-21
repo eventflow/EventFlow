@@ -22,16 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
-using EventFlow.Logs;
 using EventFlow.PostgreSql.RetryStrategies;
 using EventFlow.Sql.Connections;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.PostgreSql.Connections
 {
     public class PostgreSqlConnection : SqlConnection<IPostgreSqlConfiguration, IPostgreSqlErrorRetryStrategy, IPostgreSqlConnectionFactory>, IPostgreSqlConnection
     {
         public PostgreSqlConnection(
-            ILog log,
+            ILogger log,
             IPostgreSqlConfiguration configuration,
             IPostgreSqlConnectionFactory connectionFactory,
             ITransientFaultHandler<IPostgreSqlErrorRetryStrategy> transientFaultHandler)

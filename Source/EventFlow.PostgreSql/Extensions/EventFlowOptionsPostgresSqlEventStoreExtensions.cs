@@ -21,8 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.EventStores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -30,7 +32,7 @@ namespace EventFlow.PostgreSql.Extensions
     {
         public static IEventFlowOptions UsePostgreSqlEventStore(this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<PostgreSqlEventPersistence>();
+            return eventFlowOptions.RegisterServices(f => f.AddTransient<IEventPersistence, PostgreSqlEventPersistence>());
         }
     }
 }
