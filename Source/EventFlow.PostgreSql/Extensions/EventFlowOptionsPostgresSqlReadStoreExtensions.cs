@@ -43,7 +43,7 @@ namespace EventFlow.PostgreSql.Extensions
                     {
                         f.TryAddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
                         f.TryAddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                        f.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
+                        f.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetRequiredService<IPostgresReadModelStore<TReadModel>>());
                     }
                 )
                 .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
@@ -58,7 +58,7 @@ namespace EventFlow.PostgreSql.Extensions
                 {
                     f.TryAddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
                     f.TryAddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                    f.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
+                    f.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetRequiredService<IPostgresReadModelStore<TReadModel>>());
                 })
                 .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel>();
         }
