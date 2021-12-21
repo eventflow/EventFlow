@@ -34,7 +34,7 @@ namespace EventFlow.PostgreSql.ReadStores
         where TReadModel : class, IReadModel
     {
         public PostgreSqlReadModelStore(
-            ILogger log,
+            ILogger<PostgreSqlReadModelStore<TReadModel>> log,
             IPostgreSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,

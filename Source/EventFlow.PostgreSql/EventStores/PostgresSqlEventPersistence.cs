@@ -49,11 +49,11 @@ namespace EventFlow.PostgreSql.EventStores
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly ILogger _log;
+        private readonly ILogger<PostgreSqlEventPersistence> _log;
         private readonly IPostgreSqlConnection _connection;
 
         public PostgreSqlEventPersistence(
-            ILogger log,
+            ILogger<PostgreSqlEventPersistence> log,
             IPostgreSqlConnection connection)
         {
             _log = log;

@@ -31,7 +31,7 @@ namespace EventFlow.PostgreSql
     public class PostgreSqlDatabaseMigrator : SqlDatabaseMigrator<IPostgreSqlConfiguration>, IPostgreSqlDatabaseMigrator
     {
         public PostgreSqlDatabaseMigrator(
-            ILogger log,
+            ILogger<PostgreSqlDatabaseMigrator> log,
             IPostgreSqlConfiguration sqlConfiguration)
             : base(log, sqlConfiguration)
         {

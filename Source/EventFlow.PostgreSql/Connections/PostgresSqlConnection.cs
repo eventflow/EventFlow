@@ -31,7 +31,7 @@ namespace EventFlow.PostgreSql.Connections
     public class PostgreSqlConnection : SqlConnection<IPostgreSqlConfiguration, IPostgreSqlErrorRetryStrategy, IPostgreSqlConnectionFactory>, IPostgreSqlConnection
     {
         public PostgreSqlConnection(
-            ILogger log,
+            ILogger<PostgreSqlConnection> log,
             IPostgreSqlConfiguration configuration,
             IPostgreSqlConnectionFactory connectionFactory,
             ITransientFaultHandler<IPostgreSqlErrorRetryStrategy> transientFaultHandler)

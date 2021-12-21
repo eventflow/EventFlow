@@ -37,11 +37,11 @@ namespace EventFlow.PostgreSql.SnapshotStores
 {
     public class PostgreSqlSnapshotPersistence : ISnapshotPersistence
     {
-        private readonly ILogger _log;
+        private readonly ILogger<PostgreSqlSnapshotPersistence> _log;
         private readonly IPostgreSqlConnection _postgreSqlConnection;
 
         public PostgreSqlSnapshotPersistence(
-            ILogger log,
+            ILogger<PostgreSqlSnapshotPersistence> log,
             IPostgreSqlConnection postgreSqlConnection)
         {
             _log = log;
