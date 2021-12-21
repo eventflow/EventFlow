@@ -24,7 +24,7 @@
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.PostgreSql.RetryStrategies;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -36,11 +36,11 @@ namespace EventFlow.PostgreSql.Extensions
         {
             return eventFlowOptions.RegisterServices(f =>
             {
-                f.AddTransient<IPostgreSqlDatabaseMigrator, PostgreSqlDatabaseMigrator>();
-                f.AddTransient<IPostgreSqlConnection, PostgreSqlConnection>();
-                f.AddTransient<IPostgreSqlConnectionFactory, PostgreSqlConnectionFactory>();
-                f.AddTransient<IPostgreSqlErrorRetryStrategy, PostgreSqlErrorRetryStrategy>();
-                f.AddSingleton(_ => postgreSqlConfiguration);
+                f.TryAddTransient<IPostgreSqlDatabaseMigrator, PostgreSqlDatabaseMigrator>();
+                f.TryAddTransient<IPostgreSqlConnection, PostgreSqlConnection>();
+                f.TryAddTransient<IPostgreSqlConnectionFactory, PostgreSqlConnectionFactory>();
+                f.TryAddTransient<IPostgreSqlErrorRetryStrategy, PostgreSqlErrorRetryStrategy>();
+                f.TryAddSingleton(_ => postgreSqlConfiguration);
             });
 
         }

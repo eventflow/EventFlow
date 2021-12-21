@@ -27,6 +27,7 @@ using EventFlow.PostgreSql.ReadStores;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -40,9 +41,9 @@ namespace EventFlow.PostgreSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                     {
-                        f.AddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
-                        f.AddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                        f.AddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
+                        f.TryAddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
+                        f.TryAddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
+                        f.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
                     }
                 )
                 .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
@@ -55,9 +56,9 @@ namespace EventFlow.PostgreSql.Extensions
             return eventFlowOptions
                 .RegisterServices(f =>
                 {
-                    f.AddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
-                    f.AddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
-                    f.AddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
+                    f.TryAddSingleton<IReadModelSqlGenerator, PostgresReadModelSqlGenerator>();
+                    f.TryAddTransient<IPostgresReadModelStore<TReadModel>, PostgreSqlReadModelStore<TReadModel>>();
+                    f.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IPostgresReadModelStore<TReadModel>>());
                 })
                 .UseReadStoreFor<IPostgresReadModelStore<TReadModel>, TReadModel>();
         }

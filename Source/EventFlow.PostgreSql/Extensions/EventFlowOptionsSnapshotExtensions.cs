@@ -24,7 +24,7 @@
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.SnapshotStores;
 using EventFlow.Snapshots.Stores;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -33,7 +33,7 @@ namespace EventFlow.PostgreSql.Extensions
         public static IEventFlowOptions UsePostgreSqlSnapshotStore(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(f => f.AddTransient<ISnapshotPersistence, PostgreSqlSnapshotPersistence>());
+            return eventFlowOptions.RegisterServices(f => f.TryAddTransient<ISnapshotPersistence, PostgreSqlSnapshotPersistence>());
         }
     }
 }
