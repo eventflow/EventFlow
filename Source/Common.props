@@ -9,7 +9,6 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageIcon>icon-128.png</PackageIcon>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
