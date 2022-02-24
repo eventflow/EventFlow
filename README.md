@@ -90,7 +90,7 @@ The following list key characteristics of each version as well as its related br
     - 🟢 `EventFlow.MongoDB`
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
-    - 🔴 `EventFlow.PostgreSql`
+    - 🟢 `EventFlow.PostgreSql`
     - 🔴 `EventFlow.RabbitMQ`
     - 🟢 `EventFlow.Sql`
     - 🔴 `EventFlow.SQLite`
