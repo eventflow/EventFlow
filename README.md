@@ -71,10 +71,10 @@ The following list key characteristics of each version as well as its related br
   been releases. It will take a few alpha/beta/rc releases to get this right. These
   will be released as soon as any significant changes have been made.
 
-  ### Documentation
+  ### Documentation (not complete)
   Version 1.x documentation has been pulled into this repository in order to have
   the code and documentation closer together and (hopefully) have the documentation
-  updated in the same pull-reqtests as any code changes.
+  updated in the same pull-requests as any code changes.
 
   ### NuGet package status
   - 🟢 compiles and pushed in `-alpha` releases
