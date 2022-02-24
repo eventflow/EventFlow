@@ -10,6 +10,10 @@ on:
 jobs:
   report:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      checks: write    
     steps:
     - uses: dorny/test-reporter@v1
       with:
