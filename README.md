@@ -87,7 +87,7 @@ The following list key characteristics of each version as well as its related br
     - 🔴 `EventFlow.EntityFramework`
     - 🔴 `EventFlow.EventStores.EventStore`
     - 🔴 `EventFlow.Hangfire`
-    - 🔴 `EventFlow.MongoDB`
+    - 🟢 `EventFlow.MongoDB`
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
     - 🔴 `EventFlow.PostgreSql`
