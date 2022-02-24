@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -22,12 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Sql.ReadModels.Attributes;
 
-namespace EventFlow.MsSql.ReadStores.Attributes
+namespace EventFlow.Sql.ReadModels.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIgnoreColumnAttribute : SqlReadModelIgnoreColumnAttribute
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SqlReadModelConnectionStringNameAttribute : Attribute
     {
+        public string ConnectionStringName { get; }
+
+        public SqlReadModelConnectionStringNameAttribute(
+            string connectionStringName)
+        {
+            ConnectionStringName = connectionStringName;
+        }
     }
 }
