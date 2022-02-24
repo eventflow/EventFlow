@@ -20,6 +20,37 @@ Here is the general motivation for introducing breaking changes to EventFlow.
 - Add obviously missing async/await on critical methods
 - Remove non-async methods wrapper methods
 
+## Notable new features in 1.x
+
+While the main focus of 1.x is to bring EventFlow up to speed with the latest
+standards, there some changes/features that has been added as well. Features
+that wasn't possible to add before as introducing them would cause breaking changes.
+
+- **Multiple MSSQL connection strings:** Its now possible to have read models
+  outside the main database by adding a `[SqlReadModelConnectionStringName]`
+  attribute to the read models. The named connection string is then used for
+  that read model. To configure the named connection strings, provide them
+  during the initial configuration.
+
+  ```csharp
+  MsSqlConfiguration.New
+    .SetConnectionString(/* events connection string */)
+    .SetConnectionString("my-awesome-read-model", /* alternative connection string */)
+  ```
+
+  If the connection string is not known at initialization, provide your own instance
+  of the `IMsSqlConfiguration` which now has a new method.
+  
+  ```csharp
+   Task<string> GetConnectionStringAsync(
+      Label label,
+      string name,
+      CancellationToken cancellationToken);
+  ```
+
+  This allows for connection strings to be fetched runtime from external sources.
+
+
 ## Data in event stores
 
 Upgrading EventFlow should **never** break existing data in event stores, not even
@@ -81,7 +112,7 @@ var eventFlowOptions = EventFlowOptions.New(serviceCollection)
 
 ### Let EventFlow create the `IServiceCollection`
 
-Useful in small tests, but should be used in real production setups.
+Useful in small tests, but should NOT be used in production setups.
 
 ```csharp
 var eventFlowOptions = EventFlowOptions.New()

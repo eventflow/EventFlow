@@ -66,7 +66,8 @@ namespace EventFlow.ReadStores
             {
                 _logger.LogTrace(
                     "Creating new instance of read model type {ReadModelType} with ID {Id}",
-                    typeof(TReadModel).PrettyPrint());
+                    typeof(TReadModel).PrettyPrint(),
+                    id);
             }
 
             var readModel = (TReadModel) Activator.CreateInstance(typeof(TReadModel));

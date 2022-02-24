@@ -36,10 +36,12 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
 using EventFlow.Extensions;
+using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using EventId = EventFlow.Aggregates.EventId;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -202,6 +204,25 @@ namespace EventFlow.TestHelpers.Suites
             readModel1.PingsReceived.Should().Be(3);
             readModel2.PingsReceived.Should().Be(5);
         }
+        
+        [Test]
+        public async Task RePopulateHandlesDeletedAggregate()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandsAsync(id1, 3).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id2, 5).ConfigureAwait(false);
+
+            // Act
+            await ReadModelPopulator.DeleteAsync(id2.Value, ReadModelType, CancellationToken.None).ConfigureAwait(false);
+            await ReadModelPopulator.PopulateAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            
+            readModel.PingsReceived.Should().Be(5);
+        }
 
         [Test]
         public async Task PopulateCreatesReadModels()
@@ -312,6 +333,49 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
             returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
+        }
+
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        public async Task UpdateMultiple(
+            bool pingFirst,
+            bool injectPing)
+        {
+            // Arrange
+            var readStoreManager = ServiceProvider.GetService<IReadStoreManager>();
+            var thingyId = ThingyId.New;
+            var thingyMessage = Fixture.Create<ThingyMessage>();
+            var pingId = PingId.New;
+            var command = new ThingyAddMessageAndPingCommand(
+                thingyId,
+                thingyMessage,
+                pingId,
+                pingFirst);
+            var metadata = new Metadata
+                {
+                    Timestamp = DateTimeOffset.Now,
+                    AggregateSequenceNumber = 1,
+                    AggregateName = typeof(ThingyAggregate).GetAggregateName().Value,
+                    AggregateId = thingyId.Value,
+                    EventId = EventId.New,
+                };
+            var domainEvent = injectPing
+                ? DomainEventFactory.Create(new ThingyPingEvent(pingId), metadata, thingyId.Value, 1)
+                : DomainEventFactory.Create(new ThingyMessageAddedEvent(thingyMessage), metadata, thingyId.Value, 1);
+            await readStoreManager.UpdateReadStoresAsync(
+                new[] {domainEvent},
+                CancellationToken.None);
+
+            // Act
+            await CommandBus.PublishAsync(command, CancellationToken.None);
+
+            // Assert
+            var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
+            returnedThingyMessages.Should().HaveCount(1);
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(thingyId)).ConfigureAwait(false);
+            readModel.PingsReceived.Should().Be(1);
         }
 
         private class WaitState

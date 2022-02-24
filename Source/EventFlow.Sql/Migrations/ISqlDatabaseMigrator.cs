@@ -23,14 +23,21 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Sql.Migrations
 {
     public interface ISqlDatabaseMigrator
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
+        Task MigrateDatabaseUsingEmbeddedScriptsAsync(
+            Assembly assembly,
+            string connectionStringName,
+            CancellationToken cancellationToken);
+        
+        Task MigrateDatabaseUsingScriptsAsync(
+            string connectionStringName,
+            IEnumerable<SqlScript> sqlScripts,
+            CancellationToken cancellationToken);
     }
 }

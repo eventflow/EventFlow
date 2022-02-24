@@ -26,8 +26,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
+using EventFlow.Sql.ReadModels.Attributes;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -41,7 +41,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
     {
         public string ThingyId { get; set; }
 
-        [MsSqlReadModelIdentityColumn]
+        [SqlReadModelIdentityColumn]
         public string MessageId { get; set; }
 
         public string Message { get; set; }

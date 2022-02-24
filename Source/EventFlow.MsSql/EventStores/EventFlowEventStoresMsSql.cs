@@ -23,6 +23,8 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Sql.Extensions;
 using EventFlow.Sql.Migrations;
 
@@ -37,9 +39,11 @@ namespace EventFlow.MsSql.EventStores
             return Assembly.GetEmbeddedSqlScripts("EventFlow.MsSql.EventStores.Scripts");
         }
 
-        public static void MigrateDatabase(IMsSqlDatabaseMigrator msSqlDatabaseMigrator)
+        public static Task MigrateDatabaseAsync(
+            IMsSqlDatabaseMigrator msSqlDatabaseMigrator,
+            CancellationToken cancellationToken)
         {
-            msSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+            return msSqlDatabaseMigrator.MigrateDatabaseUsingScriptsAsync(null, GetSqlScripts(), cancellationToken);
         }
     }
 }

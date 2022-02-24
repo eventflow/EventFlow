@@ -32,6 +32,7 @@ namespace EventFlow
     {
         IServiceCollection ServiceCollection { get; }
 
+        IEventFlowOptions ConfigureThrowSubscriberExceptions(bool shouldThrow);
         IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry);
         IEventFlowOptions Configure(Action<EventFlowConfiguration> configure);
         IEventFlowOptions AddEvents(IEnumerable<Type> aggregateEventTypes);
