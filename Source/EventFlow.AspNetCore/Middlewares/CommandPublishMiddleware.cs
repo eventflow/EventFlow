@@ -30,8 +30,8 @@ using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.AspNetCore.Middlewares
 {
@@ -42,18 +42,18 @@ namespace EventFlow.AspNetCore.Middlewares
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly RequestDelegate _next;
-        private readonly ILog _log;
+        private readonly ILogger<CommandPublishMiddleware> _logger;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ISerializedCommandPublisher _serializedCommandPublisher;
 
         public CommandPublishMiddleware(
             RequestDelegate next,
-            ILog log,
+            ILogger<CommandPublishMiddleware> logger,
             IJsonSerializer jsonSerializer,
             ISerializedCommandPublisher serializedCommandPublisher)
         {
             _next = next;
-            _log = log;
+            _logger = logger;
             _jsonSerializer = jsonSerializer;
             _serializedCommandPublisher = serializedCommandPublisher;
         }
@@ -80,7 +80,10 @@ namespace EventFlow.AspNetCore.Middlewares
 
         private async Task PublishCommandAsync(string name, int version, HttpContext context)
         {
-            _log.Verbose($"Publishing command '{name}' v{version} from OWIN middleware");
+            _logger.LogTrace(
+                "Publishing command {CommandName} version {CommandVersion} from ASP.NET Core middleware",
+                name,
+                version);
 
             string requestJson;
             using (var streamReader = new StreamReader(context.Request.Body))
@@ -90,12 +93,13 @@ namespace EventFlow.AspNetCore.Middlewares
 
             try
             {
-                var sourceId = await _serializedCommandPublisher.PublishSerilizedCommandAsync(
+                var sourceId = await _serializedCommandPublisher.PublishSerializedCommandAsync(
                     name,
                     version,
                     requestJson,
-                    CancellationToken.None)
+                    CancellationToken.None) /* TODO: Determine if we should use context.RequestAborted */
                     .ConfigureAwait(false);
+
                 await WriteAsync(
                     new
                         {
@@ -107,7 +111,13 @@ namespace EventFlow.AspNetCore.Middlewares
             }
             catch (ArgumentException e)
             {
-                _log.Debug(e, $"Failed to publish serialized command '{name}' v{version} due to: {e.Message}");
+                _logger.LogDebug(
+                    e,
+                    "Failed to publish serialized command {CommandName} version {CommandVersion} due to: {ExceptionMessage}",
+                    name,
+                    version,
+                    e.Message);
+
                 await WriteErrorAsync(e.Message, HttpStatusCode.BadRequest, context).ConfigureAwait(false);
             }
             catch (DomainError e)
@@ -116,7 +126,11 @@ namespace EventFlow.AspNetCore.Middlewares
             }
             catch (Exception e)
             {
-                _log.Error(e, $"Unexpected exception when executing '{name}' v{version}");
+                _logger.LogError(
+                    e, "Unexpected exception when executing {CommandName} version {CommandVersion}",
+                    name,
+                    version);
+
                 await WriteErrorAsync("Internal server error!", HttpStatusCode.InternalServerError, context).ConfigureAwait(false);
             }
         }

@@ -47,10 +47,13 @@ namespace EventFlow.AspNetCore.MetadataProviders
 			where TIdentity : IIdentity
 		{
 		    var httpContext = _httpContextAccessor.HttpContext;
-		    if (httpContext == null)
-		        yield break;
+            if (httpContext == null)
+            {
+                yield break;
+            }
 
 		    var request = httpContext.Request;
+
 		    yield return new KeyValuePair<string, string>("request_uri", request.Path.ToString());
 			yield return new KeyValuePair<string, string>("request_proto", request.Protocol.ToUpperInvariant());
 			yield return new KeyValuePair<string, string>("request_method", request.Method.ToUpperInvariant());

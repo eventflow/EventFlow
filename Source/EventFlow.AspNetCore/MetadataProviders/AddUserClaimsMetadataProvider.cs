@@ -51,7 +51,8 @@ namespace EventFlow.AspNetCore.MetadataProviders
             if (user == null)
                 return Enumerable.Empty<KeyValuePair<string, string>>();
 
-            return from claim in user.Claims
+            return
+                from claim in user.Claims
                 where _options.IsIncluded(claim.Type)
                 group claim by claim.Type
                 into claimGroup
