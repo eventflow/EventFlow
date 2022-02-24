@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
 using EventFlow.Extensions;
 using EventFlow.MsSql.Extensions;
 using EventFlow.MsSql.SnapshotStores;
@@ -49,7 +50,9 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
             var serviceProvider = base.Configure(eventFlowOptions);
 
             var databaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
-            EventFlowSnapshotStoresMsSql.MigrateDatabase(databaseMigrator);
+            EventFlowSnapshotStoresMsSql.MigrateDatabaseAsync(
+                databaseMigrator,
+                CancellationToken.None).Wait();
 
             return serviceProvider;
         }

@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -33,9 +34,9 @@ using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
+using EventFlow.Sql.ReadModels.Attributes;
 using Microsoft.Extensions.Logging;
 
 #pragma warning disable 618
@@ -54,6 +55,7 @@ namespace EventFlow.MsSql.ReadStores
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
         private static readonly string ReadModelNameLowerCase = typeof(TReadModel).Name.ToLowerInvariant();
+        private static readonly string ConnectionStringName = typeof(TReadModel).GetCustomAttribute<SqlReadModelConnectionStringNameAttribute>()?.ConnectionStringName;
 
         static MssqlReadModelStore()
         {
@@ -61,7 +63,7 @@ namespace EventFlow.MsSql.ReadStores
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             var versionPropertyInfo = propertyInfos
-                .SingleOrDefault(p => p.GetCustomAttribute<MsSqlReadModelVersionColumnAttribute>() != null);
+                .SingleOrDefault(p => p.GetCustomAttribute<SqlReadModelVersionColumnAttribute>() != null);
             if (versionPropertyInfo == null)
             {
                 versionPropertyInfo = propertyInfos.SingleOrDefault(p => p.Name == "LastAggregateSequenceNumber");
@@ -180,9 +182,8 @@ namespace EventFlow.MsSql.ReadStores
 
             var rowsAffected = await _connection.ExecuteAsync(
                 Label.Named("mssql-store-read-model", ReadModelNameLowerCase),
-                cancellationToken,
-                sql,
-                dynamicParameters).ConfigureAwait(false);
+                ConnectionStringName,
+                cancellationToken, sql, dynamicParameters).ConfigureAwait(false);
             if (rowsAffected != 1)
             {
                 throw new OptimisticConcurrencyException(
@@ -205,6 +206,7 @@ namespace EventFlow.MsSql.ReadStores
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
                 Label.Named("mssql-fetch-read-model", ReadModelNameLowerCase),
+                ConnectionStringName,
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -246,9 +248,8 @@ namespace EventFlow.MsSql.ReadStores
 
             var rowsAffected = await _connection.ExecuteAsync(
                 Label.Named("mssql-delete-read-model", ReadModelNameLowerCase),
-                cancellationToken,
-                sql,
-                new { EventFlowReadModelId = id })
+                ConnectionStringName,
+                cancellationToken, sql, new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
             if (rowsAffected != 0 && Logger.IsEnabled(LogLevel.Trace))
@@ -267,8 +268,7 @@ namespace EventFlow.MsSql.ReadStores
 
             var rowsAffected = await _connection.ExecuteAsync(
                 Label.Named("mssql-purge-read-model", readModelName),
-                cancellationToken,
-                sql)
+                ConnectionStringName, cancellationToken, sql)
                 .ConfigureAwait(false);
 
             if (Logger.IsEnabled(LogLevel.Trace))

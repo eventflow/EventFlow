@@ -60,6 +60,7 @@ namespace EventFlow.Sql.ReadModels
         private static readonly Label LabelGet = Label.Named("sql-fetch-read-model", typeof(TReadModel).Name.ToLowerInvariant());
         private static readonly Label LabelDelete = Label.Named("sql-delete-read-model", typeof(TReadModel).Name.ToLowerInvariant());
         private static readonly Label LabelDeleteAll = Label.Named("sql-purge-read-model", typeof(TReadModel).Name.ToLowerInvariant());
+        private static readonly string ConnectionStringName = typeof(TReadModel).GetCustomAttribute<SqlReadModelConnectionStringNameAttribute>()?.ConnectionStringName;
 
         static SqlReadModelStore()
         {
@@ -173,9 +174,8 @@ namespace EventFlow.Sql.ReadModels
             
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelStore,
-                cancellationToken,
-                sql,
-                dynamicParameters)
+                ConnectionStringName,
+                cancellationToken, sql, dynamicParameters)
                 .ConfigureAwait(false);
             if (rowsAffected != 1)
             {
@@ -197,6 +197,7 @@ namespace EventFlow.Sql.ReadModels
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
             var readModels = await _connection.QueryAsync<TReadModel>(
                 LabelGet,
+                ConnectionStringName,
                 cancellationToken,
                 selectSql,
                 new { EventFlowReadModelId = id })
@@ -232,9 +233,8 @@ namespace EventFlow.Sql.ReadModels
 
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelDelete,
-                cancellationToken,
-                sql,
-                new { EventFlowReadModelId = id })
+                ConnectionStringName,
+                cancellationToken, sql, new { EventFlowReadModelId = id })
                 .ConfigureAwait(false);
 
             if (rowsAffected != 0)
@@ -252,6 +252,7 @@ namespace EventFlow.Sql.ReadModels
 
             var rowsAffected = await _connection.ExecuteAsync(
                 LabelDeleteAll,
+                ConnectionStringName,
                 cancellationToken,
                 sql)
                 .ConfigureAwait(false);

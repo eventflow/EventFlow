@@ -34,18 +34,21 @@ namespace EventFlow.Sql.Connections
     {
         Task<int> ExecuteAsync(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             object param = null);
         
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>
-            (Label label,
+        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+            Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             object param = null);
         
         Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             IEnumerable<TRow> rows)
@@ -53,6 +56,7 @@ namespace EventFlow.Sql.Connections
 
         Task<TResult> WithConnectionAsync<TResult>(
             Label label,
+            string connectionStringName,
             Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
             CancellationToken cancellationToken);
     }

@@ -30,9 +30,12 @@ namespace EventFlow.MsSql.Tests.Extensions
 {
     public static class MsSqlDatabaseExtensions
     {
-        public static IReadOnlyCollection<T> Query<T>(this IMsSqlDatabase database, string sql)
+        public static IReadOnlyCollection<T> Query<T>(
+            this IMsSqlDatabase database,
+            string sql,
+            object param = null)
         {
-            return database.WithConnection<IReadOnlyCollection<T>>(c => c.Query<T>(sql).ToList());
+            return database.WithConnection<IReadOnlyCollection<T>>(c => c.Query<T>(sql, param).ToList());
         }
 
         public static int Execute(this IMsSqlDatabase database, string sql, object param)

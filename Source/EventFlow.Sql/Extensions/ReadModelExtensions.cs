@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -22,12 +22,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
+using System.Reflection;
+using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels.Attributes;
 
-namespace EventFlow.MsSql.ReadStores.Attributes
+namespace EventFlow.Sql.Extensions
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelVersionColumnAttribute : SqlReadModelVersionColumnAttribute
+    public static class ReadModelExtensions
     {
+        private static readonly ConcurrentDictionary<Type, string> ConnectionStringNames = new ConcurrentDictionary<Type, string>();
+
+        public static string GetConnectionStringName<T>(T _ = null)
+            where T : class, IReadModel
+        {
+            return ConnectionStringNames.GetOrAdd(
+                typeof(T),
+                t => t.GetCustomAttribute<SqlReadModelConnectionStringNameAttribute>()?.ConnectionStringName);
+        }
     }
 }

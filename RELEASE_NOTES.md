@@ -1,17 +1,37 @@
-### New in 1.0 alpha (not released yet)
+### New in 1.0-alpha (not released yet)
+
+**IMPORTANT:** Major API breaking changes *might* occur between 1.0 pre-releases. As breaking
+API changes will need to be tested and verified before the final 1.0 release.
 
 Read the complete migration guide to get the full list of changes as well
 as recommendations on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
+* New/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
+* New/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
+* New/breaking: SQL read models now support different connection strings using the
+  `[SqlReadModelConnectionStringName]` attribute. To allow executing queries using different
+  connection strings, all methods on `IMsSqlConnection` and `ISqlConnection` now have an
+  additional argument, `string connectionStringName` to signify which connection string
+  should be used for the query
+* New/breaking: SQL connection strings are now fetched from the
+  `SqlConfiguration<T>.GetConnectionStringAsync(...)` instead of a property, allowing more
+  control of the connection string used at runtime
+* New: Its now possible to change the execution timeout for database migrations using the
+  `SetUpgradeExecutionTimeout(...)` on the SQL configuration
+* Breaking: Removed the following dead and/or confusion MSSQL attributes. The real ones
+  are named the same, with with `Sql...` instead of `MsSql...`
+  - `MsSqlReadModelIdentityColumn`
+  - `MsSqlReadModelIgnoreColumn`
+  - `MsSqlReadModelVersionColumn`
+* Breaking: Methods on `IMsSqlDatabaseMigrator` and `ISqlDatabaseMigrator` have been
+  made async and have an extra `CancellationToken` argument
 * Breaking: Remove support for .NET Framework and consolidate on .NET Core LTS versions
-* Breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
-* Breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
 * Breaking: Replace internal in-memory caching with `Microsoft.Extensions.Caching.Memory`
-* Breaking: Remove `IAmAsyncReadModelFor` and made `IAmReadModelFor` async
+* Breaking: Removed `IAmAsyncReadModelFor` and made `IAmReadModelFor` async
 * Breaking: Removed `EventFlow.Core.AsyncHelper` as well as all async wrapper methods
-  that used it.
+  that used it
   - `IAggregateStore.Load`
   - `IAggregateStore.Store`
   - `IAggregateStore.Update`
@@ -22,7 +42,18 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
   - `IQueryProcessor.Process`
   - `IReadModelPopulator.Populate`
   - `IReadModelPopulator.Purge`
+* Version of 0.x included: `0.83.4713`. 0.x changes are merged to 1.x at regular
+  intervals, but might be one or two releases behind
 
+
+### New in 0.83.4713 (released 2021-09-07)
+
+* New: Queue name used by HangfireJobScheduler can be overridden:
+  ```csharp
+  eventFlowOptions.UseHangfireJobScheduler(o => o.UseQueueName("myqueue"))
+  ```
+* Fixed: Do not throw `MetadataKeyNotFoundException` if there is no meta data on
+  `previous_source_ids` in snapshots
 
 ### New in 0.82.4684 (released 2021-08-31)
 
