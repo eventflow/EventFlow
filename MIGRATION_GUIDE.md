@@ -50,6 +50,21 @@ that wasn't possible to add before as introducing them would cause breaking chan
 
   This allows for connection strings to be fetched runtime from external sources.
 
+## Changes to supported .NET versions
+
+With the 1.x release, EventFlow limits the amount of supported .NET versions, to
+that of official [.NET (Core) LTS versions](https://dotnet.microsoft.com/en-us/platform/support/policy).
+Support for non-LTS versions will be limited, but do expect to have EventFlow lag a little
+behind when cutting support on older versions.
+
+As of the 1.0 release, EventFlow supports the following framework versions.
+
+- `netstandard2.1`
+- `netcoreapp3.1`
+- `net6.0`
+
+Note that this enabled the use of `IAsyncEnumerable` which is going to be a key driver
+for some of the upcoming features of EventFlow. 
 
 ## Data in event stores
 
