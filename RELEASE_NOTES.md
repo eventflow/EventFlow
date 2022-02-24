@@ -1,4 +1,4 @@
-### New in 1.0 alpha (not released yet)
+### New in 1.0-alpha (not released yet)
 
 **IMPORTANT:** Major API breaking changes *might* occur between 1.0 pre-releases. As breaking
 API changes will need to be tested and verified before the final 1.0 release.
