@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.MongoDB.ReadStores;
 using EventFlow.MongoDB.ReadStores.Attributes;
@@ -45,25 +47,6 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
 
         public string Message { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
-        {
-            ThingyId = domainEvent.AggregateIdentity.Value;
-
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            Id = thingyMessage.Id.Value;
-            Message = thingyMessage.Message;
-        }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
-        {
-            ThingyId = domainEvent.AggregateIdentity.Value;
-
-            var messageId = new ThingyMessageId(context.ReadModelId);
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
-            Id = messageId.Value;
-            Message = thingyMessage.Message;
-        }
-
         public ThingyMessage ToThingyMessage()
         {
             return new ThingyMessage(
@@ -71,6 +54,27 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
                 Message);
         }
 
+        public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent, CancellationToken cancellationToken)
+        {
+            ThingyId = domainEvent.AggregateIdentity.Value;
 
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+            Id = thingyMessage.Id.Value;
+            Message = thingyMessage.Message;
+            
+            return Task.CompletedTask;
+        }
+
+        public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent, CancellationToken cancellationToken)
+        {
+            ThingyId = domainEvent.AggregateIdentity.Value;
+
+            var messageId = new ThingyMessageId(context.ReadModelId);
+            var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
+            Id = messageId.Value;
+            Message = thingyMessage.Message;
+            
+            return Task.CompletedTask;
+        }
     }
 }
