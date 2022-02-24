@@ -82,4 +82,3 @@ jobs:
 
     - name: Run Bake
       run: bake run --build-version 0.0.$GITHUB_RUN_NUMBER
-
