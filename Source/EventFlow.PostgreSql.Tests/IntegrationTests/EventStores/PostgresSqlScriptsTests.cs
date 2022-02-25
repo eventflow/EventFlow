@@ -59,7 +59,7 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.EventStores
 
         public void TearDown()
         {
-            _postgreSqlDatabase.DisposeSafe("Postgre database");
+            _postgreSqlDatabase.DisposeSafe(LogHelper.For<PostgreSqlScriptsTests>(),"Postgre database");
         }
     }
 }
