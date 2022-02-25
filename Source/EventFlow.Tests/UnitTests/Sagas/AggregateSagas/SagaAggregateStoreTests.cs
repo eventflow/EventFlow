@@ -27,7 +27,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -49,7 +48,9 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             _thingySagaId = A<ThingySagaId>();
             _thingySaga = InjectMock<ThingySaga>(_thingySagaId);
 
-            Inject<IMemoryCache>(A<DictionaryMemoryCache>());
+            InjectMock<IServiceProvider>()
+                .Setup(m => m.GetService(typeof(ICommandBus)))
+                .Returns(Mock<ICommandBus>());
         }
 
         [Test]

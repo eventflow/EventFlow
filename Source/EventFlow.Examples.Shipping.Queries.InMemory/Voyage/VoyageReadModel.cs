@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Events;
@@ -36,15 +38,23 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory.Voyage
         public VoyageId Id { get; private set; }
         public Schedule Schedule { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<VoyageAggregate, VoyageId, VoyageCreatedEvent> e)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<VoyageAggregate, VoyageId, VoyageCreatedEvent> e,
+            CancellationToken _)
         {
             Id = e.AggregateIdentity;
             Schedule = e.AggregateEvent.Schedule;
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<VoyageAggregate, VoyageId, VoyageScheduleUpdatedEvent> domainEvent,
+            CancellationToken _)
         {
             Schedule = domainEvent.AggregateEvent.Schedule;
+            return Task.CompletedTask;
         }
 
         public Domain.Model.VoyageModel.Voyage ToVoyage()

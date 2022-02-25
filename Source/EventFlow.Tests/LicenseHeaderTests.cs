@@ -62,7 +62,7 @@ namespace EventFlow.Tests
             var sourceFiles = await Task.WhenAll(sourceFilesPaths.Select(GetSourceFileAsync));
 
             // Sanity asserts
-            sourceFiles.Should().HaveCountGreaterThan(800);
+            sourceFiles.Should().HaveCountGreaterThan(700);
 
             // Missing headers
             var missingHeaders = sourceFiles

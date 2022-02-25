@@ -27,13 +27,14 @@ using System.Linq;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
-using EventFlow.Logs;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using EventId = EventFlow.Aggregates.EventId;
 
 namespace EventFlow.TestHelpers
 {
@@ -41,7 +42,7 @@ namespace EventFlow.TestHelpers
     {
         protected IFixture Fixture { get; private set; }
         protected IDomainEventFactory DomainEventFactory;
-        protected ILog Log => LogHelper.Log;
+        protected ILogger Log => LogHelper.Logger;
 
         [SetUp]
         public void SetUpTest()
@@ -70,6 +71,11 @@ namespace EventFlow.TestHelpers
             where T : class
         {
             return new Mock<T>().Object;
+        }
+
+        protected static ILogger<T> Logger<T>()
+        {
+            return LogHelper.For<T>();
         }
 
         protected T Inject<T>(T instance)

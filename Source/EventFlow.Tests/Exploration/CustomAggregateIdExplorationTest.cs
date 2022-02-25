@@ -27,6 +27,7 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.Exploration
@@ -37,12 +38,12 @@ namespace EventFlow.Tests.Exploration
         [Test]
         public async Task AggregatesCanHaveCustomImplementedIdentity()
         {
-            using (var resolver = EventFlowOptions.New
-                .CreateResolver(false))
+            using (var serviceProvider = EventFlowOptions.New()
+                .ServiceCollection.BuildServiceProvider())
             {
                 // Arrange
                 var customId = new CustomId(A<string>());
-                var aggregateStore = resolver.Resolve<IAggregateStore>();
+                var aggregateStore = serviceProvider.GetRequiredService<IAggregateStore>();
 
                 // Act
                var customAggregate = await aggregateStore.LoadAsync<CustomAggregate, CustomId>(customId, CancellationToken.None).ConfigureAwait(false);

@@ -23,10 +23,10 @@
 
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
-using EventFlow.Logs;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.PostgreSql.ReadStores
 {
@@ -34,7 +34,7 @@ namespace EventFlow.PostgreSql.ReadStores
         where TReadModel : class, IReadModel
     {
         public PostgreSqlReadModelStore(
-            ILog log,
+            ILogger<PostgreSqlReadModelStore<TReadModel>> log,
             IPostgreSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,

@@ -21,26 +21,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
 
 namespace EventFlow.ReadStores
 {
     public class ReadModelContext : IReadModelContext
     {
-        public ReadModelContext(IResolver resolver, string readModelId, bool isNew)
+        public bool IsMarkedForDeletion { get; private set; }
+        public bool IsNew { get; }
+        public IServiceProvider ServiceProvider { get; }
+        public string ReadModelId { get; }
+
+        public ReadModelContext(
+            IServiceProvider serviceProvider,
+            string readModelId,
+            bool isNew)
         {
-            Resolver = resolver;
+            ServiceProvider = serviceProvider;
             ReadModelId = readModelId;
             IsNew = isNew;
         }
-
-        public bool IsMarkedForDeletion { get; private set; }
-
-        public bool IsNew { get; }
-
-        public string ReadModelId { get; }
-
-        public IResolver Resolver { get; }
 
         public void MarkForDeletion()
         {

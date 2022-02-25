@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Threading;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.Connections;
@@ -29,6 +31,7 @@ using EventFlow.PostgreSql.SnapshotStores;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores
@@ -38,25 +41,26 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores
     {
         private IPostgreSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow-snapshots");
 
             var resolver = eventFlowOptions
                 .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UsePostgreSqlSnapshotStore()
-                .CreateResolver();
+                .UsePostgreSqlSnapshotStore();
 
-            var databaseMigrator = resolver.Resolve<IPostgreSqlDatabaseMigrator>();
-            EventFlowSnapshotStoresPostgreSql.MigrateDatabase(databaseMigrator);
+            var provider = base.Configure(eventFlowOptions);
 
-            return resolver;
+            var databaseMigrator = provider.GetRequiredService<IPostgreSqlDatabaseMigrator>();
+            EventFlowSnapshotStoresPostgreSql.MigrateDatabaseAsync(databaseMigrator, CancellationToken.None).Wait();
+
+            return provider;
         }
 
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("Failed to delete database");
+            _testDatabase.DisposeSafe(Logger, "Failed to delete database");
         }
     }
 }

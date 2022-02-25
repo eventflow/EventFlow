@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using NUnit.Framework;
@@ -31,9 +30,6 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     [Category(Categories.Integration)]
     public class InMemoryEventStoreTests : TestSuiteForEventStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.CreateResolver();
-        }
+        // Intentionally left empty as in-memory is the default
     }
 }

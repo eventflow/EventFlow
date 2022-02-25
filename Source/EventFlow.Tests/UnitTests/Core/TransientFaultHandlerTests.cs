@@ -25,9 +25,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
@@ -37,12 +37,12 @@ namespace EventFlow.Tests.UnitTests.Core
     public class TransientFaultHandlerTests : TestsFor<TransientFaultHandler<IRetryStrategy>>
     {
         private Mock<IRetryStrategy> _retryStrategyMock;
-        private Mock<ILog> _logMock;
+        private Mock<ILogger<TransientFaultHandler<IRetryStrategy>>> _loggerMock;
 
         [SetUp]
         public void SetUp()
         {
-            _logMock = new Mock<ILog>();
+            _loggerMock = new Mock<ILogger<TransientFaultHandler<IRetryStrategy>>>();
             _retryStrategyMock = new Mock<IRetryStrategy>();
         }
 
@@ -110,7 +110,7 @@ namespace EventFlow.Tests.UnitTests.Core
         protected override TransientFaultHandler<IRetryStrategy> CreateSut()
         {
             return new TransientFaultHandler<IRetryStrategy>(
-                _logMock.Object,
+                _loggerMock.Object,
                 _retryStrategyMock.Object);
         }
 

@@ -26,11 +26,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Queries
 {
@@ -42,17 +43,17 @@ namespace EventFlow.Queries
             public Func<IQueryHandler, IQuery, CancellationToken, Task> HandlerFunc { get; set; }
         }
 
-        private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly ILogger<QueryProcessor> _logger;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMemoryCache _memoryCache;
 
         public QueryProcessor(
-            ILog log,
-            IResolver resolver,
+            ILogger<QueryProcessor> logger,
+            IServiceProvider serviceProvider,
             IMemoryCache memoryCache)
         {
-            _log = log;
-            _resolver = resolver;
+            _logger = logger;
+            _serviceProvider = serviceProvider;
             _memoryCache = memoryCache;
         }
 
@@ -79,38 +80,31 @@ namespace EventFlow.Queries
             CancellationToken cancellationToken)
         {
             var queryType = query.GetType();
-            var cacheItem = await GetCacheItemAsync(queryType, cancellationToken).ConfigureAwait(false);
+            var cacheItem = GetCacheItem(queryType);
 
-            var queryHandler = (IQueryHandler) _resolver.Resolve(cacheItem.QueryHandlerType);
-            _log.Verbose(() => $"Executing query '{queryType.PrettyPrint()}' ({cacheItem.QueryHandlerType.PrettyPrint()}) by using query handler '{queryHandler.GetType().PrettyPrint()}'");
+            var queryHandler = (IQueryHandler) _serviceProvider.GetRequiredService(cacheItem.QueryHandlerType);
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Executing query {QueryType} ({QueryHandlerType}) by using query handler {QueryHandlerType}",
+                    queryType.PrettyPrint(),
+                    cacheItem.QueryHandlerType.PrettyPrint(),
+                    queryHandler.GetType().PrettyPrint());
+            }
 
             var task = (Task<TResult>) cacheItem.HandlerFunc(queryHandler, query, cancellationToken);
 
             return await task.ConfigureAwait(false);
         }
 
-        [Obsolete("Non-async methods will all be removed in EventFlow 1.0")]
-        public TResult Process<TResult>(
-            IQuery<TResult> query,
-            CancellationToken cancellationToken)
+        private CacheItem GetCacheItem(
+            Type queryType)
         {
-            var result = default(TResult);
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(ProcessAsync(query, cancellationToken), r => result = r);
-            }
-            return result;
-        }
-
-        private Task<CacheItem> GetCacheItemAsync(
-            Type queryType,
-            CancellationToken cancellationToken)
-        {
-            return _memoryCache.GetOrAddAsync(
+            return _memoryCache.GetOrCreate(
                 CacheKey.With(GetType(), queryType.GetCacheKey()),
-                TimeSpan.FromDays(1),
-                _ =>
+                e =>
                     {
+                        e.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
                         var queryInterfaceType = queryType
                             .GetTypeInfo()
                             .GetInterfaces()
@@ -120,13 +114,12 @@ namespace EventFlow.Queries
                             queryHandlerType,
                             "ExecuteQueryAsync",
                             queryType, typeof(CancellationToken));
-                        return Task.FromResult(new CacheItem
+                        return new CacheItem
                             {
                                 QueryHandlerType = queryHandlerType,
                                 HandlerFunc = invokeExecuteQueryAsync
-                            });
-                    },
-                cancellationToken);
+                            };
+                    });
         }
     }
 }

@@ -23,16 +23,24 @@
 
 using System;
 using EventFlow.Configuration.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsJsonConfigurationExtensions
     {
-        public static IEventFlowOptions ConfigureJson(this IEventFlowOptions options, Func<JsonOptions, IJsonOptions> configure)
+        public static IEventFlowOptions ConfigureJson(
+            this IEventFlowOptions eventFlowOptions,
+            Func<IJsonOptions, IJsonOptions> configure)
         {
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+            
             var config = configure(JsonOptions.New);
-            return options.RegisterServices(s => s.Register(_ => config));
+            eventFlowOptions.ServiceCollection.AddTransient(_ => config);
+            return eventFlowOptions;
         }
     }
 }

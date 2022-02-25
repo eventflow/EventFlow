@@ -21,10 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Commands;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Queries;
 using EventFlow.Examples.Shipping.Domain.Services;
@@ -32,6 +32,7 @@ using EventFlow.Examples.Shipping.ExternalServices.Routing;
 using EventFlow.Exceptions;
 using EventFlow.Jobs;
 using EventFlow.Queries;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs
 {
@@ -45,12 +46,12 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.Jobs
 
         public CargoId CargoId { get; }
 
-        public async Task ExecuteAsync(IResolver resolver, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
-            var queryProcessor = resolver.Resolve<IQueryProcessor>();
-            var updateItineraryService = resolver.Resolve<IUpdateItineraryService>();
-            var commandBus = resolver.Resolve<ICommandBus>();
-            var routingService = resolver.Resolve<IRoutingService>();
+            var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
+            var updateItineraryService = serviceProvider.GetRequiredService<IUpdateItineraryService>();
+            var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
+            var routingService = serviceProvider.GetRequiredService<IRoutingService>();
 
             var cargo = (await queryProcessor.ProcessAsync(new GetCargosQuery(CargoId), cancellationToken).ConfigureAwait(false)).Single();
             var updatedItinerary = await updateItineraryService.UpdateItineraryAsync(cargo.Itinerary, cancellationToken).ConfigureAwait(false);

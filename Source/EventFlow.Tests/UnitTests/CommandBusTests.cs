@@ -22,15 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
-using EventFlow.Core.Caching;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
@@ -46,14 +44,14 @@ namespace EventFlow.Tests.UnitTests
     public class CommandBusTests : TestsFor<CommandBus>
     {
         private Mock<IAggregateStore> _aggregateStoreMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _resolverMock;
 
         [SetUp]
         public void SetUp()
         {
-            Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
+            //Inject<IMemoryCache>(new DictionaryMemoryCache(Mock<ILog>()));
 
-            _resolverMock = InjectMock<IResolver>();
+            _resolverMock = InjectMock<IServiceProvider>();
             _aggregateStoreMock = InjectMock<IAggregateStore>();
         }
 
@@ -92,7 +90,7 @@ namespace EventFlow.Tests.UnitTests
             where TExecutionResult : IExecutionResult
         {
             _resolverMock
-                .Setup(r => r.ResolveAll(typeof(ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>)))
+                .Setup(r => r.GetService(typeof(IEnumerable<ICommandHandler<TAggregate, TIdentity, TExecutionResult, TCommand>>)))
                 .Returns(new[] { commandHandler });
         }
 

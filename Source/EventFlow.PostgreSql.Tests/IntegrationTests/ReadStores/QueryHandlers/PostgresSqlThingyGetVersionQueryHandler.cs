@@ -46,6 +46,7 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.QueryHandlers
         {
             var readModels = await _postgreSqlConnection.QueryAsync<PostgreSqlThingyReadModel>(
                 Label.Named("postgresql-fetch-test-read-model"),
+                null,
                 cancellationToken,
                 "SELECT * FROM \"ReadModel-ThingyAggregate\" WHERE AggregateId = @AggregateId;",
                 new { AggregateId = query.ThingyId.Value })

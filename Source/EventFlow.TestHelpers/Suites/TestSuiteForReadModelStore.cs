@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
@@ -39,7 +38,10 @@ using AutoFixture;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Events;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using EventId = EventFlow.Aggregates.EventId;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -202,6 +204,25 @@ namespace EventFlow.TestHelpers.Suites
             readModel1.PingsReceived.Should().Be(3);
             readModel2.PingsReceived.Should().Be(5);
         }
+        
+        [Test]
+        public async Task RePopulateHandlesDeletedAggregate()
+        {
+            // Arrange
+            var id1 = ThingyId.New;
+            var id2 = ThingyId.New;
+            await PublishPingCommandsAsync(id1, 3).ConfigureAwait(false);
+            await PublishPingCommandsAsync(id2, 5).ConfigureAwait(false);
+
+            // Act
+            await ReadModelPopulator.DeleteAsync(id2.Value, ReadModelType, CancellationToken.None).ConfigureAwait(false);
+            await ReadModelPopulator.PopulateAsync(ReadModelType, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
+            
+            readModel.PingsReceived.Should().Be(5);
+        }
 
         [Test]
         public async Task PopulateCreatesReadModels()
@@ -323,7 +344,7 @@ namespace EventFlow.TestHelpers.Suites
             bool injectPing)
         {
             // Arrange
-            var readStoreManager = Resolver.Resolve<IReadStoreManager>();
+            var readStoreManager = ServiceProvider.GetService<IReadStoreManager>();
             var thingyId = ThingyId.New;
             var thingyMessage = Fixture.Create<ThingyMessage>();
             var pingId = PingId.New;
@@ -369,9 +390,13 @@ namespace EventFlow.TestHelpers.Suites
         {
             _waitStates.Clear();
 
-            return base.Options(eventFlowOptions)
-                .RegisterServices(sr => sr.Decorate<IReadModelDomainEventApplier>(
-                    (r, dea) => new DelayingReadModelDomainEventApplier(dea, _waitStates, r.Resolver.Resolve<ILog>())));
+            return base
+                .Options(eventFlowOptions)
+                .RegisterServices(sr =>
+                {
+                    sr.AddSingleton<IReadOnlyDictionary<string, WaitState>>(_waitStates);
+                    sr.Decorate<IReadModelDomainEventApplier, DelayingReadModelDomainEventApplier>();
+                });
         }
 
         private async Task<IReadOnlyCollection<ThingyMessage>> CreateAndPublishThingyMessagesAsync(ThingyId thingyId, int count)
@@ -385,18 +410,18 @@ namespace EventFlow.TestHelpers.Suites
 
         private class DelayingReadModelDomainEventApplier : IReadModelDomainEventApplier
         {
+            private readonly ILogger<DelayingReadModelDomainEventApplier> _logger;
             private readonly IReadModelDomainEventApplier _readModelDomainEventApplier;
             private readonly IReadOnlyDictionary<string, WaitState> _waitStates;
-            private readonly ILog _log;
 
             public DelayingReadModelDomainEventApplier(
+                ILogger<DelayingReadModelDomainEventApplier> logger,
                 IReadModelDomainEventApplier readModelDomainEventApplier,
-                IReadOnlyDictionary<string, WaitState> waitStates,
-                ILog log)
+                IReadOnlyDictionary<string, WaitState> waitStates)
             {
+                _logger = logger;
                 _readModelDomainEventApplier = readModelDomainEventApplier;
                 _waitStates = waitStates;
-                _log = log;
             }
 
             public async Task<bool> UpdateReadModelAsync<TReadModel>(
@@ -410,7 +435,7 @@ namespace EventFlow.TestHelpers.Suites
 
                 if (waitState != null)
                 {
-                    _log.Information("Waiting for access to read model");
+                    _logger.LogInformation("Waiting for access to read model");
                     waitState.ReadStoreReady.Set();
                     waitState.ReadStoreContinue.WaitOne();
                 }

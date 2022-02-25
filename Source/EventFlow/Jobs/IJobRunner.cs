@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,19 +28,6 @@ namespace EventFlow.Jobs
 {
     public interface IJobRunner
     {
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
-        void Execute(
-            string jobName,
-            int version,
-            string job);
-
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
-        void Execute(
-            string jobName,
-            int version,
-            string json,
-            CancellationToken cancellationToken);
-
         Task ExecuteAsync(
             string jobName,
             int version,

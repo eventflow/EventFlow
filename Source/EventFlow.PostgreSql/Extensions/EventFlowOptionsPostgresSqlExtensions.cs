@@ -21,9 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using EventFlow.Extensions;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.PostgreSql.RetryStrategies;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -33,15 +34,15 @@ namespace EventFlow.PostgreSql.Extensions
             this IEventFlowOptions eventFlowOptions,
             IPostgreSqlConfiguration postgreSqlConfiguration)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                    {
-                        f.Register<IPostgreSqlDatabaseMigrator, PostgreSqlDatabaseMigrator>();
-                        f.Register<IPostgreSqlConnection, PostgreSqlConnection>();
-                        f.Register<IPostgreSqlConnectionFactory, PostgreSqlConnectionFactory>();
-                        f.Register<IPostgreSqlErrorRetryStrategy, PostgreSqlErrorRetryStrategy>();
-                        f.Register(_ => postgreSqlConfiguration, Lifetime.Singleton);
-                    });
+            return eventFlowOptions.RegisterServices(f =>
+            {
+                f.TryAddTransient<IPostgreSqlDatabaseMigrator, PostgreSqlDatabaseMigrator>();
+                f.TryAddTransient<IPostgreSqlConnection, PostgreSqlConnection>();
+                f.TryAddTransient<IPostgreSqlConnectionFactory, PostgreSqlConnectionFactory>();
+                f.TryAddTransient<IPostgreSqlErrorRetryStrategy, PostgreSqlErrorRetryStrategy>();
+                f.TryAddSingleton(_ => postgreSqlConfiguration);
+            });
+
         }
     }
 }

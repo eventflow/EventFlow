@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
@@ -201,6 +202,12 @@ namespace EventFlow.TestHelpers.Suites
             thingyAggregate.Version.Should().Be(expectedVersion);
             thingyAggregate.PingsReceived.Should().BeEquivalentTo(pingIds);
             thingyAggregate.SnapshotVersions.Should().Contain(new[] {ThingySnapshotVersion.Version1, ThingySnapshotVersion.Version2});
+        }
+
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
+        {
+            return base.Options(eventFlowOptions)
+                .UseInMemorySnapshotPersistence();
         }
 
         public Task StoreSnapshotAsync<TSnapshot>(
