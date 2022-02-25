@@ -15,7 +15,7 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://github.com/eventflow/EventFlow/actions/workflows/build.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/build.yml/badge.svg" /></a>
+        <a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
       </p>
       <p>
         <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>

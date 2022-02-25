@@ -47,11 +47,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.PostgreSql", "Source\EventFlow.PostgreSql\EventFlow.PostgreSql.csproj", "{B05E67FF-294D-4871-A5EF-8BA762951476}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.PostgreSql.Tests", "Source\EventFlow.PostgreSql.Tests\EventFlow.PostgreSql.Tests.csproj", "{87A29B00-48EB-40BC-B532-7EDC17604BB3}"
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mongodb", "Mongodb", "{9B07B6E9-428A-42F7-AFB1-B23755A409EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MongoDB", "Source\EventFlow.MongoDB\EventFlow.MongoDB.csproj", "{BF9A0D20-4F8E-443C-8F36-5DD854D188C2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MongoDB", "MongoDB", "{9B07B6E9-428A-42F7-AFB1-B23755A409EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.MongoDB.Tests", "Source\EventFlow.MongoDB.Tests\EventFlow.MongoDB.Tests.csproj", "{9132960E-9496-4C77-BD80-A09A86814757}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB", "Source\EventFlow.MongoDB\EventFlow.MongoDB.csproj", "{BF9A0D20-4F8E-443C-8F36-5DD854D188C2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB.Tests", "Source\EventFlow.MongoDB.Tests\EventFlow.MongoDB.Tests.csproj", "{9132960E-9496-4C77-BD80-A09A86814757}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
